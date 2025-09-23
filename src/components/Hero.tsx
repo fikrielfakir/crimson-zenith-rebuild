@@ -14,24 +14,25 @@ const Hero = () => {
       <div className="absolute inset-0 bg-black/40" />
       
       {/* Content */}
-      <div className="relative z-10 text-center px-4 max-w-4xl mx-auto animate-fade-in">
-        <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
+      <div className="relative z-10 text-center px-4 max-w-5xl mx-auto animate-fade-in">
+        <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-8 leading-tight">
           Where Adventure Meets
-          <span className="block bg-gradient-to-r from-white to-primary-glow bg-clip-text text-transparent">
+          <span className="block text-white">
             Enlightenment
           </span>
         </h1>
         
-        <p className="text-xl md:text-2xl text-white/90 mb-8 max-w-2xl mx-auto leading-relaxed">
-          Experience Morocco's soul through sustainable journeys. Discover culture, embrace adventure, 
-          and create lasting connections with local communities.
+        <p className="text-lg md:text-xl lg:text-2xl text-white/95 mb-10 max-w-3xl mx-auto leading-relaxed font-light">
+          Experience Morocco's soul through sustainable journeys.<br />
+          Discover culture, embrace adventure, and create lasting<br />
+          connections with local communities.
         </p>
         
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-slide-up">
-          <Button variant="hero" size="lg" className="text-lg px-8 py-4">
+        <div className="flex flex-col sm:flex-row gap-6 justify-center items-center animate-slide-up">
+          <Button className="bg-primary hover:bg-primary/90 text-white text-lg px-8 py-3 rounded-md font-medium transition-all duration-300 shadow-lg hover:shadow-xl">
             Start Your Journey
           </Button>
-          <Button variant="ghost" size="lg" className="text-lg px-8 py-4 text-white border-white hover:bg-white/10">
+          <Button variant="outline" className="text-white border-white hover:bg-white hover:text-black text-lg px-8 py-3 rounded-md font-medium transition-all duration-300 bg-transparent">
             Learn More
           </Button>
         </div>
