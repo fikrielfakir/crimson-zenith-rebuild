@@ -18,13 +18,9 @@ const Header = () => {
             {/* Left decorative line */}
             <div className="hidden md:block w-24 h-px bg-white/30"></div>
             
-            {/* Logo and text */}
+            {/* Logo */}
             <div className="flex flex-col items-center text-center">
-              <img src={logo} alt="The Journey Association" className="h-10 w-auto mb-1" />
-              <div className="text-white">
-                <div className="text-sm font-semibold tracking-wider">THE JOURNEY</div>
-                <div className="text-xs tracking-widest">Association</div>
-              </div>
+              <img src={logo} alt="The Journey Association" className="w-auto mb-1" style={{height: '100px'}} />
             </div>
             
             {/* Right decorative line */}
