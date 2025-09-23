@@ -11,7 +11,7 @@ const UtilityBar = ({ isDarkMode, toggleDarkMode, currentLanguage, toggleLanguag
   toggleLanguage: () => void;
 }) => {
   return (
-    <div className="border-b border-white/10">
+    <div className="border-b border-white/10" style={{width: '85%', top: '2rem', position: 'relative'}}>
       <div className="container mx-auto px-4 py-2">
         <div className="flex items-center justify-end gap-3">
           {/* Language Switcher */}
