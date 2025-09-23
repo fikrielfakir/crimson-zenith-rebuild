@@ -102,7 +102,7 @@ const MainHeader = () => {
             <a href="#gallery" className="text-white hover:text-white/80 transition-colors font-medium text-base">
               Gallery
             </a>
-            <a href="#news" className="text-white hover:text-white/80 transition-colors font-medium text-base">
+            <a href="#events" className="text-white hover:text-white/80 transition-colors font-medium text-base">
               News
             </a>
             <a href="#contact" className="text-white hover:text-white/80 transition-colors font-medium text-base">

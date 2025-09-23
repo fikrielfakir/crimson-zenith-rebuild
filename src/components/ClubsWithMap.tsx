@@ -35,7 +35,7 @@ const ClubsWithMap = () => {
   ];
 
   return (
-    <section id="clubs" className="py-20 bg-gradient-subtle">
+    <section id="activities" className="py-20 bg-gradient-subtle scroll-mt-32">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16 animate-fade-in">
           <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">

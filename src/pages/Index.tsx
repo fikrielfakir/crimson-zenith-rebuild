@@ -7,6 +7,7 @@ import Stats from "@/components/Stats";
 import Testimonials from "@/components/Testimonials";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
+import BottomNavbar from "@/components/BottomNavbar";
 
 const Index = () => {
   return (
@@ -20,6 +21,7 @@ const Index = () => {
       <Testimonials />
       <Contact />
       <Footer />
+      <BottomNavbar />
     </div>
   );
 };

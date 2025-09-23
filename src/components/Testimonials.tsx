@@ -38,7 +38,7 @@ const Testimonials = () => {
   };
 
   return (
-    <section className="py-20 bg-background">
+    <section id="gallery" className="py-20 bg-background scroll-mt-32">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16 animate-fade-in">
           <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
