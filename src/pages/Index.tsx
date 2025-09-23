@@ -1,8 +1,8 @@
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import About from "@/components/About";
-import Events from "@/components/Events";
-import Clubs from "@/components/Clubs";
+import EventCalendar from "@/components/EventCalendar";
+import ClubsWithMap from "@/components/ClubsWithMap";
 import Stats from "@/components/Stats";
 import Testimonials from "@/components/Testimonials";
 import Contact from "@/components/Contact";
@@ -14,8 +14,8 @@ const Index = () => {
       <Header />
       <Hero />
       <About />
-      <Events />
-      <Clubs />
+      <EventCalendar />
+      <ClubsWithMap />
       <Stats />
       <Testimonials />
       <Contact />
