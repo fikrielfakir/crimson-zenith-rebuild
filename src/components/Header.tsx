@@ -11,7 +11,7 @@ const UtilityBar = ({ isDarkMode, toggleDarkMode, currentLanguage, toggleLanguag
   toggleLanguage: () => void;
 }) => {
   return (
-    <div className="border-b border-white/10" style={{width: '85%', top: '2rem', position: 'relative'}}>
+    <div className="border-b border-white/10 mx-auto" style={{width: '85%', position: 'relative'}}>
       <div className="container mx-auto px-4 py-2">
         <div className="flex items-center justify-end gap-3">
           {/* Language Switcher */}
@@ -61,7 +61,10 @@ const UtilityBar = ({ isDarkMode, toggleDarkMode, currentLanguage, toggleLanguag
 // Main Header Component
 const MainHeader = () => {
   return (
-    <div className="container mx-auto px-4 py-6">
+    <div className="mx-auto relative" style={{width: '85%', position: 'relative'}}>
+      {/* Decorative border line at top */}
+      <div className="absolute -top-4 left-0 right-0 h-px bg-white/40"></div>
+      <div className="container mx-auto px-4 py-6">
       <div className="grid grid-cols-3 md:grid-cols-[1fr_auto_1fr] items-center gap-4 md:gap-8">
         {/* Left Section - Navigation with Border */}
         <div className="hidden md:flex items-center justify-end">
@@ -110,6 +113,7 @@ const MainHeader = () => {
         <Button variant="ghost" className="col-start-3 justify-self-end md:hidden text-white">
           ☰
         </Button>
+      </div>
       </div>
     </div>
   );
