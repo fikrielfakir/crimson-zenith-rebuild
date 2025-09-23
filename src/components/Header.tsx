@@ -85,8 +85,12 @@ const MainHeader = () => {
         
         {/* Center Section - Logo */}
         <div className="col-start-2 justify-self-center flex items-center justify-center">
-          {/* Logo */}
-          <img src={logo} alt="The Journey Association" className="w-auto brightness-0 invert" style={{height: '80px'}} />
+          <div className="flex flex-col items-center">
+            <img src={logo} alt="The Journey Association" className="w-auto brightness-0 invert" style={{height: '80px'}} />
+            <div className="mt-1 text-[10px] sm:text-xs tracking-widest uppercase text-white/80">
+              THE JOURNEY Association
+            </div>
+          </div>
         </div>
         
         {/* Right Section - Navigation with Border */}
