@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import logo from "@/assets/logo.png";
 import { useState, useEffect } from "react";
-import { Globe, Moon, Sun, User } from "lucide-react";
+import { Globe, Moon, Sun, User, TreePine, Menu, X } from "lucide-react";
 
 // Utility Bar Component (Top Header)
 const UtilityBar = ({ isDarkMode, toggleDarkMode, currentLanguage, toggleLanguage }: {
@@ -48,7 +48,7 @@ const UtilityBar = ({ isDarkMode, toggleDarkMode, currentLanguage, toggleLanguag
           {/* Join Button */}
           <Button 
             size="sm"
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1 text-xs font-medium rounded-md"
+            className="bg-primary hover:bg-primary/90 text-white px-4 py-1 text-xs font-medium rounded-md"
           >
             Join us
           </Button>
@@ -86,9 +86,12 @@ const MainHeader = () => {
         {/* Center Section - Logo */}
         <div className="col-start-2 justify-self-center flex items-center justify-center">
           <div className="flex flex-col items-center">
-            <img src={logo} alt="The Journey Association" className="w-auto brightness-0 invert" style={{height: '80px'}} />
-            <div className="mt-1 text-[10px] sm:text-xs tracking-widest uppercase text-white/80">
-              THE JOURNEY Association
+            <TreePine className="w-8 h-8 text-white mb-2" />
+            <div className="text-lg sm:text-xl font-semibold tracking-wide text-white">
+              THE JOURNEY
+            </div>
+            <div className="text-sm tracking-widest uppercase text-white/80">
+              Association
             </div>
           </div>
         </div>
@@ -114,8 +117,8 @@ const MainHeader = () => {
         </div>
         
         {/* Mobile menu button */}
-        <Button variant="ghost" className="col-start-3 justify-self-end md:hidden text-white">
-          ☰
+        <Button variant="ghost" className="col-start-3 justify-self-end md:hidden text-white p-2">
+          <Menu className="w-6 h-6" />
         </Button>
       </div>
       </div>
