@@ -62,7 +62,7 @@ const UtilityBar = ({ isDarkMode, toggleDarkMode, currentLanguage, toggleLanguag
 const MainHeader = () => {
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-12">
+      <div className="grid grid-cols-3 md:grid-cols-[1fr_auto_1fr] items-center gap-6 md:gap-12">
         {/* Left Section - Navigation with Border */}
         <div className="hidden md:flex items-center justify-start">
           <nav className="flex items-center gap-8 relative">
@@ -80,11 +80,8 @@ const MainHeader = () => {
           </nav>
         </div>
         
-        {/* Center Section - Logo with decorative lines */}
-        <div className="flex items-center gap-8">
-          {/* Left decorative line */}
-          <div className="hidden md:block w-40 h-px bg-white/40"></div>
-          
+        {/* Center Section - Logo */}
+        <div className="col-start-2 justify-self-center flex items-center justify-center">
           {/* Logo */}
           <div className="flex flex-col items-center text-center">
             <img src={logo} alt="The Journey Association" className="w-auto mb-3 brightness-0 invert" style={{height: '60px'}} />
@@ -93,9 +90,6 @@ const MainHeader = () => {
               <div className="text-sm tracking-widest opacity-90 font-light">Association</div>
             </div>
           </div>
-          
-          {/* Right decorative line */}
-          <div className="hidden md:block w-40 h-px bg-white/40"></div>
         </div>
         
         {/* Right Section - Navigation with Border */}
@@ -119,7 +113,7 @@ const MainHeader = () => {
         </div>
         
         {/* Mobile menu button */}
-        <Button variant="ghost" className="md:hidden justify-self-end text-white">
+        <Button variant="ghost" className="col-start-3 justify-self-end md:hidden text-white">
           ☰
         </Button>
       </div>
