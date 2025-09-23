@@ -46,16 +46,16 @@ const ClubsWithMap = () => {
           </p>
         </div>
         
-        <div className="grid lg:grid-cols-2 gap-12 items-start">
+        <div className="grid lg:grid-cols-2 gap-8 items-start">
           {/* Map Section */}
           <div className="animate-fade-in">
-            <Card className="border-border/50 h-[600px]">
-              <CardHeader>
-                <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-2">
-                  <MapPin className="w-6 h-6 text-primary" />
+            <Card className="border-border/20 shadow-sm h-[600px]">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-xl font-semibold text-foreground flex items-center gap-2">
+                  <MapPin className="w-5 h-5 text-primary" />
                   Morocco Clubs Map
                 </CardTitle>
-                <p className="text-muted-foreground">
+                <p className="text-sm text-muted-foreground">
                   Discover our club locations across Morocco
                 </p>
               </CardHeader>
@@ -66,53 +66,53 @@ const ClubsWithMap = () => {
           </div>
           
           {/* Clubs Section */}
-          <div className="space-y-6">
+          <div className="space-y-4">
             {clubs.map((club, index) => (
               <Card 
                 key={club.name} 
-                className="group hover:shadow-elegant transition-all duration-300 animate-scale-in border-border/50 overflow-hidden"
+                className="group hover:shadow-lg transition-all duration-300 animate-scale-in border-border/20 overflow-hidden bg-background"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <div className="md:flex">
-                  <div className="md:w-1/3">
+                <div className="flex">
+                  <div className="w-32 flex-shrink-0">
                     <img 
                       src={club.image} 
                       alt={club.name}
-                      className="w-full h-48 md:h-full object-cover"
+                      className="w-full h-32 object-cover"
                     />
                   </div>
-                  <div className="md:w-2/3 p-6">
-                    <h3 className="text-xl font-semibold text-foreground mb-3 group-hover:text-primary transition-colors">
+                  <div className="flex-1 p-4">
+                    <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
                       {club.name}
                     </h3>
                     
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground mb-2">
                       <div className="flex items-center gap-1">
-                        <MapPin className="w-4 h-4" />
+                        <MapPin className="w-3 h-3" />
                         {club.location}
                       </div>
                       <div className="flex items-center gap-1">
-                        <Users className="w-4 h-4" />
+                        <Users className="w-3 h-3" />
                         {club.members}
                       </div>
                     </div>
                     
-                    <p className="text-muted-foreground mb-4 leading-relaxed">
+                    <p className="text-sm text-muted-foreground mb-3 leading-relaxed line-clamp-2">
                       {club.description}
                     </p>
                     
-                    <div className="flex flex-wrap gap-2 mb-4">
+                    <div className="flex flex-wrap gap-1 mb-3">
                       {club.features.map((feature) => (
                         <span 
                           key={feature} 
-                          className="px-3 py-1 bg-accent text-accent-foreground text-sm rounded-full"
+                          className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-md font-medium"
                         >
                           {feature}
                         </span>
                       ))}
                     </div>
                     
-                    <Button className="w-full group-hover:shadow-glow transition-all duration-300">
+                    <Button size="sm" className="px-4 py-1 text-sm w-full">
                       Discover
                     </Button>
                   </div>

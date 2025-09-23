@@ -49,27 +49,27 @@ const EventCalendar = () => {
           </p>
         </div>
         
-        <div className="grid lg:grid-cols-2 gap-12 items-start">
+        <div className="grid lg:grid-cols-2 gap-8 items-start">
           {/* Calendar Section */}
           <div className="animate-fade-in">
-            <Card className="border-border/50">
-              <CardHeader>
-                <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-2">
-                  <Calendar className="w-6 h-6 text-primary" />
+            <Card className="border-border/20 shadow-sm">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-xl font-semibold text-foreground flex items-center gap-2">
+                  <Calendar className="w-5 h-5 text-primary" />
                   Event Calendar
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="calendar-container">
+              <CardContent className="pt-0">
+                <div className="calendar-container mb-4">
                   <CalendarComponent
                     onChange={handleDateChange}
                     value={selectedDate}
                     className="w-full border-none shadow-none"
                   />
                 </div>
-                <div className="mt-6 p-4 bg-accent/50 rounded-lg">
-                  <h4 className="font-semibold text-foreground mb-2">Selected Date:</h4>
-                  <p className="text-muted-foreground">
+                <div className="p-3 bg-muted/30 rounded-lg border">
+                  <p className="text-sm font-medium text-foreground mb-1">Selected Date:</p>
+                  <p className="text-sm text-muted-foreground">
                     {selectedDate.toLocaleDateString('en-US', { 
                       weekday: 'long', 
                       year: 'numeric', 
@@ -83,51 +83,51 @@ const EventCalendar = () => {
           </div>
           
           {/* Events Section */}
-          <div className="space-y-6">
+          <div className="space-y-4">
             {events.map((event, index) => (
               <Card 
                 key={event.title} 
-                className="group hover:shadow-elegant transition-all duration-300 animate-scale-in border-border/50 overflow-hidden"
+                className="group hover:shadow-lg transition-all duration-300 animate-scale-in border-border/20 overflow-hidden bg-background"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <div className="md:flex">
-                  <div className="md:w-1/3">
+                <div className="flex">
+                  <div className="w-32 flex-shrink-0">
                     <img 
                       src={event.image} 
                       alt={event.title}
-                      className="w-full h-48 md:h-full object-cover"
+                      className="w-full h-32 object-cover"
                     />
                   </div>
-                  <div className="md:w-2/3 p-6">
-                    <div className="flex items-center gap-2 text-sm text-primary font-medium mb-2">
+                  <div className="flex-1 p-4">
+                    <div className="flex items-center gap-2 text-sm text-primary font-medium mb-1">
                       <Calendar className="w-4 h-4" />
                       {event.date}
                     </div>
                     
-                    <h3 className="text-xl font-semibold text-foreground mb-3 group-hover:text-primary transition-colors">
+                    <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
                       {event.title}
                     </h3>
                     
-                    <div className="flex items-center gap-4 text-muted-foreground mb-3">
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground mb-2">
                       <div className="flex items-center gap-1">
-                        <MapPin className="w-4 h-4" />
+                        <MapPin className="w-3 h-3" />
                         {event.location}
                       </div>
                       <div className="flex items-center gap-1">
-                        <Clock className="w-4 h-4" />
+                        <Clock className="w-3 h-3" />
                         {event.time}
                       </div>
                     </div>
                     
-                    <p className="text-muted-foreground mb-4 leading-relaxed">
+                    <p className="text-sm text-muted-foreground mb-3 leading-relaxed line-clamp-2">
                       {event.description}
                     </p>
                     
                     <div className="flex items-center justify-between">
-                      <span className="text-2xl font-bold text-primary">
+                      <span className="text-lg font-bold text-primary">
                         {event.price}
                       </span>
-                      <Button className="group-hover:shadow-glow transition-all duration-300">
+                      <Button size="sm" className="px-4 py-1 text-sm">
                         Book Now
                       </Button>
                     </div>
