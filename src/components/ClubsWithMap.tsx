@@ -46,9 +46,9 @@ const ClubsWithMap = () => {
           </p>
         </div>
         
-        <div className="grid lg:grid-cols-2 gap-8 items-start">
-          {/* Map Section */}
-          <div className="animate-fade-in">
+        <div className="grid md:grid-cols-2 gap-8 items-start">
+          {/* Map Section - Always on Left */}
+          <div className="animate-fade-in order-1">
             <Card className="border-border/20 shadow-sm h-[600px]">
               <CardHeader className="pb-4">
                 <CardTitle className="text-xl font-semibold text-foreground flex items-center gap-2">
@@ -65,8 +65,8 @@ const ClubsWithMap = () => {
             </Card>
           </div>
           
-          {/* Clubs Section */}
-          <div className="space-y-4">
+          {/* Clubs Section - Always on Right */}
+          <div className="space-y-4 order-2">
             {clubs.map((club, index) => (
               <Card 
                 key={club.name} 
