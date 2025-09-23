@@ -31,6 +31,7 @@ A React + Vite frontend application showcasing Morocco sports clubs and activiti
 
 ## Recent Changes
 - Configured Vite to run on port 5000 with host 0.0.0.0 for Replit compatibility
+- Added `allowedHosts: true` to Vite config to fix blocked request errors in Replit proxy environment
 - Added production start script using `vite preview`
 - Verified build process and deployment readiness
 
