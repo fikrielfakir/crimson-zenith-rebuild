@@ -64,7 +64,7 @@ const MainHeader = () => {
     <div className="container mx-auto px-4 py-8">
       <div className="grid grid-cols-3 md:grid-cols-[1fr_auto_1fr] items-center gap-6 md:gap-12">
         {/* Left Section - Navigation with Border */}
-        <div className="hidden md:flex items-center justify-start">
+        <div className="hidden md:flex items-center justify-end">
           <nav className="flex items-center gap-8 relative">
             <a href="#discover" className="text-white hover:text-white/80 transition-colors font-medium text-base">
               Discover
@@ -93,7 +93,7 @@ const MainHeader = () => {
         </div>
         
         {/* Right Section - Navigation with Border */}
-        <div className="hidden md:flex items-center justify-end">
+        <div className="hidden md:flex items-center justify-start">
           <nav className="flex items-center gap-8 relative">
             <a href="#events" className="text-white hover:text-white/80 transition-colors font-medium text-base">
               Events
