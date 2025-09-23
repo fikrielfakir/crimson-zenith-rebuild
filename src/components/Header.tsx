@@ -1,17 +1,16 @@
 import { Button } from "@/components/ui/button";
-import logo from "@/assets/logo.png";
 import { useState, useEffect } from "react";
-import { Globe, Moon, Sun, User, TreePine, Menu, X } from "lucide-react";
+import { Globe, Moon, Sun, User, TreePine, Menu } from "lucide-react";
 
-// Utility Bar Component (Top Header)
-const UtilityBar = ({ isDarkMode, toggleDarkMode, currentLanguage, toggleLanguage }: {
+// Top Navbar (Utility Bar)
+const TopNavbar = ({ isDarkMode, toggleDarkMode, currentLanguage, toggleLanguage }: {
   isDarkMode: boolean;
   toggleDarkMode: () => void;
   currentLanguage: string;
   toggleLanguage: () => void;
 }) => {
   return (
-    <div className="border-b border-white/10 mx-auto" style={{width: '85%', position: 'relative'}}>
+    <div className="w-full bg-transparent">
       <div className="container mx-auto px-4 py-2">
         <div className="flex items-center justify-end gap-3">
           {/* Language Switcher */}
@@ -58,75 +57,103 @@ const UtilityBar = ({ isDarkMode, toggleDarkMode, currentLanguage, toggleLanguag
   );
 };
 
-// Main Header Component
-const MainHeader = () => {
+// Bottom Navbar (Main Navigation)
+const BottomNavbar = () => {
   return (
-    <div className="mx-auto relative" style={{width: '85%', position: 'relative'}}>
-      {/* Decorative border line at top */}
-      <div className="absolute -top-4 left-0 right-0 h-px bg-white/40"></div>
+    <div className="w-full bg-transparent relative">
+      {/* Border above */}
+      <div className="w-full h-px bg-white/40"></div>
+      
       <div className="container mx-auto px-4 py-6">
-      <div className="grid grid-cols-3 md:grid-cols-[1fr_auto_1fr] items-center gap-4 md:gap-8">
-        {/* Left Section - Navigation with Border */}
-        <div className="hidden md:flex items-center justify-end">
-          <nav className="flex items-center gap-6 relative">
-            <a href="#discover" className="text-white hover:text-white/80 transition-colors font-medium text-base">
-              Discover
-            </a>
-            <a href="#activities" className="text-white hover:text-white/80 transition-colors font-medium text-base">
-              Activities
-            </a>
-            <a href="#membership" className="text-white hover:text-white/80 transition-colors font-medium text-base">
-              Membership
-            </a>
-            {/* Decorative border line under left navigation */}
-            <div className="absolute -bottom-4 left-0 right-0 h-px bg-white/40"></div>
-          </nav>
-        </div>
-        
-        {/* Center Section - Logo */}
-        <div className="col-start-2 justify-self-center flex items-center justify-center">
-          <div className="flex flex-col items-center">
-            <TreePine className="w-8 h-8 text-white mb-2" />
-            <div className="text-lg sm:text-xl font-semibold tracking-wide text-white">
-              THE JOURNEY
-            </div>
-            <div className="text-sm tracking-widest uppercase text-white/80">
-              Association
+        <div className="grid grid-cols-3 md:grid-cols-[1fr_auto_1fr] items-center gap-4 md:gap-8">
+          {/* Left Section - Navigation */}
+          <div className="hidden md:flex items-center justify-end">
+            <nav className="flex items-center gap-6">
+              <a 
+                href="#discover" 
+                className="text-white hover:text-white/80 transition-all duration-300 font-medium text-base relative group"
+              >
+                Discover
+                <span className="absolute -bottom-1 left-0 w-0 h-px bg-white transition-all duration-300 group-hover:w-full"></span>
+              </a>
+              <a 
+                href="#activities" 
+                className="text-white hover:text-white/80 transition-all duration-300 font-medium text-base relative group"
+              >
+                Activities
+                <span className="absolute -bottom-1 left-0 w-0 h-px bg-white transition-all duration-300 group-hover:w-full"></span>
+              </a>
+              <a 
+                href="#membership" 
+                className="text-white hover:text-white/80 transition-all duration-300 font-medium text-base relative group"
+              >
+                Membership
+                <span className="absolute -bottom-1 left-0 w-0 h-px bg-white transition-all duration-300 group-hover:w-full"></span>
+              </a>
+            </nav>
+          </div>
+          
+          {/* Center Section - Logo */}
+          <div className="col-start-2 justify-self-center flex items-center justify-center">
+            <div className="flex flex-col items-center">
+              <TreePine className="w-8 h-8 text-white mb-2" />
+              <div className="text-lg sm:text-xl font-semibold tracking-wide text-white">
+                THE JOURNEY
+              </div>
+              <div className="text-sm tracking-widest uppercase text-white/80">
+                Association
+              </div>
             </div>
           </div>
+          
+          {/* Right Section - Navigation */}
+          <div className="hidden md:flex items-center justify-start">
+            <nav className="flex items-center gap-6">
+              <a 
+                href="#events" 
+                className="text-white hover:text-white/80 transition-all duration-300 font-medium text-base relative group"
+              >
+                Events
+                <span className="absolute -bottom-1 left-0 w-0 h-px bg-white transition-all duration-300 group-hover:w-full"></span>
+              </a>
+              <a 
+                href="#gallery" 
+                className="text-white hover:text-white/80 transition-all duration-300 font-medium text-base relative group"
+              >
+                Gallery
+                <span className="absolute -bottom-1 left-0 w-0 h-px bg-white transition-all duration-300 group-hover:w-full"></span>
+              </a>
+              <a 
+                href="#news" 
+                className="text-white hover:text-white/80 transition-all duration-300 font-medium text-base relative group"
+              >
+                News
+                <span className="absolute -bottom-1 left-0 w-0 h-px bg-white transition-all duration-300 group-hover:w-full"></span>
+              </a>
+              <a 
+                href="#contact" 
+                className="text-white hover:text-white/80 transition-all duration-300 font-medium text-base relative group"
+              >
+                Contact
+                <span className="absolute -bottom-1 left-0 w-0 h-px bg-white transition-all duration-300 group-hover:w-full"></span>
+              </a>
+            </nav>
+          </div>
+          
+          {/* Mobile menu button */}
+          <Button variant="ghost" className="col-start-3 justify-self-end md:hidden text-white p-2">
+            <Menu className="w-6 h-6" />
+          </Button>
         </div>
-        
-        {/* Right Section - Navigation with Border */}
-        <div className="hidden md:flex items-center justify-start">
-          <nav className="flex items-center gap-6 relative">
-            <a href="#events" className="text-white hover:text-white/80 transition-colors font-medium text-base">
-              Events
-            </a>
-            <a href="#gallery" className="text-white hover:text-white/80 transition-colors font-medium text-base">
-              Gallery
-            </a>
-            <a href="#events" className="text-white hover:text-white/80 transition-colors font-medium text-base">
-              News
-            </a>
-            <a href="#contact" className="text-white hover:text-white/80 transition-colors font-medium text-base">
-              Contact
-            </a>
-            {/* Decorative border line under right navigation */}
-            <div className="absolute -bottom-4 left-0 right-0 h-px bg-white/40"></div>
-          </nav>
-        </div>
-        
-        {/* Mobile menu button */}
-        <Button variant="ghost" className="col-start-3 justify-self-end md:hidden text-white p-2">
-          <Menu className="w-6 h-6" />
-        </Button>
       </div>
-      </div>
+      
+      {/* Border below */}
+      <div className="w-full h-px bg-white/40"></div>
     </div>
   );
 };
 
-// Header Shell Component (Container for both headers)
+// Header Container (Dual Navigation)
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -137,16 +164,13 @@ const Header = () => {
       setIsScrolled(window.scrollY > 50);
     };
 
-    // Set initial state based on current scroll position
     handleScroll();
-    
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode);
-    // Toggle dark mode class on document
     document.documentElement.classList.toggle('dark');
   };
 
@@ -158,16 +182,16 @@ const Header = () => {
     <header className={`fixed top-0 w-full z-50 transition-all duration-300 ${
       isScrolled ? 'bg-black/80 backdrop-blur-sm' : 'bg-transparent'
     }`}>
-      {/* Top Utility Bar */}
-      <UtilityBar 
+      {/* Top Navbar - Utility Bar */}
+      <TopNavbar 
         isDarkMode={isDarkMode}
         toggleDarkMode={toggleDarkMode}
         currentLanguage={currentLanguage}
         toggleLanguage={toggleLanguage}
       />
       
-      {/* Main Header */}
-      <MainHeader />
+      {/* Bottom Navbar - Main Navigation */}
+      <BottomNavbar />
     </header>
   );
 };
