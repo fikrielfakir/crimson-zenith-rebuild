@@ -83,7 +83,11 @@ const MainHeader = () => {
           
           {/* Logo */}
           <div className="flex flex-col items-center text-center">
-            <img src={logo} alt="The Journey Association" className="w-auto" style={{height: '100px'}} />
+            <img src={logo} alt="The Journey Association" className="w-auto mb-2" style={{height: '60px'}} />
+            <div className="text-white">
+              <div className="text-sm font-semibold tracking-wider">THE JOURNEY</div>
+              <div className="text-xs tracking-widest opacity-90">Association</div>
+            </div>
           </div>
           
           {/* Right decorative line */}
