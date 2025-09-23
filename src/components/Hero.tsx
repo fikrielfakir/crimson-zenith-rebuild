@@ -11,22 +11,23 @@ const Hero = () => {
       />
       
       {/* Overlay */}
-      <div className="absolute inset-0 bg-black/40" />
+      <div className="absolute inset-0 bg-black/30" />
       
       {/* Content */}
-      <div className="relative z-10 text-center px-4 max-w-5xl mx-auto animate-fade-in">
+      <div className="relative z-10 text-center px-4 max-w-4xl mx-auto animate-fade-in">
         <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-8 leading-tight">
           Where Adventure Meets
-          <span className="block text-white">
+          <br />
+          <span className="text-white">
             Enlightenment
           </span>
         </h1>
         
-        <p className="text-lg md:text-xl text-white/90 mb-10 max-w-4xl mx-auto leading-relaxed font-light">
+        <p className="text-lg md:text-xl text-white/90 mb-12 max-w-3xl mx-auto leading-relaxed font-light">
           Experience Morocco's soul through sustainable journeys.
-          <br className="hidden md:block" />
+          <br />
           Discover culture, embrace adventure, and create lasting
-          <br className="hidden md:block" />
+          <br />
           connections with local communities.
         </p>
         

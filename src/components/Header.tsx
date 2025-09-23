@@ -19,9 +19,9 @@ const UtilityBar = ({ isDarkMode, toggleDarkMode, currentLanguage, toggleLanguag
             variant="ghost" 
             size="sm"
             onClick={toggleLanguage}
-            className="text-white hover:text-primary hover:bg-white/10 px-3 py-1 text-xs"
+            className="text-white hover:text-primary hover:bg-white/10 px-3 py-1 text-xs flex items-center gap-1"
           >
-            <Globe className="h-3 w-3 mr-1" />
+            <Globe className="h-3 w-3" />
             {currentLanguage}
           </Button>
 
@@ -39,18 +39,18 @@ const UtilityBar = ({ isDarkMode, toggleDarkMode, currentLanguage, toggleLanguag
           <Button 
             variant="ghost" 
             size="sm"
-            className="text-white hover:text-primary hover:bg-white/10 px-3 py-1 text-xs"
+            className="text-white hover:text-primary hover:bg-white/10 px-3 py-1 text-xs flex items-center gap-1"
           >
-            <User className="h-3 w-3 mr-1" />
+            <User className="h-3 w-3" />
             Login
           </Button>
 
           {/* Join Button */}
           <Button 
             size="sm"
-            className="bg-primary hover:bg-primary/90 text-white px-4 py-1 text-xs font-medium"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1 text-xs font-medium rounded-md"
           >
-            Join Us
+            Join us
           </Button>
         </div>
       </div>
@@ -58,54 +58,54 @@ const UtilityBar = ({ isDarkMode, toggleDarkMode, currentLanguage, toggleLanguag
   );
 };
 
-// Main Header Component (Bottom Header)
+// Main Header Component
 const MainHeader = () => {
   return (
-    <div className="container mx-auto px-4 py-4">
+    <div className="container mx-auto px-4 py-6">
       <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-8">
         {/* Left Section - Navigation */}
         <nav className="hidden md:flex items-center justify-start gap-8">
-          <a href="#discover" className="text-white hover:text-primary transition-colors font-medium text-sm">
+          <a href="#discover" className="text-white hover:text-white/80 transition-colors font-medium text-sm">
             Discover
           </a>
-          <a href="#activities" className="text-white hover:text-primary transition-colors font-medium text-sm">
+          <a href="#activities" className="text-white hover:text-white/80 transition-colors font-medium text-sm">
             Activities
           </a>
-          <a href="#membership" className="text-white hover:text-primary transition-colors font-medium text-sm">
+          <a href="#membership" className="text-white hover:text-white/80 transition-colors font-medium text-sm">
             Membership
           </a>
         </nav>
         
         {/* Center Section - Logo with decorative lines */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-6">
           {/* Left decorative line */}
-          <div className="hidden md:block w-24 h-px bg-white/30"></div>
+          <div className="hidden md:block w-32 h-px bg-white/40"></div>
           
           {/* Logo */}
           <div className="flex flex-col items-center text-center">
-            <img src={logo} alt="The Journey Association" className="w-auto mb-2" style={{height: '60px'}} />
+            <img src={logo} alt="The Journey Association" className="w-auto mb-2 brightness-0 invert" style={{height: '50px'}} />
             <div className="text-white">
-              <div className="text-sm font-semibold tracking-wider">THE JOURNEY</div>
-              <div className="text-xs tracking-widest opacity-90">Association</div>
+              <div className="text-sm font-bold tracking-wider">THE JOURNEY</div>
+              <div className="text-xs tracking-widest opacity-90 font-light">Association</div>
             </div>
           </div>
           
           {/* Right decorative line */}
-          <div className="hidden md:block w-24 h-px bg-white/30"></div>
+          <div className="hidden md:block w-32 h-px bg-white/40"></div>
         </div>
         
         {/* Right Section - Navigation */}
         <nav className="hidden md:flex items-center justify-end gap-8">
-          <a href="#events" className="text-white hover:text-primary transition-colors font-medium text-sm">
+          <a href="#events" className="text-white hover:text-white/80 transition-colors font-medium text-sm">
             Events
           </a>
-          <a href="#gallery" className="text-white hover:text-primary transition-colors font-medium text-sm">
+          <a href="#gallery" className="text-white hover:text-white/80 transition-colors font-medium text-sm">
             Gallery
           </a>
-          <a href="#news" className="text-white hover:text-primary transition-colors font-medium text-sm">
+          <a href="#news" className="text-white hover:text-white/80 transition-colors font-medium text-sm">
             News
           </a>
-          <a href="#contact" className="text-white hover:text-primary transition-colors font-medium text-sm">
+          <a href="#contact" className="text-white hover:text-white/80 transition-colors font-medium text-sm">
             Contact
           </a>
         </nav>
@@ -149,7 +149,7 @@ const Header = () => {
 
   return (
     <header className={`fixed top-0 w-full z-50 transition-all duration-300 ${
-      isScrolled ? 'bg-[hsl(225,70%,20%)] shadow-md' : 'bg-black/20'
+      isScrolled ? 'bg-black/80 backdrop-blur-sm' : 'bg-transparent'
     }`}>
       {/* Top Utility Bar */}
       <UtilityBar 
