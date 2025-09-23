@@ -61,11 +61,11 @@ const UtilityBar = ({ isDarkMode, toggleDarkMode, currentLanguage, toggleLanguag
 // Main Header Component
 const MainHeader = () => {
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="grid grid-cols-3 md:grid-cols-[1fr_auto_1fr] items-center gap-6 md:gap-12">
+    <div className="container mx-auto px-4 py-6">
+      <div className="grid grid-cols-3 md:grid-cols-[1fr_auto_1fr] items-center gap-4 md:gap-8">
         {/* Left Section - Navigation with Border */}
         <div className="hidden md:flex items-center justify-end">
-          <nav className="flex items-center gap-8 relative">
+          <nav className="flex items-center gap-6 relative">
             <a href="#discover" className="text-white hover:text-white/80 transition-colors font-medium text-base">
               Discover
             </a>
@@ -81,14 +81,18 @@ const MainHeader = () => {
         </div>
         
         {/* Center Section - Logo */}
-        <div className="col-start-2 justify-self-center flex items-center justify-center">
+        <div className="col-start-2 justify-self-center flex flex-col items-center text-center">
           {/* Logo */}
-          <img src={logo} alt="The Journey Association" className="w-auto brightness-0 invert" style={{height: '135px'}} />
+          <img src={logo} alt="The Journey Association" className="w-auto mb-2 brightness-0 invert" style={{height: '80px'}} />
+          <div className="text-white">
+            <div className="text-sm font-bold tracking-wider">THE JOURNEY</div>
+            <div className="text-xs tracking-widest opacity-90 font-light">Association</div>
+          </div>
         </div>
         
         {/* Right Section - Navigation with Border */}
         <div className="hidden md:flex items-center justify-start">
-          <nav className="flex items-center gap-8 relative">
+          <nav className="flex items-center gap-6 relative">
             <a href="#events" className="text-white hover:text-white/80 transition-colors font-medium text-base">
               Events
             </a>
