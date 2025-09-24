@@ -4,6 +4,99 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer components {
+  .hero-heading-gradient {
+    /* Fallback color for unsupported browsers - light enough for dark backgrounds */
+    color: hsl(0, 0%, 95%);
+    font-weight: bold;
+  }
+
+  /* Modern gradient effect for supported browsers */
+  @supports (background-clip: text) or (-webkit-background-clip: text) {
+    .hero-heading-gradient {
+      background: linear-gradient(
+        90deg,
+        hsl(225, 70%, 20%),
+        hsl(210, 90%, 60%),
+        hsl(0, 0%, 100%),
+        hsl(225, 70%, 20%),
+        hsl(215, 75%, 55%),
+        hsl(225, 70%, 20%)
+      );
+      background-size: 200% 100%;
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      color: transparent;
+      animation: gradient-shift 6s linear infinite;
+    }
+  }
+
+  .hero-heading-typewriter {
+    display: inline-block;
+    margin: 0 auto;
+  }
+
+  /* Typewriter effect only on larger screens */
+  @media (min-width: 768px) {
+    .hero-heading-typewriter {
+      overflow: hidden;
+      border-right: 3px solid hsl(0, 0%, 95%);
+      white-space: nowrap;
+      animation: 
+        typewriter 4s steps(40, end),
+        blink-caret 0.75s step-end infinite;
+    }
+  }
+}
+
+@keyframes gradient-shift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes typewriter {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes blink-caret {
+  from, to {
+    border-color: transparent;
+  }
+  50% {
+    border-color: hsl(0, 0%, 95%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-heading-gradient {
+    animation: none;
+    background: hsl(0, 0%, 95%);
+    -webkit-text-fill-color: hsl(0, 0%, 95%);
+    color: hsl(0, 0%, 95%);
+  }
+  
+  .hero-heading-typewriter {
+    animation: none !important;
+    border-right: none !important;
+    white-space: normal !important;
+    overflow: visible !important;
+  }
+  
+  .animate-bounce {
+    animation: none !important;
+  }
+}
+
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
 All colors MUST be HSL.
 */

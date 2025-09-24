@@ -12,7 +12,7 @@ const TopNavbar = ({ isDarkMode, toggleDarkMode, currentLanguage, toggleLanguage
   isScrolled: boolean;
 }) => {
   return (
-    <div className="w-full bg-transparent transition-all duration-300 overflow-hidden" style={isScrolled ? { maxHeight: '0', opacity: '0' } : { maxHeight: '80px', opacity: '1' }}>
+    <div className="w-full bg-transparent transition-all duration-300 overflow-hidden" style={isScrolled ? { maxHeight: '65px', opacity: '0', height: '65px' } : { maxHeight: '80px', opacity: '1' }}>
       <div className={`container mx-auto px-6 transition-all duration-300 ${isScrolled ? 'py-0' : 'py-3'}`}>
         <div className="flex items-center justify-end gap-4">
           {/* Language Switcher */}
@@ -49,7 +49,7 @@ const TopNavbar = ({ isDarkMode, toggleDarkMode, currentLanguage, toggleLanguage
           {/* Join Button */}
           <Button 
             className="text-white px-6 py-2 text-sm font-medium rounded-lg transition-all duration-300 hover:opacity-90"
-            style={{ backgroundColor: '#112250' }}
+            style={{ backgroundColor: 'hsl(225, 70%, 20%)' }}
           >
             Join Us
           </Button>
@@ -187,7 +187,7 @@ const Header = () => {
   return (
     <header className={`fixed top-0 w-full z-50 transition-all duration-300 ${
       isScrolled ? 'backdrop-blur-sm' : 'bg-transparent'
-    }`} style={isScrolled ? { backgroundColor: '#112250', marginTop: '0' } : { marginTop: '2.5rem' }}>
+    }`} style={isScrolled ? { backgroundColor: 'hsl(225, 70%, 20%)', marginTop: '0' } : { marginTop: '2.5rem' }}>
       {/* Top Navbar - Utility Bar (Language, Theme, Login, Join) */}
       <TopNavbar 
         isDarkMode={isDarkMode}

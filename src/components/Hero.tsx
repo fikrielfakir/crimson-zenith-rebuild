@@ -18,15 +18,17 @@ const Hero = () => {
       {/* Content */}
       <div className="relative z-10 text-center px-6 sm:px-8 lg:px-12 max-w-5xl mx-auto" style={{ marginTop: '10rem' }}>
         <h1 
-          className="hero-h1-responsive font-bold text-white leading-[1.1] tracking-tight"
+          className="hero-h1-responsive leading-[1.1] tracking-tight"
           style={{ 
             fontSize: '65px', 
             marginBottom: '2rem',
           }}
         >
-          Where Adventure Meets
-          <br />
-          <span className="text-white/95">Enlightenment</span>
+          <span className="hero-heading-gradient hero-heading-typewriter">
+            Where Adventure Meets
+            <br />
+            Enlightenment
+          </span>
         </h1>
         
         <p className="text-lg sm:text-xl md:text-2xl text-white/85 mb-12 sm:mb-14 lg:mb-16 max-w-3xl mx-auto leading-relaxed font-light tracking-wide">
@@ -36,7 +38,7 @@ const Hero = () => {
         <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
           <Button 
             className="w-full sm:w-auto text-white text-base px-10 py-4 h-14 rounded-xl font-medium transition-all duration-300 shadow-xl hover:shadow-2xl hover:scale-105 border-0 hover:opacity-90"
-            style={{ backgroundColor: '#112250' }}
+            style={{ backgroundColor: 'hsl(225, 70%, 20%)' }}
           >
             Start Your Journey
           </Button>
