@@ -30,7 +30,7 @@ const Stats = () => {
   ];
 
   return (
-    <section id="membership" className="py-20 bg-primary text-primary-foreground relative overflow-hidden scroll-mt-32">
+    <section id="stats" className="py-20 bg-primary text-primary-foreground relative overflow-hidden scroll-mt-32">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute inset-0 bg-gradient-to-br from-primary-glow/20 to-transparent" />
