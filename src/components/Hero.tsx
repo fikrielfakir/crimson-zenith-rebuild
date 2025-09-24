@@ -117,22 +117,6 @@ const Hero = () => {
             </Button>
           </Link>
         </div>
-        
-        {/* Navigation Cards Section */}
-        <div className="mt-16 grid grid-cols-2 gap-4 max-w-2xl mx-auto">
-          <Link to="/events" className="group">
-            <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-4 text-center hover:bg-white/20 transition-all duration-300 hover:scale-105">
-              <div className="text-2xl mb-2">🎭</div>
-              <div className="text-white text-sm font-medium">Events</div>
-            </div>
-          </Link>
-          <Link to="/book" className="group">
-            <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-4 text-center hover:bg-white/20 transition-all duration-300 hover:scale-105">
-              <div className="text-2xl mb-2">📅</div>
-              <div className="text-white text-sm font-medium">Book Now</div>
-            </div>
-          </Link>
-        </div>
       </div>
       
       {/* Simple Mouse Scroll Indicator */}
