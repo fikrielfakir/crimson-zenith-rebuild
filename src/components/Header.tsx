@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { Globe, Moon, Sun, User, Menu } from "lucide-react";
+import { Link } from "react-router-dom";
 import logoAtj from "@/assets/logo-atj.png";
 
 // Top Navbar (Utility Bar - Only utilities, no navigation)
@@ -76,24 +77,24 @@ const BottomNavbar = ({ isScrolled }: { isScrolled: boolean }) => {
           {/* Left Section - Navigation */}
           <div className="hidden md:flex items-center justify-end">
             <nav className={`flex items-center gap-10 transition-all duration-300 ${isScrolled ? 'relative' : ''}`} style={isScrolled ? {bottom: '1rem'} : {}}>
-              <a 
-                href="#discover" 
+              <Link 
+                to="/discover" 
                 className="text-white hover:text-secondary transition-all duration-300 font-normal text-sm tracking-wide font-body"
               >
                 Discover
-              </a>
-              <a 
-                href="#activities" 
+              </Link>
+              <Link 
+                to="/clubs" 
                 className="text-white hover:text-secondary transition-all duration-300 font-normal text-sm tracking-wide font-body"
               >
                 Activities
-              </a>
-              <a 
-                href="#membership" 
+              </Link>
+              <Link 
+                to="/" 
                 className="text-white hover:text-secondary transition-all duration-300 font-normal text-sm tracking-wide font-body"
               >
                 Membership
-              </a>
+              </Link>
             </nav>
           </div>
           
@@ -112,30 +113,30 @@ const BottomNavbar = ({ isScrolled }: { isScrolled: boolean }) => {
           {/* Right Section - Navigation */}
           <div className="hidden md:flex items-center justify-start">
             <nav className={`flex items-center gap-10 transition-all duration-300 ${isScrolled ? 'relative' : ''}`} style={isScrolled ? {bottom: '1rem'} : {}}>
-              <a 
-                href="#events" 
+              <Link 
+                to="/events" 
                 className="text-white hover:text-secondary transition-all duration-300 font-normal text-sm tracking-wide font-body"
               >
                 Events
-              </a>
-              <a 
-                href="#gallery" 
+              </Link>
+              <Link 
+                to="/gallery" 
                 className="text-white hover:text-secondary transition-all duration-300 font-normal text-sm tracking-wide font-body"
               >
                 Gallery
-              </a>
-              <a 
-                href="#news" 
+              </Link>
+              <Link 
+                to="/news" 
                 className="text-white hover:text-secondary transition-all duration-300 font-normal text-sm tracking-wide font-body"
               >
                 News
-              </a>
-              <a 
-                href="#contact" 
+              </Link>
+              <Link 
+                to="/contact" 
                 className="text-white hover:text-secondary transition-all duration-300 font-normal text-sm tracking-wide font-body"
               >
                 Contact
-              </a>
+              </Link>
             </nav>
           </div>
           

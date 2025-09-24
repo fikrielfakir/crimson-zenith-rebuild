@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar, MapPin, Clock, ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import CalendarComponent from "react-calendar";
 import gnaoua from "@/assets/gnaoua-festival.jpg";
 import timitar from "@/assets/timitar-festival.jpg";
@@ -10,8 +11,8 @@ import "react-calendar/dist/Calendar.css";
 const EventCalendar = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [currentPage, setCurrentPage] = useState(0);
-  const [showAllEvents, setShowAllEvents] = useState(false);
   const eventsPerPage = 2;
+  const navigate = useNavigate();
 
   const handleDateChange = (value: any) => {
     if (value instanceof Date) {
@@ -19,9 +20,6 @@ const EventCalendar = () => {
     }
   };
 
-  const handleShowMore = () => {
-    setShowAllEvents(true);
-  };
 
   const handlePrevPage = () => {
     setCurrentPage(prev => Math.max(0, prev - 1));
@@ -155,7 +153,7 @@ const EventCalendar = () => {
           <div className="space-y-4">
             {/* Events Display */}
             <div className="space-y-4">
-              {(showAllEvents ? events : events.slice(currentPage * eventsPerPage, (currentPage + 1) * eventsPerPage)).map((event, index) => (
+              {events.slice(currentPage * eventsPerPage, (currentPage + 1) * eventsPerPage).map((event, index) => (
               <Card 
                 key={event.title} 
                 className="group hover:shadow-lg transition-all duration-300 animate-scale-in border-border/20 overflow-hidden bg-background"
@@ -198,7 +196,11 @@ const EventCalendar = () => {
                       <span className="text-lg font-bold text-primary">
                         {event.price}
                       </span>
-                      <Button size="sm" className="px-4 py-1 text-sm">
+                      <Button 
+                        size="sm" 
+                        className="px-4 py-1 text-sm"
+                        onClick={() => navigate(`/book?event=${encodeURIComponent(event.title)}`)}
+                      >
                         Book Now
                       </Button>
                     </div>
@@ -209,8 +211,7 @@ const EventCalendar = () => {
             </div>
             
             {/* Pagination Controls */}
-            {!showAllEvents && (
-              <div className="flex items-center justify-between mt-6">
+            <div className="flex items-center justify-between mt-6">
                 <Button
                   variant="outline"
                   size="sm"
@@ -229,7 +230,7 @@ const EventCalendar = () => {
                   <Button
                     variant="ghost" 
                     size="sm"
-                    onClick={handleShowMore}
+                    onClick={() => navigate('/events')}
                     className="flex items-center gap-2 text-primary hover:text-primary"
                   >
                     <MoreHorizontal className="w-4 h-4" />
@@ -247,8 +248,7 @@ const EventCalendar = () => {
                   Next
                   <ChevronRight className="w-4 h-4" />
                 </Button>
-              </div>
-            )}
+            </div>
           </div>
         </div>
       </div>

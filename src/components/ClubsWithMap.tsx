@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { MapPin, Users, ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import MoroccoMap from "./MoroccoMap";
 import marrakechImg from "@/assets/marrakech-club.jpg";
 import fezImg from "@/assets/fez-club.jpg";
@@ -9,12 +10,9 @@ import casablancaImg from "@/assets/casablanca-club.jpg";
 
 const ClubsWithMap = () => {
   const [currentPage, setCurrentPage] = useState(0);
-  const [showAllClubs, setShowAllClubs] = useState(false);
   const clubsPerPage = 3;
+  const navigate = useNavigate();
 
-  const handleShowMore = () => {
-    setShowAllClubs(true);
-  };
 
   const handlePrevPage = () => {
     setCurrentPage(prev => Math.max(0, prev - 1));
@@ -134,7 +132,7 @@ const ClubsWithMap = () => {
           <div className="space-y-4 order-2">
             {/* Clubs Display */}
             <div className="space-y-4">
-              {(showAllClubs ? clubs : clubs.slice(currentPage * clubsPerPage, (currentPage + 1) * clubsPerPage)).map((club, index) => (
+              {clubs.slice(currentPage * clubsPerPage, (currentPage + 1) * clubsPerPage).map((club, index) => (
               <Card 
                 key={club.name} 
                 className="group hover:shadow-lg transition-all duration-300 animate-scale-in border-border/20 overflow-hidden bg-background"
@@ -179,7 +177,11 @@ const ClubsWithMap = () => {
                       ))}
                     </div>
                     
-                    <Button size="sm" className="px-4 py-1 text-sm w-full">
+                    <Button 
+                      size="sm" 
+                      className="px-4 py-1 text-sm w-full"
+                      onClick={() => navigate(`/clubs?club=${encodeURIComponent(club.name)}`)}
+                    >
                       Discover
                     </Button>
                   </div>
@@ -189,8 +191,7 @@ const ClubsWithMap = () => {
             </div>
             
             {/* Pagination Controls */}
-            {!showAllClubs && (
-              <div className="flex items-center justify-between mt-6">
+            <div className="flex items-center justify-between mt-6">
                 <Button
                   variant="outline"
                   size="sm"
@@ -209,7 +210,7 @@ const ClubsWithMap = () => {
                   <Button
                     variant="ghost" 
                     size="sm"
-                    onClick={handleShowMore}
+                    onClick={() => navigate('/clubs')}
                     className="flex items-center gap-2 text-primary hover:text-primary"
                   >
                     <MoreHorizontal className="w-4 h-4" />
@@ -227,8 +228,7 @@ const ClubsWithMap = () => {
                   Next
                   <ChevronRight className="w-4 h-4" />
                 </Button>
-              </div>
-            )}
+            </div>
           </div>
         </div>
       </div>
