@@ -1,8 +1,40 @@
 import { Button } from "@/components/ui/button";
 import { Mouse } from "lucide-react";
+import { useState, useEffect } from "react";
 import heroBackground from "@/assets/hero-bg.jpg";
 
 const Hero = () => {
+  const taglines = [
+    { text: "Where Adventure Meets\nTransformation", twoLines: true },
+    { text: "Where Journey Meets\nDiscovery", twoLines: true },
+    { text: "Where Exploration Meets\nInspiration", twoLines: true },
+    { text: "Where Travel Meets\nPurpose", twoLines: true },
+    { text: "Journey Within,\nExplore Without", twoLines: true },
+    { text: "Where Journeys Become\nTransformations", twoLines: true },
+    { text: "Adventure Towards\nInner Discovery", twoLines: true },
+    { text: "Where Soul Meets\nAdventure", twoLines: true },
+    { text: "Discover. Transform.\nJourney.", twoLines: true },
+    { text: "Explore Beyond\nthe Horizon", twoLines: true },
+    { text: "Journey Towards\nSelf-Discovery", twoLines: true },
+    { text: "Where Dreams Meet\nAdventure", twoLines: true },
+    { text: "Your Path to\nExtraordinary Journeys", twoLines: true },
+    { text: "Creating Meaningful\nAdventures", twoLines: true },
+    { text: "Where Travelers Become\nExplorers", twoLines: true },
+    { text: "Exceptional Journeys for\nExtraordinary People", twoLines: true }
+  ];
+
+  const [currentTaglineIndex, setCurrentTaglineIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTaglineIndex((prevIndex) => (prevIndex + 1) % taglines.length);
+    }, 3000); // Change every 3 seconds
+
+    return () => clearInterval(interval);
+  }, [taglines.length]);
+
+  const currentTagline = taglines[currentTaglineIndex];
+
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden font-sans">
       {/* Background Image */}
@@ -25,9 +57,12 @@ const Hero = () => {
           }}
         >
           <span className="hero-heading-gradient hero-heading-typewriter">
-            Where Adventure Meets
-            <br />
-            Enlightenment
+            {currentTagline.text.split('\n').map((line, index) => (
+              <span key={index}>
+                {line}
+                {index < currentTagline.text.split('\n').length - 1 && <br />}
+              </span>
+            ))}
           </span>
         </h1>
         
