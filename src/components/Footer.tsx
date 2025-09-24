@@ -12,9 +12,9 @@ const Footer = () => {
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center gap-3 mb-6">
               <img src={logo} alt="The Journey Association" className="h-10 w-auto brightness-0 invert" />
-              <span className="text-2xl font-bold">The Journey</span>
+              <span className="text-2xl font-bold font-heading">The Journey</span>
             </div>
-            <p className="text-primary-foreground/80 leading-relaxed mb-6 max-w-md">
+            <p className="text-primary-foreground/80 leading-relaxed mb-6 max-w-md font-body">
               Experience Morocco's soul through sustainable journeys. We create authentic connections 
               between travelers and local communities while preserving cultural heritage.
             </p>
@@ -36,7 +36,7 @@ const Footer = () => {
           
           {/* Quick Links */}
           <div>
-            <h3 className="text-lg font-semibold mb-6">Quick Links</h3>
+            <h3 className="text-lg font-semibold mb-6 font-heading">Quick Links</h3>
             <ul className="space-y-3">
               <li>
                 <a href="#about" className="text-primary-foreground/80 hover:text-white transition-colors">
