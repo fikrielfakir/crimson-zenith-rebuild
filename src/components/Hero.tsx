@@ -24,16 +24,51 @@ const Hero = () => {
   ];
 
   const [currentTaglineIndex, setCurrentTaglineIndex] = useState(0);
+  const [displayedText, setDisplayedText] = useState('');
+  const [isTyping, setIsTyping] = useState(true);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentTaglineIndex((prevIndex) => (prevIndex + 1) % taglines.length);
-    }, 3000); // Change every 3 seconds
+    const fullText = taglines[currentTaglineIndex].text.replace('\\n', '\n');
+    
+    if (isTyping) {
+      let currentIndex = 0;
+      setDisplayedText('');
+      
+      const typeInterval = setInterval(() => {
+        if (currentIndex < fullText.length) {
+          setDisplayedText(fullText.slice(0, currentIndex + 1));
+          currentIndex++;
+        } else {
+          clearInterval(typeInterval);
+          setIsTyping(false);
+          
+          // Wait 2 seconds before starting to erase
+          setTimeout(() => {
+            eraseText();
+          }, 2000);
+        }
+      }, 100); // Type speed: 100ms per character
+      
+      return () => clearInterval(typeInterval);
+    }
+  }, [currentTaglineIndex, isTyping, taglines]);
 
-    return () => clearInterval(interval);
-  }, [taglines.length]);
-
-  const currentTagline = taglines[currentTaglineIndex];
+  const eraseText = () => {
+    const currentText = displayedText;
+    let currentIndex = currentText.length;
+    
+    const eraseInterval = setInterval(() => {
+      if (currentIndex > 0) {
+        setDisplayedText(currentText.slice(0, currentIndex - 1));
+        currentIndex--;
+      } else {
+        clearInterval(eraseInterval);
+        // Move to next tagline and start typing again
+        setCurrentTaglineIndex((prevIndex) => (prevIndex + 1) % taglines.length);
+        setIsTyping(true);
+      }
+    }, 50); // Erase speed: 50ms per character (faster than typing)
+  };
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden font-sans">
@@ -57,12 +92,13 @@ const Hero = () => {
           }}
         >
           <span className="hero-heading-gradient hero-heading-typewriter">
-            {currentTagline.text.split('\n').map((line, index) => (
+            {displayedText.split('\n').map((line, index) => (
               <span key={index}>
                 {line}
-                {index < currentTagline.text.split('\n').length - 1 && <br />}
+                {index < displayedText.split('\n').length - 1 && <br />}
               </span>
             ))}
+            <span className="typewriter-cursor">|</span>
           </span>
         </h1>
         
@@ -118,6 +154,16 @@ const Hero = () => {
           }
           .h-6 {
             height: 2.5rem;
+          }
+          .typewriter-cursor {
+            display: inline-block;
+            animation: blink 1s infinite;
+            color: white;
+            font-weight: normal;
+          }
+          @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
           }
         `
       }} />
