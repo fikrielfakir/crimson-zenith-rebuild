@@ -24,10 +24,10 @@ const About = () => {
     <section id="discover" className="py-20 bg-gradient-subtle scroll-mt-32">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16 animate-fade-in">
-          <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
+          <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6 font-heading">
             Our Focus
           </h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto font-body">
             Sustainable Tourism, Culture, and Entertainment
           </p>
         </div>
@@ -43,10 +43,10 @@ const About = () => {
                 <div className="w-16 h-16 mx-auto mb-6 bg-primary/10 rounded-full flex items-center justify-center group-hover:bg-primary/20 transition-colors">
                   <focus.icon className="w-8 h-8 text-primary" />
                 </div>
-                <h3 className="text-xl font-semibold text-foreground mb-4">
+                <h3 className="text-xl font-semibold text-foreground mb-4 font-heading">
                   {focus.title}
                 </h3>
-                <p className="text-muted-foreground leading-relaxed">
+                <p className="text-muted-foreground leading-relaxed font-body">
                   {focus.description}
                 </p>
               </CardContent>

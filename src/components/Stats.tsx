@@ -38,10 +38,10 @@ const Stats = () => {
       
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center mb-16 animate-fade-in">
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">
+          <h2 className="text-4xl md:text-5xl font-bold mb-6 font-heading">
             Our Footprint
           </h2>
-          <p className="text-xl text-primary-foreground/80 max-w-2xl mx-auto">
+          <p className="text-xl text-primary-foreground/80 max-w-2xl mx-auto font-body">
             Making a positive impact through sustainable tourism and community engagement
           </p>
         </div>
@@ -57,13 +57,13 @@ const Stats = () => {
                 <div className="w-12 h-12 mx-auto mb-4 bg-white/20 rounded-full flex items-center justify-center">
                   <stat.icon className="w-6 h-6 text-white" />
                 </div>
-                <div className="text-3xl md:text-4xl font-bold text-white mb-2">
+                <div className="text-3xl md:text-4xl font-bold text-white mb-2 font-heading">
                   {stat.value}
                 </div>
-                <div className="text-lg font-semibold text-white mb-1">
+                <div className="text-lg font-semibold text-white mb-1 font-heading">
                   {stat.label}
                 </div>
-                <p className="text-sm text-primary-foreground/70">
+                <p className="text-sm text-primary-foreground/70 font-body">
                   {stat.description}
                 </p>
               </CardContent>
