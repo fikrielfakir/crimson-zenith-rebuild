@@ -25,50 +25,33 @@ const Hero = () => {
 
   const [currentTaglineIndex, setCurrentTaglineIndex] = useState(0);
   const [displayedText, setDisplayedText] = useState('');
-  const [isTyping, setIsTyping] = useState(true);
+  const [charIndex, setCharIndex] = useState(0);
+  const [isErasing, setIsErasing] = useState(false);
 
   useEffect(() => {
-    const fullText = taglines[currentTaglineIndex].text.replace('\\n', '\n');
+    const currentText = taglines[currentTaglineIndex].text;
     
-    if (isTyping) {
-      let currentIndex = 0;
-      setDisplayedText('');
-      
-      const typeInterval = setInterval(() => {
-        if (currentIndex < fullText.length) {
-          setDisplayedText(fullText.slice(0, currentIndex + 1));
-          currentIndex++;
-        } else {
-          clearInterval(typeInterval);
-          setIsTyping(false);
-          
-          // Wait 2 seconds before starting to erase
-          setTimeout(() => {
-            eraseText();
-          }, 2000);
-        }
-      }, 100); // Type speed: 100ms per character
-      
-      return () => clearInterval(typeInterval);
-    }
-  }, [currentTaglineIndex, isTyping, taglines]);
-
-  const eraseText = () => {
-    const currentText = displayedText;
-    let currentIndex = currentText.length;
-    
-    const eraseInterval = setInterval(() => {
-      if (currentIndex > 0) {
-        setDisplayedText(currentText.slice(0, currentIndex - 1));
-        currentIndex--;
-      } else {
-        clearInterval(eraseInterval);
-        // Move to next tagline and start typing again
-        setCurrentTaglineIndex((prevIndex) => (prevIndex + 1) % taglines.length);
-        setIsTyping(true);
+    const timer = setTimeout(() => {
+      if (!isErasing && charIndex < currentText.length) {
+        // Typing
+        setDisplayedText(currentText.slice(0, charIndex + 1));
+        setCharIndex(charIndex + 1);
+      } else if (!isErasing && charIndex >= currentText.length) {
+        // Finished typing, wait then start erasing
+        setTimeout(() => setIsErasing(true), 2000);
+      } else if (isErasing && charIndex > 0) {
+        // Erasing
+        setDisplayedText(currentText.slice(0, charIndex - 1));
+        setCharIndex(charIndex - 1);
+      } else if (isErasing && charIndex === 0) {
+        // Finished erasing, move to next tagline
+        setIsErasing(false);
+        setCurrentTaglineIndex((prev) => (prev + 1) % taglines.length);
       }
-    }, 50); // Erase speed: 50ms per character (faster than typing)
-  };
+    }, isErasing ? 50 : 100); // Faster erasing, slower typing
+
+    return () => clearTimeout(timer);
+  }, [charIndex, isErasing, currentTaglineIndex, taglines]);
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden font-sans">
