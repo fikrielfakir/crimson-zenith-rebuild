@@ -6,9 +6,10 @@
 
 @layer components {
   .hero-heading-gradient {
-    /* Fallback color for unsupported browsers - light enough for dark backgrounds */
-    color: hsl(0, 0%, 95%);
-    font-weight: bold;
+    /* Fallback color for unsupported browsers - white for dark overlay backgrounds */
+    color: hsl(0, 0%, 100%);
+    font-weight: 700;
+    font-family: 'Poppins', system-ui, sans-serif;
   }
 
   /* Modern gradient effect for supported browsers */
@@ -16,12 +17,11 @@
     .hero-heading-gradient {
       background: linear-gradient(
         90deg,
-        hsl(225, 70%, 20%),
-        hsl(210, 90%, 60%),
         hsl(0, 0%, 100%),
-        hsl(225, 70%, 20%),
-        hsl(215, 75%, 55%),
-        hsl(225, 70%, 20%)
+        hsl(24, 100%, 48%),
+        hsl(0, 0%, 100%),
+        hsl(24, 90%, 55%),
+        hsl(0, 0%, 100%)
       );
       background-size: 200% 100%;
       background-clip: text;
@@ -41,7 +41,7 @@
   @media (min-width: 768px) {
     .hero-heading-typewriter {
       overflow: hidden;
-      border-right: 3px solid hsl(0, 0%, 95%);
+      border-right: 3px solid hsl(0, 0%, 100%);
       white-space: nowrap;
       animation: 
         typewriter 4s steps(40, end),
@@ -73,16 +73,16 @@
     border-color: transparent;
   }
   50% {
-    border-color: hsl(0, 0%, 95%);
+    border-color: hsl(0, 0%, 100%);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .hero-heading-gradient {
     animation: none;
-    background: hsl(0, 0%, 95%);
-    -webkit-text-fill-color: hsl(0, 0%, 95%);
-    color: hsl(0, 0%, 95%);
+    background: hsl(0, 0%, 100%);
+    -webkit-text-fill-color: hsl(0, 0%, 100%);
+    color: hsl(0, 0%, 100%);
   }
   
   .hero-heading-typewriter {
