@@ -34,7 +34,10 @@ const Hero = () => {
         </p>
         
         <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-          <Button className="w-full sm:w-auto bg-blue-700 hover:bg-blue-800 text-white text-base px-10 py-4 h-14 rounded-xl font-medium transition-all duration-300 shadow-xl hover:shadow-2xl hover:scale-105 border-0">
+          <Button 
+            className="w-full sm:w-auto text-white text-base px-10 py-4 h-14 rounded-xl font-medium transition-all duration-300 shadow-xl hover:shadow-2xl hover:scale-105 border-0 hover:opacity-90"
+            style={{ backgroundColor: '#112250' }}
+          >
             Start Your Journey
           </Button>
           <Button 
