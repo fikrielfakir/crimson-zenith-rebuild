@@ -12,7 +12,7 @@ const TopNavbar = ({ isDarkMode, toggleDarkMode, currentLanguage, toggleLanguage
   isScrolled: boolean;
 }) => {
   return (
-    <div className="w-full bg-transparent transition-all duration-300 overflow-hidden" style={isScrolled ? { maxHeight: '0', opacity: '0' } : { maxHeight: '80px', opacity: '1' }}>
+    <div className="w-full bg-transparent transition-all duration-300 overflow-hidden" style={isScrolled ? { maxHeight: '60px', opacity: '0', height: '60px' } : { maxHeight: '80px', opacity: '1' }}>
       <div className={`container mx-auto px-6 transition-all duration-300 ${isScrolled ? 'py-0' : 'py-3'}`}>
         <div className="flex items-center justify-end gap-4">
           {/* Language Switcher */}
