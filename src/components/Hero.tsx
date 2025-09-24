@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Mouse } from "lucide-react";
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import heroBackground from "@/assets/hero-bg.jpg";
 
 const Hero = () => {
@@ -100,17 +101,49 @@ const Hero = () => {
         </p>
         
         <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-          <Button 
-            className="w-full sm:w-auto bg-secondary hover:bg-secondary/90 text-white text-base px-10 py-4 h-14 rounded-button font-medium transition-all duration-300 shadow-elegant hover:shadow-glow hover:scale-105 border-0"
-          >
-            Start Your Journey
-          </Button>
-          <Button 
-            variant="outline" 
-            className="w-full sm:w-auto text-white border-white/70 hover:bg-white/10 hover:border-white hover:backdrop-blur-sm text-base px-10 py-4 h-14 rounded-button font-medium transition-all duration-300 bg-transparent/10 backdrop-blur-sm border-2 hover:scale-105"
-          >
-            Learn More
-          </Button>
+          <Link to="/discover">
+            <Button 
+              className="w-full sm:w-auto bg-secondary hover:bg-secondary/90 text-white text-base px-10 py-4 h-14 rounded-button font-medium transition-all duration-300 shadow-elegant hover:shadow-glow hover:scale-105 border-0"
+            >
+              Start Your Journey
+            </Button>
+          </Link>
+          <Link to="/clubs">
+            <Button 
+              variant="outline" 
+              className="w-full sm:w-auto text-white border-white/70 hover:bg-white/10 hover:border-white hover:backdrop-blur-sm text-base px-10 py-4 h-14 rounded-button font-medium transition-all duration-300 bg-transparent/10 backdrop-blur-sm border-2 hover:scale-105"
+            >
+              Explore Clubs
+            </Button>
+          </Link>
+        </div>
+        
+        {/* Navigation Cards Section */}
+        <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
+          <Link to="/events" className="group">
+            <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-4 text-center hover:bg-white/20 transition-all duration-300 hover:scale-105">
+              <div className="text-2xl mb-2">🎭</div>
+              <div className="text-white text-sm font-medium">Events</div>
+            </div>
+          </Link>
+          <Link to="/book" className="group">
+            <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-4 text-center hover:bg-white/20 transition-all duration-300 hover:scale-105">
+              <div className="text-2xl mb-2">📅</div>
+              <div className="text-white text-sm font-medium">Book Now</div>
+            </div>
+          </Link>
+          <Link to="/gallery" className="group">
+            <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-4 text-center hover:bg-white/20 transition-all duration-300 hover:scale-105">
+              <div className="text-2xl mb-2">📸</div>
+              <div className="text-white text-sm font-medium">Gallery</div>
+            </div>
+          </Link>
+          <Link to="/discover" className="group">
+            <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-4 text-center hover:bg-white/20 transition-all duration-300 hover:scale-105">
+              <div className="text-2xl mb-2">🗺️</div>
+              <div className="text-white text-sm font-medium">Discover</div>
+            </div>
+          </Link>
         </div>
       </div>
       
