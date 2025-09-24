@@ -17,7 +17,7 @@ const Hero = () => {
       
       {/* Content */}
       <div className="relative z-10 text-center px-6 sm:px-8 lg:px-12 max-w-5xl mx-auto mt-16">
-        <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-white mb-8 sm:mb-10 leading-[1.1] tracking-tight">
+        <h1 className="font-bold text-white mb-8 sm:mb-10 leading-[1.1] tracking-tight" style={{ fontSize: '84px' }}>
           Where Adventure Meets
           <br />
           <span className="text-white/95">Enlightenment</span>

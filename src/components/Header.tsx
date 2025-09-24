@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
-import { Globe, Moon, Sun, User, TreePine, Menu } from "lucide-react";
+import { Globe, Moon, Sun, User, Menu } from "lucide-react";
+import logoAtj from "@/assets/logo-atj.png";
 
 // Top Navbar (Utility Bar - Only utilities, no navigation)
 const TopNavbar = ({ isDarkMode, toggleDarkMode, currentLanguage, toggleLanguage }: {
@@ -98,13 +99,11 @@ const BottomNavbar = () => {
           {/* Center Section - Logo (135px height) */}
           <div className="col-start-2 justify-self-center flex items-center justify-center">
             <div className="flex flex-col items-center" style={{height: '135px'}}>
-              <TreePine className="text-white mb-3" style={{height: '70px', width: '70px'}} />
-              <div className="text-2xl font-bold tracking-wider text-white">
-                THE JOURNEY
-              </div>
-              <div className="text-xs tracking-[0.3em] uppercase text-white/80 mt-1">
-                Association
-              </div>
+              <img 
+                src={logoAtj} 
+                alt="The Journey Association" 
+                className="h-[135px] w-auto object-contain"
+              />
             </div>
           </div>
           
