@@ -33,7 +33,7 @@ const Hero = () => {
           Experience Morocco's soul through sustainable journeys. Discover culture, embrace adventure, and create lasting connections with local communities.
         </p>
         
-        <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16">
+        <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
           <Button className="w-full sm:w-auto bg-blue-700 hover:bg-blue-800 text-white text-base px-10 py-4 h-14 rounded-xl font-medium transition-all duration-300 shadow-xl hover:shadow-2xl hover:scale-105 border-0">
             Start Your Journey
           </Button>
@@ -49,16 +49,30 @@ const Hero = () => {
       {/* Simple Mouse Scroll Indicator */}
       <div className="absolute bottom-8 sm:bottom-12 left-1/2 transform -translate-x-1/2 flex flex-col items-center">
         <Mouse className="w-6 h-6 text-white/60 animate-bounce" />
-        <p className="text-white/50 text-xs mt-2 tracking-wider uppercase">Scroll</p>
       </div>
 
-      {/* Add responsive margin for small screens */}
+      {/* Add responsive styles */}
       <style dangerouslySetInnerHTML={{
         __html: `
           @media (min-width: 640px) {
             .hero-h1-responsive {
               margin-bottom: 1.5rem !important;
             }
+            .sm\\:bottom-12 {
+              bottom: 1rem;
+            }
+          }
+          @media (min-width: 768px) {
+            .md\\:text-2xl {
+              font-size: 20px;
+              line-height: 25px;
+            }
+          }
+          .w-6 {
+            width: 2.5rem;
+          }
+          .h-6 {
+            height: 2.5rem;
           }
         `
       }} />
