@@ -20,7 +20,7 @@ const TopNavbar = ({ isDarkMode, toggleDarkMode, currentLanguage, toggleLanguage
             variant="ghost" 
             size="sm"
             onClick={toggleLanguage}
-            className="text-white hover:bg-white/10 px-3 py-2 text-xs flex items-center gap-1 rounded-md"
+            className="text-white hover:bg-white/10 px-3 py-2 text-xs flex items-center gap-1 rounded-button font-body"
           >
             <Globe className="h-4 w-4" />
             {currentLanguage}
@@ -31,7 +31,7 @@ const TopNavbar = ({ isDarkMode, toggleDarkMode, currentLanguage, toggleLanguage
             variant="ghost" 
             size="sm"
             onClick={toggleDarkMode}
-            className="text-white hover:bg-white/10 px-2 py-2 rounded-md"
+            className="text-white hover:bg-white/10 px-2 py-2 rounded-button"
           >
             {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </Button>
@@ -40,7 +40,7 @@ const TopNavbar = ({ isDarkMode, toggleDarkMode, currentLanguage, toggleLanguage
           <Button 
             variant="ghost" 
             size="sm"
-            className="text-white hover:bg-white/10 px-3 py-2 text-xs flex items-center gap-1 rounded-md"
+            className="text-white hover:bg-white/10 px-3 py-2 text-xs flex items-center gap-1 rounded-button font-body"
           >
             <User className="h-4 w-4" />
             Login
@@ -48,8 +48,7 @@ const TopNavbar = ({ isDarkMode, toggleDarkMode, currentLanguage, toggleLanguage
 
           {/* Join Button */}
           <Button 
-            className="text-white px-6 py-2 text-sm font-medium rounded-lg transition-all duration-300 hover:opacity-90"
-            style={{ backgroundColor: 'hsl(225, 70%, 20%)' }}
+            className="bg-secondary hover:bg-secondary/90 text-white px-6 py-2 text-sm font-medium rounded-button transition-all duration-300 shadow-elegant hover:shadow-glow"
           >
             Join Us
           </Button>
@@ -79,19 +78,19 @@ const BottomNavbar = ({ isScrolled }: { isScrolled: boolean }) => {
             <nav className={`flex items-center gap-10 transition-all duration-300 ${isScrolled ? 'relative' : ''}`} style={isScrolled ? {bottom: '1rem'} : {}}>
               <a 
                 href="#discover" 
-                className="text-white hover:text-white/80 transition-all duration-300 font-normal text-sm tracking-wide"
+                className="text-white hover:text-secondary transition-all duration-300 font-normal text-sm tracking-wide font-body"
               >
                 Discover
               </a>
               <a 
                 href="#activities" 
-                className="text-white hover:text-white/80 transition-all duration-300 font-normal text-sm tracking-wide"
+                className="text-white hover:text-secondary transition-all duration-300 font-normal text-sm tracking-wide font-body"
               >
                 Activities
               </a>
               <a 
                 href="#membership" 
-                className="text-white hover:text-white/80 transition-all duration-300 font-normal text-sm tracking-wide"
+                className="text-white hover:text-secondary transition-all duration-300 font-normal text-sm tracking-wide font-body"
               >
                 Membership
               </a>
@@ -115,25 +114,25 @@ const BottomNavbar = ({ isScrolled }: { isScrolled: boolean }) => {
             <nav className={`flex items-center gap-10 transition-all duration-300 ${isScrolled ? 'relative' : ''}`} style={isScrolled ? {bottom: '1rem'} : {}}>
               <a 
                 href="#events" 
-                className="text-white hover:text-white/80 transition-all duration-300 font-normal text-sm tracking-wide"
+                className="text-white hover:text-secondary transition-all duration-300 font-normal text-sm tracking-wide font-body"
               >
                 Events
               </a>
               <a 
                 href="#gallery" 
-                className="text-white hover:text-white/80 transition-all duration-300 font-normal text-sm tracking-wide"
+                className="text-white hover:text-secondary transition-all duration-300 font-normal text-sm tracking-wide font-body"
               >
                 Gallery
               </a>
               <a 
                 href="#news" 
-                className="text-white hover:text-white/80 transition-all duration-300 font-normal text-sm tracking-wide"
+                className="text-white hover:text-secondary transition-all duration-300 font-normal text-sm tracking-wide font-body"
               >
                 News
               </a>
               <a 
                 href="#contact" 
-                className="text-white hover:text-white/80 transition-all duration-300 font-normal text-sm tracking-wide"
+                className="text-white hover:text-secondary transition-all duration-300 font-normal text-sm tracking-wide font-body"
               >
                 Contact
               </a>
@@ -187,7 +186,7 @@ const Header = () => {
   return (
     <header className={`fixed top-0 w-full z-50 transition-all duration-300 ${
       isScrolled ? 'backdrop-blur-sm' : 'bg-transparent'
-    }`} style={isScrolled ? { backgroundColor: 'hsl(225, 70%, 20%)', marginTop: '0' } : { marginTop: '2.5rem' }}>
+    }`} style={isScrolled ? { backgroundColor: 'hsl(var(--primary))', marginTop: '0' } : { marginTop: '2.5rem' }}>
       {/* Top Navbar - Utility Bar (Language, Theme, Login, Join) */}
       <TopNavbar 
         isDarkMode={isDarkMode}
