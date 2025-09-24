@@ -16,7 +16,7 @@ const Hero = () => {
       <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-black/20" />
       
       {/* Content */}
-      <div className="relative z-10 text-center px-6 sm:px-8 lg:px-12 max-w-5xl mx-auto mt-16">
+      <div className="relative z-10 text-center px-6 sm:px-8 lg:px-12 max-w-5xl mx-auto" style={{ marginTop: '10rem' }}>
         <h1 
           className="hero-h1-responsive font-bold text-white leading-[1.1] tracking-tight"
           style={{ 
@@ -66,6 +66,11 @@ const Hero = () => {
             .md\\:text-2xl {
               font-size: 20px;
               line-height: 25px;
+            }
+          }
+          @media (min-width: 1024px) {
+            .lg\\:mb-16 {
+              margin-bottom: 2rem;
             }
           }
           .w-6 {

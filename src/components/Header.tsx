@@ -185,7 +185,7 @@ const Header = () => {
   return (
     <header className={`fixed top-0 w-full z-50 transition-all duration-300 ${
       isScrolled ? 'bg-black/80 backdrop-blur-sm' : 'bg-transparent'
-    }`}>
+    }`} style={{ marginTop: '2.5rem' }}>
       {/* Top Navbar - Utility Bar (Language, Theme, Login, Join) */}
       <TopNavbar 
         isDarkMode={isDarkMode}
