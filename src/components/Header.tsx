@@ -84,13 +84,13 @@ const BottomNavbar = ({ isScrolled }: { isScrolled: boolean }) => {
                 Discover
               </Link>
               <Link 
-                to="/clubs" 
+                to="/#activities"
                 className="text-white hover:text-secondary transition-all duration-300 font-normal text-sm tracking-wide font-body"
               >
                 Activities
               </Link>
               <Link 
-                to="/" 
+                to="/#membership"
                 className="text-white hover:text-secondary transition-all duration-300 font-normal text-sm tracking-wide font-body"
               >
                 Membership
@@ -114,7 +114,7 @@ const BottomNavbar = ({ isScrolled }: { isScrolled: boolean }) => {
           <div className="hidden md:flex items-center justify-start">
             <nav className={`flex items-center gap-10 transition-all duration-300 ${isScrolled ? 'relative' : ''}`} style={isScrolled ? {bottom: '1rem'} : {}}>
               <Link 
-                to="/events" 
+                to="/#events"
                 className="text-white hover:text-secondary transition-all duration-300 font-normal text-sm tracking-wide font-body"
               >
                 Events
