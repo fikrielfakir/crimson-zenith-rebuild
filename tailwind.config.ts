@@ -36,6 +36,10 @@ export default {
           DEFAULT: "hsl(var(--success))",
           foreground: "hsl(var(--success-foreground))",
         },
+        warning: {
+          DEFAULT: "hsl(var(--warning))",
+          foreground: "hsl(var(--warning-foreground))",
+        },
         muted: {
           DEFAULT: "hsl(var(--muted))",
           foreground: "hsl(var(--muted-foreground))",
@@ -67,10 +71,13 @@ export default {
         'gradient-primary': 'var(--gradient-primary)',
         'gradient-hero': 'var(--gradient-hero)',
         'gradient-subtle': 'var(--gradient-subtle)',
+        'gradient-overlay': 'var(--gradient-overlay)',
       },
       boxShadow: {
         'elegant': 'var(--shadow-elegant)',
         'glow': 'var(--shadow-glow)',
+        'card': 'var(--shadow-card)',
+        'modal': 'var(--shadow-modal)',
       },
       transitionTimingFunction: {
         'smooth': 'var(--transition-smooth)',
@@ -79,6 +86,25 @@ export default {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+        button: "var(--radius-button)",
+        card: "var(--radius-card)",
+        hero: "var(--radius-hero)",
+      },
+      fontFamily: {
+        heading: ['Poppins', 'system-ui', 'sans-serif'],
+        body: ['Open Sans', 'system-ui', 'sans-serif'],
+        sans: ['Open Sans', 'system-ui', 'sans-serif'],
+      },
+      spacing: {
+        '0.5': '0.125rem', // 2px
+        '1': '0.25rem',   // 4px
+        '2': '0.5rem',    // 8px (base unit)
+        '3': '0.75rem',   // 12px
+        '4': '1rem',      // 16px (2x base)
+        '6': '1.5rem',    // 24px (3x base)
+        '8': '2rem',      // 32px (4x base)
+        '12': '3rem',     // 48px (6x base)
+        '16': '4rem',     // 64px (8x base)
       },
       keyframes: {
         "accordion-down": {
@@ -104,6 +130,10 @@ export default {
         "glow": {
           "0%, 100%": { boxShadow: "0 0 20px hsl(var(--primary-glow) / 0.3)" },
           "50%": { boxShadow: "0 0 40px hsl(var(--primary-glow) / 0.6)" }
+        },
+        "float": {
+          "0%, 100%": { transform: "translateY(0px)" },
+          "50%": { transform: "translateY(-10px)" }
         }
       },
       animation: {
@@ -113,6 +143,7 @@ export default {
         "scale-in": "scale-in 0.4s ease-out",
         "slide-up": "slide-up 0.5s ease-out",
         "glow": "glow 2s ease-in-out infinite",
+        "float": "float 3s ease-in-out infinite",
       },
     },
   },
