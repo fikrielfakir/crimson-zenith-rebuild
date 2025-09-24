@@ -18,9 +18,9 @@
       background: linear-gradient(
         90deg,
         hsl(0, 0%, 100%),
-        hsl(24, 100%, 48%),
+        hsl(224, 65%, 19%),
         hsl(0, 0%, 100%),
-        hsl(24, 90%, 55%),
+        hsl(224, 55%, 25%),
         hsl(0, 0%, 100%)
       );
       background-size: 200% 100%;
@@ -125,7 +125,7 @@ All colors MUST be HSL.
     --primary-foreground: 0 0% 100%;
     --primary-glow: 211 60% 35%;
 
-    --secondary: 24 100% 48%;
+    --secondary: 224 65% 19%;
     --secondary-foreground: 0 0% 100%;
 
     --muted: 210 20% 98%;
@@ -191,9 +191,9 @@ All colors MUST be HSL.
     --popover: 210 25% 10%;
     --popover-foreground: 0 0% 95%;
 
-    --primary: 24 100% 48%;
+    --primary: 224 65% 19%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 24 90% 60%;
+    --primary-glow: 224 55% 30%;
 
     --secondary: 211 69% 35%;
     --secondary-foreground: 0 0% 100%;
@@ -215,7 +215,7 @@ All colors MUST be HSL.
 
     --border: 210 25% 20%;
     --input: 210 25% 20%;
-    --ring: 24 100% 48%;
+    --ring: 224 65% 19%;
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
