@@ -58,11 +58,11 @@ const TopNavbar = ({ isDarkMode, toggleDarkMode, currentLanguage, toggleLanguage
 };
 
 // Bottom Navbar (Main Navigation with Logo)
-const BottomNavbar = () => {
+const BottomNavbar = ({ isScrolled }: { isScrolled: boolean }) => {
   return (
     <div className="w-full bg-transparent relative">
       {/* Top Border - breaks around logo */}
-      <div className="relative h-px w-full">
+      <div className={`relative h-px w-full transition-opacity duration-300 ${isScrolled ? 'opacity-0' : 'opacity-100'}`}>
         <div className="container mx-auto px-6 flex items-center">
           <div className="flex-1 h-px bg-white/25"></div>
           <div className="w-48"></div> {/* Space for 135px logo with padding */}
@@ -74,7 +74,7 @@ const BottomNavbar = () => {
         <div className="grid grid-cols-3 md:grid-cols-[1fr_auto_1fr] items-center gap-12">
           {/* Left Section - Navigation */}
           <div className="hidden md:flex items-center justify-end">
-            <nav className="flex items-center gap-10">
+            <nav className={`flex items-center gap-10 transition-all duration-300 ${isScrolled ? 'relative' : ''}`} style={isScrolled ? {bottom: '1rem'} : {}}>
               <a 
                 href="#discover" 
                 className="text-white hover:text-white/80 transition-all duration-300 font-normal text-sm tracking-wide"
@@ -102,15 +102,15 @@ const BottomNavbar = () => {
               <img 
                 src={logoAtj} 
                 alt="The Journey Association" 
-                className="w-auto object-contain"
-                style={{height: '135px'}}
+                className="w-auto object-contain transition-all duration-300"
+                style={isScrolled ? {height: '90px', margin: '20px 10px'} : {height: '135px'}}
               />
             </div>
           </div>
           
           {/* Right Section - Navigation */}
           <div className="hidden md:flex items-center justify-start">
-            <nav className="flex items-center gap-10">
+            <nav className={`flex items-center gap-10 transition-all duration-300 ${isScrolled ? 'relative' : ''}`} style={isScrolled ? {bottom: '1rem'} : {}}>
               <a 
                 href="#events" 
                 className="text-white hover:text-white/80 transition-all duration-300 font-normal text-sm tracking-wide"
@@ -146,7 +146,7 @@ const BottomNavbar = () => {
       </div>
       
       {/* Bottom Border - breaks around logo */}
-      <div className="relative h-px w-full">
+      <div className={`relative h-px w-full transition-opacity duration-300 ${isScrolled ? 'opacity-0' : 'opacity-100'}`}>
         <div className="container mx-auto px-6 flex items-center">
           <div className="flex-1 h-px bg-white/25"></div>
           <div className="w-48"></div> {/* Space for logo - matches top border */}
@@ -185,7 +185,7 @@ const Header = () => {
   return (
     <header className={`fixed top-0 w-full z-50 transition-all duration-300 ${
       isScrolled ? 'bg-black/80 backdrop-blur-sm' : 'bg-transparent'
-    }`} style={{ marginTop: '2.5rem' }}>
+    }`} style={isScrolled ? {} : { marginTop: '2.5rem' }}>
       {/* Top Navbar - Utility Bar (Language, Theme, Login, Join) */}
       <TopNavbar 
         isDarkMode={isDarkMode}
@@ -195,7 +195,7 @@ const Header = () => {
       />
       
       {/* Bottom Navbar - Main Navigation with 135px Logo */}
-      <BottomNavbar />
+      <BottomNavbar isScrolled={isScrolled} />
     </header>
   );
 };
