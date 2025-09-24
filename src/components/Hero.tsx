@@ -17,7 +17,13 @@ const Hero = () => {
       
       {/* Content */}
       <div className="relative z-10 text-center px-6 sm:px-8 lg:px-12 max-w-5xl mx-auto mt-16">
-        <h1 className="font-bold text-white mb-8 sm:mb-10 leading-[1.1] tracking-tight" style={{ fontSize: '84px' }}>
+        <h1 
+          className="hero-h1-responsive font-bold text-white leading-[1.1] tracking-tight"
+          style={{ 
+            fontSize: '65px', 
+            marginBottom: '2rem',
+          }}
+        >
           Where Adventure Meets
           <br />
           <span className="text-white/95">Enlightenment</span>
@@ -47,6 +53,17 @@ const Hero = () => {
         </div>
         <p className="text-white/50 text-xs mt-3 tracking-wider uppercase">Scroll</p>
       </div>
+
+      {/* Add responsive margin for small screens */}
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          @media (min-width: 640px) {
+            .hero-h1-responsive {
+              margin-bottom: 1.5rem !important;
+            }
+          }
+        `
+      }} />
     </section>
   );
 };

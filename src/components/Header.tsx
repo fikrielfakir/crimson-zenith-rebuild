@@ -70,7 +70,7 @@ const BottomNavbar = () => {
         </div>
       </div>
       
-      <div className="container mx-auto px-6 py-8">
+      <div className="container mx-auto px-6" style={{paddingTop: '1.5rem', paddingBottom: '1.5rem'}}>
         <div className="grid grid-cols-3 md:grid-cols-[1fr_auto_1fr] items-center gap-12">
           {/* Left Section - Navigation */}
           <div className="hidden md:flex items-center justify-end">
@@ -98,11 +98,12 @@ const BottomNavbar = () => {
           
           {/* Center Section - Logo (135px height) */}
           <div className="col-start-2 justify-self-center flex items-center justify-center">
-            <div className="flex flex-col items-center" style={{height: '135px'}}>
+            <div className="flex flex-col items-center" style={{position: 'relative', bottom: '100px', height: '0'}}>
               <img 
                 src={logoAtj} 
                 alt="The Journey Association" 
-                className="h-[135px] w-auto object-contain"
+                className="w-auto object-contain"
+                style={{height: '135px'}}
               />
             </div>
           </div>
