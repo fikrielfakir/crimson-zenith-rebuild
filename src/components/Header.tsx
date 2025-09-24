@@ -4,16 +4,15 @@ import { Globe, Moon, Sun, User, Menu } from "lucide-react";
 import logoAtj from "@/assets/logo-atj.png";
 
 // Top Navbar (Utility Bar - Only utilities, no navigation)
-const TopNavbar = ({ isDarkMode, toggleDarkMode, currentLanguage, toggleLanguage, isScrolled }: {
+const TopNavbar = ({ isDarkMode, toggleDarkMode, currentLanguage, toggleLanguage }: {
   isDarkMode: boolean;
   toggleDarkMode: () => void;
   currentLanguage: string;
   toggleLanguage: () => void;
-  isScrolled: boolean;
 }) => {
   return (
-    <div className={`w-full bg-transparent transition-all duration-300 overflow-hidden ${isScrolled ? 'h-0' : 'h-auto'}`}>
-      <div className={`container mx-auto px-6 transition-all duration-300 ${isScrolled ? 'py-0' : 'py-3'}`}>
+    <div className="w-full bg-transparent">
+      <div className="container mx-auto px-6 py-3">
         <div className="flex items-center justify-end gap-4">
           {/* Language Switcher */}
           <Button 
@@ -193,7 +192,6 @@ const Header = () => {
         toggleDarkMode={toggleDarkMode}
         currentLanguage={currentLanguage}
         toggleLanguage={toggleLanguage}
-        isScrolled={isScrolled}
       />
       
       {/* Bottom Navbar - Main Navigation with 135px Logo */}
