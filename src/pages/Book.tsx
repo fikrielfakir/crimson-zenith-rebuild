@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -24,11 +24,17 @@ import {
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { useSearchParams } from "react-router-dom";
+import gnaoua from "@/assets/gnaoua-festival.jpg";
+import timitar from "@/assets/timitar-festival.jpg";
 
 const Book = () => {
+  const [searchParams] = useSearchParams();
+  const eventParam = searchParams.get('event');
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedAdventure, setSelectedAdventure] = useState<any>(null);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  const [isEventBooking, setIsEventBooking] = useState(false);
   const [bookingData, setBookingData] = useState({
     participants: 1,
     equipment: [],
@@ -38,7 +44,91 @@ const Book = () => {
     payment_method: "card"
   });
 
-  const totalSteps = 4;
+  // Events data (same as EventCalendar)
+  const events = [
+    {
+      title: "Gnaoua World Music Festival",
+      date: "June 21-23, 2024",
+      time: "7:00 PM - 11:00 PM",
+      location: "Essaouira",
+      description: "A vibrant celebration of Gnaoua music and culture, featuring international artists and traditional performances.",
+      image: gnaoua,
+      price: "From $45",
+      fixedDate: true
+    },
+    {
+      title: "Timitar Festival",
+      date: "July 15-20, 2024", 
+      time: "6:00 PM - 12:00 AM",
+      location: "Agadir",
+      description: "A festival showcasing a fusion of traditional and world music, celebrating Morocco's rich musical heritage.",
+      image: timitar,
+      price: "From $65",
+      fixedDate: true
+    },
+    {
+      title: "Mawazine Festival",
+      date: "May 24-June 1, 2024",
+      time: "8:00 PM - 2:00 AM",
+      location: "Rabat",
+      description: "One of the world's largest music festivals featuring international and Moroccan artists across multiple genres.",
+      image: gnaoua,
+      price: "From $35",
+      fixedDate: true
+    },
+    {
+      title: "Rose Festival",
+      date: "May 10-12, 2024",
+      time: "9:00 AM - 6:00 PM",
+      location: "Kelaat M'Gouna",
+      description: "Annual celebration of the rose harvest in the Valley of Roses with traditional music, dances, and rose picking.",
+      image: timitar,
+      price: "From $25",
+      fixedDate: true
+    },
+    {
+      title: "Fez Festival of World Sacred Music",
+      date: "September 14-22, 2024",
+      time: "7:30 PM - 11:30 PM",
+      location: "Fez",
+      description: "Spiritual and sacred music from around the world performed in the mystical setting of ancient Fez.",
+      image: gnaoua,
+      price: "From $55",
+      fixedDate: true
+    },
+    {
+      title: "Marrakech International Film Festival",
+      date: "November 29 - December 7, 2024",
+      time: "6:00 PM - 12:00 AM",
+      location: "Marrakech",
+      description: "Prestigious film festival showcasing international cinema in the magical city of Marrakech.",
+      image: timitar,
+      price: "From $75",
+      fixedDate: true
+    },
+    {
+      title: "Tan-Tan Moussem",
+      date: "August 15-18, 2024",
+      time: "10:00 AM - 11:00 PM",
+      location: "Tan-Tan",
+      description: "UNESCO-recognized cultural gathering celebrating nomadic heritage with camel races and traditional performances.",
+      image: gnaoua,
+      price: "From $40",
+      fixedDate: true
+    },
+    {
+      title: "Chefchaouen Cultural Days",
+      date: "April 20-25, 2024",
+      time: "2:00 PM - 10:00 PM",
+      location: "Chefchaouen",
+      description: "Cultural festival in the blue city featuring local artisans, traditional crafts, and mountain folklore.",
+      image: timitar,
+      price: "From $30",
+      fixedDate: true
+    },
+  ];
+
+  const totalSteps = isEventBooking ? 3 : 4; // Skip date selection for events with fixed dates
   const progressPercentage = (currentStep / totalSteps) * 100;
 
   // Mock adventure data
@@ -65,6 +155,31 @@ const Book = () => {
     }
   ];
 
+  // Check if booking a specific event
+  useEffect(() => {
+    if (eventParam) {
+      const matchingEvent = events.find(event => event.title === decodeURIComponent(eventParam));
+      if (matchingEvent) {
+        setSelectedAdventure({
+          id: 999, // Special ID for events
+          title: matchingEvent.title,
+          price: parseInt(matchingEvent.price.replace(/[^0-9]/g, '')),
+          duration: matchingEvent.date,
+          difficulty: "Event",
+          image: matchingEvent.image,
+          location: matchingEvent.location,
+          time: matchingEvent.time,
+          description: matchingEvent.description,
+          fixedDate: matchingEvent.fixedDate,
+          includes: ["Event access", "Cultural experience", "Local performances"],
+          excludes: ["Food and beverages", "Transportation", "Accommodation"]
+        });
+        setIsEventBooking(true);
+        // For events with fixed dates, start at step 1 (Event Details) and skip date selection step
+      }
+    }
+  }, [eventParam]);
+
   // Mock availability data
   const getDateAvailability = (date: Date) => {
     const dayOfWeek = date.getDay();
@@ -87,37 +202,56 @@ const Book = () => {
   };
 
   const renderStepContent = () => {
-    switch (currentStep) {
-      case 1:
-        return <Step1AdventureSelection />;
-      case 2:
-        return <Step2DateSelection />;
-      case 3:
-        return <Step3ParticipantDetails />;
-      case 4:
-        return <Step4Payment />;
-      default:
-        return <ConfirmationPage />;
+    if (isEventBooking) {
+      // For event bookings with fixed dates, skip date selection
+      switch (currentStep) {
+        case 1:
+          return <Step1AdventureSelection />;
+        case 2:
+          return <Step3ParticipantDetails />;
+        case 3:
+          return <Step4Payment />;
+        default:
+          return <ConfirmationPage />;
+      }
+    } else {
+      // Regular booking flow
+      switch (currentStep) {
+        case 1:
+          return <Step1AdventureSelection />;
+        case 2:
+          return <Step2DateSelection />;
+        case 3:
+          return <Step3ParticipantDetails />;
+        case 4:
+          return <Step4Payment />;
+        default:
+          return <ConfirmationPage />;
+      }
     }
   };
 
   const Step1AdventureSelection = () => (
     <div className="space-y-6">
       <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold font-heading mb-2">Choose Your Adventure</h2>
-        <p className="text-muted-foreground font-body">Select the experience that calls to your adventurous spirit</p>
+        <h2 className="text-2xl font-bold font-heading mb-2">
+          {isEventBooking ? "Event Details" : "Choose Your Adventure"}
+        </h2>
+        <p className="text-muted-foreground font-body">
+          {isEventBooking ? "Review your selected event details" : "Select the experience that calls to your adventurous spirit"}
+        </p>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {adventures.map((adventure) => (
+        {(isEventBooking ? [selectedAdventure] : adventures).filter(Boolean).map((adventure) => (
           <Card 
             key={adventure.id}
-            className={`cursor-pointer transition-all duration-300 ${
+            className={`${isEventBooking ? 'ring-2 ring-secondary shadow-glow' : 'cursor-pointer hover:shadow-elegant'} transition-all duration-300 ${
               selectedAdventure?.id === adventure.id 
                 ? 'ring-2 ring-secondary shadow-glow' 
                 : 'hover:shadow-elegant'
             }`}
-            onClick={() => setSelectedAdventure(adventure)}
+            onClick={() => !isEventBooking && setSelectedAdventure(adventure)}
           >
             <div className="relative">
               <img 
@@ -364,9 +498,24 @@ const Book = () => {
                 <div className="flex justify-between">
                   <span className="font-body">Date</span>
                   <span className="font-semibold">
-                    {selectedDate?.toLocaleDateString()}
+                    {isEventBooking && selectedAdventure?.fixedDate ? 
+                      selectedAdventure.duration : 
+                      selectedDate?.toLocaleDateString()
+                    }
                   </span>
                 </div>
+                {isEventBooking && selectedAdventure?.time && (
+                  <div className="flex justify-between">
+                    <span className="font-body">Time</span>
+                    <span className="font-semibold">{selectedAdventure.time}</span>
+                  </div>
+                )}
+                {isEventBooking && selectedAdventure?.location && (
+                  <div className="flex justify-between">
+                    <span className="font-body">Location</span>
+                    <span className="font-semibold">{selectedAdventure.location}</span>
+                  </div>
+                )}
                 <div className="flex justify-between">
                   <span className="font-body">Participants</span>
                   <span className="font-semibold">{bookingData.participants}</span>
@@ -482,8 +631,19 @@ const Book = () => {
             </div>
             <div>
               <span className="font-semibold font-heading">Date:</span>
-              <p className="font-body">{selectedDate?.toLocaleDateString()}</p>
+              <p className="font-body">
+                {isEventBooking && selectedAdventure?.fixedDate ? 
+                  selectedAdventure.duration : 
+                  selectedDate?.toLocaleDateString()
+                }
+              </p>
             </div>
+            {isEventBooking && selectedAdventure?.time && (
+              <div>
+                <span className="font-semibold font-heading">Time:</span>
+                <p className="font-body">{selectedAdventure.time}</p>
+              </div>
+            )}
             <div>
               <span className="font-semibold font-heading">Participants:</span>
               <p className="font-body">{bookingData.participants} people</p>
@@ -567,13 +727,15 @@ const Book = () => {
             <span className={`font-body ${currentStep >= 1 ? 'text-primary font-semibold' : 'text-muted-foreground'}`}>
               Adventure
             </span>
-            <span className={`font-body ${currentStep >= 2 ? 'text-primary font-semibold' : 'text-muted-foreground'}`}>
-              Date
-            </span>
-            <span className={`font-body ${currentStep >= 3 ? 'text-primary font-semibold' : 'text-muted-foreground'}`}>
+            {!isEventBooking && (
+              <span className={`font-body ${currentStep >= 2 ? 'text-primary font-semibold' : 'text-muted-foreground'}`}>
+                Date
+              </span>
+            )}
+            <span className={`font-body ${isEventBooking ? (currentStep >= 2 ? 'text-primary font-semibold' : 'text-muted-foreground') : (currentStep >= 3 ? 'text-primary font-semibold' : 'text-muted-foreground')}`}>
               Details
             </span>
-            <span className={`font-body ${currentStep >= 4 ? 'text-primary font-semibold' : 'text-muted-foreground'}`}>
+            <span className={`font-body ${isEventBooking ? (currentStep >= 3 ? 'text-primary font-semibold' : 'text-muted-foreground') : (currentStep >= 4 ? 'text-primary font-semibold' : 'text-muted-foreground')}`}>
               Payment
             </span>
           </div>
