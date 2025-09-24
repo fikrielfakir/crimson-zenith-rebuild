@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { Mouse } from "lucide-react";
 import heroBackground from "@/assets/hero-bg.jpg";
 
 const Hero = () => {
@@ -46,13 +45,6 @@ const Hero = () => {
         </div>
       </div>
       
-      {/* Enhanced Scroll Indicator with Pulsing Animation */}
-      <div className="absolute bottom-8 sm:bottom-12 left-1/2 transform -translate-x-1/2">
-        <div className="w-6 h-10 border-2 border-white/40 rounded-full flex justify-center items-start pt-2 animate-pulse">
-          <div className="w-1 h-2 bg-white/60 rounded-full animate-bounce"></div>
-        </div>
-        <p className="text-white/50 text-xs mt-3 tracking-wider uppercase">Scroll</p>
-      </div>
 
       {/* Add responsive margin for small screens */}
       <style dangerouslySetInnerHTML={{
