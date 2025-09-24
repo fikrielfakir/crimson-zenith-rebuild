@@ -75,13 +75,23 @@ const Hero = () => {
           }}
         >
           <span className="hero-heading-gradient hero-heading-typewriter">
-            {displayedText.split('\n').map((line, index) => (
-              <span key={index}>
-                {line}
-                {index < displayedText.split('\n').length - 1 && <br />}
-              </span>
-            ))}
-            <span className="typewriter-cursor">|</span>
+            {(() => {
+              // Split the text by lines first
+              const lines = displayedText.split('\n');
+              const totalLines = lines.length;
+              
+              return lines.map((line, lineIndex) => (
+                <span key={lineIndex}>
+                  {line}
+                  {/* Add cursor after the last character if this is the last line */}
+                  {lineIndex === totalLines - 1 && (
+                    <span className="typewriter-cursor">|</span>
+                  )}
+                  {/* Add line break if not the last line */}
+                  {lineIndex < totalLines - 1 && <br />}
+                </span>
+              ));
+            })()}
           </span>
         </h1>
         
@@ -139,7 +149,6 @@ const Hero = () => {
             height: 2.5rem;
           }
           .typewriter-cursor {
-            display: inline-block;
             animation: blink 1s infinite;
             color: white;
             font-weight: normal;
