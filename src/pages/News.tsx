@@ -143,7 +143,7 @@ const News = () => {
       {/* Featured Article Hero */}
       <section className="relative min-h-[70vh] flex items-end overflow-hidden">
         <img 
-          src={featuredArticle.image} 
+          src="/news-hero.jpg" 
           alt={featuredArticle.title}
           className="absolute inset-0 w-full h-full object-cover"
         />

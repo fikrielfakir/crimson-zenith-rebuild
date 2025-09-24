@@ -694,7 +694,7 @@ const Book = () => {
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{ 
-            backgroundImage: `url(/api/placeholder/1920/600)`,
+            backgroundImage: `url(/book-hero.jpg)`,
             filter: 'brightness(0.7)'
           }}
         />

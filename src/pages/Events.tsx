@@ -133,7 +133,7 @@ const Events = () => {
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{ 
-            backgroundImage: `url(/api/placeholder/1920/800)`,
+            backgroundImage: `url(/events-hero.jpg)`,
             filter: 'brightness(0.7)'
           }}
         />

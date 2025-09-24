@@ -178,17 +178,13 @@ const Gallery = () => {
       
       {/* Hero Section */}
       <section className="relative min-h-[60vh] flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 grid grid-cols-6 gap-1 opacity-20">
-          {galleryItems.slice(0, 18).map((item, index) => (
-            <div key={index} className="relative overflow-hidden">
-              <img 
-                src={item.url} 
-                alt=""
-                className="w-full h-24 object-cover"
-              />
-            </div>
-          ))}
-        </div>
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{ 
+            backgroundImage: `url(/gallery-hero.jpg)`,
+            filter: 'brightness(0.7)'
+          }}
+        />
         <div className="absolute inset-0" style={{ background: 'var(--gradient-overlay)' }} />
         
         <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
