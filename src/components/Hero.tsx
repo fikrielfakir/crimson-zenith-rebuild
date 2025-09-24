@@ -75,7 +75,7 @@ const Hero = () => {
             marginBottom: '2rem',
           }}
         >
-          <span className="hero-heading-gradient hero-heading-typewriter">
+          <span className="text-white font-extrabold hero-heading-typewriter">
             {(() => {
               // Split the text by lines first
               const lines = displayedText.split('\n');
