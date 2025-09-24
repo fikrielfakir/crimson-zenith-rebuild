@@ -1,12 +1,29 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { MapPin, Users } from "lucide-react";
+import { MapPin, Users, ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
+import { useState } from "react";
 import MoroccoMap from "./MoroccoMap";
 import marrakechImg from "@/assets/marrakech-club.jpg";
 import fezImg from "@/assets/fez-club.jpg";
 import casablancaImg from "@/assets/casablanca-club.jpg";
 
 const ClubsWithMap = () => {
+  const [currentPage, setCurrentPage] = useState(0);
+  const [showAllClubs, setShowAllClubs] = useState(false);
+  const clubsPerPage = 3;
+
+  const handleShowMore = () => {
+    setShowAllClubs(true);
+  };
+
+  const handlePrevPage = () => {
+    setCurrentPage(prev => Math.max(0, prev - 1));
+  };
+
+  const handleNextPage = () => {
+    setCurrentPage(prev => Math.min(Math.floor((clubs.length - 1) / clubsPerPage), prev + 1));
+  };
+
   const clubs = [
     {
       name: "Marrakech Club",
@@ -31,6 +48,54 @@ const ClubsWithMap = () => {
       members: "320+ Members",
       location: "Casablanca, Morocco",
       features: ["Art Galleries", "Modern Culture", "Coastal Adventures"],
+    },
+    {
+      name: "Rabat Club",
+      description: "Explore Morocco's political capital and historical sites",
+      image: marrakechImg,
+      members: "195+ Members",
+      location: "Rabat, Morocco",
+      features: ["Government Tours", "Royal Palaces", "Archaeological Sites"],
+    },
+    {
+      name: "Chefchaouen Club",
+      description: "Wander through the enchanting blue pearl of Morocco",
+      image: fezImg,
+      members: "145+ Members",
+      location: "Chefchaouen, Morocco",
+      features: ["Blue City Tours", "Mountain Hiking", "Photography Walks"],
+    },
+    {
+      name: "Tangier Club",
+      description: "Gateway to Africa with rich multicultural heritage",
+      image: casablancaImg,
+      members: "210+ Members",
+      location: "Tangier, Morocco",
+      features: ["Port Tours", "International Culture", "Strait Views"],
+    },
+    {
+      name: "Meknes Club",
+      description: "Imperial city with magnificent architecture and history",
+      image: marrakechImg,
+      members: "165+ Members",
+      location: "Meknes, Morocco",
+      features: ["Imperial Tours", "Ancient Ruins", "Wine Tasting"],
+    },
+    {
+      name: "Essaouira Club",
+      description: "Coastal charm with Portuguese influence and ocean breeze",
+      image: fezImg,
+      members: "175+ Members",
+      location: "Essaouira, Morocco",
+      features: ["Coastal Activities", "Wind Sports", "Fishing Tours"],
+    },
+    {
+      name: "Ouarzazate Club",
+      description: "Gateway to the Sahara Desert and film studios",
+      image: casablancaImg,
+      members: "130+ Members",
+      location: "Ouarzazate, Morocco",
+      features: ["Desert Tours", "Film Studios", "Kasbah Visits"],
     },
   ];
 
@@ -67,7 +132,9 @@ const ClubsWithMap = () => {
           
           {/* Clubs Section - Always on Right */}
           <div className="space-y-4 order-2">
-            {clubs.map((club, index) => (
+            {/* Clubs Display */}
+            <div className="space-y-4">
+              {(showAllClubs ? clubs : clubs.slice(currentPage * clubsPerPage, (currentPage + 1) * clubsPerPage)).map((club, index) => (
               <Card 
                 key={club.name} 
                 className="group hover:shadow-lg transition-all duration-300 animate-scale-in border-border/20 overflow-hidden bg-background"
@@ -118,7 +185,50 @@ const ClubsWithMap = () => {
                   </div>
                 </div>
               </Card>
-            ))}
+              ))}
+            </div>
+            
+            {/* Pagination Controls */}
+            {!showAllClubs && (
+              <div className="flex items-center justify-between mt-6">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handlePrevPage}
+                  disabled={currentPage === 0}
+                  className="flex items-center gap-2"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  Previous
+                </Button>
+                
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">
+                    {currentPage * clubsPerPage + 1}-{Math.min((currentPage + 1) * clubsPerPage, clubs.length)} of {clubs.length} clubs
+                  </span>
+                  <Button
+                    variant="ghost" 
+                    size="sm"
+                    onClick={handleShowMore}
+                    className="flex items-center gap-2 text-primary hover:text-primary"
+                  >
+                    <MoreHorizontal className="w-4 h-4" />
+                    More Clubs
+                  </Button>
+                </div>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleNextPage}
+                  disabled={currentPage >= Math.floor((clubs.length - 1) / clubsPerPage)}
+                  className="flex items-center gap-2"
+                >
+                  Next
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </div>

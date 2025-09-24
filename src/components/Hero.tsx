@@ -119,7 +119,7 @@ const Hero = () => {
         </div>
         
         {/* Navigation Cards Section */}
-        <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
+        <div className="mt-16 grid grid-cols-2 gap-4 max-w-2xl mx-auto">
           <Link to="/events" className="group">
             <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-4 text-center hover:bg-white/20 transition-all duration-300 hover:scale-105">
               <div className="text-2xl mb-2">🎭</div>
@@ -130,18 +130,6 @@ const Hero = () => {
             <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-4 text-center hover:bg-white/20 transition-all duration-300 hover:scale-105">
               <div className="text-2xl mb-2">📅</div>
               <div className="text-white text-sm font-medium">Book Now</div>
-            </div>
-          </Link>
-          <Link to="/gallery" className="group">
-            <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-4 text-center hover:bg-white/20 transition-all duration-300 hover:scale-105">
-              <div className="text-2xl mb-2">📸</div>
-              <div className="text-white text-sm font-medium">Gallery</div>
-            </div>
-          </Link>
-          <Link to="/discover" className="group">
-            <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-4 text-center hover:bg-white/20 transition-all duration-300 hover:scale-105">
-              <div className="text-2xl mb-2">🗺️</div>
-              <div className="text-white text-sm font-medium">Discover</div>
             </div>
           </Link>
         </div>
