@@ -152,6 +152,10 @@ const Hero = () => {
             animation: blink 1s infinite;
             color: white;
             font-weight: normal;
+            display: inline-block;
+            line-height: 1.1;
+            vertical-align: baseline;
+            font-size: inherit;
           }
           @keyframes blink {
             0%, 50% { opacity: 1; }
