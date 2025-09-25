@@ -25,6 +25,9 @@ import MediaLibrary from "./pages/admin/MediaLibrary";
 import EmailCampaigns from "./pages/admin/EmailCampaigns";
 import SystemMonitoring from "./pages/admin/SystemMonitoring";
 import AdminSettings from "./pages/admin/AdminSettings";
+import LandingManagement from "./pages/admin/LandingManagement";
+import ApplicationsManagement from "./pages/admin/ApplicationsManagement";
+import JoinUs from "./pages/JoinUs";
 import ProtectedRoute from "./components/admin/ProtectedRoute";
 
 const queryClient = new QueryClient();
@@ -45,6 +48,7 @@ const App = () => (
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/news" element={<News />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/join" element={<JoinUs />} />
           
           {/* Admin Routes */}
           <Route path="/admin/login" element={<AdminLogin />} />
@@ -96,6 +100,16 @@ const App = () => (
           <Route path="/admin/settings" element={
             <ProtectedRoute>
               <AdminSettings />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/landing" element={
+            <ProtectedRoute>
+              <LandingManagement />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/applications" element={
+            <ProtectedRoute>
+              <ApplicationsManagement />
             </ProtectedRoute>
           } />
           

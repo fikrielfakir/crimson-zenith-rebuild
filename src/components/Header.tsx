@@ -49,9 +49,10 @@ const TopNavbar = ({ isDarkMode, toggleDarkMode, currentLanguage, toggleLanguage
 
           {/* Join Button */}
           <Button 
+            asChild
             className="bg-secondary hover:bg-secondary/90 text-white px-6 py-2 text-sm font-medium rounded-button transition-all duration-300 shadow-elegant hover:shadow-glow"
           >
-            Join Us
+            <Link to="/join">Join Us</Link>
           </Button>
         </div>
       </div>

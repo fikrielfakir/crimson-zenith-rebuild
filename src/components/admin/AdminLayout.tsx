@@ -14,7 +14,9 @@ import {
   UserCog,
   Image,
   Mail,
-  Monitor
+  Monitor,
+  Layout,
+  ClipboardList
 } from "lucide-react";
 import { useLocation, useNavigate } from 'react-router-dom';
 import { cn } from "@/lib/utils";
@@ -31,6 +33,8 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
   const navigation = [
     { name: 'Dashboard', href: '/admin', icon: Home },
     { name: 'Analytics', href: '/admin/analytics', icon: TrendingUp },
+    { name: 'Landing Page', href: '/admin/landing', icon: Layout },
+    { name: 'Applications', href: '/admin/applications', icon: ClipboardList },
     { name: 'Clubs', href: '/admin/clubs', icon: Users },
     { name: 'Events', href: '/admin/events', icon: Calendar },
     { name: 'News', href: '/admin/news', icon: FileText },
