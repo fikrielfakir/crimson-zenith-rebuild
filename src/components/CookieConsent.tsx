@@ -56,15 +56,15 @@ const CookieConsent = () => {
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 flex items-end justify-center p-4 sm:items-center">
-      <Card className="w-full max-w-lg shadow-2xl border-0 animate-in slide-in-from-bottom-4 duration-300">
+    <div className="fixed bottom-0 left-0 right-0 z-50 p-4">
+      <Card className="w-full max-w-4xl mx-auto shadow-2xl border-0 animate-in slide-in-from-bottom-4 duration-500">
         <CardContent className="p-0">
           {/* Header */}
-          <div className="bg-gradient-to-r from-orange-500 to-blue-600 text-white p-4 rounded-t-lg">
+          <div className="bg-gradient-to-r from-orange-500 to-blue-600 text-white p-3 rounded-t-lg">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
-                <Cookie className="w-5 h-5" />
-                <h3 className="font-semibold text-lg">Cookie Settings</h3>
+                <Cookie className="w-4 h-4" />
+                <h3 className="font-semibold text-base">🍪 We use cookies to enhance your experience</h3>
               </div>
               <button 
                 onClick={() => setIsVisible(false)}
@@ -76,16 +76,13 @@ const CookieConsent = () => {
           </div>
 
           {/* Content */}
-          <div className="p-6 space-y-4">
+          <div className="p-4 space-y-3">
             <div className="flex items-start space-x-3">
-              <Shield className="w-5 h-5 text-orange-500 mt-1 flex-shrink-0" />
-              <div className="space-y-2">
+              <Shield className="w-4 h-4 text-orange-500 mt-1 flex-shrink-0" />
+              <div className="space-y-1">
                 <p className="text-sm text-gray-700 leading-relaxed">
-                  We use cookies to enhance your experience on Morocco Clubs. Our cookies help us remember your preferences, 
-                  analyze site traffic, and provide personalized content.
-                </p>
-                <p className="text-xs text-gray-500">
-                  Essential cookies are always active. You can customize your preferences below.
+                  Our cookies help us remember your preferences, analyze site traffic, and provide personalized content. 
+                  Essential cookies are always active.
                 </p>
               </div>
             </div>
@@ -131,28 +128,28 @@ const CookieConsent = () => {
             )}
 
             {/* Action Buttons */}
-            <div className="space-y-3 pt-4">
+            <div className="space-y-3">
               {!showDetails ? (
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
                   <Button
                     onClick={handleAcceptAll}
-                    className="bg-gradient-to-r from-orange-500 to-blue-600 hover:from-orange-600 hover:to-blue-700 text-white font-medium"
+                    className="bg-gradient-to-r from-orange-500 to-blue-600 hover:from-orange-600 hover:to-blue-700 text-white font-medium px-6"
                   >
                     Accept All
                   </Button>
                   <Button
                     onClick={handleAcceptNecessary}
                     variant="outline"
-                    className="border-gray-300 text-gray-700 hover:bg-gray-50"
+                    className="border-gray-300 text-gray-700 hover:bg-gray-50 px-4"
                   >
                     Necessary Only
                   </Button>
                   <Button
                     onClick={handleCustomize}
                     variant="outline"
-                    className="border-orange-300 text-orange-600 hover:bg-orange-50"
+                    className="border-orange-300 text-orange-600 hover:bg-orange-50 px-4"
                   >
-                    <Settings className="w-4 h-4 mr-2" />
+                    <Settings className="w-4 h-4 mr-1" />
                     Customize
                   </Button>
                 </div>
@@ -177,15 +174,15 @@ const CookieConsent = () => {
 
             {/* Footer Links */}
             <div className="text-center pt-2 border-t">
-              <div className="flex justify-center space-x-4 text-xs text-gray-500">
+              <div className="flex justify-center space-x-3 text-xs text-gray-500">
                 <Link to="/privacy-policy" className="hover:text-orange-600 transition-colors">
-                  Privacy Policy
+                  Privacy
                 </Link>
                 <Link to="/cookie-policy" className="hover:text-orange-600 transition-colors">
-                  Cookie Policy
+                  Cookies
                 </Link>
                 <Link to="/terms-of-service" className="hover:text-orange-600 transition-colors">
-                  Terms of Service
+                  Terms
                 </Link>
               </div>
             </div>
