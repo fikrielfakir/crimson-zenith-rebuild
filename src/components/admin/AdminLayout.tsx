@@ -17,7 +17,8 @@ import {
   Monitor,
   Layout,
   ClipboardList,
-  FormInput
+  FormInput,
+  Cookie
 } from "lucide-react";
 import { useLocation, useNavigate } from 'react-router-dom';
 import { cn } from "@/lib/utils";
@@ -43,6 +44,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
     { name: 'Users', href: '/admin/users', icon: UserCog },
     { name: 'Media', href: '/admin/media', icon: Image },
     { name: 'Email', href: '/admin/email', icon: Mail },
+    { name: 'Cookies', href: '/admin/cookies', icon: Cookie },
     { name: 'Monitor', href: '/admin/monitor', icon: Monitor },
     { name: 'Settings', href: '/admin/settings', icon: Settings },
   ];

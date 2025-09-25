@@ -31,6 +31,7 @@ import AdminSettings from "./pages/admin/AdminSettings";
 import LandingManagement from "./pages/admin/LandingManagement";
 import ApplicationsManagement from "./pages/admin/ApplicationsManagement";
 import JoinUsConfig from "./pages/admin/JoinUsConfig";
+import CookieSettings from "./pages/admin/CookieSettings";
 import JoinUs from "./pages/JoinUs";
 import ClubDetail from "./pages/ClubDetail";
 import UserProfile from "./pages/UserProfile";
@@ -131,6 +132,11 @@ const App = () => (
           <Route path="/admin/join-config" element={
             <ProtectedRoute>
               <JoinUsConfig />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/cookies" element={
+            <ProtectedRoute>
+              <CookieSettings />
             </ProtectedRoute>
           } />
           
