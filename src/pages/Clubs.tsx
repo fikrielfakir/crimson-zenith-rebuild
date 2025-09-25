@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -12,87 +13,63 @@ import Footer from "@/components/Footer";
 const Clubs = () => {
   const [viewMode, setViewMode] = useState<"list" | "map">("list");
 
-  // Mock data for clubs
-  const clubs = [
-    {
-      id: 1,
-      name: "Atlas Hikers",
-      image: "/api/placeholder/300/200",
-      memberCount: 245,
-      activities: ["Hiking", "Trekking", "Camping"],
-      nextMeetup: {
-        date: "Dec 15, 2024",
-        location: "Imlil Base"
-      },
-      description: "Join fellow hiking enthusiasts for weekly treks in the Atlas Mountains",
-      isJoined: false
+  // Fetch real clubs data from API
+  const { data: clubsResponse, isLoading, error } = useQuery({
+    queryKey: ['clubs'],
+    queryFn: async () => {
+      const response = await fetch('/api/clubs');
+      if (!response.ok) {
+        throw new Error('Failed to fetch clubs');
+      }
+      return response.json();
     },
-    {
-      id: 2,
-      name: "Desert Explorers",
-      image: "/api/placeholder/300/200",
-      memberCount: 189,
-      activities: ["Desert Tours", "Camel Trekking", "Astronomy"],
-      nextMeetup: {
-        date: "Dec 20, 2024",
-        location: "Merzouga Dunes"
-      },
-      description: "Discover the magic of Morocco's Sahara Desert with our adventure community",
-      isJoined: true
+  });
+
+  // Transform API data to match component expectations
+  const clubs = clubsResponse?.clubs?.map((club: any) => ({
+    id: club.id,
+    name: club.name,
+    image: club.image || "/api/placeholder/300/200",
+    memberCount: club.member_count,
+    activities: club.features || [],
+    nextMeetup: {
+      date: "Coming Soon",
+      location: club.location
     },
-    {
-      id: 3,
-      name: "Coastal Riders",
-      image: "/api/placeholder/300/200",
-      memberCount: 156,
-      activities: ["Surfing", "Cycling", "Beach Sports"],
-      nextMeetup: {
-        date: "Dec 18, 2024",
-        location: "Taghazout Beach"
-      },
-      description: "Surf, cycle, and enjoy beach activities along Morocco's Atlantic coast",
-      isJoined: false
-    },
-    {
-      id: 4,
-      name: "Culture Seekers",
-      image: "/api/placeholder/300/200",
-      memberCount: 312,
-      activities: ["Cultural Tours", "Photography", "Food Tours"],
-      nextMeetup: {
-        date: "Dec 22, 2024",
-        location: "Fez Medina"
-      },
-      description: "Immerse yourself in Morocco's rich cultural heritage and traditions",
-      isJoined: false
-    },
-    {
-      id: 5,
-      name: "Rock Climbers Morocco",
-      image: "/api/placeholder/300/200",
-      memberCount: 98,
-      activities: ["Rock Climbing", "Bouldering", "Via Ferrata"],
-      nextMeetup: {
-        date: "Dec 25, 2024",
-        location: "Todra Gorge"
-      },
-      description: "Challenge yourself on Morocco's stunning rock formations",
-      isJoined: false
-    },
-    {
-      id: 6,
-      name: "Photography Collective",
-      image: "/api/placeholder/300/200",
-      memberCount: 203,
-      activities: ["Photography", "Photo Walks", "Workshops"],
-      nextMeetup: {
-        date: "Dec 28, 2024",
-        location: "Chefchaouen"
-      },
-      description: "Capture Morocco's beauty through the lens with fellow photographers",
-      isJoined: true
-    }
-  ];
+    description: club.description,
+    isJoined: false,
+    rating: club.rating,
+    location: club.location
+  })) || [];
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-orange-50">
+        <Header />
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading clubs...</p>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-orange-50">
+        <Header />
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <p className="text-red-600">Failed to load clubs. Please try again.</p>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   const clubBenefits = [
     {

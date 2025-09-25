@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { MapPin, Users, ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import MoroccoMap from "./MoroccoMap";
 import marrakechImg from "@/assets/marrakech-club.jpg";
 import fezImg from "@/assets/fez-club.jpg";
@@ -13,6 +14,32 @@ const ClubsWithMap = () => {
   const clubsPerPage = 3;
   const navigate = useNavigate();
 
+  // Fetch real clubs data from API
+  const { data: clubsResponse, isLoading } = useQuery({
+    queryKey: ['clubs'],
+    queryFn: async () => {
+      const response = await fetch('/api/clubs');
+      if (!response.ok) {
+        throw new Error('Failed to fetch clubs');
+      }
+      return response.json();
+    },
+  });
+
+  // Transform API data to match component expectations, with fallback images
+  const clubs = clubsResponse?.clubs?.map((club: any, index: number) => {
+    const fallbackImages = [marrakechImg, fezImg, casablancaImg];
+    const fallbackImage = fallbackImages[index % fallbackImages.length];
+    
+    return {
+      name: club.name,
+      description: club.description,
+      image: club.image || fallbackImage,
+      members: `${club.member_count}+ Members`,
+      location: club.location,
+      features: club.features || [],
+    };
+  }) || [];
 
   const handlePrevPage = () => {
     setCurrentPage(prev => Math.max(0, prev - 1));
@@ -22,80 +49,23 @@ const ClubsWithMap = () => {
     setCurrentPage(prev => Math.min(Math.floor((clubs.length - 1) / clubsPerPage), prev + 1));
   };
 
-  const clubs = [
-    {
-      name: "Marrakech Club",
-      description: "Explore the vibrant souks and palaces of the Red City",
-      image: marrakechImg,
-      members: "250+ Members",
-      location: "Marrakech, Morocco",
-      features: ["Historic Tours", "Local Cuisine", "Artisan Workshops"],
-    },
-    {
-      name: "Fez Club", 
-      description: "Discover the ancient medina and cultural heritage",
-      image: fezImg,
-      members: "180+ Members",
-      location: "Fez, Morocco", 
-      features: ["Medina Walks", "Traditional Crafts", "Cultural Events"],
-    },
-    {
-      name: "Casablanca Club",
-      description: "Experience the modern emerging art scene",
-      image: casablancaImg,
-      members: "320+ Members",
-      location: "Casablanca, Morocco",
-      features: ["Art Galleries", "Modern Culture", "Coastal Adventures"],
-    },
-    {
-      name: "Rabat Club",
-      description: "Explore Morocco's political capital and historical sites",
-      image: marrakechImg,
-      members: "195+ Members",
-      location: "Rabat, Morocco",
-      features: ["Government Tours", "Royal Palaces", "Archaeological Sites"],
-    },
-    {
-      name: "Chefchaouen Club",
-      description: "Wander through the enchanting blue pearl of Morocco",
-      image: fezImg,
-      members: "145+ Members",
-      location: "Chefchaouen, Morocco",
-      features: ["Blue City Tours", "Mountain Hiking", "Photography Walks"],
-    },
-    {
-      name: "Tangier Club",
-      description: "Gateway to Africa with rich multicultural heritage",
-      image: casablancaImg,
-      members: "210+ Members",
-      location: "Tangier, Morocco",
-      features: ["Port Tours", "International Culture", "Strait Views"],
-    },
-    {
-      name: "Meknes Club",
-      description: "Imperial city with magnificent architecture and history",
-      image: marrakechImg,
-      members: "165+ Members",
-      location: "Meknes, Morocco",
-      features: ["Imperial Tours", "Ancient Ruins", "Wine Tasting"],
-    },
-    {
-      name: "Essaouira Club",
-      description: "Coastal charm with Portuguese influence and ocean breeze",
-      image: fezImg,
-      members: "175+ Members",
-      location: "Essaouira, Morocco",
-      features: ["Coastal Activities", "Wind Sports", "Fishing Tours"],
-    },
-    {
-      name: "Ouarzazate Club",
-      description: "Gateway to the Sahara Desert and film studios",
-      image: casablancaImg,
-      members: "130+ Members",
-      location: "Ouarzazate, Morocco",
-      features: ["Desert Tours", "Film Studios", "Kasbah Visits"],
-    },
-  ];
+  if (isLoading) {
+    return (
+      <section id="activities" className="py-20 bg-gradient-subtle scroll-mt-32">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16 animate-fade-in">
+            <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
+              Our Clubs
+            </h2>
+            <div className="flex items-center justify-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
+              <span className="ml-2 text-gray-600">Loading clubs...</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="activities" className="py-20 bg-gradient-subtle scroll-mt-32">
