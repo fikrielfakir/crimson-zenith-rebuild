@@ -30,6 +30,8 @@ import ApplicationsManagement from "./pages/admin/ApplicationsManagement";
 import JoinUsConfig from "./pages/admin/JoinUsConfig";
 import JoinUs from "./pages/JoinUs";
 import ClubDetail from "./pages/ClubDetail";
+import UserProfile from "./pages/UserProfile";
+import ClubProfileEdit from "./pages/ClubProfileEdit";
 import ProtectedRoute from "./components/admin/ProtectedRoute";
 
 const queryClient = new QueryClient();
@@ -52,6 +54,8 @@ const App = () => (
           <Route path="/news" element={<News />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/join" element={<JoinUs />} />
+          <Route path="/profile" element={<UserProfile />} />
+          <Route path="/club/:clubId/edit" element={<ClubProfileEdit />} />
           
           {/* Admin Routes */}
           <Route path="/admin/login" element={<AdminLogin />} />

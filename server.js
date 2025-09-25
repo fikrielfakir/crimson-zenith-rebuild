@@ -9,6 +9,10 @@ const __dirname = dirname(__filename);
 const app = express();
 const PORT = 3001;
 
+// Middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 // Serve static files from public directory
 app.use('/static', express.static(join(__dirname, 'public')));
 
