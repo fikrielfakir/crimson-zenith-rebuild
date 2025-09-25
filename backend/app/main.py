@@ -1,11 +1,58 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from sqlalchemy.orm import Session
 import os
 
 from .config import settings
-from .database import create_tables, engine
+from .database import create_tables, engine, get_db
+from .models import Club, ClubEvent, User
 from .auth.routes import router as auth_router
+
+def seed_database():
+    """Add initial seed data to database."""
+    from .database import SessionLocal
+    db = SessionLocal()
+    try:
+        # Check if clubs already exist
+        if db.query(Club).count() == 0:
+            clubs = [
+                Club(
+                    name="Atlas Hikers Club",
+                    description="Mountain trekking and hiking adventures",
+                    location="Atlas Mountains",
+                    member_count=250,
+                    rating=5,
+                    image="/images/atlas-hikers.jpg",
+                    features=["Hiking", "Camping", "Photography"],
+                    is_active=True
+                ),
+                Club(
+                    name="Desert Explorers",
+                    description="Sahara expeditions and desert camping",
+                    location="Sahara Desert",
+                    member_count=180,
+                    rating=5,
+                    image="/images/desert-explorers.jpg",
+                    features=["Desert Tours", "Camping", "Camel Rides"],
+                    is_active=True
+                ),
+                Club(
+                    name="Coastal Adventures",
+                    description="Beach activities and water sports",
+                    location="Atlantic Coast",
+                    member_count=320,
+                    rating=4,
+                    image="/images/coastal-adventures.jpg",
+                    features=["Surfing", "Beach Volleyball", "Swimming"],
+                    is_active=True
+                )
+            ]
+            db.add_all(clubs)
+            db.commit()
+            print("✓ Seeded clubs data")
+    finally:
+        db.close()
 
 # Create FastAPI application
 app = FastAPI(
@@ -29,6 +76,7 @@ app.add_middleware(
 @app.on_event("startup")
 async def startup_event():
     create_tables()
+    seed_database()
 
 # Health check endpoint
 @app.get("/health")
@@ -40,51 +88,24 @@ app.include_router(auth_router, prefix="/api")
 
 # Clubs routes
 @app.get("/api/clubs")
-async def get_clubs():
-    """Get all clubs - temporary implementation."""
+async def get_clubs(db: Session = Depends(get_db)):
+    """Get all clubs from database."""
+    clubs = db.query(Club).filter(Club.is_active == True).all()
     return {
-        "clubs": [
-            {
-                "id": 1,
-                "name": "Atlas Hikers Club",
-                "description": "Mountain trekking and hiking adventures",
-                "location": "Atlas Mountains",
-                "member_count": 250,
-                "rating": 5,
-                "image": "/images/atlas-hikers.jpg",
-                "features": ["Hiking", "Camping", "Photography"],
-                "is_active": True,
-                "created_at": "2024-01-01T00:00:00Z",
-                "updated_at": "2024-01-01T00:00:00Z"
-            },
-            {
-                "id": 2,
-                "name": "Desert Explorers",
-                "description": "Sahara expeditions and desert camping",
-                "location": "Sahara Desert",
-                "member_count": 180,
-                "rating": 5,
-                "image": "/images/desert-explorers.jpg",
-                "features": ["Desert Tours", "Camping", "Camel Rides"],
-                "is_active": True,
-                "created_at": "2024-01-01T00:00:00Z",
-                "updated_at": "2024-01-01T00:00:00Z"
-            },
-            {
-                "id": 3,
-                "name": "Coastal Adventures",
-                "description": "Beach activities and water sports",
-                "location": "Atlantic Coast",
-                "member_count": 320,
-                "rating": 4,
-                "image": "/images/coastal-adventures.jpg",
-                "features": ["Surfing", "Beach Volleyball", "Swimming"],
-                "is_active": True,
-                "created_at": "2024-01-01T00:00:00Z",
-                "updated_at": "2024-01-01T00:00:00Z"
-            }
-        ],
-        "total": 3
+        "clubs": [{
+            "id": club.id,
+            "name": club.name,
+            "description": club.description,
+            "location": club.location,
+            "member_count": club.member_count,
+            "rating": club.rating,
+            "image": club.image,
+            "features": club.features,
+            "is_active": club.is_active,
+            "created_at": club.created_at.isoformat() if club.created_at else None,
+            "updated_at": club.updated_at.isoformat() if club.updated_at else None
+        } for club in clubs],
+        "total": len(clubs)
     }
 
 # Events routes

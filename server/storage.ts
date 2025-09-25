@@ -14,7 +14,7 @@ import {
   type InsertClubEvent,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, desc, asc } from "drizzle-orm";
+import { eq, and, desc, asc, count, sql } from "drizzle-orm";
 
 // Interface for storage operations
 export interface IStorage {
@@ -106,49 +106,67 @@ export class DatabaseStorage implements IStorage {
 
   // Club membership operations
   async joinClub(userId: string, clubId: number): Promise<ClubMembership> {
-    // Check if already a member
-    const existing = await db
-      .select()
-      .from(clubMemberships)
-      .where(and(eq(clubMemberships.userId, userId), eq(clubMemberships.clubId, clubId)))
-      .limit(1);
-    
-    if (existing.length > 0) {
-      // Reactivate membership if inactive
-      const [membership] = await db
-        .update(clubMemberships)
-        .set({ isActive: true })
-        .where(eq(clubMemberships.id, existing[0].id))
-        .returning();
+    return await db.transaction(async (tx) => {
+      // Check if already a member
+      const existing = await tx
+        .select()
+        .from(clubMemberships)
+        .where(and(eq(clubMemberships.userId, userId), eq(clubMemberships.clubId, clubId)))
+        .limit(1);
+      
+      let membership: ClubMembership;
+      
+      if (existing.length > 0) {
+        // Reactivate membership if inactive
+        const [reactivatedMembership] = await tx
+          .update(clubMemberships)
+          .set({ isActive: true })
+          .where(eq(clubMemberships.id, existing[0].id))
+          .returning();
+        membership = reactivatedMembership;
+      } else {
+        // Create new membership
+        const [newMembership] = await tx
+          .insert(clubMemberships)
+          .values({ userId, clubId, role: 'member' })
+          .returning();
+        membership = newMembership;
+      }
+
+      // Update club member count with proper count query
+      const [memberCountResult] = await tx
+        .select({ count: count() })
+        .from(clubMemberships)
+        .where(and(eq(clubMemberships.clubId, clubId), eq(clubMemberships.isActive, true)));
+
+      await tx
+        .update(clubs)
+        .set({ memberCount: memberCountResult.count })
+        .where(eq(clubs.id, clubId));
+
       return membership;
-    }
-
-    // Create new membership
-    const [membership] = await db
-      .insert(clubMemberships)
-      .values({ userId, clubId, role: 'member' })
-      .returning();
-
-    // Update club member count
-    await db
-      .update(clubs)
-      .set({ memberCount: db.$count(clubMemberships, eq(clubMemberships.clubId, clubId)) })
-      .where(eq(clubs.id, clubId));
-
-    return membership;
+    });
   }
 
   async leaveClub(userId: string, clubId: number): Promise<void> {
-    await db
-      .update(clubMemberships)
-      .set({ isActive: false })
-      .where(and(eq(clubMemberships.userId, userId), eq(clubMemberships.clubId, clubId)));
+    await db.transaction(async (tx) => {
+      // Deactivate membership
+      await tx
+        .update(clubMemberships)
+        .set({ isActive: false })
+        .where(and(eq(clubMemberships.userId, userId), eq(clubMemberships.clubId, clubId)));
 
-    // Update club member count
-    await db
-      .update(clubs)
-      .set({ memberCount: db.$count(clubMemberships, and(eq(clubMemberships.clubId, clubId), eq(clubMemberships.isActive, true))) })
-      .where(eq(clubs.id, clubId));
+      // Update club member count with proper count query
+      const [memberCountResult] = await tx
+        .select({ count: count() })
+        .from(clubMemberships)
+        .where(and(eq(clubMemberships.clubId, clubId), eq(clubMemberships.isActive, true)));
+
+      await tx
+        .update(clubs)
+        .set({ memberCount: memberCountResult.count })
+        .where(eq(clubs.id, clubId));
+    });
   }
 
   async getUserClubMemberships(userId: string): Promise<ClubMembership[]> {
@@ -218,4 +236,5 @@ export class DatabaseStorage implements IStorage {
   }
 }
 
+// Export the storage instance
 export const storage = new DatabaseStorage();

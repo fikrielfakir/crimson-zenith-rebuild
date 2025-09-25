@@ -1,12 +1,13 @@
 from pydantic_settings import BaseSettings
 from typing import Optional
+import os
 
 
 class Settings(BaseSettings):
     """Application configuration settings."""
     
     # Database
-    database_url: str = "postgresql://user:password@localhost:5432/morocco_clubs"
+    database_url: str = ""
     
     # Security
     secret_key: str = "your-secret-key-here"
@@ -35,3 +36,7 @@ class Settings(BaseSettings):
 
 # Global settings instance
 settings = Settings()
+
+# Use DATABASE_URL from environment if available
+if os.getenv("DATABASE_URL"):
+    settings.database_url = os.getenv("DATABASE_URL")
