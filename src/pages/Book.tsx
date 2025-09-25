@@ -9,6 +9,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Calendar } from "@/components/ui/calendar";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { 
   ArrowLeft, 
   ArrowRight, 
@@ -28,6 +30,9 @@ import { useSearchParams } from "react-router-dom";
 import gnaoua from "@/assets/gnaoua-festival.jpg";
 import timitar from "@/assets/timitar-festival.jpg";
 
+// Initialize Stripe
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || 'pk_test_placeholder');
+
 const Book = () => {
   const [searchParams] = useSearchParams();
   const eventParam = searchParams.get('event');
@@ -41,8 +46,10 @@ const Book = () => {
     insurance: false,
     emergency_contact: "",
     dietary_requirements: "",
-    payment_method: "card"
+    payment_method: "stripe"
   });
+  const [clientSecret, setClientSecret] = useState("");
+  const [paymentLoading, setPaymentLoading] = useState(false);
 
   // Events data (same as EventCalendar)
   const events = [
@@ -471,6 +478,26 @@ const Book = () => {
     </div>
   );
 
+  // Initialize payment intent when payment step is reached
+  useEffect(() => {
+    if (currentStep === (isEventBooking ? 3 : 4) && bookingData.payment_method === "stripe" && !clientSecret) {
+      const equipmentCost = bookingData.equipment.length * 20;
+      const insuranceCost = bookingData.insurance ? 25 : 0;
+      const basePrice = selectedAdventure?.price || 0;
+      const totalCost = (basePrice * bookingData.participants) + equipmentCost + insuranceCost;
+      
+      // Create payment intent
+      fetch('/api/create-payment-intent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: totalCost })
+      })
+      .then(res => res.json())
+      .then(data => setClientSecret(data.clientSecret))
+      .catch(err => console.error('Payment intent creation failed:', err));
+    }
+  }, [currentStep, bookingData.payment_method, selectedAdventure, bookingData]);
+
   const Step4Payment = () => {
     const equipmentCost = bookingData.equipment.length * 20; // Simplified calculation
     const insuranceCost = bookingData.insurance ? 25 : 0;
@@ -557,15 +584,24 @@ const Book = () => {
               <CardContent>
                 <RadioGroup 
                   value={bookingData.payment_method} 
-                  onValueChange={(value) => setBookingData({...bookingData, payment_method: value})}
+                  onValueChange={(value) => {
+                    setBookingData({...bookingData, payment_method: value});
+                    setClientSecret(""); // Reset payment intent when switching methods
+                  }}
                 >
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="card" id="card" />
-                    <Label htmlFor="card" className="font-body">Credit/Debit Card</Label>
+                    <RadioGroupItem value="stripe" id="stripe" />
+                    <Label htmlFor="stripe" className="font-body flex items-center gap-2">
+                      <CreditCard className="w-4 h-4" />
+                      Credit/Debit Card (Stripe)
+                    </Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="paypal" id="paypal" />
-                    <Label htmlFor="paypal" className="font-body">PayPal</Label>
+                    <Label htmlFor="paypal" className="font-body flex items-center gap-2">
+                      <div className="w-4 h-4 bg-blue-600 rounded flex items-center justify-center text-white text-xs font-bold">P</div>
+                      PayPal
+                    </Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="bank" id="bank" />
@@ -573,22 +609,51 @@ const Book = () => {
                   </div>
                 </RadioGroup>
                 
-                {bookingData.payment_method === "card" && (
+                {/* Stripe Payment */}
+                {bookingData.payment_method === "stripe" && (
+                  <div className="mt-6">
+                    {clientSecret && stripePromise ? (
+                      <Elements stripe={stripePromise} options={{ clientSecret }}>
+                        <StripePaymentForm totalCost={totalCost} />
+                      </Elements>
+                    ) : (
+                      <div className="flex items-center justify-center p-8">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                        <span className="ml-3">Setting up secure payment...</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* PayPal Payment */}
+                {bookingData.payment_method === "paypal" && (
                   <div className="mt-6 space-y-4">
-                    <div>
-                      <Label htmlFor="cardNumber" className="font-heading">Card Number</Label>
-                      <Input id="cardNumber" placeholder="1234 5678 9012 3456" className="mt-2" />
+                    <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                      <p className="text-sm text-blue-800">
+                        You will be redirected to PayPal to complete your payment securely.
+                      </p>
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="expiry" className="font-heading">Expiry</Label>
-                        <Input id="expiry" placeholder="MM/YY" className="mt-2" />
-                      </div>
-                      <div>
-                        <Label htmlFor="cvv" className="font-heading">CVV</Label>
-                        <Input id="cvv" placeholder="123" className="mt-2" />
-                      </div>
+                    <PayPalPaymentButton 
+                      amount={totalCost.toString()} 
+                      currency="USD"
+                      intent="CAPTURE"
+                    />
+                  </div>
+                )}
+
+                {/* Bank Transfer */}
+                {bookingData.payment_method === "bank" && (
+                  <div className="mt-6 p-4 bg-slate-50 rounded-lg border">
+                    <h4 className="font-semibold mb-2">Bank Transfer Details</h4>
+                    <div className="text-sm space-y-1">
+                      <p><strong>Account:</strong> Morocco Adventures Ltd</p>
+                      <p><strong>IBAN:</strong> MA64 0001 0000 0000 0000 0001 23</p>
+                      <p><strong>SWIFT:</strong> BMCEMAMC</p>
+                      <p><strong>Reference:</strong> {selectedAdventure?.title.substring(0, 10)}-{Date.now().toString().slice(-6)}</p>
                     </div>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Please include the reference number in your transfer description.
+                    </p>
                   </div>
                 )}
               </CardContent>
@@ -684,6 +749,117 @@ const Book = () => {
       </Card>
     </div>
   );
+
+  // Stripe Payment Form Component
+  const StripePaymentForm = ({ totalCost }: { totalCost: number }) => {
+    const stripe = useStripe();
+    const elements = useElements();
+    const [isLoading, setIsLoading] = useState(false);
+    const [message, setMessage] = useState<string>('');
+
+    const handleSubmit = async (e: React.FormEvent) => {
+      e.preventDefault();
+
+      if (!stripe || !elements) {
+        return;
+      }
+
+      setIsLoading(true);
+
+      const { error } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          return_url: `${window.location.origin}/booking-success`,
+        },
+      });
+
+      if (error) {
+        if (error.type === "card_error" || error.type === "validation_error") {
+          setMessage(error.message || 'An error occurred');
+        } else {
+          setMessage("An unexpected error occurred.");
+        }
+      }
+
+      setIsLoading(false);
+    };
+
+    return (
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <PaymentElement />
+        {message && (
+          <div className="text-sm text-destructive bg-destructive/10 p-3 rounded">
+            {message}
+          </div>
+        )}
+        <Button 
+          type="submit" 
+          disabled={isLoading || !stripe || !elements}
+          className="w-full"
+        >
+          {isLoading ? (
+            <div className="flex items-center">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+              Processing...
+            </div>
+          ) : (
+            `Pay $${totalCost} with Stripe`
+          )}
+        </Button>
+      </form>
+    );
+  };
+
+  // PayPal Payment Button Component
+  const PayPalPaymentButton = ({ amount, currency, intent }: { 
+    amount: string; 
+    currency: string; 
+    intent: string; 
+  }) => {
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handlePayPalPayment = async () => {
+      setIsLoading(true);
+      try {
+        // This would integrate with your PayPal backend endpoints
+        const response = await fetch('/api/paypal/order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amount, currency, intent })
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          // Redirect to PayPal or handle payment flow
+          window.location.href = data.approval_url;
+        } else {
+          throw new Error('PayPal payment initialization failed');
+        }
+      } catch (error) {
+        console.error('PayPal error:', error);
+        alert('PayPal payment failed. Please try again or use a different payment method.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    return (
+      <Button 
+        onClick={handlePayPalPayment}
+        disabled={isLoading}
+        className="w-full bg-blue-600 hover:bg-blue-700"
+      >
+        {isLoading ? (
+          <div className="flex items-center">
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+            Connecting to PayPal...
+          </div>
+        ) : (
+          `Pay $${amount} with PayPal`
+        )}
+      </Button>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-background">

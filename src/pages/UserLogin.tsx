@@ -31,13 +31,13 @@ const UserLogin = () => {
   };
 
   const handleGoogleLogin = () => {
-    // Placeholder for Google OAuth integration
-    setError('Google login not implemented yet');
+    // Google login is handled through Replit OAuth integration
+    window.location.href = '/api/login';
   };
 
   const handleReaplitLogin = () => {
-    // This would integrate with the existing Replit auth
-    window.location.href = '/api/auth/login';
+    // Using Replit OAuth integration (supports Google, GitHub, X, Apple, email/password)
+    window.location.href = '/api/login';
   };
 
   return (
@@ -130,18 +130,6 @@ const UserLogin = () => {
                 type="button" 
                 variant="outline" 
                 className="w-full border-slate-300 hover:bg-slate-50"
-                onClick={handleReaplitLogin}
-              >
-                <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 2L2 7v10c0 5.55 3.84 9.95 9 11 5.16-1.05 9-5.45 9-11V7l-10-5z"/>
-                </svg>
-                Sign in with Replit
-              </Button>
-              
-              <Button 
-                type="button" 
-                variant="outline" 
-                className="w-full border-slate-300 hover:bg-slate-50"
                 onClick={handleGoogleLogin}
               >
                 <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
@@ -151,6 +139,30 @@ const UserLogin = () => {
                   <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                 </svg>
                 Sign in with Google
+              </Button>
+              
+              <Button 
+                type="button" 
+                variant="outline" 
+                className="w-full border-slate-300 hover:bg-slate-50"
+                onClick={() => setError('Facebook login is not configured. Please contact administrator.')}
+              >
+                <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="#1877F2">
+                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                </svg>
+                Sign in with Facebook
+              </Button>
+              
+              <Button 
+                type="button" 
+                variant="outline" 
+                className="w-full border-slate-300 hover:bg-slate-50"
+                onClick={handleReaplitLogin}
+              >
+                <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2L2 7v10c0 5.55 3.84 9.95 9 11 5.16-1.05 9-5.45 9-11V7l-10-5z"/>
+                </svg>
+                Sign in with Replit
               </Button>
             </div>
 
