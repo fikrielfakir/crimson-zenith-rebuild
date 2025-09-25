@@ -19,18 +19,36 @@ const Footer = () => {
               between travelers and local communities while preserving cultural heritage.
             </p>
             <div className="flex gap-4">
-              <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors cursor-pointer">
+              <a 
+                href="https://www.facebook.com/moroccoactivities" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors cursor-pointer"
+              >
                 <Facebook className="w-5 h-5" />
-              </div>
-              <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors cursor-pointer">
+              </a>
+              <a 
+                href="https://www.instagram.com/moroccoactivities" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors cursor-pointer"
+              >
                 <Instagram className="w-5 h-5" />
-              </div>
-              <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors cursor-pointer">
+              </a>
+              <a 
+                href="https://twitter.com/moroccoactivities" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors cursor-pointer"
+              >
                 <Twitter className="w-5 h-5" />
-              </div>
-              <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors cursor-pointer">
+              </a>
+              <a 
+                href="mailto:info@moroccoactivities.com"
+                className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors cursor-pointer"
+              >
                 <Mail className="w-5 h-5" />
-              </div>
+              </a>
             </div>
           </div>
           

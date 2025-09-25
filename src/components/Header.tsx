@@ -39,12 +39,15 @@ const TopNavbar = ({ isDarkMode, toggleDarkMode, currentLanguage, toggleLanguage
 
           {/* Login Button */}
           <Button 
+            asChild
             variant="ghost" 
             size="sm"
             className="text-white hover:bg-white/10 px-3 py-2 text-xs flex items-center gap-1 rounded-button font-body"
           >
-            <User className="h-4 w-4" />
-            Login
+            <Link to="/admin/login">
+              <User className="h-4 w-4" />
+              Login
+            </Link>
           </Button>
 
           {/* Join Button */}

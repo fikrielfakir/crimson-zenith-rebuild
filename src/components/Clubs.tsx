@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { MapPin, Users, Camera } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Clubs = () => {
   const clubs = [
@@ -133,8 +134,10 @@ const Clubs = () => {
                   ))}
                 </div>
                 
-                <Button className="w-full group-hover:shadow-glow transition-all duration-300">
-                  Discover
+                <Button asChild className="w-full group-hover:shadow-glow transition-all duration-300">
+                  <Link to={`/club/${encodeURIComponent(club.name.toLowerCase().replace(/\s+/g, '-'))}`}>
+                    Discover
+                  </Link>
                 </Button>
               </CardContent>
             </Card>
