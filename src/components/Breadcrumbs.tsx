@@ -16,7 +16,7 @@ const Breadcrumbs = ({ items }: BreadcrumbsProps) => {
       className="py-16 px-6"
       style={{ backgroundColor: '#112250' }}
     >
-      <div className="container mx-auto">
+      <div className="container mx-auto" style={{ marginTop: '10rem' }}>
         {/* Breadcrumb Navigation */}
         <nav className="mb-8">
           <ol className="flex items-center space-x-2 text-white/70 text-sm">
