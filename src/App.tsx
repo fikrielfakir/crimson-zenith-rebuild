@@ -35,7 +35,9 @@ import JoinUs from "./pages/JoinUs";
 import ClubDetail from "./pages/ClubDetail";
 import UserProfile from "./pages/UserProfile";
 import ClubProfileEdit from "./pages/ClubProfileEdit";
+import UserLogin from "./pages/UserLogin";
 import ProtectedRoute from "./components/admin/ProtectedRoute";
+import CookieConsent from "./components/CookieConsent";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +46,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
+      <CookieConsent />
       <BrowserRouter>
         <Routes>
           {/* Public Routes */}
@@ -60,6 +63,7 @@ const App = () => (
           <Route path="/terms-of-service" element={<TermsOfService />} />
           <Route path="/cookie-policy" element={<CookiePolicy />} />
           <Route path="/join" element={<JoinUs />} />
+          <Route path="/login" element={<UserLogin />} />
           <Route path="/profile" element={<UserProfile />} />
           <Route path="/club/:clubId/edit" element={<ClubProfileEdit />} />
           
