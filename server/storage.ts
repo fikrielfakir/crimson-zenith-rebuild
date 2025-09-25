@@ -12,7 +12,7 @@ import {
   type ClubMembership,
   type ClubEvent,
   type InsertClubEvent,
-} from "@shared/schema";
+} from "../shared/schema.js";
 import { db } from "./db";
 import { eq, and, desc, asc, count, sql } from "drizzle-orm";
 
