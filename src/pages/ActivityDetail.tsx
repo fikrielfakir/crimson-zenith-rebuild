@@ -344,9 +344,11 @@ const ActivityDetail = () => {
                 </div>
 
                 <div className="border-t pt-4 space-y-3">
-                  <Button className="w-full" size="lg">
-                    Book Now - ${activity.price}
-                  </Button>
+                  <Link to={`/book?event=${encodeURIComponent(activityName || '')}`}>
+                    <Button className="w-full" size="lg">
+                      Book Now - ${activity.price}
+                    </Button>
+                  </Link>
                   <Button variant="outline" className="w-full" size="lg">
                     <Camera className="w-4 h-4 mr-2" />
                     View Photos

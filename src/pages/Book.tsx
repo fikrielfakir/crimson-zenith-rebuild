@@ -40,9 +40,10 @@ const Book = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isBookmarked, setIsBookmarked] = useState(false);
 
-  // Enhanced events data with TripAdvisor-style information
+  // Enhanced events and activities data with TripAdvisor-style information
   const events = [
     {
+      id: "gnaoua-festival",
       title: "Gnaoua World Music Festival",
       subtitle: "3-Day Cultural Music Experience in Essaouira",
       location: "Essaouira, Morocco",

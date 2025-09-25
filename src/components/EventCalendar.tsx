@@ -105,149 +105,184 @@ const EventCalendar = () => {
   ];
 
   return (
-    <section id="events" className="py-20 bg-background scroll-mt-32">
+    <section id="events" className="py-20 bg-gradient-to-br from-background via-background to-muted/20 scroll-mt-32">
       <div className="container mx-auto px-4">
+        {/* Header Section */}
         <div className="text-center mb-16 animate-fade-in">
-          <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
+          <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
             Events Calendar
           </h2>
-          <p className="text-xl text-muted-foreground">
-            Discover upcoming adventures and cultural experiences
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            Discover upcoming adventures and cultural experiences across Morocco
           </p>
         </div>
         
-        <div className="grid lg:grid-cols-2 gap-8 items-start">
-          {/* Calendar Section */}
-          <div className="animate-fade-in">
-            <Card className="border-border/20 shadow-sm">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-xl font-semibold text-foreground flex items-center gap-2">
-                  <Calendar className="w-5 h-5 text-primary" />
+        {/* Main Content Grid */}
+        <div className="grid lg:grid-cols-5 gap-8 items-start">
+          {/* Calendar Section - Left Side */}
+          <div className="lg:col-span-2 animate-fade-in">
+            <Card className="border-border/20 shadow-xl bg-background/80 backdrop-blur-sm sticky top-6">
+              <CardHeader className="pb-4 bg-gradient-to-r from-primary/5 to-secondary/5">
+                <CardTitle className="text-xl font-semibold text-foreground flex items-center gap-3">
+                  <div className="p-2 bg-primary/10 rounded-lg">
+                    <Calendar className="w-5 h-5 text-primary" />
+                  </div>
                   Event Calendar
                 </CardTitle>
               </CardHeader>
-              <CardContent className="pt-0">
-                <div className="calendar-container mb-4">
+              <CardContent className="pt-6">
+                <div className="calendar-container mb-6">
                   <CalendarComponent
                     onChange={handleDateChange}
                     value={selectedDate}
-                    className="w-full border-none shadow-none"
+                    className="w-full border-none shadow-none rounded-lg"
                   />
                 </div>
-                <div className="p-3 bg-muted/30 rounded-lg border">
-                  <p className="text-sm font-medium text-foreground mb-1">Selected Date:</p>
-                  <p className="text-sm text-muted-foreground">
+                <div className="p-4 bg-gradient-to-r from-primary/5 to-secondary/5 rounded-xl border border-primary/10">
+                  <div className="text-sm font-medium text-foreground mb-2 flex items-center gap-2">
+                    <span className="w-2 h-2 bg-primary rounded-full inline-block"></span>
+                    <span>Selected Date</span>
+                  </div>
+                  <div className="text-sm text-muted-foreground font-medium">
                     {selectedDate.toLocaleDateString('en-US', { 
                       weekday: 'long', 
                       year: 'numeric', 
                       month: 'long', 
                       day: 'numeric' 
                     })}
-                  </p>
+                  </div>
+                </div>
+                
+                {/* Quick Stats */}
+                <div className="mt-6 grid grid-cols-2 gap-4">
+                  <div className="text-center p-3 bg-muted/30 rounded-lg">
+                    <div className="text-2xl font-bold text-primary">{events.length}</div>
+                    <div className="text-xs text-muted-foreground">Total Events</div>
+                  </div>
+                  <div className="text-center p-3 bg-muted/30 rounded-lg">
+                    <div className="text-2xl font-bold text-secondary">8</div>
+                    <div className="text-xs text-muted-foreground">Cities</div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
           </div>
           
-          {/* Events Section */}
-          <div className="space-y-4">
+          {/* Events Section - Right Side */}
+          <div className="lg:col-span-3 space-y-6">
+            {/* Events Header */}
+            <div className="flex items-center justify-between">
+              <h3 className="text-2xl font-bold text-foreground">Upcoming Events</h3>
+              <div className="text-sm text-muted-foreground bg-muted/30 px-3 py-1 rounded-full">
+                {events.length} events available
+              </div>
+            </div>
+            
             {/* Events Display */}
-            <div className="space-y-4">
+            <div className="space-y-6">
               {events.slice(currentPage * eventsPerPage, (currentPage + 1) * eventsPerPage).map((event, index) => (
-              <Card 
-                key={event.title} 
-                className="group hover:shadow-lg transition-all duration-300 animate-scale-in border-border/20 overflow-hidden bg-background"
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                <div className="flex">
-                  <div className="w-32 flex-shrink-0">
-                    <img 
-                      src={event.image} 
-                      alt={event.title}
-                      className="w-full h-32 object-cover"
-                    />
-                  </div>
-                  <div className="flex-1 p-4">
-                    <div className="flex items-center gap-2 text-sm text-primary font-medium mb-1">
-                      <Calendar className="w-4 h-4" />
-                      {event.date}
-                    </div>
-                    
-                    <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
-                      {event.title}
-                    </h3>
-                    
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground mb-2">
-                      <div className="flex items-center gap-1">
-                        <MapPin className="w-3 h-3" />
-                        {event.location}
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        {event.time}
+                <Card 
+                  key={event.title} 
+                  className="group hover:shadow-2xl hover:shadow-primary/5 transition-all duration-500 animate-scale-in border-border/20 overflow-hidden bg-background/90 backdrop-blur-sm hover:bg-background"
+                  style={{ animationDelay: `${index * 0.15}s` }}
+                >
+                  <div className="flex flex-col md:flex-row">
+                    <div className="md:w-40 flex-shrink-0 relative overflow-hidden">
+                      <img 
+                        src={event.image} 
+                        alt={event.title}
+                        className="w-full h-48 md:h-40 object-cover group-hover:scale-110 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                      <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full text-xs font-medium text-primary">
+                        Featured
                       </div>
                     </div>
                     
-                    <p className="text-sm text-muted-foreground mb-3 leading-relaxed line-clamp-2">
-                      {event.description}
-                    </p>
-                    
-                    <div className="flex items-center justify-between">
-                      <span className="text-lg font-bold text-primary">
-                        {event.price}
-                      </span>
-                      <Button 
-                        size="sm" 
-                        className="px-4 py-1 text-sm"
-                        onClick={() => navigate(`/book?event=${encodeURIComponent(event.title)}`)}
-                      >
-                        Book Now
-                      </Button>
+                    <div className="flex-1 p-6">
+                      <div className="flex items-center gap-2 text-sm text-primary font-medium mb-2">
+                        <div className="w-1 h-4 bg-primary rounded-full"></div>
+                        <Calendar className="w-4 h-4" />
+                        {event.date}
+                      </div>
+                      
+                      <h3 className="text-xl font-bold text-foreground mb-3 group-hover:text-primary transition-colors line-clamp-1">
+                        {event.title}
+                      </h3>
+                      
+                      <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-4">
+                        <div className="flex items-center gap-2 bg-muted/30 px-3 py-1 rounded-full">
+                          <MapPin className="w-3 h-3" />
+                          {event.location}
+                        </div>
+                        <div className="flex items-center gap-2 bg-muted/30 px-3 py-1 rounded-full">
+                          <Clock className="w-3 h-3" />
+                          {event.time}
+                        </div>
+                      </div>
+                      
+                      <p className="text-sm text-muted-foreground mb-4 leading-relaxed line-clamp-2">
+                        {event.description}
+                      </p>
+                      
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-2xl font-bold text-primary">
+                            {event.price}
+                          </span>
+                          <span className="text-xs text-muted-foreground">per person</span>
+                        </div>
+                        <Button 
+                          className="px-6 py-2 bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white shadow-lg hover:shadow-xl transition-all duration-300"
+                          onClick={() => navigate(`/book?event=${encodeURIComponent(event.title)}`)}
+                        >
+                          Book Now
+                        </Button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Card>
+                </Card>
               ))}
             </div>
             
-            {/* Pagination Controls */}
-            <div className="flex items-center justify-between mt-6">
+            {/* Enhanced Pagination Controls */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 p-4 bg-muted/20 rounded-xl">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handlePrevPage}
+                disabled={currentPage === 0}
+                className="flex items-center gap-2 hover:bg-primary hover:text-white transition-colors"
+              >
+                <ChevronLeft className="w-4 h-4" />
+                Previous
+              </Button>
+              
+              <div className="flex items-center gap-4">
+                <span className="text-sm text-muted-foreground bg-background px-3 py-1 rounded-full">
+                  {currentPage * eventsPerPage + 1}-{Math.min((currentPage + 1) * eventsPerPage, events.length)} of {events.length}
+                </span>
                 <Button
-                  variant="outline"
+                  variant="ghost" 
                   size="sm"
-                  onClick={handlePrevPage}
-                  disabled={currentPage === 0}
-                  className="flex items-center gap-2"
+                  onClick={() => navigate('/events')}
+                  className="flex items-center gap-2 text-primary hover:text-primary hover:bg-primary/10 transition-colors"
                 >
-                  <ChevronLeft className="w-4 h-4" />
-                  Previous
+                  <MoreHorizontal className="w-4 h-4" />
+                  View All Events
                 </Button>
-                
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">
-                    {currentPage * eventsPerPage + 1}-{Math.min((currentPage + 1) * eventsPerPage, events.length)} of {events.length} events
-                  </span>
-                  <Button
-                    variant="ghost" 
-                    size="sm"
-                    onClick={() => navigate('/events')}
-                    className="flex items-center gap-2 text-primary hover:text-primary"
-                  >
-                    <MoreHorizontal className="w-4 h-4" />
-                    More Events
-                  </Button>
-                </div>
-                
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleNextPage}
-                  disabled={currentPage >= Math.floor((events.length - 1) / eventsPerPage)}
-                  className="flex items-center gap-2"
-                >
-                  Next
-                  <ChevronRight className="w-4 h-4" />
-                </Button>
+              </div>
+              
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleNextPage}
+                disabled={currentPage >= Math.floor((events.length - 1) / eventsPerPage)}
+                className="flex items-center gap-2 hover:bg-primary hover:text-white transition-colors"
+              >
+                Next
+                <ChevronRight className="w-4 h-4" />
+              </Button>
             </div>
           </div>
         </div>
