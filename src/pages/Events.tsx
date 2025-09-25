@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar as CalendarIcon, MapPin, Users, Cloud, Clock, Filter, List, Map } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import Breadcrumbs from "@/components/Breadcrumbs";
 
 const Events = () => {
   const [viewMode, setViewMode] = useState<"calendar" | "list" | "map">("list");
@@ -128,33 +129,8 @@ const Events = () => {
     <div className="min-h-screen bg-background">
       <Header />
       
-      {/* Hero Section */}
-      <section className="relative min-h-[60vh] flex items-center justify-center overflow-hidden">
-        <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ 
-            backgroundImage: `url(/events-hero.jpg)`,
-            filter: 'brightness(0.7)'
-          }}
-        />
-        <div className="absolute inset-0" style={{ background: 'var(--gradient-overlay)' }} />
-        
-        {/* Calendar Overlay Design */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-secondary/20" />
-        
-        <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
-          <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 font-heading">
-            Upcoming Adventures
-          </h1>
-          <p className="text-xl text-white/90 mb-8 font-body max-w-2xl mx-auto">
-            Join exciting events, meet fellow adventurers, and create unforgettable memories in Morocco.
-          </p>
-          <div className="flex items-center justify-center gap-2 text-white/80 text-lg">
-            <CalendarIcon className="w-6 h-6" />
-            <span className="font-body">{events.length} upcoming events this month</span>
-          </div>
-        </div>
-      </section>
+      {/* Breadcrumbs */}
+      <Breadcrumbs items={[{ label: 'Events' }]} />
 
       {/* Weather Alert Banner */}
       <div className="bg-warning/10 border-l-4 border-warning py-3">

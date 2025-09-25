@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import Breadcrumbs from "@/components/Breadcrumbs";
 
 const Gallery = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -176,30 +177,8 @@ const Gallery = () => {
     <div className="min-h-screen bg-background">
       <Header />
       
-      {/* Hero Section */}
-      <section className="relative min-h-[60vh] flex items-center justify-center overflow-hidden">
-        <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ 
-            backgroundImage: `url(/gallery-hero.jpg)`,
-            filter: 'brightness(0.7)'
-          }}
-        />
-        <div className="absolute inset-0" style={{ background: 'var(--gradient-overlay)' }} />
-        
-        <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
-          <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 font-heading">
-            Adventure Memories
-          </h1>
-          <p className="text-xl text-white/90 mb-8 font-body max-w-2xl mx-auto">
-            Explore stunning photography and videos from our community's incredible journeys across Morocco.
-          </p>
-          <Button className="bg-secondary hover:bg-secondary/90 text-lg px-8 py-3 h-auto">
-            <Upload className="w-5 h-5 mr-2" />
-            Share Your Photos
-          </Button>
-        </div>
-      </section>
+      {/* Breadcrumbs */}
+      <Breadcrumbs items={[{ label: 'Gallery' }]} />
 
       {/* Filter Tabs */}
       <section className="py-8 bg-muted/50">

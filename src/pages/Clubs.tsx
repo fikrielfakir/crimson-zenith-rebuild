@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MapPin, Users, Calendar, Mountain, Bike, Camera, Search, Map, List, Plus } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import Breadcrumbs from "@/components/Breadcrumbs";
 
 const Clubs = () => {
   const [viewMode, setViewMode] = useState<"list" | "map">("list");
@@ -112,30 +113,8 @@ const Clubs = () => {
     <div className="min-h-screen bg-background">
       <Header />
       
-      {/* Hero Section */}
-      <section className="relative min-h-[60vh] flex items-center justify-center overflow-hidden">
-        <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ 
-            backgroundImage: `url(/clubs-hero.jpg)`,
-            filter: 'brightness(0.7)'
-          }}
-        />
-        <div className="absolute inset-0" style={{ background: 'var(--gradient-overlay)' }} />
-        
-        <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
-          <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 font-heading">
-            Join Adventure Communities
-          </h1>
-          <p className="text-xl text-white/90 mb-8 font-body max-w-2xl mx-auto">
-            Connect with fellow adventurers, join exciting clubs, and discover Morocco together.
-          </p>
-          <Button className="bg-secondary hover:bg-secondary/90 text-lg px-8 py-3 h-auto">
-            <Plus className="w-5 h-5 mr-2" />
-            Start Your Club
-          </Button>
-        </div>
-      </section>
+      {/* Breadcrumbs */}
+      <Breadcrumbs items={[{ label: 'Clubs' }]} />
 
       {/* Search and Filters */}
       <section className="py-8 bg-muted/50">

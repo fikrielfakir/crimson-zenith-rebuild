@@ -104,14 +104,14 @@ const BottomNavbar = ({ isScrolled }: { isScrolled: boolean }) => {
           
           {/* Center Section - Logo (135px height) */}
           <div className="col-start-2 justify-self-center flex items-center justify-center">
-            <div className="flex flex-col items-center" style={{position: 'relative', bottom: '100px', height: '0'}}>
+            <Link to="/" className="flex flex-col items-center" style={{position: 'relative', bottom: '100px', height: '0'}}>
               <img 
                 src={logoAtj} 
                 alt="The Journey Association" 
-                className="w-auto object-contain transition-all duration-300"
+                className="w-auto object-contain transition-all duration-300 cursor-pointer hover:opacity-90"
                 style={isScrolled ? {height: '90px', margin: '20px 10px'} : {height: '135px'}}
               />
-            </div>
+            </Link>
           </div>
           
           {/* Right Section - Navigation */}

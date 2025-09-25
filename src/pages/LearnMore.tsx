@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import Breadcrumbs from "@/components/Breadcrumbs";
 
 const LearnMore = () => {
   const [activeTab, setActiveTab] = useState("about");
@@ -191,46 +192,8 @@ const LearnMore = () => {
     <div className="min-h-screen bg-background">
       <Header />
       
-      {/* Hero Section */}
-      <section className="relative min-h-[60vh] flex items-center justify-center overflow-hidden">
-        <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ 
-            backgroundImage: `url(/api/placeholder/1920/800)`,
-            filter: 'brightness(0.7)'
-          }}
-        />
-        <div className="absolute inset-0" style={{ background: 'var(--gradient-overlay)' }} />
-        
-        {/* Certification badges overlay */}
-        <div className="absolute top-8 right-8 flex gap-3">
-          {certifications.slice(0, 3).map((cert, index) => (
-            <Badge key={index} className="bg-white/20 backdrop-blur-sm text-white border-white/30">
-              <Shield className="w-3 h-3 mr-1" />
-              {cert.name}
-            </Badge>
-          ))}
-        </div>
-        
-        <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
-          <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 font-heading">
-            Safety is Our Priority
-          </h1>
-          <p className="text-xl text-white/90 mb-8 font-body max-w-2xl mx-auto">
-            Learn about our commitment to safety, sustainability, and authentic adventure experiences across Morocco.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button className="bg-secondary hover:bg-secondary/90 text-lg px-8 py-3 h-auto">
-              <Shield className="w-5 h-5 mr-2" />
-              Safety Standards
-            </Button>
-            <Button variant="outline" className="text-white border-white hover:bg-white/10 text-lg px-8 py-3 h-auto">
-              <Phone className="w-5 h-5 mr-2" />
-              Emergency Contact
-            </Button>
-          </div>
-        </div>
-      </section>
+      {/* Breadcrumbs */}
+      <Breadcrumbs items={[{ label: 'Learn More' }]} />
 
       {/* Navigation Tabs */}
       <section className="py-8 bg-muted/50">

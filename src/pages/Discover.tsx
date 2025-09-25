@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MapPin, Clock, Star, Grid3X3, Map, Filter, Search } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import Breadcrumbs from "@/components/Breadcrumbs";
 
 const Discover = () => {
   const [viewMode, setViewMode] = useState<"grid" | "map">("grid");
@@ -106,38 +107,8 @@ const Discover = () => {
     <div className="min-h-screen bg-background">
       <Header />
       
-      {/* Hero Section */}
-      <section className="relative min-h-[60vh] flex items-center justify-center overflow-hidden">
-        <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ 
-            backgroundImage: `url(/discover-hero.jpg)`,
-            filter: 'brightness(0.7)'
-          }}
-        />
-        <div className="absolute inset-0" style={{ background: 'var(--gradient-overlay)' }} />
-        
-        <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
-          <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 font-heading">
-            Discover Your Next Adventure
-          </h1>
-          <p className="text-xl text-white/90 mb-8 font-body max-w-2xl mx-auto">
-            Explore Morocco's hidden gems and create unforgettable memories with our curated adventure experiences.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-              <Input 
-                placeholder="Search adventures..." 
-                className="pl-10 bg-white/90 border-0 h-12"
-              />
-            </div>
-            <Button className="bg-secondary hover:bg-secondary/90 h-12 px-8">
-              Search
-            </Button>
-          </div>
-        </div>
-      </section>
+      {/* Breadcrumbs */}
+      <Breadcrumbs items={[{ label: 'Discover' }]} />
 
       {/* Main Content */}
       <section className="py-12">
