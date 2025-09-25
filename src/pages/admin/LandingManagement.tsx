@@ -51,7 +51,7 @@ const LandingManagement = () => {
       title: 'Hero Section',
       subtitle: 'Main landing hero with call-to-action',
       data: {
-        backgroundImage: '/public/hero-bg.jpg',
+        backgroundImage: '/hero-bg.jpg',
         title: 'Explore Morocco\'s Best Sports Clubs',
         subtitle: 'Join vibrant communities of adventurers and culture enthusiasts',
         ctaText: 'Explore Clubs',
@@ -79,7 +79,7 @@ const LandingManagement = () => {
             id: '1',
             name: 'Atlas Mountains Trekking',
             description: 'Multi-day adventures in Morocco\'s highest peaks',
-            image: '/public/discover-hero.jpg',
+            image: '/discover-hero.jpg',
             difficulty: 'Moderate to Challenging',
             duration: '2-7 days'
           },
@@ -87,7 +87,7 @@ const LandingManagement = () => {
             id: '2', 
             name: 'Desert Expeditions',
             description: 'Camel trekking and camping in the Sahara',
-            image: '/public/gallery-hero.jpg',
+            image: '/gallery-hero.jpg',
             difficulty: 'Easy to Moderate',
             duration: '1-3 days'
           },
@@ -95,7 +95,7 @@ const LandingManagement = () => {
             id: '3',
             name: 'Cultural Tours',
             description: 'Explore medinas, souks, and local traditions',
-            image: '/public/clubs-hero.jpg',
+            image: '/clubs-hero.jpg',
             difficulty: 'Easy',
             duration: 'Half day to 2 days'
           }
