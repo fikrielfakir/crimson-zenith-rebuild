@@ -7,7 +7,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const app = express();
-const PORT = 3001;
+const PORT = process.env.NODE_ENV === 'production' ? (Number(process.env.PORT) || 5000) : 3001;
 
 // Middleware
 app.use(express.json());
@@ -15,6 +15,11 @@ app.use(express.urlencoded({ extended: true }));
 
 // Serve static files from public directory
 app.use('/static', express.static(join(__dirname, 'public')));
+
+// In production, serve the built frontend files
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(join(__dirname, 'dist')));
+}
 
 // Create a simple placeholder image API that returns demo images
 app.get('/api/placeholder/:width/:height', (req, res) => {
@@ -58,7 +63,19 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', message: 'Image server running' });
 });
 
+// In production, handle client-side routing
+if (process.env.NODE_ENV === 'production') {
+  app.get('*', (req, res) => {
+    res.sendFile(join(__dirname, 'dist', 'index.html'));
+  });
+}
+
 app.listen(PORT, () => {
-  console.log(`Image server running on http://localhost:${PORT}`);
+  console.log(`Server running on http://localhost:${PORT}`);
+  if (process.env.NODE_ENV === 'production') {
+    console.log('Production mode: Serving built frontend and API');
+  } else {
+    console.log('Development mode: API server only');
+  }
   console.log(`Placeholder API available at http://localhost:${PORT}/api/placeholder/WIDTH/HEIGHT`);
 });
