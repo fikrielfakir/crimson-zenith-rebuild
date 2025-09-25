@@ -1,0 +1,160 @@
+// Landing Page Management Types
+export interface LandingSection {
+  id: number;
+  pageId: number;
+  key: string; // unique key like 'hero', 'activities', 'testimonials'
+  type: 'hero' | 'activities' | 'testimonials' | 'stats' | 'events' | 'about' | 'contact' | 'gallery';
+  title: string;
+  subtitle?: string;
+  data: Record<string, any>; // JSON data specific to each section type
+  order: number;
+  isVisible: boolean;
+  locale: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SectionBlock {
+  id: number;
+  sectionId: number;
+  type: string;
+  data: Record<string, any>;
+  order: number;
+}
+
+export interface Page {
+  id: number;
+  slug: string;
+  title: string;
+  sections?: LandingSection[];
+}
+
+// Club Application Types
+export interface ClubApplication {
+  id: number;
+  clubId?: number; // nullable - user can apply generally or to specific club
+  applicantName: string;
+  email: string;
+  phone: string;
+  preferredClub?: string;
+  interests: string[];
+  motivation: string;
+  answers: Record<string, any>; // JSON for additional questions
+  status: 'submitted' | 'under_review' | 'approved' | 'rejected';
+  reviewedBy?: number; // user ID of admin who reviewed
+  reviewedAt?: string;
+  notes?: string; // admin notes
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ClubMembership {
+  userId: number;
+  clubId: number;
+  role: 'member' | 'moderator' | 'leader';
+  status: 'active' | 'inactive' | 'pending';
+  createdAt: string;
+}
+
+export interface AuditLog {
+  id: number;
+  actorUserId: number;
+  entityType: string;
+  entityId: number;
+  action: string;
+  diff: Record<string, any>;
+  createdAt: string;
+}
+
+// Form validation types
+export interface JoinUsFormData {
+  applicantName: string;
+  email: string;
+  phone: string;
+  preferredClub?: string;
+  interests: string[];
+  motivation: string;
+  agreeToTerms: boolean;
+}
+
+// Section-specific data types
+export interface HeroSectionData {
+  backgroundImage: string;
+  title: string;
+  subtitle: string;
+  ctaText: string;
+  ctaLink: string;
+  overlayOpacity: number;
+}
+
+export interface ActivitiesSectionData {
+  title: string;
+  subtitle: string;
+  activities: Array<{
+    id: string;
+    name: string;
+    description: string;
+    image: string;
+    difficulty: string;
+    duration: string;
+  }>;
+}
+
+export interface TestimonialsSectionData {
+  title: string;
+  testimonials: Array<{
+    id: string;
+    name: string;
+    role: string;
+    content: string;
+    avatar: string;
+    rating: number;
+  }>;
+}
+
+export interface StatsSectionData {
+  title: string;
+  stats: Array<{
+    id: string;
+    label: string;
+    value: string;
+    icon: string;
+  }>;
+}
+
+export interface EventsSectionData {
+  title: string;
+  subtitle: string;
+  showUpcoming: boolean;
+  maxEvents: number;
+}
+
+export interface AboutSectionData {
+  title: string;
+  content: string;
+  image: string;
+  features: string[];
+}
+
+export interface ContactSectionData {
+  title: string;
+  subtitle: string;
+  showForm: boolean;
+  contactInfo: {
+    address: string;
+    phone: string;
+    email: string;
+  };
+}
+
+export interface GallerySectionData {
+  title: string;
+  subtitle: string;
+  images: Array<{
+    id: string;
+    url: string;
+    caption: string;
+    alt: string;
+  }>;
+  layout: 'grid' | 'masonry' | 'carousel';
+}
