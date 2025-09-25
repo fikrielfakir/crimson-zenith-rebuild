@@ -287,7 +287,7 @@ const JoinUsConfig = () => {
     
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
-  });
+  };
 
   const [isSaving, setIsSaving] = useState(false);
   const [newInterest, setNewInterest] = useState('');
