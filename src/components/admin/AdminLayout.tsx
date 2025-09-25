@@ -16,7 +16,8 @@ import {
   Mail,
   Monitor,
   Layout,
-  ClipboardList
+  ClipboardList,
+  FormInput
 } from "lucide-react";
 import { useLocation, useNavigate } from 'react-router-dom';
 import { cn } from "@/lib/utils";
@@ -35,6 +36,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
     { name: 'Analytics', href: '/admin/analytics', icon: TrendingUp },
     { name: 'Landing Page', href: '/admin/landing', icon: Layout },
     { name: 'Applications', href: '/admin/applications', icon: ClipboardList },
+    { name: 'Join Us Config', href: '/admin/join-config', icon: FormInput },
     { name: 'Clubs', href: '/admin/clubs', icon: Users },
     { name: 'Events', href: '/admin/events', icon: Calendar },
     { name: 'News', href: '/admin/news', icon: FileText },

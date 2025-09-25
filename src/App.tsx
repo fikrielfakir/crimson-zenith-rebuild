@@ -27,6 +27,7 @@ import SystemMonitoring from "./pages/admin/SystemMonitoring";
 import AdminSettings from "./pages/admin/AdminSettings";
 import LandingManagement from "./pages/admin/LandingManagement";
 import ApplicationsManagement from "./pages/admin/ApplicationsManagement";
+import JoinUsConfig from "./pages/admin/JoinUsConfig";
 import JoinUs from "./pages/JoinUs";
 import ProtectedRoute from "./components/admin/ProtectedRoute";
 
@@ -110,6 +111,11 @@ const App = () => (
           <Route path="/admin/applications" element={
             <ProtectedRoute>
               <ApplicationsManagement />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/join-config" element={
+            <ProtectedRoute>
+              <JoinUsConfig />
             </ProtectedRoute>
           } />
           
