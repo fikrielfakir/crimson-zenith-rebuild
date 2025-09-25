@@ -1,5 +1,6 @@
 import logo from "@/assets/logo.png";
 import { Facebook, Instagram, Twitter, Mail } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -96,15 +97,15 @@ const Footer = () => {
             © {currentYear} The Journey Association. All rights reserved.
           </p>
           <div className="flex gap-6 text-sm text-primary-foreground/70">
-            <a href="#" className="hover:text-white transition-colors">
+            <Link to="/privacy-policy" className="hover:text-white transition-colors">
               Privacy Policy
-            </a>
-            <a href="#" className="hover:text-white transition-colors">
+            </Link>
+            <Link to="/terms-of-service" className="hover:text-white transition-colors">
               Terms of Service
-            </a>
-            <a href="#" className="hover:text-white transition-colors">
+            </Link>
+            <Link to="/cookie-policy" className="hover:text-white transition-colors">
               Cookie Policy
-            </a>
+            </Link>
           </div>
         </div>
       </div>
