@@ -7,11 +7,45 @@ export interface LandingSection {
   title: string;
   subtitle?: string;
   data: Record<string, any>; // JSON data specific to each section type
+  design?: SectionDesign; // Design customization data
   order: number;
   isVisible: boolean;
   locale: string;
   createdAt: string;
   updatedAt: string;
+}
+
+// Design customization interface
+export interface SectionDesign {
+  colors?: {
+    background?: string;
+    text?: string;
+    accent?: string;
+    gradient?: string;
+  };
+  typography?: {
+    headingFont?: string;
+    bodyFont?: string;
+    headingSize?: string;
+    bodySize?: string;
+    lineHeight?: string;
+  };
+  spacing?: {
+    padding?: string;
+    margin?: string;
+    gap?: string;
+  };
+  layout?: {
+    containerWidth?: string;
+    columns?: number;
+    alignment?: 'left' | 'center' | 'right';
+    direction?: 'row' | 'column';
+  };
+  effects?: {
+    borderRadius?: string;
+    shadow?: string;
+    animation?: string;
+  };
 }
 
 export interface SectionBlock {
