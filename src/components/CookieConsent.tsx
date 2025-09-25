@@ -60,7 +60,7 @@ const CookieConsent = () => {
       <Card className="w-full max-w-4xl mx-auto shadow-2xl border-0 animate-in slide-in-from-bottom-4 duration-500">
         <CardContent className="p-0">
           {/* Header */}
-          <div className="bg-gradient-to-r from-orange-500 to-blue-600 text-white p-3 rounded-t-lg">
+          <div className="text-white p-3 rounded-t-lg" style={{ backgroundColor: '#112250' }}>
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <Cookie className="w-4 h-4" />
@@ -78,7 +78,7 @@ const CookieConsent = () => {
           {/* Content */}
           <div className="p-4 space-y-3">
             <div className="flex items-start space-x-3">
-              <Shield className="w-4 h-4 text-orange-500 mt-1 flex-shrink-0" />
+              <Shield className="w-4 h-4 mt-1 flex-shrink-0" style={{ color: '#112250' }} />
               <div className="space-y-1">
                 <p className="text-sm text-gray-700 leading-relaxed">
                   Our cookies help us remember your preferences, analyze site traffic, and provide personalized content. 
@@ -105,7 +105,7 @@ const CookieConsent = () => {
                       <h4 className="text-sm font-medium text-gray-900">Functional Cookies</h4>
                       <p className="text-xs text-gray-500">Remember your preferences and settings</p>
                     </div>
-                    <input type="checkbox" defaultChecked className="w-4 h-4 text-orange-500" />
+                    <input type="checkbox" defaultChecked className="w-4 h-4" style={{ accentColor: '#112250' }} />
                   </div>
                   
                   <div className="flex items-center justify-between">
@@ -113,7 +113,7 @@ const CookieConsent = () => {
                       <h4 className="text-sm font-medium text-gray-900">Analytics Cookies</h4>
                       <p className="text-xs text-gray-500">Help us understand site usage</p>
                     </div>
-                    <input type="checkbox" defaultChecked className="w-4 h-4 text-orange-500" />
+                    <input type="checkbox" defaultChecked className="w-4 h-4" style={{ accentColor: '#112250' }} />
                   </div>
                   
                   <div className="flex items-center justify-between">
@@ -121,7 +121,7 @@ const CookieConsent = () => {
                       <h4 className="text-sm font-medium text-gray-900">Marketing Cookies</h4>
                       <p className="text-xs text-gray-500">Personalized content and ads</p>
                     </div>
-                    <input type="checkbox" defaultChecked className="w-4 h-4 text-orange-500" />
+                    <input type="checkbox" defaultChecked className="w-4 h-4" style={{ accentColor: '#112250' }} />
                   </div>
                 </div>
               </div>
@@ -133,7 +133,8 @@ const CookieConsent = () => {
                 <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
                   <Button
                     onClick={handleAcceptAll}
-                    className="bg-gradient-to-r from-orange-500 to-blue-600 hover:from-orange-600 hover:to-blue-700 text-white font-medium px-6"
+                    className="text-white font-medium px-6 hover:opacity-90 transition-opacity"
+                    style={{ backgroundColor: '#112250' }}
                   >
                     Accept All
                   </Button>
@@ -147,7 +148,8 @@ const CookieConsent = () => {
                   <Button
                     onClick={handleCustomize}
                     variant="outline"
-                    className="border-orange-300 text-orange-600 hover:bg-orange-50 px-4"
+                    className="px-4 hover:bg-slate-50"
+                    style={{ borderColor: '#112250', color: '#112250' }}
                   >
                     <Settings className="w-4 h-4 mr-1" />
                     Customize
@@ -157,7 +159,8 @@ const CookieConsent = () => {
                 <div className="flex space-x-2">
                   <Button
                     onClick={handleSavePreferences}
-                    className="flex-1 bg-gradient-to-r from-orange-500 to-blue-600 hover:from-orange-600 hover:to-blue-700 text-white font-medium"
+                    className="flex-1 text-white font-medium hover:opacity-90 transition-opacity"
+                    style={{ backgroundColor: '#112250' }}
                   >
                     Save Preferences
                   </Button>
@@ -175,13 +178,13 @@ const CookieConsent = () => {
             {/* Footer Links */}
             <div className="text-center pt-2 border-t">
               <div className="flex justify-center space-x-3 text-xs text-gray-500">
-                <Link to="/privacy-policy" className="hover:text-orange-600 transition-colors">
+                <Link to="/privacy-policy" className="hover:opacity-80 transition-opacity" style={{ color: '#112250' }}>
                   Privacy
                 </Link>
-                <Link to="/cookie-policy" className="hover:text-orange-600 transition-colors">
+                <Link to="/cookie-policy" className="hover:opacity-80 transition-opacity" style={{ color: '#112250' }}>
                   Cookies
                 </Link>
-                <Link to="/terms-of-service" className="hover:text-orange-600 transition-colors">
+                <Link to="/terms-of-service" className="hover:opacity-80 transition-opacity" style={{ color: '#112250' }}>
                   Terms
                 </Link>
               </div>

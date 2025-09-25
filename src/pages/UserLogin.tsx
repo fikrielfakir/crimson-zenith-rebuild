@@ -41,7 +41,7 @@ const UserLogin = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-blue-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Back to home button */}
         <div className="mb-4">
@@ -55,12 +55,12 @@ const UserLogin = () => {
         </div>
 
         <Card className="shadow-lg border-0">
-          <CardHeader className="text-center bg-gradient-to-r from-orange-500 to-blue-600 text-white rounded-t-lg">
+          <CardHeader className="text-center text-white rounded-t-lg" style={{ backgroundColor: '#112250' }}>
             <div className="mx-auto w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mb-4">
               <User className="w-8 h-8 text-white" />
             </div>
             <CardTitle className="text-2xl font-bold">Welcome Back</CardTitle>
-            <p className="text-orange-100">
+            <p className="text-slate-200">
               Sign in to access your Morocco Clubs profile
             </p>
           </CardHeader>
@@ -74,7 +74,8 @@ const UserLogin = () => {
                     id="email"
                     type="email"
                     placeholder="Enter your email"
-                    className="pl-10 border-slate-300 focus:border-orange-500 focus:ring-orange-500"
+                    className="pl-10 border-slate-300 focus:ring-1"
+                    style={{ '--tw-ring-color': '#112250', 'borderColor': '#112250' } as any}
                     value={credentials.email}
                     onChange={(e) => setCredentials(prev => ({...prev, email: e.target.value}))}
                     required
@@ -90,7 +91,8 @@ const UserLogin = () => {
                     id="password"
                     type="password"
                     placeholder="Enter your password"
-                    className="pl-10 border-slate-300 focus:border-orange-500 focus:ring-orange-500"
+                    className="pl-10 border-slate-300 focus:ring-1"
+                    style={{ '--tw-ring-color': '#112250', 'borderColor': '#112250' } as any}
                     value={credentials.password}
                     onChange={(e) => setCredentials(prev => ({...prev, password: e.target.value}))}
                     required
@@ -107,7 +109,8 @@ const UserLogin = () => {
 
               <Button 
                 type="submit" 
-                className="w-full bg-gradient-to-r from-orange-500 to-blue-600 hover:from-orange-600 hover:to-blue-700 text-white font-semibold py-2.5" 
+                className="w-full text-white font-semibold py-2.5 hover:opacity-90 transition-opacity" 
+                style={{ backgroundColor: '#112250' }}
                 disabled={isLoading}
               >
                 {isLoading ? 'Signing in...' : 'Sign In'}
@@ -167,7 +170,7 @@ const UserLogin = () => {
             </div>
 
             {/* Demo credentials */}
-            <div className="mt-6 p-4 bg-gradient-to-r from-orange-50 to-blue-50 rounded-lg border border-orange-200">
+            <div className="mt-6 p-4 rounded-lg border" style={{ backgroundColor: '#f8fafc', borderColor: '#112250' }}>
               <p className="text-sm text-slate-600 mb-2 font-medium">Demo Credentials:</p>
               <p className="text-sm text-slate-700"><strong>Email:</strong> user@morocclubs.com</p>
               <p className="text-sm text-slate-700"><strong>Password:</strong> user123</p>
@@ -177,12 +180,12 @@ const UserLogin = () => {
             <div className="mt-6 text-center space-y-2">
               <p className="text-sm text-muted-foreground">
                 Don't have an account?{' '}
-                <Link to="/join" className="text-orange-600 hover:text-orange-700 font-medium">
+                <Link to="/join" className="font-medium hover:opacity-80" style={{ color: '#112250' }}>
                   Join us
                 </Link>
               </p>
               <p className="text-sm text-muted-foreground">
-                <Link to="/forgot-password" className="text-blue-600 hover:text-blue-700 font-medium">
+                <Link to="/forgot-password" className="font-medium hover:opacity-80" style={{ color: '#112250' }}>
                   Forgot your password?
                 </Link>
               </p>
