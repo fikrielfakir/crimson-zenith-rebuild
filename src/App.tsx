@@ -16,9 +16,14 @@ import NotFound from "./pages/NotFound";
 // Admin imports
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import Analytics from "./pages/admin/Analytics";
 import ClubsManagement from "./pages/admin/ClubsManagement";
 import EventsManagement from "./pages/admin/EventsManagement";
 import NewsManagement from "./pages/admin/NewsManagement";
+import UserManagement from "./pages/admin/UserManagement";
+import MediaLibrary from "./pages/admin/MediaLibrary";
+import EmailCampaigns from "./pages/admin/EmailCampaigns";
+import SystemMonitoring from "./pages/admin/SystemMonitoring";
 import AdminSettings from "./pages/admin/AdminSettings";
 import ProtectedRoute from "./components/admin/ProtectedRoute";
 
@@ -48,6 +53,11 @@ const App = () => (
               <AdminDashboard />
             </ProtectedRoute>
           } />
+          <Route path="/admin/analytics" element={
+            <ProtectedRoute>
+              <Analytics />
+            </ProtectedRoute>
+          } />
           <Route path="/admin/clubs" element={
             <ProtectedRoute>
               <ClubsManagement />
@@ -61,6 +71,26 @@ const App = () => (
           <Route path="/admin/news" element={
             <ProtectedRoute>
               <NewsManagement />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/users" element={
+            <ProtectedRoute>
+              <UserManagement />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/media" element={
+            <ProtectedRoute>
+              <MediaLibrary />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/email" element={
+            <ProtectedRoute>
+              <EmailCampaigns />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/monitor" element={
+            <ProtectedRoute>
+              <SystemMonitoring />
             </ProtectedRoute>
           } />
           <Route path="/admin/settings" element={

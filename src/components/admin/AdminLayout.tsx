@@ -9,7 +9,12 @@ import {
   Settings, 
   Menu,
   LogOut,
-  Home
+  Home,
+  TrendingUp,
+  UserCog,
+  Image,
+  Mail,
+  Monitor
 } from "lucide-react";
 import { useLocation, useNavigate } from 'react-router-dom';
 import { cn } from "@/lib/utils";
@@ -24,10 +29,15 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
   const navigate = useNavigate();
 
   const navigation = [
-    { name: 'Dashboard', href: '/admin', icon: BarChart3 },
+    { name: 'Dashboard', href: '/admin', icon: Home },
+    { name: 'Analytics', href: '/admin/analytics', icon: TrendingUp },
     { name: 'Clubs', href: '/admin/clubs', icon: Users },
     { name: 'Events', href: '/admin/events', icon: Calendar },
     { name: 'News', href: '/admin/news', icon: FileText },
+    { name: 'Users', href: '/admin/users', icon: UserCog },
+    { name: 'Media', href: '/admin/media', icon: Image },
+    { name: 'Email', href: '/admin/email', icon: Mail },
+    { name: 'Monitor', href: '/admin/monitor', icon: Monitor },
     { name: 'Settings', href: '/admin/settings', icon: Settings },
   ];
 
