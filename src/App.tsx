@@ -11,6 +11,7 @@ import Book from "./pages/Book";
 import Gallery from "./pages/Gallery";
 import News from "./pages/News";
 import Contact from "./pages/Contact";
+import SmartEvents from "./pages/SmartEvents";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import CookiePolicy from "./pages/CookiePolicy";
@@ -34,6 +35,7 @@ import JoinUsConfig from "./pages/admin/JoinUsConfig";
 import CookieSettings from "./pages/admin/CookieSettings";
 import AuthSettings from "./pages/admin/AuthSettings";
 import PaymentSettings from "./pages/admin/PaymentSettings";
+import BookingManagement from "./pages/admin/BookingManagement";
 import JoinUs from "./pages/JoinUs";
 import ClubDetail from "./pages/ClubDetail";
 import ActivityDetail from "./pages/ActivityDetail";
@@ -59,6 +61,7 @@ const App = () => (
           <Route path="/club/:clubName" element={<ClubDetail />} />
           <Route path="/activities/:activityName" element={<ActivityDetail />} />
           <Route path="/events" element={<Events />} />
+          <Route path="/smart-events" element={<SmartEvents />} />
           <Route path="/book" element={<Book />} />
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/news" element={<News />} />
@@ -151,6 +154,11 @@ const App = () => (
           <Route path="/admin/payments" element={
             <ProtectedRoute>
               <PaymentSettings />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/booking" element={
+            <ProtectedRoute>
+              <BookingManagement />
             </ProtectedRoute>
           } />
           

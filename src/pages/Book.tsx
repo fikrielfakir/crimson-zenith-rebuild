@@ -39,115 +39,50 @@ const Book = () => {
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isBookmarked, setIsBookmarked] = useState(false);
+  const [events, setEvents] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Enhanced events and activities data with TripAdvisor-style information
-  const events = [
-    {
-      id: "gnaoua-festival",
-      title: "Gnaoua World Music Festival",
-      subtitle: "3-Day Cultural Music Experience in Essaouira",
-      location: "Essaouira, Morocco",
-      duration: "3 days",
-      price: 85,
-      originalPrice: 120,
-      rating: 4.8,
-      reviewCount: 1247,
-      images: [
-        "/api/placeholder/800/500",
-        "/api/placeholder/800/500", 
-        "/api/placeholder/800/500",
-        "/api/placeholder/800/500",
-        "/api/placeholder/800/500",
-        "/api/placeholder/800/500"
-      ],
-      description: "Experience the magical Gnaoua World Music Festival in the coastal city of Essaouira. This UNESCO-recognized festival brings together traditional Gnaoua musicians with international artists for an unforgettable cultural celebration.",
-      highlights: [
-        "UNESCO World Heritage festival experience",
-        "Traditional Gnaoua music performances", 
-        "International artist collaborations",
-        "Coastal city of Essaouira exploration",
-        "Local cultural immersion",
-        "Traditional Moroccan workshops"
-      ],
-      included: [
-        "3-day festival access pass",
-        "Professional local guide", 
-        "Cultural orientation session",
-        "Traditional Moroccan lunch on Day 2",
-        "Workshop participation",
-        "Festival merchandise",
-        "Group photo session"
-      ],
-      notIncluded: [
-        "Hotel accommodation",
-        "Transportation to Essaouira", 
-        "Personal expenses",
-        "Additional meals",
-        "Travel insurance",
-        "Tips and gratuities"
-      ],
-      schedule: [
-        { time: "09:00", activity: "Meet at designated meeting point in Essaouira medina" },
-        { time: "09:30", activity: "Cultural orientation and historical overview" },
-        { time: "11:00", activity: "Explore traditional music venues and workshops" },
-        { time: "13:00", activity: "Traditional Moroccan lunch (included)" },
-        { time: "15:00", activity: "Afternoon performances and artist meet & greets" },
-        { time: "19:00", activity: "Evening main stage performances" },
-        { time: "22:00", activity: "Free time to explore night activities" }
-      ],
-      reviews: [
-        {
-          name: "Sarah M.",
-          rating: 5,
-          date: "2 weeks ago",
-          comment: "Absolutely incredible experience! The music was soul-stirring and the cultural immersion was authentic. Our guide was knowledgeable and passionate.",
-          helpful: 23,
-          avatar: "/api/placeholder/40/40"
-        },
-        {
-          name: "Ahmed K.", 
-          rating: 5,
-          date: "1 month ago",
-          comment: "As a local, I was impressed by how well this tour showcased our culture. The festival access was seamless and the workshops were fascinating.",
-          helpful: 18,
-          avatar: "/api/placeholder/40/40"
-        },
-        {
-          name: "Maria L.",
-          rating: 4,
-          date: "2 months ago", 
-          comment: "Great festival experience! Only wish the lunch had more variety, but the music and atmosphere were phenomenal.",
-          helpful: 12,
-          avatar: "/api/placeholder/40/40"
+  // Fetch booking events from backend
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch('/api/booking/events');
+        const data = await response.json();
+        
+        if (response.ok) {
+          setEvents(data.events || []);
+        } else {
+          throw new Error(data.error || 'Failed to fetch events');
         }
-      ],
-      similarEvents: [
-        { title: "Timitar Festival Experience", price: 65, rating: 4.6, image: "/api/placeholder/200/150" },
-        { title: "Fez Sacred Music Festival", price: 75, rating: 4.7, image: "/api/placeholder/200/150" },
-        { title: "Mawazine Festival VIP", price: 95, rating: 4.9, image: "/api/placeholder/200/150" },
-        { title: "Rose Festival Cultural Tour", price: 45, rating: 4.5, image: "/api/placeholder/200/150" }
-      ],
-      category: "Cultural Festival",
-      languages: ["English", "French", "Arabic"],
-      ageRange: "All ages welcome",
-      groupSize: "2-25 people",
-      cancellationPolicy: "Free cancellation up to 24 hours before the experience starts"
-    }
-  ];
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load events');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchEvents();
+  }, []);
 
   useEffect(() => {
-    if (eventParam) {
-      const matchingEvent = events.find(event => event.title === decodeURIComponent(eventParam));
-      if (matchingEvent) {
-        setSelectedEvent(matchingEvent);
+    if (events.length > 0) {
+      if (eventParam) {
+        const matchingEvent = events.find(event => 
+          event.id === eventParam || event.title === decodeURIComponent(eventParam)
+        );
+        if (matchingEvent) {
+          setSelectedEvent(matchingEvent);
+        } else {
+          // Default to first event if parameter doesn't match
+          setSelectedEvent(events[0]);
+        }
       } else {
-        // Default to first event if parameter doesn't match
         setSelectedEvent(events[0]);
       }
-    } else {
-      setSelectedEvent(events[0]);
     }
-  }, [eventParam]);
+  }, [eventParam, events]);
 
   const nextImage = () => {
     if (selectedEvent) {
@@ -165,22 +100,79 @@ const Book = () => {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="container mx-auto px-4 py-20 text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Loading booking events...</p>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="container mx-auto px-4 py-20 text-center">
+          <div className="text-red-500 mb-4">
+            <X className="w-16 h-16 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold">Error Loading Events</h2>
+            <p className="mt-2">{error}</p>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (events.length === 0) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="container mx-auto px-4 py-20 text-center">
+          <div className="text-muted-foreground mb-4">
+            <Calendar className="w-16 h-16 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold">No Events Available</h2>
+            <p className="mt-2">There are currently no booking events available.</p>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
   if (!selectedEvent) {
-    return <div>Loading...</div>;
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="container mx-auto px-4 py-20 text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Loading event details...</p>
+        </div>
+        <Footer />
+      </div>
+    );
   }
 
   const totalPrice = selectedEvent.price * participants;
-  const savings = (selectedEvent.originalPrice - selectedEvent.price) * participants;
+  const savings = selectedEvent.originalPrice ? 
+    (selectedEvent.originalPrice - selectedEvent.price) * participants : 0;
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
       
       {/* Breadcrumbs */}
-      <Breadcrumbs items={[
-        { label: 'Events', href: '/events' },
-        { label: selectedEvent.title }
-      ]} />
+      {selectedEvent && (
+        <Breadcrumbs items={[
+          { label: 'Events', href: '/events' },
+          { label: selectedEvent.title }
+        ]} />
+      )}
 
       <div className="container mx-auto px-4 py-6">
         <div className="grid lg:grid-cols-3 gap-8">

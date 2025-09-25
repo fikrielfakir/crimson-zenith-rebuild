@@ -20,7 +20,8 @@ import {
   FormInput,
   Cookie,
   Shield,
-  CreditCard
+  CreditCard,
+  ShoppingCart
 } from "lucide-react";
 import { useLocation, useNavigate } from 'react-router-dom';
 import { cn } from "@/lib/utils";
@@ -42,6 +43,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
     { name: 'Join Us Config', href: '/admin/join-config', icon: FormInput },
     { name: 'Clubs', href: '/admin/clubs', icon: Users },
     { name: 'Events', href: '/admin/events', icon: Calendar },
+    { name: 'Booking', href: '/admin/booking', icon: ShoppingCart },
     { name: 'News', href: '/admin/news', icon: FileText },
     { name: 'Users', href: '/admin/users', icon: UserCog },
     { name: 'Media', href: '/admin/media', icon: Image },

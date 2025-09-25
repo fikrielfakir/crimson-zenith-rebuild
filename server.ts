@@ -649,6 +649,172 @@ app.post('/api/contact', async (req, res) => {
   }
 });
 
+// Booking Events Management API
+app.get('/api/booking/events', async (req, res) => {
+  try {
+    console.log('🔗 Fetching all booking events...');
+    const events = await storage.getBookingEvents();
+    console.log(`✅ Retrieved ${events.length} booking events`);
+    
+    res.json({
+      events: events,
+      total: events.length,
+      source: 'PostgreSQL database via Drizzle ORM'
+    });
+  } catch (error) {
+    console.error('❌ Error fetching booking events:', error);
+    res.status(500).json({ error: 'Failed to fetch booking events', details: error.message });
+  }
+});
+
+app.get('/api/booking/events/:id', async (req, res) => {
+  try {
+    const eventId = req.params.id;
+    console.log(`🔗 Fetching booking event: ${eventId}`);
+    
+    const event = await storage.getBookingEvent(eventId);
+    if (!event) {
+      return res.status(404).json({ error: 'Booking event not found' });
+    }
+    
+    console.log(`✅ Retrieved booking event: ${event.title}`);
+    res.json({
+      event: event,
+      source: 'PostgreSQL database via Drizzle ORM'
+    });
+  } catch (error) {
+    console.error('❌ Error fetching booking event:', error);
+    res.status(500).json({ error: 'Failed to fetch booking event', details: error.message });
+  }
+});
+
+app.post('/api/booking/events', async (req, res) => {
+  try {
+    console.log('🔗 Creating new booking event...');
+    const eventData = req.body;
+    
+    // Generate ID if not provided
+    if (!eventData.id) {
+      eventData.id = `event-${Date.now()}`;
+    }
+    
+    const event = await storage.createBookingEvent(eventData);
+    console.log(`✅ Created booking event: ${event.title}`);
+    
+    res.status(201).json({
+      event: event,
+      source: 'PostgreSQL database via Drizzle ORM'
+    });
+  } catch (error) {
+    console.error('❌ Error creating booking event:', error);
+    res.status(500).json({ error: 'Failed to create booking event', details: error.message });
+  }
+});
+
+app.put('/api/booking/events/:id', async (req, res) => {
+  try {
+    const eventId = req.params.id;
+    const eventData = req.body;
+    console.log(`🔗 Updating booking event: ${eventId}`);
+    
+    // Check if event exists first
+    const existingEvent = await storage.getBookingEvent(eventId);
+    if (!existingEvent) {
+      return res.status(404).json({ error: 'Booking event not found' });
+    }
+    
+    const event = await storage.updateBookingEvent(eventId, eventData);
+    console.log(`✅ Updated booking event: ${event.title}`);
+    
+    res.json({
+      event: event,
+      source: 'PostgreSQL database via Drizzle ORM'
+    });
+  } catch (error) {
+    console.error('❌ Error updating booking event:', error);
+    res.status(500).json({ error: 'Failed to update booking event', details: error.message });
+  }
+});
+
+app.delete('/api/booking/events/:id', async (req, res) => {
+  try {
+    const eventId = req.params.id;
+    console.log(`🔗 Deleting booking event: ${eventId}`);
+    
+    // Check if event exists first
+    const existingEvent = await storage.getBookingEvent(eventId);
+    if (!existingEvent) {
+      return res.status(404).json({ error: 'Booking event not found' });
+    }
+    
+    await storage.deleteBookingEvent(eventId);
+    console.log(`✅ Deleted booking event: ${eventId}`);
+    
+    res.json({
+      message: 'Booking event deleted successfully',
+      source: 'PostgreSQL database via Drizzle ORM'
+    });
+  } catch (error) {
+    console.error('❌ Error deleting booking event:', error);
+    res.status(500).json({ error: 'Failed to delete booking event', details: error.message });
+  }
+});
+
+// Booking Page Settings API
+app.get('/api/booking/settings', async (req, res) => {
+  try {
+    console.log('🔗 Fetching booking page settings...');
+    const settings = await storage.getBookingPageSettings();
+    
+    // Return default settings if none exist
+    const defaultSettings = {
+      id: 'booking-page-settings',
+      title: 'Book Your Adventure',
+      subtitle: 'Secure your spot for an unforgettable Moroccan experience',
+      headerBackgroundImage: '/book-hero.jpg',
+      footerText: 'Questions? Contact our team for personalized assistance.',
+      contactEmail: 'bookings@morocclubs.com',
+      contactPhone: '+212 522 123 456',
+      enableReviews: true,
+      enableSimilarEvents: true,
+      enableImageGallery: true,
+      maxParticipants: 25,
+      minimumBookingHours: 24,
+      customCss: '',
+      seoTitle: 'Book Morocco Adventures | Morocco Clubs',
+      seoDescription: 'Book authentic Moroccan experiences with local clubs. From Atlas Mountains trekking to Sahara expeditions and cultural festivals.',
+      updatedAt: new Date().toISOString()
+    };
+    
+    console.log('✅ Retrieved booking page settings');
+    res.json({
+      settings: settings || defaultSettings,
+      source: 'PostgreSQL database via Drizzle ORM'
+    });
+  } catch (error) {
+    console.error('❌ Error fetching booking page settings:', error);
+    res.status(500).json({ error: 'Failed to fetch booking page settings', details: error.message });
+  }
+});
+
+app.put('/api/booking/settings', async (req, res) => {
+  try {
+    console.log('🔗 Updating booking page settings...');
+    const settingsData = req.body;
+    
+    const settings = await storage.updateBookingPageSettings(settingsData);
+    console.log('✅ Updated booking page settings');
+    
+    res.json({
+      settings: settings,
+      source: 'PostgreSQL database via Drizzle ORM'
+    });
+  } catch (error) {
+    console.error('❌ Error updating booking page settings:', error);
+    res.status(500).json({ error: 'Failed to update booking page settings', details: error.message });
+  }
+});
+
 // In production, handle client-side routing
 if (process.env.NODE_ENV === 'production') {
   app.get('*', (req, res) => {

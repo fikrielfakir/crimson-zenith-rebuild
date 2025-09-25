@@ -117,6 +117,54 @@ export const clubReviews = pgTable("club_reviews", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Booking events table - for customizable bookable events
+export const bookingEvents = pgTable("booking_events", {
+  id: varchar("id").primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  subtitle: varchar("subtitle", { length: 255 }),
+  description: text("description").notNull(),
+  location: varchar("location", { length: 255 }).notNull(),
+  duration: varchar("duration", { length: 100 }),
+  price: integer("price").notNull(),
+  originalPrice: integer("original_price"),
+  rating: integer("rating").default(5),
+  reviewCount: integer("review_count").default(0),
+  category: varchar("category", { length: 100 }),
+  languages: jsonb("languages").default(sql`'["English"]'::jsonb`),
+  ageRange: varchar("age_range", { length: 100 }),
+  groupSize: varchar("group_size", { length: 100 }),
+  cancellationPolicy: text("cancellation_policy"),
+  images: jsonb("images").default(sql`'[]'::jsonb`),
+  highlights: jsonb("highlights").default(sql`'[]'::jsonb`),
+  included: jsonb("included").default(sql`'[]'::jsonb`),
+  notIncluded: jsonb("not_included").default(sql`'[]'::jsonb`),
+  schedule: jsonb("schedule").default(sql`'[]'::jsonb`),
+  isActive: boolean("is_active").default(true),
+  createdBy: varchar("created_by").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Booking page settings table
+export const bookingPageSettings = pgTable("booking_page_settings", {
+  id: varchar("id").primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  subtitle: varchar("subtitle", { length: 255 }),
+  headerBackgroundImage: varchar("header_background_image", { length: 500 }),
+  footerText: text("footer_text"),
+  contactEmail: varchar("contact_email", { length: 255 }),
+  contactPhone: varchar("contact_phone", { length: 50 }),
+  enableReviews: boolean("enable_reviews").default(true),
+  enableSimilarEvents: boolean("enable_similar_events").default(true),
+  enableImageGallery: boolean("enable_image_gallery").default(true),
+  maxParticipants: integer("max_participants").default(25),
+  minimumBookingHours: integer("minimum_booking_hours").default(24),
+  customCss: text("custom_css"),
+  seoTitle: varchar("seo_title", { length: 255 }),
+  seoDescription: text("seo_description"),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   ownedClubs: many(clubs),
@@ -193,6 +241,13 @@ export const clubReviewsRelations = relations(clubReviews, ({ one }) => ({
   }),
 }));
 
+export const bookingEventsRelations = relations(bookingEvents, ({ one }) => ({
+  creator: one(users, {
+    fields: [bookingEvents.createdBy],
+    references: [users.id],
+  }),
+}));
+
 // Type exports
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -201,3 +256,7 @@ export type InsertClub = typeof clubs.$inferInsert;
 export type ClubMembership = typeof clubMemberships.$inferSelect;
 export type ClubEvent = typeof clubEvents.$inferSelect;
 export type InsertClubEvent = typeof clubEvents.$inferInsert;
+export type BookingEvent = typeof bookingEvents.$inferSelect;
+export type InsertBookingEvent = typeof bookingEvents.$inferInsert;
+export type BookingPageSettings = typeof bookingPageSettings.$inferSelect;
+export type InsertBookingPageSettings = typeof bookingPageSettings.$inferInsert;

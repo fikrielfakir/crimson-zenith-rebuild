@@ -5,6 +5,8 @@ import {
   clubEvents,
   clubGallery,
   clubReviews,
+  bookingEvents,
+  bookingPageSettings,
   type User,
   type UpsertUser,
   type Club,
@@ -12,6 +14,10 @@ import {
   type ClubMembership,
   type ClubEvent,
   type InsertClubEvent,
+  type BookingEvent,
+  type InsertBookingEvent,
+  type BookingPageSettings,
+  type InsertBookingPageSettings,
 } from "../shared/schema.js";
 import { db } from "./db";
 import { eq, and, desc, asc, count, sql } from "drizzle-orm";
@@ -46,6 +52,17 @@ export interface IStorage {
   // Club gallery operations
   getClubGallery(clubId: number): Promise<any[]>;
   addClubImage(clubId: number, imageUrl: string, caption?: string, uploadedBy?: string): Promise<any>;
+  
+  // Booking event operations
+  getBookingEvents(): Promise<BookingEvent[]>;
+  getBookingEvent(id: string): Promise<BookingEvent | undefined>;
+  createBookingEvent(event: InsertBookingEvent): Promise<BookingEvent>;
+  updateBookingEvent(id: string, event: Partial<InsertBookingEvent>): Promise<BookingEvent>;
+  deleteBookingEvent(id: string): Promise<void>;
+  
+  // Booking page settings operations
+  getBookingPageSettings(): Promise<BookingPageSettings | undefined>;
+  updateBookingPageSettings(settings: InsertBookingPageSettings): Promise<BookingPageSettings>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -233,6 +250,68 @@ export class DatabaseStorage implements IStorage {
       .values({ clubId, imageUrl, caption, uploadedBy })
       .returning();
     return image;
+  }
+
+  // Booking event operations
+  async getBookingEvents(): Promise<BookingEvent[]> {
+    return await db
+      .select()
+      .from(bookingEvents)
+      .orderBy(desc(bookingEvents.createdAt));
+  }
+
+  async getBookingEvent(id: string): Promise<BookingEvent | undefined> {
+    const [event] = await db
+      .select()
+      .from(bookingEvents)
+      .where(eq(bookingEvents.id, id));
+    return event;
+  }
+
+  async createBookingEvent(eventData: InsertBookingEvent): Promise<BookingEvent> {
+    const [event] = await db.insert(bookingEvents).values(eventData).returning();
+    return event;
+  }
+
+  async updateBookingEvent(id: string, eventData: Partial<InsertBookingEvent>): Promise<BookingEvent> {
+    const [event] = await db
+      .update(bookingEvents)
+      .set({ ...eventData, updatedAt: new Date() })
+      .where(eq(bookingEvents.id, id))
+      .returning();
+    return event;
+  }
+
+  async deleteBookingEvent(id: string): Promise<void> {
+    await db.delete(bookingEvents).where(eq(bookingEvents.id, id));
+  }
+
+  // Booking page settings operations
+  async getBookingPageSettings(): Promise<BookingPageSettings | undefined> {
+    const [settings] = await db
+      .select()
+      .from(bookingPageSettings)
+      .where(eq(bookingPageSettings.id, 'booking-page-settings'));
+    return settings;
+  }
+
+  async updateBookingPageSettings(settingsData: InsertBookingPageSettings): Promise<BookingPageSettings> {
+    const existingSettings = await this.getBookingPageSettings();
+    
+    if (existingSettings) {
+      const [settings] = await db
+        .update(bookingPageSettings)
+        .set({ ...settingsData, updatedAt: new Date() })
+        .where(eq(bookingPageSettings.id, 'booking-page-settings'))
+        .returning();
+      return settings;
+    } else {
+      const [settings] = await db
+        .insert(bookingPageSettings)
+        .values({ ...settingsData, id: 'booking-page-settings' })
+        .returning();
+      return settings;
+    }
   }
 }
 
