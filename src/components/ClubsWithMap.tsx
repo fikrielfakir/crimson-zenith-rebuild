@@ -180,7 +180,7 @@ const ClubsWithMap = () => {
                     <Button 
                       size="sm" 
                       className="px-4 py-1 text-sm w-full"
-                      onClick={() => navigate(`/clubs?club=${encodeURIComponent(club.name)}`)}
+                      onClick={() => navigate(`/club/${encodeURIComponent(club.name)}`)}
                     >
                       Discover
                     </Button>

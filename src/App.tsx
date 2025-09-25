@@ -29,6 +29,7 @@ import LandingManagement from "./pages/admin/LandingManagement";
 import ApplicationsManagement from "./pages/admin/ApplicationsManagement";
 import JoinUsConfig from "./pages/admin/JoinUsConfig";
 import JoinUs from "./pages/JoinUs";
+import ClubDetail from "./pages/ClubDetail";
 import ProtectedRoute from "./components/admin/ProtectedRoute";
 
 const queryClient = new QueryClient();
@@ -44,6 +45,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/discover" element={<Discover />} />
           <Route path="/clubs" element={<Clubs />} />
+          <Route path="/club/:clubName" element={<ClubDetail />} />
           <Route path="/events" element={<Events />} />
           <Route path="/book" element={<Book />} />
           <Route path="/gallery" element={<Gallery />} />
