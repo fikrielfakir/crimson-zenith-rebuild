@@ -8,7 +8,7 @@ export default defineConfig(({ mode }: { mode: string }) => ({
   server: {
     host: "0.0.0.0",
     port: 5000,
-    allowedHosts: ["all"] as any,
+    allowedHosts: true,
     proxy: {
       '/api': {
         target: 'http://localhost:3001',
