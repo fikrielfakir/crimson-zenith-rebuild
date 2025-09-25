@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,10 +33,55 @@ import {
 } from "lucide-react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import type { JoinUsPageConfig, ClubOption, JoinUsFormField } from "@/types/admin";
+import { joinUsConfigService } from "@/lib/joinUsConfig";
 
 const JoinUsConfig = () => {
-  // Default configuration
-  const [config, setConfig] = useState<JoinUsPageConfig>({
+  const [config, setConfig] = useState<JoinUsPageConfig | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Load configuration on mount
+  useEffect(() => {
+    const loadConfig = async () => {
+      try {
+        const loadedConfig = await joinUsConfigService.getConfig();
+        setConfig(loadedConfig);
+      } catch (error) {
+        console.error('Error loading configuration:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    loadConfig();
+  }, []);
+
+  // Handle case when config is not loaded yet
+  if (isLoading) {
+    return (
+      <AdminLayout>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <p>Loading configuration...</p>
+          </div>
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  if (!config) {
+    return (
+      <AdminLayout>
+        <div className="text-center py-12">
+          <h1 className="text-2xl font-bold mb-4">Configuration Error</h1>
+          <p className="text-muted-foreground">Unable to load Join Us page configuration.</p>
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  // Default configuration structure for fallback
+  const defaultConfig: JoinUsPageConfig = {
     id: 1,
     pageTitle: "Join Our Adventure Community",
     pageSubtitle: "Ready to explore Morocco's wonders with like-minded adventurers? Complete this application to become part of our vibrant community.",
@@ -268,18 +313,11 @@ const JoinUsConfig = () => {
   ];
 
   const handleSave = async () => {
+    if (!config) return;
+    
     setIsSaving(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Update timestamp
-      setConfig(prev => ({
-        ...prev,
-        updatedAt: new Date().toISOString()
-      }));
-      
-      console.log('Join Us page configuration saved:', config);
+      await joinUsConfigService.saveConfig(config);
       alert('Configuration saved successfully!');
     } catch (error) {
       console.error('Error saving configuration:', error);
@@ -291,10 +329,10 @@ const JoinUsConfig = () => {
 
   const addInterest = () => {
     if (newInterest.trim() && !config.availableInterests.includes(newInterest.trim())) {
-      setConfig(prev => ({
+      setConfig(prev => prev ? ({
         ...prev,
         availableInterests: [...prev.availableInterests, newInterest.trim()]
-      }));
+      }) : null);
       setNewInterest('');
     }
   };
