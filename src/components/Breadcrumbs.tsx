@@ -14,7 +14,7 @@ const Breadcrumbs = ({ items }: BreadcrumbsProps) => {
   return (
     <section 
       className="py-16 px-6"
-      style={{ backgroundColor: '#112250' }}
+      style={{ backgroundColor: 'hsl(var(--primary))' }}
     >
       <div className="container mx-auto" style={{ marginTop: '10rem' }}>
         {/* Breadcrumb Navigation */}

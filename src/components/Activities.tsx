@@ -4,6 +4,19 @@ import { Clock, Users, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Activities = () => {
+  // Function to create URL-friendly slugs
+  const createSlug = (title: string) => {
+    const slugMap: { [key: string]: string } = {
+      "Atlas Mountains Trek": "atlas-mountains",
+      "Sahara Desert Adventure": "sahara-desert",
+      "Coastal Surfing Experience": "atlantique",
+      "Cultural City Tour": "cultural-city-tour",
+      "Rock Climbing Adventure": "rock-climbing",
+      "Photography Workshop": "photography-workshop"
+    };
+    return slugMap[title] || title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+  };
+
   const activities = [
     {
       title: "Atlas Mountains Trek",
@@ -136,7 +149,7 @@ const Activities = () => {
                   <span className="text-lg font-bold text-primary">
                     {activity.price}
                   </span>
-                  <Link to="/discover">
+                  <Link to={`/activities/${createSlug(activity.title)}`}>
                     <Button size="sm" variant="outline" className="text-xs">
                       Learn More
                     </Button>

@@ -36,6 +36,7 @@ import AuthSettings from "./pages/admin/AuthSettings";
 import PaymentSettings from "./pages/admin/PaymentSettings";
 import JoinUs from "./pages/JoinUs";
 import ClubDetail from "./pages/ClubDetail";
+import ActivityDetail from "./pages/ActivityDetail";
 import UserProfile from "./pages/UserProfile";
 import ClubProfileEdit from "./pages/ClubProfileEdit";
 import UserLogin from "./pages/UserLogin";
@@ -56,6 +57,7 @@ const App = () => (
           <Route path="/discover" element={<Discover />} />
           <Route path="/clubs" element={<Clubs />} />
           <Route path="/club/:clubName" element={<ClubDetail />} />
+          <Route path="/activities/:activityName" element={<ActivityDetail />} />
           <Route path="/events" element={<Events />} />
           <Route path="/book" element={<Book />} />
           <Route path="/gallery" element={<Gallery />} />

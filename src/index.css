@@ -121,11 +121,11 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 210 25% 25%;
 
-    --primary: 211 69% 23%;
+    --primary: 224 65% 19%;
     --primary-foreground: 0 0% 100%;
     --primary-glow: 211 60% 35%;
 
-    --secondary: 224 65% 19%;
+    --secondary: 211 69% 23%;
     --secondary-foreground: 0 0% 100%;
 
     --muted: 210 20% 98%;

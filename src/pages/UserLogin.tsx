@@ -55,7 +55,7 @@ const UserLogin = () => {
         </div>
 
         <Card className="shadow-lg border-0">
-          <CardHeader className="text-center text-white rounded-t-lg" style={{ backgroundColor: '#112250' }}>
+          <CardHeader className="text-center text-white rounded-t-lg" style={{ backgroundColor: 'hsl(var(--primary))' }}>
             <div className="mx-auto w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mb-4">
               <User className="w-8 h-8 text-white" />
             </div>
@@ -75,7 +75,7 @@ const UserLogin = () => {
                     type="email"
                     placeholder="Enter your email"
                     className="pl-10 border-slate-300 focus:ring-1"
-                    style={{ '--tw-ring-color': '#112250', 'borderColor': '#112250' } as any}
+                    style={{ '--tw-ring-color': 'hsl(var(--primary))', 'borderColor': 'hsl(var(--primary))' } as any}
                     value={credentials.email}
                     onChange={(e) => setCredentials(prev => ({...prev, email: e.target.value}))}
                     required
@@ -92,7 +92,7 @@ const UserLogin = () => {
                     type="password"
                     placeholder="Enter your password"
                     className="pl-10 border-slate-300 focus:ring-1"
-                    style={{ '--tw-ring-color': '#112250', 'borderColor': '#112250' } as any}
+                    style={{ '--tw-ring-color': 'hsl(var(--primary))', 'borderColor': 'hsl(var(--primary))' } as any}
                     value={credentials.password}
                     onChange={(e) => setCredentials(prev => ({...prev, password: e.target.value}))}
                     required
@@ -110,7 +110,7 @@ const UserLogin = () => {
               <Button 
                 type="submit" 
                 className="w-full text-white font-semibold py-2.5 hover:opacity-90 transition-opacity" 
-                style={{ backgroundColor: '#112250' }}
+                style={{ backgroundColor: 'hsl(var(--primary))' }}
                 disabled={isLoading}
               >
                 {isLoading ? 'Signing in...' : 'Sign In'}
@@ -170,7 +170,7 @@ const UserLogin = () => {
             </div>
 
             {/* Demo credentials */}
-            <div className="mt-6 p-4 rounded-lg border" style={{ backgroundColor: '#f8fafc', borderColor: '#112250' }}>
+            <div className="mt-6 p-4 rounded-lg border" style={{ backgroundColor: '#f8fafc', borderColor: 'hsl(var(--primary))' }}>
               <p className="text-sm text-slate-600 mb-2 font-medium">Demo Credentials:</p>
               <p className="text-sm text-slate-700"><strong>Email:</strong> user@morocclubs.com</p>
               <p className="text-sm text-slate-700"><strong>Password:</strong> user123</p>
@@ -180,12 +180,12 @@ const UserLogin = () => {
             <div className="mt-6 text-center space-y-2">
               <p className="text-sm text-muted-foreground">
                 Don't have an account?{' '}
-                <Link to="/join" className="font-medium hover:opacity-80" style={{ color: '#112250' }}>
+                <Link to="/join" className="font-medium hover:opacity-80" style={{ color: 'hsl(var(--primary))' }}>
                   Join us
                 </Link>
               </p>
               <p className="text-sm text-muted-foreground">
-                <Link to="/forgot-password" className="font-medium hover:opacity-80" style={{ color: '#112250' }}>
+                <Link to="/forgot-password" className="font-medium hover:opacity-80" style={{ color: 'hsl(var(--primary))' }}>
                   Forgot your password?
                 </Link>
               </p>

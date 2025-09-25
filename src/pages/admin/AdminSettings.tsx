@@ -30,7 +30,7 @@ const AdminSettings = () => {
     contactPhone: "+212 686 777 888",
     
     // Theme Settings
-    primaryColor: "#1a365d",
+    primaryColor: "#112250",
     accentColor: "#f56500",
     darkMode: false,
     
