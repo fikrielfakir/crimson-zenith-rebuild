@@ -158,3 +158,83 @@ export interface GallerySectionData {
   }>;
   layout: 'grid' | 'masonry' | 'carousel';
 }
+
+// Join Us Page Configuration Types
+export interface JoinUsPageConfig {
+  id: number;
+  // Page Content
+  pageTitle: string;
+  pageSubtitle: string;
+  headerGradient: string;
+  
+  // Form Sections Configuration
+  sections: {
+    personalInfo: JoinUsFormSection;
+    clubPreferences: JoinUsFormSection;
+    interests: JoinUsFormSection;
+    motivation: JoinUsFormSection;
+    terms: JoinUsFormSection;
+  };
+  
+  // Available Options
+  availableClubs: ClubOption[];
+  availableInterests: string[];
+  
+  // Success Page Configuration
+  successPage: {
+    title: string;
+    subtitle: string;
+    nextSteps: string[];
+    returnButtonText: string;
+  };
+  
+  // Terms and Conditions
+  termsText: string;
+  termsDescription: string;
+  
+  // Form Behavior
+  validation: {
+    nameMinLength: number;
+    phoneMinLength: number;
+    motivationMinLength: number;
+  };
+  
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface JoinUsFormSection {
+  isEnabled: boolean;
+  title: string;
+  description?: string;
+  icon: string;
+  order: number;
+  fields: JoinUsFormField[];
+}
+
+export interface JoinUsFormField {
+  id: string;
+  type: 'text' | 'email' | 'tel' | 'textarea' | 'select' | 'checkbox' | 'radio' | 'multi-select';
+  label: string;
+  placeholder?: string;
+  isRequired: boolean;
+  isVisible: boolean;
+  order: number;
+  validation?: {
+    minLength?: number;
+    maxLength?: number;
+    pattern?: string;
+    customMessage?: string;
+  };
+  options?: string[]; // for select, radio, multi-select fields
+}
+
+export interface ClubOption {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  members: string;
+  isActive: boolean;
+  order: number;
+}
