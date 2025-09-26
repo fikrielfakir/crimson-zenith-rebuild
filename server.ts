@@ -230,7 +230,7 @@ app.get('/api/events/:id', async (req, res) => {
     
     // Get all clubs and find the event
     const clubs = await storage.getClubs();
-    let foundEvent = null;
+    let foundEvent: any = null;
     
     for (const club of clubs) {
       const events = await storage.getClubEvents(club.id);
