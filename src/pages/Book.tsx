@@ -85,17 +85,17 @@ const Book = () => {
   }, [eventParam, events]);
 
   const nextImage = () => {
-    if (selectedEvent) {
+    if (selectedEvent && images.length > 0) {
       setCurrentImageIndex((prev) => 
-        prev === selectedEvent.images.length - 1 ? 0 : prev + 1
+        prev === images.length - 1 ? 0 : prev + 1
       );
     }
   };
 
   const prevImage = () => {
-    if (selectedEvent) {
+    if (selectedEvent && images.length > 0) {
       setCurrentImageIndex((prev) => 
-        prev === 0 ? selectedEvent.images.length - 1 : prev - 1
+        prev === 0 ? images.length - 1 : prev - 1
       );
     }
   };
@@ -158,6 +158,15 @@ const Book = () => {
     );
   }
 
+  // Safe array defaults to prevent crashes when properties are undefined
+  const images = selectedEvent.images ?? [];
+  const schedule = selectedEvent.schedule ?? [];
+  const reviews = selectedEvent.reviews ?? [];
+  const similarEvents = selectedEvent.similarEvents ?? [];
+  const highlights = selectedEvent.highlights ?? [];
+  const included = selectedEvent.included ?? [];
+  const notIncluded = selectedEvent.notIncluded ?? [];
+
   const totalPrice = selectedEvent.price * participants;
   const savings = selectedEvent.originalPrice ? 
     (selectedEvent.originalPrice - selectedEvent.price) * participants : 0;
@@ -182,11 +191,18 @@ const Book = () => {
             {/* Hero Section with Image Gallery */}
             <div className="relative">
               <div className="relative h-96 md:h-[500px] overflow-hidden rounded-lg">
-                <img 
-                  src={selectedEvent.images[currentImageIndex]} 
-                  alt={selectedEvent.title}
-                  className="w-full h-full object-cover"
-                />
+                {images.length > 0 ? (
+                  <img 
+                    src={images[currentImageIndex] || '/api/placeholder/800/600'} 
+                    alt={selectedEvent.title}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                    <Camera className="w-16 h-16 text-gray-400" />
+                    <span className="ml-2 text-gray-500">No images available</span>
+                  </div>
+                )}
                 
                 {/* Navigation Arrows */}
                 <button 
@@ -204,7 +220,7 @@ const Book = () => {
 
                 {/* Image Counter */}
                 <div className="absolute bottom-4 right-4 bg-black/60 text-white px-3 py-1 rounded-full text-sm">
-                  {currentImageIndex + 1} / {selectedEvent.images.length}
+                  {images.length > 0 ? `${currentImageIndex + 1} / ${images.length}` : '0 / 0'}
                 </div>
 
                 {/* Action Buttons */}
@@ -225,7 +241,7 @@ const Book = () => {
 
               {/* Thumbnail Gallery */}
               <div className="flex gap-2 mt-4 overflow-x-auto pb-2">
-                {selectedEvent.images.map((image, index) => (
+                {images.map((image, index) => (
                   <button
                     key={index}
                     onClick={() => setCurrentImageIndex(index)}
@@ -316,7 +332,7 @@ const Book = () => {
                   
                   <h4 className="text-xl font-semibold mb-4">Highlights</h4>
                   <div className="grid md:grid-cols-2 gap-3">
-                    {selectedEvent.highlights.map((highlight, index) => (
+                    {highlights.map((highlight, index) => (
                       <div key={index} className="flex items-start gap-3">
                         <Check className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
                         <span>{highlight}</span>
@@ -332,7 +348,7 @@ const Book = () => {
                       What's Included
                     </h4>
                     <ul className="space-y-2">
-                      {selectedEvent.included.map((item, index) => (
+                      {included.map((item, index) => (
                         <li key={index} className="flex items-start gap-3 text-sm">
                           <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
                           {item}
@@ -347,7 +363,7 @@ const Book = () => {
                       What's Not Included
                     </h4>
                     <ul className="space-y-2">
-                      {selectedEvent.notIncluded.map((item, index) => (
+                      {notIncluded.map((item, index) => (
                         <li key={index} className="flex items-start gap-3 text-sm">
                           <X className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
                           {item}
@@ -379,7 +395,7 @@ const Book = () => {
               <TabsContent value="schedule" className="space-y-4 mt-6">
                 <h3 className="text-2xl font-bold mb-4">Daily Schedule</h3>
                 <div className="space-y-4">
-                  {selectedEvent.schedule.map((item, index) => (
+                  {schedule.map((item, index) => (
                     <div key={index} className="flex gap-4 p-4 border rounded-lg">
                       <div className="font-semibold text-primary min-w-16">{item.time}</div>
                       <div>{item.activity}</div>
@@ -399,7 +415,7 @@ const Book = () => {
                 </div>
                 
                 <div className="space-y-6">
-                  {selectedEvent.reviews.map((review, index) => (
+                  {reviews.map((review, index) => (
                     <Card key={index}>
                       <CardContent className="p-6">
                         <div className="flex items-start gap-4">
@@ -446,7 +462,7 @@ const Book = () => {
               <TabsContent value="photos" className="space-y-6 mt-6">
                 <h3 className="text-2xl font-bold">Photos</h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {selectedEvent.images.map((image, index) => (
+                  {images.map((image, index) => (
                     <div 
                       key={index} 
                       className="aspect-square rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
@@ -463,7 +479,7 @@ const Book = () => {
             <div>
               <h3 className="text-2xl font-bold mb-6">Similar Experiences</h3>
               <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {selectedEvent.similarEvents.map((event, index) => (
+                {similarEvents.map((event, index) => (
                   <Card key={index} className="cursor-pointer hover:shadow-md transition-shadow">
                     <div className="aspect-video relative overflow-hidden rounded-t-lg">
                       <img src={event.image} alt={event.title} className="w-full h-full object-cover" />
