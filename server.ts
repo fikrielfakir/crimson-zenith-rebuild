@@ -164,7 +164,7 @@ app.get('/api/events', async (req, res) => {
   try {
     console.log('🔗 Fetching events from PostgreSQL database...');
     const clubs = await storage.getClubs();
-    const allEvents = [];
+    const allEvents: any[] = [];
     
     for (const club of clubs) {
       const events = await storage.getClubEvents(club.id);
