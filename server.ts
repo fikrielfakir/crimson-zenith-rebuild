@@ -148,6 +148,8 @@ app.get('/api/clubs', async (req, res) => {
         image: club.image,
         features: club.features,
         is_active: club.isActive,
+        latitude: club.latitude,
+        longitude: club.longitude,
         created_at: club.createdAt?.toISOString(),
         updated_at: club.updatedAt?.toISOString()
       })),
