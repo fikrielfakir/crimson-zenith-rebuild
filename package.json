@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"tsx server.ts\" \"vite\"",
+    "dev": "npx concurrently \"npx tsx server.ts\" \"vite\"",
     "dev:frontend": "vite",
     "dev:backend": "tsx server.ts",
     "build": "vite build",
