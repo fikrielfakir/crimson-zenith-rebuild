@@ -10,9 +10,12 @@ import { MapPin, Users, Calendar, Mountain, Bike, Camera, Search, Map, List, Plu
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Breadcrumbs from "@/components/Breadcrumbs";
+import MoroccoMap from "@/components/MoroccoMap";
+import { Club } from "../../shared/schema";
 
 const Clubs = () => {
   const [viewMode, setViewMode] = useState<"list" | "map">("list");
+  const [selectedClub, setSelectedClub] = useState<Club | null>(null);
 
   // Fetch real clubs data from API
   const { data: clubsResponse, isLoading, error } = useQuery({
@@ -26,7 +29,7 @@ const Clubs = () => {
     },
   });
 
-  // Transform API data to match component expectations
+  // Transform API data for UI display
   const clubs = clubsResponse?.clubs?.map((club: any) => ({
     id: club.id,
     name: club.name,
@@ -41,6 +44,26 @@ const Clubs = () => {
     isJoined: false,
     rating: club.rating,
     location: club.location
+  })) || [];
+
+  // Transform API data for map (preserving coordinates)
+  const rawClubs: Club[] = clubsResponse?.clubs?.map((club: any) => ({
+    id: club.id,
+    name: club.name,
+    description: club.description,
+    location: club.location,
+    memberCount: club.member_count,
+    rating: club.rating,
+    image: club.image,
+    features: club.features,
+    isActive: club.is_active,
+    latitude: club.latitude,
+    longitude: club.longitude,
+    established: club.established,
+    contactEmail: club.contact_email,
+    contactPhone: club.contact_phone,
+    createdAt: club.created_at ? new Date(club.created_at) : undefined,
+    updatedAt: club.updated_at ? new Date(club.updated_at) : undefined,
   })) || [];
 
   if (isLoading) {
@@ -229,14 +252,44 @@ const Clubs = () => {
           )}
 
           {viewMode === "map" && (
-            <div className="h-96 bg-muted rounded-card flex items-center justify-center mb-16">
-              <div className="text-center">
-                <Map className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                <h3 className="text-lg font-semibold font-heading mb-2">Interactive Club Map Coming Soon</h3>
-                <p className="text-muted-foreground font-body">
-                  Explore clubs on an interactive map of Morocco
-                </p>
+            <div className="mb-16">
+              <div className="bg-muted/50 rounded-card p-6 mb-6">
+                <div className="text-center mb-4">
+                  <h3 className="text-2xl font-bold font-heading mb-2">Interactive Club Map</h3>
+                  <p className="text-muted-foreground font-body">
+                    Explore our clubs across Morocco. Click on the markers to learn more about each club.
+                  </p>
+                </div>
               </div>
+              <div className="rounded-lg overflow-hidden shadow-lg">
+                <MoroccoMap 
+                  clubs={rawClubs}
+                  onClubSelect={setSelectedClub}
+                  selectedClub={selectedClub}
+                />
+              </div>
+              {selectedClub && (
+                <div className="mt-6 max-w-md mx-auto">
+                  <Card className="border-primary/20">
+                    <CardContent className="p-4">
+                      <h4 className="font-semibold mb-2">{selectedClub.name}</h4>
+                      <p className="text-sm text-muted-foreground mb-2">{selectedClub.location}</p>
+                      <p className="text-sm mb-3">{selectedClub.description}</p>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-muted-foreground">
+                          {selectedClub.memberCount} members
+                        </span>
+                        <Button 
+                          size="sm"
+                          onClick={() => window.location.href = `/club/${encodeURIComponent(selectedClub.name)}`}
+                        >
+                          View Details
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
             </div>
           )}
 

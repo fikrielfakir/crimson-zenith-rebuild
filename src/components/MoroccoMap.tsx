@@ -124,57 +124,126 @@ const MoroccoMap = ({ clubs, onClubSelect, selectedClub }: MoroccoMapProps) => {
         markerElement.style.zIndex = '1';
       });
 
-      // Create popup with club information
+      // Create popup with club information (safely)
+      const popupDiv = document.createElement('div');
+      popupDiv.className = 'p-4 min-w-[250px]';
+      
+      // Header section
+      const headerDiv = document.createElement('div');
+      headerDiv.className = 'mb-3';
+      
+      // Image (if exists)
+      if (club.image) {
+        const img = document.createElement('img');
+        img.src = club.image;
+        img.alt = club.name || '';
+        img.className = 'w-full h-32 object-cover rounded-lg mb-3';
+        headerDiv.appendChild(img);
+      }
+      
+      // Club name
+      const nameH3 = document.createElement('h3');
+      nameH3.className = 'font-bold text-lg text-gray-900 mb-1';
+      nameH3.textContent = club.name || 'Unknown Club';
+      headerDiv.appendChild(nameH3);
+      
+      // Location
+      const locationP = document.createElement('p');
+      locationP.className = 'text-sm text-gray-600 mb-2';
+      locationP.textContent = club.location || '';
+      headerDiv.appendChild(locationP);
+      
+      popupDiv.appendChild(headerDiv);
+      
+      // Stats section
+      const statsDiv = document.createElement('div');
+      statsDiv.className = 'space-y-2 mb-4';
+      
+      // Members
+      const membersDiv = document.createElement('div');
+      membersDiv.className = 'flex justify-between text-sm';
+      const membersLabel = document.createElement('span');
+      membersLabel.className = 'text-gray-600';
+      membersLabel.textContent = 'Members:';
+      const membersValue = document.createElement('span');
+      membersValue.className = 'font-semibold text-blue-600';
+      membersValue.textContent = (club.memberCount || 0).toString();
+      membersDiv.appendChild(membersLabel);
+      membersDiv.appendChild(membersValue);
+      statsDiv.appendChild(membersDiv);
+      
+      // Rating
+      const ratingDiv = document.createElement('div');
+      ratingDiv.className = 'flex justify-between text-sm';
+      const ratingLabel = document.createElement('span');
+      ratingLabel.className = 'text-gray-600';
+      ratingLabel.textContent = 'Rating:';
+      const ratingValue = document.createElement('span');
+      ratingValue.className = 'font-semibold text-yellow-600';
+      ratingValue.textContent = '★'.repeat(club.rating || 5);
+      ratingDiv.appendChild(ratingLabel);
+      ratingDiv.appendChild(ratingValue);
+      statsDiv.appendChild(ratingDiv);
+      
+      // Established (if exists)
+      if (club.established) {
+        const establishedDiv = document.createElement('div');
+        establishedDiv.className = 'flex justify-between text-sm';
+        const establishedLabel = document.createElement('span');
+        establishedLabel.className = 'text-gray-600';
+        establishedLabel.textContent = 'Established:';
+        const establishedValue = document.createElement('span');
+        establishedValue.className = 'font-semibold';
+        establishedValue.textContent = club.established;
+        establishedDiv.appendChild(establishedLabel);
+        establishedDiv.appendChild(establishedValue);
+        statsDiv.appendChild(establishedDiv);
+      }
+      
+      popupDiv.appendChild(statsDiv);
+      
+      // Description
+      const descriptionP = document.createElement('p');
+      descriptionP.className = 'text-sm text-gray-700 mb-4 line-clamp-2';
+      descriptionP.textContent = club.description || '';
+      popupDiv.appendChild(descriptionP);
+      
+      // Buttons section
+      const buttonsDiv = document.createElement('div');
+      buttonsDiv.className = 'flex gap-2';
+      
+      // View Details button
+      const viewDetailsBtn = document.createElement('button');
+      viewDetailsBtn.className = 'flex-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors';
+      viewDetailsBtn.textContent = 'View Details';
+      viewDetailsBtn.onclick = () => {
+        window.location.href = `/club/${encodeURIComponent(club.name || '')}`;
+      };
+      buttonsDiv.appendChild(viewDetailsBtn);
+      
+      // Contact button (if contact info exists)
+      if (club.contactEmail || club.contactPhone) {
+        const contactBtn = document.createElement('button');
+        contactBtn.className = 'px-3 py-2 border border-gray-300 hover:border-gray-400 rounded-lg text-sm font-medium transition-colors';
+        contactBtn.textContent = 'Contact';
+        contactBtn.onclick = () => {
+          if (club.contactEmail) {
+            window.open(`mailto:${club.contactEmail}`, '_blank');
+          } else if (club.contactPhone) {
+            window.open(`tel:${club.contactPhone}`, '_blank');
+          }
+        };
+        buttonsDiv.appendChild(contactBtn);
+      }
+      
+      popupDiv.appendChild(buttonsDiv);
+
       const popup = new mapboxgl.Popup({
         offset: 25,
         closeButton: true,
         closeOnClick: false,
         className: 'club-popup'
-      }).setHTML(`
-        <div class="p-4 min-w-[250px]">
-          <div class="mb-3">
-            ${club.image ? `<img src="${club.image}" alt="${club.name}" class="w-full h-32 object-cover rounded-lg mb-3" />` : ''}
-            <h3 class="font-bold text-lg text-gray-900 mb-1">${club.name}</h3>
-            <p class="text-sm text-gray-600 mb-2">${club.location}</p>
-          </div>
-          
-          <div class="space-y-2 mb-4">
-            <div class="flex justify-between text-sm">
-              <span class="text-gray-600">Members:</span>
-              <span class="font-semibold text-blue-600">${club.memberCount || 0}</span>
-            </div>
-            <div class="flex justify-between text-sm">
-              <span class="text-gray-600">Rating:</span>
-              <span class="font-semibold text-yellow-600">${'★'.repeat(club.rating || 5)}</span>
-            </div>
-            ${club.established ? `
-              <div class="flex justify-between text-sm">
-                <span class="text-gray-600">Established:</span>
-                <span class="font-semibold">${club.established}</span>
-              </div>
-            ` : ''}
-          </div>
-          
-          <p class="text-sm text-gray-700 mb-4 line-clamp-2">${club.description}</p>
-          
-          <div class="flex gap-2">
-            <button 
-              onclick="window.location.href='/clubs/${club.id}'" 
-              class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors"
-            >
-              View Details
-            </button>
-            ${club.contactEmail || club.contactPhone ? `
-              <button 
-                onclick="window.open('${club.contactEmail ? `mailto:${club.contactEmail}` : `tel:${club.contactPhone}`}', '_blank')" 
-                class="px-3 py-2 border border-gray-300 hover:border-gray-400 rounded-lg text-sm font-medium transition-colors"
-              >
-                Contact
-              </button>
-            ` : ''}
-          </div>
-        </div>
-      `);
+      }).setDOMContent(popupDiv);
 
       // Create marker
       const marker = new mapboxgl.Marker(markerElement)
@@ -187,7 +256,10 @@ const MoroccoMap = ({ clubs, onClubSelect, selectedClub }: MoroccoMapProps) => {
         if (onClubSelect) {
           onClubSelect(club);
         }
-        marker.togglePopup();
+        // Always open popup on click
+        if (!marker.getPopup().isOpen()) {
+          marker.togglePopup();
+        }
       });
 
       return {
@@ -230,8 +302,10 @@ const MoroccoMap = ({ clubs, onClubSelect, selectedClub }: MoroccoMapProps) => {
         duration: 1000
       });
       
-      // Open popup
-      clubMarker.marker.togglePopup();
+      // Open popup (ensure it opens)
+      if (!clubMarker.marker.getPopup().isOpen()) {
+        clubMarker.marker.togglePopup();
+      }
     }
   }, [selectedClub, clubMarkers]);
 
