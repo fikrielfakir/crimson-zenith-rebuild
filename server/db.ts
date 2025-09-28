@@ -22,7 +22,7 @@ if (isNeon) {
   // Use Neon serverless driver for production Neon databases
   neonConfig.webSocketConstructor = ws;
   pool = new NeonPool({ connectionString: process.env.DATABASE_URL });
-  db = drizzleNeon(pool, { schema });
+  db = drizzleNeon({ client: pool, schema });
 } else {
   // Use standard PostgreSQL driver for local development
   pool = new PgPool({ 

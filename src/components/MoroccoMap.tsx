@@ -1,123 +1,254 @@
 import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Club } from '../../shared/schema';
 
-const MoroccoMap = () => {
+// Set Mapbox access token from environment
+mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
+
+interface MoroccoMapProps {
+  clubs: Club[];
+  onClubSelect?: (club: Club) => void;
+  selectedClub?: Club | null;
+}
+
+interface ClubMarker {
+  id: number;
+  marker: mapboxgl.Marker;
+  popup: mapboxgl.Popup;
+}
+
+const MoroccoMap = ({ clubs, onClubSelect, selectedClub }: MoroccoMapProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
-  const [mapboxToken, setMapboxToken] = useState('');
-  const [isMapLoaded, setIsMapLoaded] = useState(false);
+  const [clubMarkers, setClubMarkers] = useState<ClubMarker[]>([]);
 
-  const clubs = [
-    { name: 'Marrakech Club', coordinates: [-7.9811, 31.6295], members: '250+' },
-    { name: 'Fez Club', coordinates: [-5.0003, 34.0331], members: '180+' },
-    { name: 'Casablanca Club', coordinates: [-7.5898, 33.5731], members: '320+' },
-  ];
-
+  // Initialize map
   useEffect(() => {
-    if (!mapContainer.current || !mapboxToken || isMapLoaded) return;
+    if (!mapContainer.current || map.current) return;
+
+    if (!import.meta.env.VITE_MAPBOX_ACCESS_TOKEN) {
+      console.error('Mapbox access token is not configured');
+      return;
+    }
 
     try {
-      mapboxgl.accessToken = mapboxToken;
-      
+      // Morocco bounds: West to East, South to North
+      const moroccoBounds: mapboxgl.LngLatBoundsLike = [
+        [-17.5, 20.5], // Southwest coordinates [lng, lat]
+        [-0.5, 36.0]   // Northeast coordinates [lng, lat]
+      ];
+
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
-        style: 'mapbox://styles/mapbox/light-v11',
-        center: [-6.8498, 31.7917], // Center of Morocco
+        style: 'mapbox://styles/mapbox/outdoors-v12', // Outdoor style for Morocco terrain
+        center: [-7.09, 31.79], // Center of Morocco
         zoom: 5.5,
-        pitch: 0,
+        maxBounds: moroccoBounds, // Restrict map to Morocco
+        attributionControl: false
       });
 
-      map.current.addControl(
-        new mapboxgl.NavigationControl({
-          visualizePitch: false,
-        }),
-        'top-right'
-      );
+      // Add navigation controls
+      map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
 
-      map.current.on('load', () => {
-        // Add markers for each club
-        clubs.forEach((club) => {
-          // Create custom marker element
-          const markerElement = document.createElement('div');
-          markerElement.className = 'custom-marker';
-          markerElement.style.cssText = `
-            width: 12px;
-            height: 12px;
-            background-color: hsl(225, 70%, 20%);
-            border: 2px solid white;
-            border-radius: 50%;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-            cursor: pointer;
-          `;
-
-          // Create popup
-          const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
-            <div style="padding: 8px;">
-              <h3 style="margin: 0 0 4px 0; font-weight: bold; color: hsl(225, 70%, 20%);">${club.name}</h3>
-              <p style="margin: 0; color: hsl(225, 15%, 46%); font-size: 14px;">${club.members} Members</p>
-            </div>
-          `);
-
-          // Add marker to map
-          new mapboxgl.Marker(markerElement)
-            .setLngLat(club.coordinates as [number, number])
-            .setPopup(popup)
-            .addTo(map.current!);
-        });
-
-        setIsMapLoaded(true);
-      });
+      // Add full screen control
+      map.current.addControl(new mapboxgl.FullscreenControl(), 'top-right');
 
     } catch (error) {
       console.error('Error loading map:', error);
     }
 
     return () => {
-      map.current?.remove();
+      if (map.current) {
+        map.current.remove();
+        map.current = null;
+      }
     };
-  }, [mapboxToken]);
+  }, []);
 
-  const handleTokenSubmit = () => {
-    if (mapboxToken.trim()) {
-      setIsMapLoaded(false);
+  // Add club markers
+  useEffect(() => {
+    if (!map.current) return;
+
+    // Clear existing markers
+    clubMarkers.forEach(({ marker, popup }) => {
+      marker.remove();
+      popup.remove();
+    });
+
+    // Filter clubs with valid coordinates
+    const clubsWithCoordinates = clubs.filter(club => 
+      club.latitude && club.longitude && 
+      !isNaN(parseFloat(club.latitude)) && 
+      !isNaN(parseFloat(club.longitude))
+    );
+
+    if (clubsWithCoordinates.length === 0) {
+      setClubMarkers([]);
+      return;
     }
-  };
+
+    // Create new markers
+    const newMarkers: ClubMarker[] = clubsWithCoordinates.map(club => {
+      const lat = parseFloat(club.latitude!);
+      const lng = parseFloat(club.longitude!);
+
+      // Create custom marker element
+      const markerElement = document.createElement('div');
+      markerElement.className = 'custom-marker';
+      markerElement.style.cssText = `
+        width: 32px;
+        height: 32px;
+        background: linear-gradient(135deg, hsl(var(--secondary)) 0%, hsl(var(--primary)) 100%);
+        border: 3px solid white;
+        border-radius: 50%;
+        cursor: pointer;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        color: white;
+        font-weight: bold;
+        transition: all 0.3s ease;
+      `;
+      markerElement.innerHTML = club.memberCount ? club.memberCount.toString() : '0';
+
+      // Hover effects
+      markerElement.addEventListener('mouseenter', () => {
+        markerElement.style.transform = 'scale(1.2)';
+        markerElement.style.zIndex = '1000';
+      });
+      markerElement.addEventListener('mouseleave', () => {
+        markerElement.style.transform = 'scale(1)';
+        markerElement.style.zIndex = '1';
+      });
+
+      // Create popup with club information
+      const popup = new mapboxgl.Popup({
+        offset: 25,
+        closeButton: true,
+        closeOnClick: false,
+        className: 'club-popup'
+      }).setHTML(`
+        <div class="p-4 min-w-[250px]">
+          <div class="mb-3">
+            ${club.image ? `<img src="${club.image}" alt="${club.name}" class="w-full h-32 object-cover rounded-lg mb-3" />` : ''}
+            <h3 class="font-bold text-lg text-gray-900 mb-1">${club.name}</h3>
+            <p class="text-sm text-gray-600 mb-2">${club.location}</p>
+          </div>
+          
+          <div class="space-y-2 mb-4">
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-600">Members:</span>
+              <span class="font-semibold text-blue-600">${club.memberCount || 0}</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-600">Rating:</span>
+              <span class="font-semibold text-yellow-600">${'★'.repeat(club.rating || 5)}</span>
+            </div>
+            ${club.established ? `
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-600">Established:</span>
+                <span class="font-semibold">${club.established}</span>
+              </div>
+            ` : ''}
+          </div>
+          
+          <p class="text-sm text-gray-700 mb-4 line-clamp-2">${club.description}</p>
+          
+          <div class="flex gap-2">
+            <button 
+              onclick="window.location.href='/clubs/${club.id}'" 
+              class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+            >
+              View Details
+            </button>
+            ${club.contactEmail || club.contactPhone ? `
+              <button 
+                onclick="window.open('${club.contactEmail ? `mailto:${club.contactEmail}` : `tel:${club.contactPhone}`}', '_blank')" 
+                class="px-3 py-2 border border-gray-300 hover:border-gray-400 rounded-lg text-sm font-medium transition-colors"
+              >
+                Contact
+              </button>
+            ` : ''}
+          </div>
+        </div>
+      `);
+
+      // Create marker
+      const marker = new mapboxgl.Marker(markerElement)
+        .setLngLat([lng, lat])
+        .setPopup(popup)
+        .addTo(map.current!);
+
+      // Handle marker click
+      markerElement.addEventListener('click', () => {
+        if (onClubSelect) {
+          onClubSelect(club);
+        }
+        marker.togglePopup();
+      });
+
+      return {
+        id: club.id,
+        marker,
+        popup
+      };
+    });
+
+    setClubMarkers(newMarkers);
+
+    // Fit map to show all markers
+    if (clubsWithCoordinates.length > 1) {
+      const bounds = new mapboxgl.LngLatBounds();
+      clubsWithCoordinates.forEach(club => {
+        bounds.extend([parseFloat(club.longitude!), parseFloat(club.latitude!)]);
+      });
+      map.current.fitBounds(bounds, { 
+        padding: 50,
+        maxZoom: 10 
+      });
+    } else if (clubsWithCoordinates.length === 1) {
+      const club = clubsWithCoordinates[0];
+      map.current.setCenter([parseFloat(club.longitude!), parseFloat(club.latitude!)]);
+      map.current.setZoom(8);
+    }
+
+  }, [clubs, onClubSelect]);
+
+  // Handle selected club
+  useEffect(() => {
+    if (!selectedClub || !map.current) return;
+
+    const clubMarker = clubMarkers.find(m => m.id === selectedClub.id);
+    if (clubMarker && selectedClub.latitude && selectedClub.longitude) {
+      // Center map on selected club
+      map.current.flyTo({
+        center: [parseFloat(selectedClub.longitude), parseFloat(selectedClub.latitude)],
+        zoom: 10,
+        duration: 1000
+      });
+      
+      // Open popup
+      clubMarker.marker.togglePopup();
+    }
+  }, [selectedClub, clubMarkers]);
+
+  if (!import.meta.env.VITE_MAPBOX_ACCESS_TOKEN) {
+    return (
+      <div className="w-full h-[500px] bg-gray-100 rounded-lg flex items-center justify-center">
+        <div className="text-center p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Map Unavailable</h3>
+          <p className="text-gray-600">Mapbox access token is required to display the interactive map.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="w-full h-full">
-      {!isMapLoaded && (
-        <Card className="h-full flex items-center justify-center">
-          <CardContent className="text-center p-8">
-            <CardTitle className="text-xl mb-4">Setup Map</CardTitle>
-            <p className="text-muted-foreground mb-4">
-              Enter your Mapbox public token to view the interactive Morocco map.
-            </p>
-            <p className="text-sm text-muted-foreground mb-4">
-              Get your token at: <a href="https://mapbox.com/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">mapbox.com</a>
-            </p>
-            <div className="flex gap-2 max-w-md mx-auto">
-              <Input
-                type="text"
-                placeholder="pk.eyJ1Ijoi..."
-                value={mapboxToken}
-                onChange={(e) => setMapboxToken(e.target.value)}
-                className="flex-1"
-              />
-              <Button onClick={handleTokenSubmit} disabled={!mapboxToken.trim()}>
-                Load Map
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-      
-      {isMapLoaded && (
-        <div ref={mapContainer} className="w-full h-full rounded-lg shadow-lg" />
-      )}
+    <div className="w-full h-[500px] rounded-lg overflow-hidden shadow-lg">
+      <div ref={mapContainer} className="w-full h-full" />
     </div>
   );
 };
