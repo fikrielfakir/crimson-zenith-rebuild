@@ -75,7 +75,7 @@ const ClubsWithMap = () => {
 
   if (isLoading) {
     return (
-      <section id="activities" className="py-20 bg-gradient-subtle scroll-mt-32">
+      <section id="clubs" className="py-20 bg-gradient-subtle scroll-mt-32">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16 animate-fade-in">
             <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
@@ -92,7 +92,7 @@ const ClubsWithMap = () => {
   }
 
   return (
-    <section id="activities" className="py-20 bg-gradient-subtle scroll-mt-32">
+    <section id="clubs" className="py-20 bg-gradient-subtle scroll-mt-32">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16 animate-fade-in">
           <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
@@ -103,11 +103,11 @@ const ClubsWithMap = () => {
           </p>
         </div>
         
-        <div className="grid md:grid-cols-2 gap-8 items-start">
+        <div className="grid lg:grid-cols-2 gap-8 items-stretch">
           {/* Map Section - Always on Left */}
           <div className="animate-fade-in order-1">
-            <Card className="border-border/20 shadow-sm h-[600px]">
-              <CardHeader className="pb-4">
+            <Card className="border-border/20 shadow-xl bg-white/95 backdrop-blur-sm h-[700px] rounded-2xl overflow-hidden">
+              <CardHeader className="pb-4 bg-gradient-to-r from-primary/5 to-secondary/5">
                 <CardTitle className="text-xl font-semibold text-foreground flex items-center gap-2">
                   <MapPin className="w-5 h-5 text-primary" />
                   Morocco Clubs Map
@@ -116,7 +116,7 @@ const ClubsWithMap = () => {
                   Discover our club locations across Morocco
                 </p>
               </CardHeader>
-              <CardContent className="p-0 h-[500px]">
+              <CardContent className="p-0 h-[600px]">
                 <MoroccoMap 
                   clubs={rawClubs}
                   onClubSelect={handleClubSelect}
@@ -127,117 +127,134 @@ const ClubsWithMap = () => {
           </div>
           
           {/* Clubs Section - Always on Right */}
-          <div className="space-y-4 order-2">
-            {/* Clubs Display */}
-            <div className="space-y-4">
-              {displayClubs.slice(currentPage * clubsPerPage, (currentPage + 1) * clubsPerPage).map((club, index) => (
-              <Card 
-                key={club.name} 
-                className="group hover:shadow-lg transition-all duration-300 animate-scale-in border-border/20 overflow-hidden bg-background"
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                <div className="flex">
-                  <div className="w-32 flex-shrink-0">
-                    <img 
-                      src={club.image} 
-                      alt={club.name}
-                      className="w-full h-32 object-cover"
-                    />
-                  </div>
-                  <div className="flex-1 p-4">
-                    <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
-                      {club.name}
-                    </h3>
-                    
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground mb-2">
-                      <div className="flex items-center gap-1">
-                        <MapPin className="w-3 h-3" />
-                        {club.location}
+          <div className="order-2">
+            <Card className="border-border/20 shadow-xl bg-white/95 backdrop-blur-sm h-[700px] rounded-2xl overflow-hidden">
+              <CardHeader className="pb-4 bg-gradient-to-r from-primary/5 to-secondary/5">
+                <CardTitle className="text-xl font-semibold text-foreground flex items-center gap-2">
+                  <Users className="w-5 h-5 text-primary" />
+                  Featured Clubs
+                </CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Explore amazing communities across Morocco
+                </p>
+              </CardHeader>
+              <CardContent className="p-4 h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent">
+                <div className="space-y-4">
+                  {displayClubs.slice(currentPage * clubsPerPage, (currentPage + 1) * clubsPerPage).map((club, index) => (
+                    <Card 
+                      key={club.name} 
+                      className="group hover:shadow-xl hover:scale-[1.02] transition-all duration-300 animate-scale-in border-border/20 overflow-hidden bg-gradient-to-br from-white to-primary/5 rounded-xl"
+                      style={{ animationDelay: `${index * 0.1}s` }}
+                    >
+                      <div className="flex">
+                        <div className="w-24 flex-shrink-0">
+                          <img 
+                            src={club.image} 
+                            alt={club.name}
+                            className="w-full h-24 object-cover rounded-l-xl"
+                          />
+                        </div>
+                        <div className="flex-1 p-3">
+                          <h3 className="text-base font-semibold text-foreground mb-1 group-hover:text-primary transition-colors">
+                            {club.name}
+                          </h3>
+                          
+                          <div className="flex items-center gap-3 text-xs text-muted-foreground mb-2">
+                            <div className="flex items-center gap-1">
+                              <MapPin className="w-3 h-3" />
+                              {club.location}
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Users className="w-3 h-3" />
+                              {club.members}
+                            </div>
+                          </div>
+                          
+                          <p className="text-xs text-muted-foreground mb-2 leading-relaxed line-clamp-2">
+                            {club.description}
+                          </p>
+                          
+                          <div className="flex flex-wrap gap-1 mb-2">
+                            {Array.isArray(club.features) && club.features.slice(0, 2).map((feature) => (
+                              <span 
+                                key={feature} 
+                                className="px-2 py-0.5 bg-primary/10 text-primary text-xs rounded-full font-medium"
+                              >
+                                {feature}
+                              </span>
+                            ))}
+                            {Array.isArray(club.features) && club.features.length > 2 && (
+                              <span className="px-2 py-0.5 bg-muted text-muted-foreground text-xs rounded-full">
+                                +{club.features.length - 2}
+                              </span>
+                            )}
+                          </div>
+                          
+                          <div className="flex gap-2">
+                            <Button 
+                              size="sm" 
+                              className="px-3 py-1 text-xs flex-1 rounded-full bg-gradient-to-r from-primary to-secondary hover:shadow-lg"
+                              onClick={() => navigate(`/club/${encodeURIComponent(club.name)}`)}
+                            >
+                              Discover
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              className="px-2 py-1 text-xs rounded-full border-primary/20 hover:bg-primary/10"
+                              onClick={() => handleClubSelect(club)}
+                              title="Show on map"
+                            >
+                              <MapPin className="w-3 h-3" />
+                            </Button>
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <Users className="w-3 h-3" />
-                        {club.members}
-                      </div>
-                    </div>
-                    
-                    <p className="text-sm text-muted-foreground mb-3 leading-relaxed line-clamp-2">
-                      {club.description}
-                    </p>
-                    
-                    <div className="flex flex-wrap gap-1 mb-3">
-                      {(club.features || []).map((feature) => (
-                        <span 
-                          key={feature} 
-                          className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-md font-medium"
-                        >
-                          {feature}
-                        </span>
-                      ))}
-                    </div>
-                    
-                    <div className="flex gap-2">
-                      <Button 
-                        size="sm" 
-                        className="px-4 py-1 text-sm flex-1"
-                        onClick={() => navigate(`/club/${encodeURIComponent(club.name)}`)}
-                      >
-                        Discover
-                      </Button>
-                      <Button 
-                        size="sm" 
-                        variant="outline"
-                        className="px-3 py-1 text-sm"
-                        onClick={() => handleClubSelect(club)}
-                        title="Show on map"
-                      >
-                        <MapPin className="w-3 h-3" />
-                      </Button>
-                    </div>
-                  </div>
+                    </Card>
+                  ))}
                 </div>
-              </Card>
-              ))}
-            </div>
-            
-            {/* Pagination Controls */}
-            <div className="flex items-center justify-between mt-6">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handlePrevPage}
-                  disabled={currentPage === 0}
-                  className="flex items-center gap-2"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                  Previous
-                </Button>
                 
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">
-                    {currentPage * clubsPerPage + 1}-{Math.min((currentPage + 1) * clubsPerPage, displayClubs.length)} of {displayClubs.length} clubs
-                  </span>
+                {/* Pagination Controls */}
+                <div className="flex items-center justify-between mt-4 pt-4 border-t border-border/10">
                   <Button
-                    variant="ghost" 
+                    variant="outline"
                     size="sm"
-                    onClick={() => navigate('/clubs')}
-                    className="flex items-center gap-2 text-primary hover:text-primary"
+                    onClick={handlePrevPage}
+                    disabled={currentPage === 0}
+                    className="flex items-center gap-2 rounded-full"
                   >
-                    <MoreHorizontal className="w-4 h-4" />
-                    More Clubs
+                    <ChevronLeft className="w-4 h-4" />
+                    Previous
+                  </Button>
+                  
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground">
+                      {currentPage * clubsPerPage + 1}-{Math.min((currentPage + 1) * clubsPerPage, displayClubs.length)} of {displayClubs.length}
+                    </span>
+                    <Button
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => navigate('/clubs')}
+                      className="flex items-center gap-2 text-primary hover:text-primary rounded-full"
+                    >
+                      <MoreHorizontal className="w-4 h-4" />
+                      View All
+                    </Button>
+                  </div>
+                  
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleNextPage}
+                    disabled={currentPage >= Math.floor((displayClubs.length - 1) / clubsPerPage)}
+                    className="flex items-center gap-2 rounded-full"
+                  >
+                    Next
+                    <ChevronRight className="w-4 h-4" />
                   </Button>
                 </div>
-                
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleNextPage}
-                  disabled={currentPage >= Math.floor((displayClubs.length - 1) / clubsPerPage)}
-                  className="flex items-center gap-2"
-                >
-                  Next
-                  <ChevronRight className="w-4 h-4" />
-                </Button>
-            </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>

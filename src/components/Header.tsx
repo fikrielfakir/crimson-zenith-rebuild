@@ -100,7 +100,7 @@ const BottomNavbar = ({ isScrolled }: { isScrolled: boolean }) => {
                 Membership
               </Link>
               <Link 
-                to="/clubs"
+                to={{ pathname: "/", hash: "#clubs" }}
                 className="text-white hover:text-secondary transition-all duration-300 font-normal text-sm tracking-wide font-body"
               >
                 Clubs
