@@ -1,10 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import mapboxgl from 'mapbox-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
+import maplibregl from 'maplibre-gl';
+import 'maplibre-gl/dist/maplibre-gl.css';
 import { Club } from '../../shared/schema';
-
-// Set Mapbox access token from environment
-mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 
 interface MoroccoMapProps {
   clubs: Club[];
@@ -14,34 +11,31 @@ interface MoroccoMapProps {
 
 interface ClubMarker {
   id: number;
-  marker: mapboxgl.Marker;
-  popup: mapboxgl.Popup;
+  marker: maplibregl.Marker;
+  popup: maplibregl.Popup;
 }
 
 const MoroccoMap = ({ clubs, onClubSelect, selectedClub }: MoroccoMapProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
-  const map = useRef<mapboxgl.Map | null>(null);
+  const map = useRef<maplibregl.Map | null>(null);
   const [clubMarkers, setClubMarkers] = useState<ClubMarker[]>([]);
 
   // Initialize map
   useEffect(() => {
     if (!mapContainer.current || map.current) return;
 
-    if (!import.meta.env.VITE_MAPBOX_ACCESS_TOKEN) {
-      console.error('Mapbox access token is not configured');
-      return;
-    }
+    // MapLibre is free and doesn't require an access token
 
     try {
       // Morocco bounds: West to East, South to North
-      const moroccoBounds: mapboxgl.LngLatBoundsLike = [
+      const moroccoBounds: maplibregl.LngLatBoundsLike = [
         [-17.5, 20.5], // Southwest coordinates [lng, lat]
         [-0.5, 36.0]   // Northeast coordinates [lng, lat]
       ];
 
-      map.current = new mapboxgl.Map({
+      map.current = new maplibregl.Map({
         container: mapContainer.current,
-        style: 'mapbox://styles/mapbox/outdoors-v12', // Outdoor style for Morocco terrain
+        style: 'https://demotiles.maplibre.org/style.json', // Free MapLibre style
         center: [-7.09, 31.79], // Center of Morocco
         zoom: 5.5,
         maxBounds: moroccoBounds, // Restrict map to Morocco
@@ -49,10 +43,10 @@ const MoroccoMap = ({ clubs, onClubSelect, selectedClub }: MoroccoMapProps) => {
       });
 
       // Add navigation controls
-      map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
+      map.current.addControl(new maplibregl.NavigationControl(), 'top-right');
 
       // Add full screen control
-      map.current.addControl(new mapboxgl.FullscreenControl(), 'top-right');
+      map.current.addControl(new maplibregl.FullscreenControl(), 'top-right');
 
     } catch (error) {
       console.error('Error loading map:', error);
@@ -238,7 +232,7 @@ const MoroccoMap = ({ clubs, onClubSelect, selectedClub }: MoroccoMapProps) => {
       
       popupDiv.appendChild(buttonsDiv);
 
-      const popup = new mapboxgl.Popup({
+      const popup = new maplibregl.Popup({
         offset: 25,
         closeButton: true,
         closeOnClick: false,
@@ -246,7 +240,7 @@ const MoroccoMap = ({ clubs, onClubSelect, selectedClub }: MoroccoMapProps) => {
       }).setDOMContent(popupDiv);
 
       // Create marker
-      const marker = new mapboxgl.Marker(markerElement)
+      const marker = new maplibregl.Marker(markerElement)
         .setLngLat([lng, lat])
         .setPopup(popup)
         .addTo(map.current!);
@@ -273,7 +267,7 @@ const MoroccoMap = ({ clubs, onClubSelect, selectedClub }: MoroccoMapProps) => {
 
     // Fit map to show all markers
     if (clubsWithCoordinates.length > 1) {
-      const bounds = new mapboxgl.LngLatBounds();
+      const bounds = new maplibregl.LngLatBounds();
       clubsWithCoordinates.forEach(club => {
         bounds.extend([parseFloat(club.longitude!), parseFloat(club.latitude!)]);
       });
@@ -309,16 +303,7 @@ const MoroccoMap = ({ clubs, onClubSelect, selectedClub }: MoroccoMapProps) => {
     }
   }, [selectedClub, clubMarkers]);
 
-  if (!import.meta.env.VITE_MAPBOX_ACCESS_TOKEN) {
-    return (
-      <div className="w-full h-[500px] bg-gray-100 rounded-lg flex items-center justify-center">
-        <div className="text-center p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Map Unavailable</h3>
-          <p className="text-gray-600">Mapbox access token is required to display the interactive map.</p>
-        </div>
-      </div>
-    );
-  }
+  // MapLibre doesn't require an access token - removed token check
 
   return (
     <div className="w-full h-[500px] rounded-lg overflow-hidden shadow-lg">
