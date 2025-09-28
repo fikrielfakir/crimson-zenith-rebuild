@@ -5,12 +5,14 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import MoroccoMap from "./MoroccoMap";
+import { Club } from "../../shared/schema";
 import marrakechImg from "@/assets/marrakech-club.jpg";
 import fezImg from "@/assets/fez-club.jpg";
 import casablancaImg from "@/assets/casablanca-club.jpg";
 
 const ClubsWithMap = () => {
   const [currentPage, setCurrentPage] = useState(0);
+  const [selectedClub, setSelectedClub] = useState<Club | null>(null);
   const clubsPerPage = 3;
   const navigate = useNavigate();
 
@@ -26,27 +28,49 @@ const ClubsWithMap = () => {
     },
   });
 
-  // Transform API data to match component expectations, with fallback images
-  const clubs = clubsResponse?.clubs?.map((club: any, index: number) => {
+  // Transform API data to match component expectations, preserving coordinates
+  const rawClubs: Club[] = clubsResponse?.clubs?.map((club: any) => ({
+    id: club.id,
+    name: club.name,
+    description: club.description,
+    location: club.location,
+    memberCount: club.member_count,
+    rating: club.rating,
+    image: club.image,
+    features: club.features,
+    isActive: club.is_active,
+    latitude: club.latitude,
+    longitude: club.longitude,
+    established: club.established,
+    contactEmail: club.contact_email,
+    contactPhone: club.contact_phone,
+    createdAt: club.created_at ? new Date(club.created_at) : undefined,
+    updatedAt: club.updated_at ? new Date(club.updated_at) : undefined,
+  })) || [];
+
+  // Transform for display in cards, with fallback images
+  const displayClubs = rawClubs.map((club: Club, index: number) => {
     const fallbackImages = [marrakechImg, fezImg, casablancaImg];
     const fallbackImage = fallbackImages[index % fallbackImages.length];
     
     return {
-      name: club.name,
-      description: club.description,
+      ...club,
       image: club.image || fallbackImage,
-      members: `${club.member_count}+ Members`,
-      location: club.location,
+      members: `${club.memberCount}+ Members`,
       features: club.features || [],
     };
-  }) || [];
+  });
 
   const handlePrevPage = () => {
     setCurrentPage(prev => Math.max(0, prev - 1));
   };
 
   const handleNextPage = () => {
-    setCurrentPage(prev => Math.min(Math.floor((clubs.length - 1) / clubsPerPage), prev + 1));
+    setCurrentPage(prev => Math.min(Math.floor((displayClubs.length - 1) / clubsPerPage), prev + 1));
+  };
+
+  const handleClubSelect = (club: Club) => {
+    setSelectedClub(club);
   };
 
   if (isLoading) {
@@ -93,7 +117,11 @@ const ClubsWithMap = () => {
                 </p>
               </CardHeader>
               <CardContent className="p-0 h-[500px]">
-                <MoroccoMap />
+                <MoroccoMap 
+                  clubs={rawClubs}
+                  onClubSelect={handleClubSelect}
+                  selectedClub={selectedClub}
+                />
               </CardContent>
             </Card>
           </div>
@@ -102,7 +130,7 @@ const ClubsWithMap = () => {
           <div className="space-y-4 order-2">
             {/* Clubs Display */}
             <div className="space-y-4">
-              {clubs.slice(currentPage * clubsPerPage, (currentPage + 1) * clubsPerPage).map((club, index) => (
+              {displayClubs.slice(currentPage * clubsPerPage, (currentPage + 1) * clubsPerPage).map((club, index) => (
               <Card 
                 key={club.name} 
                 className="group hover:shadow-lg transition-all duration-300 animate-scale-in border-border/20 overflow-hidden bg-background"
@@ -137,7 +165,7 @@ const ClubsWithMap = () => {
                     </p>
                     
                     <div className="flex flex-wrap gap-1 mb-3">
-                      {club.features.map((feature) => (
+                      {(club.features || []).map((feature) => (
                         <span 
                           key={feature} 
                           className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-md font-medium"
@@ -147,13 +175,24 @@ const ClubsWithMap = () => {
                       ))}
                     </div>
                     
-                    <Button 
-                      size="sm" 
-                      className="px-4 py-1 text-sm w-full"
-                      onClick={() => navigate(`/club/${encodeURIComponent(club.name)}`)}
-                    >
-                      Discover
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button 
+                        size="sm" 
+                        className="px-4 py-1 text-sm flex-1"
+                        onClick={() => navigate(`/club/${encodeURIComponent(club.name)}`)}
+                      >
+                        Discover
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        className="px-3 py-1 text-sm"
+                        onClick={() => handleClubSelect(club)}
+                        title="Show on map"
+                      >
+                        <MapPin className="w-3 h-3" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </Card>
@@ -175,7 +214,7 @@ const ClubsWithMap = () => {
                 
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-muted-foreground">
-                    {currentPage * clubsPerPage + 1}-{Math.min((currentPage + 1) * clubsPerPage, clubs.length)} of {clubs.length} clubs
+                    {currentPage * clubsPerPage + 1}-{Math.min((currentPage + 1) * clubsPerPage, displayClubs.length)} of {displayClubs.length} clubs
                   </span>
                   <Button
                     variant="ghost" 
@@ -192,7 +231,7 @@ const ClubsWithMap = () => {
                   variant="outline"
                   size="sm"
                   onClick={handleNextPage}
-                  disabled={currentPage >= Math.floor((clubs.length - 1) / clubsPerPage)}
+                  disabled={currentPage >= Math.floor((displayClubs.length - 1) / clubsPerPage)}
                   className="flex items-center gap-2"
                 >
                   Next
