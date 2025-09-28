@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { Club } from '../../shared/schema';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { MapPin, Users } from 'lucide-react';
 
 interface MoroccoMapProps {
   clubs: Club[];
@@ -15,16 +17,35 @@ interface ClubMarker {
   popup: maplibregl.Popup;
 }
 
+// WebGL support detection
+const isWebGLSupported = (): boolean => {
+  try {
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('webgl2') || canvas.getContext('webgl');
+    return context && typeof context.getParameter === 'function';
+  } catch {
+    return false;
+  }
+};
+
 const MoroccoMap = ({ clubs, onClubSelect, selectedClub }: MoroccoMapProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
   const [clubMarkers, setClubMarkers] = useState<ClubMarker[]>([]);
+  const [mapError, setMapError] = useState<boolean>(false);
+  const [webglSupported, setWebglSupported] = useState<boolean>(true);
 
-  // Initialize map
+  // Check WebGL support and initialize map
   useEffect(() => {
     if (!mapContainer.current || map.current) return;
 
-    // MapLibre is free and doesn't require an access token
+    // Check WebGL support first
+    if (!isWebGLSupported()) {
+      console.warn('WebGL not supported, using fallback map');
+      setWebglSupported(false);
+      setMapError(true);
+      return;
+    }
 
     try {
       // Morocco bounds: West to East, South to North
@@ -39,7 +60,8 @@ const MoroccoMap = ({ clubs, onClubSelect, selectedClub }: MoroccoMapProps) => {
         center: [-7.09, 31.79], // Center of Morocco
         zoom: 5.5,
         maxBounds: moroccoBounds, // Restrict map to Morocco
-        attributionControl: false
+        attributionControl: false,
+        preserveDrawingBuffer: false
       });
 
       // Add navigation controls
@@ -48,8 +70,14 @@ const MoroccoMap = ({ clubs, onClubSelect, selectedClub }: MoroccoMapProps) => {
       // Add full screen control
       map.current.addControl(new maplibregl.FullscreenControl(), 'top-right');
 
+      // Set success state
+      setMapError(false);
+      setWebglSupported(true);
+
     } catch (error) {
       console.error('Error loading map:', error);
+      setMapError(true);
+      setWebglSupported(false);
     }
 
     return () => {
@@ -357,6 +385,82 @@ const MoroccoMap = ({ clubs, onClubSelect, selectedClub }: MoroccoMapProps) => {
   }, [selectedClub, clubMarkers]);
 
   // MapLibre doesn't require an access token - removed token check
+
+  // Fallback component for when WebGL is not supported
+  const FallbackMap = () => {
+    const clubsWithCoordinates = clubs.filter(club => 
+      club.latitude && club.longitude && 
+      !isNaN(parseFloat(club.latitude)) && 
+      !isNaN(parseFloat(club.longitude))
+    );
+
+    return (
+      <div className="w-full h-[500px] rounded-lg overflow-hidden shadow-lg bg-gradient-to-br from-blue-50 to-green-50 relative">
+        {/* Morocco outline SVG */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <svg
+            width="400"
+            height="300"
+            viewBox="0 0 400 300"
+            className="opacity-20"
+          >
+            <path
+              d="M50 150 Q80 80 150 70 Q220 65 300 80 Q350 90 380 120 L380 200 Q350 230 300 240 Q200 250 100 240 Q60 220 50 180 Z"
+              fill="#10b981"
+              stroke="#059669"
+              strokeWidth="2"
+            />
+            <text x="200" y="160" textAnchor="middle" className="fill-gray-600 text-xl font-semibold">Morocco</text>
+          </svg>
+        </div>
+        
+        {/* Club locations overlay */}
+        <div className="absolute inset-0 p-8">
+          <div className="bg-white/90 backdrop-blur-sm rounded-lg p-4 mb-4">
+            <h3 className="text-lg font-semibold text-gray-800 mb-2 flex items-center gap-2">
+              <MapPin className="w-5 h-5" />
+              Club Locations (Interactive map unavailable)
+            </h3>
+            <p className="text-sm text-gray-600">WebGL is not supported in this environment. Club locations are shown below:</p>
+          </div>
+          
+          <div className="grid gap-3 max-h-80 overflow-y-auto">
+            {clubsWithCoordinates.map((club, index) => (
+              <Card 
+                key={club.id} 
+                className="cursor-pointer hover:shadow-md transition-shadow bg-white/90 backdrop-blur-sm"
+                onClick={() => onClubSelect && onClubSelect(club)}
+              >
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-lg bg-orange-100 flex items-center justify-center">
+                      <MapPin className="w-6 h-6 text-orange-600" />
+                    </div>
+                    <div className="flex-1">
+                      <CardTitle className="text-sm font-semibold text-gray-800">{club.name}</CardTitle>
+                      <p className="text-xs text-gray-600 mt-1">{club.location}</p>
+                      <div className="flex items-center gap-1 mt-1">
+                        <Users className="w-3 h-3 text-gray-500" />
+                        <span className="text-xs text-gray-500">{club.memberCount}+ members</span>
+                      </div>
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      {parseFloat(club.latitude!).toFixed(2)}°, {parseFloat(club.longitude!).toFixed(2)}°
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Render fallback if WebGL is not supported or map failed to load
+  if (mapError || !webglSupported) {
+    return <FallbackMap />;
+  }
 
   return (
     <div className="w-full h-[500px] rounded-lg overflow-hidden shadow-lg">
