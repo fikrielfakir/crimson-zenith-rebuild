@@ -8,6 +8,7 @@ import {
   integer,
   text,
   boolean,
+  numeric,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -57,6 +58,8 @@ export const clubs = pgTable("clubs", {
   rating: integer("rating").default(5),
   established: varchar("established"),
   isActive: boolean("is_active").default(true),
+  latitude: numeric("latitude", { precision: 9, scale: 6 }),
+  longitude: numeric("longitude", { precision: 9, scale: 6 }),
   ownerId: varchar("owner_id").references(() => users.id),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
