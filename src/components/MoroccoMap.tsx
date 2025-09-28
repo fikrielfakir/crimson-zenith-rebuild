@@ -87,26 +87,79 @@ const MoroccoMap = ({ clubs, onClubSelect, selectedClub }: MoroccoMapProps) => {
       const lat = parseFloat(club.latitude!);
       const lng = parseFloat(club.longitude!);
 
-      // Create custom marker element
+      // Create custom marker element with image and name
       const markerElement = document.createElement('div');
       markerElement.className = 'custom-marker';
       markerElement.style.cssText = `
-        width: 32px;
-        height: 32px;
-        background: linear-gradient(135deg, hsl(var(--secondary)) 0%, hsl(var(--primary)) 100%);
-        border: 3px solid white;
-        border-radius: 50%;
+        width: 120px;
+        min-height: 80px;
+        background: white;
+        border: 2px solid #f97316;
+        border-radius: 12px;
         cursor: pointer;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.25);
         display: flex;
+        flex-direction: column;
         align-items: center;
-        justify-content: center;
-        font-size: 12px;
-        color: white;
-        font-weight: bold;
+        padding: 8px;
         transition: all 0.3s ease;
+        position: relative;
+        z-index: 1;
       `;
-      markerElement.innerHTML = club.memberCount ? club.memberCount.toString() : '0';
+
+      // Add club image
+      const clubImg = document.createElement('img');
+      clubImg.src = club.image || '/api/placeholder/60/40';
+      clubImg.alt = club.name || '';
+      clubImg.style.cssText = `
+        width: 60px;
+        height: 40px;
+        object-fit: cover;
+        border-radius: 6px;
+        margin-bottom: 4px;
+      `;
+      markerElement.appendChild(clubImg);
+
+      // Add club name
+      const clubName = document.createElement('div');
+      clubName.textContent = club.name || 'Unknown Club';
+      clubName.style.cssText = `
+        font-size: 11px;
+        font-weight: 600;
+        color: #1f2937;
+        text-align: center;
+        line-height: 1.2;
+        max-width: 100px;
+        word-wrap: break-word;
+        margin-bottom: 2px;
+      `;
+      markerElement.appendChild(clubName);
+
+      // Add member count badge
+      const memberBadge = document.createElement('div');
+      memberBadge.textContent = `${club.memberCount || 0} members`;
+      memberBadge.style.cssText = `
+        font-size: 9px;
+        color: #f97316;
+        font-weight: 500;
+        text-align: center;
+      `;
+      markerElement.appendChild(memberBadge);
+
+      // Add pointer arrow at bottom
+      const arrow = document.createElement('div');
+      arrow.style.cssText = `
+        position: absolute;
+        bottom: -8px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 0;
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        border-top: 8px solid #f97316;
+      `;
+      markerElement.appendChild(arrow);
 
       // Hover effects
       markerElement.addEventListener('mouseenter', () => {
