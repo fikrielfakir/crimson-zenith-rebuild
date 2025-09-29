@@ -37,8 +37,6 @@ import AuthSettings from "./pages/admin/AuthSettings";
 import PaymentSettings from "./pages/admin/PaymentSettings";
 import BookingManagement from "./pages/admin/BookingManagement";
 import JoinUs from "./pages/JoinUs";
-import ClubDetail from "./pages/ClubDetail";
-import ClubDetailDebug from "./pages/ClubDetail-debug";
 import ClubDetailWorking from "./pages/ClubDetail-working";
 import ActivityDetail from "./pages/ActivityDetail";
 import UserProfile from "./pages/UserProfile";
@@ -61,7 +59,6 @@ const App = () => (
           <Route path="/discover" element={<Discover />} />
           <Route path="/clubs" element={<Clubs />} />
           <Route path="/club/:clubName" element={<ClubDetailWorking />} />
-          <Route path="/debug-club/:clubName" element={<ClubDetailDebug />} />
           <Route path="/activities/:activityName" element={<ActivityDetail />} />
           <Route path="/events" element={<Events />} />
           <Route path="/smart-events" element={<SmartEvents />} />
