@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -18,7 +19,8 @@ import {
   MapIcon,
   Heart,
   Share2,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Loader2
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -31,8 +33,25 @@ const ClubDetail = () => {
   const navigate = useNavigate();
   const [isJoined, setIsJoined] = useState(false);
 
-  // Club data - in a real app, this would come from an API
-  const clubs = [
+  // Fetch real clubs data from API
+  const { data: clubsResponse, isLoading, error } = useQuery({
+    queryKey: ['clubs'],
+    queryFn: async () => {
+      const response = await fetch('/api/clubs');
+      if (!response.ok) {
+        throw new Error('Failed to fetch clubs');
+      }
+      return response.json();
+    },
+  });
+
+  // Find the current club by name from the API data
+  const club = clubsResponse?.clubs?.find((c: any) => 
+    c.name === decodeURIComponent(clubName || '')
+  );
+
+  // Fallback club data for cases where API club doesn't have all needed display data
+  const fallbackClubs = [
     {
       name: "Marrakech Club",
       description: "Explore the vibrant souks and palaces of the Red City",
@@ -305,18 +324,82 @@ const ClubDetail = () => {
     }
   ];
 
-  // Find the current club
-  const club = clubs.find(c => c.name === decodeURIComponent(clubName || ""));
-
-  useEffect(() => {
-    if (!club) {
-      navigate("/clubs");
-    }
-  }, [club, navigate]);
-
-  if (!club) {
-    return null;
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-orange-50">
+        <Header />
+        <div className="container mx-auto px-4 py-20 text-center">
+          <div className="flex items-center justify-center gap-3">
+            <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
+            <span className="text-lg font-medium text-gray-700">Loading club details...</span>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
   }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-orange-50">
+        <Header />
+        <div className="container mx-auto px-4 py-20 text-center">
+          <h1 className="text-2xl font-bold text-red-600 mb-4">Error Loading Club</h1>
+          <p className="text-gray-600 mb-6">There was an error loading the club details.</p>
+          <Button onClick={() => navigate('/clubs')} className="bg-gradient-to-r from-orange-500 to-blue-500 text-white">
+            View All Clubs
+          </Button>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  // Club not found state
+  if (!club) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-orange-50">
+        <Header />
+        <div className="container mx-auto px-4 py-20 text-center">
+          <h1 className="text-2xl font-bold text-gray-800 mb-4">Club Not Found</h1>
+          <p className="text-gray-600 mb-6">The club "{decodeURIComponent(clubName || '')}" doesn't exist.</p>
+          <Button onClick={() => navigate('/clubs')} className="bg-gradient-to-r from-orange-500 to-blue-500 text-white">
+            View All Clubs
+          </Button>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  // Find fallback club data for rich display content
+  const fallbackClub = fallbackClubs.find(c => 
+    c.name.toLowerCase().includes(club?.name?.toLowerCase() || '') ||
+    (club?.name === 'Atlas Hikers Club' && c.name === 'Marrakech Club') ||
+    (club?.name === 'Desert Explorers' && c.name === 'Fez Club') ||
+    (club?.name === 'Coastal Adventures' && c.name === 'Casablanca Club')
+  ) || fallbackClubs[0]; // Default to first fallback if no match
+
+  // Combine real API data with fallback display data
+  const displayClub = {
+    ...fallbackClub,
+    id: club.id,
+    name: club.name || fallbackClub.name,
+    description: club.description || fallbackClub.description,
+    location: club.location || fallbackClub.location,
+    memberCount: club.member_count || fallbackClub.memberCount,
+    members: `${club.member_count || fallbackClub.memberCount}+ Members`,
+    rating: club.rating || fallbackClub.rating,
+    features: club.features || fallbackClub.features,
+    image: club.image || fallbackClub.image,
+    isActive: club.is_active,
+    latitude: club.latitude,
+    longitude: club.longitude,
+    contactEmail: club.contact_email || fallbackClub.email,
+    contactPhone: club.contact_phone || fallbackClub.phone,
+  };
 
   const handleJoinClub = () => {
     setIsJoined(!isJoined);
@@ -329,8 +412,8 @@ const ClubDetail = () => {
       {/* Hero Section */}
       <div className="relative h-[400px] overflow-hidden">
         <img 
-          src={club.image} 
-          alt={club.name}
+          src={displayClub.image} 
+          alt={displayClub.name}
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
@@ -345,20 +428,20 @@ const ClubDetail = () => {
             </Button>
             
             <div className="text-center text-white">
-              <h1 className="text-5xl font-bold mb-4">{club.name}</h1>
-              <p className="text-xl mb-6 max-w-2xl mx-auto">{club.longDescription}</p>
+              <h1 className="text-5xl font-bold mb-4">{displayClub.name}</h1>
+              <p className="text-xl mb-6 max-w-2xl mx-auto">{displayClub.longDescription}</p>
               <div className="flex items-center justify-center gap-6 text-sm">
                 <div className="flex items-center gap-2">
                   <MapPin className="w-4 h-4" />
-                  {club.location}
+                  {displayClub.location}
                 </div>
                 <div className="flex items-center gap-2">
                   <Users className="w-4 h-4" />
-                  {club.members}
+                  {displayClub.members}
                 </div>
                 <div className="flex items-center gap-2">
                   <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                  {club.rating}
+                  {displayClub.rating}
                 </div>
               </div>
             </div>
@@ -400,7 +483,7 @@ const ClubDetail = () => {
                     </div>
                     <div className="flex items-center gap-2 text-sm">
                       <Calendar className="w-4 h-4 text-primary" />
-                      <span>Established in {club.established}</span>
+                      <span>Established in {displayClub.established}</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
                       <Phone className="w-4 h-4 text-primary" />
@@ -605,7 +688,7 @@ const ClubDetail = () => {
                   <div className="text-center text-muted-foreground">
                     <MapIcon className="w-12 h-12 mx-auto mb-2 opacity-50" />
                     <p className="text-sm">Interactive Map</p>
-                    <p className="text-xs">{club.location}</p>
+                    <p className="text-xs">{displayClub.location}</p>
                   </div>
                 </div>
               </CardContent>
@@ -617,7 +700,7 @@ const ClubDetail = () => {
                 <CardTitle className="text-lg">Similar Clubs</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                {clubs.filter(c => c.name !== club.name).slice(0, 2).map((relatedClub) => (
+                {(clubsResponse?.clubs || []).filter((c: any) => c.name !== displayClub.name).slice(0, 2).map((relatedClub: any) => (
                   <div key={relatedClub.name} className="flex gap-3 p-2 rounded-lg hover:bg-muted cursor-pointer transition-colors">
                     <img 
                       src={relatedClub.image} 
@@ -626,7 +709,7 @@ const ClubDetail = () => {
                     />
                     <div className="flex-1">
                       <h4 className="font-medium text-sm">{relatedClub.name}</h4>
-                      <p className="text-xs text-muted-foreground">{relatedClub.members}</p>
+                      <p className="text-xs text-muted-foreground">{relatedClub.member_count}+ Members</p>
                     </div>
                   </div>
                 ))}
