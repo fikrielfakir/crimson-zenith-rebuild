@@ -68,6 +68,163 @@ async function seedDatabase() {
     } else {
       console.log(`✅ Database already has ${clubs.length} clubs`);
     }
+
+    const bookingEvents = await storage.getBookingEvents();
+    
+    if (bookingEvents.length === 0) {
+      console.log('📝 Adding booking events seed data...');
+      
+      const seedBookingEvents = [
+        {
+          id: 'atlas-trek-3day',
+          title: '3-Day Atlas Mountains Trek',
+          subtitle: 'Discover the majestic peaks and Berber villages',
+          description: 'Embark on an unforgettable 3-day journey through the Atlas Mountains. Experience breathtaking landscapes, traditional Berber hospitality, and authentic mountain culture. This guided trek takes you through scenic valleys, over mountain passes, and into remote villages where time seems to stand still.',
+          location: 'Atlas Mountains, Morocco',
+          duration: '3 Days / 2 Nights',
+          price: 299,
+          originalPrice: 399,
+          rating: 5,
+          reviewCount: 127,
+          category: 'Mountain Trek',
+          languages: ['English', 'French', 'Arabic'],
+          ageRange: '12-65 years',
+          groupSize: 'Max 12 people',
+          cancellationPolicy: 'Free cancellation up to 48 hours before departure',
+          images: ['/api/placeholder/800/600', '/api/placeholder/800/600', '/api/placeholder/800/600'],
+          highlights: [
+            'Trek through stunning mountain valleys',
+            'Visit authentic Berber villages',
+            'Stay in traditional mountain guesthouses',
+            'Enjoy home-cooked Berber meals',
+            'Experience stunning sunrise views',
+            'Learn about local culture and traditions'
+          ],
+          included: [
+            'Professional mountain guide',
+            'All meals during the trek',
+            '2 nights accommodation',
+            'Transportation to/from Marrakech',
+            'Mule support for luggage',
+            'First aid kit'
+          ],
+          notIncluded: [
+            'Personal travel insurance',
+            'Drinks and snacks',
+            'Tips for guides',
+            'Personal equipment'
+          ],
+          schedule: [
+            { time: 'Day 1', activity: 'Depart Marrakech at 8am, trek to first village, 6 hours hiking' },
+            { time: 'Day 2', activity: 'Cross mountain pass, visit local market, 7 hours hiking' },
+            { time: 'Day 3', activity: 'Morning village tour, descent and return to Marrakech by 5pm' }
+          ],
+          isActive: true
+        },
+        {
+          id: 'sahara-desert-adventure',
+          title: 'Sahara Desert Adventure',
+          subtitle: 'Sleep under the stars in the Moroccan Sahara',
+          description: 'Experience the magic of the Sahara Desert on this 2-day adventure. Ride camels across golden dunes, watch spectacular sunsets, and spend the night in a traditional Berber camp under a blanket of stars. This tour includes traditional music, authentic cuisine, and unforgettable desert landscapes.',
+          location: 'Merzouga, Sahara Desert',
+          duration: '2 Days / 1 Night',
+          price: 199,
+          originalPrice: 279,
+          rating: 5,
+          reviewCount: 243,
+          category: 'Desert Experience',
+          languages: ['English', 'French', 'Spanish'],
+          ageRange: '8-80 years',
+          groupSize: 'Max 15 people',
+          cancellationPolicy: 'Free cancellation up to 24 hours before departure',
+          images: ['/api/placeholder/800/600', '/api/placeholder/800/600', '/api/placeholder/800/600'],
+          highlights: [
+            'Camel trek across sand dunes',
+            'Spectacular sunset and sunrise views',
+            'Traditional Berber camp experience',
+            'Campfire with local music',
+            'Sandboarding opportunity',
+            'Photography opportunities'
+          ],
+          included: [
+            'Camel ride to and from camp',
+            'Dinner and breakfast',
+            'Traditional desert camp accommodation',
+            'Campfire with music',
+            'Sandboarding',
+            'Bottled water'
+          ],
+          notIncluded: [
+            'Transport to Merzouga',
+            'Lunch',
+            'Personal expenses',
+            'Tips'
+          ],
+          schedule: [
+            { time: '4:00 PM', activity: 'Meet at Merzouga, camel trek begins' },
+            { time: '6:30 PM', activity: 'Arrive at camp, watch sunset, dinner and music' },
+            { time: '6:00 AM', activity: 'Sunrise viewing, breakfast, camel trek back' },
+            { time: '9:00 AM', activity: 'Return to Merzouga' }
+          ],
+          isActive: true
+        },
+        {
+          id: 'coastal-surf-camp',
+          title: 'Atlantic Coast Surf Camp',
+          subtitle: 'Learn to surf in Morocco\'s best waves',
+          description: 'Join our 5-day surf camp on Morocco\'s stunning Atlantic coast. Perfect for beginners and intermediate surfers, this package includes daily surf lessons, quality equipment, beachfront accommodation, and plenty of time to enjoy the sun, sea, and local culture.',
+          location: 'Essaouira, Atlantic Coast',
+          duration: '5 Days / 4 Nights',
+          price: 449,
+          originalPrice: 599,
+          rating: 5,
+          reviewCount: 89,
+          category: 'Water Sports',
+          languages: ['English', 'French'],
+          ageRange: '14-50 years',
+          groupSize: 'Max 8 people',
+          cancellationPolicy: 'Free cancellation up to 7 days before start date',
+          images: ['/api/placeholder/800/600', '/api/placeholder/800/600', '/api/placeholder/800/600'],
+          highlights: [
+            'Daily professional surf coaching',
+            'Beachfront accommodation',
+            'Quality surfboard and wetsuit included',
+            'Explore Essaouira\'s medina',
+            'Beach yoga sessions',
+            'Small group sizes for personalized attention'
+          ],
+          included: [
+            '4 nights beachfront accommodation',
+            'Daily surf lessons (2 hours)',
+            'Surfboard and wetsuit rental',
+            'Breakfast daily',
+            'Beach yoga',
+            'Airport transfer'
+          ],
+          notIncluded: [
+            'Lunch and dinner',
+            'Travel insurance',
+            'Personal expenses',
+            'Additional activities'
+          ],
+          schedule: [
+            { time: '7:00 AM', activity: 'Beach yoga session' },
+            { time: '8:00 AM', activity: 'Breakfast' },
+            { time: '10:00 AM', activity: 'Surf lesson (2 hours)' },
+            { time: 'Afternoon', activity: 'Free time or optional activities' }
+          ],
+          isActive: true
+        }
+      ];
+      
+      for (const eventData of seedBookingEvents) {
+        await storage.createBookingEvent(eventData);
+      }
+      
+      console.log('✅ Database seeded with booking events!');
+    } else {
+      console.log(`✅ Database already has ${bookingEvents.length} booking events`);
+    }
   } catch (error) {
     console.error('❌ Error seeding database:', error);
   }
