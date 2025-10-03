@@ -981,12 +981,14 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+const host = process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost';
+
+app.listen(PORT, host, () => {
+  console.log(`Server running on http://${host}:${PORT}`);
   if (process.env.NODE_ENV === 'production') {
     console.log('Production mode: Serving built frontend and API');
   } else {
     console.log('Development mode: API server only');
   }
-  console.log(`Placeholder API available at http://localhost:${PORT}/api/placeholder/WIDTH/HEIGHT`);
+  console.log(`Placeholder API available at http://${host}:${PORT}/api/placeholder/WIDTH/HEIGHT`);
 });
