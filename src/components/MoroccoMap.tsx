@@ -189,14 +189,105 @@ const MoroccoMap = ({ clubs, onClubSelect, selectedClub }: MoroccoMapProps) => {
       `;
       markerElement.appendChild(arrow);
 
+      // Create hover card with larger image
+      const hoverCard = document.createElement('div');
+      hoverCard.className = 'hover-card';
+      hoverCard.style.cssText = `
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%) translateY(-10px);
+        width: 280px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        padding: 12px;
+        z-index: 2000;
+        display: none;
+        pointer-events: none;
+      `;
+
+      // Hover card image
+      const hoverImg = document.createElement('img');
+      hoverImg.src = club.image || '/api/placeholder/280/180';
+      hoverImg.alt = club.name || '';
+      hoverImg.style.cssText = `
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        border-radius: 8px;
+        margin-bottom: 8px;
+      `;
+      hoverCard.appendChild(hoverImg);
+
+      // Hover card title
+      const hoverTitle = document.createElement('div');
+      hoverTitle.textContent = club.name || 'Unknown Club';
+      hoverTitle.style.cssText = `
+        font-size: 16px;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 4px;
+      `;
+      hoverCard.appendChild(hoverTitle);
+
+      // Hover card description
+      const hoverDesc = document.createElement('div');
+      hoverDesc.textContent = club.description || '';
+      hoverDesc.style.cssText = `
+        font-size: 13px;
+        color: #6b7280;
+        line-height: 1.4;
+        margin-bottom: 8px;
+        max-height: 40px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      `;
+      hoverCard.appendChild(hoverDesc);
+
+      // Hover card stats
+      const hoverStats = document.createElement('div');
+      hoverStats.style.cssText = `
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 8px;
+        border-top: 1px solid #e5e7eb;
+      `;
+
+      const membersSpan = document.createElement('span');
+      membersSpan.textContent = `👥 ${club.memberCount || 0} Members`;
+      membersSpan.style.cssText = `
+        font-size: 12px;
+        color: #6b7280;
+        font-weight: 500;
+      `;
+      hoverStats.appendChild(membersSpan);
+
+      if (club.rating) {
+        const ratingSpan = document.createElement('span');
+        ratingSpan.textContent = `⭐ ${club.rating}/5`;
+        ratingSpan.style.cssText = `
+          font-size: 12px;
+          color: #f59e0b;
+          font-weight: 600;
+        `;
+        hoverStats.appendChild(ratingSpan);
+      }
+
+      hoverCard.appendChild(hoverStats);
+      markerElement.appendChild(hoverCard);
+
       // Hover effects
       markerElement.addEventListener('mouseenter', () => {
-        markerElement.style.transform = 'scale(1.2)';
+        markerElement.style.transform = 'scale(1.15)';
         markerElement.style.zIndex = '1000';
+        hoverCard.style.display = 'block';
       });
       markerElement.addEventListener('mouseleave', () => {
         markerElement.style.transform = 'scale(1)';
         markerElement.style.zIndex = '1';
+        hoverCard.style.display = 'none';
       });
 
       // Create popup with club information (safely)
