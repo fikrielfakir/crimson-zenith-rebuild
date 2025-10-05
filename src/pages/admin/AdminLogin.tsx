@@ -14,7 +14,7 @@ const AdminLogin = () => {
   const navigate = useNavigate();
 
   const handleReplitLogin = () => {
-    window.location.href = '/api/auth/replit';
+    window.location.href = '/api/login';
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
