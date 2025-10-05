@@ -426,6 +426,28 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateNavbarSettings(settingsData: Partial<InsertNavbarSettings>, userId?: string): Promise<NavbarSettings> {
+    if (settingsData.navigationLinks !== undefined && settingsData.navigationLinks !== null) {
+      if (!Array.isArray(settingsData.navigationLinks)) {
+        throw new Error('Navigation links must be an array');
+      }
+      
+      for (let i = 0; i < settingsData.navigationLinks.length; i++) {
+        const link = settingsData.navigationLinks[i];
+        
+        if (!link || typeof link !== 'object' || Array.isArray(link)) {
+          throw new Error(`Navigation link at index ${i} must be an object`);
+        }
+        
+        if (!link.label || typeof link.label !== 'string' || !link.label.trim()) {
+          throw new Error(`Navigation link at index ${i} must have a valid label`);
+        }
+        
+        if (!link.url || typeof link.url !== 'string' || !link.url.trim()) {
+          throw new Error(`Navigation link at index ${i} must have a valid URL`);
+        }
+      }
+    }
+
     const existing = await this.getNavbarSettings();
     
     if (existing) {

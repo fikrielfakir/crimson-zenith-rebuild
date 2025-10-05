@@ -36,8 +36,34 @@ const NavbarTab = () => {
 
   const updateMutation = useUpdateNavbarSettings();
 
+  const validateNavLinks = (): boolean => {
+    for (const link of navLinks) {
+      if (!link.label || !link.label.trim()) {
+        toast({
+          title: "Validation Error",
+          description: "All navigation links must have a label",
+          variant: "destructive",
+        });
+        return false;
+      }
+      if (!link.url || !link.url.trim()) {
+        toast({
+          title: "Validation Error",
+          description: "All navigation links must have a URL",
+          variant: "destructive",
+        });
+        return false;
+      }
+    }
+    return true;
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!validateNavLinks()) {
+      return;
+    }
     
     const dataToSubmit = {
       ...formData,
