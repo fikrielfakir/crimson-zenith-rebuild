@@ -194,6 +194,28 @@ export const mediaAssets = pgTable("media_assets", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Navbar settings table - stores navigation bar configuration
+export const navbarSettings = pgTable("navbar_settings", {
+  id: varchar("id").primaryKey().default("default"),
+  logoType: varchar("logo_type", { length: 20 }).default("image"),
+  logoImageId: integer("logo_image_id").references(() => mediaAssets.id),
+  logoSvg: text("logo_svg"),
+  logoText: varchar("logo_text", { length: 255 }),
+  navigationLinks: jsonb("navigation_links").default(sql`'[]'::jsonb`),
+  showLanguageSwitcher: boolean("show_language_switcher").default(true),
+  availableLanguages: jsonb("available_languages").default(sql`'["EN", "FR", "AR"]'::jsonb`),
+  showDarkModeToggle: boolean("show_dark_mode_toggle").default(true),
+  loginButtonText: varchar("login_button_text", { length: 100 }).default("Login"),
+  loginButtonLink: varchar("login_button_link", { length: 500 }).default("/admin/login"),
+  showLoginButton: boolean("show_login_button").default(true),
+  joinButtonText: varchar("join_button_text", { length: 100 }).default("Join Us"),
+  joinButtonLink: varchar("join_button_link", { length: 500 }).default("/join"),
+  joinButtonStyle: varchar("join_button_style", { length: 50 }).default("secondary"),
+  showJoinButton: boolean("show_join_button").default(true),
+  updatedBy: varchar("updated_by").references(() => users.id),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Hero settings table - stores hero section configuration
 export const heroSettings = pgTable("hero_settings", {
   id: varchar("id").primaryKey().default("default"),
@@ -470,6 +492,8 @@ export type SiteStat = typeof siteStats.$inferSelect;
 export type InsertSiteStat = typeof siteStats.$inferInsert;
 export type ContactSettings = typeof contactSettings.$inferSelect;
 export type InsertContactSettings = typeof contactSettings.$inferInsert;
+export type NavbarSettings = typeof navbarSettings.$inferSelect;
+export type InsertNavbarSettings = typeof navbarSettings.$inferInsert;
 export type FooterSettings = typeof footerSettings.$inferSelect;
 export type InsertFooterSettings = typeof footerSettings.$inferInsert;
 export type SeoSettings = typeof seoSettings.$inferSelect;
