@@ -104,6 +104,9 @@ export interface IStorage {
   updateBookingPageSettings(settings: InsertBookingPageSettings): Promise<BookingPageSettings>;
   
   // CMS operations
+  getNavbarSettings(): Promise<NavbarSettings | undefined>;
+  updateNavbarSettings(settings: Partial<InsertNavbarSettings>, userId?: string): Promise<NavbarSettings>;
+  
   getHeroSettings(): Promise<HeroSettings | undefined>;
   updateHeroSettings(settings: Partial<InsertHeroSettings>, userId?: string): Promise<HeroSettings>;
   
@@ -417,6 +420,30 @@ export class DatabaseStorage implements IStorage {
   }
 
   // CMS operations
+  async getNavbarSettings(): Promise<NavbarSettings | undefined> {
+    const [settings] = await db.select().from(navbarSettings).where(eq(navbarSettings.id, 'default'));
+    return settings;
+  }
+
+  async updateNavbarSettings(settingsData: Partial<InsertNavbarSettings>, userId?: string): Promise<NavbarSettings> {
+    const existing = await this.getNavbarSettings();
+    
+    if (existing) {
+      const [settings] = await db
+        .update(navbarSettings)
+        .set({ ...settingsData, updatedBy: userId, updatedAt: new Date() })
+        .where(eq(navbarSettings.id, 'default'))
+        .returning();
+      return settings;
+    } else {
+      const [settings] = await db
+        .insert(navbarSettings)
+        .values({ ...settingsData, id: 'default', updatedBy: userId } as InsertNavbarSettings)
+        .returning();
+      return settings;
+    }
+  }
+
   async getHeroSettings(): Promise<HeroSettings | undefined> {
     const [settings] = await db.select().from(heroSettings).where(eq(heroSettings.id, 'default'));
     return settings;

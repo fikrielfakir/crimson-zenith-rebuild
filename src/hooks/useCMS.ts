@@ -1,5 +1,25 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
+export interface NavbarSettings {
+  id: string;
+  logoType: string;
+  logoImageId: number | null;
+  logoSvg: string | null;
+  logoText: string | null;
+  navigationLinks: any;
+  showLanguageSwitcher: boolean;
+  availableLanguages: any;
+  showDarkModeToggle: boolean;
+  loginButtonText: string;
+  loginButtonLink: string;
+  showLoginButton: boolean;
+  joinButtonText: string;
+  joinButtonLink: string;
+  joinButtonStyle: string;
+  showJoinButton: boolean;
+  updatedAt: Date;
+}
+
 export interface HeroSettings {
   id: string;
   title: string;
@@ -41,6 +61,17 @@ export interface MediaAsset {
   createdAt: Date;
 }
 
+export function useNavbarSettings() {
+  return useQuery({
+    queryKey: ["cms", "navbar"],
+    queryFn: async () => {
+      const res = await fetch("/api/cms/navbar");
+      if (!res.ok) throw new Error("Failed to fetch navbar settings");
+      return res.json() as Promise<NavbarSettings>;
+    },
+  });
+}
+
 export function useHeroSettings() {
   return useQuery({
     queryKey: ["cms", "hero"],
@@ -59,6 +90,26 @@ export function useThemeSettings() {
       const res = await fetch("/api/cms/theme");
       if (!res.ok) throw new Error("Failed to fetch theme settings");
       return res.json() as Promise<ThemeSettings>;
+    },
+  });
+}
+
+export function useUpdateNavbarSettings() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (settings: Partial<NavbarSettings>) => {
+      const res = await fetch("/api/admin/cms/navbar", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(settings),
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("Failed to update navbar settings");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cms", "navbar"] });
     },
   });
 }

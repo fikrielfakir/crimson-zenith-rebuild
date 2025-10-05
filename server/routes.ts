@@ -181,6 +181,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Navbar Settings
+  app.get('/api/cms/navbar', async (req, res) => {
+    try {
+      const settings = await storage.getNavbarSettings();
+      res.json(settings);
+    } catch (error) {
+      console.error("Error fetching navbar settings:", error);
+      res.status(500).json({ message: "Failed to fetch navbar settings" });
+    }
+  });
+
+  app.put('/api/admin/cms/navbar', isAuthenticated, isAdmin, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const settings = await storage.updateNavbarSettings(req.body, userId);
+      res.json(settings);
+    } catch (error) {
+      console.error("Error updating navbar settings:", error);
+      res.status(500).json({ message: "Failed to update navbar settings" });
+    }
+  });
+
   // Theme Settings
   app.get('/api/cms/theme', async (req, res) => {
     try {

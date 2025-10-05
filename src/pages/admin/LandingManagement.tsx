@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { 
+  Menu,
   Sparkles, 
   Target, 
   Activity,
@@ -17,6 +18,7 @@ import {
   Settings
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import NavbarTab from "@/components/admin/landing/NavbarTab";
 import HeroTab from "@/components/admin/landing/HeroTab";
 import FocusTab from "@/components/admin/landing/FocusTab";
 import ActivitiesTab from "@/components/admin/landing/ActivitiesTab";
@@ -34,6 +36,7 @@ const LandingManagement = () => {
   const { toast } = useToast();
 
   const tabs = [
+    { value: 'navbar', label: 'Navbar', icon: Menu, description: 'Navigation bar settings' },
     { value: 'hero', label: 'Hero', icon: Sparkles, description: 'Main landing hero section' },
     { value: 'focus', label: 'Focus Items', icon: Target, description: 'Key focus areas and benefits' },
     { value: 'activities', label: 'Activities', icon: Activity, description: 'Activity sections and content' },
@@ -58,7 +61,7 @@ const LandingManagement = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6 xl:grid-cols-11 h-auto gap-2">
+          <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6 xl:grid-cols-12 h-auto gap-2">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               return (
@@ -73,6 +76,23 @@ const LandingManagement = () => {
               );
             })}
           </TabsList>
+
+          <TabsContent value="navbar" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Menu className="w-5 h-5" />
+                  Navigation Bar
+                </CardTitle>
+                <CardDescription>
+                  Configure your site's navigation bar and header settings
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <NavbarTab />
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           <TabsContent value="hero" className="space-y-4">
             <Card>
