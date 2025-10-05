@@ -325,6 +325,300 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Focus Items
+  app.get('/api/cms/focus-items', async (req, res) => {
+    try {
+      const items = await storage.getFocusItems();
+      res.json(items);
+    } catch (error) {
+      console.error("Error fetching focus items:", error);
+      res.status(500).json({ message: "Failed to fetch focus items" });
+    }
+  });
+
+  app.get('/api/cms/focus-items/:id', async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const item = await storage.getFocusItem(id);
+      if (!item) {
+        return res.status(404).json({ message: "Focus item not found" });
+      }
+      res.json(item);
+    } catch (error) {
+      console.error("Error fetching focus item:", error);
+      res.status(500).json({ message: "Failed to fetch focus item" });
+    }
+  });
+
+  app.post('/api/admin/cms/focus-items', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const item = await storage.createFocusItem(req.body);
+      res.json(item);
+    } catch (error) {
+      console.error("Error creating focus item:", error);
+      res.status(500).json({ message: "Failed to create focus item" });
+    }
+  });
+
+  app.put('/api/admin/cms/focus-items/:id', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const item = await storage.updateFocusItem(id, req.body);
+      res.json(item);
+    } catch (error) {
+      console.error("Error updating focus item:", error);
+      res.status(500).json({ message: "Failed to update focus item" });
+    }
+  });
+
+  app.delete('/api/admin/cms/focus-items/:id', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deleteFocusItem(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting focus item:", error);
+      res.status(500).json({ message: "Failed to delete focus item" });
+    }
+  });
+
+  // Team Members
+  app.get('/api/cms/team-members', async (req, res) => {
+    try {
+      const members = await storage.getTeamMembers();
+      res.json(members);
+    } catch (error) {
+      console.error("Error fetching team members:", error);
+      res.status(500).json({ message: "Failed to fetch team members" });
+    }
+  });
+
+  app.get('/api/cms/team-members/:id', async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const member = await storage.getTeamMember(id);
+      if (!member) {
+        return res.status(404).json({ message: "Team member not found" });
+      }
+      res.json(member);
+    } catch (error) {
+      console.error("Error fetching team member:", error);
+      res.status(500).json({ message: "Failed to fetch team member" });
+    }
+  });
+
+  app.post('/api/admin/cms/team-members', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const member = await storage.createTeamMember(req.body);
+      res.json(member);
+    } catch (error) {
+      console.error("Error creating team member:", error);
+      res.status(500).json({ message: "Failed to create team member" });
+    }
+  });
+
+  app.put('/api/admin/cms/team-members/:id', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const member = await storage.updateTeamMember(id, req.body);
+      res.json(member);
+    } catch (error) {
+      console.error("Error updating team member:", error);
+      res.status(500).json({ message: "Failed to update team member" });
+    }
+  });
+
+  app.delete('/api/admin/cms/team-members/:id', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deleteTeamMember(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting team member:", error);
+      res.status(500).json({ message: "Failed to delete team member" });
+    }
+  });
+
+  // Landing Testimonials
+  app.get('/api/cms/testimonials', async (req, res) => {
+    try {
+      const testimonials = await storage.getLandingTestimonials();
+      res.json(testimonials);
+    } catch (error) {
+      console.error("Error fetching testimonials:", error);
+      res.status(500).json({ message: "Failed to fetch testimonials" });
+    }
+  });
+
+  app.get('/api/cms/testimonials/:id', async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const testimonial = await storage.getLandingTestimonial(id);
+      if (!testimonial) {
+        return res.status(404).json({ message: "Testimonial not found" });
+      }
+      res.json(testimonial);
+    } catch (error) {
+      console.error("Error fetching testimonial:", error);
+      res.status(500).json({ message: "Failed to fetch testimonial" });
+    }
+  });
+
+  app.post('/api/admin/cms/testimonials', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const testimonial = await storage.createLandingTestimonial(req.body);
+      res.json(testimonial);
+    } catch (error) {
+      console.error("Error creating testimonial:", error);
+      res.status(500).json({ message: "Failed to create testimonial" });
+    }
+  });
+
+  app.put('/api/admin/cms/testimonials/:id', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const testimonial = await storage.updateLandingTestimonial(id, req.body);
+      res.json(testimonial);
+    } catch (error) {
+      console.error("Error updating testimonial:", error);
+      res.status(500).json({ message: "Failed to update testimonial" });
+    }
+  });
+
+  app.delete('/api/admin/cms/testimonials/:id', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deleteLandingTestimonial(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting testimonial:", error);
+      res.status(500).json({ message: "Failed to delete testimonial" });
+    }
+  });
+
+  // Site Stats
+  app.get('/api/cms/stats', async (req, res) => {
+    try {
+      const stats = await storage.getSiteStats();
+      res.json(stats);
+    } catch (error) {
+      console.error("Error fetching site stats:", error);
+      res.status(500).json({ message: "Failed to fetch site stats" });
+    }
+  });
+
+  app.get('/api/cms/stats/:id', async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const stat = await storage.getSiteStat(id);
+      if (!stat) {
+        return res.status(404).json({ message: "Stat not found" });
+      }
+      res.json(stat);
+    } catch (error) {
+      console.error("Error fetching stat:", error);
+      res.status(500).json({ message: "Failed to fetch stat" });
+    }
+  });
+
+  app.post('/api/admin/cms/stats', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const stat = await storage.createSiteStat(req.body);
+      res.json(stat);
+    } catch (error) {
+      console.error("Error creating stat:", error);
+      res.status(500).json({ message: "Failed to create stat" });
+    }
+  });
+
+  app.put('/api/admin/cms/stats/:id', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const stat = await storage.updateSiteStat(id, req.body);
+      res.json(stat);
+    } catch (error) {
+      console.error("Error updating stat:", error);
+      res.status(500).json({ message: "Failed to update stat" });
+    }
+  });
+
+  app.delete('/api/admin/cms/stats/:id', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deleteSiteStat(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting stat:", error);
+      res.status(500).json({ message: "Failed to delete stat" });
+    }
+  });
+
+  // Contact Settings
+  app.get('/api/cms/contact', async (req, res) => {
+    try {
+      const settings = await storage.getContactSettings();
+      res.json(settings);
+    } catch (error) {
+      console.error("Error fetching contact settings:", error);
+      res.status(500).json({ message: "Failed to fetch contact settings" });
+    }
+  });
+
+  app.put('/api/admin/cms/contact', isAuthenticated, isAdmin, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const settings = await storage.updateContactSettings(req.body, userId);
+      res.json(settings);
+    } catch (error) {
+      console.error("Error updating contact settings:", error);
+      res.status(500).json({ message: "Failed to update contact settings" });
+    }
+  });
+
+  // Footer Settings
+  app.get('/api/cms/footer', async (req, res) => {
+    try {
+      const settings = await storage.getFooterSettings();
+      res.json(settings);
+    } catch (error) {
+      console.error("Error fetching footer settings:", error);
+      res.status(500).json({ message: "Failed to fetch footer settings" });
+    }
+  });
+
+  app.put('/api/admin/cms/footer', isAuthenticated, isAdmin, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const settings = await storage.updateFooterSettings(req.body, userId);
+      res.json(settings);
+    } catch (error) {
+      console.error("Error updating footer settings:", error);
+      res.status(500).json({ message: "Failed to update footer settings" });
+    }
+  });
+
+  // SEO Settings
+  app.get('/api/cms/seo', async (req, res) => {
+    try {
+      const settings = await storage.getSeoSettings();
+      res.json(settings);
+    } catch (error) {
+      console.error("Error fetching SEO settings:", error);
+      res.status(500).json({ message: "Failed to fetch SEO settings" });
+    }
+  });
+
+  app.put('/api/admin/cms/seo', isAuthenticated, isAdmin, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const settings = await storage.updateSeoSettings(req.body, userId);
+      res.json(settings);
+    } catch (error) {
+      console.error("Error updating SEO settings:", error);
+      res.status(500).json({ message: "Failed to update SEO settings" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
