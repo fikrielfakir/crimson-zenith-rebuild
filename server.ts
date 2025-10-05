@@ -459,8 +459,8 @@ async function seedDatabase() {
 seedDatabase();
 
 // Middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Serve static files from public directory
 app.use('/static', express.static(join(__dirname, 'public')));

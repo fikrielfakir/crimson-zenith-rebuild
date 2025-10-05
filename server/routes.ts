@@ -247,6 +247,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get('/api/admin/cms/media/:id', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const asset = await storage.getMediaAsset(id);
+      if (!asset) {
+        return res.status(404).json({ message: "Media asset not found" });
+      }
+      res.json(asset);
+    } catch (error) {
+      console.error("Error fetching media asset:", error);
+      res.status(500).json({ message: "Failed to fetch media asset" });
+    }
+  });
+
   app.delete('/api/admin/cms/media/:id', isAuthenticated, isAdmin, async (req, res) => {
     try {
       const id = parseInt(req.params.id);

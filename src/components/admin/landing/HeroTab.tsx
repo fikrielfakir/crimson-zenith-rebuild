@@ -13,12 +13,28 @@ import { Separator } from "@/components/ui/separator";
 const HeroTab = () => {
   const { toast } = useToast();
   const [formData, setFormData] = useState<Partial<HeroSettings>>({});
+  const [currentMediaUrl, setCurrentMediaUrl] = useState<string | null>(null);
 
   const { data: settings, isLoading } = useHeroSettings();
 
   useEffect(() => {
     if (settings) {
       setFormData(settings);
+      
+      if (settings.backgroundMediaId) {
+        fetch(`/api/admin/cms/media/${settings.backgroundMediaId}`, {
+          credentials: 'include'
+        })
+          .then(res => res.json())
+          .then(asset => {
+            if (asset && asset.fileUrl) {
+              setCurrentMediaUrl(asset.fileUrl);
+            }
+          })
+          .catch(err => console.error('Error fetching media asset:', err));
+      } else {
+        setCurrentMediaUrl(null);
+      }
     }
   }, [settings]);
 
@@ -60,9 +76,10 @@ const HeroTab = () => {
           <MediaUpload
             mediaType={(formData.backgroundType as 'image' | 'video') || 'image'}
             currentMediaId={formData.backgroundMediaId}
-            currentMediaUrl={null}
+            currentMediaUrl={currentMediaUrl}
             onMediaChange={(mediaId, mediaUrl) => {
               setFormData({ ...formData, backgroundMediaId: mediaId });
+              setCurrentMediaUrl(mediaUrl);
             }}
             onTypeChange={(type) => {
               setFormData({ ...formData, backgroundType: type });

@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
@@ -30,6 +30,10 @@ export const MediaUpload = ({
   const [isUploading, setIsUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(currentMediaUrl || null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setPreviewUrl(currentMediaUrl || null);
+  }, [currentMediaUrl]);
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
