@@ -1222,6 +1222,30 @@ app.put('/api/admin/cms/hero', async (req, res) => {
   }
 });
 
+// Media Upload
+app.post('/api/admin/cms/media', async (req, res) => {
+  try {
+    const { fileName, fileType, fileUrl, altText } = req.body;
+    
+    if (!fileName || !fileType || !fileUrl) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    const mediaAsset = await storage.createMediaAsset({
+      fileName,
+      fileType,
+      fileUrl,
+      altText: altText || null,
+      uploadedBy: null,
+    });
+
+    res.json(mediaAsset);
+  } catch (error) {
+    console.error('❌ Error uploading media:', error);
+    res.status(500).json({ error: 'Failed to upload media' });
+  }
+});
+
 // Theme Settings
 app.get('/api/cms/theme', async (req, res) => {
   try {
