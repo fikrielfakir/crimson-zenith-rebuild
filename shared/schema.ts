@@ -168,6 +168,85 @@ export const bookingPageSettings = pgTable("booking_page_settings", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// CMS Tables for Landing Page Management
+
+// Theme settings table - stores global theme colors and styling
+export const themeSettings = pgTable("theme_settings", {
+  id: varchar("id").primaryKey().default("default"),
+  primaryColor: varchar("primary_color", { length: 7 }).default("#112250"),
+  secondaryColor: varchar("secondary_color", { length: 7 }).default("#D8C18D"),
+  customCss: text("custom_css"),
+  updatedBy: varchar("updated_by").references(() => users.id),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Media assets table - stores uploaded images and videos
+export const mediaAssets = pgTable("media_assets", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  fileName: varchar("file_name", { length: 255 }).notNull(),
+  fileType: varchar("file_type", { length: 50 }).notNull(),
+  fileUrl: varchar("file_url", { length: 1000 }).notNull(),
+  thumbnailUrl: varchar("thumbnail_url", { length: 1000 }),
+  altText: varchar("alt_text", { length: 500 }),
+  focalPoint: jsonb("focal_point"),
+  metadata: jsonb("metadata").default(sql`'{}'::jsonb`),
+  uploadedBy: varchar("uploaded_by").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Hero settings table - stores hero section configuration
+export const heroSettings = pgTable("hero_settings", {
+  id: varchar("id").primaryKey().default("default"),
+  title: text("title").notNull().default("Where Adventure Meets\nTransformation"),
+  subtitle: text("subtitle").notNull().default("Experience Morocco's soul through sustainable journeys. Discover culture, embrace adventure, and create lasting connections with local communities."),
+  primaryButtonText: varchar("primary_button_text", { length: 100 }).default("Start Your Journey"),
+  primaryButtonLink: varchar("primary_button_link", { length: 500 }).default("/discover"),
+  secondaryButtonText: varchar("secondary_button_text", { length: 100 }).default("Explore Clubs"),
+  secondaryButtonLink: varchar("secondary_button_link", { length: 500 }).default("/clubs"),
+  backgroundType: varchar("background_type", { length: 20 }).default("image"),
+  backgroundMediaId: integer("background_media_id").references(() => mediaAssets.id),
+  backgroundOverlayColor: varchar("background_overlay_color", { length: 20 }).default("rgba(26, 54, 93, 0.7)"),
+  backgroundOverlayOpacity: integer("background_overlay_opacity").default(70),
+  titleFontSize: varchar("title_font_size", { length: 20 }).default("65px"),
+  titleColor: varchar("title_color", { length: 20 }).default("#ffffff"),
+  subtitleFontSize: varchar("subtitle_font_size", { length: 20 }).default("20px"),
+  subtitleColor: varchar("subtitle_color", { length: 20 }).default("#ffffff"),
+  enableTypewriter: boolean("enable_typewriter").default(true),
+  typewriterTexts: jsonb("typewriter_texts").default(sql`'[]'::jsonb`),
+  updatedBy: varchar("updated_by").references(() => users.id),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Landing page sections table - stores all sections configuration
+export const landingSections = pgTable("landing_sections", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  slug: varchar("slug", { length: 100 }).notNull().unique(),
+  title: varchar("title", { length: 255 }).notNull(),
+  sectionType: varchar("section_type", { length: 50 }).notNull(),
+  ordering: integer("ordering").default(0).notNull(),
+  isActive: boolean("is_active").default(true),
+  backgroundColor: varchar("background_color", { length: 20 }),
+  backgroundMediaId: integer("background_media_id").references(() => mediaAssets.id),
+  titleFontSize: varchar("title_font_size", { length: 20 }).default("32px"),
+  titleColor: varchar("title_color", { length: 20 }).default("#112250"),
+  customCss: text("custom_css"),
+  updatedBy: varchar("updated_by").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Section blocks table - stores dynamic content for each section
+export const sectionBlocks = pgTable("section_blocks", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  sectionId: integer("section_id").references(() => landingSections.id).notNull(),
+  blockType: varchar("block_type", { length: 50 }).notNull(),
+  ordering: integer("ordering").default(0).notNull(),
+  content: jsonb("content").default(sql`'{}'::jsonb`).notNull(),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   ownedClubs: many(clubs),
@@ -263,3 +342,13 @@ export type BookingEvent = typeof bookingEvents.$inferSelect;
 export type InsertBookingEvent = typeof bookingEvents.$inferInsert;
 export type BookingPageSettings = typeof bookingPageSettings.$inferSelect;
 export type InsertBookingPageSettings = typeof bookingPageSettings.$inferInsert;
+export type ThemeSettings = typeof themeSettings.$inferSelect;
+export type InsertThemeSettings = typeof themeSettings.$inferInsert;
+export type MediaAsset = typeof mediaAssets.$inferSelect;
+export type InsertMediaAsset = typeof mediaAssets.$inferInsert;
+export type HeroSettings = typeof heroSettings.$inferSelect;
+export type InsertHeroSettings = typeof heroSettings.$inferInsert;
+export type LandingSection = typeof landingSections.$inferSelect;
+export type InsertLandingSection = typeof landingSections.$inferInsert;
+export type SectionBlock = typeof sectionBlocks.$inferSelect;
+export type InsertSectionBlock = typeof sectionBlocks.$inferInsert;
