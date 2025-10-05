@@ -974,6 +974,50 @@ app.put('/api/booking/settings', async (req, res) => {
   }
 });
 
+// CMS API Routes
+
+// Hero Settings
+app.get('/api/cms/hero', async (req, res) => {
+  try {
+    const settings = await storage.getHeroSettings();
+    res.json(settings);
+  } catch (error) {
+    console.error('❌ Error fetching hero settings:', error);
+    res.status(500).json({ error: 'Failed to fetch hero settings' });
+  }
+});
+
+app.put('/api/admin/cms/hero', async (req, res) => {
+  try {
+    const settings = await storage.updateHeroSettings(req.body);
+    res.json(settings);
+  } catch (error) {
+    console.error('❌ Error updating hero settings:', error);
+    res.status(500).json({ error: 'Failed to update hero settings' });
+  }
+});
+
+// Theme Settings
+app.get('/api/cms/theme', async (req, res) => {
+  try {
+    const settings = await storage.getThemeSettings();
+    res.json(settings);
+  } catch (error) {
+    console.error('❌ Error fetching theme settings:', error);
+    res.status(500).json({ error: 'Failed to fetch theme settings' });
+  }
+});
+
+app.put('/api/admin/cms/theme', async (req, res) => {
+  try {
+    const settings = await storage.updateThemeSettings(req.body);
+    res.json(settings);
+  } catch (error) {
+    console.error('❌ Error updating theme settings:', error);
+    res.status(500).json({ error: 'Failed to update theme settings' });
+  }
+});
+
 // In production, handle client-side routing
 if (process.env.NODE_ENV === 'production') {
   app.get('*', (req, res) => {
