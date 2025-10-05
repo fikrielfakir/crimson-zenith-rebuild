@@ -3,6 +3,7 @@ import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import fs from 'fs';
 import { storage } from './server/storage.js';
+import { setupAuth, isAuthenticated } from './server/replitAuth.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -17,6 +18,9 @@ if (!process.env.DATABASE_URL) {
 }
 
 console.log('✅ Server configured for database integration');
+
+// Main server initialization
+async function initializeServer() {
 
 // Seed database with initial data if empty
 async function seedDatabase() {
@@ -456,11 +460,44 @@ async function seedDatabase() {
 }
 
 // Initialize database on startup
-seedDatabase();
+await seedDatabase();
 
 // Middleware
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+
+// Initialize authentication
+await setupAuth(app);
+
+// Auth endpoint
+app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+  try {
+    const userId = req.user.claims.sub;
+    let user = await storage.getUser(userId);
+    
+    // Auto-grant admin access for demo purposes
+    if (!user) {
+      const name = req.user.claims.preferred_username || req.user.claims.name || 'Admin User';
+      user = await storage.upsertUser({
+        id: userId,
+        firstName: name,
+        email: req.user.claims.email || `${userId}@replit.dev`,
+        isAdmin: true,
+      });
+    } else if (!user.isAdmin) {
+      // Upgrade existing users to admin for demo
+      user = await storage.upsertUser({
+        ...user,
+        isAdmin: true,
+      });
+    }
+    
+    res.json(user);
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    res.status(500).json({ message: "Failed to fetch user" });
+  }
+});
 
 // Serve static files from public directory
 app.use('/static', express.static(join(__dirname, 'public')));
@@ -1284,4 +1321,12 @@ app.listen(PORT, host, () => {
     console.log('Development mode: API server only');
   }
   console.log(`Placeholder API available at http://${host}:${PORT}/api/placeholder/WIDTH/HEIGHT`);
+});
+
+}
+
+// Start the server
+initializeServer().catch(err => {
+  console.error('Failed to initialize server:', err);
+  process.exit(1);
 });
