@@ -7,6 +7,11 @@ import {
   clubReviews,
   bookingEvents,
   bookingPageSettings,
+  themeSettings,
+  heroSettings,
+  mediaAssets,
+  landingSections,
+  sectionBlocks,
   type User,
   type UpsertUser,
   type Club,
@@ -18,6 +23,16 @@ import {
   type InsertBookingEvent,
   type BookingPageSettings,
   type InsertBookingPageSettings,
+  type ThemeSettings,
+  type InsertThemeSettings,
+  type HeroSettings,
+  type InsertHeroSettings,
+  type MediaAsset,
+  type InsertMediaAsset,
+  type LandingSection,
+  type InsertLandingSection,
+  type SectionBlock,
+  type InsertSectionBlock,
 } from "../shared/schema.js";
 import { db } from "./db";
 import { eq, and, desc, asc, count, sql } from "drizzle-orm";
@@ -63,6 +78,29 @@ export interface IStorage {
   // Booking page settings operations
   getBookingPageSettings(): Promise<BookingPageSettings | undefined>;
   updateBookingPageSettings(settings: InsertBookingPageSettings): Promise<BookingPageSettings>;
+  
+  // CMS operations
+  getHeroSettings(): Promise<HeroSettings | undefined>;
+  updateHeroSettings(settings: Partial<InsertHeroSettings>, userId?: string): Promise<HeroSettings>;
+  
+  getThemeSettings(): Promise<ThemeSettings | undefined>;
+  updateThemeSettings(settings: Partial<InsertThemeSettings>, userId?: string): Promise<ThemeSettings>;
+  
+  getMediaAssets(): Promise<MediaAsset[]>;
+  getMediaAsset(id: number): Promise<MediaAsset | undefined>;
+  createMediaAsset(asset: InsertMediaAsset): Promise<MediaAsset>;
+  deleteMediaAsset(id: number): Promise<void>;
+  
+  getLandingSections(): Promise<LandingSection[]>;
+  getLandingSection(id: number): Promise<LandingSection | undefined>;
+  createLandingSection(section: InsertLandingSection): Promise<LandingSection>;
+  updateLandingSection(id: number, section: Partial<InsertLandingSection>, userId?: string): Promise<LandingSection>;
+  deleteLandingSection(id: number): Promise<void>;
+  
+  getSectionBlocks(sectionId: number): Promise<SectionBlock[]>;
+  createSectionBlock(block: InsertSectionBlock): Promise<SectionBlock>;
+  updateSectionBlock(id: number, block: Partial<InsertSectionBlock>): Promise<SectionBlock>;
+  deleteSectionBlock(id: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -312,6 +350,126 @@ export class DatabaseStorage implements IStorage {
         .returning();
       return settings;
     }
+  }
+
+  // CMS operations
+  async getHeroSettings(): Promise<HeroSettings | undefined> {
+    const [settings] = await db.select().from(heroSettings).where(eq(heroSettings.id, 'default'));
+    return settings;
+  }
+
+  async updateHeroSettings(settingsData: Partial<InsertHeroSettings>, userId?: string): Promise<HeroSettings> {
+    const existing = await this.getHeroSettings();
+    
+    if (existing) {
+      const [settings] = await db
+        .update(heroSettings)
+        .set({ ...settingsData, updatedBy: userId, updatedAt: new Date() })
+        .where(eq(heroSettings.id, 'default'))
+        .returning();
+      return settings;
+    } else {
+      const [settings] = await db
+        .insert(heroSettings)
+        .values({ ...settingsData, id: 'default', updatedBy: userId } as InsertHeroSettings)
+        .returning();
+      return settings;
+    }
+  }
+
+  async getThemeSettings(): Promise<ThemeSettings | undefined> {
+    const [settings] = await db.select().from(themeSettings).where(eq(themeSettings.id, 'default'));
+    return settings;
+  }
+
+  async updateThemeSettings(settingsData: Partial<InsertThemeSettings>, userId?: string): Promise<ThemeSettings> {
+    const existing = await this.getThemeSettings();
+    
+    if (existing) {
+      const [settings] = await db
+        .update(themeSettings)
+        .set({ ...settingsData, updatedBy: userId, updatedAt: new Date() })
+        .where(eq(themeSettings.id, 'default'))
+        .returning();
+      return settings;
+    } else {
+      const [settings] = await db
+        .insert(themeSettings)
+        .values({ ...settingsData, id: 'default', updatedBy: userId } as InsertThemeSettings)
+        .returning();
+      return settings;
+    }
+  }
+
+  async getMediaAssets(): Promise<MediaAsset[]> {
+    return await db.select().from(mediaAssets).orderBy(desc(mediaAssets.createdAt));
+  }
+
+  async getMediaAsset(id: number): Promise<MediaAsset | undefined> {
+    const [asset] = await db.select().from(mediaAssets).where(eq(mediaAssets.id, id));
+    return asset;
+  }
+
+  async createMediaAsset(assetData: InsertMediaAsset): Promise<MediaAsset> {
+    const [asset] = await db.insert(mediaAssets).values(assetData).returning();
+    return asset;
+  }
+
+  async deleteMediaAsset(id: number): Promise<void> {
+    await db.delete(mediaAssets).where(eq(mediaAssets.id, id));
+  }
+
+  async getLandingSections(): Promise<LandingSection[]> {
+    return await db.select().from(landingSections).where(eq(landingSections.isActive, true)).orderBy(asc(landingSections.ordering));
+  }
+
+  async getLandingSection(id: number): Promise<LandingSection | undefined> {
+    const [section] = await db.select().from(landingSections).where(eq(landingSections.id, id));
+    return section;
+  }
+
+  async createLandingSection(sectionData: InsertLandingSection): Promise<LandingSection> {
+    const [section] = await db.insert(landingSections).values(sectionData).returning();
+    return section;
+  }
+
+  async updateLandingSection(id: number, sectionData: Partial<InsertLandingSection>, userId?: string): Promise<LandingSection> {
+    const [section] = await db
+      .update(landingSections)
+      .set({ ...sectionData, updatedBy: userId, updatedAt: new Date() })
+      .where(eq(landingSections.id, id))
+      .returning();
+    return section;
+  }
+
+  async deleteLandingSection(id: number): Promise<void> {
+    await db.update(landingSections).set({ isActive: false }).where(eq(landingSections.id, id));
+  }
+
+  async getSectionBlocks(sectionId: number): Promise<SectionBlock[]> {
+    return await db
+      .select()
+      .from(sectionBlocks)
+      .where(and(eq(sectionBlocks.sectionId, sectionId), eq(sectionBlocks.isActive, true)))
+      .orderBy(asc(sectionBlocks.ordering));
+  }
+
+  async createSectionBlock(blockData: InsertSectionBlock): Promise<SectionBlock> {
+    const [block] = await db.insert(sectionBlocks).values(blockData).returning();
+    return block;
+  }
+
+  async updateSectionBlock(id: number, blockData: Partial<InsertSectionBlock>): Promise<SectionBlock> {
+    const [block] = await db
+      .update(sectionBlocks)
+      .set({ ...blockData, updatedAt: new Date() })
+      .where(eq(sectionBlocks.id, id))
+      .returning();
+    return block;
+  }
+
+  async deleteSectionBlock(id: number): Promise<void> {
+    await db.update(sectionBlocks).set({ isActive: false }).where(eq(sectionBlocks.id, id));
   }
 }
 

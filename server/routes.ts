@@ -1,7 +1,28 @@
-import type { Express } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
+
+// Admin middleware
+const isAdmin = async (req: any, res: Response, next: NextFunction) => {
+  try {
+    if (!req.user || !req.user.claims || !req.user.claims.sub) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+    
+    const userId = req.user.claims.sub;
+    const user = await storage.getUser(userId);
+    
+    if (!user || !user.isAdmin) {
+      return res.status(403).json({ message: "Forbidden - Admin access required" });
+    }
+    
+    next();
+  } catch (error) {
+    console.error("Admin auth error:", error);
+    res.status(500).json({ message: "Authentication error" });
+  }
+};
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
@@ -133,6 +154,174 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching user clubs:", error);
       res.status(500).json({ message: "Failed to fetch user clubs" });
+    }
+  });
+
+  // Admin CMS Routes
+  
+  // Hero Settings
+  app.get('/api/cms/hero', async (req, res) => {
+    try {
+      const settings = await storage.getHeroSettings();
+      res.json(settings);
+    } catch (error) {
+      console.error("Error fetching hero settings:", error);
+      res.status(500).json({ message: "Failed to fetch hero settings" });
+    }
+  });
+
+  app.put('/api/admin/cms/hero', isAuthenticated, isAdmin, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const settings = await storage.updateHeroSettings(req.body, userId);
+      res.json(settings);
+    } catch (error) {
+      console.error("Error updating hero settings:", error);
+      res.status(500).json({ message: "Failed to update hero settings" });
+    }
+  });
+
+  // Theme Settings
+  app.get('/api/cms/theme', async (req, res) => {
+    try {
+      const settings = await storage.getThemeSettings();
+      res.json(settings);
+    } catch (error) {
+      console.error("Error fetching theme settings:", error);
+      res.status(500).json({ message: "Failed to fetch theme settings" });
+    }
+  });
+
+  app.put('/api/admin/cms/theme', isAuthenticated, isAdmin, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const settings = await storage.updateThemeSettings(req.body, userId);
+      res.json(settings);
+    } catch (error) {
+      console.error("Error updating theme settings:", error);
+      res.status(500).json({ message: "Failed to update theme settings" });
+    }
+  });
+
+  // Media Assets
+  app.get('/api/admin/cms/media', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const assets = await storage.getMediaAssets();
+      res.json(assets);
+    } catch (error) {
+      console.error("Error fetching media assets:", error);
+      res.status(500).json({ message: "Failed to fetch media assets" });
+    }
+  });
+
+  app.post('/api/admin/cms/media', isAuthenticated, isAdmin, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const asset = await storage.createMediaAsset({ ...req.body, uploadedBy: userId });
+      res.json(asset);
+    } catch (error) {
+      console.error("Error creating media asset:", error);
+      res.status(500).json({ message: "Failed to create media asset" });
+    }
+  });
+
+  app.delete('/api/admin/cms/media/:id', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deleteMediaAsset(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting media asset:", error);
+      res.status(500).json({ message: "Failed to delete media asset" });
+    }
+  });
+
+  // Landing Sections
+  app.get('/api/cms/sections', async (req, res) => {
+    try {
+      const sections = await storage.getLandingSections();
+      res.json(sections);
+    } catch (error) {
+      console.error("Error fetching landing sections:", error);
+      res.status(500).json({ message: "Failed to fetch landing sections" });
+    }
+  });
+
+  app.post('/api/admin/cms/sections', isAuthenticated, isAdmin, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const section = await storage.createLandingSection({ ...req.body, updatedBy: userId });
+      res.json(section);
+    } catch (error) {
+      console.error("Error creating landing section:", error);
+      res.status(500).json({ message: "Failed to create landing section" });
+    }
+  });
+
+  app.put('/api/admin/cms/sections/:id', isAuthenticated, isAdmin, async (req: any, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const userId = req.user.claims.sub;
+      const section = await storage.updateLandingSection(id, req.body, userId);
+      res.json(section);
+    } catch (error) {
+      console.error("Error updating landing section:", error);
+      res.status(500).json({ message: "Failed to update landing section" });
+    }
+  });
+
+  app.delete('/api/admin/cms/sections/:id', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deleteLandingSection(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting landing section:", error);
+      res.status(500).json({ message: "Failed to delete landing section" });
+    }
+  });
+
+  // Section Blocks
+  app.get('/api/cms/sections/:id/blocks', async (req, res) => {
+    try {
+      const sectionId = parseInt(req.params.id);
+      const blocks = await storage.getSectionBlocks(sectionId);
+      res.json(blocks);
+    } catch (error) {
+      console.error("Error fetching section blocks:", error);
+      res.status(500).json({ message: "Failed to fetch section blocks" });
+    }
+  });
+
+  app.post('/api/admin/cms/blocks', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const block = await storage.createSectionBlock(req.body);
+      res.json(block);
+    } catch (error) {
+      console.error("Error creating section block:", error);
+      res.status(500).json({ message: "Failed to create section block" });
+    }
+  });
+
+  app.put('/api/admin/cms/blocks/:id', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const block = await storage.updateSectionBlock(id, req.body);
+      res.json(block);
+    } catch (error) {
+      console.error("Error updating section block:", error);
+      res.status(500).json({ message: "Failed to update section block" });
+    }
+  });
+
+  app.delete('/api/admin/cms/blocks/:id', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deleteSectionBlock(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting section block:", error);
+      res.status(500).json({ message: "Failed to delete section block" });
     }
   });
 
