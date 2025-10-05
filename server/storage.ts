@@ -12,6 +12,13 @@ import {
   mediaAssets,
   landingSections,
   sectionBlocks,
+  focusItems,
+  teamMembers,
+  landingTestimonials,
+  siteStats,
+  contactSettings,
+  footerSettings,
+  seoSettings,
   type User,
   type UpsertUser,
   type Club,
@@ -33,6 +40,20 @@ import {
   type InsertLandingSection,
   type SectionBlock,
   type InsertSectionBlock,
+  type FocusItem,
+  type InsertFocusItem,
+  type TeamMember,
+  type InsertTeamMember,
+  type LandingTestimonial,
+  type InsertLandingTestimonial,
+  type SiteStat,
+  type InsertSiteStat,
+  type ContactSettings,
+  type InsertContactSettings,
+  type FooterSettings,
+  type InsertFooterSettings,
+  type SeoSettings,
+  type InsertSeoSettings,
 } from "../shared/schema.js";
 import { db } from "./db";
 import { eq, and, desc, asc, count, sql } from "drizzle-orm";
@@ -101,6 +122,46 @@ export interface IStorage {
   createSectionBlock(block: InsertSectionBlock): Promise<SectionBlock>;
   updateSectionBlock(id: number, block: Partial<InsertSectionBlock>): Promise<SectionBlock>;
   deleteSectionBlock(id: number): Promise<void>;
+  
+  // Focus items operations
+  getFocusItems(): Promise<FocusItem[]>;
+  getFocusItem(id: number): Promise<FocusItem | undefined>;
+  createFocusItem(item: InsertFocusItem): Promise<FocusItem>;
+  updateFocusItem(id: number, item: Partial<InsertFocusItem>): Promise<FocusItem>;
+  deleteFocusItem(id: number): Promise<void>;
+  
+  // Team members operations
+  getTeamMembers(): Promise<TeamMember[]>;
+  getTeamMember(id: number): Promise<TeamMember | undefined>;
+  createTeamMember(member: InsertTeamMember): Promise<TeamMember>;
+  updateTeamMember(id: number, member: Partial<InsertTeamMember>): Promise<TeamMember>;
+  deleteTeamMember(id: number): Promise<void>;
+  
+  // Landing testimonials operations
+  getLandingTestimonials(): Promise<LandingTestimonial[]>;
+  getLandingTestimonial(id: number): Promise<LandingTestimonial | undefined>;
+  createLandingTestimonial(testimonial: InsertLandingTestimonial): Promise<LandingTestimonial>;
+  updateLandingTestimonial(id: number, testimonial: Partial<InsertLandingTestimonial>): Promise<LandingTestimonial>;
+  deleteLandingTestimonial(id: number): Promise<void>;
+  
+  // Site stats operations
+  getSiteStats(): Promise<SiteStat[]>;
+  getSiteStat(id: number): Promise<SiteStat | undefined>;
+  createSiteStat(stat: InsertSiteStat): Promise<SiteStat>;
+  updateSiteStat(id: number, stat: Partial<InsertSiteStat>): Promise<SiteStat>;
+  deleteSiteStat(id: number): Promise<void>;
+  
+  // Contact settings operations
+  getContactSettings(): Promise<ContactSettings | undefined>;
+  updateContactSettings(settings: Partial<InsertContactSettings>, userId?: string): Promise<ContactSettings>;
+  
+  // Footer settings operations
+  getFooterSettings(): Promise<FooterSettings | undefined>;
+  updateFooterSettings(settings: Partial<InsertFooterSettings>, userId?: string): Promise<FooterSettings>;
+  
+  // SEO settings operations
+  getSeoSettings(): Promise<SeoSettings | undefined>;
+  updateSeoSettings(settings: Partial<InsertSeoSettings>, userId?: string): Promise<SeoSettings>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -470,6 +531,193 @@ export class DatabaseStorage implements IStorage {
 
   async deleteSectionBlock(id: number): Promise<void> {
     await db.update(sectionBlocks).set({ isActive: false }).where(eq(sectionBlocks.id, id));
+  }
+
+  // Focus items operations
+  async getFocusItems(): Promise<FocusItem[]> {
+    return await db.select().from(focusItems).where(eq(focusItems.isActive, true)).orderBy(asc(focusItems.ordering));
+  }
+
+  async getFocusItem(id: number): Promise<FocusItem | undefined> {
+    const [item] = await db.select().from(focusItems).where(eq(focusItems.id, id));
+    return item;
+  }
+
+  async createFocusItem(itemData: InsertFocusItem): Promise<FocusItem> {
+    const [item] = await db.insert(focusItems).values(itemData).returning();
+    return item;
+  }
+
+  async updateFocusItem(id: number, itemData: Partial<InsertFocusItem>): Promise<FocusItem> {
+    const [item] = await db
+      .update(focusItems)
+      .set({ ...itemData, updatedAt: new Date() })
+      .where(eq(focusItems.id, id))
+      .returning();
+    return item;
+  }
+
+  async deleteFocusItem(id: number): Promise<void> {
+    await db.update(focusItems).set({ isActive: false }).where(eq(focusItems.id, id));
+  }
+
+  // Team members operations
+  async getTeamMembers(): Promise<TeamMember[]> {
+    return await db.select().from(teamMembers).where(eq(teamMembers.isActive, true)).orderBy(asc(teamMembers.ordering));
+  }
+
+  async getTeamMember(id: number): Promise<TeamMember | undefined> {
+    const [member] = await db.select().from(teamMembers).where(eq(teamMembers.id, id));
+    return member;
+  }
+
+  async createTeamMember(memberData: InsertTeamMember): Promise<TeamMember> {
+    const [member] = await db.insert(teamMembers).values(memberData).returning();
+    return member;
+  }
+
+  async updateTeamMember(id: number, memberData: Partial<InsertTeamMember>): Promise<TeamMember> {
+    const [member] = await db
+      .update(teamMembers)
+      .set({ ...memberData, updatedAt: new Date() })
+      .where(eq(teamMembers.id, id))
+      .returning();
+    return member;
+  }
+
+  async deleteTeamMember(id: number): Promise<void> {
+    await db.update(teamMembers).set({ isActive: false }).where(eq(teamMembers.id, id));
+  }
+
+  // Landing testimonials operations
+  async getLandingTestimonials(): Promise<LandingTestimonial[]> {
+    return await db.select().from(landingTestimonials).where(and(eq(landingTestimonials.isActive, true), eq(landingTestimonials.isApproved, true))).orderBy(asc(landingTestimonials.ordering));
+  }
+
+  async getLandingTestimonial(id: number): Promise<LandingTestimonial | undefined> {
+    const [testimonial] = await db.select().from(landingTestimonials).where(eq(landingTestimonials.id, id));
+    return testimonial;
+  }
+
+  async createLandingTestimonial(testimonialData: InsertLandingTestimonial): Promise<LandingTestimonial> {
+    const [testimonial] = await db.insert(landingTestimonials).values(testimonialData).returning();
+    return testimonial;
+  }
+
+  async updateLandingTestimonial(id: number, testimonialData: Partial<InsertLandingTestimonial>): Promise<LandingTestimonial> {
+    const [testimonial] = await db
+      .update(landingTestimonials)
+      .set({ ...testimonialData, updatedAt: new Date() })
+      .where(eq(landingTestimonials.id, id))
+      .returning();
+    return testimonial;
+  }
+
+  async deleteLandingTestimonial(id: number): Promise<void> {
+    await db.update(landingTestimonials).set({ isActive: false }).where(eq(landingTestimonials.id, id));
+  }
+
+  // Site stats operations
+  async getSiteStats(): Promise<SiteStat[]> {
+    return await db.select().from(siteStats).where(eq(siteStats.isActive, true)).orderBy(asc(siteStats.ordering));
+  }
+
+  async getSiteStat(id: number): Promise<SiteStat | undefined> {
+    const [stat] = await db.select().from(siteStats).where(eq(siteStats.id, id));
+    return stat;
+  }
+
+  async createSiteStat(statData: InsertSiteStat): Promise<SiteStat> {
+    const [stat] = await db.insert(siteStats).values(statData).returning();
+    return stat;
+  }
+
+  async updateSiteStat(id: number, statData: Partial<InsertSiteStat>): Promise<SiteStat> {
+    const [stat] = await db
+      .update(siteStats)
+      .set({ ...statData, updatedAt: new Date() })
+      .where(eq(siteStats.id, id))
+      .returning();
+    return stat;
+  }
+
+  async deleteSiteStat(id: number): Promise<void> {
+    await db.update(siteStats).set({ isActive: false }).where(eq(siteStats.id, id));
+  }
+
+  // Contact settings operations
+  async getContactSettings(): Promise<ContactSettings | undefined> {
+    const [settings] = await db.select().from(contactSettings).where(eq(contactSettings.id, 'default'));
+    return settings;
+  }
+
+  async updateContactSettings(settingsData: Partial<InsertContactSettings>, userId?: string): Promise<ContactSettings> {
+    const existing = await this.getContactSettings();
+    
+    if (existing) {
+      const [settings] = await db
+        .update(contactSettings)
+        .set({ ...settingsData, updatedBy: userId, updatedAt: new Date() })
+        .where(eq(contactSettings.id, 'default'))
+        .returning();
+      return settings;
+    } else {
+      const [settings] = await db
+        .insert(contactSettings)
+        .values({ ...settingsData, id: 'default', updatedBy: userId } as InsertContactSettings)
+        .returning();
+      return settings;
+    }
+  }
+
+  // Footer settings operations
+  async getFooterSettings(): Promise<FooterSettings | undefined> {
+    const [settings] = await db.select().from(footerSettings).where(eq(footerSettings.id, 'default'));
+    return settings;
+  }
+
+  async updateFooterSettings(settingsData: Partial<InsertFooterSettings>, userId?: string): Promise<FooterSettings> {
+    const existing = await this.getFooterSettings();
+    
+    if (existing) {
+      const [settings] = await db
+        .update(footerSettings)
+        .set({ ...settingsData, updatedBy: userId, updatedAt: new Date() })
+        .where(eq(footerSettings.id, 'default'))
+        .returning();
+      return settings;
+    } else {
+      const [settings] = await db
+        .insert(footerSettings)
+        .values({ ...settingsData, id: 'default', updatedBy: userId } as InsertFooterSettings)
+        .returning();
+      return settings;
+    }
+  }
+
+  // SEO settings operations
+  async getSeoSettings(): Promise<SeoSettings | undefined> {
+    const [settings] = await db.select().from(seoSettings).where(eq(seoSettings.id, 'default'));
+    return settings;
+  }
+
+  async updateSeoSettings(settingsData: Partial<InsertSeoSettings>, userId?: string): Promise<SeoSettings> {
+    const existing = await this.getSeoSettings();
+    
+    if (existing) {
+      const [settings] = await db
+        .update(seoSettings)
+        .set({ ...settingsData, updatedBy: userId, updatedAt: new Date() })
+        .where(eq(seoSettings.id, 'default'))
+        .returning();
+      return settings;
+    } else {
+      const [settings] = await db
+        .insert(seoSettings)
+        .values({ ...settingsData, id: 'default', updatedBy: userId } as InsertSeoSettings)
+        .returning();
+      return settings;
+    }
   }
 }
 

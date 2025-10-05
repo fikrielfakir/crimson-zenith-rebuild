@@ -225,6 +225,231 @@ async function seedDatabase() {
     } else {
       console.log(`✅ Database already has ${bookingEvents.length} booking events`);
     }
+
+    // Seed focus items
+    const focusItems = await storage.getFocusItems();
+    if (focusItems.length === 0) {
+      console.log('📝 Adding focus items seed data...');
+      const seedFocusItems = [
+        {
+          title: 'Adventure & Exploration',
+          icon: 'mountain',
+          description: 'Experience thrilling outdoor adventures from Atlas Mountains to Sahara Desert',
+          ordering: 1,
+          isActive: true
+        },
+        {
+          title: 'Cultural Immersion',
+          icon: 'globe',
+          description: 'Connect with local communities and discover authentic Moroccan traditions',
+          ordering: 2,
+          isActive: true
+        },
+        {
+          title: 'Sustainable Tourism',
+          icon: 'leaf',
+          description: 'Travel responsibly while supporting local economies and preserving nature',
+          ordering: 3,
+          isActive: true
+        },
+        {
+          title: 'Community Building',
+          icon: 'users',
+          description: 'Join a vibrant network of adventurers and culture enthusiasts',
+          ordering: 4,
+          isActive: true
+        }
+      ];
+      
+      for (const item of seedFocusItems) {
+        await storage.createFocusItem(item);
+      }
+      console.log('✅ Database seeded with focus items!');
+    }
+
+    // Seed team members
+    const teamMembers = await storage.getTeamMembers();
+    if (teamMembers.length === 0) {
+      console.log('📝 Adding team members seed data...');
+      const seedTeamMembers = [
+        {
+          name: 'Ahmed Benali',
+          role: 'Founder & CEO',
+          bio: 'Passionate about sustainable tourism and cultural preservation, Ahmed founded our organization to connect adventurers with authentic Moroccan experiences.',
+          ordering: 1,
+          isActive: true,
+          socialLinks: { linkedin: '#', twitter: '#' }
+        },
+        {
+          name: 'Fatima El Amrani',
+          role: 'Operations Director',
+          bio: 'With 15 years of experience in tourism management, Fatima ensures every journey is safe, memorable, and culturally enriching.',
+          ordering: 2,
+          isActive: true,
+          socialLinks: { linkedin: '#' }
+        },
+        {
+          name: 'Youssef Kadiri',
+          role: 'Head Guide',
+          bio: 'Born and raised in the Atlas Mountains, Youssef brings deep local knowledge and passion for sharing Morocco\'s natural beauty.',
+          ordering: 3,
+          isActive: true,
+          socialLinks: { instagram: '#' }
+        }
+      ];
+      
+      for (const member of seedTeamMembers) {
+        await storage.createTeamMember(member);
+      }
+      console.log('✅ Database seeded with team members!');
+    }
+
+    // Seed landing testimonials
+    const testimonials = await storage.getLandingTestimonials();
+    if (testimonials.length === 0) {
+      console.log('📝 Adding testimonials seed data...');
+      const seedTestimonials = [
+        {
+          name: 'Sarah Martinez',
+          role: 'Adventure Traveler',
+          rating: 5,
+          feedback: 'The Atlas Mountains trek was absolutely incredible! Our guide was knowledgeable and the experience was truly authentic.',
+          isApproved: true,
+          isActive: true,
+          ordering: 1
+        },
+        {
+          name: 'James Wilson',
+          role: 'Cultural Explorer',
+          rating: 5,
+          feedback: 'I loved the cultural immersion. Staying with Berber families and learning about their traditions was unforgettable.',
+          isApproved: true,
+          isActive: true,
+          ordering: 2
+        },
+        {
+          name: 'Emma Thompson',
+          role: 'Photography Enthusiast',
+          rating: 5,
+          feedback: 'The desert sunset was magical. Every moment was photo-perfect and the guides were exceptional.',
+          isApproved: true,
+          isActive: true,
+          ordering: 3
+        }
+      ];
+      
+      for (const testimonial of seedTestimonials) {
+        await storage.createLandingTestimonial(testimonial);
+      }
+      console.log('✅ Database seeded with testimonials!');
+    }
+
+    // Seed site stats
+    const siteStats = await storage.getSiteStats();
+    if (siteStats.length === 0) {
+      console.log('📝 Adding site stats seed data...');
+      const seedStats = [
+        {
+          label: 'Happy Travelers',
+          value: '1500',
+          icon: 'users',
+          suffix: '+',
+          ordering: 1,
+          isActive: true
+        },
+        {
+          label: 'Adventures Completed',
+          value: '500',
+          icon: 'mountain',
+          suffix: '+',
+          ordering: 2,
+          isActive: true
+        },
+        {
+          label: 'Cultural Collaborations',
+          value: '50',
+          icon: 'handshake',
+          suffix: '+',
+          ordering: 3,
+          isActive: true
+        },
+        {
+          label: 'Years of Excellence',
+          value: '10',
+          icon: 'award',
+          suffix: '+',
+          ordering: 4,
+          isActive: true
+        }
+      ];
+      
+      for (const stat of seedStats) {
+        await storage.createSiteStat(stat);
+      }
+      console.log('✅ Database seeded with site stats!');
+    }
+
+    // Seed contact settings
+    const contactSettings = await storage.getContactSettings();
+    if (!contactSettings) {
+      console.log('📝 Adding contact settings seed data...');
+      await storage.updateContactSettings({
+        officeAddress: 'Marrakech, Morocco',
+        email: 'contact@clubsmorocco.com',
+        phone: '+212 524 123 456',
+        officeHours: 'Monday - Friday: 9:00 AM - 6:00 PM',
+        mapLatitude: '31.6295',
+        mapLongitude: '-7.9811',
+        formRecipients: ['contact@clubsmorocco.com'],
+        autoReplyEnabled: true,
+        autoReplyMessage: 'Thank you for contacting us! We will get back to you within 24 hours.',
+        socialLinks: {
+          facebook: 'https://facebook.com/clubsmorocco',
+          instagram: 'https://instagram.com/clubsmorocco',
+          twitter: 'https://twitter.com/clubsmorocco'
+        }
+      });
+      console.log('✅ Database seeded with contact settings!');
+    }
+
+    // Seed footer settings
+    const footerSettings = await storage.getFooterSettings();
+    if (!footerSettings) {
+      console.log('📝 Adding footer settings seed data...');
+      await storage.updateFooterSettings({
+        copyrightText: '© 2024 Clubs Morocco. All rights reserved.',
+        description: 'Experience authentic Moroccan adventures with sustainable tourism practices.',
+        links: [
+          { label: 'About Us', url: '/about' },
+          { label: 'Privacy Policy', url: '/privacy-policy' },
+          { label: 'Terms of Service', url: '/terms-of-service' },
+          { label: 'Contact', url: '/contact' }
+        ],
+        socialLinks: {
+          facebook: 'https://facebook.com/clubsmorocco',
+          instagram: 'https://instagram.com/clubsmorocco',
+          twitter: 'https://twitter.com/clubsmorocco',
+          youtube: 'https://youtube.com/@clubsmorocco'
+        },
+        newsletterEnabled: true,
+        newsletterTitle: 'Stay Updated',
+        newsletterDescription: 'Subscribe to our newsletter for exclusive offers and adventure tips'
+      });
+      console.log('✅ Database seeded with footer settings!');
+    }
+
+    // Seed SEO settings
+    const seoSettings = await storage.getSeoSettings();
+    if (!seoSettings) {
+      console.log('📝 Adding SEO settings seed data...');
+      await storage.updateSeoSettings({
+        siteTitle: 'Clubs Morocco - Authentic Adventures & Cultural Experiences',
+        siteDescription: 'Discover Morocco through sustainable tourism. Join our community for trekking, desert expeditions, cultural tours, and authentic local experiences.',
+        keywords: 'Morocco tourism, Atlas Mountains trek, Sahara Desert tour, Moroccan culture, sustainable travel, adventure clubs, cultural immersion',
+        twitterHandle: '@clubsmorocco'
+      });
+      console.log('✅ Database seeded with SEO settings!');
+    }
   } catch (error) {
     console.error('❌ Error seeding database:', error);
   }

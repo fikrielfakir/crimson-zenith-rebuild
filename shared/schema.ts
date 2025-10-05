@@ -247,6 +247,114 @@ export const sectionBlocks = pgTable("section_blocks", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Focus items table - for "Our Focus" section
+export const focusItems = pgTable("focus_items", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  title: varchar("title", { length: 255 }).notNull(),
+  icon: varchar("icon", { length: 100 }),
+  description: text("description").notNull(),
+  ordering: integer("ordering").default(0).notNull(),
+  isActive: boolean("is_active").default(true),
+  mediaId: integer("media_id").references(() => mediaAssets.id),
+  createdBy: varchar("created_by").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Team members table - for "Our Team" section
+export const teamMembers = pgTable("team_members", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  name: varchar("name", { length: 255 }).notNull(),
+  role: varchar("role", { length: 255 }).notNull(),
+  bio: text("bio"),
+  photoId: integer("photo_id").references(() => mediaAssets.id),
+  email: varchar("email", { length: 255 }),
+  phone: varchar("phone", { length: 50 }),
+  socialLinks: jsonb("social_links").default(sql`'{}'::jsonb`),
+  ordering: integer("ordering").default(0).notNull(),
+  isActive: boolean("is_active").default(true),
+  createdBy: varchar("created_by").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Landing testimonials table - general testimonials for the site
+export const landingTestimonials = pgTable("landing_testimonials", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  name: varchar("name", { length: 255 }).notNull(),
+  role: varchar("role", { length: 255 }),
+  photoId: integer("photo_id").references(() => mediaAssets.id),
+  rating: integer("rating").default(5),
+  feedback: text("feedback").notNull(),
+  isApproved: boolean("is_approved").default(false),
+  isActive: boolean("is_active").default(true),
+  ordering: integer("ordering").default(0).notNull(),
+  userId: varchar("user_id").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Stats/footprint table - for metrics display
+export const siteStats = pgTable("site_stats", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  label: varchar("label", { length: 255 }).notNull(),
+  value: varchar("value", { length: 100 }).notNull(),
+  icon: varchar("icon", { length: 100 }),
+  suffix: varchar("suffix", { length: 20 }),
+  ordering: integer("ordering").default(0).notNull(),
+  isActive: boolean("is_active").default(true),
+  updatedBy: varchar("updated_by").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Contact settings table - for contact information
+export const contactSettings = pgTable("contact_settings", {
+  id: varchar("id").primaryKey().default("default"),
+  officeAddress: text("office_address"),
+  email: varchar("email", { length: 255 }),
+  phone: varchar("phone", { length: 50 }),
+  officeHours: text("office_hours"),
+  mapLatitude: numeric("map_latitude", { precision: 9, scale: 6 }),
+  mapLongitude: numeric("map_longitude", { precision: 9, scale: 6 }),
+  formRecipients: jsonb("form_recipients").default(sql`'[]'::jsonb`),
+  autoReplyEnabled: boolean("auto_reply_enabled").default(false),
+  autoReplyMessage: text("auto_reply_message"),
+  socialLinks: jsonb("social_links").default(sql`'{}'::jsonb`),
+  updatedBy: varchar("updated_by").references(() => users.id),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Footer settings table - for footer content
+export const footerSettings = pgTable("footer_settings", {
+  id: varchar("id").primaryKey().default("default"),
+  copyrightText: varchar("copyright_text", { length: 500 }),
+  description: text("description"),
+  links: jsonb("links").default(sql`'[]'::jsonb`),
+  socialLinks: jsonb("social_links").default(sql`'{}'::jsonb`),
+  newsletterEnabled: boolean("newsletter_enabled").default(true),
+  newsletterTitle: varchar("newsletter_title", { length: 255 }),
+  newsletterDescription: text("newsletter_description"),
+  updatedBy: varchar("updated_by").references(() => users.id),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// SEO settings table - for meta tags and SEO
+export const seoSettings = pgTable("seo_settings", {
+  id: varchar("id").primaryKey().default("default"),
+  siteTitle: varchar("site_title", { length: 255 }),
+  siteDescription: text("site_description"),
+  keywords: text("keywords"),
+  ogImage: integer("og_image").references(() => mediaAssets.id),
+  twitterHandle: varchar("twitter_handle", { length: 100 }),
+  googleAnalyticsId: varchar("google_analytics_id", { length: 100 }),
+  facebookPixelId: varchar("facebook_pixel_id", { length: 100 }),
+  customHeadCode: text("custom_head_code"),
+  customBodyCode: text("custom_body_code"),
+  updatedBy: varchar("updated_by").references(() => users.id),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   ownedClubs: many(clubs),
@@ -352,3 +460,17 @@ export type LandingSection = typeof landingSections.$inferSelect;
 export type InsertLandingSection = typeof landingSections.$inferInsert;
 export type SectionBlock = typeof sectionBlocks.$inferSelect;
 export type InsertSectionBlock = typeof sectionBlocks.$inferInsert;
+export type FocusItem = typeof focusItems.$inferSelect;
+export type InsertFocusItem = typeof focusItems.$inferInsert;
+export type TeamMember = typeof teamMembers.$inferSelect;
+export type InsertTeamMember = typeof teamMembers.$inferInsert;
+export type LandingTestimonial = typeof landingTestimonials.$inferSelect;
+export type InsertLandingTestimonial = typeof landingTestimonials.$inferInsert;
+export type SiteStat = typeof siteStats.$inferSelect;
+export type InsertSiteStat = typeof siteStats.$inferInsert;
+export type ContactSettings = typeof contactSettings.$inferSelect;
+export type InsertContactSettings = typeof contactSettings.$inferInsert;
+export type FooterSettings = typeof footerSettings.$inferSelect;
+export type InsertFooterSettings = typeof footerSettings.$inferInsert;
+export type SeoSettings = typeof seoSettings.$inferSelect;
+export type InsertSeoSettings = typeof seoSettings.$inferInsert;
