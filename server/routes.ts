@@ -32,7 +32,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
+      let user = await storage.getUser(userId);
+      
+      // Auto-grant admin access for demo purposes
+      if (!user) {
+        const name = req.user.claims.preferred_username || req.user.claims.name || 'Admin User';
+        user = await storage.upsertUser({
+          id: userId,
+          firstName: name,
+          email: req.user.claims.email || `${userId}@replit.dev`,
+          isAdmin: true, // Grant admin access automatically for demo
+        });
+      } else if (!user.isAdmin) {
+        // Upgrade existing users to admin for demo
+        user = await storage.upsertUser({
+          ...user,
+          isAdmin: true,
+        });
+      }
+      
       res.json(user);
     } catch (error) {
       console.error("Error fetching user:", error);

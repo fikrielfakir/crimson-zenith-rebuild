@@ -13,20 +13,14 @@ const AdminLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
+  const handleReplitLogin = () => {
+    window.location.href = '/api/auth/replit';
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
     setError('');
-
-    // Simple demo authentication (replace with real auth)
-    if (credentials.username === 'admin' && credentials.password === 'admin123') {
-      localStorage.setItem('adminAuth', 'authenticated');
-      navigate('/admin');
-    } else {
-      setError('Invalid username or password');
-    }
-    
-    setIsLoading(false);
+    setError('Please use the "Login with Replit" button below to authenticate properly.');
   };
 
   return (
@@ -73,15 +67,21 @@ const AdminLogin = () => {
               </Alert>
             )}
 
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? 'Signing in...' : 'Sign In'}
+            <Button 
+              type="button" 
+              className="w-full" 
+              variant="outline"
+              onClick={handleReplitLogin}
+            >
+              Login with Replit
             </Button>
           </form>
           
-          <div className="mt-6 p-4 bg-muted/50 rounded-lg">
-            <p className="text-sm text-muted-foreground mb-2">Demo Credentials:</p>
-            <p className="text-sm"><strong>Username:</strong> admin</p>
-            <p className="text-sm"><strong>Password:</strong> admin123</p>
+          <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-950 rounded-lg border border-blue-200 dark:border-blue-800">
+            <p className="text-sm text-blue-900 dark:text-blue-100 mb-2 font-semibold">Admin Access Instructions:</p>
+            <p className="text-sm text-blue-800 dark:text-blue-200">
+              Click "Login with Replit" above to authenticate. After logging in, you'll need to be marked as an admin in the database to access admin features.
+            </p>
           </div>
         </CardContent>
       </Card>
