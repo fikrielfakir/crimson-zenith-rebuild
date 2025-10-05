@@ -131,6 +131,11 @@ const App = () => (
               <LandingManagement />
             </ProtectedRoute>
           } />
+          <Route path="/admin/cms" element={
+            <ProtectedRoute>
+              <LandingManagement />
+            </ProtectedRoute>
+          } />
           <Route path="/admin/applications" element={
             <ProtectedRoute>
               <ApplicationsManagement />
