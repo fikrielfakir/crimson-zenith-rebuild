@@ -78,10 +78,6 @@ const Hero = () => {
   const subtitleColor = heroSettings?.subtitleColor || "#ffffff";
   const enableTypewriter = heroSettings?.enableTypewriter !== false;
 
-  if (isLoading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
-  }
-
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden font-sans">
       {/* Background Image or Video */}

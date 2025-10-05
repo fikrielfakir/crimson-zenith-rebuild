@@ -1,35 +1,17 @@
 import { useState, useEffect } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
-
-interface HeroSettings {
-  id?: string;
-  title?: string;
-  subtitle?: string;
-  backgroundImage?: string;
-  ctaText?: string;
-  ctaLink?: string;
-  overlayOpacity?: number;
-}
+import { useHeroSettings, useUpdateHeroSettings, type HeroSettings } from "@/hooks/useCMS";
 
 const HeroTab = () => {
   const { toast } = useToast();
-  const queryClient = useQueryClient();
-  const [formData, setFormData] = useState<HeroSettings>({});
+  const [formData, setFormData] = useState<Partial<HeroSettings>>({});
 
-  const { data: settings, isLoading } = useQuery({
-    queryKey: ['hero-settings'],
-    queryFn: async () => {
-      const response = await fetch('/api/cms/hero');
-      if (!response.ok) throw new Error('Failed to fetch hero settings');
-      return response.json();
-    },
-  });
+  const { data: settings, isLoading } = useHeroSettings();
 
   useEffect(() => {
     if (settings) {
@@ -37,35 +19,25 @@ const HeroTab = () => {
     }
   }, [settings]);
 
-  const updateMutation = useMutation({
-    mutationFn: async (data: HeroSettings) => {
-      const response = await fetch('/api/admin/cms/hero', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      if (!response.ok) throw new Error('Failed to update hero settings');
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['hero-settings'] });
-      toast({
-        title: "Success",
-        description: "Hero settings updated successfully",
-      });
-    },
-    onError: () => {
-      toast({
-        title: "Error",
-        description: "Failed to update hero settings",
-        variant: "destructive",
-      });
-    },
-  });
+  const updateMutation = useUpdateHeroSettings();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    updateMutation.mutate(formData);
+    updateMutation.mutate(formData, {
+      onSuccess: () => {
+        toast({
+          title: "Success",
+          description: "Hero settings updated successfully",
+        });
+      },
+      onError: () => {
+        toast({
+          title: "Error",
+          description: "Failed to update hero settings",
+          variant: "destructive",
+        });
+      },
+    });
   };
 
   if (isLoading) {
@@ -95,33 +67,44 @@ const HeroTab = () => {
         </div>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="backgroundImage">Background Image URL</Label>
-        <Input
-          id="backgroundImage"
-          value={formData.backgroundImage || ''}
-          onChange={(e) => setFormData({ ...formData, backgroundImage: e.target.value })}
-          placeholder="/path/to/image.jpg"
-        />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="primaryButtonText">Primary Button Text</Label>
+          <Input
+            id="primaryButtonText"
+            value={formData.primaryButtonText || ''}
+            onChange={(e) => setFormData({ ...formData, primaryButtonText: e.target.value })}
+            placeholder="Start Your Journey"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="primaryButtonLink">Primary Button Link</Label>
+          <Input
+            id="primaryButtonLink"
+            value={formData.primaryButtonLink || ''}
+            onChange={(e) => setFormData({ ...formData, primaryButtonLink: e.target.value })}
+            placeholder="/discover"
+          />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="ctaText">CTA Button Text</Label>
+          <Label htmlFor="secondaryButtonText">Secondary Button Text</Label>
           <Input
-            id="ctaText"
-            value={formData.ctaText || ''}
-            onChange={(e) => setFormData({ ...formData, ctaText: e.target.value })}
-            placeholder="Get Started"
+            id="secondaryButtonText"
+            value={formData.secondaryButtonText || ''}
+            onChange={(e) => setFormData({ ...formData, secondaryButtonText: e.target.value })}
+            placeholder="Explore Clubs"
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="ctaLink">CTA Button Link</Label>
+          <Label htmlFor="secondaryButtonLink">Secondary Button Link</Label>
           <Input
-            id="ctaLink"
-            value={formData.ctaLink || ''}
-            onChange={(e) => setFormData({ ...formData, ctaLink: e.target.value })}
-            placeholder="/signup"
+            id="secondaryButtonLink"
+            value={formData.secondaryButtonLink || ''}
+            onChange={(e) => setFormData({ ...formData, secondaryButtonLink: e.target.value })}
+            placeholder="/clubs"
           />
         </div>
       </div>

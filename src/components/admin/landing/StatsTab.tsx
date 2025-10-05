@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
+import { useStats } from "@/hooks/useCMS";
 import { Plus, Pencil, Trash2, Loader2, GripVertical } from "lucide-react";
 
 interface SiteStat {
@@ -26,14 +27,7 @@ const StatsTab = () => {
   const [editingItem, setEditingItem] = useState<SiteStat | null>(null);
   const [formData, setFormData] = useState<Partial<SiteStat>>({});
 
-  const { data: stats = [], isLoading } = useQuery({
-    queryKey: ['site-stats'],
-    queryFn: async () => {
-      const response = await fetch('/api/cms/stats');
-      if (!response.ok) throw new Error('Failed to fetch stats');
-      return response.json();
-    },
-  });
+  const { data: stats = [], isLoading } = useStats();
 
   const createMutation = useMutation({
     mutationFn: async (data: Partial<SiteStat>) => {
@@ -46,7 +40,7 @@ const StatsTab = () => {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['site-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['cms', 'stats'] });
       setIsDialogOpen(false);
       setFormData({});
       toast({ title: "Success", description: "Statistic created" });
@@ -64,7 +58,7 @@ const StatsTab = () => {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['site-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['cms', 'stats'] });
       setEditingItem(null);
       setFormData({});
       toast({ title: "Success", description: "Statistic updated" });
@@ -78,7 +72,7 @@ const StatsTab = () => {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['site-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['cms', 'stats'] });
       toast({ title: "Success", description: "Statistic deleted" });
     },
   });

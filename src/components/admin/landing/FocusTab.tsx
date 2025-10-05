@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
+import { useFocusItems } from "@/hooks/useCMS";
 import { Plus, Pencil, Trash2, Loader2, GripVertical } from "lucide-react";
 
 interface FocusItem {
@@ -25,14 +26,7 @@ const FocusTab = () => {
   const [editingItem, setEditingItem] = useState<FocusItem | null>(null);
   const [formData, setFormData] = useState<Partial<FocusItem>>({});
 
-  const { data: items = [], isLoading } = useQuery({
-    queryKey: ['focus-items'],
-    queryFn: async () => {
-      const response = await fetch('/api/cms/focus-items');
-      if (!response.ok) throw new Error('Failed to fetch focus items');
-      return response.json();
-    },
-  });
+  const { data: items = [], isLoading } = useFocusItems();
 
   const createMutation = useMutation({
     mutationFn: async (data: Partial<FocusItem>) => {
@@ -45,7 +39,7 @@ const FocusTab = () => {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['focus-items'] });
+      queryClient.invalidateQueries({ queryKey: ['cms', 'focus-items'] });
       setIsDialogOpen(false);
       setFormData({});
       toast({ title: "Success", description: "Focus item created" });
@@ -63,7 +57,7 @@ const FocusTab = () => {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['focus-items'] });
+      queryClient.invalidateQueries({ queryKey: ['cms', 'focus-items'] });
       setEditingItem(null);
       setFormData({});
       toast({ title: "Success", description: "Focus item updated" });
@@ -77,7 +71,7 @@ const FocusTab = () => {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['focus-items'] });
+      queryClient.invalidateQueries({ queryKey: ['cms', 'focus-items'] });
       toast({ title: "Success", description: "Focus item deleted" });
     },
   });

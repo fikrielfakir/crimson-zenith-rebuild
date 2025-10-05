@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
+import { useTeamMembers } from "@/hooks/useCMS";
 import { Plus, Pencil, Trash2, Loader2, GripVertical } from "lucide-react";
 
 interface TeamMember {
@@ -27,14 +28,7 @@ const TeamTab = () => {
   const [editingItem, setEditingItem] = useState<TeamMember | null>(null);
   const [formData, setFormData] = useState<Partial<TeamMember>>({});
 
-  const { data: members = [], isLoading } = useQuery({
-    queryKey: ['team-members'],
-    queryFn: async () => {
-      const response = await fetch('/api/cms/team-members');
-      if (!response.ok) throw new Error('Failed to fetch team members');
-      return response.json();
-    },
-  });
+  const { data: members = [], isLoading } = useTeamMembers();
 
   const createMutation = useMutation({
     mutationFn: async (data: Partial<TeamMember>) => {
@@ -47,7 +41,7 @@ const TeamTab = () => {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['team-members'] });
+      queryClient.invalidateQueries({ queryKey: ['cms', 'team-members'] });
       setIsDialogOpen(false);
       setFormData({});
       toast({ title: "Success", description: "Team member created" });
@@ -65,7 +59,7 @@ const TeamTab = () => {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['team-members'] });
+      queryClient.invalidateQueries({ queryKey: ['cms', 'team-members'] });
       setEditingItem(null);
       setFormData({});
       toast({ title: "Success", description: "Team member updated" });
@@ -79,7 +73,7 @@ const TeamTab = () => {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['team-members'] });
+      queryClient.invalidateQueries({ queryKey: ['cms', 'team-members'] });
       toast({ title: "Success", description: "Team member deleted" });
     },
   });

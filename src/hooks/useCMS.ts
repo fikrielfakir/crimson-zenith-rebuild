@@ -115,3 +115,69 @@ export function useMediaAssets() {
     },
   });
 }
+
+export function useFocusItems() {
+  return useQuery({
+    queryKey: ["cms", "focus-items"],
+    queryFn: async () => {
+      const res = await fetch("/api/cms/focus-items");
+      if (!res.ok) throw new Error("Failed to fetch focus items");
+      return res.json();
+    },
+  });
+}
+
+export function useStats() {
+  return useQuery({
+    queryKey: ["cms", "stats"],
+    queryFn: async () => {
+      const res = await fetch("/api/cms/stats");
+      if (!res.ok) throw new Error("Failed to fetch stats");
+      return res.json();
+    },
+  });
+}
+
+export function useTeamMembers() {
+  return useQuery({
+    queryKey: ["cms", "team-members"],
+    queryFn: async () => {
+      const res = await fetch("/api/cms/team-members");
+      if (!res.ok) throw new Error("Failed to fetch team members");
+      return res.json();
+    },
+  });
+}
+
+export function useTestimonials() {
+  return useQuery({
+    queryKey: ["cms", "testimonials"],
+    queryFn: async () => {
+      const res = await fetch("/api/cms/testimonials");
+      if (!res.ok) throw new Error("Failed to fetch testimonials");
+      return res.json();
+    },
+  });
+}
+
+export function useContactSettings() {
+  return useQuery({
+    queryKey: ["cms", "contact"],
+    queryFn: async () => {
+      const res = await fetch("/api/cms/contact");
+      if (!res.ok) throw new Error("Failed to fetch contact settings");
+      return res.json();
+    },
+  });
+}
+
+export function useFooterSettings() {
+  return useQuery({
+    queryKey: ["cms", "footer"],
+    queryFn: async () => {
+      const res = await fetch("/api/cms/footer");
+      if (!res.ok) throw new Error("Failed to fetch footer settings");
+      return res.json();
+    },
+  });
+}
