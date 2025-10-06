@@ -1,26 +1,13 @@
-import * as client from "openid-client";
-import { Strategy, type VerifyFunction } from "openid-client/passport";
-
 import passport from "passport";
+import { Strategy as LocalStrategy } from "passport-local";
 import session from "express-session";
 import type { Express, RequestHandler } from "express";
-import memoize from "memoizee";
 import connectPg from "connect-pg-simple";
+import bcrypt from "bcryptjs";
 import { storage } from "./storage";
-
-if (!process.env.REPLIT_DOMAINS) {
-  throw new Error("Environment variable REPLIT_DOMAINS not provided");
-}
-
-const getOidcConfig = memoize(
-  async () => {
-    return await client.discovery(
-      new URL(process.env.ISSUER_URL ?? "https://replit.com/oidc"),
-      process.env.REPL_ID!
-    );
-  },
-  { maxAge: 3600 * 1000 }
-);
+import { db } from "./db";
+import { users } from "../shared/schema";
+import { eq } from "drizzle-orm";
 
 export function getSession() {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
@@ -38,31 +25,9 @@ export function getSession() {
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: true,
+      secure: false, // Allow cookies over HTTP in development
       maxAge: sessionTtl,
     },
-  });
-}
-
-function updateUserSession(
-  user: any,
-  tokens: client.TokenEndpointResponse & client.TokenEndpointResponseHelpers
-) {
-  user.claims = tokens.claims();
-  user.access_token = tokens.access_token;
-  user.refresh_token = tokens.refresh_token;
-  user.expires_at = user.claims?.exp;
-}
-
-async function upsertUser(
-  claims: any,
-) {
-  await storage.upsertUser({
-    id: claims["sub"],
-    email: claims["email"],
-    firstName: claims["first_name"],
-    lastName: claims["last_name"],
-    profileImageUrl: claims["profile_image_url"],
   });
 }
 
@@ -72,97 +37,130 @@ export async function setupAuth(app: Express) {
   app.use(passport.initialize());
   app.use(passport.session());
 
-  const config = await getOidcConfig();
-
-  const verify: VerifyFunction = async (
-    tokens: client.TokenEndpointResponse & client.TokenEndpointResponseHelpers,
-    verified: passport.AuthenticateCallback
-  ) => {
-    const user = {};
-    updateUserSession(user, tokens);
-    await upsertUser(tokens.claims());
-    verified(null, user);
-  };
-
-  for (const domain of process.env
-    .REPLIT_DOMAINS!.split(",")) {
-    const strategy = new Strategy(
+  // Local strategy for username/password authentication
+  passport.use(
+    new LocalStrategy(
       {
-        name: `replitauth:${domain}`,
-        config,
-        scope: "openid email profile offline_access",
-        callbackURL: `https://${domain}/api/callback`,
+        usernameField: "username",
+        passwordField: "password",
       },
-      verify,
-    );
-    passport.use(strategy);
-  }
+      async (username, password, done) => {
+        try {
+          // Find user by username
+          const userResults = await db
+            .select()
+            .from(users)
+            .where(eq(users.username, username))
+            .limit(1);
 
-  passport.serializeUser((user: Express.User, cb) => cb(null, user));
-  passport.deserializeUser((user: Express.User, cb) => cb(null, user));
+          if (userResults.length === 0) {
+            return done(null, false, { message: "Invalid username or password" });
+          }
 
-  // Helper to get the correct domain for auth
-  const getAuthDomain = (hostname: string) => {
-    const domains = process.env.REPLIT_DOMAINS!.split(",");
-    // Use the primary domain for localhost/development
-    return hostname === 'localhost' || hostname.includes('localhost') 
-      ? domains[0] 
-      : hostname;
-  };
+          const user = userResults[0];
 
-  app.get("/api/login", (req, res, next) => {
-    const authDomain = getAuthDomain(req.hostname);
-    passport.authenticate(`replitauth:${authDomain}`, {
-      prompt: "login consent",
-      scope: ["openid", "email", "profile", "offline_access"],
+          // Verify password
+          if (!user.password) {
+            return done(null, false, { message: "Invalid username or password" });
+          }
+
+          const isValidPassword = await bcrypt.compare(password, user.password);
+
+          if (!isValidPassword) {
+            return done(null, false, { message: "Invalid username or password" });
+          }
+
+          // Return user object without password
+          const { password: _, ...userWithoutPassword } = user;
+          return done(null, userWithoutPassword);
+        } catch (error) {
+          return done(error);
+        }
+      }
+    )
+  );
+
+  passport.serializeUser((user: any, cb) => {
+    cb(null, user.id);
+  });
+
+  passport.deserializeUser(async (id: string, cb) => {
+    try {
+      const user = await storage.getUser(id);
+      if (!user) {
+        return cb(null, false);
+      }
+      cb(null, user);
+    } catch (error) {
+      cb(error);
+    }
+  });
+
+  // Login endpoint
+  app.post("/api/login", (req, res, next) => {
+    passport.authenticate("local", (err: any, user: any, info: any) => {
+      if (err) {
+        return res.status(500).json({ message: "Authentication error" });
+      }
+      if (!user) {
+        return res.status(401).json({ message: info?.message || "Invalid credentials" });
+      }
+      req.logIn(user, (err) => {
+        if (err) {
+          return res.status(500).json({ message: "Login error" });
+        }
+        return res.json({ 
+          message: "Login successful",
+          user: {
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            isAdmin: user.isAdmin
+          }
+        });
+      });
     })(req, res, next);
   });
 
-  app.get("/api/callback", (req, res, next) => {
-    const authDomain = getAuthDomain(req.hostname);
-    passport.authenticate(`replitauth:${authDomain}`, {
-      successReturnToOrRedirect: "/",
-      failureRedirect: "/api/login",
-    })(req, res, next);
-  });
-
-  app.get("/api/logout", (req, res) => {
-    req.logout(() => {
-      res.redirect(
-        client.buildEndSessionUrl(config, {
-          client_id: process.env.REPL_ID!,
-          post_logout_redirect_uri: `${req.protocol}://${req.hostname}`,
-        }).href
-      );
+  // Logout endpoint
+  app.post("/api/logout", (req, res) => {
+    req.logout((err) => {
+      if (err) {
+        return res.status(500).json({ message: "Logout error" });
+      }
+      res.json({ message: "Logout successful" });
     });
+  });
+
+  // Get current user endpoint
+  app.get("/api/auth/user", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = req.user;
+      res.json({
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        isAdmin: user.isAdmin,
+        profileImageUrl: user.profileImageUrl,
+        bio: user.bio,
+        phone: user.phone,
+        location: user.location,
+        interests: user.interests
+      });
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
+    }
   });
 }
 
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
-  const user = req.user as any;
-
-  if (!req.isAuthenticated() || !user.expires_at) {
+  if (!req.isAuthenticated()) {
     return res.status(401).json({ message: "Unauthorized" });
   }
-
-  const now = Math.floor(Date.now() / 1000);
-  if (now <= user.expires_at) {
-    return next();
-  }
-
-  const refreshToken = user.refresh_token;
-  if (!refreshToken) {
-    res.status(401).json({ message: "Unauthorized" });
-    return;
-  }
-
-  try {
-    const config = await getOidcConfig();
-    const tokenResponse = await client.refreshTokenGrant(config, refreshToken);
-    updateUserSession(user, tokenResponse);
-    return next();
-  } catch (error) {
-    res.status(401).json({ message: "Unauthorized" });
-    return;
-  }
+  return next();
 };

@@ -6,14 +6,13 @@ import { setupAuth, isAuthenticated } from "./replitAuth";
 // Admin middleware
 const isAdmin = async (req: any, res: Response, next: NextFunction) => {
   try {
-    if (!req.user || !req.user.claims || !req.user.claims.sub) {
+    if (!req.user || !req.user.id) {
       return res.status(401).json({ message: "Unauthorized" });
     }
     
-    const userId = req.user.claims.sub;
-    const user = await storage.getUser(userId);
+    const user = req.user;
     
-    if (!user || !user.isAdmin) {
+    if (!user.isAdmin) {
       return res.status(403).json({ message: "Forbidden - Admin access required" });
     }
     
@@ -28,40 +27,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
   await setupAuth(app);
 
-  // Auth routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      let user = await storage.getUser(userId);
-      
-      // Auto-grant admin access for demo purposes
-      if (!user) {
-        const name = req.user.claims.preferred_username || req.user.claims.name || 'Admin User';
-        user = await storage.upsertUser({
-          id: userId,
-          firstName: name,
-          email: req.user.claims.email || `${userId}@replit.dev`,
-          isAdmin: true, // Grant admin access automatically for demo
-        });
-      } else if (!user.isAdmin) {
-        // Upgrade existing users to admin for demo
-        user = await storage.upsertUser({
-          ...user,
-          isAdmin: true,
-        });
-      }
-      
-      res.json(user);
-    } catch (error) {
-      console.error("Error fetching user:", error);
-      res.status(500).json({ message: "Failed to fetch user" });
-    }
-  });
-
   // User profile routes
   app.put('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const userData = req.body;
       const user = await storage.upsertUser({ id: userId, ...userData });
       res.json(user);
@@ -98,7 +67,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/clubs', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const clubData = { ...req.body, ownerId: userId };
       const club = await storage.createClub(clubData);
       res.json(club);
@@ -111,7 +80,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put('/api/clubs/:id', isAuthenticated, async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       
       // Check if user owns the club or is admin
       const club = await storage.getClub(id);
@@ -131,7 +100,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/clubs/:id/join', isAuthenticated, async (req: any, res) => {
     try {
       const clubId = parseInt(req.params.id);
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const membership = await storage.joinClub(userId, clubId);
       res.json(membership);
     } catch (error) {
@@ -143,7 +112,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/clubs/:id/leave', isAuthenticated, async (req: any, res) => {
     try {
       const clubId = parseInt(req.params.id);
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       await storage.leaveClub(userId, clubId);
       res.json({ success: true });
     } catch (error) {
@@ -155,7 +124,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/clubs/:id/membership', isAuthenticated, async (req: any, res) => {
     try {
       const clubId = parseInt(req.params.id);
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const isMember = await storage.isClubMember(userId, clubId);
       res.json({ isMember });
     } catch (error) {
@@ -166,7 +135,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/user/clubs', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const memberships = await storage.getUserClubMemberships(userId);
       res.json(memberships);
     } catch (error) {
@@ -190,7 +159,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put('/api/admin/cms/hero', isAuthenticated, isAdmin, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const settings = await storage.updateHeroSettings(req.body, userId);
       res.json(settings);
     } catch (error) {
@@ -212,7 +181,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put('/api/admin/cms/navbar', isAuthenticated, isAdmin, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const settings = await storage.updateNavbarSettings(req.body, userId);
       res.json(settings);
     } catch (error) {
@@ -234,7 +203,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put('/api/admin/cms/theme', isAuthenticated, isAdmin, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const settings = await storage.updateThemeSettings(req.body, userId);
       res.json(settings);
     } catch (error) {
@@ -256,7 +225,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/admin/cms/media', isAuthenticated, isAdmin, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const asset = await storage.createMediaAsset({ ...req.body, uploadedBy: userId });
       res.json(asset);
     } catch (error) {
@@ -303,7 +272,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/admin/cms/sections', isAuthenticated, isAdmin, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const section = await storage.createLandingSection({ ...req.body, updatedBy: userId });
       res.json(section);
     } catch (error) {
@@ -315,7 +284,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put('/api/admin/cms/sections/:id', isAuthenticated, isAdmin, async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const section = await storage.updateLandingSection(id, req.body, userId);
       res.json(section);
     } catch (error) {
@@ -620,7 +589,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put('/api/admin/cms/contact', isAuthenticated, isAdmin, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const settings = await storage.updateContactSettings(req.body, userId);
       res.json(settings);
     } catch (error) {
@@ -642,7 +611,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put('/api/admin/cms/footer', isAuthenticated, isAdmin, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const settings = await storage.updateFooterSettings(req.body, userId);
       res.json(settings);
     } catch (error) {
@@ -664,7 +633,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put('/api/admin/cms/seo', isAuthenticated, isAdmin, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const settings = await storage.updateSeoSettings(req.body, userId);
       res.json(settings);
     } catch (error) {
