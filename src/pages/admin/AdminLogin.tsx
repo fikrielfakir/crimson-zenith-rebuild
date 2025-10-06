@@ -13,14 +13,33 @@ const AdminLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleReplitLogin = () => {
-    window.location.href = '/api/login';
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    setError('Please use the "Login with Replit" button below to authenticate properly.');
+    setIsLoading(true);
+
+    try {
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(credentials),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.message || 'Invalid username or password');
+        setIsLoading(false);
+        return;
+      }
+
+      navigate('/admin');
+    } catch (err) {
+      setError('An error occurred. Please try again.');
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -45,6 +64,7 @@ const AdminLogin = () => {
                 placeholder="Enter username"
                 value={credentials.username}
                 onChange={(e) => setCredentials(prev => ({...prev, username: e.target.value}))}
+                disabled={isLoading}
                 required
               />
             </div>
@@ -56,6 +76,7 @@ const AdminLogin = () => {
                 placeholder="Enter password"
                 value={credentials.password}
                 onChange={(e) => setCredentials(prev => ({...prev, password: e.target.value}))}
+                disabled={isLoading}
                 required
               />
             </div>
@@ -68,19 +89,19 @@ const AdminLogin = () => {
             )}
 
             <Button 
-              type="button" 
+              type="submit" 
               className="w-full" 
-              variant="outline"
-              onClick={handleReplitLogin}
+              disabled={isLoading}
             >
-              Login with Replit
+              {isLoading ? 'Logging in...' : 'Login'}
             </Button>
           </form>
           
           <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-950 rounded-lg border border-blue-200 dark:border-blue-800">
-            <p className="text-sm text-blue-900 dark:text-blue-100 mb-2 font-semibold">Admin Access Instructions:</p>
-            <p className="text-sm text-blue-800 dark:text-blue-200">
-              Click "Login with Replit" above to authenticate. After logging in, you'll need to be marked as an admin in the database to access admin features.
+            <p className="text-sm text-blue-900 dark:text-blue-100 mb-2 font-semibold">Demo Credentials:</p>
+            <p className="text-sm text-blue-800 dark:text-blue-200 font-mono">
+              Username: <strong>admin</strong><br />
+              Password: <strong>admin123</strong>
             </p>
           </div>
         </CardContent>
