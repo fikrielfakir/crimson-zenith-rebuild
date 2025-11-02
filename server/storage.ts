@@ -171,6 +171,32 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
+  // Helper functions for MySQL compatibility (no .returning() support)
+  
+  // Insert and fetch using insertId from result
+  private async insertAndFetch<T extends { id: number | string }>(
+    table: any,
+    values: any,
+    dbOrTx: any = db
+  ): Promise<T> {
+    const result = await dbOrTx.insert(table).values(values);
+    const insertId = result[0].insertId;
+    const [record] = await dbOrTx.select().from(table).where(eq(table.id, insertId));
+    return record as T;
+  }
+  
+  // Update and fetch using primary key
+  private async updateAndFetch<T extends { id: number | string }>(
+    table: any,
+    id: number | string,
+    values: any,
+    dbOrTx: any = db
+  ): Promise<T> {
+    await dbOrTx.update(table).set(values).where(eq(table.id, id));
+    const [record] = await dbOrTx.select().from(table).where(eq(table.id, id));
+    return record as T;
+  }
+
   // User operations
   // (IMPORTANT) these user operations are mandatory for Replit Auth.
   async getUser(id: string): Promise<User | undefined> {
@@ -179,18 +205,38 @@ export class DatabaseStorage implements IStorage {
   }
 
   async upsertUser(userData: UpsertUser): Promise<User> {
-    const [user] = await db
-      .insert(users)
-      .values(userData)
-      .onConflictDoUpdate({
-        target: users.id,
-        set: {
-          ...userData,
-          updatedAt: new Date(),
-        },
-      })
-      .returning();
-    return user;
+    // MySQL uses ON DUPLICATE KEY UPDATE instead of PostgreSQL's onConflictDoUpdate
+    const now = new Date();
+    await db.execute(sql`
+      INSERT INTO users (
+        id, username, password, email, first_name, last_name, 
+        profile_image_url, bio, phone, location, interests, 
+        is_admin, created_at, updated_at
+      ) VALUES (
+        ${userData.id}, ${userData.username}, ${userData.password}, 
+        ${userData.email}, ${userData.firstName}, ${userData.lastName},
+        ${userData.profileImageUrl}, ${userData.bio}, ${userData.phone}, 
+        ${userData.location}, ${JSON.stringify(userData.interests)}, 
+        ${userData.isAdmin}, ${now}, ${now}
+      )
+      ON DUPLICATE KEY UPDATE
+        username = VALUES(username),
+        password = VALUES(password),
+        email = VALUES(email),
+        first_name = VALUES(first_name),
+        last_name = VALUES(last_name),
+        profile_image_url = VALUES(profile_image_url),
+        bio = VALUES(bio),
+        phone = VALUES(phone),
+        location = VALUES(location),
+        interests = VALUES(interests),
+        is_admin = VALUES(is_admin),
+        updated_at = ${now}
+    `);
+    
+    // Fetch and return the user
+    const result = await db.select().from(users).where(sql`${users.id} = ${userData.id}`);
+    return result[0]!;
   }
 
   // Club operations
@@ -209,17 +255,11 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createClub(clubData: InsertClub): Promise<Club> {
-    const [club] = await db.insert(clubs).values(clubData).returning();
-    return club;
+    return await this.insertAndFetch<Club>(clubs, clubData);
   }
 
   async updateClub(id: number, clubData: Partial<InsertClub>): Promise<Club> {
-    const [club] = await db
-      .update(clubs)
-      .set({ ...clubData, updatedAt: new Date() })
-      .where(eq(clubs.id, id))
-      .returning();
-    return club;
+    return await this.updateAndFetch<Club>(clubs, id, { ...clubData, updatedAt: new Date() });
   }
 
   async deleteClub(id: number): Promise<void> {
@@ -240,19 +280,19 @@ export class DatabaseStorage implements IStorage {
       
       if (existing.length > 0) {
         // Reactivate membership if inactive
-        const [reactivatedMembership] = await tx
-          .update(clubMemberships)
-          .set({ isActive: true })
-          .where(eq(clubMemberships.id, existing[0].id))
-          .returning();
-        membership = reactivatedMembership;
+        membership = await this.updateAndFetch<ClubMembership>(
+          clubMemberships,
+          existing[0].id,
+          { isActive: true },
+          tx
+        );
       } else {
         // Create new membership
-        const [newMembership] = await tx
-          .insert(clubMemberships)
-          .values({ userId, clubId, role: 'member' })
-          .returning();
-        membership = newMembership;
+        membership = await this.insertAndFetch<ClubMembership>(
+          clubMemberships,
+          { userId, clubId, role: 'member' },
+          tx
+        );
       }
 
       // Update club member count with proper count query
@@ -336,8 +376,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createClubEvent(eventData: InsertClubEvent): Promise<ClubEvent> {
-    const [event] = await db.insert(clubEvents).values(eventData).returning();
-    return event;
+    return await this.insertAndFetch<ClubEvent>(clubEvents, eventData);
   }
 
   // Club gallery operations
@@ -350,11 +389,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async addClubImage(clubId: number, imageUrl: string, caption?: string, uploadedBy?: string): Promise<any> {
-    const [image] = await db
-      .insert(clubGallery)
-      .values({ clubId, imageUrl, caption, uploadedBy })
-      .returning();
-    return image;
+    return await this.insertAndFetch<any>(clubGallery, { clubId, imageUrl, caption, uploadedBy });
   }
 
   // Booking event operations
@@ -374,17 +409,11 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createBookingEvent(eventData: InsertBookingEvent): Promise<BookingEvent> {
-    const [event] = await db.insert(bookingEvents).values(eventData).returning();
-    return event;
+    return await this.insertAndFetch<BookingEvent>(bookingEvents, eventData);
   }
 
   async updateBookingEvent(id: string, eventData: Partial<InsertBookingEvent>): Promise<BookingEvent> {
-    const [event] = await db
-      .update(bookingEvents)
-      .set({ ...eventData, updatedAt: new Date() })
-      .where(eq(bookingEvents.id, id))
-      .returning();
-    return event;
+    return await this.updateAndFetch<BookingEvent>(bookingEvents, id, { ...eventData, updatedAt: new Date() });
   }
 
   async deleteBookingEvent(id: string): Promise<void> {
@@ -404,18 +433,16 @@ export class DatabaseStorage implements IStorage {
     const existingSettings = await this.getBookingPageSettings();
     
     if (existingSettings) {
-      const [settings] = await db
-        .update(bookingPageSettings)
-        .set({ ...settingsData, updatedAt: new Date() })
-        .where(eq(bookingPageSettings.id, 'booking-page-settings'))
-        .returning();
-      return settings;
+      return await this.updateAndFetch<BookingPageSettings>(
+        bookingPageSettings,
+        'booking-page-settings',
+        { ...settingsData, updatedAt: new Date() }
+      );
     } else {
-      const [settings] = await db
-        .insert(bookingPageSettings)
-        .values({ ...settingsData, id: 'booking-page-settings' })
-        .returning();
-      return settings;
+      return await this.insertAndFetch<BookingPageSettings>(
+        bookingPageSettings,
+        { ...settingsData, id: 'booking-page-settings' }
+      );
     }
   }
 
@@ -451,18 +478,16 @@ export class DatabaseStorage implements IStorage {
     const existing = await this.getNavbarSettings();
     
     if (existing) {
-      const [settings] = await db
-        .update(navbarSettings)
-        .set({ ...settingsData, updatedBy: userId, updatedAt: new Date() })
-        .where(eq(navbarSettings.id, 'default'))
-        .returning();
-      return settings;
+      return await this.updateAndFetch<NavbarSettings>(
+        navbarSettings,
+        'default',
+        { ...settingsData, updatedBy: userId, updatedAt: new Date() }
+      );
     } else {
-      const [settings] = await db
-        .insert(navbarSettings)
-        .values({ ...settingsData, id: 'default', updatedBy: userId } as InsertNavbarSettings)
-        .returning();
-      return settings;
+      return await this.insertAndFetch<NavbarSettings>(
+        navbarSettings,
+        { ...settingsData, id: 'default', updatedBy: userId } as InsertNavbarSettings
+      );
     }
   }
 
@@ -475,18 +500,16 @@ export class DatabaseStorage implements IStorage {
     const existing = await this.getHeroSettings();
     
     if (existing) {
-      const [settings] = await db
-        .update(heroSettings)
-        .set({ ...settingsData, updatedBy: userId, updatedAt: new Date() })
-        .where(eq(heroSettings.id, 'default'))
-        .returning();
-      return settings;
+      return await this.updateAndFetch<HeroSettings>(
+        heroSettings,
+        'default',
+        { ...settingsData, updatedBy: userId, updatedAt: new Date() }
+      );
     } else {
-      const [settings] = await db
-        .insert(heroSettings)
-        .values({ ...settingsData, id: 'default', updatedBy: userId } as InsertHeroSettings)
-        .returning();
-      return settings;
+      return await this.insertAndFetch<HeroSettings>(
+        heroSettings,
+        { ...settingsData, id: 'default', updatedBy: userId } as InsertHeroSettings
+      );
     }
   }
 
@@ -499,18 +522,16 @@ export class DatabaseStorage implements IStorage {
     const existing = await this.getThemeSettings();
     
     if (existing) {
-      const [settings] = await db
-        .update(themeSettings)
-        .set({ ...settingsData, updatedBy: userId, updatedAt: new Date() })
-        .where(eq(themeSettings.id, 'default'))
-        .returning();
-      return settings;
+      return await this.updateAndFetch<ThemeSettings>(
+        themeSettings,
+        'default',
+        { ...settingsData, updatedBy: userId, updatedAt: new Date() }
+      );
     } else {
-      const [settings] = await db
-        .insert(themeSettings)
-        .values({ ...settingsData, id: 'default', updatedBy: userId } as InsertThemeSettings)
-        .returning();
-      return settings;
+      return await this.insertAndFetch<ThemeSettings>(
+        themeSettings,
+        { ...settingsData, id: 'default', updatedBy: userId } as InsertThemeSettings
+      );
     }
   }
 
@@ -524,8 +545,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createMediaAsset(assetData: InsertMediaAsset): Promise<MediaAsset> {
-    const [asset] = await db.insert(mediaAssets).values(assetData).returning();
-    return asset;
+    return await this.insertAndFetch<MediaAsset>(mediaAssets, assetData);
   }
 
   async deleteMediaAsset(id: number): Promise<void> {
@@ -542,17 +562,15 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createLandingSection(sectionData: InsertLandingSection): Promise<LandingSection> {
-    const [section] = await db.insert(landingSections).values(sectionData).returning();
-    return section;
+    return await this.insertAndFetch<LandingSection>(landingSections, sectionData);
   }
 
   async updateLandingSection(id: number, sectionData: Partial<InsertLandingSection>, userId?: string): Promise<LandingSection> {
-    const [section] = await db
-      .update(landingSections)
-      .set({ ...sectionData, updatedBy: userId, updatedAt: new Date() })
-      .where(eq(landingSections.id, id))
-      .returning();
-    return section;
+    return await this.updateAndFetch<LandingSection>(
+      landingSections,
+      id,
+      { ...sectionData, updatedBy: userId, updatedAt: new Date() }
+    );
   }
 
   async deleteLandingSection(id: number): Promise<void> {
@@ -568,17 +586,15 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createSectionBlock(blockData: InsertSectionBlock): Promise<SectionBlock> {
-    const [block] = await db.insert(sectionBlocks).values(blockData).returning();
-    return block;
+    return await this.insertAndFetch<SectionBlock>(sectionBlocks, blockData);
   }
 
   async updateSectionBlock(id: number, blockData: Partial<InsertSectionBlock>): Promise<SectionBlock> {
-    const [block] = await db
-      .update(sectionBlocks)
-      .set({ ...blockData, updatedAt: new Date() })
-      .where(eq(sectionBlocks.id, id))
-      .returning();
-    return block;
+    return await this.updateAndFetch<SectionBlock>(
+      sectionBlocks,
+      id,
+      { ...blockData, updatedAt: new Date() }
+    );
   }
 
   async deleteSectionBlock(id: number): Promise<void> {
@@ -596,17 +612,15 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createFocusItem(itemData: InsertFocusItem): Promise<FocusItem> {
-    const [item] = await db.insert(focusItems).values(itemData).returning();
-    return item;
+    return await this.insertAndFetch<FocusItem>(focusItems, itemData);
   }
 
   async updateFocusItem(id: number, itemData: Partial<InsertFocusItem>): Promise<FocusItem> {
-    const [item] = await db
-      .update(focusItems)
-      .set({ ...itemData, updatedAt: new Date() })
-      .where(eq(focusItems.id, id))
-      .returning();
-    return item;
+    return await this.updateAndFetch<FocusItem>(
+      focusItems,
+      id,
+      { ...itemData, updatedAt: new Date() }
+    );
   }
 
   async deleteFocusItem(id: number): Promise<void> {
@@ -624,17 +638,15 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createTeamMember(memberData: InsertTeamMember): Promise<TeamMember> {
-    const [member] = await db.insert(teamMembers).values(memberData).returning();
-    return member;
+    return await this.insertAndFetch<TeamMember>(teamMembers, memberData);
   }
 
   async updateTeamMember(id: number, memberData: Partial<InsertTeamMember>): Promise<TeamMember> {
-    const [member] = await db
-      .update(teamMembers)
-      .set({ ...memberData, updatedAt: new Date() })
-      .where(eq(teamMembers.id, id))
-      .returning();
-    return member;
+    return await this.updateAndFetch<TeamMember>(
+      teamMembers,
+      id,
+      { ...memberData, updatedAt: new Date() }
+    );
   }
 
   async deleteTeamMember(id: number): Promise<void> {
@@ -652,17 +664,15 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createLandingTestimonial(testimonialData: InsertLandingTestimonial): Promise<LandingTestimonial> {
-    const [testimonial] = await db.insert(landingTestimonials).values(testimonialData).returning();
-    return testimonial;
+    return await this.insertAndFetch<LandingTestimonial>(landingTestimonials, testimonialData);
   }
 
   async updateLandingTestimonial(id: number, testimonialData: Partial<InsertLandingTestimonial>): Promise<LandingTestimonial> {
-    const [testimonial] = await db
-      .update(landingTestimonials)
-      .set({ ...testimonialData, updatedAt: new Date() })
-      .where(eq(landingTestimonials.id, id))
-      .returning();
-    return testimonial;
+    return await this.updateAndFetch<LandingTestimonial>(
+      landingTestimonials,
+      id,
+      { ...testimonialData, updatedAt: new Date() }
+    );
   }
 
   async deleteLandingTestimonial(id: number): Promise<void> {
@@ -680,17 +690,15 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createSiteStat(statData: InsertSiteStat): Promise<SiteStat> {
-    const [stat] = await db.insert(siteStats).values(statData).returning();
-    return stat;
+    return await this.insertAndFetch<SiteStat>(siteStats, statData);
   }
 
   async updateSiteStat(id: number, statData: Partial<InsertSiteStat>): Promise<SiteStat> {
-    const [stat] = await db
-      .update(siteStats)
-      .set({ ...statData, updatedAt: new Date() })
-      .where(eq(siteStats.id, id))
-      .returning();
-    return stat;
+    return await this.updateAndFetch<SiteStat>(
+      siteStats,
+      id,
+      { ...statData, updatedAt: new Date() }
+    );
   }
 
   async deleteSiteStat(id: number): Promise<void> {
@@ -707,18 +715,16 @@ export class DatabaseStorage implements IStorage {
     const existing = await this.getContactSettings();
     
     if (existing) {
-      const [settings] = await db
-        .update(contactSettings)
-        .set({ ...settingsData, updatedBy: userId, updatedAt: new Date() })
-        .where(eq(contactSettings.id, 'default'))
-        .returning();
-      return settings;
+      return await this.updateAndFetch<ContactSettings>(
+        contactSettings,
+        'default',
+        { ...settingsData, updatedBy: userId, updatedAt: new Date() }
+      );
     } else {
-      const [settings] = await db
-        .insert(contactSettings)
-        .values({ ...settingsData, id: 'default', updatedBy: userId } as InsertContactSettings)
-        .returning();
-      return settings;
+      return await this.insertAndFetch<ContactSettings>(
+        contactSettings,
+        { ...settingsData, id: 'default', updatedBy: userId } as InsertContactSettings
+      );
     }
   }
 
@@ -732,18 +738,16 @@ export class DatabaseStorage implements IStorage {
     const existing = await this.getFooterSettings();
     
     if (existing) {
-      const [settings] = await db
-        .update(footerSettings)
-        .set({ ...settingsData, updatedBy: userId, updatedAt: new Date() })
-        .where(eq(footerSettings.id, 'default'))
-        .returning();
-      return settings;
+      return await this.updateAndFetch<FooterSettings>(
+        footerSettings,
+        'default',
+        { ...settingsData, updatedBy: userId, updatedAt: new Date() }
+      );
     } else {
-      const [settings] = await db
-        .insert(footerSettings)
-        .values({ ...settingsData, id: 'default', updatedBy: userId } as InsertFooterSettings)
-        .returning();
-      return settings;
+      return await this.insertAndFetch<FooterSettings>(
+        footerSettings,
+        { ...settingsData, id: 'default', updatedBy: userId } as InsertFooterSettings
+      );
     }
   }
 
@@ -757,18 +761,16 @@ export class DatabaseStorage implements IStorage {
     const existing = await this.getSeoSettings();
     
     if (existing) {
-      const [settings] = await db
-        .update(seoSettings)
-        .set({ ...settingsData, updatedBy: userId, updatedAt: new Date() })
-        .where(eq(seoSettings.id, 'default'))
-        .returning();
-      return settings;
+      return await this.updateAndFetch<SeoSettings>(
+        seoSettings,
+        'default',
+        { ...settingsData, updatedBy: userId, updatedAt: new Date() }
+      );
     } else {
-      const [settings] = await db
-        .insert(seoSettings)
-        .values({ ...settingsData, id: 'default', updatedBy: userId } as InsertSeoSettings)
-        .returning();
-      return settings;
+      return await this.insertAndFetch<SeoSettings>(
+        seoSettings,
+        { ...settingsData, id: 'default', updatedBy: userId } as InsertSeoSettings
+      );
     }
   }
 }

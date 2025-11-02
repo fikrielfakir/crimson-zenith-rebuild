@@ -11,13 +11,7 @@ const __dirname = dirname(__filename);
 const app = express();
 const PORT = process.env.NODE_ENV === 'production' ? (Number(process.env.PORT) || 5000) : 3001;
 
-// Validate environment
-if (!process.env.DATABASE_URL) {
-  console.error('❌ DATABASE_URL environment variable is required');
-  process.exit(1);
-}
-
-console.log('✅ Server configured for database integration');
+console.log('✅ Server configured for MySQL database integration');
 
 // Main server initialization
 async function initializeServer() {
@@ -552,7 +546,7 @@ app.get('/health', (req, res) => {
 // API routes using real database storage
 app.get('/api/clubs', async (req, res) => {
   try {
-    console.log('🔗 Fetching clubs from PostgreSQL database...');
+    console.log('🔗 Fetching clubs from MySQL database...');
     const clubs = await storage.getClubs();
     console.log(`✅ Retrieved ${clubs.length} clubs from database`);
     
@@ -573,7 +567,7 @@ app.get('/api/clubs', async (req, res) => {
         updated_at: club.updatedAt?.toISOString()
       })),
       total: clubs.length,
-      source: 'PostgreSQL database via Drizzle ORM'
+      source: 'MySQL database via Drizzle ORM'
     });
   } catch (error) {
     console.error('❌ Error fetching clubs from database:', error);
@@ -583,7 +577,7 @@ app.get('/api/clubs', async (req, res) => {
 
 app.get('/api/events', async (req, res) => {
   try {
-    console.log('🔗 Fetching events from PostgreSQL database...');
+    console.log('🔗 Fetching events from MySQL database...');
     const clubs = await storage.getClubs();
     const allEvents: any[] = [];
     
@@ -607,7 +601,7 @@ app.get('/api/events', async (req, res) => {
     res.json({
       events: allEvents,
       total: allEvents.length,
-      source: 'PostgreSQL database via Drizzle ORM'
+      source: 'MySQL database via Drizzle ORM'
     });
   } catch (error) {
     console.error('❌ Error fetching events from database:', error);
@@ -636,7 +630,7 @@ app.post('/api/events', async (req, res) => {
         status: event.status,
         created_at: event.createdAt?.toISOString()
       },
-      source: 'PostgreSQL database via Drizzle ORM'
+      source: 'MySQL database via Drizzle ORM'
     });
   } catch (error) {
     console.error('❌ Error creating event:', error);
@@ -677,7 +671,7 @@ app.get('/api/events/:id', async (req, res) => {
         status: foundEvent.status,
         created_at: foundEvent.createdAt?.toISOString()
       },
-      source: 'PostgreSQL database via Drizzle ORM'
+      source: 'MySQL database via Drizzle ORM'
     });
   } catch (error) {
     console.error('❌ Error fetching event:', error);
@@ -1080,7 +1074,7 @@ app.get('/api/booking/events', async (req, res) => {
     res.json({
       events: events,
       total: events.length,
-      source: 'PostgreSQL database via Drizzle ORM'
+      source: 'MySQL database via Drizzle ORM'
     });
   } catch (error) {
     console.error('❌ Error fetching booking events:', error);
@@ -1101,7 +1095,7 @@ app.get('/api/booking/events/:id', async (req, res) => {
     console.log(`✅ Retrieved booking event: ${event.title}`);
     res.json({
       event: event,
-      source: 'PostgreSQL database via Drizzle ORM'
+      source: 'MySQL database via Drizzle ORM'
     });
   } catch (error) {
     console.error('❌ Error fetching booking event:', error);
@@ -1124,7 +1118,7 @@ app.post('/api/booking/events', async (req, res) => {
     
     res.status(201).json({
       event: event,
-      source: 'PostgreSQL database via Drizzle ORM'
+      source: 'MySQL database via Drizzle ORM'
     });
   } catch (error) {
     console.error('❌ Error creating booking event:', error);
@@ -1149,7 +1143,7 @@ app.put('/api/booking/events/:id', async (req, res) => {
     
     res.json({
       event: event,
-      source: 'PostgreSQL database via Drizzle ORM'
+      source: 'MySQL database via Drizzle ORM'
     });
   } catch (error) {
     console.error('❌ Error updating booking event:', error);
@@ -1173,7 +1167,7 @@ app.delete('/api/booking/events/:id', async (req, res) => {
     
     res.json({
       message: 'Booking event deleted successfully',
-      source: 'PostgreSQL database via Drizzle ORM'
+      source: 'MySQL database via Drizzle ORM'
     });
   } catch (error) {
     console.error('❌ Error deleting booking event:', error);
@@ -1210,7 +1204,7 @@ app.get('/api/booking/settings', async (req, res) => {
     console.log('✅ Retrieved booking page settings');
     res.json({
       settings: settings || defaultSettings,
-      source: 'PostgreSQL database via Drizzle ORM'
+      source: 'MySQL database via Drizzle ORM'
     });
   } catch (error) {
     console.error('❌ Error fetching booking page settings:', error);
@@ -1228,7 +1222,7 @@ app.put('/api/booking/settings', async (req, res) => {
     
     res.json({
       settings: settings,
-      source: 'PostgreSQL database via Drizzle ORM'
+      source: 'MySQL database via Drizzle ORM'
     });
   } catch (error) {
     console.error('❌ Error updating booking page settings:', error);
