@@ -4,7 +4,7 @@ import * as schema from "../shared/schema.js";
 
 // Create MySQL connection pool for Hostinger database
 const pool = mysql.createPool({
-  host: "auth-db1849.hstgr.io",
+  host: "srv1849.hstgr.io",
   port: 3306,
   user: "u613266227_test",
   password: "#2XnlY6^Dn",
