@@ -170,7 +170,7 @@ const Hero = () => {
       {/* Decorative Pattern at Bottom */}
       <div className="absolute bottom-0 left-0 right-0 w-full h-auto z-10 pointer-events-none">
         <img 
-          src="/attached_assets/platten whgite,png_1759769533193.png" 
+          src="/attached_assets/pattern 002_1762097803637.png" 
           alt="" 
           className="w-full h-auto object-cover opacity-80"
         />
