@@ -1,35 +1,19 @@
-import { Pool as NeonPool, neonConfig } from '@neondatabase/serverless';
-import { drizzle as drizzleNeon } from 'drizzle-orm/neon-serverless';
-import { Pool as PgPool } from 'pg';
-import { drizzle as drizzlePg } from 'drizzle-orm/node-postgres';
-import ws from "ws";
+import { drizzle } from 'drizzle-orm/mysql2';
+import mysql from 'mysql2/promise';
 import * as schema from "../shared/schema.js";
 
-if (!process.env.DATABASE_URL) {
-  throw new Error(
-    "DATABASE_URL must be set. Did you forget to provision a database?",
-  );
-}
+// Create MySQL connection pool for Hostinger database
+const pool = mysql.createPool({
+  host: "auth-db1849.hstgr.io",
+  port: 3306,
+  user: "u613266227_test",
+  password: "#2XnlY6^Dn",
+  database: "u613266227_test",
+  connectionLimit: 10,
+  waitForConnections: true,
+  queueLimit: 0
+});
 
-// Conditional driver selection based on database URL
-const url = new URL(process.env.DATABASE_URL);
-const isNeon = /\.neon\.tech$/i.test(url.hostname);
-
-let pool: NeonPool | PgPool;
-let db: ReturnType<typeof drizzleNeon> | ReturnType<typeof drizzlePg>;
-
-if (isNeon) {
-  // Use Neon serverless driver for production Neon databases
-  neonConfig.webSocketConstructor = ws;
-  pool = new NeonPool({ connectionString: process.env.DATABASE_URL });
-  db = drizzleNeon(pool, { schema });
-} else {
-  // Use standard PostgreSQL driver for local development
-  pool = new PgPool({ 
-    connectionString: process.env.DATABASE_URL,
-    ssl: false  // Explicitly disable SSL for local development
-  });
-  db = drizzlePg(pool, { schema });
-}
+const db = drizzle(pool, { schema, mode: 'default' });
 
 export { pool, db };
