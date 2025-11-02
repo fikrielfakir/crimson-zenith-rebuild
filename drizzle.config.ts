@@ -3,8 +3,12 @@ import { defineConfig } from "drizzle-kit";
 export default defineConfig({
   schema: "./shared/schema.ts",
   out: "./drizzle",
-  dialect: "postgresql",
+  dialect: "mysql",
   dbCredentials: {
-    url: process.env.DATABASE_URL!,
+    host: "auth-db1849.hstgr.io",
+    port: 3306,
+    user: "u613266227_test",
+    password: "#2XnlY6^Dn",
+    database: "u613266227_test",
   },
 });
