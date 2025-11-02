@@ -173,15 +173,16 @@ export interface IStorage {
 export class DatabaseStorage implements IStorage {
   // Helper functions for MySQL compatibility (no .returning() support)
   
-  // Insert and fetch using insertId from result
+  // Insert and fetch - handles both auto-increment IDs and user-provided IDs (including strings)
   private async insertAndFetch<T extends { id: number | string }>(
     table: any,
     values: any,
     dbOrTx: any = db
   ): Promise<T> {
     const result = await dbOrTx.insert(table).values(values);
-    const insertId = result[0].insertId;
-    const [record] = await dbOrTx.select().from(table).where(eq(table.id, insertId));
+    // If ID was provided in values (e.g., string IDs), use that; otherwise use insertId
+    const idToFetch = values.id !== undefined ? values.id : result[0].insertId;
+    const [record] = await dbOrTx.select().from(table).where(eq(table.id, idToFetch));
     return record as T;
   }
   
