@@ -19,9 +19,9 @@ export const sessions = mysqlTable(
   {
     sid: varchar("sid", { length: 255 }).primaryKey(),
     sess: json("sess").notNull(),
-    expire: timestamp("expire").notNull(),
+    expires: timestamp("expires").notNull(),
   },
-  (table) => [index("IDX_session_expire").on(table.expire)],
+  (table) => [index("IDX_session_expire").on(table.expires)],
 );
 
 // User storage table.

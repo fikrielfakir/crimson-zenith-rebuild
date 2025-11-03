@@ -159,13 +159,28 @@ const Book = () => {
   }
 
   // Safe array defaults to prevent crashes when properties are undefined
-  const images = selectedEvent.images ?? [];
-  const schedule = selectedEvent.schedule ?? [];
-  const reviews = selectedEvent.reviews ?? [];
-  const similarEvents = selectedEvent.similarEvents ?? [];
-  const highlights = selectedEvent.highlights ?? [];
-  const included = selectedEvent.included ?? [];
-  const notIncluded = selectedEvent.notIncluded ?? [];
+  // Parse JSON fields if they come as strings from the database
+  const parseJsonField = (field: any): any[] => {
+    if (Array.isArray(field)) return field;
+    if (typeof field === 'string') {
+      try {
+        const parsed = JSON.parse(field);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  };
+
+  const images = parseJsonField(selectedEvent.images);
+  const schedule = parseJsonField(selectedEvent.schedule);
+  const reviews = parseJsonField(selectedEvent.reviews);
+  const similarEvents = parseJsonField(selectedEvent.similarEvents);
+  const highlights = parseJsonField(selectedEvent.highlights);
+  const included = parseJsonField(selectedEvent.included);
+  const notIncluded = parseJsonField(selectedEvent.notIncluded);
+  const languages = parseJsonField(selectedEvent.languages);
 
   const totalPrice = selectedEvent.price * participants;
   const savings = selectedEvent.originalPrice ? 
@@ -283,7 +298,7 @@ const Book = () => {
                     </div>
                     <div className="flex items-center gap-2">
                       <Globe className="w-4 h-4" />
-                      {selectedEvent.languages.join(', ')}
+                      {languages.length > 0 ? languages.join(', ') : 'English'}
                     </div>
                   </div>
                 </div>
@@ -386,7 +401,7 @@ const Book = () => {
                     </div>
                     <div className="flex items-center gap-3">
                       <MessageCircle className="w-4 h-4 text-primary" />
-                      <span><strong>Languages:</strong> Available in {selectedEvent.languages.join(', ')}</span>
+                      <span><strong>Languages:</strong> Available in {languages.length > 0 ? languages.join(', ') : 'English'}</span>
                     </div>
                   </div>
                 </div>
