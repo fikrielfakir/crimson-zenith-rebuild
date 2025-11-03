@@ -19,7 +19,6 @@
     "@amcharts/amcharts5": "^5.14.2",
     "@amcharts/amcharts5-geodata": "^5.1.5",
     "@hookform/resolvers": "^3.10.0",
-    "@neondatabase/serverless": "^1.0.1",
     "@paypal/paypal-server-sdk": "^1.1.0",
     "@radix-ui/react-accordion": "^1.2.11",
     "@radix-ui/react-alert-dialog": "^1.1.14",
@@ -65,7 +64,7 @@
     "concurrently": "^9.2.1",
     "connect-pg-simple": "^10.0.0",
     "date-fns": "^3.6.0",
-    "drizzle-kit": "^0.31.4",
+    "drizzle-kit": "^0.31.6",
     "drizzle-orm": "^0.44.5",
     "embla-carousel-react": "^8.6.0",
     "express": "^5.1.0",
@@ -80,7 +79,6 @@
     "openid-client": "^6.8.0",
     "passport": "^0.7.0",
     "passport-local": "^1.0.0",
-    "pg": "^8.16.3",
     "react": "^18.3.1",
     "react-calendar": "^6.0.0",
     "react-day-picker": "^8.10.1",
@@ -95,7 +93,6 @@
     "tailwindcss-animate": "^1.0.7",
     "tsx": "^4.20.5",
     "vaul": "^0.9.9",
-    "ws": "^8.18.3",
     "zod": "^3.25.76"
   },
   "devDependencies": {
@@ -106,6 +103,7 @@
     "@types/react-dom": "^18.3.7",
     "@vitejs/plugin-react-swc": "^3.11.0",
     "autoprefixer": "^10.4.21",
+    "cross-env": "^10.1.0",
     "eslint": "^9.32.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
@@ -115,6 +113,6 @@
     "tailwindcss": "^3.4.17",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.38.0",
-    "vite": "^5.4.19"
+    "vite": "^7.1.12"
   }
 }
