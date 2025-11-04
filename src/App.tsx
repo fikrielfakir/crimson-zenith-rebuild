@@ -56,11 +56,10 @@ const App = () => (
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<Index />} />
-          <Route path="/discover" element={<Discover />} />
+          <Route path="/events" element={<Discover />} />
           <Route path="/clubs" element={<Clubs />} />
           <Route path="/club/:clubName" element={<ClubDetail />} />
           <Route path="/activities/:activityName" element={<ActivityDetail />} />
-          <Route path="/events" element={<Events />} />
           <Route path="/smart-events" element={<SmartEvents />} />
           <Route path="/book" element={<Book />} />
           <Route path="/gallery" element={<Gallery />} />
