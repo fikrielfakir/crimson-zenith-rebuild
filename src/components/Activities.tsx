@@ -161,9 +161,9 @@ const Activities = () => {
         </div>
 
         <div className="text-center mt-12">
-          <Link to="/events">
+          <Link to="/discover">
             <Button size="lg" className="px-8 py-3">
-              Explore All Activities
+              Explore All Cities
             </Button>
           </Link>
         </div>

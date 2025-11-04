@@ -1,345 +1,155 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Slider } from "@/components/ui/slider";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MapPin, Clock, Star, Grid3X3, Map, Filter, Search } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import Breadcrumbs from "@/components/Breadcrumbs";
+import { ArrowRight, Home, ChevronRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Discover = () => {
-  const [viewMode, setViewMode] = useState<"grid" | "map">("grid");
-  const [showFilters, setShowFilters] = useState(true);
-  const [priceRange, setPriceRange] = useState([0, 1000]);
-
-  // Mock data for adventures
-  const adventures = [
+  const cities = [
     {
       id: 1,
-      title: "Atlas Mountains Trek",
-      image: "/api/placeholder/400/300",
-      difficulty: "Moderate",
-      duration: "3 days",
-      price: 299,
-      rating: 4.8,
-      reviews: 124,
-      location: "High Atlas",
-      description: "Spectacular hiking through Morocco's highest peaks"
+      name: "Tangier",
+      title: "Gateway Between Continents",
+      description: "Tangier, Morocco's gateway between Africa and Europe, is a captivating city where cultures converge at the crossroads of the Mediterranean Sea and the Atlantic Ocean. This historic port city has long been a melting pot of civilizations, attracting artists, writers, and travelers from around the world. Explore the vibrant medina with its maze of narrow streets, visit the historic Kasbah overlooking the Strait of Gibraltar, and experience the city's unique blend of Moroccan, Spanish, and French influences. From the legendary Café Hafa where literary giants once gathered to the pristine beaches along the coast, Tangier offers an unforgettable journey through Morocco's cosmopolitan soul.",
+      image: "/attached_assets/generated_images/Tangier_city_aerial_view_03330006.png",
+      highlights: ["Historic Kasbah", "Café Hafa", "Strait of Gibraltar", "American Legation Museum"]
     },
     {
       id: 2,
-      title: "Sahara Desert Expedition",
-      image: "/api/placeholder/400/300",
-      difficulty: "Easy",
-      duration: "2 days",
-      price: 189,
-      rating: 4.9,
-      reviews: 98,
-      location: "Merzouga",
-      description: "Camel trekking and overnight camping under the stars"
+      name: "Tetouan",
+      title: "The White Dove",
+      description: "Nestled in the Rif Mountains, Tetouan is known as 'The White Dove' for its stunning whitewashed buildings that cascade down the mountainside. This UNESCO World Heritage site boasts one of Morocco's best-preserved medinas, where Andalusian architecture tells the story of its Spanish-Moorish heritage. The city's rich cultural tapestry is woven from centuries of cross-Mediterranean influence, visible in its intricate zellige tilework, ornate wooden doors, and vibrant souks. Tetouan serves as an excellent base for exploring the nearby Rif Mountains and Mediterranean beaches, offering visitors a perfect blend of mountain air, coastal beauty, and authentic Moroccan traditions.",
+      image: "/attached_assets/generated_images/Tetouan_medina_panorama_b1f6dcbc.png",
+      highlights: ["UNESCO Medina", "Royal Palace", "Archaeological Museum", "Rif Mountains"]
     },
     {
       id: 3,
-      title: "Coastal Surfing Adventure",
-      image: "/api/placeholder/400/300",
-      difficulty: "Beginner",
-      duration: "1 day",
-      price: 89,
-      rating: 4.6,
-      reviews: 76,
-      location: "Taghazout",
-      description: "Learn to surf on Morocco's beautiful Atlantic coast"
+      name: "Al Hoceima",
+      title: "Mediterranean Paradise",
+      description: "Al Hoceima is Morocco's hidden gem on the Mediterranean coast, a pristine paradise known for its crystal-clear turquoise waters and dramatic mountainous coastline. This charming coastal city offers some of the most beautiful beaches in Morocco, including the famous Plage Quemado and the protected Al Hoceima National Park. The region's natural beauty is complemented by warm Berber hospitality and fresh Mediterranean cuisine featuring the day's catch. Al Hoceima provides an authentic escape from the tourist crowds, where visitors can enjoy water sports, hiking in the nearby Rif Mountains, or simply relaxing on secluded beaches while taking in breathtaking coastal vistas.",
+      image: "/attached_assets/generated_images/Al_Hoceima_coastal_view_9e4e9e0c.png",
+      highlights: ["Plage Quemado", "National Park", "Peñón de Alhucemas", "Rif Mountain Trails"]
     },
     {
       id: 4,
-      title: "Berber Village Experience",
-      image: "/api/placeholder/400/300",
-      difficulty: "Easy",
-      duration: "4 days",
-      price: 349,
-      rating: 4.7,
-      reviews: 156,
-      location: "Atlas Villages",
-      description: "Immersive cultural experience in traditional Berber communities"
+      name: "Chefchaouen",
+      title: "The Blue Pearl",
+      description: "Chefchaouen, affectionately known as the 'Blue Pearl' of Morocco, is a mesmerizing mountain town where every corner reveals a new shade of blue. Founded in 1471 as a fortress to fight Portuguese invasions, this picturesque city in the Rif Mountains has become one of Morocco's most photographed destinations. The tradition of painting buildings in varying shades of blue is said to have been introduced by Jewish refugees in the 1930s, symbolizing heaven and spirituality. Today, wandering through Chefchaouen's azure-hued streets feels like stepping into a living work of art, where traditional Moroccan craftsmanship meets stunning natural mountain scenery.",
+      image: "/attached_assets/generated_images/Chefchaouen_blue_streets_272376ab.png",
+      highlights: ["Blue Medina", "Spanish Mosque", "Ras El Maa Waterfall", "Traditional Crafts"]
     },
     {
       id: 5,
-      title: "Rock Climbing Todra Gorge",
-      image: "/api/placeholder/400/300",
-      difficulty: "Hard",
-      duration: "2 days",
-      price: 199,
-      rating: 4.5,
-      reviews: 45,
-      location: "Todra Gorge",
-      description: "Challenge yourself on stunning limestone cliffs"
+      name: "Fes",
+      title: "Spiritual & Cultural Heart",
+      description: "Fes el-Bali, the ancient walled city of Fes, is the world's largest car-free urban area and one of the best-preserved medieval cities in the Arab world. Founded in the 9th century, Fes served as Morocco's capital for over 400 years and remains the country's spiritual and cultural heart. The medina's labyrinthine alleys lead to architectural treasures, including the University of Al Quaraouiyine, recognized by UNESCO as the oldest continuously operating university in the world. The famous tanneries, where leather has been processed using medieval techniques for centuries, create one of the city's most iconic scenes. Fes offers an immersive journey into authentic Moroccan traditions, craftsmanship, and Islamic scholarship.",
+      image: "/attached_assets/generated_images/Fes_medina_and_tanneries_3e9a2ff0.png",
+      highlights: ["Al Quaraouiyine University", "Chouara Tannery", "Bou Inania Madrasa", "Royal Palace Gates"]
     },
     {
       id: 6,
-      title: "Marrakech Food Tour",
-      image: "/api/placeholder/400/300",
-      difficulty: "Easy",
-      duration: "4 hours",
-      price: 59,
-      rating: 4.9,
-      reviews: 203,
-      location: "Marrakech",
-      description: "Explore the culinary treasures of the Red City"
+      name: "Essaouira",
+      title: "Wind City of Africa",
+      description: "Essaouira, Morocco's 'Wind City of Africa,' is a laid-back coastal gem where Atlantic breezes sweep through whitewashed and blue-shuttered streets. This former Portuguese trading post, now a UNESCO World Heritage site, perfectly balances bohemian charm with historical grandeur. The city's impressive fortifications, designed by European engineers in the 18th century, protect a medina filled with art galleries, music venues, and workshops of talented craftsmen. Essaouira is renowned for its fresh seafood, vibrant gnaoua music scene, and as a world-class destination for windsurfing and kitesurfing. The city's relaxed atmosphere, coupled with its rich artistic heritage, makes it a favorite among artists, musicians, and travelers seeking an authentic yet cosmopolitan Moroccan experience.",
+      image: "/attached_assets/generated_images/Essaouira_coastal_fortifications_07abbfb6.png",
+      highlights: ["Skala de la Ville", "Fishing Port", "Gnaoua Festival", "Windsurfing"]
     }
   ];
-
-  const featuredAdventures = adventures.slice(0, 4);
-
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
-      case "Easy": return "bg-success";
-      case "Moderate": return "bg-warning";
-      case "Hard": return "bg-destructive";
-      default: return "bg-muted";
-    }
-  };
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
       
-      {/* Breadcrumbs */}
-      <Breadcrumbs items={[{ label: 'Discover' }]} />
+      <main>
+        <section className="relative py-20 bg-gradient-to-br from-primary via-primary to-primary/90" style={{ marginTop: '10rem' }}>
+          <div className="container mx-auto px-6">
+            <nav className="mb-8">
+              <ol className="flex items-center space-x-2 text-white/70 text-sm">
+                <li>
+                  <Link to="/" className="flex items-center hover:text-white transition-colors">
+                    <Home className="w-4 h-4 mr-1" />
+                    Home
+                  </Link>
+                </li>
+                <li className="flex items-center">
+                  <ChevronRight className="w-4 h-4 mx-2 text-white/40" />
+                  <span className="text-white font-medium">Discover</span>
+                </li>
+              </ol>
+            </nav>
+            <h1 className="text-5xl md:text-6xl font-bold text-white">
+              Discover
+            </h1>
+          </div>
+        </section>
 
-      {/* Main Content */}
-      <section className="py-12">
-        <div className="container mx-auto px-4">
-          <div className="flex gap-8">
-            {/* Filter Sidebar */}
-            <div className={`${showFilters ? 'w-1/4' : 'w-0'} transition-all duration-300 overflow-hidden`}>
-              <div className="sticky top-24 space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="font-heading">Filters</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    {/* Activity Type */}
-                    <div>
-                      <label className="text-sm font-medium font-body mb-2 block">Activity Type</label>
-                      <Select>
-                        <SelectTrigger>
-                          <SelectValue placeholder="All activities" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="trekking">Trekking</SelectItem>
-                          <SelectItem value="cultural">Cultural</SelectItem>
-                          <SelectItem value="adventure">Adventure Sports</SelectItem>
-                          <SelectItem value="food">Food & Culinary</SelectItem>
-                          <SelectItem value="desert">Desert</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    {/* Difficulty */}
-                    <div>
-                      <label className="text-sm font-medium font-body mb-2 block">Difficulty</label>
-                      <Select>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Any difficulty" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="easy">Easy</SelectItem>
-                          <SelectItem value="moderate">Moderate</SelectItem>
-                          <SelectItem value="hard">Hard</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    {/* Duration */}
-                    <div>
-                      <label className="text-sm font-medium font-body mb-2 block">Duration</label>
-                      <Select>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Any duration" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="half-day">Half Day</SelectItem>
-                          <SelectItem value="full-day">Full Day</SelectItem>
-                          <SelectItem value="2-3-days">2-3 Days</SelectItem>
-                          <SelectItem value="week">1 Week+</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    {/* Price Range */}
-                    <div>
-                      <label className="text-sm font-medium font-body mb-2 block">
-                        Price Range: ${priceRange[0]} - ${priceRange[1]}
-                      </label>
-                      <Slider
-                        value={priceRange}
-                        onValueChange={setPriceRange}
-                        max={1000}
-                        step={50}
-                        className="w-full"
-                      />
-                    </div>
-
-                    {/* Rating */}
-                    <div>
-                      <label className="text-sm font-medium font-body mb-2 block">Minimum Rating</label>
-                      <Select>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Any rating" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="4">4+ Stars</SelectItem>
-                          <SelectItem value="4.5">4.5+ Stars</SelectItem>
-                          <SelectItem value="4.8">4.8+ Stars</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <Button variant="outline" className="w-full">
-                      Reset Filters
-                    </Button>
-                  </CardContent>
-                </Card>
-              </div>
+        <section className="py-20 bg-background">
+          <div className="container mx-auto px-6">
+            <div className="max-w-4xl mx-auto mb-16 text-center">
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
+                Morocco, a melting pot of dynasties and cultures
+              </h2>
+              <p className="text-lg text-muted-foreground leading-relaxed">
+                From the northern coastal cities touching the Mediterranean to the ancient imperial cities steeped in history, Morocco offers an incredible tapestry of experiences. Each city tells its own unique story, shaped by centuries of diverse cultural influences, from Berber traditions to Arab, Andalusian, and European heritage. Discover the soul of Morocco through its most captivating cities, where ancient medinas meet modern vitality, and every street corner reveals a new chapter in this nation's rich cultural narrative. These destinations are not just places to visit—they are living museums where Morocco's past and present dance together in perfect harmony.
+              </p>
             </div>
 
-            {/* Main Content Area */}
-            <div className={`${showFilters ? 'w-3/4' : 'w-full'} transition-all duration-300`}>
-              {/* Controls */}
-              <div className="flex justify-between items-center mb-6">
-                <div className="flex items-center gap-4">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setShowFilters(!showFilters)}
-                    className="font-body"
-                  >
-                    <Filter className="w-4 h-4 mr-2" />
-                    {showFilters ? 'Hide Filters' : 'Show Filters'}
-                  </Button>
-                  <span className="text-sm text-muted-foreground font-body">
-                    {adventures.length} adventures found
-                  </span>
-                </div>
-                
-                <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as "grid" | "map")}>
-                  <TabsList>
-                    <TabsTrigger value="grid">
-                      <Grid3X3 className="w-4 h-4 mr-2" />
-                      Grid
-                    </TabsTrigger>
-                    <TabsTrigger value="map">
-                      <Map className="w-4 h-4 mr-2" />
-                      Map
-                    </TabsTrigger>
-                  </TabsList>
-                </Tabs>
-              </div>
-
-              {/* Adventure Cards Grid */}
-              {viewMode === "grid" && (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-                  {adventures.map((adventure) => (
-                    <Card key={adventure.id} className="group hover:shadow-glow transition-all duration-300">
-                      <div className="relative overflow-hidden rounded-t-card">
-                        <img 
-                          src={adventure.image} 
-                          alt={adventure.title}
-                          className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
-                        <Badge 
-                          className={`absolute top-3 left-3 text-white ${getDifficultyColor(adventure.difficulty)}`}
-                        >
-                          {adventure.difficulty}
-                        </Badge>
-                      </div>
-                      <CardContent className="p-4">
-                        <h3 className="text-lg font-semibold font-heading mb-2">{adventure.title}</h3>
-                        <p className="text-sm text-muted-foreground font-body mb-3">{adventure.description}</p>
-                        
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
-                          <div className="flex items-center gap-1">
-                            <MapPin className="w-4 h-4" />
-                            {adventure.location}
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <Clock className="w-4 h-4" />
-                            {adventure.duration}
-                          </div>
-                        </div>
-
-                        <div className="flex items-center justify-between mb-4">
-                          <div className="flex items-center gap-1">
-                            <Star className="w-4 h-4 fill-warning text-warning" />
-                            <span className="font-medium">{adventure.rating}</span>
-                            <span className="text-sm text-muted-foreground">({adventure.reviews})</span>
-                          </div>
-                          <div className="text-lg font-bold font-heading text-primary">
-                            ${adventure.price}
-                          </div>
-                        </div>
-
-                        <Button className="w-full bg-secondary hover:bg-secondary/90">
-                          Book Now
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              )}
-
-              {/* Map View */}
-              {viewMode === "map" && (
-                <div className="h-96 bg-muted rounded-card flex items-center justify-center mb-12">
-                  <div className="text-center">
-                    <Map className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                    <h3 className="text-lg font-semibold font-heading mb-2">Interactive Map Coming Soon</h3>
-                    <p className="text-muted-foreground font-body">
-                      Explore adventures on an interactive map of Morocco
-                    </p>
+            {cities.map((city, index) => (
+              <div
+                key={city.id}
+                className={`flex flex-col ${
+                  index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'
+                } gap-8 md:gap-12 items-center mb-24 pb-24 border-b border-border/30 last:border-0`}
+              >
+                <div className="w-full md:w-1/2">
+                  <div className="relative overflow-hidden rounded-2xl shadow-2xl group">
+                    <img
+                      src={city.image}
+                      alt={city.name}
+                      className="w-full h-[400px] object-cover transition-transform duration-700 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-primary/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   </div>
                 </div>
-              )}
 
-              {/* Featured Adventures */}
-              <div>
-                <h2 className="text-3xl font-bold font-heading mb-8">Featured Adventures</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {featuredAdventures.map((adventure) => (
-                    <Card key={adventure.id} className="group hover:shadow-elegant transition-all duration-300">
-                      <div className="relative overflow-hidden rounded-t-card">
-                        <img 
-                          src={adventure.image} 
-                          alt={adventure.title}
-                          className="w-full h-32 object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
-                        <Badge className="absolute top-2 right-2 bg-secondary text-white">
-                          Featured
-                        </Badge>
-                      </div>
-                      <CardContent className="p-4">
-                        <h3 className="font-semibold font-heading mb-1">{adventure.title}</h3>
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-1 text-sm">
-                            <Star className="w-3 h-3 fill-warning text-warning" />
-                            {adventure.rating}
-                          </div>
-                          <div className="font-bold text-primary">${adventure.price}</div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
+                <div className="w-full md:w-1/2 space-y-6">
+                  <div>
+                    <h3 className="text-4xl md:text-5xl font-bold text-foreground mb-3">
+                      {city.name}
+                    </h3>
+                    <p className="text-xl text-primary font-semibold mb-4 italic">
+                      {city.title}
+                    </p>
+                  </div>
+
+                  <p className="text-base text-muted-foreground leading-relaxed">
+                    {city.description}
+                  </p>
+
+                  <div className="flex flex-wrap gap-2 pt-2">
+                    {city.highlights.map((highlight, idx) => (
+                      <span
+                        key={idx}
+                        className="px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full border border-secondary/20"
+                      >
+                        {highlight}
+                      </span>
+                    ))}
+                  </div>
+
+                  <Button
+                    className="mt-6 bg-[#1a9b8e] hover:bg-[#158074] text-white px-8 py-6 rounded-full text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-300 group"
+                  >
+                    DISCOVER MORE
+                    <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  </Button>
                 </div>
               </div>
-            </div>
+            ))}
           </div>
-        </div>
-      </section>
-
+        </section>
+      </main>
+      
       <Footer />
     </div>
   );

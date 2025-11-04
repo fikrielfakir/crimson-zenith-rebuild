@@ -225,11 +225,11 @@ const Header = () => {
   const [currentLanguage, setCurrentLanguage] = useState('EN');
 
   const defaultNavigationLinks: NavLink[] = [
-    { label: "Discover", url: "/events" },
+    { label: "Discover", url: "/discover" },
     { label: "Activities", url: "/#events" },
     { label: "Membership", url: "/#membership" },
     { label: "Clubs", url: "/#clubs" },
-    { label: "Events", url: "/#events" },
+    { label: "Events", url: "/events" },
     { label: "Gallery", url: "/gallery" },
     { label: "News", url: "/news" },
     { label: "Contact", url: "/contact" },
