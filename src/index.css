@@ -11,6 +11,18 @@
     font-weight: 700;
     font-family: 'Poppins', system-ui, sans-serif;
   }
+  
+  /* City page hero customizations */
+  .pt-\[180px\] {
+    padding-top: 0px;
+  }
+  
+  @media (min-width: 768px) {
+    .md\:py-24 {
+      padding-top: 16rem;
+      padding-bottom: 6rem;
+    }
+  }
 
   /* Modern gradient effect for supported browsers */
   @supports (background-clip: text) or (-webkit-background-clip: text) {
