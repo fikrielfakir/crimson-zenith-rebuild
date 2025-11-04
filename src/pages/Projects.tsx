@@ -5,6 +5,7 @@ import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import DonateDrawer from "@/components/DonateDrawer";
 import { ArrowRight, Home, ChevronRight, MapPin, Users, Calendar, Target, Filter, ArrowUp, ChevronLeft, Mail, Leaf, GraduationCap, Palmtree, Heart, Building } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -15,6 +16,7 @@ const Projects = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [currentStoryIndex, setCurrentStoryIndex] = useState(0);
+  const [isDonateDrawerOpen, setIsDonateDrawerOpen] = useState(false);
 
   useEffect(() => {
     setIsVisible(true);
@@ -560,13 +562,11 @@ const Projects = () => {
                   </Link>
                 </Button>
                 <Button
-                  asChild
+                  onClick={() => setIsDonateDrawerOpen(true)}
                   className="bg-secondary hover:bg-secondary/90 text-white px-10 py-7 rounded-full text-lg font-bold shadow-2xl transition-all duration-300 group"
                 >
-                  <Link to="/join">
-                    <Heart className="mr-3 w-6 h-6" />
-                    Donate
-                  </Link>
+                  <Heart className="mr-3 w-6 h-6" />
+                  Donate
                 </Button>
                 <Button
                   asChild
@@ -620,6 +620,11 @@ const Projects = () => {
       </main>
       
       <Footer />
+      
+      <DonateDrawer 
+        open={isDonateDrawerOpen}
+        onOpenChange={setIsDonateDrawerOpen}
+      />
     </div>
   );
 };

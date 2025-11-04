@@ -6,6 +6,7 @@ import logoAtj from "@/assets/logo-atj.png";
 import { useNavbarSettings } from "@/hooks/useCMS";
 import { moroccoCities } from "@/lib/citiesData";
 import useEmblaCarousel from "embla-carousel-react";
+import DonateDrawer from "./DonateDrawer";
 
 interface NavLink {
   label: string;
@@ -129,7 +130,8 @@ const TopNavbar = ({
   showJoinButton,
   joinButtonText,
   joinButtonLink,
-  joinButtonStyle
+  joinButtonStyle,
+  onDonateClick
 }: {
   isDarkMode: boolean;
   toggleDarkMode: () => void;
@@ -145,6 +147,7 @@ const TopNavbar = ({
   joinButtonText: string;
   joinButtonLink: string;
   joinButtonStyle: string;
+  onDonateClick: () => void;
 }) => {
   return (
     <div className="w-full bg-transparent transition-all duration-300 overflow-hidden" style={isScrolled ? { maxHeight: '65px', opacity: '0', height: '65px' } : { maxHeight: '80px', opacity: '1' }}>
@@ -193,16 +196,14 @@ const TopNavbar = ({
           {/* Donate Button */}
           {showJoinButton && (
             <Button 
-              asChild
+              onClick={onDonateClick}
               className={joinButtonStyle === 'secondary' 
                 ? "bg-secondary hover:bg-secondary/90 text-white px-6 py-2 text-sm font-medium rounded-button transition-all duration-300 shadow-elegant hover:shadow-glow flex items-center gap-2"
                 : "bg-primary hover:bg-primary/90 text-white px-6 py-2 text-sm font-medium rounded-button transition-all duration-300 shadow-elegant hover:shadow-glow flex items-center gap-2"
               }
             >
-              <Link to={joinButtonLink} className="flex items-center gap-2">
-                <Heart className="h-4 w-4" />
-                {joinButtonText}
-              </Link>
+              <Heart className="h-4 w-4" />
+              {joinButtonText}
             </Button>
           )}
         </div>
@@ -357,6 +358,7 @@ const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [currentLanguage, setCurrentLanguage] = useState('EN');
+  const [isDonateDrawerOpen, setIsDonateDrawerOpen] = useState(false);
 
   const defaultNavigationLinks: NavLink[] = [
     { label: "Discover", url: "/discover" },
@@ -403,34 +405,42 @@ const Header = () => {
     : logoAtj;
 
   return (
-    <header className={`fixed top-0 w-full z-50 transition-all duration-300 ${
-      isScrolled ? 'backdrop-blur-sm' : 'bg-transparent'
-    }`} style={isScrolled ? { backgroundColor: 'hsl(var(--primary))', marginTop: '0' } : { marginTop: '2.5rem' }}>
-      {/* Top Navbar - Utility Bar (Language, Theme, Login, Join) */}
-      <TopNavbar 
-        isDarkMode={isDarkMode}
-        toggleDarkMode={toggleDarkMode}
-        currentLanguage={currentLanguage}
-        toggleLanguage={toggleLanguage}
-        isScrolled={isScrolled}
-        showLanguageSwitcher={navbarSettings?.showLanguageSwitcher !== false}
-        showDarkModeToggle={navbarSettings?.showDarkModeToggle !== false}
-        showLoginButton={navbarSettings?.showLoginButton !== false}
-        loginButtonText={navbarSettings?.loginButtonText || "Login"}
-        loginButtonLink={navbarSettings?.loginButtonLink || "/admin/login"}
-        showJoinButton={navbarSettings?.showJoinButton !== false}
-        joinButtonText={navbarSettings?.joinButtonText || "Donate"}
-        joinButtonLink={navbarSettings?.joinButtonLink || "/join"}
-        joinButtonStyle={navbarSettings?.joinButtonStyle || "secondary"}
-      />
+    <>
+      <header className={`fixed top-0 w-full z-50 transition-all duration-300 ${
+        isScrolled ? 'backdrop-blur-sm' : 'bg-transparent'
+      }`} style={isScrolled ? { backgroundColor: 'hsl(var(--primary))', marginTop: '0' } : { marginTop: '2.5rem' }}>
+        {/* Top Navbar - Utility Bar (Language, Theme, Login, Join) */}
+        <TopNavbar 
+          isDarkMode={isDarkMode}
+          toggleDarkMode={toggleDarkMode}
+          currentLanguage={currentLanguage}
+          toggleLanguage={toggleLanguage}
+          isScrolled={isScrolled}
+          showLanguageSwitcher={navbarSettings?.showLanguageSwitcher !== false}
+          showDarkModeToggle={navbarSettings?.showDarkModeToggle !== false}
+          showLoginButton={navbarSettings?.showLoginButton !== false}
+          loginButtonText={navbarSettings?.loginButtonText || "Login"}
+          loginButtonLink={navbarSettings?.loginButtonLink || "/admin/login"}
+          showJoinButton={navbarSettings?.showJoinButton !== false}
+          joinButtonText={navbarSettings?.joinButtonText || "Donate"}
+          joinButtonLink={navbarSettings?.joinButtonLink || "/join"}
+          joinButtonStyle={navbarSettings?.joinButtonStyle || "secondary"}
+          onDonateClick={() => setIsDonateDrawerOpen(true)}
+        />
+        
+        {/* Bottom Navbar - Main Navigation with 135px Logo */}
+        <BottomNavbar 
+          isScrolled={isScrolled} 
+          navigationLinks={navigationLinks}
+          logoUrl={logoUrl}
+        />
+      </header>
       
-      {/* Bottom Navbar - Main Navigation with 135px Logo */}
-      <BottomNavbar 
-        isScrolled={isScrolled} 
-        navigationLinks={navigationLinks}
-        logoUrl={logoUrl}
+      <DonateDrawer 
+        open={isDonateDrawerOpen}
+        onOpenChange={setIsDonateDrawerOpen}
       />
-    </header>
+    </>
   );
 };
 
