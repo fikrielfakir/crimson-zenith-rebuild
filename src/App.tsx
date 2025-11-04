@@ -16,6 +16,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import CookiePolicy from "./pages/CookiePolicy";
 import NotFound from "./pages/NotFound";
+import Projects from "./pages/Projects";
 
 // Admin imports
 import AdminLogin from "./pages/admin/AdminLogin";
@@ -60,6 +61,7 @@ const App = () => (
           <Route path="/discover" element={<Discover />} />
           <Route path="/discover/cities" element={<CityDetail />} />
           <Route path="/events" element={<EventsActivities />} />
+          <Route path="/projects" element={<Projects />} />
           <Route path="/clubs" element={<Clubs />} />
           <Route path="/club/:clubName" element={<ClubDetail />} />
           <Route path="/activities/:activityName" element={<ActivityDetail />} />
