@@ -2,6 +2,7 @@ import express from 'express';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import fs from 'fs';
+import bcrypt from 'bcryptjs';
 import { storage } from './server/storage.js';
 import { setupAuth, isAuthenticated } from './server/replitAuth.js';
 
@@ -15,6 +16,40 @@ console.log('✅ Server configured for MySQL database integration');
 
 // Main server initialization
 async function initializeServer() {
+
+// Seed admin user if doesn't exist
+async function seedAdminUser() {
+  try {
+    console.log('🔐 Checking for admin user...');
+    const adminUser = await storage.getUserByUsername('admin');
+    
+    if (!adminUser) {
+      console.log('📝 Creating admin user...');
+      const hashedPassword = await bcrypt.hash('admin123', 10);
+      
+      await storage.upsertUser({
+        id: crypto.randomUUID(),
+        username: 'admin',
+        password: hashedPassword,
+        email: 'admin@morocclubs.com',
+        firstName: 'Admin',
+        lastName: 'User',
+        profileImageUrl: null,
+        bio: null,
+        phone: null,
+        location: null,
+        isAdmin: true,
+        interests: []
+      });
+      
+      console.log('✅ Admin user created successfully');
+    } else {
+      console.log('✅ Admin user already exists');
+    }
+  } catch (error) {
+    console.error('❌ Error seeding admin user:', error);
+  }
+}
 
 // Seed database with initial data if empty
 async function seedDatabase() {
@@ -454,6 +489,7 @@ async function seedDatabase() {
 }
 
 // Initialize database on startup
+await seedAdminUser();
 await seedDatabase();
 
 // Middleware
@@ -849,34 +885,66 @@ app.post('/api/admin/login', async (req, res) => {
     console.log('🔗 Admin login attempt...');
     const { username, password } = req.body;
     
-    // Demo credentials check
-    if (username === 'admin' && password === 'admin123') {
-      const adminToken = {
-        token: `admin_token_${Date.now()}_${Math.random().toString(36).substring(7)}`,
-        user: {
-          id: 'admin',
-          username: 'admin',
-          role: 'admin',
-          email: 'admin@morocclubs.com'
-        },
-        expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 hours
-      };
-      
-      console.log('✅ Admin login successful');
-      res.json({
-        success: true,
-        token: adminToken.token,
-        user: adminToken.user,
-        expires_at: adminToken.expires_at,
-        source: 'Mock admin authentication'
-      });
-    } else {
-      console.log('❌ Admin login failed - invalid credentials');
-      res.status(401).json({ 
+    // Get user from database
+    const user = await storage.getUserByUsername(username);
+    
+    if (!user) {
+      console.log('❌ Admin login failed - user not found');
+      return res.status(401).json({ 
         success: false, 
-        error: 'Invalid username or password' 
+        message: 'Invalid username or password' 
       });
     }
+    
+    // Check if user is admin
+    if (!user.isAdmin) {
+      console.log('❌ Admin login failed - user is not admin');
+      return res.status(403).json({ 
+        success: false, 
+        message: 'Access denied. Admin privileges required.' 
+      });
+    }
+    
+    // Verify password
+    if (!user.password) {
+      console.log('❌ Admin login failed - no password set');
+      return res.status(401).json({ 
+        success: false, 
+        message: 'Invalid username or password' 
+      });
+    }
+    
+    const isValidPassword = await bcrypt.compare(password, user.password);
+    
+    if (!isValidPassword) {
+      console.log('❌ Admin login failed - invalid password');
+      return res.status(401).json({ 
+        success: false, 
+        message: 'Invalid username or password' 
+      });
+    }
+    
+    // Generate token
+    const adminToken = {
+      token: `admin_token_${Date.now()}_${Math.random().toString(36).substring(7)}`,
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: 'admin'
+      },
+      expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 hours
+    };
+    
+    console.log(`✅ Admin login successful for user: ${username}`);
+    res.json({
+      success: true,
+      token: adminToken.token,
+      user: adminToken.user,
+      expires_at: adminToken.expires_at
+    });
   } catch (error) {
     console.error('❌ Error during admin login:', error);
     res.status(500).json({ error: 'Login failed', details: error.message });
