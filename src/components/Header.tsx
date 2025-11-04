@@ -1,9 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
-import { Globe, Moon, Sun, User, Menu } from "lucide-react";
+import { Globe, Moon, Sun, User, Menu, ChevronDown } from "lucide-react";
 import { Link } from "react-router-dom";
 import logoAtj from "@/assets/logo-atj.png";
 import { useNavbarSettings } from "@/hooks/useCMS";
+import { moroccoCities } from "@/lib/citiesData";
 
 interface NavLink {
   label: string;
@@ -135,8 +136,41 @@ const BottomNavbar = ({
           {/* Left Section - Navigation */}
           <div className="hidden md:flex items-center justify-end">
             <nav className={`flex items-center gap-10 transition-all duration-300 ${isScrolled ? 'relative' : ''}`} style={isScrolled ? {bottom: '1rem'} : {}}>
-              {leftLinks.map((link, index) => (
-                link.isExternal ? (
+              {leftLinks.map((link, index) => {
+                if (link.label === "Discover" && !link.isExternal) {
+                  return (
+                    <div key={index} className="relative group">
+                      <Link 
+                        to={link.url} 
+                        className="text-white hover:text-secondary transition-all duration-300 font-normal text-sm tracking-wide font-body flex items-center gap-1"
+                      >
+                        {link.label}
+                        <ChevronDown className="w-3 h-3 transition-transform group-hover:rotate-180 duration-300" />
+                      </Link>
+                      
+                      <div className="absolute left-0 top-full mt-2 w-56 bg-white rounded-lg shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 border border-border/20">
+                        <div className="py-3 px-2">
+                          <div className="text-xs font-semibold text-muted-foreground px-3 py-2 uppercase tracking-wider">
+                            Top Cities Morocco
+                          </div>
+                          <div className="space-y-1">
+                            {moroccoCities.map((city) => (
+                              <Link
+                                key={city.id}
+                                to={`/discover/cities?${city.slug}`}
+                                className="block px-3 py-2 text-sm text-foreground hover:bg-secondary/10 hover:text-secondary rounded-md transition-all duration-200 font-body"
+                              >
+                                {city.name}
+                              </Link>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
+                
+                return link.isExternal ? (
                   <a
                     key={index}
                     href={link.url}
@@ -154,8 +188,8 @@ const BottomNavbar = ({
                   >
                     {link.label}
                   </Link>
-                )
-              ))}
+                );
+              })}
             </nav>
           </div>
           
@@ -174,8 +208,41 @@ const BottomNavbar = ({
           {/* Right Section - Navigation */}
           <div className="hidden md:flex items-center justify-start">
             <nav className={`flex items-center gap-10 transition-all duration-300 ${isScrolled ? 'relative' : ''}`} style={isScrolled ? {bottom: '1rem'} : {}}>
-              {rightLinks.map((link, index) => (
-                link.isExternal ? (
+              {rightLinks.map((link, index) => {
+                if (link.label === "Discover" && !link.isExternal) {
+                  return (
+                    <div key={index} className="relative group">
+                      <Link 
+                        to={link.url} 
+                        className="text-white hover:text-secondary transition-all duration-300 font-normal text-sm tracking-wide font-body flex items-center gap-1"
+                      >
+                        {link.label}
+                        <ChevronDown className="w-3 h-3 transition-transform group-hover:rotate-180 duration-300" />
+                      </Link>
+                      
+                      <div className="absolute left-0 top-full mt-2 w-56 bg-white rounded-lg shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 border border-border/20">
+                        <div className="py-3 px-2">
+                          <div className="text-xs font-semibold text-muted-foreground px-3 py-2 uppercase tracking-wider">
+                            Top Cities Morocco
+                          </div>
+                          <div className="space-y-1">
+                            {moroccoCities.map((city) => (
+                              <Link
+                                key={city.id}
+                                to={`/discover/cities?${city.slug}`}
+                                className="block px-3 py-2 text-sm text-foreground hover:bg-secondary/10 hover:text-secondary rounded-md transition-all duration-200 font-body"
+                              >
+                                {city.name}
+                              </Link>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
+                
+                return link.isExternal ? (
                   <a
                     key={index}
                     href={link.url}
@@ -193,8 +260,8 @@ const BottomNavbar = ({
                   >
                     {link.label}
                   </Link>
-                )
-              ))}
+                );
+              })}
             </nav>
           </div>
           
