@@ -226,7 +226,7 @@ const Header = () => {
 
   const defaultNavigationLinks: NavLink[] = [
     { label: "Discover", url: "/discover" },
-    { label: "Activities", url: "/#activities" },
+    { label: "Activities", url: "/#events" },
     { label: "Membership", url: "/#membership" },
     { label: "Clubs", url: "/#clubs" },
     { label: "Events", url: "/#events" },
