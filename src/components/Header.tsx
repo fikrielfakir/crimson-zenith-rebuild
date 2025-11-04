@@ -242,13 +242,12 @@ const BottomNavbar = ({
                 if (link.label === "Discover" && !link.isExternal) {
                   return (
                     <div key={index} className="relative group">
-                      <Link 
-                        to={link.url} 
-                        className="text-white hover:text-secondary transition-all duration-300 font-normal text-sm tracking-wide font-body flex items-center gap-1"
+                      <span 
+                        className="text-white hover:text-secondary transition-all duration-300 font-normal text-sm tracking-wide font-body flex items-center gap-1 cursor-pointer"
                       >
                         {link.label}
                         <ChevronDown className="w-3 h-3 transition-transform group-hover:rotate-180 duration-300" />
-                      </Link>
+                      </span>
                       <CitiesDropdown />
                     </div>
                   );
@@ -296,13 +295,12 @@ const BottomNavbar = ({
                 if (link.label === "Discover" && !link.isExternal) {
                   return (
                     <div key={index} className="relative group">
-                      <Link 
-                        to={link.url} 
-                        className="text-white hover:text-secondary transition-all duration-300 font-normal text-sm tracking-wide font-body flex items-center gap-1"
+                      <span 
+                        className="text-white hover:text-secondary transition-all duration-300 font-normal text-sm tracking-wide font-body flex items-center gap-1 cursor-pointer"
                       >
                         {link.label}
                         <ChevronDown className="w-3 h-3 transition-transform group-hover:rotate-180 duration-300" />
-                      </Link>
+                      </span>
                       <CitiesDropdown />
                     </div>
                   );
