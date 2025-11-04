@@ -4,7 +4,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { moroccoCities } from "@/lib/citiesData";
 import { Button } from "@/components/ui/button";
-import { Home, ChevronRight, MapPin, ArrowLeft } from "lucide-react";
+import { MapPin, ArrowLeft, Home, ChevronRight } from "lucide-react";
 
 const CityDetail = () => {
   const location = useLocation();
@@ -33,67 +33,90 @@ const CityDetail = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
-      
-      <main className="pt-[180px]">
-        <section 
-          className="relative w-full min-h-[70vh] bg-cover bg-center bg-no-repeat flex items-center" 
-          style={{ 
-            backgroundImage: `url(${city.image})`,
-            backgroundAttachment: 'fixed'
-          }}
-        >
-          {/* Dark overlay for text readability */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/60 to-black/70" />
-          
-          {/* Content */}
-          <div className="relative z-10 w-full py-16 md:py-24">
+      {/* Hero Section with Background Image - Includes Navbar, Breadcrumb, and Title */}
+      <section 
+        className="relative w-full min-h-[100vh] bg-cover bg-center bg-no-repeat" 
+        style={{ 
+          backgroundImage: `url(${city.image})`,
+          backgroundAttachment: 'fixed'
+        }}
+      >
+        {/* Dark overlay for text readability */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-black/70" />
+        
+        {/* Header (Navbar) */}
+        <div className="relative z-50">
+          <Header />
+        </div>
+        
+        {/* Breadcrumb Section - Separated from Navbar with same background */}
+        <div className="relative z-40" style={{ marginTop: '10rem' }}>
+          <div className="w-full border-b border-white/10" style={{ 
+            backgroundColor: 'rgba(0, 0, 0, 0.3)',
+            backdropFilter: 'blur(8px)',
+            paddingTop: '12px',
+            paddingBottom: '12px'
+          }}>
             <div className="container mx-auto px-6">
-              <nav className="mb-8 animate-fade-in">
-                <ol className="flex items-center space-x-2 text-white/70 text-sm">
+              <nav aria-label="Breadcrumb">
+                <ol className="flex items-center space-x-2 text-white/70 text-xs md:text-sm">
                   <li>
-                    <Link to="/" className="flex items-center hover:text-white transition-colors">
-                      <Home className="w-4 h-4 mr-1" />
-                      Home
+                    <Link
+                      to="/"
+                      className="flex items-center hover:text-white transition-colors duration-200"
+                    >
+                      <Home className="w-3.5 h-3.5 md:w-4 md:h-4 mr-1" />
+                      <span className="font-medium">Home</span>
                     </Link>
                   </li>
                   <li className="flex items-center">
-                    <ChevronRight className="w-4 h-4 mx-2 text-white/40" />
-                    <Link to="/discover" className="hover:text-white transition-colors">
+                    <ChevronRight className="w-3.5 h-3.5 md:w-4 md:h-4 mx-1 text-white/40" />
+                    <Link
+                      to="/discover"
+                      className="hover:text-white transition-colors duration-200 font-medium"
+                    >
                       Discover
                     </Link>
                   </li>
                   <li className="flex items-center">
-                    <ChevronRight className="w-4 h-4 mx-2 text-white/40" />
-                    <span className="text-white font-medium">{city.name}</span>
+                    <ChevronRight className="w-3.5 h-3.5 md:w-4 md:h-4 mx-1 text-white/40" />
+                    <span className="text-white font-semibold">{city.name}</span>
                   </li>
                 </ol>
               </nav>
-              
-              <Button
-                onClick={() => navigate('/discover')}
-                variant="ghost"
-                className="text-white hover:bg-white/10 mb-6 px-3 py-2 animate-fade-in"
-              >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Discover
-              </Button>
-
-              <div className="flex items-center gap-3 mb-4 animate-fade-in">
-                <MapPin className="w-6 h-6 text-secondary drop-shadow-lg" />
-                <span className="text-white/90 text-lg font-medium drop-shadow-md">Morocco</span>
-              </div>
-              
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-4 animate-fade-in drop-shadow-2xl">
-                {city.name}
-              </h1>
-              
-              <p className="text-xl md:text-2xl lg:text-3xl text-secondary font-semibold italic animate-fade-in drop-shadow-lg">
-                {city.title}
-              </p>
             </div>
           </div>
-        </section>
+        </div>
+        
+        {/* Hero Content */}
+        <div className="relative z-30 w-full py-16 md:py-24">
+          <div className="container mx-auto px-6">
+            <Button
+              onClick={() => navigate('/discover')}
+              variant="ghost"
+              className="text-white hover:bg-white/10 mb-6 px-3 py-2 animate-fade-in"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Discover
+            </Button>
+
+            <div className="flex items-center gap-3 mb-4 animate-fade-in">
+              <MapPin className="w-6 h-6 text-secondary drop-shadow-lg" />
+              <span className="text-white/90 text-lg font-medium drop-shadow-md">Morocco</span>
+            </div>
+            
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-4 animate-fade-in drop-shadow-2xl">
+              {city.name}
+            </h1>
+            
+            <p className="text-xl md:text-2xl lg:text-3xl text-secondary font-semibold italic animate-fade-in drop-shadow-lg">
+              {city.title}
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <main>
 
         <section className="py-20 bg-background">
           <div className="container mx-auto px-6">
