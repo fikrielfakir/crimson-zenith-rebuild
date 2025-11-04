@@ -18,7 +18,7 @@ The Journey Association is a comprehensive full-stack web platform designed to c
 
 ---
 
-## 📱 **PUBLIC-FACING PAGES** (17 Pages)
+## 📱 **PUBLIC-FACING PAGES** (23 Pages)
 
 ### **1. Homepage (`/`)**
 **Purpose:** Main landing page showcasing the platform's value proposition
@@ -378,7 +378,207 @@ The Journey Association is a comprehensive full-stack web platform designed to c
 
 ---
 
-### **19. 404 Not Found Page (`*`)**
+### **19. Projects Page (`/projects`)**
+**Purpose:** Showcase community projects and initiatives
+
+**Features:**
+- **Highlighted Projects Section:**
+  - Large project cards with images
+  - Progress bars showing funding/completion
+  - Status badges (Ongoing, Completed, Upcoming)
+  - Location tags
+  - Category labels
+- **Project Categories:**
+  - Environment
+  - Education
+  - Culture
+  - Community
+  - Tourism
+- **Filter System:**
+  - Filter by category
+  - Search projects
+  - Sort by status
+- **Project Details:**
+  - Title and description
+  - Progress tracking
+  - Funding status
+  - Participant count
+  - Impact metrics (people helped, CO2 saved, sites preserved)
+  - Location information
+  - Images/gallery
+- **Success Stories:**
+  - Featured success story carousel
+  - Before/after comparisons
+  - Community testimonials
+- **Call to Action:**
+  - Donate to projects
+  - Volunteer opportunities
+  - Share projects
+- **Impact Dashboard:**
+  - Total projects completed
+  - Lives impacted
+  - Environmental impact
+  - Community engagement metrics
+- **Back to top button**
+- Responsive masonry layout
+
+---
+
+### **20. Learn More Page (`/learn-more`)**
+**Purpose:** Comprehensive information about the organization, safety, and FAQs
+
+**Features:**
+- **Tabbed Navigation:**
+  - About Us
+  - Safety & Certifications
+  - Team
+  - FAQs
+  - Contact
+- **Certifications Display:**
+  - ISO 14001 (Environmental Management)
+  - UIAGM (Mountain Guide Certification)
+  - IATA (Travel Industry Standards)
+  - Adventure Travel Trade Association
+  - Authority information
+- **Team Members Section:**
+  - Team member cards with:
+    - Name and role
+    - Photo
+    - Years of experience
+    - Specialization
+    - Brief bio
+- **Comprehensive FAQ:**
+  - Organized by category (Safety, Booking, Equipment, Travel, Experience, Support)
+  - Accordion-style questions
+  - Detailed answers
+  - Common concerns addressed
+- **Safety Information:**
+  - Emergency protocols
+  - Equipment standards
+  - Guide certifications
+  - Insurance coverage
+  - 24/7 support details
+- **Contact Information:**
+  - Phone and email
+  - Office hours
+  - Physical address
+  - Live chat option
+  - Response time expectations
+- Breadcrumb navigation
+- Responsive accordion layout
+
+---
+
+### **21. City Detail Page (`/discover/cities?city=:citySlug`)**
+**Purpose:** Comprehensive information about specific Moroccan cities
+
+**Features:**
+- **Hero Section:**
+  - Full-screen parallax background image
+  - City name (large, bold typography)
+  - Subtitle with city tagline
+  - Location badge (Morocco)
+  - Cinematic gradient overlays
+- **Navigation:**
+  - Breadcrumb navigation (Home > Discover > City Name)
+  - Back to Discover button
+- **City Information Sections:**
+  - About the city (overview, history, culture)
+  - Attractions and landmarks
+  - Best time to visit
+  - Getting there (transportation)
+  - Local cuisine highlights
+  - Things to do and activities
+  - Practical tips and insider advice
+- **Visual Elements:**
+  - High-quality hero images
+  - Section icons (Compass, Utensils, Calendar, Plane, etc.)
+  - Check marks for tips
+  - Transportation icons (Train, Ship, Plane)
+- **Call to Action:**
+  - Related clubs in the city
+  - Upcoming events
+  - Book experiences
+- **Smooth Animations:**
+  - Fade-in effects
+  - Parallax scrolling
+  - Staggered content reveal
+- Fully responsive design
+- Premium typography and layout
+
+---
+
+### **22. Blog Post / Article Detail Page (`/news/:articleId`)**
+**Purpose:** Full blog post/article reading experience
+
+**Features:**
+- **Article Header:**
+  - Featured image (large banner)
+  - Article title
+  - Publication date
+  - Read time estimate
+  - Author information with avatar
+  - Category badge
+  - Tags
+  - View count
+- **Reading Experience:**
+  - Clean, readable typography
+  - Rich text formatting (headings, bold, italic)
+  - Blockquotes support
+  - Ordered and unordered lists
+  - Image embeds
+  - Reading progress indicator
+  - Estimated time remaining
+- **Engagement Features:**
+  - Like button with count
+  - Bookmark/save article
+  - Share buttons (Facebook, Twitter, generic share)
+  - Comment count display
+  - View counter
+- **Author Section:**
+  - Author bio
+  - Author avatar
+  - Social media links
+  - Other articles by author
+- **Related Articles:**
+  - 3-4 related article cards
+  - Same category articles
+  - Thumbnail images
+  - Read time
+- **Interactive Elements:**
+  - Back to top button (appears on scroll)
+  - Social sharing sidebar (sticky)
+  - Progress bar at top
+- **Article Stats Display:**
+  - Views
+  - Likes
+  - Shares
+  - Comments
+- **Navigation:**
+  - Back to News button
+  - Previous/Next article navigation
+- Responsive reading layout
+- Print-friendly formatting
+
+---
+
+### **23. Events & Activities Page (`/events-activities`)**
+**Purpose:** Combined view of events and activities with advanced filtering
+
+**Features:**
+- Interactive event/activity browser
+- Dual-mode display (events/activities)
+- Advanced filtering options
+- Calendar integration
+- Quick RSVP/registration
+- Category-based organization
+- Location-based filtering
+- Difficulty level indicators
+- Comprehensive event details
+
+---
+
+### **24. 404 Not Found Page (`*`)**
 **Purpose:** Handle invalid URLs gracefully
 
 **Features:**
@@ -1340,14 +1540,16 @@ The Journey Association is a comprehensive full-stack web platform designed to c
 ## 🔄 **Current Status**
 
 ✅ **Fully Functional:**
-- All public pages
-- Admin panel with 18 pages
-- Authentication system
-- Database with 23 tables
-- CMS functionality
-- Payment integration setup
-- Responsive design
-- Demo data seeded
+- All 23 public-facing pages
+- Admin panel with 18 protected pages
+- Authentication system with Passport.js
+- Database with 23 tables (MySQL via Drizzle ORM)
+- Full CMS functionality with 12 tabs
+- Payment integration setup (Stripe & PayPal)
+- Responsive design across all devices
+- Demo data seeded (clubs, events, CMS content)
+- Interactive maps with MapLibre GL
+- Rich component library (shadcn/ui + Radix UI)
 
 🔧 **Requires Configuration:**
 - Stripe API keys (for live payments)
@@ -1374,5 +1576,29 @@ The Journey Association is a comprehensive full-stack web platform designed to c
 ---
 
 **Last Updated:** November 4, 2025
-**Version:** 1.0.0
+**Version:** 1.1.0
 **Platform:** The Journey Association - Morocco Clubs Platform
+
+## 📝 **Recent Updates (November 4, 2025)**
+
+**New Pages Added:**
+1. Projects Page - Community projects and initiatives showcase
+2. Learn More Page - Organization info, certifications, team, and FAQs
+3. City Detail Page - Comprehensive city information with parallax design
+4. Blog Post Page - Enhanced article reading experience
+5. Events & Activities Page - Combined event/activity browser
+
+**Enhanced Features:**
+- Advanced filtering and search across all content types
+- Improved navigation with breadcrumbs on detail pages
+- Reading progress indicators on blog posts
+- Impact metrics dashboard on projects page
+- Interactive FAQ sections with accordion UI
+- Parallax scrolling effects on city pages
+- Social sharing integrations
+- Enhanced mobile responsiveness
+
+**Total Page Count:**
+- Public Pages: 24 (including 404)
+- Admin Pages: 18
+- **Grand Total: 42 pages**
