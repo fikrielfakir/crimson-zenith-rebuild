@@ -11,6 +11,10 @@
     font-weight: 700;
     font-family: 'Poppins', system-ui, sans-serif;
   }
+  
+  .-translate-x-1\/2 {
+    --tw-translate-x: -50% !important;
+  }
 
   /* Modern gradient effect for supported browsers */
   @supports (background-clip: text) or (-webkit-background-clip: text) {
