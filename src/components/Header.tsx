@@ -44,7 +44,7 @@ const CitiesDropdown = () => {
   }, [emblaApi, onSelect]);
 
   return (
-    <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-[700px] bg-white/95 backdrop-blur-sm rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 border border-border/20">
+    <div className="absolute left-0 top-full mt-2 w-[700px] max-w-[90vw] bg-white/95 dark:bg-card/95 backdrop-blur-sm rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 border border-border/20">
       <div className="p-6">
         <div className="text-sm font-bold text-foreground mb-4 uppercase tracking-wider">
           TOP CITIES MOROCCO
@@ -59,15 +59,15 @@ const CitiesDropdown = () => {
                     to={{ pathname: '/discover/cities', search: `?city=${city.slug}` }}
                     className="block group/card"
                   >
-                    <div className="relative h-32 rounded-lg overflow-hidden">
+                    <div className="relative h-32 rounded-lg overflow-hidden transition-all duration-300 ease-in-out group-hover/card:scale-105 group-hover/card:shadow-xl">
                       <img
                         src={city.image}
                         alt={city.name}
-                        className="w-full h-full object-cover group-hover/card:scale-110 transition-transform duration-500"
+                        className="w-full h-full object-cover transition-transform duration-500 ease-in-out"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
                       <div className="absolute bottom-3 left-3 right-3">
-                        <h3 className="text-white font-bold text-lg uppercase tracking-wide">
+                        <h3 className="text-white font-bold text-lg uppercase tracking-wide drop-shadow-lg">
                           {city.name}
                         </h3>
                       </div>
