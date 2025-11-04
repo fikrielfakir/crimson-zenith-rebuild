@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useState, useEffect, useCallback } from "react";
-import { Globe, Moon, Sun, User, Menu, ChevronDown, ChevronRight } from "lucide-react";
+import { Globe, Moon, Sun, User, Menu, ChevronDown, ChevronRight, Heart } from "lucide-react";
 import { Link } from "react-router-dom";
 import logoAtj from "@/assets/logo-atj.png";
 import { useNavbarSettings } from "@/hooks/useCMS";
@@ -190,16 +190,19 @@ const TopNavbar = ({
             </Button>
           )}
 
-          {/* Join Button */}
+          {/* Donate Button */}
           {showJoinButton && (
             <Button 
               asChild
               className={joinButtonStyle === 'secondary' 
-                ? "bg-secondary hover:bg-secondary/90 text-white px-6 py-2 text-sm font-medium rounded-button transition-all duration-300 shadow-elegant hover:shadow-glow"
-                : "bg-primary hover:bg-primary/90 text-white px-6 py-2 text-sm font-medium rounded-button transition-all duration-300 shadow-elegant hover:shadow-glow"
+                ? "bg-secondary hover:bg-secondary/90 text-white px-6 py-2 text-sm font-medium rounded-button transition-all duration-300 shadow-elegant hover:shadow-glow flex items-center gap-2"
+                : "bg-primary hover:bg-primary/90 text-white px-6 py-2 text-sm font-medium rounded-button transition-all duration-300 shadow-elegant hover:shadow-glow flex items-center gap-2"
               }
             >
-              <Link to={joinButtonLink}>{joinButtonText}</Link>
+              <Link to={joinButtonLink} className="flex items-center gap-2">
+                <Heart className="h-4 w-4" />
+                {joinButtonText}
+              </Link>
             </Button>
           )}
         </div>
@@ -416,7 +419,7 @@ const Header = () => {
         loginButtonText={navbarSettings?.loginButtonText || "Login"}
         loginButtonLink={navbarSettings?.loginButtonLink || "/admin/login"}
         showJoinButton={navbarSettings?.showJoinButton !== false}
-        joinButtonText={navbarSettings?.joinButtonText || "Join Us"}
+        joinButtonText={navbarSettings?.joinButtonText || "Donate"}
         joinButtonLink={navbarSettings?.joinButtonLink || "/join"}
         joinButtonStyle={navbarSettings?.joinButtonStyle || "secondary"}
       />

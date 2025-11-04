@@ -69,7 +69,7 @@ const Hero = () => {
   const title = heroSettings?.title || "Where Adventure Meets\nTransformation";
   const subtitle = heroSettings?.subtitle || "Experience Morocco's soul through sustainable journeys. Discover culture, embrace adventure, and create lasting connections with local communities.";
   const primaryButtonText = heroSettings?.primaryButtonText || "Start Your Journey";
-  const primaryButtonLink = heroSettings?.primaryButtonLink || "/discover";
+  const primaryButtonLink = heroSettings?.primaryButtonLink || "/join";
   const secondaryButtonText = heroSettings?.secondaryButtonText || "Explore Clubs";
   const secondaryButtonLink = heroSettings?.secondaryButtonLink || "/clubs";
   const titleFontSize = heroSettings?.titleFontSize || "65px";
