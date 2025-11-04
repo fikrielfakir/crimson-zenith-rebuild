@@ -363,7 +363,7 @@ const Header = () => {
     { label: "Activities", url: "/#events" },
     { label: "Membership", url: "/#membership" },
     { label: "Clubs", url: "/#clubs" },
-    { label: "Events", url: "/events" },
+    { label: "Projects", url: "/projects" },
     { label: "Gallery", url: "/gallery" },
     { label: "News", url: "/news" },
     { label: "Contact", url: "/contact" },
