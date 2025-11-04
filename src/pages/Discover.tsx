@@ -77,81 +77,53 @@ const Discover = () => {
       <Header />
       
       <main className="relative">
-        {/* Hero Section with Cinematic Design */}
-        <section className="relative h-[75vh] min-h-[600px] w-full overflow-hidden" style={{ marginTop: '5rem' }}>
-          {/* Parallax Background */}
+        {/* Hero Section with Background Image */}
+        <section className="relative py-20 overflow-hidden" style={{ marginTop: '10rem' }}>
+          {/* Background Image with Parallax */}
           <div 
-            className="absolute inset-0 bg-gradient-to-br from-slate-900 via-primary to-slate-800"
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
             style={{
-              transform: `translateY(${scrollY * 0.5}px)`,
+              backgroundImage: `url('/attached_assets/generated_images/Fes_medina_and_tanneries_3e9a2ff0.png')`,
+              transform: `translateY(${scrollY * 0.3}px)`,
+              filter: 'brightness(0.6) contrast(1.1) saturate(1.2)',
             }}
-          >
-            {/* Overlay Pattern */}
-            <div className="absolute inset-0 opacity-10">
-              <div className="absolute inset-0" style={{
-                backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
-                backgroundSize: '32px 32px'
-              }} />
-            </div>
-          </div>
+          />
 
-          {/* Cinematic Gradient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60" />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/30" />
+          {/* Gradient Overlay for Better Text Readability */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/50" />
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-transparent to-primary/20" />
 
-          {/* Content Container */}
-          <div className="relative h-full flex flex-col justify-between container mx-auto px-6 py-8">
-            {/* Top Section: Back Button & Breadcrumb */}
-            <div className={`transition-all duration-1000 delay-100 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
-              <button
-                onClick={() => navigate(-1)}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md text-white hover:bg-white/20 transition-all duration-300 shadow-lg hover:shadow-xl mb-6 border border-white/20"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                <span className="font-medium">Back</span>
-              </button>
+          {/* Content */}
+          <div className="relative container mx-auto px-6">
+            {/* Breadcrumb Navigation */}
+            <nav className={`mb-8 transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
+              <ol className="flex items-center space-x-2 text-sm">
+                <li>
+                  <Link 
+                    to="/" 
+                    className="flex items-center text-white/90 hover:text-white transition-colors bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-full border border-white/20 hover:border-white/40"
+                  >
+                    <Home className="w-4 h-4 mr-1.5" />
+                    Home
+                  </Link>
+                </li>
+                <li className="flex items-center">
+                  <ChevronRight className="w-4 h-4 mx-2 text-white/50" />
+                  <span className="text-white font-semibold bg-white/15 backdrop-blur-sm px-3 py-1.5 rounded-full border border-white/30 shadow-lg">
+                    Discover
+                  </span>
+                </li>
+              </ol>
+            </nav>
 
-              <nav>
-                <ol className="flex items-center space-x-2 text-sm">
-                  <li>
-                    <Link 
-                      to="/" 
-                      className="flex items-center text-white/80 hover:text-white transition-colors duration-300 bg-white/5 backdrop-blur-sm px-3 py-1.5 rounded-full border border-white/10 hover:border-white/30"
-                    >
-                      <Home className="w-3.5 h-3.5 mr-1.5" />
-                      Home
-                    </Link>
-                  </li>
-                  <li className="flex items-center">
-                    <ChevronRight className="w-4 h-4 mx-1 text-white/50" />
-                    <span className="text-white font-semibold bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-full border border-white/20 shadow-lg">
-                      Discover
-                    </span>
-                  </li>
-                </ol>
-              </nav>
-            </div>
-
-            {/* Center Section: Main Heading */}
-            <div className="flex-1 flex items-center justify-center">
-              <div className={`text-center transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-                <h1 className="text-6xl md:text-8xl lg:text-9xl font-bold text-white mb-6 tracking-tight drop-shadow-2xl">
-                  Discover
-                </h1>
-                <p className="text-xl md:text-2xl text-white/90 max-w-3xl mx-auto font-light tracking-wide drop-shadow-lg">
-                  Embark on a journey through Morocco's most enchanting destinations
-                </p>
-              </div>
-            </div>
-
-            {/* Bottom Section: Scroll Indicator */}
-            <div className={`text-center transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-              <div className="inline-flex flex-col items-center gap-2 text-white/70">
-                <span className="text-sm font-medium tracking-wider">SCROLL TO EXPLORE</span>
-                <div className="w-6 h-10 rounded-full border-2 border-white/30 flex items-start justify-center p-2">
-                  <div className="w-1.5 h-3 bg-white/70 rounded-full animate-bounce" />
-                </div>
-              </div>
+            {/* Main Heading */}
+            <div className={`transition-all duration-700 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-4 drop-shadow-2xl">
+                Discover
+              </h1>
+              <p className="text-lg md:text-xl text-white/95 max-w-2xl leading-relaxed drop-shadow-lg">
+                Embark on a journey through Morocco's most enchanting destinations. From ancient medinas to coastal paradises, discover the soul of this magnificent country.
+              </p>
             </div>
           </div>
         </section>
