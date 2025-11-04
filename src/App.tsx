@@ -37,6 +37,7 @@ import CookieSettings from "./pages/admin/CookieSettings";
 import AuthSettings from "./pages/admin/AuthSettings";
 import PaymentSettings from "./pages/admin/PaymentSettings";
 import BookingManagement from "./pages/admin/BookingManagement";
+import ThemeCustomization from "./pages/admin/ThemeCustomization";
 import JoinUs from "./pages/JoinUs";
 import ClubDetail from "./pages/ClubDetail";
 import ActivityDetail from "./pages/ActivityDetail";
@@ -168,6 +169,11 @@ const App = () => (
           <Route path="/admin/booking" element={
             <ProtectedRoute>
               <BookingManagement />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/theme" element={
+            <ProtectedRoute>
+              <ThemeCustomization />
             </ProtectedRoute>
           } />
           

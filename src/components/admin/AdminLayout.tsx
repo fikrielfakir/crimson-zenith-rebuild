@@ -21,7 +21,8 @@ import {
   Cookie,
   Shield,
   CreditCard,
-  ShoppingCart
+  ShoppingCart,
+  Palette
 } from "lucide-react";
 import { useLocation, useNavigate } from 'react-router-dom';
 import { cn } from "@/lib/utils";
@@ -51,6 +52,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
     { name: 'Auth', href: '/admin/auth', icon: Shield },
     { name: 'Payments', href: '/admin/payments', icon: CreditCard },
     { name: 'Cookies', href: '/admin/cookies', icon: Cookie },
+    { name: 'Theme', href: '/admin/theme', icon: Palette },
     { name: 'Monitor', href: '/admin/monitor', icon: Monitor },
     { name: 'Settings', href: '/admin/settings', icon: Settings },
   ];
