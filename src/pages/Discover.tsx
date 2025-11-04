@@ -1,10 +1,26 @@
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { ArrowRight, Home, ChevronRight } from "lucide-react";
-import { Link } from "react-router-dom";
+import { ArrowRight, Home, ChevronRight, ArrowLeft } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 const Discover = () => {
+  const navigate = useNavigate();
+  const [isVisible, setIsVisible] = useState(false);
+  const [scrollY, setScrollY] = useState(0);
+
+  useEffect(() => {
+    setIsVisible(true);
+    
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
+    
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   const cities = [
     {
       id: 1,
@@ -60,92 +76,208 @@ const Discover = () => {
     <div className="min-h-screen bg-background">
       <Header />
       
-      <main>
-        <section className="relative py-20 bg-gradient-to-br from-primary via-primary to-primary/90" style={{ marginTop: '10rem' }}>
-          <div className="container mx-auto px-6">
-            <nav className="mb-8">
-              <ol className="flex items-center space-x-2 text-white/70 text-sm">
-                <li>
-                  <Link to="/" className="flex items-center hover:text-white transition-colors">
-                    <Home className="w-4 h-4 mr-1" />
-                    Home
-                  </Link>
-                </li>
-                <li className="flex items-center">
-                  <ChevronRight className="w-4 h-4 mx-2 text-white/40" />
-                  <span className="text-white font-medium">Discover</span>
-                </li>
-              </ol>
-            </nav>
-            <h1 className="text-5xl md:text-6xl font-bold text-white">
-              Discover
-            </h1>
+      <main className="relative">
+        {/* Hero Section with Cinematic Design */}
+        <section className="relative h-[75vh] min-h-[600px] w-full overflow-hidden" style={{ marginTop: '5rem' }}>
+          {/* Parallax Background */}
+          <div 
+            className="absolute inset-0 bg-gradient-to-br from-slate-900 via-primary to-slate-800"
+            style={{
+              transform: `translateY(${scrollY * 0.5}px)`,
+            }}
+          >
+            {/* Overlay Pattern */}
+            <div className="absolute inset-0 opacity-10">
+              <div className="absolute inset-0" style={{
+                backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
+                backgroundSize: '32px 32px'
+              }} />
+            </div>
+          </div>
+
+          {/* Cinematic Gradient Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/30" />
+
+          {/* Content Container */}
+          <div className="relative h-full flex flex-col justify-between container mx-auto px-6 py-8">
+            {/* Top Section: Back Button & Breadcrumb */}
+            <div className={`transition-all duration-1000 delay-100 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
+              <button
+                onClick={() => navigate(-1)}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md text-white hover:bg-white/20 transition-all duration-300 shadow-lg hover:shadow-xl mb-6 border border-white/20"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span className="font-medium">Back</span>
+              </button>
+
+              <nav>
+                <ol className="flex items-center space-x-2 text-sm">
+                  <li>
+                    <Link 
+                      to="/" 
+                      className="flex items-center text-white/80 hover:text-white transition-colors duration-300 bg-white/5 backdrop-blur-sm px-3 py-1.5 rounded-full border border-white/10 hover:border-white/30"
+                    >
+                      <Home className="w-3.5 h-3.5 mr-1.5" />
+                      Home
+                    </Link>
+                  </li>
+                  <li className="flex items-center">
+                    <ChevronRight className="w-4 h-4 mx-1 text-white/50" />
+                    <span className="text-white font-semibold bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-full border border-white/20 shadow-lg">
+                      Discover
+                    </span>
+                  </li>
+                </ol>
+              </nav>
+            </div>
+
+            {/* Center Section: Main Heading */}
+            <div className="flex-1 flex items-center justify-center">
+              <div className={`text-center transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+                <h1 className="text-6xl md:text-8xl lg:text-9xl font-bold text-white mb-6 tracking-tight drop-shadow-2xl">
+                  Discover
+                </h1>
+                <p className="text-xl md:text-2xl text-white/90 max-w-3xl mx-auto font-light tracking-wide drop-shadow-lg">
+                  Embark on a journey through Morocco's most enchanting destinations
+                </p>
+              </div>
+            </div>
+
+            {/* Bottom Section: Scroll Indicator */}
+            <div className={`text-center transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+              <div className="inline-flex flex-col items-center gap-2 text-white/70">
+                <span className="text-sm font-medium tracking-wider">SCROLL TO EXPLORE</span>
+                <div className="w-6 h-10 rounded-full border-2 border-white/30 flex items-start justify-center p-2">
+                  <div className="w-1.5 h-3 bg-white/70 rounded-full animate-bounce" />
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
-        <section className="py-20 bg-background">
+        {/* Introduction Section */}
+        <section className="py-24 bg-gradient-to-b from-background to-muted/20">
           <div className="container mx-auto px-6">
-            <div className="max-w-4xl mx-auto mb-16 text-center">
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
-                Morocco, a melting pot of dynasties and cultures
+            <div className={`max-w-4xl mx-auto text-center transition-all duration-1000 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
+              <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-8 leading-tight">
+                Morocco, a melting pot of <span className="text-primary">dynasties and cultures</span>
               </h2>
-              <p className="text-lg text-muted-foreground leading-relaxed">
-                From the northern coastal cities touching the Mediterranean to the ancient imperial cities steeped in history, Morocco offers an incredible tapestry of experiences. Each city tells its own unique story, shaped by centuries of diverse cultural influences, from Berber traditions to Arab, Andalusian, and European heritage. Discover the soul of Morocco through its most captivating cities, where ancient medinas meet modern vitality, and every street corner reveals a new chapter in this nation's rich cultural narrative. These destinations are not just places to visit—they are living museums where Morocco's past and present dance together in perfect harmony.
+              <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
+                From the northern coastal cities touching the Mediterranean to the ancient imperial cities steeped in history, Morocco offers an incredible tapestry of experiences. Each city tells its own unique story, shaped by centuries of diverse cultural influences, from Berber traditions to Arab, Andalusian, and European heritage. Discover the soul of Morocco through its most captivating cities, where ancient medinas meet modern vitality, and every street corner reveals a new chapter in this nation's rich cultural narrative.
               </p>
             </div>
+          </div>
+        </section>
 
+        {/* Cities Section */}
+        <section className="py-20 bg-background">
+          <div className="container mx-auto px-6">
             {cities.map((city, index) => (
               <div
                 key={city.id}
                 className={`flex flex-col ${
                   index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'
-                } gap-8 md:gap-12 items-center mb-24 pb-24 border-b border-border/30 last:border-0`}
+                } gap-10 md:gap-16 items-center mb-32 last:mb-16 transition-all duration-700 hover:transform`}
               >
+                {/* Image Container */}
                 <div className="w-full md:w-1/2">
-                  <div className="relative overflow-hidden rounded-2xl shadow-2xl group">
+                  <div className="relative overflow-hidden rounded-3xl shadow-2xl group">
+                    {/* Image */}
                     <img
                       src={city.image}
                       alt={city.name}
-                      className="w-full h-[400px] object-cover transition-transform duration-700 group-hover:scale-110"
+                      className="w-full h-[450px] md:h-[500px] object-cover transition-all duration-700 group-hover:scale-110"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-primary/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    
+                    {/* Gradient Overlay on Hover */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500" />
+                    
+                    {/* City Name Overlay on Hover */}
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500">
+                      <h3 className="text-5xl font-bold text-white drop-shadow-2xl">
+                        {city.name}
+                      </h3>
+                    </div>
+
+                    {/* Corner Accent */}
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-primary/30 to-transparent rounded-bl-full" />
                   </div>
                 </div>
 
+                {/* Content Container */}
                 <div className="w-full md:w-1/2 space-y-6">
-                  <div>
-                    <h3 className="text-4xl md:text-5xl font-bold text-foreground mb-3">
+                  {/* Title Section */}
+                  <div className="space-y-3">
+                    <h3 className="text-5xl md:text-6xl font-bold text-foreground tracking-tight">
                       {city.name}
                     </h3>
-                    <p className="text-xl text-primary font-semibold mb-4 italic">
+                    <p className="text-xl md:text-2xl text-primary font-semibold italic border-l-4 border-primary pl-4">
                       {city.title}
                     </p>
                   </div>
 
-                  <p className="text-base text-muted-foreground leading-relaxed">
+                  {/* Description */}
+                  <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
                     {city.description}
                   </p>
 
-                  <div className="flex flex-wrap gap-2 pt-2">
+                  {/* Highlights */}
+                  <div className="flex flex-wrap gap-3 pt-4">
                     {city.highlights.map((highlight, idx) => (
                       <span
                         key={idx}
-                        className="px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full border border-secondary/20"
+                        className="px-4 py-2 bg-secondary/10 text-secondary text-sm font-medium rounded-full border border-secondary/20 hover:bg-secondary/20 hover:border-secondary/40 transition-all duration-300 shadow-sm hover:shadow-md"
                       >
                         {highlight}
                       </span>
                     ))}
                   </div>
 
+                  {/* CTA Button */}
                   <Button
-                    className="mt-6 bg-[#1a9b8e] hover:bg-[#158074] text-white px-8 py-6 rounded-full text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-300 group"
+                    asChild
+                    className="mt-8 bg-gradient-to-r from-[#1a9b8e] to-[#158074] hover:from-[#158074] hover:to-[#0f5f56] text-white px-10 py-7 rounded-full text-base font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 group border-2 border-[#1a9b8e]/20"
                   >
-                    DISCOVER MORE
-                    <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    <Link to={`/city/${city.id}`}>
+                      DISCOVER MORE
+                      <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-2 transition-transform duration-300" />
+                    </Link>
                   </Button>
                 </div>
               </div>
             ))}
+          </div>
+        </section>
+
+        {/* Bottom CTA Section */}
+        <section className="py-24 bg-gradient-to-br from-primary via-primary to-primary/90 relative overflow-hidden">
+          {/* Background Pattern */}
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute inset-0" style={{
+              backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
+              backgroundSize: '40px 40px'
+            }} />
+          </div>
+
+          <div className="container mx-auto px-6 relative z-10">
+            <div className="max-w-3xl mx-auto text-center text-white">
+              <h2 className="text-4xl md:text-5xl font-bold mb-6 drop-shadow-lg">
+                Ready to Start Your Journey?
+              </h2>
+              <p className="text-lg md:text-xl mb-10 text-white/90 leading-relaxed">
+                Join us to explore these magnificent cities and create unforgettable memories in Morocco.
+              </p>
+              <Button
+                asChild
+                className="bg-white text-primary hover:bg-white/90 px-12 py-7 rounded-full text-lg font-bold shadow-2xl hover:shadow-3xl transition-all duration-300 group"
+              >
+                <Link to="/join-us">
+                  JOIN THE JOURNEY
+                  <ArrowRight className="ml-3 w-6 h-6 group-hover:translate-x-2 transition-transform duration-300" />
+                </Link>
+              </Button>
+            </div>
           </div>
         </section>
       </main>
