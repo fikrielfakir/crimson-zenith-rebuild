@@ -35,51 +35,52 @@ const CityDetail = () => {
     <div className="min-h-screen bg-background">
       {/* Hero Section with Background Image - Includes Navbar, Breadcrumb, and Title */}
       <section 
-        className="relative w-full min-h-[100vh] bg-cover bg-center bg-no-repeat" 
-        style={{ 
-          backgroundImage: `url(${city.image})`,
-          backgroundAttachment: 'fixed'
-        }}
+        className="relative w-full h-screen overflow-hidden" 
       >
-        {/* Dark overlay for text readability */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-black/70" />
+        {/* Parallax Background Image */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-105 transition-transform duration-700 ease-out"
+          style={{ 
+            backgroundImage: `url(${city.image})`,
+            backgroundAttachment: 'fixed'
+          }}
+        />
+        
+        {/* Cinematic Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/80" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-black/30" />
         
         {/* Header (Navbar) */}
         <div className="relative z-50">
           <Header />
         </div>
         
-        {/* Breadcrumb Section - Separated from Navbar with same background */}
-        <div className="relative z-40" style={{ marginTop: '10rem' }}>
-          <div className="w-full border-b border-white/10" style={{ 
-            backgroundColor: 'rgba(0, 0, 0, 0.3)',
-            backdropFilter: 'blur(8px)',
-            paddingTop: '12px',
-            paddingBottom: '12px'
-          }}>
-            <div className="container mx-auto px-6">
+        {/* Breadcrumb Section */}
+        <div className="relative z-40 mt-32 md:mt-40">
+          <div className="w-full backdrop-blur-md bg-black/20 border-b border-white/10 shadow-lg">
+            <div className="container mx-auto px-6 md:px-8 py-3">
               <nav aria-label="Breadcrumb">
-                <ol className="flex items-center space-x-2 text-white/70 text-xs md:text-sm">
+                <ol className="flex items-center space-x-2 text-white/80 text-sm">
                   <li>
                     <Link
                       to="/"
-                      className="flex items-center hover:text-white transition-colors duration-200"
+                      className="flex items-center hover:text-white transition-all duration-300 group"
                     >
-                      <Home className="w-3.5 h-3.5 md:w-4 md:h-4 mr-1" />
+                      <Home className="w-4 h-4 mr-1.5 group-hover:scale-110 transition-transform" />
                       <span className="font-medium">Home</span>
                     </Link>
                   </li>
                   <li className="flex items-center">
-                    <ChevronRight className="w-3.5 h-3.5 md:w-4 md:h-4 mx-1 text-white/40" />
+                    <ChevronRight className="w-4 h-4 mx-1.5 text-white/50" />
                     <Link
                       to="/discover"
-                      className="hover:text-white transition-colors duration-200 font-medium"
+                      className="hover:text-white transition-all duration-300 font-medium hover:underline underline-offset-4"
                     >
                       Discover
                     </Link>
                   </li>
                   <li className="flex items-center">
-                    <ChevronRight className="w-3.5 h-3.5 md:w-4 md:h-4 mx-1 text-white/40" />
+                    <ChevronRight className="w-4 h-4 mx-1.5 text-white/50" />
                     <span className="text-white font-semibold">{city.name}</span>
                   </li>
                 </ol>
@@ -89,29 +90,45 @@ const CityDetail = () => {
         </div>
         
         {/* Hero Content */}
-        <div className="relative z-30 w-full py-16 md:py-24">
-          <div className="container mx-auto px-6">
+        <div className="relative z-30 flex items-center h-[calc(100vh-16rem)] md:h-[calc(100vh-18rem)]">
+          <div className="container mx-auto px-6 md:px-8">
+            {/* Back Button with Premium Styling */}
             <Button
               onClick={() => navigate('/discover')}
               variant="ghost"
-              className="text-white hover:bg-white/10 mb-6 px-3 py-2 animate-fade-in"
+              className="text-white/90 hover:text-white hover:bg-white/20 backdrop-blur-sm border border-white/20 rounded-full mb-8 px-5 py-2.5 shadow-xl transition-all duration-300 hover:scale-105 animate-fade-in opacity-0 [animation-delay:200ms] [animation-fill-mode:forwards]"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Discover
             </Button>
 
-            <div className="flex items-center gap-3 mb-4 animate-fade-in">
-              <MapPin className="w-6 h-6 text-secondary drop-shadow-lg" />
-              <span className="text-white/90 text-lg font-medium drop-shadow-md">Morocco</span>
+            {/* Location Badge */}
+            <div className="flex items-center gap-3 mb-6 animate-fade-in opacity-0 [animation-delay:400ms] [animation-fill-mode:forwards]">
+              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl">
+                <MapPin className="w-5 h-5 text-secondary" />
+                <span className="text-white text-base font-semibold tracking-wide">Morocco</span>
+              </div>
             </div>
             
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-4 animate-fade-in drop-shadow-2xl">
+            {/* Main Title - Bold Sans-Serif */}
+            <h1 className="text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-black text-white mb-6 tracking-tight leading-none animate-fade-in opacity-0 [animation-delay:600ms] [animation-fill-mode:forwards]" style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>
               {city.name}
             </h1>
             
-            <p className="text-xl md:text-2xl lg:text-3xl text-secondary font-semibold italic animate-fade-in drop-shadow-lg">
+            {/* Subtitle - Elegant Accent Font */}
+            <p className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl text-secondary font-light italic tracking-wide mb-8 animate-fade-in opacity-0 [animation-delay:800ms] [animation-fill-mode:forwards]" style={{ fontFamily: 'Georgia, Cambria, serif', textShadow: '0 4px 20px rgba(0,0,0,0.5)' }}>
               {city.title}
             </p>
+
+            {/* Decorative Line */}
+            <div className="w-24 h-1 bg-gradient-to-r from-secondary to-transparent rounded-full animate-fade-in opacity-0 [animation-delay:1000ms] [animation-fill-mode:forwards] shadow-lg" />
+          </div>
+        </div>
+
+        {/* Scroll Indicator */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-40 animate-bounce">
+          <div className="w-6 h-10 border-2 border-white/50 rounded-full flex items-start justify-center p-2">
+            <div className="w-1 h-2 bg-white/70 rounded-full" />
           </div>
         </div>
       </section>
