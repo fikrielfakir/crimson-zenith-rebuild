@@ -56,8 +56,8 @@ const CityDetail = () => {
         </div>
         
         {/* Breadcrumb Section */}
-        <div className="relative z-40 mt-32 md:mt-40">
-          <div className="w-full backdrop-blur-md bg-black/20 border-b border-white/10 shadow-lg">
+        <div className="relative z-40 mt-40 md:mt-48">
+          <div className="w-full">
             <div className="container mx-auto px-6 md:px-8 py-3">
               <nav aria-label="Breadcrumb">
                 <ol className="flex items-center space-x-2 text-white/80 text-sm">
