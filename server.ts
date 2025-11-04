@@ -1366,6 +1366,104 @@ app.put('/api/admin/cms/theme', async (req, res) => {
   }
 });
 
+// Navbar Settings
+app.get('/api/cms/navbar', async (req, res) => {
+  try {
+    const settings = await storage.getNavbarSettings();
+    res.json(settings);
+  } catch (error) {
+    console.error('❌ Error fetching navbar settings:', error);
+    res.status(500).json({ error: 'Failed to fetch navbar settings' });
+  }
+});
+
+app.put('/api/admin/cms/navbar', async (req, res) => {
+  try {
+    const settings = await storage.updateNavbarSettings(req.body);
+    res.json(settings);
+  } catch (error) {
+    console.error('❌ Error updating navbar settings:', error);
+    res.status(500).json({ error: 'Failed to update navbar settings' });
+  }
+});
+
+// Focus Items
+app.get('/api/cms/focus-items', async (req, res) => {
+  try {
+    const items = await storage.getFocusItems();
+    res.json(items);
+  } catch (error) {
+    console.error('❌ Error fetching focus items:', error);
+    res.status(500).json({ error: 'Failed to fetch focus items' });
+  }
+});
+
+// Site Stats
+app.get('/api/cms/stats', async (req, res) => {
+  try {
+    const stats = await storage.getSiteStats();
+    res.json(stats);
+  } catch (error) {
+    console.error('❌ Error fetching site stats:', error);
+    res.status(500).json({ error: 'Failed to fetch site stats' });
+  }
+});
+
+// Team Members
+app.get('/api/cms/team-members', async (req, res) => {
+  try {
+    const members = await storage.getTeamMembers();
+    res.json(members);
+  } catch (error) {
+    console.error('❌ Error fetching team members:', error);
+    res.status(500).json({ error: 'Failed to fetch team members' });
+  }
+});
+
+// Testimonials
+app.get('/api/cms/testimonials', async (req, res) => {
+  try {
+    const testimonials = await storage.getLandingTestimonials();
+    res.json(testimonials);
+  } catch (error) {
+    console.error('❌ Error fetching testimonials:', error);
+    res.status(500).json({ error: 'Failed to fetch testimonials' });
+  }
+});
+
+// Contact Settings
+app.get('/api/cms/contact', async (req, res) => {
+  try {
+    const settings = await storage.getContactSettings();
+    res.json(settings);
+  } catch (error) {
+    console.error('❌ Error fetching contact settings:', error);
+    res.status(500).json({ error: 'Failed to fetch contact settings' });
+  }
+});
+
+// Footer Settings
+app.get('/api/cms/footer', async (req, res) => {
+  try {
+    const settings = await storage.getFooterSettings();
+    res.json(settings);
+  } catch (error) {
+    console.error('❌ Error fetching footer settings:', error);
+    res.status(500).json({ error: 'Failed to fetch footer settings' });
+  }
+});
+
+// Media Assets - List all
+app.get('/api/admin/cms/media', async (req, res) => {
+  try {
+    const media = await storage.getMediaAssets();
+    res.json(media);
+  } catch (error) {
+    console.error('❌ Error fetching media assets:', error);
+    res.status(500).json({ error: 'Failed to fetch media assets' });
+  }
+});
+
 // In production, handle client-side routing
 if (process.env.NODE_ENV === 'production') {
   app.get('*', (req, res) => {
