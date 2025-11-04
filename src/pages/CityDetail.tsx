@@ -138,19 +138,14 @@ const CityDetail = () => {
                   {city.highlights.map((highlight, index) => (
                     <div
                       key={index}
-                      className="flex items-start gap-4 p-6 rounded-xl border border-border/50 bg-card hover:shadow-lg transition-all duration-300"
+                      className="flex items-center gap-4"
                     >
-                      <div className="flex-shrink-0 w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center">
-                        <span className="text-secondary font-bold text-lg">{index + 1}</span>
+                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-secondary/20 flex items-center justify-center">
+                        <span className="text-secondary font-bold text-sm">{index + 1}</span>
                       </div>
-                      <div>
-                        <h4 className="text-xl font-semibold text-foreground mb-2">
-                          {highlight}
-                        </h4>
-                        <p className="text-muted-foreground text-sm">
-                          Explore this remarkable destination
-                        </p>
-                      </div>
+                      <h4 className="text-lg font-semibold text-foreground">
+                        {highlight}
+                      </h4>
                     </div>
                   ))}
                 </div>
