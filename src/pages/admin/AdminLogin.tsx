@@ -37,7 +37,9 @@ const AdminLogin = () => {
 
       // Store admin auth in localStorage
       if (data.token) {
-        localStorage.setItem('adminAuth', JSON.stringify(data));
+        localStorage.setItem('adminAuth', 'authenticated');
+        localStorage.setItem('adminUser', JSON.stringify(data.user));
+        localStorage.setItem('adminToken', data.token);
       }
 
       navigate('/admin');
