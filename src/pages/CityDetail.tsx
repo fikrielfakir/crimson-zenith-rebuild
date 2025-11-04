@@ -35,57 +35,63 @@ const CityDetail = () => {
     <div className="min-h-screen bg-background">
       <Header />
       
-      <main>
+      <main className="pt-[180px]">
         <section 
-          className="relative py-32 bg-cover bg-center" 
+          className="relative w-full min-h-[70vh] bg-cover bg-center bg-no-repeat flex items-center" 
           style={{ 
-            marginTop: '10rem',
-            backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0.4), rgba(0,0,0,0.6)), url(${city.image})`
+            backgroundImage: `url(${city.image})`,
+            backgroundAttachment: 'fixed'
           }}
         >
-          <div className="container mx-auto px-6">
-            <nav className="mb-8">
-              <ol className="flex items-center space-x-2 text-white/70 text-sm">
-                <li>
-                  <Link to="/" className="flex items-center hover:text-white transition-colors">
-                    <Home className="w-4 h-4 mr-1" />
-                    Home
-                  </Link>
-                </li>
-                <li className="flex items-center">
-                  <ChevronRight className="w-4 h-4 mx-2 text-white/40" />
-                  <Link to="/discover" className="hover:text-white transition-colors">
-                    Discover
-                  </Link>
-                </li>
-                <li className="flex items-center">
-                  <ChevronRight className="w-4 h-4 mx-2 text-white/40" />
-                  <span className="text-white font-medium">{city.name}</span>
-                </li>
-              </ol>
-            </nav>
-            
-            <Button
-              onClick={() => navigate('/discover')}
-              variant="ghost"
-              className="text-white hover:bg-white/10 mb-6 px-3 py-2"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Discover
-            </Button>
+          {/* Dark overlay for text readability */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/60 to-black/70" />
+          
+          {/* Content */}
+          <div className="relative z-10 w-full py-16 md:py-24">
+            <div className="container mx-auto px-6">
+              <nav className="mb-8 animate-fade-in">
+                <ol className="flex items-center space-x-2 text-white/70 text-sm">
+                  <li>
+                    <Link to="/" className="flex items-center hover:text-white transition-colors">
+                      <Home className="w-4 h-4 mr-1" />
+                      Home
+                    </Link>
+                  </li>
+                  <li className="flex items-center">
+                    <ChevronRight className="w-4 h-4 mx-2 text-white/40" />
+                    <Link to="/discover" className="hover:text-white transition-colors">
+                      Discover
+                    </Link>
+                  </li>
+                  <li className="flex items-center">
+                    <ChevronRight className="w-4 h-4 mx-2 text-white/40" />
+                    <span className="text-white font-medium">{city.name}</span>
+                  </li>
+                </ol>
+              </nav>
+              
+              <Button
+                onClick={() => navigate('/discover')}
+                variant="ghost"
+                className="text-white hover:bg-white/10 mb-6 px-3 py-2 animate-fade-in"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back to Discover
+              </Button>
 
-            <div className="flex items-center gap-3 mb-4">
-              <MapPin className="w-6 h-6 text-secondary" />
-              <span className="text-white/80 text-lg">Morocco</span>
+              <div className="flex items-center gap-3 mb-4 animate-fade-in">
+                <MapPin className="w-6 h-6 text-secondary drop-shadow-lg" />
+                <span className="text-white/90 text-lg font-medium drop-shadow-md">Morocco</span>
+              </div>
+              
+              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-4 animate-fade-in drop-shadow-2xl">
+                {city.name}
+              </h1>
+              
+              <p className="text-xl md:text-2xl lg:text-3xl text-secondary font-semibold italic animate-fade-in drop-shadow-lg">
+                {city.title}
+              </p>
             </div>
-            
-            <h1 className="text-6xl md:text-7xl font-bold text-white mb-4">
-              {city.name}
-            </h1>
-            
-            <p className="text-2xl md:text-3xl text-secondary font-semibold italic">
-              {city.title}
-            </p>
           </div>
         </section>
 
