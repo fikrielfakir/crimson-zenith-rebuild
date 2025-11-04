@@ -78,7 +78,7 @@ const Discover = () => {
       
       <main className="relative">
         {/* Hero Section with Background Image */}
-        <section className="relative py-20 overflow-hidden" style={{ marginTop: '10rem' }}>
+        <section className="relative py-20 overflow-hidden" style={{ paddingTop: '15rem' }}>
           {/* Background Image with Parallax */}
           <div 
             className="absolute inset-0 bg-cover bg-center bg-no-repeat"
