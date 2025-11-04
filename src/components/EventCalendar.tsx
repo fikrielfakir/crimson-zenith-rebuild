@@ -265,7 +265,7 @@ const EventCalendar = () => {
                 <Button
                   variant="ghost" 
                   size="sm"
-                  onClick={() => navigate('/events')}
+                  onClick={() => navigate('/discover')}
                   className="flex items-center gap-2 text-primary hover:text-primary hover:bg-primary/10 transition-colors"
                 >
                   <MoreHorizontal className="w-4 h-4" />
