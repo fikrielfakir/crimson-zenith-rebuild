@@ -19,7 +19,7 @@ const AdminLogin = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/login', {
+      const response = await fetch('/api/admin/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -33,6 +33,11 @@ const AdminLogin = () => {
         setError(data.message || 'Invalid username or password');
         setIsLoading(false);
         return;
+      }
+
+      // Store admin auth in localStorage
+      if (data.token) {
+        localStorage.setItem('adminAuth', JSON.stringify(data));
       }
 
       navigate('/admin');
