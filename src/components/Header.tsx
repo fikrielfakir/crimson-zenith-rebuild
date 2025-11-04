@@ -1,16 +1,118 @@
 import { Button } from "@/components/ui/button";
-import { useState, useEffect } from "react";
-import { Globe, Moon, Sun, User, Menu, ChevronDown } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { Globe, Moon, Sun, User, Menu, ChevronDown, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import logoAtj from "@/assets/logo-atj.png";
 import { useNavbarSettings } from "@/hooks/useCMS";
 import { moroccoCities } from "@/lib/citiesData";
+import useEmblaCarousel from "embla-carousel-react";
 
 interface NavLink {
   label: string;
   url: string;
   isExternal?: boolean;
 }
+
+const CitiesDropdown = () => {
+  const [emblaRef, emblaApi] = useEmblaCarousel({ 
+    loop: true,
+    align: 'start',
+    slidesToScroll: 1
+  });
+  const [selectedIndex, setSelectedIndex] = useState(0);
+
+  const scrollPrev = useCallback(() => {
+    if (emblaApi) emblaApi.scrollPrev();
+  }, [emblaApi]);
+
+  const scrollNext = useCallback(() => {
+    if (emblaApi) emblaApi.scrollNext();
+  }, [emblaApi]);
+
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return;
+    setSelectedIndex(emblaApi.selectedScrollSnap());
+  }, [emblaApi]);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    onSelect();
+    emblaApi.on('select', onSelect);
+    return () => {
+      emblaApi.off('select', onSelect);
+    };
+  }, [emblaApi, onSelect]);
+
+  return (
+    <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-[700px] bg-white/95 backdrop-blur-sm rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 border border-border/20">
+      <div className="p-6">
+        <div className="text-sm font-bold text-foreground mb-4 uppercase tracking-wider">
+          TOP CITIES MOROCCO
+        </div>
+        
+        <div className="relative">
+          <div className="overflow-hidden" ref={emblaRef}>
+            <div className="flex gap-4">
+              {moroccoCities.map((city) => (
+                <div key={city.id} className="flex-[0_0_32%] min-w-0">
+                  <Link
+                    to={{ pathname: '/discover/cities', search: `?city=${city.slug}` }}
+                    className="block group/card"
+                  >
+                    <div className="relative h-32 rounded-lg overflow-hidden">
+                      <img
+                        src={city.image}
+                        alt={city.name}
+                        className="w-full h-full object-cover group-hover/card:scale-110 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                      <div className="absolute bottom-3 left-3 right-3">
+                        <h3 className="text-white font-bold text-lg uppercase tracking-wide">
+                          {city.name}
+                        </h3>
+                      </div>
+                    </div>
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <button
+            onClick={scrollPrev}
+            aria-label="Previous cities"
+            className="absolute -left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-primary hover:bg-primary/90 text-white flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-110 z-10"
+          >
+            <ChevronRight className="w-5 h-5 rotate-180" />
+          </button>
+          
+          <button
+            onClick={scrollNext}
+            aria-label="Next cities"
+            className="absolute -right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-primary hover:bg-primary/90 text-white flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-110 z-10"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="flex justify-center gap-2 mt-4" role="tablist" aria-label="City carousel navigation">
+          {Array.from({ length: moroccoCities.length }).map((_, index) => (
+            <button
+              key={index}
+              onClick={() => emblaApi?.scrollTo(index)}
+              role="tab"
+              aria-label={`Go to slide ${index + 1}`}
+              aria-selected={index === selectedIndex}
+              className={`w-2 h-2 rounded-full transition-all duration-200 ${
+                index === selectedIndex ? 'bg-primary w-6' : 'bg-gray-300'
+              }`}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 // Top Navbar (Utility Bar - Only utilities, no navigation)
 const TopNavbar = ({ 
@@ -147,25 +249,7 @@ const BottomNavbar = ({
                         {link.label}
                         <ChevronDown className="w-3 h-3 transition-transform group-hover:rotate-180 duration-300" />
                       </Link>
-                      
-                      <div className="absolute left-0 top-full mt-2 w-56 bg-white rounded-lg shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 border border-border/20">
-                        <div className="py-3 px-2">
-                          <div className="text-xs font-semibold text-muted-foreground px-3 py-2 uppercase tracking-wider">
-                            Top Cities Morocco
-                          </div>
-                          <div className="space-y-1">
-                            {moroccoCities.map((city) => (
-                              <Link
-                                key={city.id}
-                                to={`/discover/cities?${city.slug}`}
-                                className="block px-3 py-2 text-sm text-foreground hover:bg-secondary/10 hover:text-secondary rounded-md transition-all duration-200 font-body"
-                              >
-                                {city.name}
-                              </Link>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
+                      <CitiesDropdown />
                     </div>
                   );
                 }
@@ -219,25 +303,7 @@ const BottomNavbar = ({
                         {link.label}
                         <ChevronDown className="w-3 h-3 transition-transform group-hover:rotate-180 duration-300" />
                       </Link>
-                      
-                      <div className="absolute left-0 top-full mt-2 w-56 bg-white rounded-lg shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 border border-border/20">
-                        <div className="py-3 px-2">
-                          <div className="text-xs font-semibold text-muted-foreground px-3 py-2 uppercase tracking-wider">
-                            Top Cities Morocco
-                          </div>
-                          <div className="space-y-1">
-                            {moroccoCities.map((city) => (
-                              <Link
-                                key={city.id}
-                                to={`/discover/cities?${city.slug}`}
-                                className="block px-3 py-2 text-sm text-foreground hover:bg-secondary/10 hover:text-secondary rounded-md transition-all duration-200 font-body"
-                              >
-                                {city.name}
-                              </Link>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
+                      <CitiesDropdown />
                     </div>
                   );
                 }

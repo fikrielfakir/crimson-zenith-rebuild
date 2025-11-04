@@ -1,0 +1,202 @@
+import { useEffect, useState } from "react";
+import { useLocation, Link, useNavigate } from "react-router-dom";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import { moroccoCities } from "@/lib/citiesData";
+import { Button } from "@/components/ui/button";
+import { Home, ChevronRight, MapPin, ArrowLeft } from "lucide-react";
+
+const CityDetail = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [city, setCity] = useState<typeof moroccoCities[0] | null>(null);
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const citySlug = searchParams.get('city');
+    
+    if (citySlug) {
+      const foundCity = moroccoCities.find(c => c.slug === citySlug);
+      if (foundCity) {
+        setCity(foundCity);
+      } else {
+        navigate('/discover');
+      }
+    } else {
+      navigate('/discover');
+    }
+  }, [location.search, navigate]);
+
+  if (!city) {
+    return null;
+  }
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Header />
+      
+      <main>
+        <section 
+          className="relative py-32 bg-cover bg-center" 
+          style={{ 
+            marginTop: '10rem',
+            backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0.4), rgba(0,0,0,0.6)), url(${city.image})`
+          }}
+        >
+          <div className="container mx-auto px-6">
+            <nav className="mb-8">
+              <ol className="flex items-center space-x-2 text-white/70 text-sm">
+                <li>
+                  <Link to="/" className="flex items-center hover:text-white transition-colors">
+                    <Home className="w-4 h-4 mr-1" />
+                    Home
+                  </Link>
+                </li>
+                <li className="flex items-center">
+                  <ChevronRight className="w-4 h-4 mx-2 text-white/40" />
+                  <Link to="/discover" className="hover:text-white transition-colors">
+                    Discover
+                  </Link>
+                </li>
+                <li className="flex items-center">
+                  <ChevronRight className="w-4 h-4 mx-2 text-white/40" />
+                  <span className="text-white font-medium">{city.name}</span>
+                </li>
+              </ol>
+            </nav>
+            
+            <Button
+              onClick={() => navigate('/discover')}
+              variant="ghost"
+              className="text-white hover:bg-white/10 mb-6 px-3 py-2"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Discover
+            </Button>
+
+            <div className="flex items-center gap-3 mb-4">
+              <MapPin className="w-6 h-6 text-secondary" />
+              <span className="text-white/80 text-lg">Morocco</span>
+            </div>
+            
+            <h1 className="text-6xl md:text-7xl font-bold text-white mb-4">
+              {city.name}
+            </h1>
+            
+            <p className="text-2xl md:text-3xl text-secondary font-semibold italic">
+              {city.title}
+            </p>
+          </div>
+        </section>
+
+        <section className="py-20 bg-background">
+          <div className="container mx-auto px-6">
+            <div className="max-w-5xl mx-auto">
+              <div className="mb-16">
+                <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
+                  About {city.name}
+                </h2>
+                <p className="text-lg text-muted-foreground leading-relaxed">
+                  {city.description}
+                </p>
+              </div>
+
+              <div className="mb-16">
+                <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-8">
+                  Highlights & Must-See Attractions
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {city.highlights.map((highlight, index) => (
+                    <div
+                      key={index}
+                      className="flex items-start gap-4 p-6 rounded-xl border border-border/50 bg-card hover:shadow-lg transition-all duration-300"
+                    >
+                      <div className="flex-shrink-0 w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center">
+                        <span className="text-secondary font-bold text-lg">{index + 1}</span>
+                      </div>
+                      <div>
+                        <h4 className="text-xl font-semibold text-foreground mb-2">
+                          {highlight}
+                        </h4>
+                        <p className="text-muted-foreground text-sm">
+                          Explore this remarkable destination
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="text-center">
+                <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-6">
+                  Ready to explore {city.name}?
+                </h3>
+                <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
+                  Join us on an unforgettable journey to discover the beauty, culture, and heritage of this amazing Moroccan city.
+                </p>
+                <div className="flex flex-wrap gap-4 justify-center">
+                  <Button
+                    asChild
+                    size="lg"
+                    className="bg-secondary hover:bg-secondary/90 text-white px-8 py-6 text-lg"
+                  >
+                    <Link to="/join">Join Our Community</Link>
+                  </Button>
+                  <Button
+                    asChild
+                    size="lg"
+                    variant="outline"
+                    className="px-8 py-6 text-lg"
+                  >
+                    <Link to="/contact">Contact Us</Link>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="py-16 bg-muted/30">
+          <div className="container mx-auto px-6">
+            <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-8 text-center">
+              Explore More Moroccan Cities
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+              {moroccoCities
+                .filter(c => c.id !== city.id)
+                .slice(0, 3)
+                .map((otherCity) => (
+                  <Link
+                    key={otherCity.id}
+                    to={{ pathname: '/discover/cities', search: `?city=${otherCity.slug}` }}
+                    className="group relative overflow-hidden rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300"
+                  >
+                    <div className="aspect-video relative">
+                      <img
+                        src={otherCity.image}
+                        alt={otherCity.name}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+                      <div className="absolute bottom-0 left-0 right-0 p-6">
+                        <h4 className="text-2xl font-bold text-white mb-1">
+                          {otherCity.name}
+                        </h4>
+                        <p className="text-white/80 text-sm italic">
+                          {otherCity.title}
+                        </p>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <Footer />
+    </div>
+  );
+};
+
+export default CityDetail;

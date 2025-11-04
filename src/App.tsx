@@ -39,6 +39,7 @@ import BookingManagement from "./pages/admin/BookingManagement";
 import JoinUs from "./pages/JoinUs";
 import ClubDetail from "./pages/ClubDetail";
 import ActivityDetail from "./pages/ActivityDetail";
+import CityDetail from "./pages/CityDetail";
 import UserProfile from "./pages/UserProfile";
 import ClubProfileEdit from "./pages/ClubProfileEdit";
 import UserLogin from "./pages/UserLogin";
@@ -57,6 +58,7 @@ const App = () => (
           {/* Public Routes */}
           <Route path="/" element={<Index />} />
           <Route path="/discover" element={<Discover />} />
+          <Route path="/discover/cities" element={<CityDetail />} />
           <Route path="/events" element={<EventsActivities />} />
           <Route path="/clubs" element={<Clubs />} />
           <Route path="/club/:clubName" element={<ClubDetail />} />
