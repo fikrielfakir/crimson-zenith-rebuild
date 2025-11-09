@@ -21,8 +21,8 @@ const About = () => {
 
   return (
     <section id="discover" className="py-20 bg-gradient-subtle scroll-mt-32">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-16 animate-fade-in">
+      <div className="w-full px-0">
+        <div className="text-center mb-16 animate-fade-in px-4">
           <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6 font-heading">
             Our Focus
           </h2>
@@ -31,11 +31,11 @@ const About = () => {
           </p>
         </div>
         
-        <div className="grid md:grid-cols-3 gap-6 max-w-7xl mx-auto">
+        <div className="grid md:grid-cols-3 gap-0">
           {focuses.map((focus, index) => (
             <Card 
               key={focus.title} 
-              className="group relative overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-500 animate-scale-in h-[400px] md:h-[500px] cursor-pointer"
+              className="group relative overflow-hidden border-0 shadow-none hover:shadow-2xl transition-all duration-500 animate-scale-in h-[60vh] md:h-[85vh] cursor-pointer"
               style={{ animationDelay: `${index * 0.1}s` }}
             >
               {/* Background Image */}
