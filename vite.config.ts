@@ -18,6 +18,18 @@ export default defineConfig(({ mode }: { mode: string }) => ({
         changeOrigin: true,
       },
     },
+    watch: {
+      ignored: [
+        "**/.cache/**",
+        "**/.bun/**",
+        "**/node_modules/**"
+      ]
+    },
+    fs: {
+      allow: [
+        __dirname
+      ]
+    }
   },
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
   resolve: {

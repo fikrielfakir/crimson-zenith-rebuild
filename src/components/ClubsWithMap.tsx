@@ -109,17 +109,26 @@ const ClubsWithMap = () => {
     <section id="clubs" className="relative w-full h-screen overflow-hidden scroll-mt-0">
       {/* Satellite Map Background with Blur */}
       <div className="absolute inset-0 z-0">
-        <iframe
-          key={`${mapCenter.lat}-${mapCenter.lng}-${mapZoom}`}
-          src={`https://www.google.com/maps/embed/v1/view?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&center=${mapCenter.lat},${mapCenter.lng}&zoom=${mapZoom}&maptype=satellite`}
-          width="100%"
-          height="100%"
-          style={{ border: 0, filter: 'blur(2px)' }}
-          allowFullScreen
-          loading="lazy"
-          referrerPolicy="no-referrer-when-downgrade"
-          className="brightness-75 transition-all duration-1000 ease-out"
-        />
+        {import.meta.env.VITE_GOOGLE_MAPS_API_KEY ? (
+          <iframe
+            key={`${mapCenter.lat}-${mapCenter.lng}-${mapZoom}`}
+            src={`https://www.google.com/maps/embed/v1/view?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}&center=${mapCenter.lat},${mapCenter.lng}&zoom=${mapZoom}&maptype=satellite`}
+            width="100%"
+            height="100%"
+            style={{ border: 0, filter: 'blur(2px)' }}
+            allowFullScreen
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+            className="brightness-75 transition-all duration-1000 ease-out"
+          />
+        ) : (
+          <div className="w-full h-full bg-[#0A1845] flex items-center justify-center">
+            <p className="text-white/60 text-center px-4">
+              Map requires Google Maps API key.<br />
+              Please configure VITE_GOOGLE_MAPS_API_KEY in environment variables.
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Gradient Overlay - Exact Figma Spec */}
