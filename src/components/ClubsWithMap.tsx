@@ -87,24 +87,24 @@ const ClubsWithMap = () => {
       container: mapContainer.current,
       style: {
         version: 8,
-            sources: {
-              satellite: {
+        sources: {
+          satellite: {
             type: "raster",
             tiles: [
-              "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+              "https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2020_3857/default/g/{z}/{y}/{x}.jpg",
             ],
             tileSize: 256,
-            maxzoom: 19,
-            attribution: "© Esri, Maxar, Earthstar Geographics, and the GIS User Community",
+            maxzoom: 18,
+            attribution: "© EOX IT Services GmbH, Sentinel-2 cloudless by EOX",
           },
         },
         layers: [
           {
             id: "satellite-layer",
             type: "raster",
-            source: "esri-world-imagery",
+            source: "satellite",
             minzoom: 0,
-            maxzoom: 19,
+            maxzoom: 18,
           },
         ],
       },
