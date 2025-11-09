@@ -31,11 +31,11 @@ const About = () => {
       style={{ height: "600px" }}
     >
       {/* Three Cards Section - Full Width */}
-      <div className="relative w-full h-full flex">
+      <div className="relative w-full h-full flex overflow-hidden">
         {focuses.map((focus, index) => (
           <div
             key={focus.title}
-            className="relative flex-1 overflow-hidden group cursor-pointer transition-transform duration-300 ease-in-out hover:scale-105"
+            className="relative flex-1 group cursor-pointer"
             style={{
               borderRight:
                 index < focuses.length - 1
@@ -47,25 +47,28 @@ const About = () => {
                   : index === focuses.length - 1
                     ? "0 8px 8px 0"
                     : "0",
+              overflow: "hidden"
             }}
           >
-            {/* Background Image */}
-            <div
-              className="absolute inset-0 bg-cover bg-center"
-              style={{
-                backgroundImage: `url(${focus.bgImage})`,
-                objectFit: "cover",
-              }}
-            />
+            {/* Inner wrapper for scale effect */}
+            <div className="absolute inset-0 transition-transform duration-300 ease-in-out group-hover:scale-105">
+              {/* Background Image */}
+              <div
+                className="absolute inset-0 bg-cover bg-center"
+                style={{
+                  backgroundImage: `url(${focus.bgImage})`,
+                }}
+              />
 
-            {/* Hover Gradient Overlay - Same for all cards */}
-            <div
-              className="absolute inset-0 transition-opacity duration-500 opacity-0 group-hover:opacity-100"
-              style={{
-                background:
-                  "linear-gradient(to top, rgba(90, 70, 30, 0.8), rgba(40, 30, 20, 0.3))",
-              }}
-            />
+              {/* Hover Gradient Overlay - Same for all cards */}
+              <div
+                className="absolute inset-0 transition-opacity duration-500 opacity-0 group-hover:opacity-100"
+                style={{
+                  background:
+                    "linear-gradient(to top, rgba(90, 70, 30, 0.8), rgba(40, 30, 20, 0.3))",
+                }}
+              />
+            </div>
 
             {/* Decorative Birds (Tourism only) */}
             {focus.showBirds && (
