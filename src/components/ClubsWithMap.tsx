@@ -5,14 +5,14 @@ import { Plus, Minus, Settings } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Club } from "../../shared/schema";
 import birdLogo from "@/assets/attached_assets/Group 288941_1762708813825.png";
-import maplibregl from 'maplibre-gl';
-import 'maplibre-gl/dist/maplibre-gl.css';
+import maplibregl from "maplibre-gl";
+import "maplibre-gl/dist/maplibre-gl.css";
 
 const moroccanCities = [
   { name: "Fes", lat: 34.0181, lon: -5.0078 },
   { name: "Tetouan", lat: 35.5889, lon: -5.3626 },
   { name: "Al Hoceima", lat: 35.2517, lon: -3.9317 },
-  { name: "Tanger", lat: 35.7595, lon: -5.8340 },
+  { name: "Tanger", lat: 35.7595, lon: -5.834 },
   { name: "Casablanca", lat: 33.5731, lon: -7.5898 },
   { name: "Rabat", lat: 34.0209, lon: -6.8416 },
   { name: "Marrakech", lat: 31.6295, lon: -7.9811 },
@@ -30,47 +30,51 @@ const ClubsWithMap = () => {
   const markers = useRef<maplibregl.Marker[]>([]);
 
   const { data: clubsResponse, isLoading } = useQuery({
-    queryKey: ['clubs'],
+    queryKey: ["clubs"],
     queryFn: async () => {
-      const response = await fetch('/api/clubs');
+      const response = await fetch("/api/clubs");
       if (!response.ok) {
-        throw new Error('Failed to fetch clubs');
+        throw new Error("Failed to fetch clubs");
       }
       return response.json();
     },
   });
 
-  const clubs: Club[] = clubsResponse?.clubs?.map((club: any) => ({
-    id: club.id,
-    name: club.name,
-    description: club.description,
-    location: club.location,
-    memberCount: club.member_count,
-    rating: club.rating,
-    image: club.image,
-    features: club.features,
-    isActive: club.is_active,
-    latitude: parseFloat(club.latitude) || 35.2517,
-    longitude: parseFloat(club.longitude) || -3.9317,
-    established: club.established,
-    contactEmail: club.contact_email,
-    contactPhone: club.contact_phone,
-    createdAt: club.created_at ? new Date(club.created_at) : undefined,
-    updatedAt: club.updated_at ? new Date(club.updated_at) : undefined,
-  })) || [];
+  const clubs: Club[] =
+    clubsResponse?.clubs?.map((club: any) => ({
+      id: club.id,
+      name: club.name,
+      description: club.description,
+      location: club.location,
+      memberCount: club.member_count,
+      rating: club.rating,
+      image: club.image,
+      features: club.features,
+      isActive: club.is_active,
+      latitude: parseFloat(club.latitude) || 35.2517,
+      longitude: parseFloat(club.longitude) || -3.9317,
+      established: club.established,
+      contactEmail: club.contact_email,
+      contactPhone: club.contact_phone,
+      createdAt: club.created_at ? new Date(club.created_at) : undefined,
+      updatedAt: club.updated_at ? new Date(club.updated_at) : undefined,
+    })) || [];
 
-  const filteredClubs = clubs.filter(club => 
-    club.location.toLowerCase().includes(selectedCity.toLowerCase())
+  const filteredClubs = clubs.filter((club) =>
+    club.location.toLowerCase().includes(selectedCity.toLowerCase()),
   );
 
-  const displayedClubs = filteredClubs.length > 0 ? filteredClubs : clubs.slice(0, 3);
+  const displayedClubs =
+    filteredClubs.length > 0 ? filteredClubs : clubs.slice(0, 3);
 
   useEffect(() => {
     if (displayedClubs.length > 0 && selectedClubId === null) {
       const firstClub = displayedClubs[0];
       setSelectedClubId(firstClub.id);
-      const lat = typeof firstClub.latitude === 'number' ? firstClub.latitude : 35.2517;
-      const lng = typeof firstClub.longitude === 'number' ? firstClub.longitude : -3.9317;
+      const lat =
+        typeof firstClub.latitude === "number" ? firstClub.latitude : 35.2517;
+      const lng =
+        typeof firstClub.longitude === "number" ? firstClub.longitude : -3.9317;
       setMapCenter({ lat, lng });
     }
   }, [displayedClubs, selectedClubId]);
@@ -84,28 +88,29 @@ const ClubsWithMap = () => {
       style: {
         version: 8,
         sources: {
-          'satellite': {
-            type: 'raster',
+          satellite: {
+            type: "raster",
             tiles: [
-              'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+              "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
             ],
             tileSize: 256,
-            attribution: '© Esri, Maxar, Earthstar Geographics, and the GIS User Community'
-          }
+            attribution:
+              "© Esri, Maxar, Earthstar Geographics, and the GIS User Community",
+          },
         },
         layers: [
           {
-            id: 'satellite-layer',
-            type: 'raster',
-            source: 'satellite',
+            id: "satellite-layer",
+            type: "raster",
+            source: "satellite",
             minzoom: 0,
-            maxzoom: 19
-          }
-        ]
+            maxzoom: 19,
+          },
+        ],
       },
       center: [mapCenter.lng, mapCenter.lat],
       zoom: mapZoom,
-      attributionControl: false
+      attributionControl: false,
     });
 
     // Disable default controls
@@ -123,12 +128,12 @@ const ClubsWithMap = () => {
   // Update map center and zoom
   useEffect(() => {
     if (!map.current) return;
-    
+
     map.current.flyTo({
       center: [mapCenter.lng, mapCenter.lat],
       zoom: mapZoom,
       duration: 1000,
-      essential: true
+      essential: true,
     });
   }, [mapCenter, mapZoom]);
 
@@ -137,24 +142,33 @@ const ClubsWithMap = () => {
     if (!map.current) return;
 
     // Clear existing markers
-    markers.current.forEach(marker => marker.remove());
+    markers.current.forEach((marker) => marker.remove());
     markers.current = [];
 
     // Add marker for selected club
-    const selectedClub = displayedClubs.find(club => club.id === selectedClubId);
+    const selectedClub = displayedClubs.find(
+      (club) => club.id === selectedClubId,
+    );
     if (selectedClub && selectedClub.latitude && selectedClub.longitude) {
-      const el = document.createElement('div');
-      el.className = 'club-marker';
-      el.style.width = '30px';
-      el.style.height = '30px';
-      el.style.backgroundImage = 'radial-gradient(circle, #FFD645 0%, #FFB800 100%)';
-      el.style.borderRadius = '50%';
-      el.style.border = '3px solid white';
-      el.style.boxShadow = '0 4px 12px rgba(255, 214, 69, 0.6)';
-      el.style.cursor = 'pointer';
+      const el = document.createElement("div");
+      el.className = "club-marker";
+      el.style.width = "30px";
+      el.style.height = "30px";
+      el.style.backgroundImage =
+        "radial-gradient(circle, #FFD645 0%, #FFB800 100%)";
+      el.style.borderRadius = "50%";
+      el.style.border = "3px solid white";
+      el.style.boxShadow = "0 4px 12px rgba(255, 214, 69, 0.6)";
+      el.style.cursor = "pointer";
 
-      const lng = typeof selectedClub.longitude === 'number' ? selectedClub.longitude : parseFloat(String(selectedClub.longitude));
-      const lat = typeof selectedClub.latitude === 'number' ? selectedClub.latitude : parseFloat(String(selectedClub.latitude));
+      const lng =
+        typeof selectedClub.longitude === "number"
+          ? selectedClub.longitude
+          : parseFloat(String(selectedClub.longitude));
+      const lat =
+        typeof selectedClub.latitude === "number"
+          ? selectedClub.latitude
+          : parseFloat(String(selectedClub.latitude));
 
       const marker = new maplibregl.Marker({ element: el })
         .setLngLat([lng, lat])
@@ -166,7 +180,7 @@ const ClubsWithMap = () => {
 
   const handleCitySelect = (cityName: string) => {
     setSelectedCity(cityName);
-    const cityData = moroccanCities.find(c => c.name === cityName);
+    const cityData = moroccanCities.find((c) => c.name === cityName);
     if (cityData) {
       setMapZoom(12);
       setTimeout(() => setMapZoom(14), 400);
@@ -178,19 +192,22 @@ const ClubsWithMap = () => {
   const handleClubClick = (club: Club) => {
     setSelectedClubId(club.id);
     if (club.latitude && club.longitude) {
-      const lat = typeof club.latitude === 'number' ? club.latitude : 35.2517;
-      const lng = typeof club.longitude === 'number' ? club.longitude : -3.9317;
+      const lat = typeof club.latitude === "number" ? club.latitude : 35.2517;
+      const lng = typeof club.longitude === "number" ? club.longitude : -3.9317;
       setMapCenter({ lat, lng });
       setMapZoom(15);
     }
   };
 
-  const handleZoomIn = () => setMapZoom(prev => Math.min(prev + 1, 18));
-  const handleZoomOut = () => setMapZoom(prev => Math.max(prev - 1, 10));
+  const handleZoomIn = () => setMapZoom((prev) => Math.min(prev + 1, 18));
+  const handleZoomOut = () => setMapZoom((prev) => Math.max(prev - 1, 10));
 
   if (isLoading) {
     return (
-      <section id="clubs" className="relative w-full h-screen flex items-center justify-center bg-[#0A1845]">
+      <section
+        id="clubs"
+        className="relative w-full h-screen flex items-center justify-center bg-[#0A1845]"
+      >
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
           <p className="text-white text-lg">Loading clubs...</p>
@@ -200,48 +217,55 @@ const ClubsWithMap = () => {
   }
 
   return (
-    <section id="clubs" className="relative w-full h-screen overflow-hidden scroll-mt-0">
+    <section
+      id="clubs"
+      className="relative w-full h-screen overflow-hidden scroll-mt-0"
+    >
       {/* Satellite Map Background with Blur */}
-      <div 
-        ref={mapContainer} 
+      <div
+        ref={mapContainer}
         className="absolute inset-0 z-0"
-        style={{ filter: 'blur(2px) brightness(75%)' }}
+        style={{ filter: "blur(2px) brightness(75%)" }}
       />
 
       {/* Gradient Overlay - Horizontal Left-to-Right (Exact Figma Spec) */}
-      <div 
+      <div
         className="absolute inset-0 z-10 pointer-events-none"
         style={{
-          background: 'linear-gradient(90deg, #0A1A3D 0%, rgba(10, 26, 61, 0.4) 60%, transparent 100%)'
+          background:
+            "linear-gradient(90deg, #0A1A3D 0%, rgba(10, 26, 61, 0.4) 60%, transparent 100%)",
         }}
       />
 
       {/* Content Container */}
       <div className="relative z-20 h-full">
         {/* Header Section - Top Center with Exact Typography */}
-        <div className="absolute left-1/2 transform -translate-x-1/2 text-center w-full max-w-4xl px-4" style={{ top: '60px' }}>
-          <h2 
+        <div
+          className="absolute left-1/2 transform -translate-x-1/2 text-center w-full max-w-4xl px-4"
+          style={{ top: "60px" }}
+        >
+          <h2
             className="text-white mb-3"
-            style={{ 
-              fontFamily: 'Poppins, sans-serif',
-              fontSize: '48px',
+            style={{
+              fontFamily: "Poppins, sans-serif",
+              fontSize: "48px",
               fontWeight: 800,
-              letterSpacing: '0.5px',
-              textShadow: '0 2px 8px rgba(0, 0, 0, 0.3)'
+              letterSpacing: "0.5px",
+              textShadow: "0 2px 8px rgba(0, 0, 0, 0.3)",
             }}
           >
             Our Clubs
           </h2>
-          <p 
+          <p
             className="mx-auto"
-            style={{ 
-              fontFamily: 'Poppins, sans-serif',
-              fontSize: '20px',
+            style={{
+              fontFamily: "Poppins, sans-serif",
+              fontSize: "20px",
               fontWeight: 500,
-              color: '#FFFFFFCC',
-              maxWidth: '700px',
-              marginBottom: '40px',
-              textShadow: '0 2px 6px rgba(0, 0, 0, 0.3)'
+              color: "#FFFFFFCC",
+              maxWidth: "700px",
+              marginBottom: "40px",
+              textShadow: "0 2px 6px rgba(0, 0, 0, 0.3)",
             }}
           >
             Join local communities across Morocco's most fascinating cities
@@ -249,16 +273,16 @@ const ClubsWithMap = () => {
         </div>
 
         {/* Left Sidebar - City List with Exact Specs */}
-        <div 
+        <div
           className="absolute left-0 top-1/2 transform -translate-y-1/2"
-          style={{ 
-            fontFamily: 'Poppins, sans-serif',
-            width: '240px',
-            paddingLeft: '80px',
-            paddingTop: '40px',
-            paddingBottom: '40px',
-            background: 'rgba(10, 26, 61, 0.15)',
-            backdropFilter: 'blur(8px)'
+          style={{
+            fontFamily: "Poppins, sans-serif",
+            width: "240px",
+            paddingLeft: "80px",
+            paddingTop: "40px",
+            paddingBottom: "40px",
+            background: "rgba(10, 26, 61, 0.3)",
+            // backdropFilter: "blur(2px)",
           }}
         >
           {moroccanCities.map((city) => {
@@ -268,21 +292,22 @@ const ClubsWithMap = () => {
                 key={city.name}
                 onClick={() => handleCitySelect(city.name)}
                 className="relative block text-left w-full group"
-                style={{ 
-                  fontSize: '18px',
+                style={{
+                  fontSize: "18px",
                   fontWeight: isActive ? 600 : 400,
-                  color: isActive ? '#FFFFFF' : '#FFFFFF99',
-                  marginBottom: '20px',
-                  fontFamily: 'Poppins, sans-serif'
+                  color: isActive ? "#FFFFFF" : "#FFFFFF99",
+                  marginBottom: "20px",
+                  fontFamily: "Poppins, sans-serif",
                 }}
-                whileHover={{ color: '#FFFFFF' }}
+                whileHover={{ color: "#FFFFFF" }}
                 transition={{ duration: 0.3 }}
               >
                 {isActive && (
-                  <motion.div 
+                  <motion.div
                     className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-[60px] w-[3px] h-[24px]"
                     style={{
-                      background: 'linear-gradient(180deg, #FFD645 0%, #FFB800 100%)'
+                      background:
+                        "linear-gradient(180deg, #FFD645 0%, #FFB800 100%)",
                     }}
                     layoutId="activeIndicator"
                   />
@@ -299,8 +324,8 @@ const ClubsWithMap = () => {
             onClick={() => {}}
             className="relative w-11 h-11 rounded-full flex items-center justify-center text-white transition-all duration-300 group"
             style={{
-              background: 'rgba(255, 255, 255, 0.15)',
-              border: '1px solid rgba(255, 255, 255, 0.3)'
+              background: "rgba(255, 255, 255, 0.15)",
+              border: "1px solid rgba(255, 255, 255, 0.3)",
             }}
             title="Settings"
           >
@@ -310,8 +335,8 @@ const ClubsWithMap = () => {
             onClick={handleZoomIn}
             className="relative w-11 h-11 rounded-full flex items-center justify-center text-white transition-all duration-300 group hover:bg-[rgba(255,255,255,0.25)]"
             style={{
-              background: 'rgba(255, 255, 255, 0.15)',
-              border: '1px solid rgba(255, 255, 255, 0.3)'
+              background: "rgba(255, 255, 255, 0.15)",
+              border: "1px solid rgba(255, 255, 255, 0.3)",
             }}
             title="Zoom In"
           >
@@ -321,8 +346,8 @@ const ClubsWithMap = () => {
             onClick={handleZoomOut}
             className="relative w-11 h-11 rounded-full flex items-center justify-center text-white transition-all duration-300 group hover:bg-[rgba(255,255,255,0.25)]"
             style={{
-              background: 'rgba(255, 255, 255, 0.15)',
-              border: '1px solid rgba(255, 255, 255, 0.3)'
+              background: "rgba(255, 255, 255, 0.15)",
+              border: "1px solid rgba(255, 255, 255, 0.3)",
             }}
             title="Zoom Out"
           >
@@ -331,18 +356,18 @@ const ClubsWithMap = () => {
         </div>
 
         {/* Club Cards - Bottom Center with Exact Figma Specs */}
-        <div 
+        <div
           className="absolute left-1/2 transform -translate-x-1/2 flex gap-6 px-4 overflow-x-auto scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent pb-2"
           style={{
-            bottom: '120px',
-            maxWidth: '90%'
+            bottom: "120px",
+            maxWidth: "90%",
           }}
         >
           <AnimatePresence mode="popLayout">
             {displayedClubs.map((club, index) => {
               const isSelected = selectedClubId === club.id;
               const isHovered = hoveredClubId === club.id;
-              
+
               return (
                 <motion.div
                   key={club.id}
@@ -351,65 +376,69 @@ const ClubsWithMap = () => {
                   onMouseLeave={() => setHoveredClubId(null)}
                   className="relative flex-shrink-0 cursor-pointer overflow-hidden"
                   style={{
-                    width: '330px',
-                    minHeight: '160px',
-                    background: 'rgba(11, 24, 74, 0.8)',
-                    borderRadius: '16px',
-                    padding: '20px',
-                    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
-                    backdropFilter: 'blur(10px)',
-                    border: isSelected ? '1px solid rgba(255, 214, 69, 0.3)' : '1px solid rgba(255, 255, 255, 0.1)'
+                    width: "330px",
+                    minHeight: "160px",
+                    background: "rgba(11, 24, 74, 0.8)",
+                    borderRadius: "16px",
+                    padding: "20px",
+                    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.2)",
+                    backdropFilter: "blur(10px)",
+                    border: isSelected
+                      ? "1px solid rgba(255, 214, 69, 0.3)"
+                      : "1px solid rgba(255, 255, 255, 0.1)",
                   }}
                   initial={{ opacity: 0, y: 20 }}
-                  animate={{ 
-                    opacity: 1, 
+                  animate={{
+                    opacity: 1,
                     y: 0,
-                    scale: isSelected ? 1.05 : (isHovered ? 1.03 : 1),
+                    scale: isSelected ? 1.05 : isHovered ? 1.03 : 1,
                   }}
                   whileHover={{
-                    boxShadow: '0 0 10px rgba(255, 214, 69, 0.5), 0 4px 20px rgba(0, 0, 0, 0.3)'
+                    boxShadow:
+                      "0 0 10px rgba(255, 214, 69, 0.5), 0 4px 20px rgba(0, 0, 0, 0.3)",
                   }}
-                  transition={{ 
-                    type: "spring", 
-                    stiffness: 300, 
+                  transition={{
+                    type: "spring",
+                    stiffness: 300,
                     damping: 25,
-                    delay: index * 0.1 
+                    delay: index * 0.1,
                   }}
                 >
                   {/* Top Row: Icon & Member Badge */}
                   <div className="flex items-start justify-between mb-3">
                     {/* Club Icon - 48x48px with Gradient Background */}
-                    <div 
+                    <div
                       className="flex-shrink-0 rounded-full flex items-center justify-center overflow-hidden"
                       style={{
-                        width: '48px',
-                        height: '48px',
-                        background: 'linear-gradient(135deg, #FFD645 0%, #FFB800 100%)',
-                        boxShadow: '0 2px 8px rgba(248, 181, 0, 0.4)'
+                        width: "48px",
+                        height: "48px",
+                        background:
+                          "linear-gradient(135deg, #FFD645 0%, #FFB800 100%)",
+                        boxShadow: "0 2px 8px rgba(248, 181, 0, 0.4)",
                       }}
                     >
-                      <img 
-                        src={birdLogo} 
-                        alt="Club Icon" 
+                      <img
+                        src={birdLogo}
+                        alt="Club Icon"
                         className="w-6 h-6 object-contain"
                       />
                     </div>
 
                     {/* Members Badge - 28x28px */}
-                    <div 
+                    <div
                       className="flex items-center justify-center rounded-full"
                       style={{
-                        width: '28px',
-                        height: '28px',
-                        background: '#FFD645',
-                        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)'
+                        width: "28px",
+                        height: "28px",
+                        background: "#FFD645",
+                        boxShadow: "0 2px 4px rgba(0, 0, 0, 0.2)",
                       }}
                     >
-                      <span 
+                      <span
                         className="text-white font-semibold"
-                        style={{ 
-                          fontSize: '11px',
-                          fontFamily: 'Poppins, sans-serif'
+                        style={{
+                          fontSize: "11px",
+                          fontFamily: "Poppins, sans-serif",
                         }}
                       >
                         {club.memberCount || 62}
@@ -418,25 +447,25 @@ const ClubsWithMap = () => {
                   </div>
 
                   {/* Club Name - Poppins SemiBold, 18px */}
-                  <h3 
+                  <h3
                     className="text-white truncate mb-1"
                     style={{
-                      fontFamily: 'Poppins, sans-serif',
-                      fontSize: '18px',
-                      fontWeight: 600
+                      fontFamily: "Poppins, sans-serif",
+                      fontSize: "18px",
+                      fontWeight: 600,
                     }}
                   >
                     {club.name}
                   </h3>
 
                   {/* Club Location - Poppins Regular, 14px, #FFFFFFB3 */}
-                  <p 
+                  <p
                     className="line-clamp-1 mb-3"
                     style={{
-                      fontFamily: 'Poppins, sans-serif',
-                      fontSize: '14px',
+                      fontFamily: "Poppins, sans-serif",
+                      fontSize: "14px",
                       fontWeight: 400,
-                      color: '#FFFFFFB3'
+                      color: "#FFFFFFB3",
                     }}
                   >
                     {club.location}
@@ -445,9 +474,9 @@ const ClubsWithMap = () => {
                   {/* Expanded Content - Only visible when selected */}
                   <AnimatePresence>
                     {isSelected && (
-                      <motion.div 
+                      <motion.div
                         initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
+                        animate={{ opacity: 1, height: "auto" }}
                         exit={{ opacity: 0, height: 0 }}
                         transition={{ duration: 0.3 }}
                         className="overflow-hidden"
@@ -455,33 +484,35 @@ const ClubsWithMap = () => {
                         {/* Club Image */}
                         {club.image && (
                           <div className="mb-3 rounded-lg overflow-hidden">
-                            <img 
-                              src={club.image} 
+                            <img
+                              src={club.image}
                               alt={club.name}
                               className="w-full h-32 object-cover"
                               onError={(e) => {
-                                e.currentTarget.src = '/api/placeholder/330/128';
+                                e.currentTarget.src =
+                                  "/api/placeholder/330/128";
                               }}
                             />
                           </div>
                         )}
 
                         {/* Description */}
-                        <p 
+                        <p
                           className="mb-4"
                           style={{
-                            fontFamily: 'Poppins, sans-serif',
-                            fontSize: '13px',
+                            fontFamily: "Poppins, sans-serif",
+                            fontSize: "13px",
                             fontWeight: 400,
-                            lineHeight: '1.5',
-                            color: '#FFFFFFB3',
-                            display: '-webkit-box',
+                            lineHeight: "1.5",
+                            color: "#FFFFFFB3",
+                            display: "-webkit-box",
                             WebkitLineClamp: 2,
-                            WebkitBoxOrient: 'vertical',
-                            overflow: 'hidden'
+                            WebkitBoxOrient: "vertical",
+                            overflow: "hidden",
                           }}
                         >
-                          {club.description || 'Explore the vibrant culture and community'}
+                          {club.description ||
+                            "Explore the vibrant culture and community"}
                         </p>
 
                         {/* Get More Button - Exact Figma Gradient */}
@@ -492,17 +523,22 @@ const ClubsWithMap = () => {
                           }}
                           className="rounded-xl font-semibold"
                           style={{
-                            background: 'linear-gradient(90deg, #FFD645 0%, #FFB800 100%)',
-                            color: '#FFFFFF',
-                            fontFamily: 'Poppins, sans-serif',
-                            fontSize: '14px',
+                            background:
+                              "linear-gradient(90deg, #FFD645 0%, #FFB800 100%)",
+                            color: "#FFFFFF",
+                            fontFamily: "Poppins, sans-serif",
+                            fontSize: "14px",
                             fontWeight: 600,
-                            padding: '10px 20px',
-                            borderRadius: '12px'
+                            padding: "10px 20px",
+                            borderRadius: "12px",
                           }}
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
-                          transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                          transition={{
+                            type: "spring",
+                            stiffness: 400,
+                            damping: 17,
+                          }}
                         >
                           Get More
                         </motion.button>
