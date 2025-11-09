@@ -7,7 +7,7 @@ import heroBackground from "@/assets/hero-bg.jpg";
 
 const Hero = () => {
   const { data: heroSettings, isLoading } = useHeroSettings();
-  
+
   const defaultTaglines = [
     { text: "Where Adventure Meets\nTransformation", twoLines: true },
     { text: "Where Journey Meets\nDiscovery", twoLines: true },
@@ -24,22 +24,23 @@ const Hero = () => {
     { text: "Your Path to\nExtraordinary Journeys", twoLines: true },
     { text: "Creating Meaningful\nAdventures", twoLines: true },
     { text: "Where Travelers Become\nExplorers", twoLines: true },
-    { text: "Exceptional Journeys for\nExtraordinary People", twoLines: true }
+    { text: "Exceptional Journeys for\nExtraordinary People", twoLines: true },
   ];
 
-  const taglines = heroSettings?.typewriterTexts && heroSettings.typewriterTexts.length > 0
-    ? heroSettings.typewriterTexts
-    : defaultTaglines;
+  const taglines =
+    heroSettings?.typewriterTexts && heroSettings.typewriterTexts.length > 0
+      ? heroSettings.typewriterTexts
+      : defaultTaglines;
 
   const [currentTaglineIndex, setCurrentTaglineIndex] = useState(0);
-  const [displayedText, setDisplayedText] = useState('');
+  const [displayedText, setDisplayedText] = useState("");
   const [charIndex, setCharIndex] = useState(0);
   const [isTyping, setIsTyping] = useState(true);
   const [fadeKey, setFadeKey] = useState(0);
 
   useEffect(() => {
     const currentText = taglines[currentTaglineIndex].text;
-    
+
     if (isTyping && charIndex < currentText.length) {
       const timer = setTimeout(() => {
         setDisplayedText(currentText.slice(0, charIndex + 1));
@@ -50,9 +51,9 @@ const Hero = () => {
       const timer = setTimeout(() => {
         setIsTyping(false);
         setCharIndex(0);
-        setDisplayedText('');
+        setDisplayedText("");
         setCurrentTaglineIndex((prev) => (prev + 1) % taglines.length);
-        setFadeKey(prev => prev + 1);
+        setFadeKey((prev) => prev + 1);
         setTimeout(() => setIsTyping(true), 100);
       }, 3500);
       return () => clearTimeout(timer);
@@ -63,12 +64,17 @@ const Hero = () => {
     ? `/api/cms/media/${heroSettings.backgroundMediaId}`
     : heroBackground;
 
-  const overlayColor = heroSettings?.backgroundOverlayColor || 'rgba(26, 54, 93, 0.7)';
+  const overlayColor =
+    heroSettings?.backgroundOverlayColor || "rgba(26, 54, 93, 0.7)";
   const title = heroSettings?.title || "Where Adventure Meets\nTransformation";
-  const subtitle = heroSettings?.subtitle || "Experience Morocco's soul through sustainable journeys. Discover culture, embrace adventure, and create lasting connections with local communities.";
-  const primaryButtonText = heroSettings?.primaryButtonText || "Start Your Journey";
+  const subtitle =
+    heroSettings?.subtitle ||
+    "Experience Morocco's soul through sustainable journeys. Discover culture, embrace adventure, and create lasting connections with local communities.";
+  const primaryButtonText =
+    heroSettings?.primaryButtonText || "Start Your Journey";
   const primaryButtonLink = heroSettings?.primaryButtonLink || "/join";
-  const secondaryButtonText = heroSettings?.secondaryButtonText || "Explore Clubs";
+  const secondaryButtonText =
+    heroSettings?.secondaryButtonText || "Explore Clubs";
   const secondaryButtonLink = heroSettings?.secondaryButtonLink || "/clubs";
   const titleFontSize = heroSettings?.titleFontSize || "65px";
   const titleColor = heroSettings?.titleColor || "#ffffff";
@@ -79,7 +85,8 @@ const Hero = () => {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden font-sans">
       {/* Background Image or Video */}
-      {heroSettings?.backgroundType === 'video' && heroSettings?.backgroundMediaId ? (
+      {heroSettings?.backgroundType === "video" &&
+      heroSettings?.backgroundMediaId ? (
         <video
           className="absolute inset-0 w-full h-full object-cover"
           autoPlay
@@ -90,16 +97,16 @@ const Hero = () => {
           <source src={backgroundUrl} type="video/mp4" />
         </video>
       ) : (
-        <div 
+        <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{ backgroundImage: `url(${backgroundUrl})` }}
         />
       )}
-      
+
       {/* Enhanced Gradient Overlay */}
       <div className="absolute inset-0" style={{ background: overlayColor }} />
       <div className="absolute inset-0 bg-gradient-to-b from-primary/20 via-transparent to-primary/30" />
-      
+
       {/* Content - Fixed Layout Structure */}
       <div className="relative z-10 text-center px-6 sm:px-8 lg:px-12 max-w-7xl mx-auto hero-content-wrapper">
         {/* ABSOLUTE FIXED HEIGHT for H1 - Accommodates 3 Lines */}
@@ -109,8 +116,8 @@ const Hero = () => {
               {enableTypewriter ? (
                 <span className="hero-text-wrapper" key={fadeKey}>
                   {(() => {
-                    const lines = displayedText.split('\n');
-                    
+                    const lines = displayedText.split("\n");
+
                     return lines.map((line, lineIndex) => (
                       <span key={lineIndex} className="hero-line">
                         {line}
@@ -124,10 +131,10 @@ const Hero = () => {
                 </span>
               ) : (
                 <span className="hero-text-wrapper">
-                  {title.split('\n').map((line, i) => (
+                  {title.split("\n").map((line, i) => (
                     <span key={i} className="hero-line">
                       {line}
-                      {i < title.split('\n').length - 1 && <br />}
+                      {i < title.split("\n").length - 1 && <br />}
                     </span>
                   ))}
                 </span>
@@ -135,27 +142,25 @@ const Hero = () => {
             </h1>
           </div>
         </div>
-        
+
         {/* FIXED POSITION Subtitle - Always starts at same Y position */}
         <div className="subtitle-fixed-container">
           <p className="hero-subtitle" style={{ color: subtitleColor }}>
             {subtitle}
           </p>
         </div>
-        
+
         {/* FIXED POSITION Buttons - Always at same Y position */}
         <div className="buttons-fixed-container">
           <div className="flex flex-col sm:flex-row gap-5 justify-center items-center">
             <Link to={primaryButtonLink}>
-              <Button 
-                className="w-full sm:w-auto bg-secondary hover:bg-secondary/90 text-primary text-base px-10 py-4 h-14 rounded-button font-medium transition-all duration-300 shadow-elegant hover:shadow-glow hover:scale-105 border-0"
-              >
+              <Button className="w-full sm:w-auto bg-secondary hover:bg-secondary/90 text-primary text-base px-10 py-4 h-14 rounded-button font-medium transition-all duration-300 shadow-elegant hover:shadow-glow hover:scale-105 border-0">
                 {primaryButtonText}
               </Button>
             </Link>
             <Link to={secondaryButtonLink}>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="w-full sm:w-auto text-white border-white/70 hover:bg-white/10 hover:border-white hover:backdrop-blur-sm text-base px-10 py-4 h-14 rounded-button font-medium transition-all duration-300 bg-transparent/10 backdrop-blur-sm border-2 hover:scale-105"
               >
                 {secondaryButtonText}
@@ -164,24 +169,25 @@ const Hero = () => {
           </div>
         </div>
       </div>
-      
+
       {/* Decorative Pattern at Bottom */}
       <div className="absolute bottom-0 left-0 right-0 w-full h-auto z-10 pointer-events-none">
-        <img 
-          src="/attached_assets/pattern 002_1762097803637.png" 
-          alt="" 
+        <img
+          src="/attached_assets/pattern 002_1762097803637.png"
+          alt=""
           className="w-full h-auto object-cover opacity-80"
         />
       </div>
-      
+
       {/* Simple Mouse Scroll Indicator */}
       <div className="absolute bottom-8 sm:bottom-12 left-1/2 transform -translate-x-1/2 flex flex-col items-center z-20">
         <Mouse className="w-6 h-6 text-white/60 animate-bounce" />
       </div>
 
       {/* Enhanced Styles with Better Typography */}
-      <style dangerouslySetInnerHTML={{
-        __html: `
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
           /* Import Cinzel Font for Elegant Display Typography */
           @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap');
           
@@ -215,7 +221,7 @@ const Hero = () => {
           /* Hero Title - Elegant Cinzel Display Font */
           .hero-title {
             font-family: 'Cinzel', 'Cormorant Garamond', 'Playfair Display', 'Georgia', serif;
-            font-size: clamp(2.5rem, 8vw, 4.5rem);
+            font-size: 55px;
             font-weight: 700;
             line-height: 1.25;
             letter-spacing: 0.02em;
@@ -432,7 +438,7 @@ const Hero = () => {
             }
             
             .hero-title {
-              font-size: clamp(2.2rem, 9vw, 2.8rem);
+              font-size: 32px;
             }
             
             .hero-subtitle {
@@ -479,7 +485,7 @@ const Hero = () => {
             }
             
             .hero-title {
-              font-size: clamp(4rem, 8vw, 5rem);
+              font-size: 55px;
               letter-spacing: 0.02em;
             }
             
@@ -512,8 +518,9 @@ const Hero = () => {
           /* Mouse Indicator */
           .w-6 { width: 2.5rem; }
           .h-6 { height: 2.5rem; }
-        `
-      }} />
+        `,
+        }}
+      />
     </section>
   );
 };
