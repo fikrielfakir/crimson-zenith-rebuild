@@ -1,0 +1,127 @@
+Overall Layout:
+
+Create a three-panel horizontal layout divided evenly across the screen.
+
+Each panel represents a theme: Tourism, Culture, and Entertainment.
+
+The design should use full-width background images with smooth transitions and vertical overlay gradients to enhance text legibility.
+
+The middle panel ("Culture") is visually emphasized and slightly larger in focus or brightness compared to the others.
+
+🧱 Structure & Composition
+
+Left Panel – Tourism
+
+Background Image: Scenic desert or mountain landscape with soft golden light.
+
+Overlay Gradient:
+
+Direction: vertical (bottom to top).
+
+Colors: dark golden brown (rgba(90, 70, 30, 0.7)) fading to transparent at top (rgba(0,0,0,0)).
+
+Text Position: Bottom-left corner, padding about 40px from edges.
+
+Title Text:
+
+Text: “Tourism”
+
+Font: Poppins Bold or Montserrat ExtraBold
+
+Size: 28px
+
+Color: #F5E2B5 (light beige)
+
+Subtitle Text:
+
+Text: “Le lorem ipsum est, en imprimerie, une suite de mots sans signification utilisée à titre provisoire”
+
+Font: Poppins Regular
+
+Size: 16px
+
+Color: #E8D8AA
+
+Line height: 22px
+
+Center Panel – Culture
+
+Background Image: Traditional Moroccan kasbah or sand-colored architecture in warm sunlight.
+
+Overlay Gradient:
+
+Direction: top to bottom.
+
+Colors: light transparent overlay (rgba(0,0,0,0.2)) for depth.
+
+Text Position:
+
+Title “Our Focus” centered near the top, vertically at about 20% of height.
+
+Subtitle “Sustainable Tourism, Culture, and Entertainment” directly below title, centered.
+
+Section title “Culture” at bottom-left corner, padding about 40px.
+
+Main Heading (Our Focus):
+
+Font: Poppins ExtraBold
+
+Size: 48px
+
+Color: #FFFFFF
+
+Text-shadow: subtle (0 2px 6px rgba(0,0,0,0.3))
+
+Subheading (Sustainable Tourism...):
+
+Font: Poppins Medium
+
+Size: 24px
+
+Color: #EDEDED
+
+Section Title (Culture):
+
+Font: Poppins Bold
+
+Size: 30px
+
+Color: #FFFFFF
+
+Right Panel – Entertainment
+
+Background Image: Cultural festival or group of musicians on horseback.
+
+Overlay Gradient:
+
+Direction: bottom to top.
+
+Colors: dark warm brown (rgba(40, 20, 0, 0.7)) fading to transparent (rgba(0,0,0,0)).
+
+Text Position: Bottom-left corner, padding about 40px.
+
+Title Text:
+
+Text: “Entertainment”
+
+Font: Poppins Bold
+
+Size: 30px
+
+Color: #FFFFFF
+
+Text-shadow: subtle soft glow for readability.
+
+🧭 Global Style Guide
+
+Font Family: Poppins (primary), fallback: sans-serif.
+
+Layout: Three equal flex columns with gap: 2px separator lines in light gray (#F0F0F0).
+
+Overall Background: Full-screen width, height 80vh.
+
+Text Alignment: Centered for headings, bottom-left for section titles.
+
+Hover/Focus Effect: Slight zoom-in (scale: 1.05) and darkened overlay when a panel is hovered.
+
+Transition: Smooth ease-in-out (0.3s).
