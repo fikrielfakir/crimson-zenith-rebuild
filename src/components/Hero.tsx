@@ -187,7 +187,7 @@ const Hero = () => {
           
           /* Main Content Wrapper */
           .hero-content-wrapper {
-            margin-top: 6rem;
+            margin-top: 3rem;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -196,7 +196,7 @@ const Hero = () => {
           /* CRITICAL: Fixed Height Container for H1 - Prevents ANY Layout Shift */
           .h1-fixed-container {
             width: 100%;
-            height: 280px;
+            height: 180px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -215,12 +215,12 @@ const Hero = () => {
           /* Hero Title - Elegant Cinzel Display Font */
           .hero-title {
             font-family: 'Cinzel', 'Cormorant Garamond', 'Playfair Display', 'Georgia', serif;
-            font-size: clamp(3rem, 10vw, 6.5rem);
+            font-size: clamp(2.5rem, 8vw, 4.5rem);
             font-weight: 700;
-            line-height: 1.2;
+            line-height: 1.25;
             letter-spacing: 0.02em;
             text-align: center;
-            text-transform: none;
+            text-transform: uppercase;
             margin: 0;
             padding: 0;
             position: relative;
@@ -268,16 +268,16 @@ const Hero = () => {
           .subtitle-fixed-container {
             width: 100%;
             max-width: 48rem;
-            margin: 2.5rem auto 0;
+            margin: 1.5rem auto 0;
             padding: 0 1rem;
           }
           
           /* Refined Subtitle Typography */
           .hero-subtitle {
             font-family: 'Cormorant Garamond', 'Georgia', serif;
-            font-size: clamp(1.1rem, 2.8vw, 1.4rem);
+            font-size: clamp(1rem, 2.5vw, 1.2rem);
             font-weight: 400;
-            line-height: 1.85;
+            line-height: 1.75;
             letter-spacing: 0.02em;
             color: #f5e6d3;
             opacity: 0.96;
@@ -289,7 +289,7 @@ const Hero = () => {
           
           /* FIXED POSITION Buttons Container */
           .buttons-fixed-container {
-            margin-top: 3rem;
+            margin-top: 2rem;
             width: 100%;
           }
           
@@ -316,81 +316,93 @@ const Hero = () => {
           /* Mobile: 320px - 640px */
           @media (max-width: 640px) {
             .hero-content-wrapper {
-              margin-top: 4rem;
-            }
-            
-            .h1-fixed-container {
-              height: 220px;
-            }
-            
-            .hero-title {
-              font-size: clamp(2.2rem, 9vw, 3.5rem);
-              line-height: 1.15;
-            }
-            
-            .subtitle-fixed-container {
               margin-top: 2rem;
             }
             
+            .h1-fixed-container {
+              height: 160px;
+            }
+            
+            .hero-title {
+              font-size: clamp(2rem, 8vw, 2.8rem);
+              line-height: 1.2;
+            }
+            
+            .subtitle-fixed-container {
+              margin-top: 1.25rem;
+            }
+            
             .hero-subtitle {
-              font-size: clamp(1rem, 4vw, 1.15rem);
-              line-height: 1.75;
+              font-size: clamp(0.95rem, 4vw, 1.05rem);
+              line-height: 1.7;
             }
             
             .buttons-fixed-container {
-              margin-top: 2.5rem;
+              margin-top: 1.75rem;
             }
           }
           
           /* Tablet: 641px - 1024px */
           @media (min-width: 641px) and (max-width: 1024px) {
+            .hero-content-wrapper {
+              margin-top: 2.5rem;
+            }
+            
             .h1-fixed-container {
-              height: 260px;
+              height: 170px;
             }
             
             .hero-title {
-              font-size: clamp(3.5rem, 9vw, 5.5rem);
+              font-size: clamp(3rem, 8vw, 4rem);
             }
             
             .subtitle-fixed-container {
-              margin-top: 2.25rem;
+              margin-top: 1.35rem;
+            }
+            
+            .buttons-fixed-container {
+              margin-top: 1.85rem;
             }
           }
           
           /* Desktop: 1025px+ */
           @media (min-width: 1025px) {
+            .hero-content-wrapper {
+              margin-top: 3rem;
+            }
+            
             .h1-fixed-container {
-              height: 320px;
+              height: 190px;
             }
             
             .hero-title {
-              font-size: clamp(5rem, 10vw, 7rem);
-              letter-spacing: 0.01em;
+              font-size: clamp(4rem, 8vw, 5rem);
+              letter-spacing: 0.02em;
             }
             
             .subtitle-fixed-container {
-              margin-top: 2.75rem;
-              max-width: 52rem;
+              margin-top: 1.5rem;
+              max-width: 50rem;
             }
             
             .hero-subtitle {
-              font-size: 1.45rem;
-              line-height: 1.9;
+              font-size: 1.25rem;
+              line-height: 1.8;
             }
             
             .buttons-fixed-container {
-              margin-top: 3.5rem;
+              margin-top: 2.25rem;
             }
           }
           
           /* Ultra-wide: 1400px+ */
           @media (min-width: 1400px) {
             .h1-fixed-container {
-              height: 350px;
+              height: 200px;
             }
             
             .hero-title {
-              font-size: 7.5rem;
+              font-size: 5.5rem;
             }
           }
           
