@@ -88,21 +88,21 @@ const ClubsWithMap = () => {
       style: {
         version: 8,
         sources: {
-          satellite: {
+          "esri-world-imagery": {
             type: "raster",
             tiles: [
               "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
             ],
             tileSize: 256,
-            attribution:
-              "© Esri, Maxar, Earthstar Geographics, and the GIS User Community",
+            maxzoom: 19,
+            attribution: "© Esri, Maxar, Earthstar Geographics, and the GIS User Community",
           },
         },
         layers: [
           {
             id: "satellite-layer",
             type: "raster",
-            source: "satellite",
+            source: "esri-world-imagery",
             minzoom: 0,
             maxzoom: 19,
           },
@@ -111,6 +111,7 @@ const ClubsWithMap = () => {
       center: [mapCenter.lng, mapCenter.lat],
       zoom: mapZoom,
       attributionControl: false,
+      crossSourceCollisions: false,
     });
 
     // Disable default controls
