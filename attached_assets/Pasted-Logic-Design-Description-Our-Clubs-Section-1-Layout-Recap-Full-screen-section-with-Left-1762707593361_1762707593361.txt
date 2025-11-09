@@ -1,0 +1,187 @@
+Logic & Design Description — “Our Clubs” Section
+🧭 1. Layout Recap
+
+Full-screen section with:
+
+Left side: list of cities
+
+Center/top: title + subtitle
+
+Map background (Google Maps or image)
+
+Bottom center: club cards
+
+Right side: zoom & settings buttons
+
+🧩 2. Club Card Behavior (Core Logic)
+
+Each club card represents a single location.
+
+Default State:
+
+All cards are visible at the bottom in a horizontal row.
+
+The first club (or the first city’s default club) is selected automatically on load.
+
+The map pin appears at that club’s coordinates.
+
+The selected card has a highlighted state (slightly scaled, glowing border, and visible “Get More” button).
+
+When a Card is Clicked:
+
+Change Selected Card:
+
+Update selectedClubId (or activeClub) in state.
+
+Visually highlight the clicked card:
+
+Slight scale-up: transform: scale(1.05)
+
+Add glowing border: box-shadow: 0px 4px 20px rgba(255, 255, 255, 0.3)
+
+Change background gradient to a brighter shade.
+
+Show “Get More” button if hidden.
+
+Update Map View:
+
+Center the map on the clicked club’s latitude and longitude.
+
+Drop a map pin marker with animation (bounce or drop).
+
+Previous marker disappears or becomes dimmed.
+
+Optional smooth transition:
+
+Animate map panning with an ease-out curve over 1.5s.
+
+If using Google Maps, use:
+
+map.panTo({ lat: club.lat, lng: club.lng });
+
+
+Update Info Box (optional):
+
+A small tooltip or info box near the pin can show:
+
+Clubs 02 ENSAH
+62 Via A, Bokidadan AL Hoceima
+
+
+Include a “Get More” button linking to a detail page.
+
+⚙️ 3. City Selection Logic
+Left-side City List:
+
+When a user clicks a city name:
+
+Update selectedCity
+
+Filter visible cards to only clubs in that city
+
+Automatically select the first club of that city
+
+Move the map view to that city’s coordinates (zoom out slightly first, then zoom in)
+
+Update active map pin
+
+Example logic:
+const [selectedCity, setSelectedCity] = useState("Al Hoceima");
+const [selectedClub, setSelectedClub] = useState(clubsData[0]);
+
+
+When city changes:
+
+const clubsInCity = clubsData.filter(c => c.city === selectedCity);
+setSelectedClub(clubsInCity[0]);
+map.panTo({ lat: clubsInCity[0].lat, lng: clubsInCity[0].lng });
+
+🗺️ 4. Map Pin Behavior
+
+Each club has its own pin coordinate:
+
+{
+  "id": "club-01",
+  "name": "Clubs 01 FSTH",
+  "city": "Al Hoceima",
+  "lat": 35.2501,
+  "lng": -3.9402
+}
+
+Pin Styles:
+
+Default (inactive): small circle or logo icon with opacity 0.5
+
+Active (selected club):
+
+Scale 1.5x
+
+Bright yellow or gold pin color
+
+Add pulse animation:
+
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.2); opacity: 0.7; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+
+Apply on active pin only.
+
+🖱️ 5. Hover Interactions
+
+Hover over a card → temporary highlight + show small pin preview on the map.
+
+Click confirms selection (activates card + moves map).
+
+Hover off returns to previous selection state unless clicked.
+
+🧱 6. Data Structure Example
+const clubsData = [
+  {
+    id: "club01",
+    name: "Clubs 01 FSTH",
+    city: "Al Hoceima",
+    address: "62 Via A, Bokidadan AL Hoceima",
+    lat: 35.2501,
+    lng: -3.9402,
+    image: "fsth.jpg"
+  },
+  {
+    id: "club02",
+    name: "Clubs 02 ENSAH",
+    city: "Al Hoceima",
+    address: "62 Via A, Bokidadan AL Hoceima",
+    lat: 35.2515,
+    lng: -3.9387,
+    image: "ensah.jpg"
+  }
+];
+
+🔄 7. Animation & Transitions
+
+Smooth transitions for card selection and map pin updates:
+
+Card hover: transition: all 0.3s ease-in-out
+
+Card click: scale(1.05) with shadow and gradient shift
+
+Map marker: bounce or fade-in animation
+
+Map panning: smooth easing (easeOutQuad)
+
+📲 8. Mobile Responsiveness
+
+On mobile, city list collapses into a dropdown at the top.
+
+Club cards become horizontally scrollable carousel.
+
+Map controls move to bottom-right corner.
+
+Summary
+
+Clicking a club card updates the active selection visually and dynamically focuses the map on that club’s coordinates.
+The selected card expands, changes gradient, and displays its full info with a “Get More” button.
+The map shows a pulsating pin at the selected location, replacing the previous marker.
+Selecting another city filters clubs and repositions the map accordingly.
