@@ -197,10 +197,22 @@ const TopNavbar = ({
           {showJoinButton && (
             <Button 
               onClick={onDonateClick}
-              className={joinButtonStyle === 'secondary' 
-                ? "bg-secondary hover:bg-secondary/90 text-white px-6 py-2 text-sm font-medium rounded-button transition-all duration-300 shadow-elegant hover:shadow-glow flex items-center gap-2"
-                : "bg-primary hover:bg-primary/90 text-white px-6 py-2 text-sm font-medium rounded-button transition-all duration-300 shadow-elegant hover:shadow-glow flex items-center gap-2"
-              }
+              className="text-white font-medium flex items-center gap-1.5 border-0 cursor-pointer transition-all duration-300 ease-in-out hover:scale-[1.03]"
+              style={{
+                background: 'linear-gradient(90deg, #d45151 0%, #c04040 100%)',
+                fontSize: '16px',
+                fontWeight: '500',
+                borderRadius: '10px',
+                padding: '10px 24px',
+                height: '44px',
+                boxShadow: '0 2px 6px rgba(0, 0, 0, 0.15)',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#b03a3a';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'linear-gradient(90deg, #d45151 0%, #c04040 100%)';
+              }}
             >
               <Heart className="h-4 w-4" />
               {joinButtonText}
