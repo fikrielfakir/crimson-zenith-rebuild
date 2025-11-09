@@ -28,7 +28,7 @@ const About = () => {
     <section
       id="discover"
       className="relative w-full scroll-mt-32"
-      style={{ height: "700px" }}
+      style={{ height: "600px" }}
     >
       {/* Three Cards Section - Full Width */}
       <div className="relative w-full h-full flex">
@@ -121,7 +121,7 @@ const About = () => {
           className="absolute inset-0 pointer-events-none"
           style={{
             background:
-              "linear-gradient(180deg, rgba(10, 26, 61, 0.75) 0%, rgba(10, 26, 61, 0.4) 40%, transparent 60%)",
+              "linear-gradient(#112250 0%, rgba(10, 26, 61, 0.4) 40%, transparent 60%)",
             zIndex: 1,
           }}
         />
