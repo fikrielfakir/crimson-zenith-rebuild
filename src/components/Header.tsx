@@ -204,13 +204,13 @@ const TopNavbar = ({
           {showJoinButton && (
             <Button 
               onClick={onDonateClick}
-              className="text-white font-medium flex items-center gap-1.5 border-0 cursor-pointer transition-all duration-300 ease-in-out hover:scale-[1.03]"
+              className="text-white font-medium flex items-center gap-2 border-0 cursor-pointer transition-all duration-300 ease-in-out hover:scale-[1.03]"
               style={{
                 background: 'linear-gradient(90deg, #d45151 0%, #c04040 100%)',
                 fontSize: '16px',
                 fontWeight: '500',
-                borderRadius: '10px',
-                padding: '10px 24px',
+                borderRadius: '30px',
+                padding: '12px 28px',
                 height: '44px',
                 boxShadow: '0 2px 6px rgba(0, 0, 0, 0.15)',
               }}
@@ -223,7 +223,8 @@ const TopNavbar = ({
               }}
             >
               <Heart 
-                className="h-4 w-4 transition-transform origin-center"
+                className="h-[18px] w-[18px] transition-transform origin-center"
+                fill="white"
                 style={{
                   animation: heartAnimate ? 'heartBeatWarp 0.8s ease-in-out' : 'none',
                   transformOrigin: 'center center',
