@@ -11,9 +11,9 @@ const About = () => {
           }}
         />
         
-        {/* Gradient Overlay - Bottom to Top */}
+        {/* Gradient Overlay - Bottom to Top - Hidden by default, visible on hover */}
         <div 
-          className="absolute inset-0 transition-opacity duration-300"
+          className="absolute inset-0 transition-opacity duration-300 opacity-0 group-hover:opacity-100"
           style={{
             background: "linear-gradient(to top, rgba(90, 70, 30, 0.7), transparent)"
           }}
@@ -23,7 +23,7 @@ const About = () => {
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300" />
         
         {/* Decorative Birds */}
-        <div className="absolute top-8 left-10 opacity-60">
+        <div className="absolute top-8 left-10 opacity-0 group-hover:opacity-60 transition-opacity duration-300">
           <svg width="60" height="40" viewBox="0 0 60 40" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M5 10C7 8 10 5 13 5C16 5 18 7 20 10M25 5C27 3 30 0 33 0C36 0 38 2 40 5M45 15C47 13 50 10 53 10C56 10 58 12 60 15" 
                   stroke="white" strokeWidth="1.5" strokeLinecap="round" opacity="0.8"/>
@@ -37,13 +37,13 @@ const About = () => {
             style={{
               fontFamily: "Poppins, sans-serif",
               fontSize: "28px",
-              color: "#F5E2B5"
+              color: "#FFFFFF"
             }}
           >
             Tourism
           </h3>
           <p 
-            className="max-w-xs"
+            className="max-w-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform translate-y-2 group-hover:translate-y-0"
             style={{
               fontFamily: "Poppins, sans-serif",
               fontSize: "16px",
@@ -66,16 +66,13 @@ const About = () => {
           }}
         />
         
-        {/* Light Overlay */}
+        {/* Light Overlay - Hidden by default, visible on hover */}
         <div 
-          className="absolute inset-0"
+          className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
           style={{
-            background: "rgba(0, 0, 0, 0.2)"
+            background: "rgba(0, 0, 0, 0.4)"
           }}
         />
-        
-        {/* Hover Darkened Overlay */}
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300" />
         
         {/* Main Heading at Top Center */}
         <div className="absolute top-[20%] left-0 right-0 text-center px-8">
@@ -127,9 +124,9 @@ const About = () => {
           }}
         />
         
-        {/* Gradient Overlay - Bottom to Top */}
+        {/* Gradient Overlay - Bottom to Top - Hidden by default, visible on hover */}
         <div 
-          className="absolute inset-0 transition-opacity duration-300"
+          className="absolute inset-0 transition-opacity duration-300 opacity-0 group-hover:opacity-100"
           style={{
             background: "linear-gradient(to top, rgba(40, 20, 0, 0.7), transparent)"
           }}
