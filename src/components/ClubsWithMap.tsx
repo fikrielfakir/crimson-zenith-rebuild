@@ -374,28 +374,15 @@ const ClubsWithMap = () => {
                   onClick={() => handleClubClick(club)}
                   onMouseEnter={() => setHoveredClubId(club.id)}
                   onMouseLeave={() => setHoveredClubId(null)}
-                  className="relative flex-shrink-0 cursor-pointer overflow-hidden"
+                  className="relative flex-shrink-0 cursor-pointer"
                   style={{
-                    width: "330px",
-                    minHeight: "160px",
-                    background: "rgba(11, 24, 74, 0.8)",
-                    borderRadius: "16px",
-                    padding: "20px",
-                    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.2)",
-                    backdropFilter: "blur(10px)",
-                    border: isSelected
-                      ? "1px solid rgba(255, 214, 69, 0.3)"
-                      : "1px solid rgba(255, 255, 255, 0.1)",
+                    width: "300px",
+                    minHeight: "auto",
                   }}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{
                     opacity: 1,
                     y: 0,
-                    scale: isSelected ? 1.05 : isHovered ? 1.03 : 1,
-                  }}
-                  whileHover={{
-                    boxShadow:
-                      "0 0 10px rgba(255, 214, 69, 0.5), 0 4px 20px rgba(0, 0, 0, 0.3)",
                   }}
                   transition={{
                     type: "spring",
@@ -404,147 +391,62 @@ const ClubsWithMap = () => {
                     delay: index * 0.1,
                   }}
                 >
-                  {/* Top Row: Icon & Member Badge */}
-                  <div className="flex items-start justify-between mb-3">
-                    {/* Club Icon - 48x48px with Gradient Background */}
+                  <div className="flex items-start gap-4">
+                    {/* Club Icon - White circle with yellow bird */}
                     <div
-                      className="flex-shrink-0 rounded-full flex items-center justify-center overflow-hidden"
+                      className="flex-shrink-0 rounded-full flex items-center justify-center border-2 border-white"
                       style={{
-                        width: "48px",
-                        height: "48px",
-                        background:
-                          "linear-gradient(135deg, #FFD645 0%, #FFB800 100%)",
-                        boxShadow: "0 2px 8px rgba(248, 181, 0, 0.4)",
+                        width: "64px",
+                        height: "64px",
+                        background: "#FFFFFF",
                       }}
                     >
                       <img
                         src={birdLogo}
                         alt="Club Icon"
-                        className="w-6 h-6 object-contain"
+                        className="w-10 h-10 object-contain"
                       />
                     </div>
 
-                    {/* Members Badge - 28x28px */}
-                    <div
-                      className="flex items-center justify-center rounded-full"
-                      style={{
-                        width: "28px",
-                        height: "28px",
-                        background: "#FFD645",
-                        boxShadow: "0 2px 4px rgba(0, 0, 0, 0.2)",
-                      }}
-                    >
-                      <span
-                        className="text-white font-semibold"
+                    <div className="flex-1 min-w-0">
+                      {/* Club Name */}
+                      <h3
+                        className="text-white mb-1 group-hover:text-yellow-400 transition-colors"
                         style={{
-                          fontSize: "11px",
                           fontFamily: "Poppins, sans-serif",
+                          fontSize: "18px",
+                          fontWeight: 700,
                         }}
                       >
-                        {club.memberCount || 62}
-                      </span>
+                        {club.name}
+                      </h3>
+
+                      {/* Club Location */}
+                      <p
+                        className="mb-0.5"
+                        style={{
+                          fontFamily: "Poppins, sans-serif",
+                          fontSize: "14px",
+                          fontWeight: 400,
+                          color: "#FFFFFFB3",
+                        }}
+                      >
+                        {club.location}
+                      </p>
+
+                      {/* Member Count */}
+                      <p
+                        style={{
+                          fontFamily: "Poppins, sans-serif",
+                          fontSize: "13px",
+                          fontWeight: 400,
+                          color: "#FFFFFF99",
+                        }}
+                      >
+                        {club.memberCount || "62"}
+                      </p>
                     </div>
                   </div>
-
-                  {/* Club Name - Poppins SemiBold, 18px */}
-                  <h3
-                    className="text-white truncate mb-1"
-                    style={{
-                      fontFamily: "Poppins, sans-serif",
-                      fontSize: "18px",
-                      fontWeight: 600,
-                    }}
-                  >
-                    {club.name}
-                  </h3>
-
-                  {/* Club Location - Poppins Regular, 14px, #FFFFFFB3 */}
-                  <p
-                    className="line-clamp-1 mb-3"
-                    style={{
-                      fontFamily: "Poppins, sans-serif",
-                      fontSize: "14px",
-                      fontWeight: 400,
-                      color: "#FFFFFFB3",
-                    }}
-                  >
-                    {club.location}
-                  </p>
-
-                  {/* Expanded Content - Only visible when selected */}
-                  <AnimatePresence>
-                    {isSelected && (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
-                        exit={{ opacity: 0, height: 0 }}
-                        transition={{ duration: 0.3 }}
-                        className="overflow-hidden"
-                      >
-                        {/* Club Image */}
-                        {club.image && (
-                          <div className="mb-3 rounded-lg overflow-hidden">
-                            <img
-                              src={club.image}
-                              alt={club.name}
-                              className="w-full h-32 object-cover"
-                              onError={(e) => {
-                                e.currentTarget.src =
-                                  "/api/placeholder/330/128";
-                              }}
-                            />
-                          </div>
-                        )}
-
-                        {/* Description */}
-                        <p
-                          className="mb-4"
-                          style={{
-                            fontFamily: "Poppins, sans-serif",
-                            fontSize: "13px",
-                            fontWeight: 400,
-                            lineHeight: "1.5",
-                            color: "#FFFFFFB3",
-                            display: "-webkit-box",
-                            WebkitLineClamp: 2,
-                            WebkitBoxOrient: "vertical",
-                            overflow: "hidden",
-                          }}
-                        >
-                          {club.description ||
-                            "Explore the vibrant culture and community"}
-                        </p>
-
-                        {/* Get More Button - Exact Figma Gradient */}
-                        <motion.button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            navigate(`/club/${encodeURIComponent(club.name)}`);
-                          }}
-                          className="rounded-xl font-semibold"
-                          style={{
-                            background:
-                              "linear-gradient(90deg, #FFD645 0%, #FFB800 100%)",
-                            color: "#FFFFFF",
-                            fontFamily: "Poppins, sans-serif",
-                            fontSize: "14px",
-                            fontWeight: 600,
-                            padding: "10px 20px",
-                            borderRadius: "12px",
-                          }}
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          transition={{
-                            type: "spring",
-                            stiffness: 400,
-                            damping: 17,
-                          }}
-                        >
-                          Get More
-                        </motion.button>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
                 </motion.div>
               );
             })}
