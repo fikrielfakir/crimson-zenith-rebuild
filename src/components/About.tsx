@@ -10,12 +10,12 @@ const About = () => {
     {
       title: "Culture",
       description: "Discover the rich heritage and traditions of Morocco through authentic experiences",
-      bgImage: "https://images.unsplash.com/photo-1593010997571-31fcfc8e5c4a?auto=format&fit=crop&q=80&w=800"
+      bgImage: "/images/culture.png"
     },
     {
       title: "Entertainment",
       description: "Experience vibrant festivals, music, and cultural performances",
-      bgImage: "https://images.unsplash.com/photo-1603217039863-aa300f3c9083?auto=format&fit=crop&q=80&w=800"
+      bgImage: "/images/entertainment.png"
     },
   ];
 
