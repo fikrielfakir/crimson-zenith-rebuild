@@ -1,22 +1,25 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { MapPin, Users, ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import MoroccoMap from "./MoroccoMap";
+import { Plus, Minus, Settings } from "lucide-react";
 import { Club } from "../../shared/schema";
-import marrakechImg from "@/assets/marrakech-club.jpg";
-import fezImg from "@/assets/fez-club.jpg";
-import casablancaImg from "@/assets/casablanca-club.jpg";
+
+const moroccanCities = [
+  { name: "Fes", lat: 34.0181, lon: -5.0078 },
+  { name: "Tetouan", lat: 35.5889, lon: -5.3626 },
+  { name: "Al Hoceima", lat: 35.2517, lon: -3.9317 },
+  { name: "Tanger", lat: 35.7595, lon: -5.8340 },
+  { name: "Casablanca", lat: 33.5731, lon: -7.5898 },
+  { name: "Rabat", lat: 34.0209, lon: -6.8416 },
+  { name: "Merrackache", lat: 31.6295, lon: -7.9811 },
+];
 
 const ClubsWithMap = () => {
-  const [currentPage, setCurrentPage] = useState(0);
-  const [selectedClub, setSelectedClub] = useState<Club | null>(null);
-  const clubsPerPage = 3;
+  const [selectedCity, setSelectedCity] = useState("Al Hoceima");
+  const [selectedClubId, setSelectedClubId] = useState<number | null>(null);
+  const [mapZoom, setMapZoom] = useState(14);
   const navigate = useNavigate();
 
-  // Fetch real clubs data from API
   const { data: clubsResponse, isLoading } = useQuery({
     queryKey: ['clubs'],
     queryFn: async () => {
@@ -28,8 +31,7 @@ const ClubsWithMap = () => {
     },
   });
 
-  // Transform API data to match component expectations, preserving coordinates
-  const rawClubs: Club[] = clubsResponse?.clubs?.map((club: any) => ({
+  const clubs: Club[] = clubsResponse?.clubs?.map((club: any) => ({
     id: club.id,
     name: club.name,
     description: club.description,
@@ -48,214 +50,203 @@ const ClubsWithMap = () => {
     updatedAt: club.updated_at ? new Date(club.updated_at) : undefined,
   })) || [];
 
-  // Transform for display in cards, with fallback images
-  const displayClubs = rawClubs.map((club: Club, index: number) => {
-    const fallbackImages = [marrakechImg, fezImg, casablancaImg];
-    const fallbackImage = fallbackImages[index % fallbackImages.length];
-    
-    return {
-      ...club,
-      image: club.image || fallbackImage,
-      members: `${club.memberCount}+ Members`,
-      features: club.features || [],
-    };
-  });
+  const filteredClubs = clubs.filter(club => 
+    club.location.toLowerCase().includes(selectedCity.toLowerCase())
+  );
 
-  const handlePrevPage = () => {
-    setCurrentPage(prev => Math.max(0, prev - 1));
-  };
+  const displayedClubs = filteredClubs.length > 0 ? filteredClubs : clubs.slice(0, 3);
 
-  const handleNextPage = () => {
-    setCurrentPage(prev => Math.min(Math.floor((displayClubs.length - 1) / clubsPerPage), prev + 1));
-  };
+  const handleZoomIn = () => setMapZoom(prev => Math.min(prev + 1, 18));
+  const handleZoomOut = () => setMapZoom(prev => Math.max(prev - 1, 10));
 
-  const handleClubSelect = (club: Club) => {
-    setSelectedClub(club);
-  };
+  const selectedCityData = moroccanCities.find(city => city.name === selectedCity) || moroccanCities[2];
 
   if (isLoading) {
     return (
-      <section id="clubs" className="py-20 bg-gradient-subtle scroll-mt-32">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16 animate-fade-in">
-            <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
-              Our Clubs
-            </h2>
-            <div className="flex items-center justify-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
-              <span className="ml-2 text-gray-600">Loading clubs...</span>
-            </div>
-          </div>
+      <section id="clubs" className="relative w-full h-screen flex items-center justify-center bg-[#0A1A3D]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+          <p className="text-white text-lg">Loading clubs...</p>
         </div>
       </section>
     );
   }
 
   return (
-    <section id="clubs" className="py-20 bg-gradient-subtle scroll-mt-32">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-16 animate-fade-in">
-          <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
+    <section id="clubs" className="relative w-full h-screen overflow-hidden scroll-mt-0">
+      {/* Satellite Map Background */}
+      <div className="absolute inset-0 z-0">
+        <iframe
+          src={`https://www.google.com/maps/embed/v1/view?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&center=${selectedCityData.lat},${selectedCityData.lon}&zoom=${mapZoom}&maptype=satellite`}
+          width="100%"
+          height="100%"
+          style={{ border: 0 }}
+          allowFullScreen
+          loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
+          className="brightness-75"
+        />
+      </div>
+
+      {/* Dark Blue Gradient Overlay */}
+      <div 
+        className="absolute inset-0 z-10"
+        style={{
+          background: 'linear-gradient(90deg, #0A1A3D 0%, rgba(10, 26, 61, 0.4) 60%, transparent 100%)'
+        }}
+      />
+
+      {/* Content Container */}
+      <div className="relative z-20 h-full">
+        {/* Top Title Area */}
+        <div className="absolute top-12 left-1/2 transform -translate-x-1/2 text-center w-full max-w-4xl px-4">
+          <h2 
+            className="text-5xl font-bold text-white mb-3"
+            style={{ 
+              textShadow: '0 2px 6px rgba(0, 0, 0, 0.4)',
+              fontFamily: 'Poppins, sans-serif'
+            }}
+          >
             Our Clubs
           </h2>
-          <p className="text-xl text-muted-foreground">
+          <p 
+            className="text-xl text-white"
+            style={{ 
+              textShadow: '0 2px 6px rgba(0, 0, 0, 0.4)',
+              maxWidth: '70%',
+              margin: '0 auto'
+            }}
+          >
             Join local communities across Morocco's most fascinating cities
           </p>
         </div>
-        
-        <div className="grid lg:grid-cols-2 gap-8 items-stretch">
-          {/* Map Section - Always on Left */}
-          <div className="animate-fade-in order-1">
-            <Card className="border-border/20 shadow-xl bg-white/95 backdrop-blur-sm h-[700px] rounded-2xl overflow-hidden">
-              <CardHeader className="pb-4 bg-gradient-to-r from-primary/5 to-secondary/5">
-                <CardTitle className="text-xl font-semibold text-foreground flex items-center gap-2">
-                  <MapPin className="w-5 h-5 text-primary" />
-                  Morocco Clubs Map
-                </CardTitle>
-                <p className="text-sm text-muted-foreground">
-                  Discover our club locations across Morocco
-                </p>
-              </CardHeader>
-              <CardContent className="p-0 h-[600px]">
-                <MoroccoMap 
-                  clubs={rawClubs}
-                  onClubSelect={handleClubSelect}
-                  selectedClub={selectedClub}
-                />
-              </CardContent>
-            </Card>
-          </div>
-          
-          {/* Clubs Section - Always on Right */}
-          <div className="order-2">
-            <Card className="border-border/20 shadow-xl bg-white/95 backdrop-blur-sm h-[700px] rounded-2xl overflow-hidden">
-              <CardHeader className="pb-4 bg-gradient-to-r from-primary/5 to-secondary/5">
-                <CardTitle className="text-xl font-semibold text-foreground flex items-center gap-2">
-                  <Users className="w-5 h-5 text-primary" />
-                  Featured Clubs
-                </CardTitle>
-                <p className="text-sm text-muted-foreground">
-                  Explore amazing communities across Morocco
-                </p>
-              </CardHeader>
-              <CardContent className="p-4 h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent">
-                <div className="space-y-4">
-                  {displayClubs.slice(currentPage * clubsPerPage, (currentPage + 1) * clubsPerPage).map((club, index) => (
-                    <Card 
-                      key={club.name} 
-                      className="group hover:shadow-xl hover:scale-[1.02] transition-all duration-300 animate-scale-in border-border/20 overflow-hidden bg-gradient-to-br from-white to-primary/5 rounded-xl"
-                      style={{ animationDelay: `${index * 0.1}s` }}
-                    >
-                      <div className="flex">
-                        <div className="w-24 flex-shrink-0">
-                          <img 
-                            src={club.image} 
-                            alt={club.name}
-                            className="w-full h-24 object-cover rounded-l-xl"
-                          />
-                        </div>
-                        <div className="flex-1 p-3">
-                          <h3 className="text-base font-semibold text-foreground mb-1 group-hover:text-primary transition-colors">
-                            {club.name}
-                          </h3>
-                          
-                          <div className="flex items-center gap-3 text-xs text-muted-foreground mb-2">
-                            <div className="flex items-center gap-1">
-                              <MapPin className="w-3 h-3" />
-                              {club.location}
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Users className="w-3 h-3" />
-                              {club.members}
-                            </div>
-                          </div>
-                          
-                          <p className="text-xs text-muted-foreground mb-2 leading-relaxed line-clamp-2">
-                            {club.description}
-                          </p>
-                          
-                          <div className="flex flex-wrap gap-1 mb-2">
-                            {Array.isArray(club.features) && club.features.slice(0, 2).map((feature) => (
-                              <span 
-                                key={feature} 
-                                className="px-2 py-0.5 bg-primary/10 text-primary text-xs rounded-full font-medium"
-                              >
-                                {feature}
-                              </span>
-                            ))}
-                            {Array.isArray(club.features) && club.features.length > 2 && (
-                              <span className="px-2 py-0.5 bg-muted text-muted-foreground text-xs rounded-full">
-                                +{club.features.length - 2}
-                              </span>
-                            )}
-                          </div>
-                          
-                          <div className="flex gap-2">
-                            <Button 
-                              size="sm" 
-                              className="px-3 py-1 text-xs flex-1 rounded-full bg-gradient-to-r from-primary to-secondary hover:shadow-lg"
-                              onClick={() => navigate(`/club/${encodeURIComponent(club.name)}`)}
-                            >
-                              Discover
-                            </Button>
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              className="px-2 py-1 text-xs rounded-full border-primary/20 hover:bg-primary/10"
-                              onClick={() => handleClubSelect(club)}
-                              title="Show on map"
-                            >
-                              <MapPin className="w-3 h-3" />
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    </Card>
-                  ))}
-                </div>
-                
-                {/* Pagination Controls */}
-                <div className="flex items-center justify-between mt-4 pt-4 border-t border-border/10">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handlePrevPage}
-                    disabled={currentPage === 0}
-                    className="flex items-center gap-2 rounded-full"
-                  >
-                    <ChevronLeft className="w-4 h-4" />
-                    Previous
-                  </Button>
-                  
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-muted-foreground">
-                      {currentPage * clubsPerPage + 1}-{Math.min((currentPage + 1) * clubsPerPage, displayClubs.length)} of {displayClubs.length}
-                    </span>
-                    <Button
-                      variant="ghost" 
-                      size="sm"
-                      onClick={() => navigate('/clubs')}
-                      className="flex items-center gap-2 text-primary hover:text-primary rounded-full"
-                    >
-                      <MoreHorizontal className="w-4 h-4" />
-                      View All
-                    </Button>
+
+        {/* Left City List */}
+        <div 
+          className="absolute left-20 top-1/2 transform -translate-y-1/2"
+          style={{ fontFamily: 'Poppins, sans-serif' }}
+        >
+          {moroccanCities.map((city) => (
+            <button
+              key={city.name}
+              onClick={() => setSelectedCity(city.name)}
+              className={`block text-left py-2 transition-all duration-300 ${
+                selectedCity === city.name
+                  ? 'text-white font-semibold text-2xl'
+                  : 'text-white/70 text-lg hover:text-white/90'
+              }`}
+              style={{ lineHeight: '40px' }}
+            >
+              {city.name}
+            </button>
+          ))}
+        </div>
+
+        {/* Map Controls (Right Side) */}
+        <div className="absolute right-8 top-1/2 transform -translate-y-1/2 flex flex-col gap-3">
+          <button
+            onClick={() => {}}
+            className="w-11 h-11 rounded-full bg-white/20 border border-white/30 flex items-center justify-center text-white hover:bg-white/30 hover:scale-110 transition-all duration-300"
+            title="Settings"
+          >
+            <Settings className="w-5 h-5" />
+          </button>
+          <button
+            onClick={handleZoomIn}
+            className="w-11 h-11 rounded-full bg-white/20 border border-white/30 flex items-center justify-center text-white hover:bg-white/30 hover:scale-110 transition-all duration-300"
+            title="Zoom In"
+          >
+            <Plus className="w-5 h-5" />
+          </button>
+          <button
+            onClick={handleZoomOut}
+            className="w-11 h-11 rounded-full bg-white/20 border border-white/30 flex items-center justify-center text-white hover:bg-white/30 hover:scale-110 transition-all duration-300"
+            title="Zoom Out"
+          >
+            <Minus className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Club Cards (Bottom Overlay) */}
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex gap-6 px-4 max-w-6xl overflow-x-auto scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
+          {displayedClubs.map((club, index) => (
+            <div
+              key={club.id}
+              onClick={() => setSelectedClubId(selectedClubId === club.id ? null : club.id)}
+              className={`group relative flex-shrink-0 rounded-2xl p-6 cursor-pointer transition-all duration-300 ${
+                selectedClubId === club.id
+                  ? 'scale-105 bg-gradient-to-b from-[rgba(10,26,61,0.9)] to-[rgba(255,255,255,0.1)]'
+                  : 'bg-[rgba(10,26,61,0.8)] hover:bg-[rgba(10,26,61,0.9)]'
+              }`}
+              style={{
+                boxShadow: '0px 4px 12px rgba(0,0,0,0.3)',
+                minWidth: '320px',
+                maxWidth: '320px'
+              }}
+            >
+              {/* Club Icon & Info */}
+              <div className="flex items-start gap-4">
+                {/* Icon */}
+                <div className="flex-shrink-0">
+                  <div className="w-16 h-16 rounded-full border-2 border-white bg-gradient-to-br from-[#F8B500] to-[#FFDA7A] flex items-center justify-center">
+                    <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"/>
+                    </svg>
                   </div>
-                  
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleNextPage}
-                    disabled={currentPage >= Math.floor((displayClubs.length - 1) / clubsPerPage)}
-                    className="flex items-center gap-2 rounded-full"
-                  >
-                    Next
-                    <ChevronRight className="w-4 h-4" />
-                  </Button>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
+
+                {/* Info */}
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-xl font-bold text-white mb-1 truncate">
+                    {club.name}
+                  </h3>
+                  <p className="text-sm text-white/80 line-clamp-2">
+                    {club.location}
+                  </p>
+                  
+                  {/* Member Count Badge */}
+                  <div className="absolute top-4 right-4 w-8 h-8 rounded-full bg-[#F8B500] flex items-center justify-center">
+                    <span className="text-xs font-bold text-white">{club.memberCount || 23}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Expanded Content */}
+              {selectedClubId === club.id && (
+                <div className="mt-4 animate-fade-in">
+                  {/* Location Image */}
+                  {club.image && (
+                    <div className="mb-4 rounded-lg overflow-hidden">
+                      <img 
+                        src={club.image} 
+                        alt={club.name}
+                        className="w-full h-32 object-cover"
+                      />
+                    </div>
+                  )}
+
+                  {/* Description */}
+                  <p className="text-sm text-white/90 mb-4 line-clamp-3">
+                    {club.description}
+                  </p>
+
+                  {/* Get More Button */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/club/${encodeURIComponent(club.name)}`);
+                    }}
+                    className="w-full px-5 py-2.5 rounded-lg text-white font-bold text-base transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                    style={{
+                      background: 'linear-gradient(90deg, #F8B500 0%, #FFDA7A 100%)'
+                    }}
+                  >
+                    Get More
+                  </button>
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       </div>
     </section>
