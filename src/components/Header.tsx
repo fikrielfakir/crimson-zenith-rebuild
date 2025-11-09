@@ -149,6 +149,13 @@ const TopNavbar = ({
   joinButtonStyle: string;
   onDonateClick: () => void;
 }) => {
+  const [heartAnimate, setHeartAnimate] = useState(false);
+
+  const handleDonateHover = () => {
+    setHeartAnimate(true);
+    setTimeout(() => setHeartAnimate(false), 600);
+  };
+
   return (
     <div className="w-full bg-transparent transition-all duration-300 overflow-hidden" style={isScrolled ? { maxHeight: '65px', opacity: '0', height: '65px' } : { maxHeight: '80px', opacity: '1' }}>
       <div className={`container mx-auto px-6 transition-all duration-300 ${isScrolled ? 'py-0' : 'py-3'}`}>
@@ -209,12 +216,45 @@ const TopNavbar = ({
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.background = '#b03a3a';
+                handleDonateHover();
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.background = 'linear-gradient(90deg, #d45151 0%, #c04040 100%)';
               }}
             >
-              <Heart className="h-4 w-4" />
+              <Heart 
+                className="h-4 w-4 transition-transform origin-center"
+                style={{
+                  animation: heartAnimate ? 'heartBeat 0.6s ease-in-out' : 'none',
+                }}
+              />
+              <style dangerouslySetInnerHTML={{
+                __html: `
+                  @keyframes heartBeat {
+                    0% {
+                      transform: scale(1);
+                    }
+                    15% {
+                      transform: scale(1.3) rotate(-5deg);
+                    }
+                    30% {
+                      transform: scale(1.1) rotate(5deg);
+                    }
+                    45% {
+                      transform: scale(1.35) rotate(-3deg);
+                    }
+                    60% {
+                      transform: scale(1.15) rotate(2deg);
+                    }
+                    75% {
+                      transform: scale(1.25) rotate(-1deg);
+                    }
+                    100% {
+                      transform: scale(1) rotate(0deg);
+                    }
+                  }
+                `
+              }} />
               {joinButtonText}
             </Button>
           )}
