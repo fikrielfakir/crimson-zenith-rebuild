@@ -261,7 +261,7 @@ All colors MUST be HSL.
 
   /* Modern Custom scrollbar - Simple & Minimal */
   ::-webkit-scrollbar {
-    width: 8px;
+    width: 25px;
   }
 
   ::-webkit-scrollbar-track {
@@ -284,7 +284,7 @@ All colors MUST be HSL.
 
   /* Firefox scrollbar */
   * {
-    scrollbar-width: thin;
+    scrollbar-width: auto;
     scrollbar-color: hsl(0 0% 45%) hsl(0 0% 10%);
   }
 
@@ -299,6 +299,7 @@ All colors MUST be HSL.
       opacity: 0;
       transform: translateY(30px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
@@ -309,6 +310,7 @@ All colors MUST be HSL.
     from {
       opacity: 0;
     }
+
     to {
       opacity: 1;
     }
@@ -329,7 +331,9 @@ All colors MUST be HSL.
   }
 
   /* Smooth transitions for interactive elements */
-  a, button, [role="button"] {
+  a,
+  button,
+  [role="button"] {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
@@ -344,7 +348,7 @@ All colors MUST be HSL.
     html {
       scroll-behavior: auto;
     }
-    
+
     .scroll-reveal,
     * {
       animation-duration: 0.01ms !important;
