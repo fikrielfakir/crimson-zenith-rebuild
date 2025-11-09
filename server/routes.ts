@@ -27,6 +27,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
   await setupAuth(app);
 
+  // Map configuration endpoint - returns MapTiler style URL (server-side only)
+  app.get('/api/config/map-style', async (req, res) => {
+    try {
+      const apiKey = process.env.MAPTILER_API_KEY;
+      if (!apiKey) {
+        return res.status(500).json({ message: "Map configuration not available" });
+      }
+      // Return the complete style URL, not the raw API key
+      res.json({ 
+        styleUrl: `https://api.maptiler.com/maps/satellite/style.json?key=${apiKey}`
+      });
+    } catch (error) {
+      console.error("Error fetching map config:", error);
+      res.status(500).json({ message: "Failed to fetch map configuration" });
+    }
+  });
+
   // User profile routes
   app.put('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {

@@ -24,6 +24,7 @@ const ClubsWithMap = () => {
   const [hoveredClubId, setHoveredClubId] = useState<number | null>(null);
   const [mapCenter, setMapCenter] = useState({ lat: 35.2517, lng: -3.9317 });
   const [mapZoom, setMapZoom] = useState(14);
+  const [mapStyleUrl, setMapStyleUrl] = useState<string | null>(null);
   const navigate = useNavigate();
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
@@ -67,6 +68,22 @@ const ClubsWithMap = () => {
   const displayedClubs =
     filteredClubs.length > 0 ? filteredClubs : clubs.slice(0, 3);
 
+  // Fetch map style URL on component mount
+  useEffect(() => {
+    const fetchMapStyle = async () => {
+      try {
+        const response = await fetch('/api/config/map-style');
+        if (response.ok) {
+          const data = await response.json();
+          setMapStyleUrl(data.styleUrl);
+        }
+      } catch (error) {
+        console.error('Failed to fetch map style:', error);
+      }
+    };
+    fetchMapStyle();
+  }, []);
+
   useEffect(() => {
     if (displayedClubs.length > 0 && selectedClubId === null) {
       const firstClub = displayedClubs[0];
@@ -79,35 +96,13 @@ const ClubsWithMap = () => {
     }
   }, [displayedClubs, selectedClubId]);
 
-  // Initialize map
+  // Initialize map with MapTiler satellite imagery
   useEffect(() => {
-    if (map.current || !mapContainer.current) return;
+    if (map.current || !mapContainer.current || !mapStyleUrl) return;
 
     map.current = new maplibregl.Map({
       container: mapContainer.current,
-      style: {
-        version: 8,
-        sources: {
-          satellite: {
-            type: "raster",
-            tiles: [
-              "https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2020_3857/default/g/{z}/{y}/{x}.jpg",
-            ],
-            tileSize: 256,
-            maxzoom: 18,
-            attribution: "© EOX IT Services GmbH, Sentinel-2 cloudless by EOX",
-          },
-        },
-        layers: [
-          {
-            id: "satellite-layer",
-            type: "raster",
-            source: "satellite",
-            minzoom: 0,
-            maxzoom: 18,
-          },
-        ],
-      },
+      style: mapStyleUrl,
       center: [mapCenter.lng, mapCenter.lat],
       zoom: mapZoom,
       attributionControl: false,
@@ -124,7 +119,7 @@ const ClubsWithMap = () => {
       map.current?.remove();
       map.current = null;
     };
-  }, []);
+  }, [mapStyleUrl]);
 
   // Update map center and zoom
   useEffect(() => {
