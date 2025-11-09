@@ -29,37 +29,40 @@ const Contact = () => {
   ];
 
   return (
-    <section id="contact" className="py-20 bg-gradient-subtle scroll-mt-32">
-      <div className="container mx-auto px-4">
+    <section id="contact" className="py-20 bg-gray-50 dark:bg-background scroll-mt-32">
+      <div className="container mx-auto px-4 max-w-7xl">
         <div className="text-center mb-16 animate-fade-in">
-          <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
+          <h2 className="text-4xl md:text-5xl font-bold mb-4" style={{ color: '#2C3E50' }}>
             Contact Information
           </h2>
-          <p className="text-xl text-muted-foreground">
+          <p className="text-lg text-gray-400">
             Ready to start your journey? Get in touch with our team
           </p>
         </div>
         
         <div className="grid lg:grid-cols-2 gap-12">
           {/* Contact Info */}
-          <div className="space-y-6">
+          <div className="space-y-5">
             {contactInfo.map((info, index) => (
               <Card 
                 key={info.title} 
-                className="border-border/50 hover:shadow-elegant transition-all duration-300 animate-fade-in"
+                className="border-0 shadow-sm hover:shadow-md transition-all duration-300 animate-fade-in bg-white dark:bg-card"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <CardContent className="p-6">
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
-                      <info.icon className="w-6 h-6 text-primary" />
+                <CardContent className="p-8">
+                  <div className="flex items-start gap-5">
+                    <div 
+                      className="w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0"
+                      style={{ backgroundColor: '#1E3A5F' }}
+                    >
+                      <info.icon className="w-6 h-6 text-white" strokeWidth={2} />
                     </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-foreground mb-2">
+                    <div className="pt-1">
+                      <h3 className="text-lg font-semibold mb-2" style={{ color: '#2C3E50' }}>
                         {info.title}
                       </h3>
                       {info.details.map((detail, i) => (
-                        <p key={i} className="text-muted-foreground">
+                        <p key={i} className={i === 0 ? "text-gray-600 dark:text-gray-400 font-medium" : "text-gray-400 text-sm mt-1"}>
                           {detail}
                         </p>
                       ))}
@@ -71,53 +74,74 @@ const Contact = () => {
           </div>
           
           {/* Contact Form */}
-          <Card className="border-border/50 animate-slide-up">
-            <CardHeader>
-              <CardTitle className="text-2xl font-bold text-foreground">
+          <Card className="border-0 shadow-sm bg-white dark:bg-card animate-slide-up">
+            <CardHeader className="pb-6">
+              <CardTitle className="text-2xl font-bold" style={{ color: '#2C3E50' }}>
                 Send us a Message
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-5">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-foreground mb-2 block">
+                  <label className="text-sm font-semibold mb-2 block" style={{ color: '#2C3E50' }}>
                     First Name
                   </label>
-                  <Input placeholder="Your first name" />
+                  <Input 
+                    placeholder="Your first name" 
+                    className="h-11 border-gray-200 focus:border-gray-300 rounded-lg"
+                  />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-foreground mb-2 block">
+                  <label className="text-sm font-semibold mb-2 block" style={{ color: '#2C3E50' }}>
                     Last Name
                   </label>
-                  <Input placeholder="Your last name" />
+                  <Input 
+                    placeholder="Your last name" 
+                    className="h-11 border-gray-200 focus:border-gray-300 rounded-lg"
+                  />
                 </div>
               </div>
               
               <div>
-                <label className="text-sm font-medium text-foreground mb-2 block">
+                <label className="text-sm font-semibold mb-2 block" style={{ color: '#2C3E50' }}>
                   Email
                 </label>
-                <Input type="email" placeholder="your.email@example.com" />
+                <Input 
+                  type="email" 
+                  placeholder="your.email@example.com" 
+                  className="h-11 border-gray-200 focus:border-gray-300 rounded-lg"
+                />
               </div>
               
               <div>
-                <label className="text-sm font-medium text-foreground mb-2 block">
+                <label className="text-sm font-semibold mb-2 block" style={{ color: '#2C3E50' }}>
                   Subject
                 </label>
-                <Input placeholder="What's this about?" />
+                <Input 
+                  placeholder="What's this about?" 
+                  className="h-11 border-gray-200 focus:border-gray-300 rounded-lg"
+                />
               </div>
               
               <div>
-                <label className="text-sm font-medium text-foreground mb-2 block">
+                <label className="text-sm font-semibold mb-2 block" style={{ color: '#2C3E50' }}>
                   Message
                 </label>
                 <Textarea 
                   placeholder="Tell us about your travel dreams and how we can help make them reality..."
-                  rows={6}
+                  rows={5}
+                  className="border-gray-200 focus:border-gray-300 rounded-lg resize-none"
                 />
               </div>
               
-              <Button className="w-full" size="lg">
+              <Button 
+                className="w-full h-12 text-base font-semibold rounded-lg hover:opacity-90 transition-opacity"
+                style={{ 
+                  backgroundColor: '#1E3A5F',
+                  color: 'white'
+                }}
+                size="lg"
+              >
                 Send Message
               </Button>
             </CardContent>
