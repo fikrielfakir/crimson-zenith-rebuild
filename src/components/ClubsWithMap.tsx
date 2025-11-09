@@ -2,20 +2,22 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Plus, Minus, Settings } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Club } from "../../shared/schema";
+import birdLogo from "@/assets/attached_assets/Group 288941_1762708813825.png";
 
 const moroccanCities = [
   { name: "Fes", lat: 34.0181, lon: -5.0078 },
   { name: "Tetouan", lat: 35.5889, lon: -5.3626 },
-  { name: "Al hoceima", lat: 35.2517, lon: -3.9317 },
+  { name: "Al Hoceima", lat: 35.2517, lon: -3.9317 },
   { name: "Tanger", lat: 35.7595, lon: -5.8340 },
   { name: "Casablanca", lat: 33.5731, lon: -7.5898 },
   { name: "Rabat", lat: 34.0209, lon: -6.8416 },
-  { name: "Merrackache", lat: 31.6295, lon: -7.9811 },
+  { name: "Marrakech", lat: 31.6295, lon: -7.9811 },
 ];
 
 const ClubsWithMap = () => {
-  const [selectedCity, setSelectedCity] = useState("Al hoceima");
+  const [selectedCity, setSelectedCity] = useState("Al Hoceima");
   const [selectedClubId, setSelectedClubId] = useState<number | null>(null);
   const [hoveredClubId, setHoveredClubId] = useState<number | null>(null);
   const [mapCenter, setMapCenter] = useState({ lat: 35.2517, lng: -3.9317 });
@@ -94,7 +96,7 @@ const ClubsWithMap = () => {
 
   if (isLoading) {
     return (
-      <section id="clubs" className="relative w-full h-screen flex items-center justify-center bg-[#0A1A3D]">
+      <section id="clubs" className="relative w-full h-screen flex items-center justify-center bg-[#0A1845]">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
           <p className="text-white text-lg">Loading clubs...</p>
@@ -105,14 +107,14 @@ const ClubsWithMap = () => {
 
   return (
     <section id="clubs" className="relative w-full h-screen overflow-hidden scroll-mt-0">
-      {/* Satellite Map Background */}
+      {/* Satellite Map Background with Blur */}
       <div className="absolute inset-0 z-0">
         <iframe
           key={`${mapCenter.lat}-${mapCenter.lng}-${mapZoom}`}
           src={`https://www.google.com/maps/embed/v1/view?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&center=${mapCenter.lat},${mapCenter.lng}&zoom=${mapZoom}&maptype=satellite`}
           width="100%"
           height="100%"
-          style={{ border: 0 }}
+          style={{ border: 0, filter: 'blur(2px)' }}
           allowFullScreen
           loading="lazy"
           referrerPolicy="no-referrer-when-downgrade"
@@ -120,23 +122,24 @@ const ClubsWithMap = () => {
         />
       </div>
 
-      {/* Refined Gradient Overlay */}
+      {/* Gradient Overlay - Exact Figma Spec */}
       <div 
         className="absolute inset-0 z-10"
         style={{
-          background: 'linear-gradient(90deg, rgba(10, 26, 61, 0.95) 0%, rgba(10, 26, 61, 0.6) 50%, rgba(10, 26, 61, 0.2) 100%)'
+          background: 'linear-gradient(180deg, #0A1845 0%, rgba(10, 24, 69, 0.9) 100%)'
         }}
       />
 
       {/* Content Container */}
       <div className="relative z-20 h-full">
-        {/* Header Section - Top Center */}
-        <div className="absolute top-12 left-1/2 transform -translate-x-1/2 text-center w-full max-w-4xl px-4">
+        {/* Header Section - Top Center with Exact Typography */}
+        <div className="absolute left-1/2 transform -translate-x-1/2 text-center w-full max-w-4xl px-4" style={{ top: '60px' }}>
           <h2 
-            className="text-white font-bold mb-3"
+            className="text-white mb-3"
             style={{ 
               fontFamily: 'Poppins, sans-serif',
               fontSize: '48px',
+              fontWeight: 800,
               letterSpacing: '0.5px',
               textShadow: '0 2px 8px rgba(0, 0, 0, 0.3)'
             }}
@@ -144,14 +147,14 @@ const ClubsWithMap = () => {
             Our Clubs
           </h2>
           <p 
-            className="text-white mx-auto"
+            className="mx-auto"
             style={{ 
               fontFamily: 'Poppins, sans-serif',
               fontSize: '20px',
               fontWeight: 500,
-              color: 'rgba(255, 255, 255, 0.85)',
+              color: '#FFFFFFCC',
               maxWidth: '700px',
-              marginTop: '12px',
+              marginBottom: '40px',
               textShadow: '0 2px 6px rgba(0, 0, 0, 0.3)'
             }}
           >
@@ -159,45 +162,47 @@ const ClubsWithMap = () => {
           </p>
         </div>
 
-        {/* Left Sidebar - City List */}
+        {/* Left Sidebar - City List with Exact Specs */}
         <div 
           className="absolute left-0 top-1/2 transform -translate-y-1/2"
           style={{ 
             fontFamily: 'Poppins, sans-serif',
-            width: '220px',
+            width: '240px',
             paddingLeft: '60px',
-            background: 'rgba(10, 26, 61, 0.95)',
+            background: 'rgba(10, 24, 69, 0.6)',
             paddingTop: '40px',
-            paddingBottom: '40px'
+            paddingBottom: '40px',
+            backdropFilter: 'blur(10px)'
           }}
         >
           {moroccanCities.map((city) => {
             const isActive = selectedCity === city.name;
             return (
-              <button
+              <motion.button
                 key={city.name}
                 onClick={() => handleCitySelect(city.name)}
-                className="relative block text-left w-full transition-all duration-400 ease-out group"
+                className="relative block text-left w-full group"
                 style={{ 
-                  fontSize: isActive ? '20px' : '18px',
+                  fontSize: '18px',
                   fontWeight: isActive ? 600 : 400,
-                  color: isActive ? '#FFFFFF' : 'rgba(255, 255, 255, 0.7)',
-                  lineHeight: '2.6em'
+                  color: isActive ? '#FFFFFF' : '#FFFFFF99',
+                  marginBottom: '20px',
+                  fontFamily: 'Poppins, sans-serif'
                 }}
+                whileHover={{ color: '#FFFFFF' }}
+                transition={{ duration: 0.3 }}
               >
-                {/* Active Accent Bar */}
                 {isActive && (
-                  <div 
-                    className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-[60px] w-[2px] h-[60%] animate-fade-in"
+                  <motion.div 
+                    className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-[60px] w-[3px] h-[24px]"
                     style={{
-                      background: 'linear-gradient(180deg, #FFD54F 0%, #F8B500 100%)'
+                      background: 'linear-gradient(180deg, #FFD645 0%, #FFB800 100%)'
                     }}
+                    layoutId="activeIndicator"
                   />
                 )}
-                <span className="group-hover:text-white transition-colors duration-300">
-                  {city.name}
-                </span>
-              </button>
+                {city.name}
+              </motion.button>
             );
           })}
         </div>
@@ -214,9 +219,6 @@ const ClubsWithMap = () => {
             title="Settings"
           >
             <Settings className="w-5 h-5" />
-            <span className="absolute right-14 bg-black/80 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-              Settings
-            </span>
           </button>
           <button
             onClick={handleZoomIn}
@@ -228,9 +230,6 @@ const ClubsWithMap = () => {
             title="Zoom In"
           >
             <Plus className="w-5 h-5" />
-            <span className="absolute right-14 bg-black/80 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-              Zoom In
-            </span>
           </button>
           <button
             onClick={handleZoomOut}
@@ -242,161 +241,197 @@ const ClubsWithMap = () => {
             title="Zoom Out"
           >
             <Minus className="w-5 h-5" />
-            <span className="absolute right-14 bg-black/80 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-              Zoom Out
-            </span>
           </button>
         </div>
 
-        {/* Club Cards - Bottom Center (Higher Position) */}
+        {/* Club Cards - Bottom Center with Exact Figma Specs */}
         <div 
-          className="absolute left-1/2 transform -translate-x-1/2 flex gap-8 px-4 overflow-x-auto scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent"
+          className="absolute left-1/2 transform -translate-x-1/2 flex gap-6 px-4 overflow-x-auto scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent pb-2"
           style={{
-            bottom: '30%',
+            bottom: '120px',
             maxWidth: '90%'
           }}
         >
-          {displayedClubs.map((club, index) => {
-            const isSelected = selectedClubId === club.id;
-            
-            return (
-              <div
-                key={club.id}
-                onClick={() => handleClubClick(club)}
-                onMouseEnter={() => setHoveredClubId(club.id)}
-                onMouseLeave={() => setHoveredClubId(null)}
-                className="group relative flex-shrink-0 rounded-[20px] cursor-pointer transition-all duration-300"
-                style={{
-                  width: '360px',
-                  height: isSelected ? '320px' : '220px',
-                  background: isSelected 
-                    ? 'linear-gradient(180deg, rgba(10,26,61,0.95) 0%, rgba(10,26,61,0.85) 100%)'
-                    : 'linear-gradient(180deg, rgba(10,26,61,0.9) 0%, rgba(10,26,61,0.75) 100%)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  padding: '24px',
-                  boxShadow: isSelected 
-                    ? '0 0 12px rgba(248,181,0,0.4), 0 8px 16px rgba(0,0,0,0.25)' 
-                    : '0 8px 16px rgba(0,0,0,0.25)',
-                  transform: isSelected ? 'scale(1.05)' : 'scale(1)',
-                  animationDelay: `${index * 0.1}s`
-                }}
-              >
-                {/* Top Row: Icon & Member Badge */}
-                <div className="flex items-start justify-between mb-3">
-                  {/* Icon Circle */}
-                  <div 
-                    className="flex-shrink-0 rounded-full flex items-center justify-center"
-                    style={{
-                      width: '60px',
-                      height: '60px',
-                      background: 'radial-gradient(circle, #FFD54F 0%, #F8B500 100%)',
-                      boxShadow: '0 4px 8px rgba(248,181,0,0.3)'
-                    }}
-                  >
-                    <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"/>
-                    </svg>
-                  </div>
-
-                  {/* Members Badge */}
-                  <div 
-                    className="flex items-center justify-center rounded-full"
-                    style={{
-                      width: '36px',
-                      height: '36px',
-                      background: '#F8B500',
-                      boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
-                    }}
-                  >
-                    <span className="text-white text-xs font-bold">{club.memberCount || 62}</span>
-                  </div>
-                </div>
-
-                {/* Club Title */}
-                <h3 
-                  className="text-white font-bold mb-1 truncate"
+          <AnimatePresence mode="popLayout">
+            {displayedClubs.map((club, index) => {
+              const isSelected = selectedClubId === club.id;
+              const isHovered = hoveredClubId === club.id;
+              
+              return (
+                <motion.div
+                  key={club.id}
+                  onClick={() => handleClubClick(club)}
+                  onMouseEnter={() => setHoveredClubId(club.id)}
+                  onMouseLeave={() => setHoveredClubId(null)}
+                  className="relative flex-shrink-0 cursor-pointer overflow-hidden"
                   style={{
-                    fontFamily: 'Poppins, sans-serif',
-                    fontSize: '20px'
+                    width: '330px',
+                    minHeight: '160px',
+                    background: 'rgba(11, 24, 74, 0.8)',
+                    borderRadius: '16px',
+                    padding: '20px',
+                    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
+                    backdropFilter: 'blur(10px)',
+                    border: isSelected ? '1px solid rgba(255, 214, 69, 0.3)' : '1px solid rgba(255, 255, 255, 0.1)'
+                  }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ 
+                    opacity: 1, 
+                    y: 0,
+                    scale: isSelected ? 1.05 : (isHovered ? 1.03 : 1),
+                  }}
+                  whileHover={{
+                    boxShadow: '0 0 10px rgba(255, 214, 69, 0.5), 0 4px 20px rgba(0, 0, 0, 0.3)'
+                  }}
+                  transition={{ 
+                    type: "spring", 
+                    stiffness: 300, 
+                    damping: 25,
+                    delay: index * 0.1 
                   }}
                 >
-                  {club.name}
-                </h3>
-
-                {/* Club Subtitle (Location) */}
-                <p 
-                  className="text-white/80 line-clamp-1"
-                  style={{
-                    fontFamily: 'Poppins, sans-serif',
-                    fontSize: '16px'
-                  }}
-                >
-                  {club.location}
-                </p>
-
-                {/* Expanded Content - Only visible when selected */}
-                {isSelected && (
-                  <div className="mt-4 animate-fade-in">
-                    {/* Description */}
-                    <p 
-                      className="text-white/80 mb-4"
+                  {/* Top Row: Icon & Member Badge */}
+                  <div className="flex items-start justify-between mb-3">
+                    {/* Club Icon - 48x48px with Gradient Background */}
+                    <div 
+                      className="flex-shrink-0 rounded-full flex items-center justify-center overflow-hidden"
                       style={{
-                        fontFamily: 'Poppins, sans-serif',
-                        fontSize: '15px',
-                        lineHeight: '1.5',
-                        display: '-webkit-box',
-                        WebkitLineClamp: 3,
-                        WebkitBoxOrient: 'vertical',
-                        overflow: 'hidden'
+                        width: '48px',
+                        height: '48px',
+                        background: 'linear-gradient(135deg, #FFD645 0%, #FFB800 100%)',
+                        boxShadow: '0 2px 8px rgba(248, 181, 0, 0.4)'
                       }}
                     >
-                      {club.description || '62 Via A, Bokidadan AL Hoceima'}
-                    </p>
+                      <img 
+                        src={birdLogo} 
+                        alt="Club Icon" 
+                        className="w-6 h-6 object-contain"
+                      />
+                    </div>
 
-                    {/* Get More Button */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigate(`/club/${encodeURIComponent(club.name)}`);
-                      }}
-                      className="rounded-lg font-semibold transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                    {/* Members Badge - 28x28px */}
+                    <div 
+                      className="flex items-center justify-center rounded-full"
                       style={{
-                        width: '120px',
-                        height: '40px',
-                        background: 'linear-gradient(90deg, #F8B500 0%, #FFDD6E 100%)',
-                        color: '#0A1A3D',
-                        fontFamily: 'Poppins, sans-serif',
-                        fontSize: '14px',
-                        fontWeight: 600
+                        width: '28px',
+                        height: '28px',
+                        background: '#FFD645',
+                        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)'
                       }}
                     >
-                      Get More
-                    </button>
+                      <span 
+                        className="text-white font-semibold"
+                        style={{ 
+                          fontSize: '11px',
+                          fontFamily: 'Poppins, sans-serif'
+                        }}
+                      >
+                        {club.memberCount || 62}
+                      </span>
+                    </div>
                   </div>
-                )}
-              </div>
-            );
-          })}
+
+                  {/* Club Name - Poppins SemiBold, 18px */}
+                  <h3 
+                    className="text-white truncate mb-1"
+                    style={{
+                      fontFamily: 'Poppins, sans-serif',
+                      fontSize: '18px',
+                      fontWeight: 600
+                    }}
+                  >
+                    {club.name}
+                  </h3>
+
+                  {/* Club Location - Poppins Regular, 14px, #FFFFFFB3 */}
+                  <p 
+                    className="line-clamp-1 mb-3"
+                    style={{
+                      fontFamily: 'Poppins, sans-serif',
+                      fontSize: '14px',
+                      fontWeight: 400,
+                      color: '#FFFFFFB3'
+                    }}
+                  >
+                    {club.location}
+                  </p>
+
+                  {/* Expanded Content - Only visible when selected */}
+                  <AnimatePresence>
+                    {isSelected && (
+                      <motion.div 
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="overflow-hidden"
+                      >
+                        {/* Club Image */}
+                        {club.image && (
+                          <div className="mb-3 rounded-lg overflow-hidden">
+                            <img 
+                              src={club.image} 
+                              alt={club.name}
+                              className="w-full h-32 object-cover"
+                              onError={(e) => {
+                                e.currentTarget.src = '/api/placeholder/330/128';
+                              }}
+                            />
+                          </div>
+                        )}
+
+                        {/* Description */}
+                        <p 
+                          className="mb-4"
+                          style={{
+                            fontFamily: 'Poppins, sans-serif',
+                            fontSize: '13px',
+                            fontWeight: 400,
+                            lineHeight: '1.5',
+                            color: '#FFFFFFB3',
+                            display: '-webkit-box',
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden'
+                          }}
+                        >
+                          {club.description || 'Explore the vibrant culture and community'}
+                        </p>
+
+                        {/* Get More Button - Exact Figma Gradient */}
+                        <motion.button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/club/${encodeURIComponent(club.name)}`);
+                          }}
+                          className="rounded-xl font-semibold"
+                          style={{
+                            background: 'linear-gradient(90deg, #FFD645 0%, #FFB800 100%)',
+                            color: '#FFFFFF',
+                            fontFamily: 'Poppins, sans-serif',
+                            fontSize: '14px',
+                            fontWeight: 600,
+                            padding: '10px 20px',
+                            borderRadius: '12px'
+                          }}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                        >
+                          Get More
+                        </motion.button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
         </div>
       </div>
 
-      {/* Custom Animations */}
+      {/* Custom Scrollbar Styles */}
       <style>{`
-        @keyframes fade-in {
-          from {
-            opacity: 0;
-            transform: translateY(10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        .animate-fade-in {
-          animation: fade-in 0.4s ease-out;
-        }
-
         .scrollbar-thin::-webkit-scrollbar {
           height: 8px;
         }
@@ -413,6 +448,8 @@ const ClubsWithMap = () => {
         .scrollbar-thin::-webkit-scrollbar-thumb:hover {
           background: rgba(255, 255, 255, 0.3);
         }
+
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;800&display=swap');
       `}</style>
     </section>
   );
