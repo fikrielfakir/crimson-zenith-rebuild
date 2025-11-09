@@ -1,0 +1,165 @@
+Goal:
+Rebuild the “Our Clubs” section to match the Figma reference (Screen Figma.png).
+Ensure the Google Maps background is fully visible behind the dark gradient overlay, with floating cards, city sidebar, and interactive club logic consistent with the original concept.
+
+🗺️ 1. Map Background Layer
+
+Use Google Maps (via react-google-maps or react-leaflet) as the base layer, spanning 100% width and viewport height minus navbar.
+
+Apply a dark overlay gradient on top of the map for legibility:
+
+background: linear-gradient(
+  180deg,
+  rgba(10, 24, 69, 0.85) 0%,
+  rgba(10, 24, 69, 0.92) 30%,
+  rgba(10, 24, 69, 0.98) 100%
+);
+
+
+The gradient must not replace the map — it should sit on top with position: absolute; z-index: 1; pointer-events: none;.
+
+The map remains interactive (zoom, move, click).
+
+🧱 2. Structure & Layout
+
+Use three visual layers (Z-order):
+
+Map Layer (z-index: 0) → the Google Map view.
+
+Gradient Overlay (z-index: 1) → transparent layer for legibility.
+
+UI Content Layer (z-index: 2) → all text, sidebar, and cards.
+
+Layout (inside a full-width container):
+
+---------------------------------------------------------
+| Sidebar (left) |         Map + Clubs Section           |
+|                |    - Our Clubs (title, subtitle)      |
+|                |    - Club Cards (bottom floating)     |
+---------------------------------------------------------
+
+🎨 3. Sidebar Design
+
+Position: absolute left, full height, aligned vertically.
+
+Background: same gradient as overlay but 95% opacity.
+
+Cities listed vertically with hover & active states:
+
+Default: color: rgba(255,255,255,0.6);
+
+Hover: color: rgba(255,255,255,0.9);
+
+Active: color: #FFFFFF; font-weight: 600; border-left: 3px solid #FFD645;
+
+Font: Poppins Regular 18px
+
+Padding-left: 48px
+
+Gap between city names: 20px
+
+🧩 4. Heading and Subtext
+
+Centered horizontally above cards.
+
+Font: Poppins ExtraBold 48px white
+
+Subtitle: Poppins Medium 20px rgba(255,255,255,0.8)
+
+Margin-top: 60px
+
+Z-index above map (should never be obscured).
+
+💳 5. Club Cards (Floating Row)
+
+Positioned: absolute bottom-center, 10% above the map bottom edge.
+
+Horizontal scroll enabled (if overflow).
+
+Each card:
+
+Size: 340×220px
+
+Background: rgba(12, 25, 75, 0.85) with backdrop-filter: blur(12px)
+
+Border-radius: 16px
+
+Box-shadow: 0 6px 24px rgba(0, 0, 0, 0.3)
+
+Margin: 20px between cards
+
+Transition: scale(1.05) on hover
+
+Card content:
+
+Icon Badge (top-left, circular gradient #FFD645 → #FFB800)
+
+Club Name: Poppins SemiBold 18px white
+
+Location: Poppins Regular 14px rgba(255,255,255,0.8)
+
+Image Preview (if active): small thumbnail (height 90px, width 100%)
+
+Description (if active): one short line (Poppins Regular 14px)
+
+Get More Button (if active):
+
+Background gradient: linear-gradient(90deg, #FFD645, #FFB800)
+
+Text color: white, size 14px, rounded 12px
+
+Padding: 10px 20px
+
+Hover: glow effect
+
+📍 6. Map Marker Logic
+
+Each card has { id, name, coordinates, city }.
+
+On card click:
+
+Highlight the selected card (border: 2px solid #FFD645 + subtle glow).
+
+Show map PIN marker at corresponding coordinates.
+
+Map pans + zooms to the selected club.
+
+Display marker with small club name tooltip.
+
+When city changes:
+
+Filter clubs by city.
+
+Reset active card + pin.
+
+Smooth fade transition between club sets.
+
+🧠 7. Interaction & Animation
+
+Use Framer Motion for transitions:
+
+Card fade-in: opacity 0 → 1, y +10 → 0, stagger delay 0.05s
+
+Map marker bounce when activated.
+
+Smooth scroll on card carousel.
+
+Use useState for selectedCity and selectedClub.
+
+⚙️ 8. Layer Order Summary
+Layer	Element	z-index
+0	Google Map	0
+1	Dark gradient overlay	1
+2	Sidebar + Titles + Club Cards	2
+3	Active Club Info Popup	3
+✅ Expected Visual Result
+
+You see the interactive map clearly in the background.
+
+Sidebar, header, and cards float above the map with subtle transparency.
+
+Cards appear interactive and match the Figma spacing, size, and contrast.
+
+When clicking a club, the map focuses on it, the card expands slightly, and a marker appears.
+
+“Get More” opens or scrolls to details (optional future logic).
