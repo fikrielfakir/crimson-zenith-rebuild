@@ -256,7 +256,9 @@ const ClubsWithMap = () => {
             width: '240px',
             paddingLeft: '80px',
             paddingTop: '40px',
-            paddingBottom: '40px'
+            paddingBottom: '40px',
+            background: 'rgba(10, 26, 61, 0.15)',
+            backdropFilter: 'blur(8px)'
           }}
         >
           {moroccanCities.map((city) => {
