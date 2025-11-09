@@ -386,8 +386,8 @@ const Hero = () => {
             }
             
             .hero-subtitle {
-              font-size: 1.25rem;
-              line-height: 1.8;
+              font-size: 1.5rem;
+              line-height: 1.2;
             }
             
             .buttons-fixed-container {
@@ -402,7 +402,7 @@ const Hero = () => {
             }
             
             .hero-title {
-              font-size: 5.5rem;
+              font-size: 55px;
             }
           }
           
