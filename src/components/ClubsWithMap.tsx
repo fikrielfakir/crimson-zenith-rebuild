@@ -1,10 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Plus, Minus, Settings } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Club } from "../../shared/schema";
 import birdLogo from "@/assets/attached_assets/Group 288941_1762708813825.png";
+import maplibregl from 'maplibre-gl';
+import 'maplibre-gl/dist/maplibre-gl.css';
 
 const moroccanCities = [
   { name: "Fes", lat: 34.0181, lon: -5.0078 },
@@ -23,6 +25,9 @@ const ClubsWithMap = () => {
   const [mapCenter, setMapCenter] = useState({ lat: 35.2517, lng: -3.9317 });
   const [mapZoom, setMapZoom] = useState(14);
   const navigate = useNavigate();
+  const mapContainer = useRef<HTMLDivElement>(null);
+  const map = useRef<maplibregl.Map | null>(null);
+  const markers = useRef<maplibregl.Marker[]>([]);
 
   const { data: clubsResponse, isLoading } = useQuery({
     queryKey: ['clubs'],
@@ -70,6 +75,95 @@ const ClubsWithMap = () => {
     }
   }, [displayedClubs, selectedClubId]);
 
+  // Initialize map
+  useEffect(() => {
+    if (map.current || !mapContainer.current) return;
+
+    map.current = new maplibregl.Map({
+      container: mapContainer.current,
+      style: {
+        version: 8,
+        sources: {
+          'satellite': {
+            type: 'raster',
+            tiles: [
+              'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+            ],
+            tileSize: 256,
+            attribution: '© Esri, Maxar, Earthstar Geographics, and the GIS User Community'
+          }
+        },
+        layers: [
+          {
+            id: 'satellite-layer',
+            type: 'raster',
+            source: 'satellite',
+            minzoom: 0,
+            maxzoom: 19
+          }
+        ]
+      },
+      center: [mapCenter.lng, mapCenter.lat],
+      zoom: mapZoom,
+      attributionControl: false
+    });
+
+    // Disable default controls
+    map.current.scrollZoom.disable();
+    map.current.dragPan.disable();
+    map.current.touchZoomRotate.disable();
+    map.current.doubleClickZoom.disable();
+
+    return () => {
+      map.current?.remove();
+      map.current = null;
+    };
+  }, []);
+
+  // Update map center and zoom
+  useEffect(() => {
+    if (!map.current) return;
+    
+    map.current.flyTo({
+      center: [mapCenter.lng, mapCenter.lat],
+      zoom: mapZoom,
+      duration: 1000,
+      essential: true
+    });
+  }, [mapCenter, mapZoom]);
+
+  // Update markers for displayed clubs
+  useEffect(() => {
+    if (!map.current) return;
+
+    // Clear existing markers
+    markers.current.forEach(marker => marker.remove());
+    markers.current = [];
+
+    // Add marker for selected club
+    const selectedClub = displayedClubs.find(club => club.id === selectedClubId);
+    if (selectedClub && selectedClub.latitude && selectedClub.longitude) {
+      const el = document.createElement('div');
+      el.className = 'club-marker';
+      el.style.width = '30px';
+      el.style.height = '30px';
+      el.style.backgroundImage = 'radial-gradient(circle, #FFD645 0%, #FFB800 100%)';
+      el.style.borderRadius = '50%';
+      el.style.border = '3px solid white';
+      el.style.boxShadow = '0 4px 12px rgba(255, 214, 69, 0.6)';
+      el.style.cursor = 'pointer';
+
+      const lng = typeof selectedClub.longitude === 'number' ? selectedClub.longitude : parseFloat(String(selectedClub.longitude));
+      const lat = typeof selectedClub.latitude === 'number' ? selectedClub.latitude : parseFloat(String(selectedClub.latitude));
+
+      const marker = new maplibregl.Marker({ element: el })
+        .setLngLat([lng, lat])
+        .addTo(map.current);
+
+      markers.current.push(marker);
+    }
+  }, [displayedClubs, selectedClubId]);
+
   const handleCitySelect = (cityName: string) => {
     setSelectedCity(cityName);
     const cityData = moroccanCities.find(c => c.name === cityName);
@@ -108,28 +202,11 @@ const ClubsWithMap = () => {
   return (
     <section id="clubs" className="relative w-full h-screen overflow-hidden scroll-mt-0">
       {/* Satellite Map Background with Blur */}
-      <div className="absolute inset-0 z-0">
-        {import.meta.env.VITE_GOOGLE_MAPS_API_KEY ? (
-          <iframe
-            key={`${mapCenter.lat}-${mapCenter.lng}-${mapZoom}`}
-            src={`https://www.google.com/maps/embed/v1/view?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}&center=${mapCenter.lat},${mapCenter.lng}&zoom=${mapZoom}&maptype=satellite`}
-            width="100%"
-            height="100%"
-            style={{ border: 0, filter: 'blur(2px)' }}
-            allowFullScreen
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-            className="brightness-75 transition-all duration-1000 ease-out"
-          />
-        ) : (
-          <div className="w-full h-full bg-[#0A1845] flex items-center justify-center">
-            <p className="text-white/60 text-center px-4">
-              Map requires Google Maps API key.<br />
-              Please configure VITE_GOOGLE_MAPS_API_KEY in environment variables.
-            </p>
-          </div>
-        )}
-      </div>
+      <div 
+        ref={mapContainer} 
+        className="absolute inset-0 z-0"
+        style={{ filter: 'blur(2px) brightness(75%)' }}
+      />
 
       {/* Gradient Overlay - Exact Figma Spec */}
       <div 
