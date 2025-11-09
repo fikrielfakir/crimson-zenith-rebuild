@@ -88,24 +88,22 @@ const Clubs = () => {
                 className="group block animate-scale-in"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <div className="bg-black border border-white/10 rounded-lg p-6 hover:border-yellow-400/50 transition-all duration-300">
-                  <div className="flex items-start gap-4">
-                    <div className="flex-shrink-0 w-16 h-16 bg-white rounded-full flex items-center justify-center">
-                      <svg className="w-10 h-10 text-yellow-400" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M23 4a1 1 0 0 0-1.447-.894L12 7.882 2.447 3.106A1 1 0 0 0 1 4v13a1 1 0 0 0 .553.894l10 5a1 1 0 0 0 .894 0l10-5A1 1 0 0 0 23 17V4z"/>
-                      </svg>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-lg font-bold text-white mb-1 group-hover:text-yellow-400 transition-colors">
-                        {club.name}
-                      </h3>
-                      <p className="text-sm text-gray-400 mb-0.5">
-                        {club.location}
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        {club.memberCount} members
-                      </p>
-                    </div>
+                <div className="flex items-start gap-4 transition-all duration-300">
+                  <div className="flex-shrink-0 w-16 h-16 bg-white rounded-full flex items-center justify-center border-2 border-white">
+                    <svg className="w-10 h-10 text-yellow-400" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M23 4a1 1 0 0 0-1.447-.894L12 7.882 2.447 3.106A1 1 0 0 0 1 4v13a1 1 0 0 0 .553.894l10 5a1 1 0 0 0 .894 0l10-5A1 1 0 0 0 23 17V4z"/>
+                    </svg>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-lg font-bold text-white mb-1 group-hover:text-yellow-400 transition-colors">
+                      {club.name}
+                    </h3>
+                    <p className="text-sm text-gray-400 mb-0.5">
+                      {club.location}
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      {club.memberCount}
+                    </p>
                   </div>
                 </div>
               </a>
