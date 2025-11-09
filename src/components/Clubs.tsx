@@ -1,146 +1,104 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { MapPin, Users, Camera } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Clubs = () => {
   const clubs = [
     {
-      name: "Marrakech Club",
-      description: "Explore the vibrant souks and palaces of the Red City",
-      image: "🏛️",
-      members: "250+ Members",
-      location: "Marrakech, Morocco",
-      features: ["Historic Tours", "Local Cuisine", "Artisan Workshops"],
+      name: "Atlas Hikers Club",
+      location: "Atlas Mountains",
+      city: "Al Hoceima",
+      address: "62 Via A, Bokjdadan"
     },
     {
-      name: "Fez Club", 
-      description: "Discover the ancient medina and cultural heritage",
-      image: "🕌",
-      members: "180+ Members",
-      location: "Fez, Morocco", 
-      features: ["Medina Walks", "Traditional Crafts", "Cultural Events"],
+      name: "Coastal Adventures", 
+      location: "Atlantic Coast",
+      city: "Essaouira",
+      address: "15 Port Road, Medina"
+    },
+    {
+      name: "Desert Explorers",
+      location: "Sahara Desert",
+      city: "Merzouga",
+      address: "Desert Gateway, Erg Chebbi"
+    },
+    {
+      name: "Marrakech Club",
+      location: "Red City",
+      city: "Marrakech",
+      address: "Jemaa el-Fnaa Square"
+    },
+    {
+      name: "Fez Heritage", 
+      location: "Old Medina",
+      city: "Fez",
+      address: "Bab Boujloud Gate"
     },
     {
       name: "Casablanca Club",
-      description: "Experience the modern emerging art scene",
-      image: "🌊",
-      members: "320+ Members",
-      location: "Casablanca, Morocco",
-      features: ["Art Galleries", "Modern Culture", "Coastal Adventures"],
+      location: "Modern Coast",
+      city: "Casablanca",
+      address: "Hassan II Boulevard"
     },
     {
-      name: "Rabat Club",
-      description: "Explore Morocco's political capital and historical sites",
-      image: "🏰",
-      members: "195+ Members",
-      location: "Rabat, Morocco",
-      features: ["Government Tours", "Royal Palaces", "Archaeological Sites"],
+      name: "Blue Pearl Club",
+      location: "Rif Mountains",
+      city: "Chefchaouen",
+      address: "Outa el Hammam Square"
     },
     {
-      name: "Chefchaouen Club",
-      description: "Wander through the enchanting blue pearl of Morocco",
-      image: "🔵",
-      members: "145+ Members",
-      location: "Chefchaouen, Morocco",
-      features: ["Blue City Tours", "Mountain Hiking", "Photography Walks"],
+      name: "Tangier Gateway",
+      location: "Mediterranean",
+      city: "Tangier",
+      address: "Grand Socco, Medina"
     },
     {
-      name: "Tangier Club",
-      description: "Gateway to Africa with rich multicultural heritage",
-      image: "⛵",
-      members: "210+ Members",
-      location: "Tangier, Morocco",
-      features: ["Port Tours", "International Culture", "Strait Views"],
-    },
-    {
-      name: "Meknes Club",
-      description: "Imperial city with magnificent architecture and history",
-      image: "👑",
-      members: "165+ Members",
-      location: "Meknes, Morocco",
-      features: ["Imperial Tours", "Ancient Ruins", "Wine Tasting"],
-    },
-    {
-      name: "Essaouira Club",
-      description: "Coastal charm with Portuguese influence and ocean breeze",
-      image: "🌊",
-      members: "175+ Members",
-      location: "Essaouira, Morocco",
-      features: ["Coastal Activities", "Wind Sports", "Fishing Tours"],
-    },
-    {
-      name: "Ouarzazate Club",
-      description: "Gateway to the Sahara Desert and film studios",
-      image: "🏜️",
-      members: "130+ Members",
-      location: "Ouarzazate, Morocco",
-      features: ["Desert Tours", "Film Studios", "Kasbah Visits"],
+      name: "Rabat Royale",
+      location: "Capital City",
+      city: "Rabat",
+      address: "Kasbah des Oudayas"
     },
   ];
 
   return (
-    <section id="clubs" className="py-20 bg-gradient-subtle">
+    <section id="clubs" className="py-20 bg-black">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16 animate-fade-in">
-          <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
             Our Clubs
           </h2>
-          <p className="text-xl text-muted-foreground">
+          <p className="text-xl text-gray-400">
             Join local communities across Morocco's most fascinating cities
           </p>
         </div>
         
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {clubs.map((club, index) => (
-            <Card 
-              key={club.name} 
-              className="group hover:shadow-elegant transition-all duration-300 animate-scale-in border-border/50 overflow-hidden"
+            <Link
+              key={club.name}
+              to={`/club/${encodeURIComponent(club.name.toLowerCase().replace(/\s+/g, '-'))}`}
+              className="group block animate-scale-in"
               style={{ animationDelay: `${index * 0.1}s` }}
             >
-              <div className="h-48 bg-gradient-hero flex items-center justify-center text-6xl">
-                {club.image}
+              <div className="bg-black border border-white/10 rounded-lg p-6 hover:border-yellow-400/50 transition-all duration-300">
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 w-16 h-16 bg-white rounded-full flex items-center justify-center">
+                    <svg className="w-10 h-10 text-yellow-400" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M23 4a1 1 0 0 0-1.447-.894L12 7.882 2.447 3.106A1 1 0 0 0 1 4v13a1 1 0 0 0 .553.894l10 5a1 1 0 0 0 .894 0l10-5A1 1 0 0 0 23 17V4z"/>
+                    </svg>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-lg font-bold text-white mb-1 group-hover:text-yellow-400 transition-colors">
+                      {club.name}
+                    </h3>
+                    <p className="text-sm text-gray-400 mb-0.5">
+                      {club.address}
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      {club.city}
+                    </p>
+                  </div>
+                </div>
               </div>
-              
-              <CardHeader>
-                <CardTitle className="text-xl font-semibold text-foreground group-hover:text-primary transition-colors">
-                  {club.name}
-                </CardTitle>
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    <MapPin className="w-4 h-4" />
-                    {club.location}
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Users className="w-4 h-4" />
-                    {club.members}
-                  </div>
-                </div>
-              </CardHeader>
-              
-              <CardContent className="pt-0">
-                <p className="text-muted-foreground mb-4 leading-relaxed">
-                  {club.description}
-                </p>
-                
-                <div className="flex flex-wrap gap-2 mb-6">
-                  {club.features.map((feature) => (
-                    <span 
-                      key={feature} 
-                      className="px-3 py-1 bg-accent text-accent-foreground text-sm rounded-full"
-                    >
-                      {feature}
-                    </span>
-                  ))}
-                </div>
-                
-                <Button asChild className="w-full group-hover:shadow-glow transition-all duration-300">
-                  <Link to={`/club/${encodeURIComponent(club.name.toLowerCase().replace(/\s+/g, '-'))}`}>
-                    Discover
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
+            </Link>
           ))}
         </div>
       </div>
