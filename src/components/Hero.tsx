@@ -313,8 +313,116 @@ const Hero = () => {
           
           /* ===== RESPONSIVE BREAKPOINTS ===== */
           
-          /* Mobile: 320px - 640px */
+          /* Mobile: All sizes - Base mobile styles */
           @media (max-width: 640px) {
+            .hero-content-wrapper {
+              margin-top: 1.5rem;
+              padding-left: 1rem;
+              padding-right: 1rem;
+              width: 100%;
+              max-width: 100%;
+            }
+            
+            .h1-fixed-container {
+              height: 140px;
+              width: 100%;
+            }
+            
+            .hero-title {
+              font-size: clamp(1.75rem, 9vw, 2.5rem);
+              line-height: 1.15;
+              letter-spacing: 0.01em;
+            }
+            
+            .subtitle-fixed-container {
+              margin-top: 1rem;
+              padding: 0;
+              width: 100%;
+              max-width: 100%;
+            }
+            
+            .hero-subtitle {
+              font-size: clamp(0.9rem, 4.5vw, 1.1rem);
+              line-height: 1.6;
+              padding: 0 0.5rem;
+            }
+            
+            .buttons-fixed-container {
+              margin-top: 1.5rem;
+              width: 100%;
+              padding: 0;
+            }
+            
+            .buttons-fixed-container > div {
+              gap: 1rem;
+              width: 100%;
+            }
+          }
+          
+          /* Small Mobile: 320px - 374px (iPhone SE, small phones) */
+          @media (max-width: 374px) {
+            .hero-content-wrapper {
+              margin-top: 1rem;
+              padding-left: 0.75rem;
+              padding-right: 0.75rem;
+            }
+            
+            .h1-fixed-container {
+              height: 120px;
+            }
+            
+            .hero-title {
+              font-size: clamp(1.5rem, 8.5vw, 2rem);
+              line-height: 1.1;
+            }
+            
+            .subtitle-fixed-container {
+              margin-top: 0.75rem;
+            }
+            
+            .hero-subtitle {
+              font-size: clamp(0.85rem, 4vw, 0.95rem);
+              line-height: 1.5;
+              padding: 0 0.25rem;
+            }
+            
+            .buttons-fixed-container {
+              margin-top: 1.25rem;
+            }
+          }
+          
+          /* Medium Mobile: 375px - 413px (iPhone 12/13/14, standard phones) */
+          @media (min-width: 375px) and (max-width: 413px) {
+            .h1-fixed-container {
+              height: 135px;
+            }
+            
+            .hero-title {
+              font-size: clamp(1.9rem, 8.5vw, 2.3rem);
+            }
+            
+            .hero-subtitle {
+              font-size: clamp(0.95rem, 4.2vw, 1.05rem);
+            }
+          }
+          
+          /* Large Mobile: 414px - 480px (iPhone Pro Max, large phones) */
+          @media (min-width: 414px) and (max-width: 480px) {
+            .h1-fixed-container {
+              height: 145px;
+            }
+            
+            .hero-title {
+              font-size: clamp(2rem, 8.8vw, 2.6rem);
+            }
+            
+            .hero-subtitle {
+              font-size: clamp(1rem, 4.3vw, 1.1rem);
+            }
+          }
+          
+          /* Extra Large Mobile / Small Tablet: 481px - 640px */
+          @media (min-width: 481px) and (max-width: 640px) {
             .hero-content-wrapper {
               margin-top: 2rem;
             }
@@ -324,17 +432,12 @@ const Hero = () => {
             }
             
             .hero-title {
-              font-size: clamp(2rem, 8vw, 2.8rem);
-              line-height: 1.2;
-            }
-            
-            .subtitle-fixed-container {
-              margin-top: 1.25rem;
+              font-size: clamp(2.2rem, 9vw, 2.8rem);
             }
             
             .hero-subtitle {
-              font-size: clamp(0.95rem, 4vw, 1.05rem);
-              line-height: 1.7;
+              font-size: clamp(1.05rem, 4.5vw, 1.15rem);
+              line-height: 1.65;
             }
             
             .buttons-fixed-container {
