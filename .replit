@@ -1,4 +1,4 @@
-modules = ["nodejs-20", "python-3.12", "web"]
+modules = ["python-3.12", "web", "nodejs-22"]
 [agent]
 expertMode = true
 integrations = ["javascript_log_in_with_replit:1.0.0", "javascript_database:1.0.0", "javascript_stripe:1.0.0", "javascript_paypal:1.0.0"]
@@ -32,7 +32,7 @@ outputType = "webview"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "PATH=\"/nix/store/6g9n96qf1yx139xklnmy3v4xhjvjgsji-nodejs-20.12.2/bin:$PATH\" bun run dev"
+args = "PATH=\"/nix/store/brk41mvaqsffxszsiw6lcd35m6y1pp0v-nodejs-22.17.0-wrapped/bin:$PATH\" bun run dev"
 waitForPort = 5000
 
 [[ports]]
@@ -43,10 +43,6 @@ exposeLocalhost = true
 [[ports]]
 localPort = 5000
 externalPort = 80
-
-[[ports]]
-localPort = 36303
-externalPort = 8099
 
 [[ports]]
 localPort = 36691
