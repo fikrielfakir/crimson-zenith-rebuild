@@ -21,58 +21,24 @@ const About = () => {
   ];
 
   return (
-    <section id="discover" className="w-full scroll-mt-32">
-      {/* Header Section with Title and Subtitle */}
-      <div className="relative w-full bg-gradient-to-b from-[#1a2332] via-[#2a3442] to-transparent py-16 text-center">
-        <h2 
-          className="font-extrabold mb-4"
-          style={{
-            fontFamily: "Poppins, sans-serif",
-            fontSize: "56px",
-            color: "#FFFFFF",
-            textShadow: "0 2px 8px rgba(0,0,0,0.4)",
-            letterSpacing: "0.5px"
-          }}
-        >
-          Our Focus
-        </h2>
-        <p 
-          className="font-medium mx-auto"
-          style={{
-            fontFamily: "Poppins, sans-serif",
-            fontSize: "26px",
-            color: "#E8E8E8",
-            maxWidth: "1200px",
-            letterSpacing: "0.3px"
-          }}
-        >
-          Sustainable Tourism, Culture, and Entertainment
-        </p>
-      </div>
-
-      {/* Three Cards Section */}
-      <div className="w-full h-[80vh] flex">
+    <section id="discover" className="relative w-full scroll-mt-32" style={{ height: "500px" }}>
+      {/* Three Cards Section - Full Width */}
+      <div className="relative w-full h-full flex">
         {focuses.map((focus, index) => (
           <div 
             key={focus.title}
             className="relative flex-1 overflow-hidden group cursor-pointer transition-transform duration-300 ease-in-out hover:scale-105"
             style={{
-              borderRight: index < focuses.length - 1 ? "3px solid rgba(255, 255, 255, 0.4)" : "none"
+              borderRight: index < focuses.length - 1 ? "3px solid rgba(255, 255, 255, 0.9)" : "none",
+              borderRadius: index === 0 ? "8px 0 0 8px" : index === focuses.length - 1 ? "0 8px 8px 0" : "0"
             }}
           >
             {/* Background Image */}
             <div 
               className="absolute inset-0 bg-cover bg-center"
               style={{ 
-                backgroundImage: `url(${focus.bgImage})`
-              }}
-            />
-            
-            {/* Top Gradient Overlay - Always visible */}
-            <div 
-              className="absolute inset-0 pointer-events-none"
-              style={{
-                background: "linear-gradient(to bottom, rgba(30, 40, 50, 0.5) 0%, transparent 30%)"
+                backgroundImage: `url(${focus.bgImage})`,
+                objectFit: "cover"
               }}
             />
             
@@ -94,24 +60,21 @@ const About = () => {
               </div>
             )}
             
-            {/* Text Content */}
-            <div className="absolute bottom-10 left-10 text-left">
+            {/* Bottom Text Label */}
+            <div className="absolute bottom-6 left-8">
               <h3 
-                className="font-bold mb-0 group-hover:mb-3 transition-all duration-500"
+                className="font-bold transition-all duration-500"
                 style={{
                   fontFamily: "Poppins, sans-serif",
-                  fontSize: "40px",
+                  fontSize: "26px",
                   color: "#FFFFFF",
-                  textShadow: "0 2px 8px rgba(0,0,0,0.5)",
-                  transition: "font-size 0.5s ease"
+                  textShadow: "0 2px 6px rgba(0,0,0,0.5)"
                 }}
               >
-                <span className="group-hover:text-[28px] transition-all duration-500 inline-block">
-                  {focus.title}
-                </span>
+                {focus.title}
               </h3>
               <p 
-                className="max-w-xs opacity-0 max-h-0 group-hover:opacity-100 group-hover:max-h-40 transition-all duration-500 overflow-hidden transform translate-y-4 group-hover:translate-y-0"
+                className="max-w-xs opacity-0 max-h-0 group-hover:opacity-100 group-hover:max-h-40 transition-all duration-500 overflow-hidden transform translate-y-4 group-hover:translate-y-0 mt-2"
                 style={{
                   fontFamily: "Poppins, sans-serif",
                   fontSize: "16px",
@@ -124,6 +87,44 @@ const About = () => {
             </div>
           </div>
         ))}
+
+        {/* Top Gradient Overlay - Covers ALL three cards collectively */}
+        <div 
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: "linear-gradient(180deg, rgba(10, 26, 61, 0.75) 0%, rgba(10, 26, 61, 0.4) 40%, transparent 60%)",
+            zIndex: 1
+          }}
+        />
+
+        {/* Center Text Section - Title & Subtitle positioned above cards */}
+        <div className="absolute top-0 left-0 right-0 text-center pt-12 pb-6 z-10 pointer-events-none">
+          <h2 
+            className="font-bold mb-3"
+            style={{
+              fontFamily: "Poppins, sans-serif",
+              fontSize: "48px",
+              fontWeight: 700,
+              color: "#FFFFFF",
+              textShadow: "0px 2px 8px rgba(0,0,0,0.3)"
+            }}
+          >
+            Our Focus
+          </h2>
+          <p 
+            className="mx-auto"
+            style={{
+              fontFamily: "Poppins, sans-serif",
+              fontSize: "22px",
+              fontWeight: 400,
+              color: "#FFFFFF",
+              letterSpacing: "0.5px",
+              maxWidth: "75%"
+            }}
+          >
+            Sustainable Tourism, Culture, and Entertainmenta
+          </p>
+        </div>
       </div>
     </section>
   );

@@ -1,0 +1,106 @@
+Create a three-column card layout spanning the full width of the screen.
+
+Each card represents one theme: Tourism, Culture, and Entertainment.
+
+Each card has a full-height background image, covering the entire card area with object-fit: cover.
+
+Add a vertical white divider line (2–3px) between the three cards.
+
+Top Gradient Overlay
+
+Apply a linear gradient overlay from top to bottom:
+
+Gradient direction: 180deg (top → bottom)
+
+Colors: start with deep navy blue #0A1A3D at the top → fade to transparent at 60%.
+
+Opacity: 70–80% at the top, 0% at bottom.
+
+This gradient covers the entire width of the three cards collectively (not each card separately).
+
+Center Text Section (Title & Subtitle)
+
+Position this text centrally above the cards (not inside any card).
+
+Use absolute positioning or a centered overlay container at the top of the three-card section.
+
+Title:
+
+Text: “Our Focus”
+
+Font weight: 700 (bold)
+
+Font size: 48px
+
+Color: #FFFFFF
+
+Alignment: center
+
+Shadow: optional subtle text-shadow for better readability (e.g., 0px 2px 8px rgba(0,0,0,0.3))
+
+Subtitle:
+
+Text: “Sustainable Tourism, Culture, and Entertainmenta”
+
+Font weight: 400 (regular)
+
+Font size: 20–22px
+
+Color: #FFFFFF
+
+Letter spacing: 0.5px
+
+Text alignment: center
+
+Max width: wide enough to stretch across all three cards (around 70–80% of container width)
+
+Positioned just below the title (10–15px spacing)
+
+Card Details
+
+Each of the 3 cards should have:
+
+Equal width (33.33% each)
+
+Full height (match section height, e.g., 400–500px)
+
+Background images:
+
+Tourism → mountain / desert explorer scene
+
+Culture → traditional architecture or fortress
+
+Entertainment → musicians or performers
+
+Overlay gradient on each image (optional slight dark gradient from bottom for contrast).
+
+Bottom Text (inside each card)
+
+Texts: “Tourism”, “Culture”, “Entertainment”
+
+Font size: 24–26px
+
+Font weight: 700
+
+Color: #FFFFFF
+
+Position: bottom-left corner, 30px from left, 20–30px from bottom.
+
+Apply a subtle text shadow: 0 2px 6px rgba(0,0,0,0.5) for visibility.
+
+Spacing & Borders
+
+Add 2px white vertical borders between the three cards.
+
+No horizontal borders.
+
+Cards should have slight rounded corners (8px) if the layout allows.
+
+Maintain consistent height alignment for all cards.
+
+Example Summary
+
+A full-width section with three equal cards showing Tourism, Culture, and Entertainment.
+A top gradient overlay covers all cards.
+Center-aligned title “Our Focus” and subtitle “Sustainable Tourism, Culture, and Entertainmenta” are positioned above the cards.
+Each card has a bold label at the bottom-left, separated by thin white vertical lines.
