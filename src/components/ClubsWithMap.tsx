@@ -208,11 +208,11 @@ const ClubsWithMap = () => {
         style={{ filter: 'blur(2px) brightness(75%)' }}
       />
 
-      {/* Gradient Overlay - Exact Figma Spec */}
+      {/* Gradient Overlay - Horizontal Left-to-Right (Exact Figma Spec) */}
       <div 
-        className="absolute inset-0 z-10"
+        className="absolute inset-0 z-10 pointer-events-none"
         style={{
-          background: 'linear-gradient(180deg, #0A1845 0%, rgba(10, 24, 69, 0.9) 100%)'
+          background: 'linear-gradient(90deg, #0A1A3D 0%, rgba(10, 26, 61, 0.4) 60%, transparent 100%)'
         }}
       />
 
@@ -254,11 +254,9 @@ const ClubsWithMap = () => {
           style={{ 
             fontFamily: 'Poppins, sans-serif',
             width: '240px',
-            paddingLeft: '60px',
-            background: 'rgba(10, 24, 69, 0.6)',
+            paddingLeft: '80px',
             paddingTop: '40px',
-            paddingBottom: '40px',
-            backdropFilter: 'blur(10px)'
+            paddingBottom: '40px'
           }}
         >
           {moroccanCities.map((city) => {
