@@ -225,32 +225,45 @@ const TopNavbar = ({
               <Heart 
                 className="h-4 w-4 transition-transform origin-center"
                 style={{
-                  animation: heartAnimate ? 'heartBeat 0.6s ease-in-out' : 'none',
+                  animation: heartAnimate ? 'heartBeatWarp 0.8s ease-in-out' : 'none',
+                  transformOrigin: 'center center',
                 }}
               />
               <style dangerouslySetInnerHTML={{
                 __html: `
-                  @keyframes heartBeat {
+                  @keyframes heartBeatWarp {
                     0% {
-                      transform: scale(1);
+                      transform: scale(1) skew(0deg, 0deg);
                     }
-                    15% {
-                      transform: scale(1.3) rotate(-5deg);
+                    10% {
+                      transform: scale(1.15) skew(-2deg, 1deg);
+                    }
+                    20% {
+                      transform: scale(1.4) skew(3deg, -2deg) rotate(-8deg);
                     }
                     30% {
-                      transform: scale(1.1) rotate(5deg);
+                      transform: scale(1.6) skew(-4deg, 3deg) rotate(5deg);
                     }
-                    45% {
-                      transform: scale(1.35) rotate(-3deg);
+                    40% {
+                      transform: scale(1.8) skew(5deg, -4deg) rotate(-10deg);
+                    }
+                    50% {
+                      transform: scale(1.5) skew(-3deg, 2deg) rotate(7deg);
                     }
                     60% {
-                      transform: scale(1.15) rotate(2deg);
+                      transform: scale(1.7) skew(4deg, -3deg) rotate(-5deg);
                     }
-                    75% {
-                      transform: scale(1.25) rotate(-1deg);
+                    70% {
+                      transform: scale(1.4) skew(-2deg, 2deg) rotate(3deg);
+                    }
+                    80% {
+                      transform: scale(1.2) skew(1deg, -1deg) rotate(-2deg);
+                    }
+                    90% {
+                      transform: scale(1.05) skew(-0.5deg, 0.5deg) rotate(1deg);
                     }
                     100% {
-                      transform: scale(1) rotate(0deg);
+                      transform: scale(1) skew(0deg, 0deg) rotate(0deg);
                     }
                   }
                 `
