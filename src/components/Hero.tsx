@@ -34,32 +34,30 @@ const Hero = () => {
   const [currentTaglineIndex, setCurrentTaglineIndex] = useState(0);
   const [displayedText, setDisplayedText] = useState('');
   const [charIndex, setCharIndex] = useState(0);
-  const [isErasing, setIsErasing] = useState(false);
+  const [isTyping, setIsTyping] = useState(true);
+  const [fadeKey, setFadeKey] = useState(0);
 
   useEffect(() => {
     const currentText = taglines[currentTaglineIndex].text;
     
-    const timer = setTimeout(() => {
-      if (!isErasing && charIndex < currentText.length) {
-        // Typing
+    if (isTyping && charIndex < currentText.length) {
+      const timer = setTimeout(() => {
         setDisplayedText(currentText.slice(0, charIndex + 1));
         setCharIndex(charIndex + 1);
-      } else if (!isErasing && charIndex >= currentText.length) {
-        // Finished typing, wait then start erasing
-        setTimeout(() => setIsErasing(true), 2000);
-      } else if (isErasing && charIndex > 0) {
-        // Erasing
-        setDisplayedText(currentText.slice(0, charIndex - 1));
-        setCharIndex(charIndex - 1);
-      } else if (isErasing && charIndex === 0) {
-        // Finished erasing, move to next tagline
-        setIsErasing(false);
+      }, 80);
+      return () => clearTimeout(timer);
+    } else if (charIndex >= currentText.length) {
+      const timer = setTimeout(() => {
+        setIsTyping(false);
+        setCharIndex(0);
+        setDisplayedText('');
         setCurrentTaglineIndex((prev) => (prev + 1) % taglines.length);
-      }
-    }, isErasing ? 50 : 100); // Faster erasing, slower typing
-
-    return () => clearTimeout(timer);
-  }, [charIndex, isErasing, currentTaglineIndex, taglines]);
+        setFadeKey(prev => prev + 1);
+        setTimeout(() => setIsTyping(true), 100);
+      }, 3500);
+      return () => clearTimeout(timer);
+    }
+  }, [charIndex, isTyping, currentTaglineIndex, taglines]);
 
   const backgroundUrl = heroSettings?.backgroundMediaId
     ? `/api/cms/media/${heroSettings.backgroundMediaId}`
@@ -103,67 +101,71 @@ const Hero = () => {
       <div className="absolute inset-0 bg-gradient-to-b from-primary/20 via-transparent to-primary/30" />
       
       {/* Content */}
-      <div className="relative z-10 text-center px-6 sm:px-8 lg:px-12 max-w-5xl mx-auto" style={{ marginTop: '10rem' }}>
-        <h1 
-          className="hero-h1-responsive leading-[1.1] tracking-tight font-heading"
-          style={{ 
-            fontSize: titleFontSize, 
-            marginBottom: '2rem',
-            color: titleColor,
-          }}
-        >
-          {enableTypewriter ? (
-            <span className="font-extrabold hero-heading-typewriter">
-              {(() => {
-                const lines = displayedText.split('\n');
-                const totalLines = lines.length;
-                
-                return lines.map((line, lineIndex) => (
-                  <span key={lineIndex}>
+      <div className="relative z-10 text-center px-6 sm:px-8 lg:px-12 max-w-6xl mx-auto" style={{ marginTop: '8rem' }}>
+        {/* Fixed Height Container for H1 - Prevents Layout Shift */}
+        <div className="h1-container">
+          <h1 
+            className="hero-title"
+            style={{ 
+              color: titleColor,
+            }}
+          >
+            {enableTypewriter ? (
+              <span className="hero-text-wrapper" key={fadeKey}>
+                {(() => {
+                  const lines = displayedText.split('\n');
+                  const isComplete = charIndex >= taglines[currentTaglineIndex].text.length;
+                  
+                  return lines.map((line, lineIndex) => (
+                    <span key={lineIndex} className="hero-line">
+                      {line}
+                      {lineIndex < lines.length - 1 && <br />}
+                      {lineIndex === lines.length - 1 && isTyping && (
+                        <span className="typewriter-cursor-new">|</span>
+                      )}
+                    </span>
+                  ));
+                })()}
+              </span>
+            ) : (
+              <span className="hero-text-wrapper">
+                {title.split('\n').map((line, i) => (
+                  <span key={i} className="hero-line">
                     {line}
-                    {lineIndex === totalLines - 1 && (
-                      <span className="typewriter-cursor">|</span>
-                    )}
-                    {lineIndex < totalLines - 1 && <br />}
+                    {i < title.split('\n').length - 1 && <br />}
                   </span>
-                ));
-              })()}
-            </span>
-          ) : (
-            <span className="font-extrabold">
-              {title.split('\n').map((line, i) => (
-                <span key={i}>
-                  {line}
-                  {i < title.split('\n').length - 1 && <br />}
-                </span>
-              ))}
-            </span>
-          )}
-        </h1>
+                ))}
+              </span>
+            )}
+          </h1>
+        </div>
         
-        <p 
-          className="text-lg sm:text-xl md:text-2xl mb-12 sm:mb-14 lg:mb-16 max-w-3xl mx-auto leading-relaxed font-body font-normal tracking-wide"
-          style={{ color: subtitleColor, fontSize: subtitleFontSize }}
-        >
-          {subtitle}
-        </p>
+        {/* Subtitle - Fixed Position */}
+        <div className="subtitle-container">
+          <p className="hero-subtitle" style={{ color: subtitleColor }}>
+            {subtitle}
+          </p>
+        </div>
         
-        <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-          <Link to={primaryButtonLink}>
-            <Button 
-              className="w-full sm:w-auto bg-secondary hover:bg-secondary/90 text-primary text-base px-10 py-4 h-14 rounded-button font-medium transition-all duration-300 shadow-elegant hover:shadow-glow hover:scale-105 border-0"
-            >
-              {primaryButtonText}
-            </Button>
-          </Link>
-          <Link to={secondaryButtonLink}>
-            <Button 
-              variant="outline" 
-              className="w-full sm:w-auto text-white border-white/70 hover:bg-white/10 hover:border-white hover:backdrop-blur-sm text-base px-10 py-4 h-14 rounded-button font-medium transition-all duration-300 bg-transparent/10 backdrop-blur-sm border-2 hover:scale-105"
-            >
-              {secondaryButtonText}
-            </Button>
-          </Link>
+        {/* Buttons - Fixed Position */}
+        <div className="buttons-container">
+          <div className="flex flex-col sm:flex-row gap-5 justify-center items-center">
+            <Link to={primaryButtonLink}>
+              <Button 
+                className="w-full sm:w-auto bg-secondary hover:bg-secondary/90 text-primary text-base px-10 py-4 h-14 rounded-button font-medium transition-all duration-300 shadow-elegant hover:shadow-glow hover:scale-105 border-0"
+              >
+                {primaryButtonText}
+              </Button>
+            </Link>
+            <Link to={secondaryButtonLink}>
+              <Button 
+                variant="outline" 
+                className="w-full sm:w-auto text-white border-white/70 hover:bg-white/10 hover:border-white hover:backdrop-blur-sm text-base px-10 py-4 h-14 rounded-button font-medium transition-all duration-300 bg-transparent/10 backdrop-blur-sm border-2 hover:scale-105"
+              >
+                {secondaryButtonText}
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
       
@@ -181,46 +183,150 @@ const Hero = () => {
         <Mouse className="w-6 h-6 text-white/60 animate-bounce" />
       </div>
 
-      {/* Add responsive styles */}
+      {/* Enhanced Styles */}
       <style dangerouslySetInnerHTML={{
         __html: `
-          @media (min-width: 640px) {
-            .hero-h1-responsive {
-              margin-bottom: 1.5rem !important;
+          /* Fixed Height Container - Prevents Layout Shift */
+          .h1-container {
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 2.5rem;
+          }
+          
+          /* Hero Title - Modern Serif Font */
+          .hero-title {
+            font-family: 'Playfair Display', 'Georgia', serif;
+            font-size: clamp(2.5rem, 8vw, 5.5rem);
+            font-weight: 700;
+            line-height: 1.15;
+            letter-spacing: -0.02em;
+            text-align: center;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3),
+                         0 2px 8px rgba(0, 0, 0, 0.2);
+            position: relative;
+            margin: 0;
+            padding: 0;
+          }
+          
+          /* Text Wrapper with Fade Animation */
+          .hero-text-wrapper {
+            display: inline-block;
+            animation: fadeInSmooth 0.6s ease-out;
+          }
+          
+          .hero-line {
+            display: inline;
+            background: linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+          }
+          
+          /* Single Cursor - Clean and Aligned */
+          .typewriter-cursor-new {
+            display: inline-block;
+            width: 3px;
+            height: 1em;
+            background: #ffffff;
+            margin-left: 4px;
+            animation: cursorBlink 1s infinite;
+            vertical-align: baseline;
+            position: relative;
+            top: 0.05em;
+          }
+          
+          /* Subtitle Container - Fixed Position */
+          .subtitle-container {
+            margin-bottom: 3rem;
+            max-width: 46rem;
+            margin-left: auto;
+            margin-right: auto;
+          }
+          
+          /* Hero Subtitle - Refined Typography */
+          .hero-subtitle {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: clamp(1rem, 2.5vw, 1.25rem);
+            font-weight: 400;
+            line-height: 1.8;
+            letter-spacing: 0.01em;
+            color: #f5e6d3;
+            opacity: 0.95;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            margin: 0;
+          }
+          
+          /* Buttons Container - Fixed Position */
+          .buttons-container {
+            margin-top: 3rem;
+          }
+          
+          /* Fade In Animation */
+          @keyframes fadeInSmooth {
+            from {
+              opacity: 0;
+              transform: translateY(10px);
             }
-            .sm\\:bottom-12 {
-              bottom: 1rem;
+            to {
+              opacity: 1;
+              transform: translateY(0);
             }
           }
-          @media (min-width: 768px) {
-            .md\\:text-2xl {
-              font-size: 20px;
-              line-height: 25px;
-            }
+          
+          /* Cursor Blink Animation */
+          @keyframes cursorBlink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
           }
-          @media (min-width: 1024px) {
-            .lg\\:mb-16 {
+          
+          /* Responsive Adjustments */
+          @media (max-width: 640px) {
+            .h1-container {
+              min-height: 160px;
               margin-bottom: 2rem;
             }
+            
+            .subtitle-container {
+              margin-bottom: 2.5rem;
+            }
+            
+            .buttons-container {
+              margin-top: 2.5rem;
+            }
+            
+            .hero-subtitle {
+              line-height: 1.7;
+            }
           }
+          
+          @media (min-width: 641px) and (max-width: 1024px) {
+            .h1-container {
+              min-height: 180px;
+            }
+          }
+          
+          @media (min-width: 1025px) {
+            .h1-container {
+              min-height: 220px;
+            }
+            
+            .subtitle-container {
+              margin-bottom: 3.5rem;
+            }
+            
+            .hero-subtitle {
+              font-size: 1.3rem;
+            }
+          }
+          
+          /* Mouse Scroll Indicator */
           .w-6 {
             width: 2.5rem;
           }
           .h-6 {
             height: 2.5rem;
-          }
-          .typewriter-cursor {
-            animation: blink 1s infinite;
-            color: white;
-            font-weight: normal;
-            display: inline-block;
-            line-height: 1.1;
-            vertical-align: baseline;
-            font-size: inherit;
-          }
-          @keyframes blink {
-            0%, 50% { opacity: 1; }
-            51%, 100% { opacity: 0; }
           }
         `
       }} />
