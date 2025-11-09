@@ -100,55 +100,51 @@ const Hero = () => {
       <div className="absolute inset-0" style={{ background: overlayColor }} />
       <div className="absolute inset-0 bg-gradient-to-b from-primary/20 via-transparent to-primary/30" />
       
-      {/* Content */}
-      <div className="relative z-10 text-center px-6 sm:px-8 lg:px-12 max-w-6xl mx-auto" style={{ marginTop: '8rem' }}>
-        {/* Fixed Height Container for H1 - Prevents Layout Shift */}
-        <div className="h1-container">
-          <h1 
-            className="hero-title"
-            style={{ 
-              color: titleColor,
-            }}
-          >
-            {enableTypewriter ? (
-              <span className="hero-text-wrapper" key={fadeKey}>
-                {(() => {
-                  const lines = displayedText.split('\n');
-                  const isComplete = charIndex >= taglines[currentTaglineIndex].text.length;
-                  
-                  return lines.map((line, lineIndex) => (
-                    <span key={lineIndex} className="hero-line">
+      {/* Content - Fixed Layout Structure */}
+      <div className="relative z-10 text-center px-6 sm:px-8 lg:px-12 max-w-7xl mx-auto hero-content-wrapper">
+        {/* ABSOLUTE FIXED HEIGHT for H1 - Accommodates 3 Lines */}
+        <div className="h1-fixed-container">
+          <div className="h1-inner-wrapper">
+            <h1 className="hero-title" style={{ color: titleColor }}>
+              {enableTypewriter ? (
+                <span className="hero-text-wrapper" key={fadeKey}>
+                  {(() => {
+                    const lines = displayedText.split('\n');
+                    
+                    return lines.map((line, lineIndex) => (
+                      <span key={lineIndex} className="hero-line">
+                        {line}
+                        {lineIndex < lines.length - 1 && <br />}
+                        {lineIndex === lines.length - 1 && isTyping && (
+                          <span className="typewriter-cursor-new">|</span>
+                        )}
+                      </span>
+                    ));
+                  })()}
+                </span>
+              ) : (
+                <span className="hero-text-wrapper">
+                  {title.split('\n').map((line, i) => (
+                    <span key={i} className="hero-line">
                       {line}
-                      {lineIndex < lines.length - 1 && <br />}
-                      {lineIndex === lines.length - 1 && isTyping && (
-                        <span className="typewriter-cursor-new">|</span>
-                      )}
+                      {i < title.split('\n').length - 1 && <br />}
                     </span>
-                  ));
-                })()}
-              </span>
-            ) : (
-              <span className="hero-text-wrapper">
-                {title.split('\n').map((line, i) => (
-                  <span key={i} className="hero-line">
-                    {line}
-                    {i < title.split('\n').length - 1 && <br />}
-                  </span>
-                ))}
-              </span>
-            )}
-          </h1>
+                  ))}
+                </span>
+              )}
+            </h1>
+          </div>
         </div>
         
-        {/* Subtitle - Fixed Position */}
-        <div className="subtitle-container">
+        {/* FIXED POSITION Subtitle - Always starts at same Y position */}
+        <div className="subtitle-fixed-container">
           <p className="hero-subtitle" style={{ color: subtitleColor }}>
             {subtitle}
           </p>
         </div>
         
-        {/* Buttons - Fixed Position */}
-        <div className="buttons-container">
+        {/* FIXED POSITION Buttons - Always at same Y position */}
+        <div className="buttons-fixed-container">
           <div className="flex flex-col sm:flex-row gap-5 justify-center items-center">
             <Link to={primaryButtonLink}>
               <Button 
@@ -183,91 +179,125 @@ const Hero = () => {
         <Mouse className="w-6 h-6 text-white/60 animate-bounce" />
       </div>
 
-      {/* Enhanced Styles */}
+      {/* Enhanced Styles with Better Typography */}
       <style dangerouslySetInnerHTML={{
         __html: `
-          /* Fixed Height Container - Prevents Layout Shift */
-          .h1-container {
-            min-height: 200px;
+          /* Import Cinzel Font for Elegant Display Typography */
+          @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap');
+          
+          /* Main Content Wrapper */
+          .hero-content-wrapper {
+            margin-top: 6rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+          }
+          
+          /* CRITICAL: Fixed Height Container for H1 - Prevents ANY Layout Shift */
+          .h1-fixed-container {
+            width: 100%;
+            height: 280px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 2.5rem;
+            margin-bottom: 0;
+            position: relative;
           }
           
-          /* Hero Title - Modern Serif Font */
+          .h1-inner-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+          }
+          
+          /* Hero Title - Elegant Cinzel Display Font */
           .hero-title {
-            font-family: 'Playfair Display', 'Georgia', serif;
-            font-size: clamp(2.5rem, 8vw, 5.5rem);
+            font-family: 'Cinzel', 'Cormorant Garamond', 'Playfair Display', 'Georgia', serif;
+            font-size: clamp(3rem, 10vw, 6.5rem);
             font-weight: 700;
-            line-height: 1.15;
-            letter-spacing: -0.02em;
+            line-height: 1.2;
+            letter-spacing: 0.02em;
             text-align: center;
-            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3),
-                         0 2px 8px rgba(0, 0, 0, 0.2);
-            position: relative;
+            text-transform: none;
             margin: 0;
             padding: 0;
+            position: relative;
           }
           
-          /* Text Wrapper with Fade Animation */
+          /* Text Wrapper with Smooth Fade */
           .hero-text-wrapper {
             display: inline-block;
-            animation: fadeInSmooth 0.6s ease-out;
+            animation: fadeInTitle 0.6s ease-out;
           }
           
+          /* Elegant Gradient Text Effect */
           .hero-line {
             display: inline;
-            background: linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%);
+            background: linear-gradient(180deg, 
+              #ffffff 0%, 
+              #f8f8f8 50%, 
+              #eeeeee 100%
+            );
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            text-shadow: 
+              0 6px 25px rgba(0, 0, 0, 0.4),
+              0 3px 12px rgba(0, 0, 0, 0.3),
+              0 1px 4px rgba(0, 0, 0, 0.2);
+            filter: drop-shadow(0 4px 20px rgba(0, 0, 0, 0.25));
           }
           
-          /* Single Cursor - Clean and Aligned */
+          /* Single Clean Cursor */
           .typewriter-cursor-new {
             display: inline-block;
-            width: 3px;
-            height: 1em;
-            background: #ffffff;
-            margin-left: 4px;
+            width: 4px;
+            height: 0.85em;
+            background: linear-gradient(180deg, #ffffff 0%, #f0f0f0 100%);
+            margin-left: 6px;
             animation: cursorBlink 1s infinite;
             vertical-align: baseline;
             position: relative;
-            top: 0.05em;
+            top: 0.08em;
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
           }
           
-          /* Subtitle Container - Fixed Position */
-          .subtitle-container {
-            margin-bottom: 3rem;
-            max-width: 46rem;
-            margin-left: auto;
-            margin-right: auto;
+          /* FIXED POSITION Subtitle Container */
+          .subtitle-fixed-container {
+            width: 100%;
+            max-width: 48rem;
+            margin: 2.5rem auto 0;
+            padding: 0 1rem;
           }
           
-          /* Hero Subtitle - Refined Typography */
+          /* Refined Subtitle Typography */
           .hero-subtitle {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            font-size: clamp(1rem, 2.5vw, 1.25rem);
+            font-family: 'Cormorant Garamond', 'Georgia', serif;
+            font-size: clamp(1.1rem, 2.8vw, 1.4rem);
             font-weight: 400;
-            line-height: 1.8;
-            letter-spacing: 0.01em;
+            line-height: 1.85;
+            letter-spacing: 0.02em;
             color: #f5e6d3;
-            opacity: 0.95;
-            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            opacity: 0.96;
+            text-shadow: 
+              0 3px 12px rgba(0, 0, 0, 0.3),
+              0 1px 4px rgba(0, 0, 0, 0.2);
             margin: 0;
           }
           
-          /* Buttons Container - Fixed Position */
-          .buttons-container {
+          /* FIXED POSITION Buttons Container */
+          .buttons-fixed-container {
             margin-top: 3rem;
+            width: 100%;
           }
           
-          /* Fade In Animation */
-          @keyframes fadeInSmooth {
+          /* Smooth Fade In Animation */
+          @keyframes fadeInTitle {
             from {
               opacity: 0;
-              transform: translateY(10px);
+              transform: translateY(15px);
             }
             to {
               opacity: 1;
@@ -275,59 +305,98 @@ const Hero = () => {
             }
           }
           
-          /* Cursor Blink Animation */
+          /* Cursor Blink */
           @keyframes cursorBlink {
             0%, 50% { opacity: 1; }
             51%, 100% { opacity: 0; }
           }
           
-          /* Responsive Adjustments */
+          /* ===== RESPONSIVE BREAKPOINTS ===== */
+          
+          /* Mobile: 320px - 640px */
           @media (max-width: 640px) {
-            .h1-container {
-              min-height: 160px;
-              margin-bottom: 2rem;
+            .hero-content-wrapper {
+              margin-top: 4rem;
             }
             
-            .subtitle-container {
-              margin-bottom: 2.5rem;
+            .h1-fixed-container {
+              height: 220px;
             }
             
-            .buttons-container {
+            .hero-title {
+              font-size: clamp(2.2rem, 9vw, 3.5rem);
+              line-height: 1.15;
+            }
+            
+            .subtitle-fixed-container {
+              margin-top: 2rem;
+            }
+            
+            .hero-subtitle {
+              font-size: clamp(1rem, 4vw, 1.15rem);
+              line-height: 1.75;
+            }
+            
+            .buttons-fixed-container {
               margin-top: 2.5rem;
             }
-            
-            .hero-subtitle {
-              line-height: 1.7;
-            }
           }
           
+          /* Tablet: 641px - 1024px */
           @media (min-width: 641px) and (max-width: 1024px) {
-            .h1-container {
-              min-height: 180px;
+            .h1-fixed-container {
+              height: 260px;
+            }
+            
+            .hero-title {
+              font-size: clamp(3.5rem, 9vw, 5.5rem);
+            }
+            
+            .subtitle-fixed-container {
+              margin-top: 2.25rem;
             }
           }
           
+          /* Desktop: 1025px+ */
           @media (min-width: 1025px) {
-            .h1-container {
-              min-height: 220px;
+            .h1-fixed-container {
+              height: 320px;
             }
             
-            .subtitle-container {
-              margin-bottom: 3.5rem;
+            .hero-title {
+              font-size: clamp(5rem, 10vw, 7rem);
+              letter-spacing: 0.01em;
+            }
+            
+            .subtitle-fixed-container {
+              margin-top: 2.75rem;
+              max-width: 52rem;
             }
             
             .hero-subtitle {
-              font-size: 1.3rem;
+              font-size: 1.45rem;
+              line-height: 1.9;
+            }
+            
+            .buttons-fixed-container {
+              margin-top: 3.5rem;
             }
           }
           
-          /* Mouse Scroll Indicator */
-          .w-6 {
-            width: 2.5rem;
+          /* Ultra-wide: 1400px+ */
+          @media (min-width: 1400px) {
+            .h1-fixed-container {
+              height: 350px;
+            }
+            
+            .hero-title {
+              font-size: 7.5rem;
+            }
           }
-          .h-6 {
-            height: 2.5rem;
-          }
+          
+          /* Mouse Indicator */
+          .w-6 { width: 2.5rem; }
+          .h-6 { height: 2.5rem; }
         `
       }} />
     </section>
