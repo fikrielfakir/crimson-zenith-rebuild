@@ -10,21 +10,31 @@ import "maplibre-gl/dist/maplibre-gl.css";
 
 const moroccanCities = [
   { name: "All Cities", lat: 31.7917, lon: -7.0926 },
-  { name: "Fes", lat: 34.0181, lon: -5.0078 },
-  { name: "Tetouan", lat: 35.5889, lon: -5.3626 },
-  { name: "Al Hoceima", lat: 35.2517, lon: -3.9317 },
-  { name: "Tanger", lat: 35.7595, lon: -5.834 },
-  { name: "Casablanca", lat: 33.5731, lon: -7.5898 },
-  { name: "Rabat", lat: 34.0209, lon: -6.8416 },
-  { name: "Marrakech", lat: 31.6295, lon: -7.9811 },
-  { name: "Chefchaouen", lat: 35.1689, lon: -5.2636 },
-  { name: "Essaouira", lat: 31.5125, lon: -9.7738 },
   { name: "Agadir", lat: 30.4278, lon: -9.5981 },
-  { name: "Meknes", lat: 33.8935, lon: -5.5473 },
-  { name: "Ouarzazate", lat: 30.9335, lon: -6.937 },
-  { name: "Merzouga", lat: 31.0801, lon: -4.0142 },
-  { name: "Ifrane", lat: 33.5228, lon: -5.1107 },
+  { name: "Al Hoceima", lat: 35.2517, lon: -3.9317 },
   { name: "Azrou", lat: 33.4342, lon: -5.2214 },
+  { name: "Beni Mellal", lat: 32.3373, lon: -6.3498 },
+  { name: "Casablanca", lat: 33.5731, lon: -7.5898 },
+  { name: "Chefchaouen", lat: 35.1689, lon: -5.2636 },
+  { name: "El Jadida", lat: 33.2316, lon: -8.5007 },
+  { name: "Errachidia", lat: 31.9314, lon: -4.4244 },
+  { name: "Essaouira", lat: 31.5125, lon: -9.7738 },
+  { name: "Fes", lat: 34.0181, lon: -5.0078 },
+  { name: "Ifrane", lat: 33.5228, lon: -5.1107 },
+  { name: "Kenitra", lat: 34.261, lon: -6.5802 },
+  { name: "Khouribga", lat: 32.8811, lon: -6.9063 },
+  { name: "Laayoune", lat: 27.1536, lon: -13.1994 },
+  { name: "Marrakech", lat: 31.6295, lon: -7.9811 },
+  { name: "Meknes", lat: 33.8935, lon: -5.5473 },
+  { name: "Merzouga", lat: 31.0801, lon: -4.0142 },
+  { name: "Nador", lat: 35.1681, lon: -2.9331 },
+  { name: "Ouarzazate", lat: 30.9335, lon: -6.937 },
+  { name: "Oujda", lat: 34.6867, lon: -1.9114 },
+  { name: "Rabat", lat: 34.0209, lon: -6.8416 },
+  { name: "Safi", lat: 32.2994, lon: -9.2372 },
+  { name: "Tanger", lat: 35.7595, lon: -5.834 },
+  { name: "Taza", lat: 34.213, lon: -4.0103 },
+  { name: "Tetouan", lat: 35.5889, lon: -5.3626 },
 ];
 
 // Generate unique club coordinates for each city with slight offsets
@@ -106,8 +116,7 @@ const ClubsWithMap = () => {
         club.location.toLowerCase().includes(selectedCity.toLowerCase()),
       );
 
-  const displayedClubs =
-    filteredClubs.length > 0 ? filteredClubs : clubs.slice(0, 3);
+  const displayedClubs = filteredClubs;
 
   // Create satellite map style using Esri World Imagery
   useEffect(() => {
@@ -167,6 +176,8 @@ const ClubsWithMap = () => {
       const lng =
         typeof firstClub.longitude === "number" ? firstClub.longitude : -3.9317;
       setMapCenter({ lat, lng });
+    } else if (displayedClubs.length === 0) {
+      setSelectedClubId(null);
     }
   }, [displayedClubs, selectedClubId, selectedCity]);
 
@@ -630,8 +641,43 @@ const ClubsWithMap = () => {
             gap: "30px",
           }}
         >
-          <AnimatePresence mode="popLayout">
-            {displayedClubs.map((club, index) => {
+          {displayedClubs.length === 0 && selectedCity !== "All Cities" ? (
+            <div
+              style={{
+                padding: "30px 50px",
+                background: "rgba(255, 255, 255, 0.15)",
+                backdropFilter: "blur(12px)",
+                borderRadius: "16px",
+                border: "2px solid rgba(255, 214, 69, 0.3)",
+                fontFamily: "Poppins, sans-serif",
+              }}
+            >
+              <p
+                style={{
+                  color: "#ffffff",
+                  fontSize: "18px",
+                  fontWeight: 500,
+                  margin: 0,
+                  textAlign: "center",
+                }}
+              >
+                No clubs yet in {selectedCity}
+              </p>
+              <p
+                style={{
+                  color: "#d6d6d6",
+                  fontSize: "14px",
+                  fontWeight: 400,
+                  margin: "8px 0 0 0",
+                  textAlign: "center",
+                }}
+              >
+                Check back soon or explore other cities
+              </p>
+            </div>
+          ) : (
+            <AnimatePresence mode="popLayout">
+              {displayedClubs.map((club, index) => {
               const isSelected = selectedClubId === club.id;
               const isHovered = hoveredClubId === club.id;
 
@@ -842,6 +888,7 @@ const ClubsWithMap = () => {
               );
             })}
           </AnimatePresence>
+          )}
         </div>
       </div>
 
