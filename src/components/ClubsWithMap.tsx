@@ -281,10 +281,10 @@ const ClubsWithMap = () => {
       el.style.width = "30px";
       el.style.height = "30px";
       el.style.backgroundImage =
-        "radial-gradient(circle, #FFD645 0%, #FFB800 100%)";
+        "radial-gradient(circle, #DAC391 0%, #C4A96E 100%)";
       el.style.borderRadius = "50%";
       el.style.border = "3px solid white";
-      el.style.boxShadow = "0 4px 12px rgba(255, 214, 69, 0.6)";
+      el.style.boxShadow = "0 4px 12px rgba(218, 195, 145, 0.6)";
       el.style.cursor = "pointer";
 
       const lng =
@@ -470,14 +470,18 @@ const ClubsWithMap = () => {
               className="w-full flex items-center justify-center mb-2 transition-all duration-300"
               style={{
                 padding: "8px",
-                background: "transparent",
+                background: "#ffffff",
+                borderRadius: "50%",
                 border: "none",
+                width: "40px",
+                height: "40px",
+                margin: "0 auto",
               }}
               onMouseEnter={(e) => {
                 const icon = e.currentTarget.querySelector("svg");
                 if (icon) {
                   (icon as SVGElement).style.filter =
-                    "drop-shadow(0 0 8px rgba(255, 214, 69, 0.8))";
+                    "drop-shadow(0 0 8px rgba(218, 195, 145, 0.8))";
                 }
               }}
               onMouseLeave={(e) => {
@@ -487,7 +491,7 @@ const ClubsWithMap = () => {
                 }
               }}
             >
-              <ChevronUp className="w-5 h-5" style={{ color: "#FFD645" }} />
+              <ChevronUp className="w-5 h-5" style={{ color: "#DAC391" }} />
             </button>
           )}
 
@@ -507,7 +511,7 @@ const ClubsWithMap = () => {
                     marginBottom: "20px",
                     fontFamily: "Poppins, sans-serif",
                     borderLeft: isActive
-                      ? "3px solid #ffd54a"
+                      ? "3px solid #DAC391"
                       : "3px solid transparent",
                     paddingLeft: "16px",
                     transition: "all 0.2s ease-in-out",
@@ -534,14 +538,18 @@ const ClubsWithMap = () => {
               className="w-full flex items-center justify-center mt-2 transition-all duration-300"
               style={{
                 padding: "8px",
-                background: "transparent",
+                background: "#ffffff",
+                borderRadius: "50%",
                 border: "none",
+                width: "40px",
+                height: "40px",
+                margin: "0 auto",
               }}
               onMouseEnter={(e) => {
                 const icon = e.currentTarget.querySelector("svg");
                 if (icon) {
                   (icon as SVGElement).style.filter =
-                    "drop-shadow(0 0 8px rgba(255, 214, 69, 0.8))";
+                    "drop-shadow(0 0 8px rgba(218, 195, 145, 0.8))";
                 }
               }}
               onMouseLeave={(e) => {
@@ -551,7 +559,7 @@ const ClubsWithMap = () => {
                 }
               }}
             >
-              <ChevronDown className="w-5 h-5" style={{ color: "#FFD645" }} />
+              <ChevronDown className="w-5 h-5" style={{ color: "#DAC391" }} />
             </button>
           )}
         </div>
@@ -587,7 +595,7 @@ const ClubsWithMap = () => {
               boxShadow: "0 0 10px rgba(0, 0, 0, 0.25)",
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = "#ffd54a";
+              e.currentTarget.style.background = "#DAC391";
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = "#ffffff";
@@ -606,7 +614,7 @@ const ClubsWithMap = () => {
               boxShadow: "0 0 10px rgba(0, 0, 0, 0.25)",
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = "#ffd54a";
+              e.currentTarget.style.background = "#DAC391";
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = "#ffffff";
@@ -625,7 +633,7 @@ const ClubsWithMap = () => {
               boxShadow: "0 0 10px rgba(0, 0, 0, 0.25)",
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = "#ffd54a";
+              e.currentTarget.style.background = "#DAC391";
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = "#ffffff";
