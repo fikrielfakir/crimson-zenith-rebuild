@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { Plus, Minus, Locate, ChevronUp, ChevronDown } from "lucide-react";
+import { Plus, Minus, Locate, ChevronUp, ChevronDown, Search, Home, MapPin, Building2, Info } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Club } from "../../shared/schema";
 import birdLogo from "@/assets/attached_assets/Group 288941_1762708813825.png";
@@ -60,19 +60,26 @@ const ClubsWithMap = () => {
   const [mapZoom, setMapZoom] = useState(6);
   const [mapStyleUrl, setMapStyleUrl] = useState<string | null>(null);
   const [cityScrollIndex, setCityScrollIndex] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
   const markers = useRef<maplibregl.Marker[]>([]);
 
   const CITIES_PER_PAGE = 8;
-  const visibleCities = moroccanCities.slice(
+  
+  // Filter cities based on search query
+  const filteredCities = moroccanCities.filter(city => 
+    city.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+  
+  const visibleCities = filteredCities.slice(
     cityScrollIndex,
     cityScrollIndex + CITIES_PER_PAGE,
   );
   const canScrollUp = cityScrollIndex > 0;
   const canScrollDown =
-    cityScrollIndex + CITIES_PER_PAGE < moroccanCities.length;
+    cityScrollIndex + CITIES_PER_PAGE < filteredCities.length;
 
   const { data: clubsResponse, isLoading } = useQuery({
     queryKey: ["clubs"],
@@ -454,7 +461,7 @@ const ClubsWithMap = () => {
           </p>
         </div>
 
-        {/* Sidebar (Cities List) - Left Side, with Scroll Arrows */}
+        {/* Sidebar (Cities List) - Left Side, with Search Bar and Scroll Arrows */}
         <div
           className="absolute top-1/2 sidebar-cities city-list-container"
           style={{
@@ -463,11 +470,58 @@ const ClubsWithMap = () => {
             display: "flex",
             flexDirection: "column",
             alignItems: "flex-start",
-            gap: "24px",
+            gap: "16px",
             background: "transparent",
             fontFamily: "Poppins, sans-serif",
           }}
         >
+          {/* Search Bar */}
+          <div style={{ position: "relative", width: "220px" }}>
+            <Search 
+              style={{ 
+                position: "absolute", 
+                left: "12px", 
+                top: "50%", 
+                transform: "translateY(-50%)",
+                color: "#ffffff",
+                width: "16px",
+                height: "16px",
+                pointerEvents: "none"
+              }} 
+            />
+            <input
+              type="text"
+              placeholder="Search city..."
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setCityScrollIndex(0); // Reset scroll when searching
+              }}
+              style={{
+                width: "100%",
+                height: "36px",
+                borderRadius: "8px",
+                background: "rgba(255, 255, 255, 0.15)",
+                border: "1px solid rgba(255, 255, 255, 0.25)",
+                paddingLeft: "36px",
+                paddingRight: "12px",
+                fontFamily: "Poppins, sans-serif",
+                fontSize: "14px",
+                color: "#ffffff",
+                outline: "none",
+                transition: "all 0.3s ease",
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.border = "1px solid #DAC391";
+                e.currentTarget.style.background = "rgba(255, 255, 255, 0.25)";
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.border = "1px solid rgba(255, 255, 255, 0.25)";
+                e.currentTarget.style.background = "rgba(255, 255, 255, 0.15)";
+              }}
+            />
+          </div>
+
           {/* Scroll Up Arrow */}
           {canScrollUp && (
             <button
@@ -533,13 +587,15 @@ const ClubsWithMap = () => {
                     borderLeft: isActive
                       ? "3px solid #DAC391"
                       : "3px solid transparent",
+                    borderTop: "none",
+                    borderRight: "none",
+                    borderBottom: "none",
                     paddingLeft: "16px",
                     transition: "all 0.2s ease-in-out",
                     textShadow: isActive
                       ? "0 2px 4px rgba(0, 0, 0, 0.3)"
                       : "none",
                     background: "transparent",
-                    border: "none",
                     cursor: "pointer",
                   }}
                   whileHover={{
@@ -632,9 +688,9 @@ const ClubsWithMap = () => {
             onMouseLeave={(e) => {
               e.currentTarget.style.background = "#ffffff";
             }}
-            title="Locate Selected Club"
+            title="Locate My Current Location"
           >
-            <Locate className="w-5 h-5" style={{ color: "#0b1a52" }} />
+            <MapPin className="w-5 h-5" style={{ color: "#0b1a52" }} />
           </button>
           <button
             onClick={handleZoomIn}
@@ -689,31 +745,37 @@ const ClubsWithMap = () => {
           {displayedClubs.length === 0 && selectedCity !== "All Cities" ? (
             <div
               style={{
-                padding: "15px 25px",
-                background: "rgba(255, 255, 255, 0.15)",
+                padding: "16px 20px",
+                width: "260px",
+                background: "rgba(255, 255, 255, 0.08)",
                 backdropFilter: "blur(12px)",
-                borderRadius: "16px",
+                borderRadius: "12px",
                 fontFamily: "Poppins, sans-serif",
+                display: "flex",
+                flexDirection: "column",
+                gap: "12px",
               }}
             >
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <Info style={{ color: "#DAC391", width: "20px", height: "20px", flexShrink: 0 }} />
+                <p
+                  style={{
+                    color: "#ffffff",
+                    fontSize: "16px",
+                    fontWeight: 600,
+                    margin: 0,
+                  }}
+                >
+                  No clubs yet in {selectedCity}
+                </p>
+              </div>
               <p
                 style={{
-                  color: "#ffffff",
-                  fontSize: "18px",
-                  fontWeight: 500,
-                  margin: 0,
-                  textAlign: "center",
-                }}
-              >
-                No clubs yet in {selectedCity}
-              </p>
-              <p
-                style={{
-                  color: "#d6d6d6",
+                  color: "rgba(255, 255, 255, 0.7)",
                   fontSize: "14px",
                   fontWeight: 400,
-                  margin: "8px 0 0 0",
-                  textAlign: "center",
+                  margin: 0,
+                  paddingLeft: "28px",
                 }}
               >
                 Check back soon or explore other cities
@@ -820,30 +882,33 @@ const ClubsWithMap = () => {
                             background: "transparent",
                           }}
                         >
-                          {/* Club Name */}
-                          <h3
-                            style={{
-                              fontFamily: "Poppins, sans-serif",
-                              fontSize: "18px",
-                              fontWeight: 700,
-                              color: "#ffffff",
-                              marginBottom: "6px",
-                              whiteSpace: "nowrap",
-                              overflow: "hidden",
-                              textOverflow: "ellipsis",
-                              textShadow: "0 2px 4px rgba(0, 0, 0, 0.3)",
-                            }}
-                          >
-                            {club.name}
-                          </h3>
+                          {/* Club Name with Icon */}
+                          <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "6px" }}>
+                            <Building2 style={{ color: "#DAC391", width: "18px", height: "18px", flexShrink: 0 }} />
+                            <h3
+                              style={{
+                                fontFamily: "Poppins, sans-serif",
+                                fontSize: "16px",
+                                fontWeight: 700,
+                                color: "#ffffff",
+                                margin: 0,
+                                whiteSpace: "nowrap",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                textShadow: "0 2px 4px rgba(0, 0, 0, 0.3)",
+                              }}
+                            >
+                              {club.name}
+                            </h3>
+                          </div>
 
                           {/* Address/Location */}
                           <p
                             style={{
                               fontFamily: "Poppins, sans-serif",
-                              fontSize: "13px",
+                              fontSize: "14px",
                               fontWeight: 400,
-                              color: "#e0e0e0",
+                              color: "rgba(255, 255, 255, 0.7)",
                               marginBottom: "10px",
                               whiteSpace: "nowrap",
                               overflow: "hidden",
@@ -890,42 +955,45 @@ const ClubsWithMap = () => {
                         </div>
                       </div>
                     ) : (
-                      // Inactive Card Design - minimal, no image, just name and location
+                      // Inactive Card Design - minimal, no image, just name and location with icon
                       <div
-                        className="flex flex-col justify-center h-full"
+                        className="flex items-center gap-3 h-full"
                         style={{ padding: "12px 16px" }}
                       >
-                        {/* Club Name */}
-                        <h3
-                          style={{
-                            fontFamily: "Poppins, sans-serif",
-                            fontSize: "15px",
-                            fontWeight: 600,
-                            color: "#ffffff",
-                            marginBottom: "4px",
-                            whiteSpace: "nowrap",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            textShadow: "0 2px 4px rgba(0, 0, 0, 0.3)",
-                          }}
-                        >
-                          {club.name}
-                        </h3>
+                        <Home style={{ color: "#DAC391", width: "16px", height: "16px", flexShrink: 0 }} />
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          {/* Club Name */}
+                          <h3
+                            style={{
+                              fontFamily: "Poppins, sans-serif",
+                              fontSize: "15px",
+                              fontWeight: 600,
+                              color: "#ffffff",
+                              marginBottom: "4px",
+                              whiteSpace: "nowrap",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              textShadow: "0 2px 4px rgba(0, 0, 0, 0.3)",
+                            }}
+                          >
+                            {club.name}
+                          </h3>
 
-                        {/* Club's Actual Location */}
-                        <p
-                          style={{
-                            fontFamily: "Poppins, sans-serif",
-                            fontSize: "12px",
-                            fontWeight: 400,
-                            color: "#c8c8c8",
-                            whiteSpace: "nowrap",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                          }}
-                        >
-                          {club.location}
-                        </p>
+                          {/* Club's Actual Location */}
+                          <p
+                            style={{
+                              fontFamily: "Poppins, sans-serif",
+                              fontSize: "12px",
+                              fontWeight: 400,
+                              color: "#c8c8c8",
+                              whiteSpace: "nowrap",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                            }}
+                          >
+                            {club.location}
+                          </p>
+                        </div>
                       </div>
                     )}
                   </motion.div>
