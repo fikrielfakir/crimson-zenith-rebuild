@@ -77,11 +77,12 @@ const ClubsWithMap = () => {
         "esri-satellite": {
           type: "raster",
           tiles: [
-            "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+            "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
           ],
           tileSize: 256,
-          attribution: "© Esri, Maxar, Earthstar Geographics, CNES/Airbus DS, USDA FSA, USGS, Aerogrid, IGN, IGP, and the GIS User Community"
-        }
+          attribution:
+            "© Esri, Maxar, Earthstar Geographics, CNES/Airbus DS, USDA FSA, USGS, Aerogrid, IGN, IGP, and the GIS User Community",
+        },
       },
       layers: [
         {
@@ -89,13 +90,13 @@ const ClubsWithMap = () => {
           type: "raster",
           source: "esri-satellite",
           minzoom: 0,
-          maxzoom: 22
-        }
-      ]
+          maxzoom: 22,
+        },
+      ],
     };
-    
+
     setMapStyleUrl(satelliteStyle as any);
-    console.log('Using satellite imagery');
+    console.log("Using satellite imagery");
   }, []);
 
   // Debug map initialization
