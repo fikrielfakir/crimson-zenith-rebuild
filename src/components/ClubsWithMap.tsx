@@ -68,57 +68,54 @@ const ClubsWithMap = () => {
   const displayedClubs =
     filteredClubs.length > 0 ? filteredClubs : clubs.slice(0, 3);
 
-  // Create free satellite map style (Esri World Imagery - Free Alternative)
+  // Create satellite map style using Esri World Imagery
   useEffect(() => {
     const satelliteStyle = {
       version: 8,
-      name: "Free Satellite Map",
+      name: "Satellite Map",
       sources: {
-        "satellite-tiles": {
+        "satellite": {
           type: "raster",
           tiles: [
-            "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+            "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
           ],
           tileSize: 256,
-          attribution: "© Esri, DigitalGlobe, GeoEye, Earthstar Geographics, CNES/Airbus DS, USDA, USGS, AeroGRID, IGN, and the GIS User Community",
-          maxzoom: 19,
+          attribution: "© Esri",
+          maxzoom: 18,
         },
         "labels": {
           type: "raster",
           tiles: [
-            "https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
+            "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"
           ],
           tileSize: 256,
-          maxzoom: 19,
+          maxzoom: 18,
         },
       },
       layers: [
         {
-          id: "satellite-base",
+          id: "satellite-layer",
           type: "raster",
-          source: "satellite-tiles",
+          source: "satellite",
           minzoom: 0,
-          maxzoom: 19,
+          maxzoom: 18,
         },
         {
-          id: "satellite-labels",
+          id: "labels-layer",
           type: "raster",
           source: "labels",
           minzoom: 0,
-          maxzoom: 19,
+          maxzoom: 18,
+          paint: {
+            "raster-opacity": 0.8
+          }
         },
       ],
     };
 
     setMapStyleUrl(satelliteStyle as any);
-    console.log("Using free Esri satellite imagery with labels");
+    console.log("Using Esri World Imagery satellite tiles");
   }, []);
-
-  // Debug map initialization
-  useEffect(() => {
-    console.log("Map container:", mapContainer.current);
-    console.log("Map style URL:", mapStyleUrl);
-  }, [mapStyleUrl]);
 
   useEffect(() => {
     if (displayedClubs.length > 0 && selectedClubId === null) {
@@ -134,26 +131,62 @@ const ClubsWithMap = () => {
 
   // Initialize map with free Esri satellite imagery
   useEffect(() => {
-    if (map.current || !mapContainer.current || !mapStyleUrl) return;
+    if (map.current || !mapStyleUrl) return;
+    
+    let retryCount = 0;
+    const maxRetries = 10;
+    
+    const tryInitMap = () => {
+      if (!mapContainer.current) {
+        retryCount++;
+        if (retryCount < maxRetries) {
+          console.log(`Map container not ready, retry ${retryCount}/${maxRetries}`);
+          setTimeout(tryInitMap, 100);
+        } else {
+          console.error("Failed to initialize map: container not available after retries");
+        }
+        return;
+      }
 
-    map.current = new maplibregl.Map({
-      container: mapContainer.current,
-      style: mapStyleUrl,
-      center: [mapCenter.lng, mapCenter.lat],
-      zoom: mapZoom,
-      attributionControl: false,
-      crossSourceCollisions: false,
-    });
+      console.log("Initializing map with container:", mapContainer.current);
+      
+      try {
+        map.current = new maplibregl.Map({
+          container: mapContainer.current,
+          style: mapStyleUrl,
+          center: [mapCenter.lng, mapCenter.lat],
+          zoom: mapZoom,
+          attributionControl: false,
+          crossSourceCollisions: false,
+        });
 
-    // Disable default controls
-    map.current.scrollZoom.disable();
-    map.current.dragPan.disable();
-    map.current.touchZoomRotate.disable();
-    map.current.doubleClickZoom.disable();
+        // Disable default controls
+        map.current.scrollZoom.disable();
+        map.current.dragPan.disable();
+        map.current.touchZoomRotate.disable();
+        map.current.doubleClickZoom.disable();
+        
+        map.current.on('load', () => {
+          console.log("✅ Map loaded successfully with satellite tiles!");
+        });
+
+        map.current.on('error', (e) => {
+          console.error("❌ Map error:", e);
+        });
+      } catch (error) {
+        console.error("❌ Failed to create map:", error);
+      }
+    };
+    
+    // Start trying to initialize
+    const initTimeout = setTimeout(tryInitMap, 100);
 
     return () => {
-      map.current?.remove();
-      map.current = null;
+      clearTimeout(initTimeout);
+      if (map.current) {
+        map.current.remove();
+        map.current = null;
+      }
     };
   }, [mapStyleUrl]);
 
@@ -262,15 +295,7 @@ const ClubsWithMap = () => {
           height: "100vh",
           width: "100%",
           position: "absolute",
-          filter: "brightness(0.6) contrast(1.2)",
-        }}
-      />
-
-      {/* Dark Overlay for Better Text Contrast */}
-      <div
-        className="absolute inset-0 z-5 pointer-events-none"
-        style={{
-          background: "rgba(11, 26, 82, 0.4)",
+          filter: "brightness(0.5) contrast(1.3) saturate(0.8)",
         }}
       />
 
@@ -278,9 +303,9 @@ const ClubsWithMap = () => {
       <div
         className="absolute top-0 left-0 h-full z-10 pointer-events-none gradient-left"
         style={{
-          width: "30%",
+          width: "35%",
           background:
-            "linear-gradient(90deg, rgba(11, 26, 82, 0.95) 0%, transparent 100%)",
+            "linear-gradient(90deg, rgba(11, 26, 82, 0.95) 0%, rgba(11, 26, 82, 0.3) 70%, transparent 100%)",
         }}
       />
 
@@ -288,9 +313,18 @@ const ClubsWithMap = () => {
       <div
         className="absolute top-0 right-0 h-full z-10 pointer-events-none gradient-right"
         style={{
-          width: "30%",
+          width: "35%",
           background:
-            "linear-gradient(270deg, rgba(11, 26, 82, 0.9) 0%, transparent 100%)",
+            "linear-gradient(270deg, rgba(11, 26, 82, 0.9) 0%, rgba(11, 26, 82, 0.3) 70%, transparent 100%)",
+        }}
+      />
+
+      {/* Top and Bottom Gradient for additional darkening */}
+      <div
+        className="absolute inset-0 z-10 pointer-events-none"
+        style={{
+          background:
+            "linear-gradient(180deg, rgba(11, 26, 82, 0.5) 0%, transparent 30%, transparent 70%, rgba(11, 26, 82, 0.5) 100%)",
         }}
       />
 
