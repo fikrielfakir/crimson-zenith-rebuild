@@ -3,6 +3,8 @@ import { useLocation } from "react-router-dom";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import About from "@/components/About";
+import OurPartners from "@/components/OurPartners";
+import PresidentMessage from "@/components/PresidentMessage";
 import EventCalendar from "@/components/EventCalendar";
 import ClubsWithMap from "@/components/ClubsWithMap";
 import Stats from "@/components/Stats";
@@ -35,6 +37,8 @@ const Index = () => {
       <Header />
       <Hero />
       <About />
+      <OurPartners />
+      <PresidentMessage />
       <EventCalendar />
       <ClubsWithMap />
       <Stats />
