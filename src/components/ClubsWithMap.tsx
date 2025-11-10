@@ -68,26 +68,34 @@ const ClubsWithMap = () => {
   const displayedClubs =
     filteredClubs.length > 0 ? filteredClubs : clubs.slice(0, 3);
 
-  // Fetch map style URL on component mount with fallback
+  // Create satellite map style
   useEffect(() => {
-    const fetchMapStyle = async () => {
-      try {
-        const response = await fetch('/api/config/map-style');
-        if (response.ok) {
-          const data = await response.json();
-          setMapStyleUrl(data.styleUrl);
-        } else {
-          // ✅ fallback to demo MapLibre style
-          console.log('Using fallback map style');
-          setMapStyleUrl("https://demotiles.maplibre.org/style.json");
+    const satelliteStyle = {
+      version: 8,
+      name: "Satellite",
+      sources: {
+        "esri-satellite": {
+          type: "raster",
+          tiles: [
+            "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+          ],
+          tileSize: 256,
+          attribution: "© Esri, Maxar, Earthstar Geographics, CNES/Airbus DS, USDA FSA, USGS, Aerogrid, IGN, IGP, and the GIS User Community"
         }
-      } catch (error) {
-        console.error('Failed to fetch map style:', error);
-        // ✅ fallback style
-        setMapStyleUrl("https://demotiles.maplibre.org/style.json");
-      }
+      },
+      layers: [
+        {
+          id: "satellite",
+          type: "raster",
+          source: "esri-satellite",
+          minzoom: 0,
+          maxzoom: 22
+        }
+      ]
     };
-    fetchMapStyle();
+    
+    setMapStyleUrl(satelliteStyle as any);
+    console.log('Using satellite imagery');
   }, []);
 
   // Debug map initialization
