@@ -496,7 +496,7 @@ const ClubsWithMap = () => {
           )}
 
           {/* Cities List */}
-          <div style={{ padding: "20px 40px" }}>
+          <div style={{ padding: "20px 30px 20px 40px" }}>
             {visibleCities.map((city) => {
               const isActive = selectedCity === city.name;
               return (
@@ -709,9 +709,9 @@ const ClubsWithMap = () => {
                         : "rgba(255, 255, 255, 0.08)",
                       backdropFilter: "blur(12px)",
                       boxShadow: isSelected
-                        ? "0 0 20px rgba(255, 213, 74, 0.8), 0 4px 15px rgba(0, 0, 0, 0.3)"
+                        ? "0 0 20px rgba(218, 195, 145, 0.8), 0 4px 15px rgba(0, 0, 0, 0.3)"
                         : isHovered
-                          ? "0 0 15px rgba(255, 213, 74, 0.5)"
+                          ? "0 0 15px rgba(218, 195, 145, 0.5)"
                           : "0 2px 8px rgba(0, 0, 0, 0.2)",
                       transform: isSelected
                         ? "scale(1.05)"
@@ -719,7 +719,7 @@ const ClubsWithMap = () => {
                           ? "scale(1.02)"
                           : "scale(1)",
                       border: isSelected
-                        ? "2px solid #FFD645"
+                        ? "2px solid #DAC391"
                         : "2px solid transparent",
                     }}
                     initial={{ opacity: 0, y: 20 }}
@@ -743,7 +743,7 @@ const ClubsWithMap = () => {
                           style={{
                             width: "140px",
                             background:
-                              "linear-gradient(135deg, #FFD645 0%, #FFA500 100%)",
+                              "linear-gradient(135deg, #DAC391 0%, #C4A96E 100%)",
                           }}
                         >
                           <div
@@ -765,7 +765,7 @@ const ClubsWithMap = () => {
                                 borderRadius: club.image ? "50%" : "0",
                                 filter: club.image
                                   ? "none"
-                                  : "brightness(0) saturate(100%) invert(73%) sepia(78%) saturate(471%) hue-rotate(3deg) brightness(102%) contrast(101%)",
+                                  : "brightness(0) saturate(100%) invert(80%) sepia(18%) saturate(767%) hue-rotate(355deg) brightness(94%) contrast(87%)",
                               }}
                             />
                           </div>
@@ -776,7 +776,7 @@ const ClubsWithMap = () => {
                           style={{
                             width: "3px",
                             background:
-                              "linear-gradient(180deg, rgba(255, 214, 69, 0.3) 0%, rgba(255, 214, 69, 0.8) 50%, rgba(255, 214, 69, 0.3) 100%)",
+                              "linear-gradient(180deg, rgba(218, 195, 145, 0.3) 0%, rgba(218, 195, 145, 0.8) 50%, rgba(218, 195, 145, 0.3) 100%)",
                           }}
                         />
 
@@ -832,24 +832,24 @@ const ClubsWithMap = () => {
                               padding: "8px 16px",
                               borderRadius: "8px",
                               background:
-                                "linear-gradient(135deg, #FFD645 0%, #FFB800 100%)",
+                                "linear-gradient(135deg, #DAC391 0%, #C4A96E 100%)",
                               color: "#0b1a52",
                               fontFamily: "Poppins, sans-serif",
                               fontSize: "13px",
                               fontWeight: 600,
                               border: "none",
                               cursor: "pointer",
-                              boxShadow: "0 2px 8px rgba(255, 214, 69, 0.3)",
+                              boxShadow: "0 2px 8px rgba(218, 195, 145, 0.3)",
                               width: "fit-content",
                             }}
                             onMouseEnter={(e) => {
                               e.currentTarget.style.background =
-                                "linear-gradient(135deg, #FFE066 0%, #FFC633 100%)";
+                                "linear-gradient(135deg, #E5D4A6 0%, #D4BD8A 100%)";
                               e.currentTarget.style.transform = "scale(1.05)";
                             }}
                             onMouseLeave={(e) => {
                               e.currentTarget.style.background =
-                                "linear-gradient(135deg, #FFD645 0%, #FFB800 100%)";
+                                "linear-gradient(135deg, #DAC391 0%, #C4A96E 100%)";
                               e.currentTarget.style.transform = "scale(1)";
                             }}
                           >
