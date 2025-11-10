@@ -656,22 +656,32 @@ const ClubsWithMap = () => {
         <div className="absolute right-8 top-1/2 transform -translate-y-1/2 flex flex-col gap-3 map-controls">
           <button
             onClick={() => {
-              if (map.current && selectedClubId) {
-                const selectedClub = displayedClubs.find(
-                  (club) => club.id === selectedClubId,
-                );
-                if (selectedClub?.latitude && selectedClub?.longitude) {
-                  setMapCenter({
-                    lat:
-                      typeof selectedClub.latitude === "number"
-                        ? selectedClub.latitude
-                        : 35.2517,
-                    lng:
-                      typeof selectedClub.longitude === "number"
-                        ? selectedClub.longitude
-                        : -3.9317,
-                  });
-                  setMapZoom(15);
+              if (map.current) {
+                // Use browser's geolocation API to get current location
+                if (navigator.geolocation) {
+                  navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                      const userLat = position.coords.latitude;
+                      const userLng = position.coords.longitude;
+                      
+                      // Center map on user's location
+                      setMapCenter({ lat: userLat, lng: userLng });
+                      setMapZoom(14);
+                      
+                      console.log(`📍 Current location: ${userLat}, ${userLng}`);
+                    },
+                    (error) => {
+                      console.error("Error getting location:", error);
+                      alert("Unable to get your location. Please enable location services and try again.");
+                    },
+                    {
+                      enableHighAccuracy: true,
+                      timeout: 5000,
+                      maximumAge: 0
+                    }
+                  );
+                } else {
+                  alert("Geolocation is not supported by your browser.");
                 }
               }
             }}
