@@ -1,0 +1,117 @@
+Align the arrow icon vertically centered beside the list of cities on the left side of the “Our Clubs” section, ensuring perfect symmetry and visual balance.
+
+🧭 Layout Specifications
+
+Parent container:
+
+Type: vertical column (flex direction: column)
+
+Alignment:
+
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+justify-content: center;
+
+
+Position: absolute
+
+Left: 80px
+
+Top: 50%
+
+Transform: translateY(-50%) → keeps list centered vertically in viewport
+
+📋 City List Styling
+
+Container height: dynamic (auto)
+
+Spacing: 16px between each city name
+
+Padding left: 0
+
+Font:
+
+Family: Poppins, sans-serif
+
+Size: 18px
+
+Weight: 400
+
+Color inactive: #c8c8c8
+
+Active city: #ffffff with a 3px yellow border-left (#ffd54a)
+
+Hover: smooth color transition to #ffffff
+
+⬆️⬇️ Arrow Icon (Scroll Control)
+
+Icon container:
+
+Circular background
+
+Size: 48px x 48px
+
+Border-radius: 50%
+
+Background color: rgba(255, 255, 255, 0.15)
+
+Backdrop blur: 6px
+
+Box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25)
+
+Icon color: white (#ffffff)
+
+Icon size: 22px
+
+Hover effect:
+
+Scale: 1.08
+
+Background changes to #ffd54a
+
+Icon color changes to navy (#0b1a52)
+
+🔁 Positioning Logic for Arrow + List
+.city-list-container {
+  position: absolute;
+  top: 50%;
+  left: 80px;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+.city-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.arrow-icon {
+  align-self: center;
+  margin-top: 18px;
+}
+
+
+The arrow stays centered relative to the entire list.
+
+When list scrolls (if it’s long), the arrow remains fixed vertically in the middle of that left sidebar area.
+
+💡 Optional Interaction
+
+Add smooth scroll animation when user clicks arrow:
+
+Up arrow → scroll to top of list
+
+Down arrow → scroll to bottom
+
+Add fade-in/out if list exceeds screen height.
+
+🖼 Visual Result
+
+✅ City list vertically centered on the left side
+✅ Arrow icon perfectly centered between top and bottom of the list
+✅ Clean alignment and smooth UX

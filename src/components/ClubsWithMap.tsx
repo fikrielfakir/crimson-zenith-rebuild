@@ -456,9 +456,14 @@ const ClubsWithMap = () => {
 
         {/* Sidebar (Cities List) - Left Side, with Scroll Arrows */}
         <div
-          className="absolute left-0 top-1/2 transform -translate-y-1/2 sidebar-cities"
+          className="absolute top-1/2 sidebar-cities city-list-container"
           style={{
-            width: "260px",
+            left: "80px",
+            transform: "translateY(-50%)",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-start",
+            gap: "24px",
             background: "transparent",
             fontFamily: "Poppins, sans-serif",
           }}
@@ -467,36 +472,52 @@ const ClubsWithMap = () => {
           {canScrollUp && (
             <button
               onClick={handleCityScrollUp}
-              className="w-full flex items-center justify-center mb-2 transition-all duration-300"
+              className="arrow-icon transition-all duration-300"
               style={{
-                padding: "8px",
-                background: "#ffffff",
+                alignSelf: "center",
+                width: "48px",
+                height: "48px",
                 borderRadius: "50%",
+                background: "rgba(255, 255, 255, 0.15)",
+                backdropFilter: "blur(6px)",
+                boxShadow: "0 2px 6px rgba(0, 0, 0, 0.25)",
                 border: "none",
-                width: "40px",
-                height: "40px",
-                margin: "0 auto",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
               }}
               onMouseEnter={(e) => {
+                e.currentTarget.style.background = "#DAC391";
+                e.currentTarget.style.transform = "scale(1.08)";
                 const icon = e.currentTarget.querySelector("svg");
                 if (icon) {
-                  (icon as SVGElement).style.filter =
-                    "drop-shadow(0 0 8px rgba(218, 195, 145, 0.8))";
+                  (icon as SVGElement).style.color = "#0b1a52";
                 }
               }}
               onMouseLeave={(e) => {
+                e.currentTarget.style.background = "rgba(255, 255, 255, 0.15)";
+                e.currentTarget.style.transform = "scale(1)";
                 const icon = e.currentTarget.querySelector("svg");
                 if (icon) {
-                  (icon as SVGElement).style.filter = "none";
+                  (icon as SVGElement).style.color = "#ffffff";
                 }
               }}
             >
-              <ChevronUp className="w-5 h-5" style={{ color: "#DAC391" }} />
+              <ChevronUp className="w-5.5 h-5.5" style={{ color: "#ffffff", width: "22px", height: "22px" }} />
             </button>
           )}
 
           {/* Cities List */}
-          <div style={{ padding: "20px 30px 20px 40px" }}>
+          <div 
+            className="city-list"
+            style={{ 
+              display: "flex",
+              flexDirection: "column",
+              gap: "16px",
+              paddingLeft: "0",
+            }}
+          >
             {visibleCities.map((city) => {
               const isActive = selectedCity === city.name;
               return (
@@ -508,7 +529,6 @@ const ClubsWithMap = () => {
                     fontSize: "18px",
                     fontWeight: isActive ? 700 : 400,
                     color: isActive ? "#ffffff" : "#c8c8c8",
-                    marginBottom: "20px",
                     fontFamily: "Poppins, sans-serif",
                     borderLeft: isActive
                       ? "3px solid #DAC391"
@@ -518,6 +538,9 @@ const ClubsWithMap = () => {
                     textShadow: isActive
                       ? "0 2px 4px rgba(0, 0, 0, 0.3)"
                       : "none",
+                    background: "transparent",
+                    border: "none",
+                    cursor: "pointer",
                   }}
                   whileHover={{
                     scale: 1.05,
@@ -535,31 +558,40 @@ const ClubsWithMap = () => {
           {canScrollDown && (
             <button
               onClick={handleCityScrollDown}
-              className="w-full flex items-center justify-center mt-2 transition-all duration-300"
+              className="arrow-icon transition-all duration-300"
               style={{
-                padding: "8px",
-                background: "#ffffff",
+                alignSelf: "center",
+                marginTop: "18px",
+                width: "48px",
+                height: "48px",
                 borderRadius: "50%",
+                background: "rgba(255, 255, 255, 0.15)",
+                backdropFilter: "blur(6px)",
+                boxShadow: "0 2px 6px rgba(0, 0, 0, 0.25)",
                 border: "none",
-                width: "40px",
-                height: "40px",
-                margin: "0 auto",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
               }}
               onMouseEnter={(e) => {
+                e.currentTarget.style.background = "#DAC391";
+                e.currentTarget.style.transform = "scale(1.08)";
                 const icon = e.currentTarget.querySelector("svg");
                 if (icon) {
-                  (icon as SVGElement).style.filter =
-                    "drop-shadow(0 0 8px rgba(218, 195, 145, 0.8))";
+                  (icon as SVGElement).style.color = "#0b1a52";
                 }
               }}
               onMouseLeave={(e) => {
+                e.currentTarget.style.background = "rgba(255, 255, 255, 0.15)";
+                e.currentTarget.style.transform = "scale(1)";
                 const icon = e.currentTarget.querySelector("svg");
                 if (icon) {
-                  (icon as SVGElement).style.filter = "none";
+                  (icon as SVGElement).style.color = "#ffffff";
                 }
               }}
             >
-              <ChevronDown className="w-5 h-5" style={{ color: "#DAC391" }} />
+              <ChevronDown className="w-5.5 h-5.5" style={{ color: "#ffffff", width: "22px", height: "22px" }} />
             </button>
           )}
         </div>
