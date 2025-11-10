@@ -262,7 +262,15 @@ const ClubsWithMap = () => {
           height: "100vh",
           width: "100%",
           position: "absolute",
-          filter: "brightness(0.85) contrast(1.1)",
+          filter: "brightness(0.6) contrast(1.2)",
+        }}
+      />
+
+      {/* Dark Overlay for Better Text Contrast */}
+      <div
+        className="absolute inset-0 z-5 pointer-events-none"
+        style={{
+          background: "rgba(11, 26, 82, 0.4)",
         }}
       />
 
@@ -272,7 +280,7 @@ const ClubsWithMap = () => {
         style={{
           width: "30%",
           background:
-            "linear-gradient(90deg, rgba(11, 26, 82, 0.8) 0%, transparent 100%)",
+            "linear-gradient(90deg, rgba(11, 26, 82, 0.95) 0%, transparent 100%)",
         }}
       />
 
@@ -282,7 +290,7 @@ const ClubsWithMap = () => {
         style={{
           width: "30%",
           background:
-            "linear-gradient(270deg, rgba(11, 26, 82, 0.75) 0%, transparent 100%)",
+            "linear-gradient(270deg, rgba(11, 26, 82, 0.9) 0%, transparent 100%)",
         }}
       />
 
