@@ -249,21 +249,21 @@ const ClubsWithMap = () => {
         }}
       />
 
-      {/* Map Blur & Brightness Overlay */}
+      {/* Map Blur & Brightness Overlay - Lighter to show satellite imagery */}
       <div
         className="absolute inset-0 z-5 pointer-events-none"
         style={{
-          backdropFilter: "blur(2px) brightness(75%)",
-          WebkitBackdropFilter: "blur(2px) brightness(75%)",
+          backdropFilter: "blur(1px) brightness(85%)",
+          WebkitBackdropFilter: "blur(1px) brightness(85%)",
         }}
       />
 
-      {/* Gradient Overlay - Horizontal Left-to-Right (Exact Figma Spec) */}
+      {/* Gradient Overlay - More transparent to show satellite */}
       <div
         className="absolute inset-0 z-10 pointer-events-none"
         style={{
           background:
-            "linear-gradient(90deg, #0A1A3D 0%, rgba(10, 26, 61, 0.4) 60%, transparent 100%)",
+            "linear-gradient(90deg, rgba(10, 26, 61, 0.7) 0%, rgba(10, 26, 61, 0.3) 60%, transparent 100%)",
         }}
       />
 
