@@ -74,19 +74,19 @@ const ClubsWithMap = () => {
       version: 8,
       name: "Satellite Map",
       sources: {
-        "satellite": {
+        satellite: {
           type: "raster",
           tiles: [
-            "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+            "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
           ],
           tileSize: 256,
           attribution: "© Esri",
           maxzoom: 18,
         },
-        "labels": {
+        labels: {
           type: "raster",
           tiles: [
-            "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"
+            "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
           ],
           tileSize: 256,
           maxzoom: 18,
@@ -107,8 +107,8 @@ const ClubsWithMap = () => {
           minzoom: 0,
           maxzoom: 18,
           paint: {
-            "raster-opacity": 0.8
-          }
+            "raster-opacity": 0.8,
+          },
         },
       ],
     };
@@ -132,24 +132,28 @@ const ClubsWithMap = () => {
   // Initialize map with free Esri satellite imagery
   useEffect(() => {
     if (map.current || !mapStyleUrl) return;
-    
+
     let retryCount = 0;
     const maxRetries = 10;
-    
+
     const tryInitMap = () => {
       if (!mapContainer.current) {
         retryCount++;
         if (retryCount < maxRetries) {
-          console.log(`Map container not ready, retry ${retryCount}/${maxRetries}`);
+          console.log(
+            `Map container not ready, retry ${retryCount}/${maxRetries}`,
+          );
           setTimeout(tryInitMap, 100);
         } else {
-          console.error("Failed to initialize map: container not available after retries");
+          console.error(
+            "Failed to initialize map: container not available after retries",
+          );
         }
         return;
       }
 
       console.log("Initializing map with container:", mapContainer.current);
-      
+
       try {
         map.current = new maplibregl.Map({
           container: mapContainer.current,
@@ -165,19 +169,19 @@ const ClubsWithMap = () => {
         map.current.dragPan.disable();
         map.current.touchZoomRotate.disable();
         map.current.doubleClickZoom.disable();
-        
-        map.current.on('load', () => {
+
+        map.current.on("load", () => {
           console.log("✅ Map loaded successfully with satellite tiles!");
         });
 
-        map.current.on('error', (e) => {
+        map.current.on("error", (e) => {
           console.error("❌ Map error:", e);
         });
       } catch (error) {
         console.error("❌ Failed to create map:", error);
       }
     };
-    
+
     // Start trying to initialize
     const initTimeout = setTimeout(tryInitMap, 100);
 
@@ -295,7 +299,7 @@ const ClubsWithMap = () => {
           height: "100vh",
           width: "100%",
           position: "absolute",
-          filter: "brightness(0.5) contrast(1.3) saturate(0.8)",
+          // filter: "brightness(0.5) contrast(1.3) saturate(0.8)",
         }}
       />
 
@@ -386,14 +390,18 @@ const ClubsWithMap = () => {
                   color: isActive ? "#ffffff" : "#c8c8c8",
                   marginBottom: "20px",
                   fontFamily: "Poppins, sans-serif",
-                  borderLeft: isActive ? "3px solid #ffd54a" : "3px solid transparent",
+                  borderLeft: isActive
+                    ? "3px solid #ffd54a"
+                    : "3px solid transparent",
                   paddingLeft: "16px",
                   transition: "all 0.2s ease-in-out",
-                  textShadow: isActive ? "0 2px 4px rgba(0, 0, 0, 0.3)" : "none",
+                  textShadow: isActive
+                    ? "0 2px 4px rgba(0, 0, 0, 0.3)"
+                    : "none",
                 }}
-                whileHover={{ 
+                whileHover={{
                   scale: 1.05,
-                  color: "#ffffff"
+                  color: "#ffffff",
                 }}
                 transition={{ duration: 0.2 }}
               >
@@ -409,12 +417,18 @@ const ClubsWithMap = () => {
             onClick={() => {
               if (map.current && selectedClubId) {
                 const selectedClub = displayedClubs.find(
-                  (club) => club.id === selectedClubId
+                  (club) => club.id === selectedClubId,
                 );
                 if (selectedClub?.latitude && selectedClub?.longitude) {
                   setMapCenter({
-                    lat: typeof selectedClub.latitude === "number" ? selectedClub.latitude : 35.2517,
-                    lng: typeof selectedClub.longitude === "number" ? selectedClub.longitude : -3.9317,
+                    lat:
+                      typeof selectedClub.latitude === "number"
+                        ? selectedClub.latitude
+                        : 35.2517,
+                    lng:
+                      typeof selectedClub.longitude === "number"
+                        ? selectedClub.longitude
+                        : -3.9317,
                   });
                   setMapZoom(15);
                 }
@@ -502,11 +516,15 @@ const ClubsWithMap = () => {
                   style={{
                     width: "250px",
                     height: "110px",
-                    background: isHovered ? "rgba(255, 255, 255, 0.15)" : "rgba(255, 255, 255, 0.08)",
+                    background: isHovered
+                      ? "rgba(255, 255, 255, 0.15)"
+                      : "rgba(255, 255, 255, 0.08)",
                     borderRadius: "18px",
                     backdropFilter: "blur(12px)",
                     padding: "18px 22px",
-                    boxShadow: isHovered ? "0 0 10px rgba(255, 213, 74, 0.6)" : "none",
+                    boxShadow: isHovered
+                      ? "0 0 10px rgba(255, 213, 74, 0.6)"
+                      : "none",
                     transform: isHovered ? "scale(1.03)" : "scale(1)",
                   }}
                   initial={{ opacity: 0, y: 20 }}
@@ -538,7 +556,8 @@ const ClubsWithMap = () => {
                         width: "32px",
                         height: "32px",
                         objectFit: "contain",
-                        filter: "brightness(0) saturate(100%) invert(73%) sepia(78%) saturate(471%) hue-rotate(3deg) brightness(102%) contrast(101%)",
+                        filter:
+                          "brightness(0) saturate(100%) invert(73%) sepia(78%) saturate(471%) hue-rotate(3deg) brightness(102%) contrast(101%)",
                       }}
                     />
                   </div>
