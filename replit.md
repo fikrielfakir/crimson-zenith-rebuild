@@ -10,7 +10,7 @@ A React + Vite frontend application designed to showcase Morocco's sports clubs 
 
 ## System Architecture
 The application is a full-stack project utilizing a React + TypeScript + Vite frontend and an Express.js backend.
--   **Frontend**: React, TypeScript, Vite, React Router DOM for routing, TanStack Query for state management, and Tailwind CSS for styling. UI components are built with shadcn/ui and Radix UI primitives. Map integration is handled by Mapbox GL JS.
+-   **Frontend**: React, TypeScript, Vite, React Router DOM for routing, TanStack Query for state management, and Tailwind CSS for styling. UI components are built with shadcn/ui and Radix UI primitives. Map integration is handled by MapLibre GL JS with free Esri satellite imagery.
 -   **Backend**: Express.js server providing RESTful APIs.
 -   **Database**: MySQL (Hostinger) is the primary database, managed with Drizzle ORM and the mysql2 driver. The schema includes 23 tables for clubs, events, users, CMS content, and more. PostgreSQL environment variables exist in Replit but are not utilized.
 -   **UI/UX Decisions**: The application adopts a modern, responsive design with a consistent theme using primary color #112250 (navy blue) and secondary color #D8C18D (gold/beige). The admin interface is comprehensive, featuring sidebar navigation, form validation, and error handling.
@@ -28,7 +28,7 @@ The application is a full-stack project utilizing a React + TypeScript + Vite fr
 -   **Database**: MySQL (Hostinger)
 -   **ORM**: Drizzle ORM
 -   **UI Components**: shadcn/ui, Radix UI
--   **Mapping**: Mapbox GL JS
+-   **Mapping**: MapLibre GL JS (with Esri satellite tiles)
 -   **Frontend Framework**: React
 -   **Build Tool**: Vite
 -   **Styling**: Tailwind CSS
