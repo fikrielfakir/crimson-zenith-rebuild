@@ -16,7 +16,7 @@ const PresidentMessage = () => {
               />
               <div className="relative overflow-hidden rounded-lg shadow-2xl">
                 <img
-                  src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=800"
+                  src="/attached_assets/527458761_17954306891994519_4667490874676487214_n_1762796640998.jpg"
                   alt="President"
                   className="w-full h-[500px] object-cover transition-transform duration-300 group-hover:scale-105"
                   style={{
@@ -37,7 +37,7 @@ const PresidentMessage = () => {
                       textShadow: "0 2px 8px rgba(0,0,0,0.5)"
                     }}
                   >
-                    Dr. Ahmed Hassan
+                    Dr. Aderahim Azrkan
                   </h3>
                   <p
                     className="text-secondary"
