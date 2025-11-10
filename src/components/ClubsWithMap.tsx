@@ -68,35 +68,50 @@ const ClubsWithMap = () => {
   const displayedClubs =
     filteredClubs.length > 0 ? filteredClubs : clubs.slice(0, 3);
 
-  // Create satellite map style
+  // Create free satellite map style (Esri World Imagery - Free Alternative)
   useEffect(() => {
     const satelliteStyle = {
       version: 8,
-      name: "Satellite",
+      name: "Free Satellite Map",
       sources: {
-        "esri-satellite": {
+        "satellite-tiles": {
           type: "raster",
           tiles: [
-            "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+            "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
           ],
           tileSize: 256,
-          attribution:
-            "© Esri, Maxar, Earthstar Geographics, CNES/Airbus DS, USDA FSA, USGS, Aerogrid, IGN, IGP, and the GIS User Community",
+          attribution: "© Esri, DigitalGlobe, GeoEye, Earthstar Geographics, CNES/Airbus DS, USDA, USGS, AeroGRID, IGN, and the GIS User Community",
+          maxzoom: 19,
+        },
+        "labels": {
+          type: "raster",
+          tiles: [
+            "https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
+          ],
+          tileSize: 256,
+          maxzoom: 19,
         },
       },
       layers: [
         {
-          id: "satellite",
+          id: "satellite-base",
           type: "raster",
-          source: "esri-satellite",
+          source: "satellite-tiles",
           minzoom: 0,
-          maxzoom: 22,
+          maxzoom: 19,
+        },
+        {
+          id: "satellite-labels",
+          type: "raster",
+          source: "labels",
+          minzoom: 0,
+          maxzoom: 19,
         },
       ],
     };
 
     setMapStyleUrl(satelliteStyle as any);
-    console.log("Using satellite imagery");
+    console.log("Using free Esri satellite imagery with labels");
   }, []);
 
   // Debug map initialization
@@ -117,7 +132,7 @@ const ClubsWithMap = () => {
     }
   }, [displayedClubs, selectedClubId]);
 
-  // Initialize map with MapTiler satellite imagery
+  // Initialize map with free Esri satellite imagery
   useEffect(() => {
     if (map.current || !mapContainer.current || !mapStyleUrl) return;
 
