@@ -110,11 +110,12 @@ const ClubsWithMap = () => {
       };
     }) || [];
 
-  const filteredClubs = selectedCity === "All Cities" 
-    ? clubs 
-    : clubs.filter((club) =>
-        club.location.toLowerCase().includes(selectedCity.toLowerCase()),
-      );
+  const filteredClubs =
+    selectedCity === "All Cities"
+      ? clubs
+      : clubs.filter((club) =>
+          club.location.toLowerCase().includes(selectedCity.toLowerCase()),
+        );
 
   const displayedClubs = filteredClubs;
 
@@ -168,7 +169,11 @@ const ClubsWithMap = () => {
   }, []);
 
   useEffect(() => {
-    if (selectedCity !== "All Cities" && displayedClubs.length > 0 && selectedClubId === null) {
+    if (
+      selectedCity !== "All Cities" &&
+      displayedClubs.length > 0 &&
+      selectedClubId === null
+    ) {
       const firstClub = displayedClubs[0];
       setSelectedClubId(firstClub.id);
       const lat =
@@ -644,11 +649,10 @@ const ClubsWithMap = () => {
           {displayedClubs.length === 0 && selectedCity !== "All Cities" ? (
             <div
               style={{
-                padding: "30px 50px",
+                padding: "15px 25px",
                 background: "rgba(255, 255, 255, 0.15)",
                 backdropFilter: "blur(12px)",
                 borderRadius: "16px",
-                border: "2px solid rgba(255, 214, 69, 0.3)",
                 fontFamily: "Poppins, sans-serif",
               }}
             >
@@ -678,112 +682,187 @@ const ClubsWithMap = () => {
           ) : (
             <AnimatePresence mode="popLayout">
               {displayedClubs.map((club, index) => {
-              const isSelected = selectedClubId === club.id;
-              const isHovered = hoveredClubId === club.id;
+                const isSelected = selectedClubId === club.id;
+                const isHovered = hoveredClubId === club.id;
 
-              return (
-                <motion.div
-                  key={club.id}
-                  onClick={() => handleClubClick(club)}
-                  onMouseEnter={() => setHoveredClubId(club.id)}
-                  onMouseLeave={() => setHoveredClubId(null)}
-                  className="relative flex-shrink-0 cursor-pointer overflow-hidden transition-all duration-300 club-card"
-                  style={{
-                    width: isSelected ? "380px" : "200px",
-                    height: isSelected ? "160px" : "90px",
-                    borderRadius: "16px",
-                    background: isSelected
-                      ? "rgba(255, 255, 255, 0.15)"
-                      : "rgba(255, 255, 255, 0.08)",
-                    backdropFilter: "blur(12px)",
-                    boxShadow: isSelected
-                      ? "0 0 20px rgba(255, 213, 74, 0.8), 0 4px 15px rgba(0, 0, 0, 0.3)"
-                      : isHovered
-                        ? "0 0 15px rgba(255, 213, 74, 0.5)"
-                        : "0 2px 8px rgba(0, 0, 0, 0.2)",
-                    transform: isSelected
-                      ? "scale(1.05)"
-                      : isHovered
-                        ? "scale(1.02)"
-                        : "scale(1)",
-                    border: isSelected
-                      ? "2px solid #FFD645"
-                      : "2px solid transparent",
-                  }}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{
-                    opacity: 1,
-                    y: 0,
-                  }}
-                  transition={{
-                    type: "spring",
-                    stiffness: 300,
-                    damping: 25,
-                    delay: index * 0.1,
-                  }}
-                >
-                  {isSelected ? (
-                    // Active Card Design - with image, address, and More Details button
-                    <div className="flex h-full">
-                      {/* Left Side - Club Image/Icon with Gradient Background */}
-                      <div
-                        className="flex-shrink-0 relative flex items-center justify-center"
-                        style={{
-                          width: "140px",
-                          background:
-                            "linear-gradient(135deg, #FFD645 0%, #FFA500 100%)",
-                        }}
-                      >
+                return (
+                  <motion.div
+                    key={club.id}
+                    onClick={() => handleClubClick(club)}
+                    onMouseEnter={() => setHoveredClubId(club.id)}
+                    onMouseLeave={() => setHoveredClubId(null)}
+                    className="relative flex-shrink-0 cursor-pointer overflow-hidden transition-all duration-300 club-card"
+                    style={{
+                      width: isSelected ? "380px" : "200px",
+                      height: isSelected ? "160px" : "90px",
+                      borderRadius: "16px",
+                      background: isSelected
+                        ? "rgba(255, 255, 255, 0.15)"
+                        : "rgba(255, 255, 255, 0.08)",
+                      backdropFilter: "blur(12px)",
+                      boxShadow: isSelected
+                        ? "0 0 20px rgba(255, 213, 74, 0.8), 0 4px 15px rgba(0, 0, 0, 0.3)"
+                        : isHovered
+                          ? "0 0 15px rgba(255, 213, 74, 0.5)"
+                          : "0 2px 8px rgba(0, 0, 0, 0.2)",
+                      transform: isSelected
+                        ? "scale(1.05)"
+                        : isHovered
+                          ? "scale(1.02)"
+                          : "scale(1)",
+                      border: isSelected
+                        ? "2px solid #FFD645"
+                        : "2px solid transparent",
+                    }}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{
+                      opacity: 1,
+                      y: 0,
+                    }}
+                    transition={{
+                      type: "spring",
+                      stiffness: 300,
+                      damping: 25,
+                      delay: index * 0.1,
+                    }}
+                  >
+                    {isSelected ? (
+                      // Active Card Design - with image, address, and More Details button
+                      <div className="flex h-full">
+                        {/* Left Side - Club Image/Icon with Gradient Background */}
                         <div
-                          className="rounded-full flex items-center justify-center"
+                          className="flex-shrink-0 relative flex items-center justify-center"
                           style={{
-                            width: "70px",
-                            height: "70px",
-                            background: "#ffffff",
-                            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+                            width: "140px",
+                            background:
+                              "linear-gradient(135deg, #FFD645 0%, #FFA500 100%)",
                           }}
                         >
-                          <img
-                            src={club.image || birdLogo}
-                            alt={club.name}
+                          <div
+                            className="rounded-full flex items-center justify-center"
                             style={{
-                              width: club.image ? "70px" : "40px",
-                              height: club.image ? "70px" : "40px",
-                              objectFit: "cover",
-                              borderRadius: club.image ? "50%" : "0",
-                              filter: club.image
-                                ? "none"
-                                : "brightness(0) saturate(100%) invert(73%) sepia(78%) saturate(471%) hue-rotate(3deg) brightness(102%) contrast(101%)",
+                              width: "70px",
+                              height: "70px",
+                              background: "#ffffff",
+                              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
                             }}
-                          />
+                          >
+                            <img
+                              src={club.image || birdLogo}
+                              alt={club.name}
+                              style={{
+                                width: club.image ? "70px" : "40px",
+                                height: club.image ? "70px" : "40px",
+                                objectFit: "cover",
+                                borderRadius: club.image ? "50%" : "0",
+                                filter: club.image
+                                  ? "none"
+                                  : "brightness(0) saturate(100%) invert(73%) sepia(78%) saturate(471%) hue-rotate(3deg) brightness(102%) contrast(101%)",
+                              }}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Gradient Separator */}
+                        <div
+                          style={{
+                            width: "3px",
+                            background:
+                              "linear-gradient(180deg, rgba(255, 214, 69, 0.3) 0%, rgba(255, 214, 69, 0.8) 50%, rgba(255, 214, 69, 0.3) 100%)",
+                          }}
+                        />
+
+                        {/* Right Side - Club Information */}
+                        <div
+                          className="flex-1 flex flex-col justify-center"
+                          style={{
+                            padding: "16px 18px",
+                            background: "transparent",
+                          }}
+                        >
+                          {/* Club Name */}
+                          <h3
+                            style={{
+                              fontFamily: "Poppins, sans-serif",
+                              fontSize: "18px",
+                              fontWeight: 700,
+                              color: "#ffffff",
+                              marginBottom: "6px",
+                              whiteSpace: "nowrap",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              textShadow: "0 2px 4px rgba(0, 0, 0, 0.3)",
+                            }}
+                          >
+                            {club.name}
+                          </h3>
+
+                          {/* Address/Location */}
+                          <p
+                            style={{
+                              fontFamily: "Poppins, sans-serif",
+                              fontSize: "13px",
+                              fontWeight: 400,
+                              color: "#e0e0e0",
+                              marginBottom: "10px",
+                              whiteSpace: "nowrap",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                            }}
+                          >
+                            📍 {club.location}
+                          </p>
+
+                          {/* More Details Button */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/clubs/${club.id}`);
+                            }}
+                            className="transition-all duration-300"
+                            style={{
+                              padding: "8px 16px",
+                              borderRadius: "8px",
+                              background:
+                                "linear-gradient(135deg, #FFD645 0%, #FFB800 100%)",
+                              color: "#0b1a52",
+                              fontFamily: "Poppins, sans-serif",
+                              fontSize: "13px",
+                              fontWeight: 600,
+                              border: "none",
+                              cursor: "pointer",
+                              boxShadow: "0 2px 8px rgba(255, 214, 69, 0.3)",
+                              width: "fit-content",
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background =
+                                "linear-gradient(135deg, #FFE066 0%, #FFC633 100%)";
+                              e.currentTarget.style.transform = "scale(1.05)";
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background =
+                                "linear-gradient(135deg, #FFD645 0%, #FFB800 100%)";
+                              e.currentTarget.style.transform = "scale(1)";
+                            }}
+                          >
+                            More Details
+                          </button>
                         </div>
                       </div>
-
-                      {/* Gradient Separator */}
+                    ) : (
+                      // Inactive Card Design - minimal, no image, just name and location
                       <div
-                        style={{
-                          width: "3px",
-                          background:
-                            "linear-gradient(180deg, rgba(255, 214, 69, 0.3) 0%, rgba(255, 214, 69, 0.8) 50%, rgba(255, 214, 69, 0.3) 100%)",
-                        }}
-                      />
-
-                      {/* Right Side - Club Information */}
-                      <div
-                        className="flex-1 flex flex-col justify-center"
-                        style={{
-                          padding: "16px 18px",
-                          background: "transparent",
-                        }}
+                        className="flex flex-col justify-center h-full"
+                        style={{ padding: "12px 16px" }}
                       >
                         {/* Club Name */}
                         <h3
                           style={{
                             fontFamily: "Poppins, sans-serif",
-                            fontSize: "18px",
-                            fontWeight: 700,
+                            fontSize: "15px",
+                            fontWeight: 600,
                             color: "#ffffff",
-                            marginBottom: "6px",
+                            marginBottom: "4px",
                             whiteSpace: "nowrap",
                             overflow: "hidden",
                             textOverflow: "ellipsis",
@@ -793,101 +872,26 @@ const ClubsWithMap = () => {
                           {club.name}
                         </h3>
 
-                        {/* Address/Location */}
+                        {/* Club's Actual Location */}
                         <p
                           style={{
                             fontFamily: "Poppins, sans-serif",
-                            fontSize: "13px",
+                            fontSize: "12px",
                             fontWeight: 400,
-                            color: "#e0e0e0",
-                            marginBottom: "10px",
+                            color: "#c8c8c8",
                             whiteSpace: "nowrap",
                             overflow: "hidden",
                             textOverflow: "ellipsis",
                           }}
                         >
-                          📍 {club.location}
+                          {club.location}
                         </p>
-
-                        {/* More Details Button */}
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            navigate(`/clubs/${club.id}`);
-                          }}
-                          className="transition-all duration-300"
-                          style={{
-                            padding: "8px 16px",
-                            borderRadius: "8px",
-                            background:
-                              "linear-gradient(135deg, #FFD645 0%, #FFB800 100%)",
-                            color: "#0b1a52",
-                            fontFamily: "Poppins, sans-serif",
-                            fontSize: "13px",
-                            fontWeight: 600,
-                            border: "none",
-                            cursor: "pointer",
-                            boxShadow: "0 2px 8px rgba(255, 214, 69, 0.3)",
-                            width: "fit-content",
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.background =
-                              "linear-gradient(135deg, #FFE066 0%, #FFC633 100%)";
-                            e.currentTarget.style.transform = "scale(1.05)";
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.background =
-                              "linear-gradient(135deg, #FFD645 0%, #FFB800 100%)";
-                            e.currentTarget.style.transform = "scale(1)";
-                          }}
-                        >
-                          More Details
-                        </button>
                       </div>
-                    </div>
-                  ) : (
-                    // Inactive Card Design - minimal, no image, just name and location
-                    <div
-                      className="flex flex-col justify-center h-full"
-                      style={{ padding: "12px 16px" }}
-                    >
-                      {/* Club Name */}
-                      <h3
-                        style={{
-                          fontFamily: "Poppins, sans-serif",
-                          fontSize: "15px",
-                          fontWeight: 600,
-                          color: "#ffffff",
-                          marginBottom: "4px",
-                          whiteSpace: "nowrap",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          textShadow: "0 2px 4px rgba(0, 0, 0, 0.3)",
-                        }}
-                      >
-                        {club.name}
-                      </h3>
-
-                      {/* Club's Actual Location */}
-                      <p
-                        style={{
-                          fontFamily: "Poppins, sans-serif",
-                          fontSize: "12px",
-                          fontWeight: 400,
-                          color: "#c8c8c8",
-                          whiteSpace: "nowrap",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                        }}
-                      >
-                        {club.location}
-                      </p>
-                    </div>
-                  )}
-                </motion.div>
-              );
-            })}
-          </AnimatePresence>
+                    )}
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
           )}
         </div>
       </div>
