@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { Plus, Minus, Settings } from "lucide-react";
+import { Plus, Minus, Locate } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Club } from "../../shared/schema";
 import birdLogo from "@/assets/attached_assets/Group 288941_1762708813825.png";
@@ -244,58 +244,58 @@ const ClubsWithMap = () => {
         id="clubs-map"
         className="absolute inset-0 z-0"
         style={{
-          height: "100%",
+          height: "100vh",
           width: "100%",
           position: "absolute",
         }}
       />
 
-      {/* Map Blur & Brightness Overlay - Lighter to show satellite imagery */}
-      <div
-        className="absolute inset-0 z-5 pointer-events-none"
-        style={{
-          backdropFilter: "blur(1px) brightness(85%)",
-          WebkitBackdropFilter: "blur(1px) brightness(85%)",
-        }}
-      />
-
-      {/* Gradient Overlay - More transparent to show satellite */}
+      {/* Navy Overlay Gradient (85% opacity from left to right) */}
       <div
         className="absolute inset-0 z-10 pointer-events-none"
         style={{
           background:
-            "linear-gradient(90deg, rgba(10, 26, 61, 0.7) 0%, rgba(10, 26, 61, 0.3) 60%, transparent 100%)",
+            "linear-gradient(90deg, rgba(11, 26, 82, 0.85) 0%, rgba(11, 26, 82, 0.4) 50%, rgba(11, 26, 82, 0.2) 100%)",
+        }}
+      />
+
+      {/* Top to bottom gradient overlay */}
+      <div
+        className="absolute inset-0 z-10 pointer-events-none"
+        style={{
+          background:
+            "linear-gradient(180deg, rgba(11, 26, 82, 0.3) 0%, transparent 50%)",
         }}
       />
 
       {/* Content Container */}
       <div className="relative z-20 h-full">
-        {/* Header Section - Top Center with Exact Typography */}
+        {/* Title and Subtitle - Top-Center */}
         <div
           className="absolute left-1/2 transform -translate-x-1/2 text-center w-full max-w-4xl px-4"
-          style={{ top: "60px" }}
+          style={{ top: "120px" }}
         >
           <h2
-            className="text-white mb-3"
+            className="text-white title-main"
             style={{
               fontFamily: "Poppins, sans-serif",
-              fontSize: "48px",
-              fontWeight: 800,
+              fontSize: "50px",
+              fontWeight: 700,
               letterSpacing: "0.5px",
-              textShadow: "0 2px 8px rgba(0, 0, 0, 0.3)",
+              textShadow: "0 2px 6px rgba(0, 0, 0, 0.3)",
+              marginBottom: "8px",
             }}
           >
             Our Clubs
           </h2>
           <p
-            className="mx-auto"
+            className="mx-auto subtitle-text"
             style={{
               fontFamily: "Poppins, sans-serif",
-              fontSize: "20px",
-              fontWeight: 500,
-              color: "#FFFFFFCC",
-              maxWidth: "700px",
-              marginBottom: "40px",
+              fontSize: "18px",
+              fontWeight: 400,
+              color: "#d6d6d6",
+              letterSpacing: "0.3px",
               textShadow: "0 2px 6px rgba(0, 0, 0, 0.3)",
             }}
           >
@@ -303,17 +303,14 @@ const ClubsWithMap = () => {
           </p>
         </div>
 
-        {/* Left Sidebar - City List with Exact Specs */}
+        {/* Sidebar (Cities List) - Left Side */}
         <div
-          className="absolute left-0 top-1/2 transform -translate-y-1/2"
+          className="absolute left-0 top-1/2 transform -translate-y-1/2 sidebar-cities"
           style={{
+            width: "260px",
+            padding: "60px 40px",
+            background: "rgba(11, 26, 82, 0.9)",
             fontFamily: "Poppins, sans-serif",
-            width: "240px",
-            paddingLeft: "80px",
-            paddingTop: "40px",
-            paddingBottom: "40px",
-            background: "rgba(10, 26, 61, 0.3)",
-            // backdropFilter: "blur(2px)",
           }}
         >
           {moroccanCities.map((city) => {
@@ -325,73 +322,107 @@ const ClubsWithMap = () => {
                 className="relative block text-left w-full group"
                 style={{
                   fontSize: "18px",
-                  fontWeight: isActive ? 600 : 400,
-                  color: isActive ? "#FFFFFF" : "#FFFFFF99",
+                  fontWeight: isActive ? 700 : 400,
+                  color: isActive ? "#ffffff" : "#d6d6d6",
                   marginBottom: "20px",
                   fontFamily: "Poppins, sans-serif",
+                  borderLeft: isActive ? "2px solid #ffd54a" : "2px solid transparent",
+                  paddingLeft: isActive ? "16px" : "16px",
+                  transition: "all 0.2s ease-in-out",
                 }}
-                whileHover={{ color: "#FFFFFF" }}
-                transition={{ duration: 0.3 }}
+                whileHover={{ 
+                  scale: 1.05,
+                  color: "#ffffff"
+                }}
+                transition={{ duration: 0.2 }}
               >
-                {isActive && (
-                  <motion.div
-                    className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-[60px] w-[3px] h-[24px]"
-                    style={{
-                      background:
-                        "linear-gradient(180deg, #FFD645 0%, #FFB800 100%)",
-                    }}
-                    layoutId="activeIndicator"
-                  />
-                )}
                 {city.name}
               </motion.button>
             );
           })}
         </div>
 
-        {/* Map Controls - Right Side */}
-        <div className="absolute right-8 top-1/2 transform -translate-y-1/2 flex flex-col gap-4">
+        {/* Map Controls (Zoom / Locate) - Right Center */}
+        <div className="absolute right-8 top-1/2 transform -translate-y-1/2 flex flex-col gap-3 map-controls">
           <button
-            onClick={() => {}}
-            className="relative w-11 h-11 rounded-full flex items-center justify-center text-white transition-all duration-300 group"
-            style={{
-              background: "rgba(255, 255, 255, 0.15)",
-              border: "1px solid rgba(255, 255, 255, 0.3)",
+            onClick={() => {
+              if (map.current && selectedClubId) {
+                const selectedClub = displayedClubs.find(
+                  (club) => club.id === selectedClubId
+                );
+                if (selectedClub?.latitude && selectedClub?.longitude) {
+                  setMapCenter({
+                    lat: typeof selectedClub.latitude === "number" ? selectedClub.latitude : 35.2517,
+                    lng: typeof selectedClub.longitude === "number" ? selectedClub.longitude : -3.9317,
+                  });
+                  setMapZoom(15);
+                }
+              }
             }}
-            title="Settings"
+            className="rounded-full flex items-center justify-center transition-all duration-300"
+            style={{
+              width: "45px",
+              height: "45px",
+              background: "#ffffff",
+              boxShadow: "0 0 10px rgba(0, 0, 0, 0.25)",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "#ffd54a";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "#ffffff";
+            }}
+            title="Locate Selected Club"
           >
-            <Settings className="w-5 h-5" />
+            <Locate className="w-5 h-5" style={{ color: "#0b1a52" }} />
           </button>
           <button
             onClick={handleZoomIn}
-            className="relative w-11 h-11 rounded-full flex items-center justify-center text-white transition-all duration-300 group hover:bg-[rgba(255,255,255,0.25)]"
+            className="rounded-full flex items-center justify-center transition-all duration-300"
             style={{
-              background: "rgba(255, 255, 255, 0.15)",
-              border: "1px solid rgba(255, 255, 255, 0.3)",
+              width: "45px",
+              height: "45px",
+              background: "#ffffff",
+              boxShadow: "0 0 10px rgba(0, 0, 0, 0.25)",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "#ffd54a";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "#ffffff";
             }}
             title="Zoom In"
           >
-            <Plus className="w-5 h-5" />
+            <Plus className="w-5 h-5" style={{ color: "#0b1a52" }} />
           </button>
           <button
             onClick={handleZoomOut}
-            className="relative w-11 h-11 rounded-full flex items-center justify-center text-white transition-all duration-300 group hover:bg-[rgba(255,255,255,0.25)]"
+            className="rounded-full flex items-center justify-center transition-all duration-300"
             style={{
-              background: "rgba(255, 255, 255, 0.15)",
-              border: "1px solid rgba(255, 255, 255, 0.3)",
+              width: "45px",
+              height: "45px",
+              background: "#ffffff",
+              boxShadow: "0 0 10px rgba(0, 0, 0, 0.25)",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "#ffd54a";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "#ffffff";
             }}
             title="Zoom Out"
           >
-            <Minus className="w-5 h-5" />
+            <Minus className="w-5 h-5" style={{ color: "#0b1a52" }} />
           </button>
         </div>
 
-        {/* Club Cards - Bottom Center with Exact Figma Specs */}
+        {/* Bottom Club Cards - Glassmorphism Design */}
         <div
-          className="absolute left-1/2 transform -translate-x-1/2 flex gap-6 px-4 overflow-x-auto scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent pb-2"
+          className="absolute left-1/2 transform -translate-x-1/2 flex gap-10 px-4 overflow-x-auto scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent pb-2 club-cards-container"
           style={{
-            bottom: "120px",
-            maxWidth: "90%",
+            bottom: "50px",
+            maxWidth: "80%",
+            justifyContent: "center",
           }}
         >
           <AnimatePresence mode="popLayout">
@@ -405,10 +436,16 @@ const ClubsWithMap = () => {
                   onClick={() => handleClubClick(club)}
                   onMouseEnter={() => setHoveredClubId(club.id)}
                   onMouseLeave={() => setHoveredClubId(null)}
-                  className="relative flex-shrink-0 cursor-pointer"
+                  className="relative flex-shrink-0 cursor-pointer flex items-center gap-3 transition-all duration-300 club-card"
                   style={{
-                    width: "300px",
-                    minHeight: "auto",
+                    width: "240px",
+                    height: "100px",
+                    background: isHovered ? "rgba(255, 255, 255, 0.15)" : "rgba(255, 255, 255, 0.08)",
+                    borderRadius: "16px",
+                    backdropFilter: "blur(12px)",
+                    padding: "16px 22px",
+                    boxShadow: isHovered ? "0 0 10px rgba(255, 213, 74, 0.6)" : "none",
+                    transform: isHovered ? "scale(1.05)" : "scale(1)",
                   }}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{
@@ -422,61 +459,75 @@ const ClubsWithMap = () => {
                     delay: index * 0.1,
                   }}
                 >
-                  <div className="flex items-start gap-4">
-                    {/* Club Icon - White circle with yellow bird */}
-                    <div
-                      className="flex-shrink-0 rounded-full flex items-center justify-center border-2 border-white"
+                  {/* Club Icon - White circle with yellow bird */}
+                  <div
+                    className="flex-shrink-0 rounded-full flex items-center justify-center"
+                    style={{
+                      width: "56px",
+                      height: "56px",
+                      background: "#ffffff",
+                      boxShadow: "0 2px 5px rgba(0, 0, 0, 0.25)",
+                    }}
+                  >
+                    <img
+                      src={birdLogo}
+                      alt="Club Icon"
                       style={{
-                        width: "64px",
-                        height: "64px",
-                        background: "#FFFFFF",
+                        width: "32px",
+                        height: "32px",
+                        objectFit: "contain",
+                        filter: "brightness(0) saturate(100%) invert(73%) sepia(78%) saturate(471%) hue-rotate(3deg) brightness(102%) contrast(101%)",
+                      }}
+                    />
+                  </div>
+
+                  <div className="flex-1 min-w-0">
+                    {/* Club Name */}
+                    <h3
+                      style={{
+                        fontFamily: "Poppins, sans-serif",
+                        fontSize: "18px",
+                        fontWeight: 700,
+                        color: "#ffffff",
+                        marginBottom: "2px",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
                       }}
                     >
-                      <img
-                        src={birdLogo}
-                        alt="Club Icon"
-                        className="w-10 h-10 object-contain"
-                      />
-                    </div>
+                      {club.name}
+                    </h3>
 
-                    <div className="flex-1 min-w-0">
-                      {/* Club Name */}
-                      <h3
-                        className="text-white mb-1 group-hover:text-yellow-400 transition-colors"
-                        style={{
-                          fontFamily: "Poppins, sans-serif",
-                          fontSize: "18px",
-                          fontWeight: 700,
-                        }}
-                      >
-                        {club.name}
-                      </h3>
+                    {/* Address/Location */}
+                    <p
+                      style={{
+                        fontFamily: "Poppins, sans-serif",
+                        fontSize: "14px",
+                        fontWeight: 500,
+                        color: "#d6d6d6",
+                        marginBottom: "2px",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      {club.location}
+                    </p>
 
-                      {/* Club Location */}
-                      <p
-                        className="mb-0.5"
-                        style={{
-                          fontFamily: "Poppins, sans-serif",
-                          fontSize: "14px",
-                          fontWeight: 400,
-                          color: "#FFFFFFB3",
-                        }}
-                      >
-                        {club.location}
-                      </p>
-
-                      {/* Member Count */}
-                      <p
-                        style={{
-                          fontFamily: "Poppins, sans-serif",
-                          fontSize: "13px",
-                          fontWeight: 400,
-                          color: "#FFFFFF99",
-                        }}
-                      >
-                        {club.memberCount || "62"}
-                      </p>
-                    </div>
+                    {/* City */}
+                    <p
+                      style={{
+                        fontFamily: "Poppins, sans-serif",
+                        fontSize: "14px",
+                        fontWeight: 400,
+                        color: "#bfbfbf",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      {selectedCity}
+                    </p>
                   </div>
                 </motion.div>
               );
@@ -485,8 +536,10 @@ const ClubsWithMap = () => {
         </div>
       </div>
 
-      {/* Custom Scrollbar Styles */}
+      {/* Custom Scrollbar Styles & Responsive Design */}
       <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+        
         .scrollbar-thin::-webkit-scrollbar {
           height: 8px;
         }
@@ -504,7 +557,64 @@ const ClubsWithMap = () => {
           background: rgba(255, 255, 255, 0.3);
         }
 
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;800&display=swap');
+        /* Responsive Adjustments - Tablet (max-width 1024px) */
+        @media (max-width: 1024px) {
+          #clubs .sidebar-cities {
+            width: 200px !important;
+            padding: 40px 30px !important;
+          }
+          
+          #clubs .title-main {
+            font-size: 40px !important;
+          }
+          
+          #clubs .club-cards-container {
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 95% !important;
+          }
+          
+          #clubs .club-card {
+            width: calc(50% - 20px) !important;
+          }
+        }
+
+        /* Responsive Adjustments - Mobile (max-width 768px) */
+        @media (max-width: 768px) {
+          #clubs .sidebar-cities {
+            display: none !important;
+          }
+          
+          #clubs .title-main {
+            font-size: 32px !important;
+          }
+          
+          #clubs .subtitle-text {
+            font-size: 16px !important;
+          }
+          
+          #clubs .map-controls button {
+            width: 36px !important;
+            height: 36px !important;
+          }
+          
+          #clubs .map-controls button svg {
+            width: 16px !important;
+            height: 16px !important;
+          }
+          
+          #clubs .club-cards-container {
+            overflow-x: auto;
+            flex-wrap: nowrap;
+            max-width: 95% !important;
+            padding-bottom: 10px;
+          }
+          
+          #clubs .club-card {
+            width: 240px !important;
+            min-width: 240px !important;
+          }
+        }
       `}</style>
     </section>
   );
