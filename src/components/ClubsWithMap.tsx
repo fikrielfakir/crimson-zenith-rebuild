@@ -68,7 +68,7 @@ const ClubsWithMap = () => {
   const displayedClubs =
     filteredClubs.length > 0 ? filteredClubs : clubs.slice(0, 3);
 
-  // Fetch map style URL on component mount
+  // Fetch map style URL on component mount with fallback
   useEffect(() => {
     const fetchMapStyle = async () => {
       try {
@@ -76,13 +76,25 @@ const ClubsWithMap = () => {
         if (response.ok) {
           const data = await response.json();
           setMapStyleUrl(data.styleUrl);
+        } else {
+          // ✅ fallback to demo MapLibre style
+          console.log('Using fallback map style');
+          setMapStyleUrl("https://demotiles.maplibre.org/style.json");
         }
       } catch (error) {
         console.error('Failed to fetch map style:', error);
+        // ✅ fallback style
+        setMapStyleUrl("https://demotiles.maplibre.org/style.json");
       }
     };
     fetchMapStyle();
   }, []);
+
+  // Debug map initialization
+  useEffect(() => {
+    console.log("Map container:", mapContainer.current);
+    console.log("Map style URL:", mapStyleUrl);
+  }, [mapStyleUrl]);
 
   useEffect(() => {
     if (displayedClubs.length > 0 && selectedClubId === null) {
@@ -217,11 +229,25 @@ const ClubsWithMap = () => {
       id="clubs"
       className="relative w-full h-screen overflow-hidden scroll-mt-0"
     >
-      {/* Satellite Map Background with Blur */}
+      {/* Satellite Map Background */}
       <div
         ref={mapContainer}
+        id="clubs-map"
         className="absolute inset-0 z-0"
-        style={{ filter: "blur(2px) brightness(75%)" }}
+        style={{
+          height: "100%",
+          width: "100%",
+          position: "absolute",
+        }}
+      />
+
+      {/* Map Blur & Brightness Overlay */}
+      <div
+        className="absolute inset-0 z-5 pointer-events-none"
+        style={{
+          backdropFilter: "blur(2px) brightness(75%)",
+          WebkitBackdropFilter: "blur(2px) brightness(75%)",
+        }}
       />
 
       {/* Gradient Overlay - Horizontal Left-to-Right (Exact Figma Spec) */}

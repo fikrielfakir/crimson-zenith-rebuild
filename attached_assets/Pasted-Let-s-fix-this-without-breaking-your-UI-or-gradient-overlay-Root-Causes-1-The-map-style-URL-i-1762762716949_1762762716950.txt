@@ -1,0 +1,126 @@
+Let’s fix this without breaking your UI or gradient overlay.
+
+🧭 Root Causes
+1️⃣ The map style URL is null
+
+You fetch it asynchronously from:
+
+const response = await fetch('/api/config/map-style');
+
+
+If that endpoint returns nothing, mapStyleUrl stays null, so this early return triggers:
+
+if (map.current || !mapContainer.current || !mapStyleUrl) return;
+
+
+➡️ Map never initializes.
+
+2️⃣ The map container might have zero height
+
+Your map div:
+
+<div ref={mapContainer} className="absolute inset-0 z-0" />
+
+
+If the parent section doesn’t have h-screen or another fixed height applied at render time, MapLibre renders a blank transparent layer.
+
+3️⃣ CSS overlay order / filters
+
+This part:
+
+style={{ filter: "blur(2px) brightness(75%)" }}
+
+
+If the overlay gradient sits below the map by mistake or z-index overlaps incorrectly, the map can appear "gone" (it’s just hidden behind a dark gradient).
+
+✅ Complete Fix
+
+Here’s a minimal corrected approach to make the map always visible:
+
+🧩 Replace your map container block with this:
+{/* Satellite Map Background */}
+<div
+  ref={mapContainer}
+  id="clubs-map"
+  className="absolute inset-0 z-0"
+  style={{
+    height: "100%",
+    width: "100%",
+    position: "absolute",
+  }}
+/>
+
+{/* Gradient Overlay */}
+<div
+  className="absolute inset-0 z-10 pointer-events-none"
+  style={{
+    background:
+      "linear-gradient(90deg, #0A1A3D 0%, rgba(10,26,61,0.4) 60%, transparent 100%)",
+  }}
+/>
+
+🧭 Ensure your parent container section has:
+<section id="clubs" className="relative w-full h-screen overflow-hidden">
+
+
+Otherwise, the map gets no height.
+
+🧱 Temporary fallback if API fails
+
+Add this inside your map-style fetcher:
+
+const fetchMapStyle = async () => {
+  try {
+    const response = await fetch('/api/config/map-style');
+    if (response.ok) {
+      const data = await response.json();
+      setMapStyleUrl(data.styleUrl);
+    } else {
+      // ✅ fallback MapTiler or OpenStreetMap style
+      setMapStyleUrl("https://demotiles.maplibre.org/style.json");
+    }
+  } catch (error) {
+    console.error("Failed to fetch map style:", error);
+    // ✅ fallback style
+    setMapStyleUrl("https://demotiles.maplibre.org/style.json");
+  }
+};
+
+
+That ensures a visible map even if your API isn’t configured yet.
+
+🧠 Debugging Tip
+
+Add this near your map initialization to confirm render:
+
+useEffect(() => {
+  console.log("Map container:", mapContainer.current);
+  console.log("Map style URL:", mapStyleUrl);
+}, [mapStyleUrl]);
+
+
+If you see null for mapStyleUrl, that’s why nothing renders.
+
+🧩 Optional — Visibility Layer Check
+
+If you want to test visibility instantly:
+
+useEffect(() => {
+  if (mapContainer.current) {
+    mapContainer.current.style.background = "url('https://upload.wikimedia.org/wikipedia/commons/e/ec/World_map_blank_without_borders.svg')";
+    mapContainer.current.style.backgroundSize = "cover";
+  }
+}, []);
+
+
+You’ll immediately see if your gradient is covering it.
+
+✅ TL;DR — Quick Fix Steps
+
+✅ Give map container a real height (h-screen or explicit 100%).
+
+✅ Add a fallback map style URL like https://demotiles.maplibre.org/style.json.
+
+✅ Keep the gradient overlay z-index = 10, map z-index = 0.
+
+✅ Ensure maplibre-gl.css is imported at the top.
