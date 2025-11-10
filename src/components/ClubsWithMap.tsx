@@ -9,6 +9,7 @@ import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 
 const moroccanCities = [
+  { name: "All Cities", lat: 31.7917, lon: -7.0926 },
   { name: "Fes", lat: 34.0181, lon: -5.0078 },
   { name: "Tetouan", lat: 35.5889, lon: -5.3626 },
   { name: "Al Hoceima", lat: 35.2517, lon: -3.9317 },
@@ -42,11 +43,11 @@ const generateClubCoordinates = (cityName: string, clubIndex: number) => {
 };
 
 const ClubsWithMap = () => {
-  const [selectedCity, setSelectedCity] = useState("Al Hoceima");
+  const [selectedCity, setSelectedCity] = useState("All Cities");
   const [selectedClubId, setSelectedClubId] = useState<number | null>(null);
   const [hoveredClubId, setHoveredClubId] = useState<number | null>(null);
-  const [mapCenter, setMapCenter] = useState({ lat: 35.2517, lng: -3.9317 });
-  const [mapZoom, setMapZoom] = useState(14);
+  const [mapCenter, setMapCenter] = useState({ lat: 31.7917, lng: -7.0926 });
+  const [mapZoom, setMapZoom] = useState(6);
   const [mapStyleUrl, setMapStyleUrl] = useState<string | null>(null);
   const [cityScrollIndex, setCityScrollIndex] = useState(0);
   const navigate = useNavigate();
@@ -99,9 +100,11 @@ const ClubsWithMap = () => {
       };
     }) || [];
 
-  const filteredClubs = clubs.filter((club) =>
-    club.location.toLowerCase().includes(selectedCity.toLowerCase()),
-  );
+  const filteredClubs = selectedCity === "All Cities" 
+    ? clubs 
+    : clubs.filter((club) =>
+        club.location.toLowerCase().includes(selectedCity.toLowerCase()),
+      );
 
   const displayedClubs =
     filteredClubs.length > 0 ? filteredClubs : clubs.slice(0, 3);
@@ -156,7 +159,7 @@ const ClubsWithMap = () => {
   }, []);
 
   useEffect(() => {
-    if (displayedClubs.length > 0 && selectedClubId === null) {
+    if (selectedCity !== "All Cities" && displayedClubs.length > 0 && selectedClubId === null) {
       const firstClub = displayedClubs[0];
       setSelectedClubId(firstClub.id);
       const lat =
@@ -165,7 +168,7 @@ const ClubsWithMap = () => {
         typeof firstClub.longitude === "number" ? firstClub.longitude : -3.9317;
       setMapCenter({ lat, lng });
     }
-  }, [displayedClubs, selectedClubId]);
+  }, [displayedClubs, selectedClubId, selectedCity]);
 
   // Initialize map with free Esri satellite imagery
   useEffect(() => {
@@ -289,9 +292,14 @@ const ClubsWithMap = () => {
     setSelectedCity(cityName);
     const cityData = moroccanCities.find((c) => c.name === cityName);
     if (cityData) {
-      setMapZoom(11);
-      setTimeout(() => setMapZoom(13), 400);
-      setMapCenter({ lat: cityData.lat, lng: cityData.lon });
+      if (cityName === "All Cities") {
+        setMapZoom(6);
+        setMapCenter({ lat: cityData.lat, lng: cityData.lon });
+      } else {
+        setMapZoom(11);
+        setTimeout(() => setMapZoom(13), 400);
+        setMapCenter({ lat: cityData.lat, lng: cityData.lon });
+      }
     }
     setSelectedClubId(null);
   };
