@@ -238,7 +238,7 @@ const ClubsWithMap = () => {
       id="clubs"
       className="relative w-full h-screen overflow-hidden scroll-mt-0"
     >
-      {/* Satellite Map Background */}
+      {/* Satellite Map Background with Filters */}
       <div
         ref={mapContainer}
         id="clubs-map"
@@ -247,24 +247,27 @@ const ClubsWithMap = () => {
           height: "100vh",
           width: "100%",
           position: "absolute",
+          filter: "brightness(0.85) contrast(1.1)",
         }}
       />
 
-      {/* Navy Overlay Gradient (85% opacity from left to right) */}
+      {/* Left Gradient Overlay (30% width, fades right) */}
       <div
-        className="absolute inset-0 z-10 pointer-events-none"
+        className="absolute top-0 left-0 h-full z-10 pointer-events-none gradient-left"
         style={{
+          width: "30%",
           background:
-            "linear-gradient(90deg, rgba(11, 26, 82, 0.85) 0%, rgba(11, 26, 82, 0.4) 50%, rgba(11, 26, 82, 0.2) 100%)",
+            "linear-gradient(90deg, rgba(11, 26, 82, 0.8) 0%, transparent 100%)",
         }}
       />
 
-      {/* Top to bottom gradient overlay */}
+      {/* Right Gradient Overlay (30% width, fades left) */}
       <div
-        className="absolute inset-0 z-10 pointer-events-none"
+        className="absolute top-0 right-0 h-full z-10 pointer-events-none gradient-right"
         style={{
+          width: "30%",
           background:
-            "linear-gradient(180deg, rgba(11, 26, 82, 0.3) 0%, transparent 50%)",
+            "linear-gradient(270deg, rgba(11, 26, 82, 0.75) 0%, transparent 100%)",
         }}
       />
 
@@ -303,13 +306,13 @@ const ClubsWithMap = () => {
           </p>
         </div>
 
-        {/* Sidebar (Cities List) - Left Side */}
+        {/* Sidebar (Cities List) - Left Side, Transparent Background */}
         <div
           className="absolute left-0 top-1/2 transform -translate-y-1/2 sidebar-cities"
           style={{
             width: "260px",
             padding: "60px 40px",
-            background: "rgba(11, 26, 82, 0.9)",
+            background: "transparent",
             fontFamily: "Poppins, sans-serif",
           }}
         >
@@ -323,12 +326,13 @@ const ClubsWithMap = () => {
                 style={{
                   fontSize: "18px",
                   fontWeight: isActive ? 700 : 400,
-                  color: isActive ? "#ffffff" : "#d6d6d6",
+                  color: isActive ? "#ffffff" : "#c8c8c8",
                   marginBottom: "20px",
                   fontFamily: "Poppins, sans-serif",
-                  borderLeft: isActive ? "2px solid #ffd54a" : "2px solid transparent",
-                  paddingLeft: isActive ? "16px" : "16px",
+                  borderLeft: isActive ? "3px solid #ffd54a" : "3px solid transparent",
+                  paddingLeft: "16px",
                   transition: "all 0.2s ease-in-out",
+                  textShadow: isActive ? "0 2px 4px rgba(0, 0, 0, 0.3)" : "none",
                 }}
                 whileHover={{ 
                   scale: 1.05,
@@ -420,9 +424,10 @@ const ClubsWithMap = () => {
         <div
           className="absolute left-1/2 transform -translate-x-1/2 flex gap-10 px-4 overflow-x-auto scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent pb-2 club-cards-container"
           style={{
-            bottom: "50px",
+            bottom: "60px",
             maxWidth: "80%",
             justifyContent: "center",
+            gap: "40px",
           }}
         >
           <AnimatePresence mode="popLayout">
@@ -438,14 +443,14 @@ const ClubsWithMap = () => {
                   onMouseLeave={() => setHoveredClubId(null)}
                   className="relative flex-shrink-0 cursor-pointer flex items-center gap-3 transition-all duration-300 club-card"
                   style={{
-                    width: "240px",
-                    height: "100px",
+                    width: "250px",
+                    height: "110px",
                     background: isHovered ? "rgba(255, 255, 255, 0.15)" : "rgba(255, 255, 255, 0.08)",
-                    borderRadius: "16px",
+                    borderRadius: "18px",
                     backdropFilter: "blur(12px)",
-                    padding: "16px 22px",
+                    padding: "18px 22px",
                     boxShadow: isHovered ? "0 0 10px rgba(255, 213, 74, 0.6)" : "none",
-                    transform: isHovered ? "scale(1.05)" : "scale(1)",
+                    transform: isHovered ? "scale(1.03)" : "scale(1)",
                   }}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{
@@ -559,6 +564,11 @@ const ClubsWithMap = () => {
 
         /* Responsive Adjustments - Tablet (max-width 1024px) */
         @media (max-width: 1024px) {
+          #clubs .gradient-left,
+          #clubs .gradient-right {
+            width: 25% !important;
+          }
+          
           #clubs .sidebar-cities {
             width: 200px !important;
             padding: 40px 30px !important;
@@ -581,6 +591,11 @@ const ClubsWithMap = () => {
 
         /* Responsive Adjustments - Mobile (max-width 768px) */
         @media (max-width: 768px) {
+          #clubs .gradient-left,
+          #clubs .gradient-right {
+            width: 20% !important;
+          }
+          
           #clubs .sidebar-cities {
             display: none !important;
           }
@@ -611,8 +626,8 @@ const ClubsWithMap = () => {
           }
           
           #clubs .club-card {
-            width: 240px !important;
-            min-width: 240px !important;
+            width: 250px !important;
+            min-width: 250px !important;
           }
         }
       `}</style>
