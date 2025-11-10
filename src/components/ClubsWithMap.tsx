@@ -420,18 +420,20 @@ const ClubsWithMap = () => {
               className="w-full flex items-center justify-center mb-2 transition-all duration-300"
               style={{
                 padding: "8px",
-                background: "rgba(255, 255, 255, 0.1)",
-                backdropFilter: "blur(8px)",
-                borderRadius: "8px",
-                border: "1px solid rgba(255, 213, 74, 0.3)",
+                background: "transparent",
+                border: "none",
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = "rgba(255, 213, 74, 0.2)";
-                e.currentTarget.style.borderColor = "rgba(255, 213, 74, 0.6)";
+                const icon = e.currentTarget.querySelector('svg');
+                if (icon) {
+                  (icon as SVGElement).style.filter = "drop-shadow(0 0 8px rgba(255, 214, 69, 0.8))";
+                }
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = "rgba(255, 255, 255, 0.1)";
-                e.currentTarget.style.borderColor = "rgba(255, 213, 74, 0.3)";
+                const icon = e.currentTarget.querySelector('svg');
+                if (icon) {
+                  (icon as SVGElement).style.filter = "none";
+                }
               }}
             >
               <ChevronUp className="w-5 h-5" style={{ color: "#FFD645" }} />
@@ -481,18 +483,20 @@ const ClubsWithMap = () => {
               className="w-full flex items-center justify-center mt-2 transition-all duration-300"
               style={{
                 padding: "8px",
-                background: "rgba(255, 255, 255, 0.1)",
-                backdropFilter: "blur(8px)",
-                borderRadius: "8px",
-                border: "1px solid rgba(255, 213, 74, 0.3)",
+                background: "transparent",
+                border: "none",
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = "rgba(255, 213, 74, 0.2)";
-                e.currentTarget.style.borderColor = "rgba(255, 213, 74, 0.6)";
+                const icon = e.currentTarget.querySelector('svg');
+                if (icon) {
+                  (icon as SVGElement).style.filter = "drop-shadow(0 0 8px rgba(255, 214, 69, 0.8))";
+                }
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = "rgba(255, 255, 255, 0.1)";
-                e.currentTarget.style.borderColor = "rgba(255, 213, 74, 0.3)";
+                const icon = e.currentTarget.querySelector('svg');
+                if (icon) {
+                  (icon as SVGElement).style.filter = "none";
+                }
               }}
             >
               <ChevronDown className="w-5 h-5" style={{ color: "#FFD645" }} />
@@ -603,8 +607,8 @@ const ClubsWithMap = () => {
                   onMouseLeave={() => setHoveredClubId(null)}
                   className="relative flex-shrink-0 cursor-pointer overflow-hidden transition-all duration-300 club-card"
                   style={{
-                    width: "320px",
-                    height: "140px",
+                    width: isSelected ? "380px" : "200px",
+                    height: isSelected ? "160px" : "90px",
                     borderRadius: "16px",
                     background: isSelected 
                       ? "rgba(255, 255, 255, 0.15)"
@@ -630,62 +634,133 @@ const ClubsWithMap = () => {
                     delay: index * 0.1,
                   }}
                 >
-                  <div className="flex h-full">
-                    {/* Left Side - Club Image/Icon with Gradient Background */}
-                    <div
-                      className="flex-shrink-0 relative flex items-center justify-center"
-                      style={{
-                        width: "140px",
-                        background: "linear-gradient(135deg, #FFD645 0%, #FFA500 100%)",
-                      }}
-                    >
+                  {isSelected ? (
+                    // Active Card Design - with image, address, and More Details button
+                    <div className="flex h-full">
+                      {/* Left Side - Club Image/Icon with Gradient Background */}
                       <div
-                        className="rounded-full flex items-center justify-center"
+                        className="flex-shrink-0 relative flex items-center justify-center"
                         style={{
-                          width: "70px",
-                          height: "70px",
-                          background: "#ffffff",
-                          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+                          width: "140px",
+                          background: "linear-gradient(135deg, #FFD645 0%, #FFA500 100%)",
                         }}
                       >
-                        <img
-                          src={club.image || birdLogo}
-                          alt={club.name}
+                        <div
+                          className="rounded-full flex items-center justify-center"
                           style={{
-                            width: club.image ? "70px" : "40px",
-                            height: club.image ? "70px" : "40px",
-                            objectFit: "cover",
-                            borderRadius: club.image ? "50%" : "0",
-                            filter: club.image ? "none" : "brightness(0) saturate(100%) invert(73%) sepia(78%) saturate(471%) hue-rotate(3deg) brightness(102%) contrast(101%)",
+                            width: "70px",
+                            height: "70px",
+                            background: "#ffffff",
+                            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
                           }}
-                        />
+                        >
+                          <img
+                            src={club.image || birdLogo}
+                            alt={club.name}
+                            style={{
+                              width: club.image ? "70px" : "40px",
+                              height: club.image ? "70px" : "40px",
+                              objectFit: "cover",
+                              borderRadius: club.image ? "50%" : "0",
+                              filter: club.image ? "none" : "brightness(0) saturate(100%) invert(73%) sepia(78%) saturate(471%) hue-rotate(3deg) brightness(102%) contrast(101%)",
+                            }}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Gradient Separator */}
+                      <div
+                        style={{
+                          width: "3px",
+                          background: "linear-gradient(180deg, rgba(255, 214, 69, 0.3) 0%, rgba(255, 214, 69, 0.8) 50%, rgba(255, 214, 69, 0.3) 100%)",
+                        }}
+                      />
+
+                      {/* Right Side - Club Information */}
+                      <div 
+                        className="flex-1 flex flex-col justify-center"
+                        style={{
+                          padding: "16px 18px",
+                          background: "transparent",
+                        }}
+                      >
+                        {/* Club Name */}
+                        <h3
+                          style={{
+                            fontFamily: "Poppins, sans-serif",
+                            fontSize: "18px",
+                            fontWeight: 700,
+                            color: "#ffffff",
+                            marginBottom: "6px",
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            textShadow: "0 2px 4px rgba(0, 0, 0, 0.3)",
+                          }}
+                        >
+                          {club.name}
+                        </h3>
+
+                        {/* Address/Location */}
+                        <p
+                          style={{
+                            fontFamily: "Poppins, sans-serif",
+                            fontSize: "13px",
+                            fontWeight: 400,
+                            color: "#e0e0e0",
+                            marginBottom: "10px",
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                          }}
+                        >
+                          📍 {club.location}
+                        </p>
+
+                        {/* More Details Button */}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/clubs/${club.id}`);
+                          }}
+                          className="transition-all duration-300"
+                          style={{
+                            padding: "8px 16px",
+                            borderRadius: "8px",
+                            background: "linear-gradient(135deg, #FFD645 0%, #FFB800 100%)",
+                            color: "#0b1a52",
+                            fontFamily: "Poppins, sans-serif",
+                            fontSize: "13px",
+                            fontWeight: 600,
+                            border: "none",
+                            cursor: "pointer",
+                            boxShadow: "0 2px 8px rgba(255, 214, 69, 0.3)",
+                            width: "fit-content",
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = "linear-gradient(135deg, #FFE066 0%, #FFC633 100%)";
+                            e.currentTarget.style.transform = "scale(1.05)";
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = "linear-gradient(135deg, #FFD645 0%, #FFB800 100%)";
+                            e.currentTarget.style.transform = "scale(1)";
+                          }}
+                        >
+                          More Details
+                        </button>
                       </div>
                     </div>
-
-                    {/* Gradient Separator */}
-                    <div
-                      style={{
-                        width: "3px",
-                        background: "linear-gradient(180deg, rgba(255, 214, 69, 0.3) 0%, rgba(255, 214, 69, 0.8) 50%, rgba(255, 214, 69, 0.3) 100%)",
-                      }}
-                    />
-
-                    {/* Right Side - Club Information */}
-                    <div 
-                      className="flex-1 flex flex-col justify-center"
-                      style={{
-                        padding: "18px 20px",
-                        background: "transparent",
-                      }}
-                    >
+                  ) : (
+                    // Inactive Card Design - minimal, no image, just name and location
+                    <div className="flex flex-col justify-center h-full" style={{ padding: "12px 16px" }}>
                       {/* Club Name */}
                       <h3
                         style={{
                           fontFamily: "Poppins, sans-serif",
-                          fontSize: "18px",
-                          fontWeight: 700,
+                          fontSize: "15px",
+                          fontWeight: 600,
                           color: "#ffffff",
-                          marginBottom: "6px",
+                          marginBottom: "4px",
                           whiteSpace: "nowrap",
                           overflow: "hidden",
                           textOverflow: "ellipsis",
@@ -695,14 +770,13 @@ const ClubsWithMap = () => {
                         {club.name}
                       </h3>
 
-                      {/* Location */}
+                      {/* Club's Actual Location */}
                       <p
                         style={{
                           fontFamily: "Poppins, sans-serif",
-                          fontSize: "14px",
-                          fontWeight: 500,
-                          color: "#e0e0e0",
-                          marginBottom: "4px",
+                          fontSize: "12px",
+                          fontWeight: 400,
+                          color: "#c8c8c8",
                           whiteSpace: "nowrap",
                           overflow: "hidden",
                           textOverflow: "ellipsis",
@@ -710,43 +784,8 @@ const ClubsWithMap = () => {
                       >
                         {club.location}
                       </p>
-
-                      {/* City */}
-                      <p
-                        style={{
-                          fontFamily: "Poppins, sans-serif",
-                          fontSize: "13px",
-                          fontWeight: 400,
-                          color: "#c8c8c8",
-                          marginBottom: "6px",
-                          whiteSpace: "nowrap",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                        }}
-                      >
-                        {selectedCity}
-                      </p>
-
-                      {/* Coordinates Display (Optional) */}
-                      {isSelected && club.latitude && club.longitude && (() => {
-                        const lat = typeof club.latitude === 'number' ? club.latitude : parseFloat(String(club.latitude));
-                        const lng = typeof club.longitude === 'number' ? club.longitude : parseFloat(String(club.longitude));
-                        return (
-                          <p
-                            style={{
-                              fontFamily: "Poppins, sans-serif",
-                              fontSize: "11px",
-                              fontWeight: 400,
-                              color: "#FFD645",
-                              marginTop: "2px",
-                            }}
-                          >
-                            📍 {lat.toFixed(4)}, {lng.toFixed(4)}
-                          </p>
-                        );
-                      })()}
                     </div>
-                  </div>
+                  )}
                 </motion.div>
               );
             })}
