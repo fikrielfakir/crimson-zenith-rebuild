@@ -20,11 +20,26 @@ const moroccanCities = [
   { name: "Essaouira", lat: 31.5125, lon: -9.7738 },
   { name: "Agadir", lat: 30.4278, lon: -9.5981 },
   { name: "Meknes", lat: 33.8935, lon: -5.5473 },
-  { name: "Ouarzazate", lat: 30.9335, lon: -6.9370 },
+  { name: "Ouarzazate", lat: 30.9335, lon: -6.937 },
   { name: "Merzouga", lat: 31.0801, lon: -4.0142 },
   { name: "Ifrane", lat: 33.5228, lon: -5.1107 },
   { name: "Azrou", lat: 33.4342, lon: -5.2214 },
 ];
+
+// Generate unique club coordinates for each city with slight offsets
+const generateClubCoordinates = (cityName: string, clubIndex: number) => {
+  const city = moroccanCities.find((c) => c.name === cityName);
+  if (!city) return { lat: 35.2517, lon: -3.9317 };
+
+  // Add small offset based on club index (0.01 degrees ≈ 1km)
+  const offsetLat = ((clubIndex % 3) - 1) * 0.015; // -0.015, 0, 0.015
+  const offsetLon = ((Math.floor(clubIndex / 3) % 3) - 1) * 0.015;
+
+  return {
+    lat: city.lat + offsetLat,
+    lon: city.lon + offsetLon,
+  };
+};
 
 const ClubsWithMap = () => {
   const [selectedCity, setSelectedCity] = useState("Al Hoceima");
@@ -38,11 +53,15 @@ const ClubsWithMap = () => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
   const markers = useRef<maplibregl.Marker[]>([]);
-  
+
   const CITIES_PER_PAGE = 8;
-  const visibleCities = moroccanCities.slice(cityScrollIndex, cityScrollIndex + CITIES_PER_PAGE);
+  const visibleCities = moroccanCities.slice(
+    cityScrollIndex,
+    cityScrollIndex + CITIES_PER_PAGE,
+  );
   const canScrollUp = cityScrollIndex > 0;
-  const canScrollDown = cityScrollIndex + CITIES_PER_PAGE < moroccanCities.length;
+  const canScrollDown =
+    cityScrollIndex + CITIES_PER_PAGE < moroccanCities.length;
 
   const { data: clubsResponse, isLoading } = useQuery({
     queryKey: ["clubs"],
@@ -56,24 +75,29 @@ const ClubsWithMap = () => {
   });
 
   const clubs: Club[] =
-    clubsResponse?.clubs?.map((club: any) => ({
-      id: club.id,
-      name: club.name,
-      description: club.description,
-      location: club.location,
-      memberCount: club.member_count,
-      rating: club.rating,
-      image: club.image,
-      features: club.features,
-      isActive: club.is_active,
-      latitude: parseFloat(club.latitude) || 35.2517,
-      longitude: parseFloat(club.longitude) || -3.9317,
-      established: club.established,
-      contactEmail: club.contact_email,
-      contactPhone: club.contact_phone,
-      createdAt: club.created_at ? new Date(club.created_at) : undefined,
-      updatedAt: club.updated_at ? new Date(club.updated_at) : undefined,
-    })) || [];
+    clubsResponse?.clubs?.map((club: any, index: number) => {
+      // Generate coordinates based on club's city
+      const clubCoords = generateClubCoordinates(club.location, index);
+
+      return {
+        id: club.id,
+        name: club.name,
+        description: club.description,
+        location: club.location,
+        memberCount: club.member_count,
+        rating: club.rating,
+        image: club.image,
+        features: club.features,
+        isActive: club.is_active,
+        latitude: parseFloat(club.latitude) || clubCoords.lat,
+        longitude: parseFloat(club.longitude) || clubCoords.lon,
+        established: club.established,
+        contactEmail: club.contact_email,
+        contactPhone: club.contact_phone,
+        createdAt: club.created_at ? new Date(club.created_at) : undefined,
+        updatedAt: club.updated_at ? new Date(club.updated_at) : undefined,
+      };
+    }) || [];
 
   const filteredClubs = clubs.filter((club) =>
     club.location.toLowerCase().includes(selectedCity.toLowerCase()),
@@ -265,8 +289,8 @@ const ClubsWithMap = () => {
     setSelectedCity(cityName);
     const cityData = moroccanCities.find((c) => c.name === cityName);
     if (cityData) {
-      setMapZoom(12);
-      setTimeout(() => setMapZoom(14), 400);
+      setMapZoom(11);
+      setTimeout(() => setMapZoom(13), 400);
       setMapCenter({ lat: cityData.lat, lng: cityData.lon });
     }
     setSelectedClubId(null);
@@ -283,17 +307,19 @@ const ClubsWithMap = () => {
   };
 
   const handleZoomIn = () => setMapZoom((prev) => Math.min(prev + 1, 18));
-  const handleZoomOut = () => setMapZoom((prev) => Math.max(prev - 1, 10));
-  
+  const handleZoomOut = () => setMapZoom((prev) => Math.max(prev - 1, 6));
+
   const handleCityScrollUp = () => {
     if (canScrollUp) {
       setCityScrollIndex((prev) => Math.max(0, prev - 1));
     }
   };
-  
+
   const handleCityScrollDown = () => {
     if (canScrollDown) {
-      setCityScrollIndex((prev) => Math.min(moroccanCities.length - CITIES_PER_PAGE, prev + 1));
+      setCityScrollIndex((prev) =>
+        Math.min(moroccanCities.length - CITIES_PER_PAGE, prev + 1),
+      );
     }
   };
 
@@ -424,13 +450,14 @@ const ClubsWithMap = () => {
                 border: "none",
               }}
               onMouseEnter={(e) => {
-                const icon = e.currentTarget.querySelector('svg');
+                const icon = e.currentTarget.querySelector("svg");
                 if (icon) {
-                  (icon as SVGElement).style.filter = "drop-shadow(0 0 8px rgba(255, 214, 69, 0.8))";
+                  (icon as SVGElement).style.filter =
+                    "drop-shadow(0 0 8px rgba(255, 214, 69, 0.8))";
                 }
               }}
               onMouseLeave={(e) => {
-                const icon = e.currentTarget.querySelector('svg');
+                const icon = e.currentTarget.querySelector("svg");
                 if (icon) {
                   (icon as SVGElement).style.filter = "none";
                 }
@@ -487,13 +514,14 @@ const ClubsWithMap = () => {
                 border: "none",
               }}
               onMouseEnter={(e) => {
-                const icon = e.currentTarget.querySelector('svg');
+                const icon = e.currentTarget.querySelector("svg");
                 if (icon) {
-                  (icon as SVGElement).style.filter = "drop-shadow(0 0 8px rgba(255, 214, 69, 0.8))";
+                  (icon as SVGElement).style.filter =
+                    "drop-shadow(0 0 8px rgba(255, 214, 69, 0.8))";
                 }
               }}
               onMouseLeave={(e) => {
-                const icon = e.currentTarget.querySelector('svg');
+                const icon = e.currentTarget.querySelector("svg");
                 if (icon) {
                   (icon as SVGElement).style.filter = "none";
                 }
@@ -610,17 +638,23 @@ const ClubsWithMap = () => {
                     width: isSelected ? "380px" : "200px",
                     height: isSelected ? "160px" : "90px",
                     borderRadius: "16px",
-                    background: isSelected 
+                    background: isSelected
                       ? "rgba(255, 255, 255, 0.15)"
                       : "rgba(255, 255, 255, 0.08)",
                     backdropFilter: "blur(12px)",
                     boxShadow: isSelected
                       ? "0 0 20px rgba(255, 213, 74, 0.8), 0 4px 15px rgba(0, 0, 0, 0.3)"
                       : isHovered
-                      ? "0 0 15px rgba(255, 213, 74, 0.5)"
-                      : "0 2px 8px rgba(0, 0, 0, 0.2)",
-                    transform: isSelected ? "scale(1.05)" : isHovered ? "scale(1.02)" : "scale(1)",
-                    border: isSelected ? "2px solid #FFD645" : "2px solid transparent",
+                        ? "0 0 15px rgba(255, 213, 74, 0.5)"
+                        : "0 2px 8px rgba(0, 0, 0, 0.2)",
+                    transform: isSelected
+                      ? "scale(1.05)"
+                      : isHovered
+                        ? "scale(1.02)"
+                        : "scale(1)",
+                    border: isSelected
+                      ? "2px solid #FFD645"
+                      : "2px solid transparent",
                   }}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{
@@ -642,7 +676,8 @@ const ClubsWithMap = () => {
                         className="flex-shrink-0 relative flex items-center justify-center"
                         style={{
                           width: "140px",
-                          background: "linear-gradient(135deg, #FFD645 0%, #FFA500 100%)",
+                          background:
+                            "linear-gradient(135deg, #FFD645 0%, #FFA500 100%)",
                         }}
                       >
                         <div
@@ -662,7 +697,9 @@ const ClubsWithMap = () => {
                               height: club.image ? "70px" : "40px",
                               objectFit: "cover",
                               borderRadius: club.image ? "50%" : "0",
-                              filter: club.image ? "none" : "brightness(0) saturate(100%) invert(73%) sepia(78%) saturate(471%) hue-rotate(3deg) brightness(102%) contrast(101%)",
+                              filter: club.image
+                                ? "none"
+                                : "brightness(0) saturate(100%) invert(73%) sepia(78%) saturate(471%) hue-rotate(3deg) brightness(102%) contrast(101%)",
                             }}
                           />
                         </div>
@@ -672,12 +709,13 @@ const ClubsWithMap = () => {
                       <div
                         style={{
                           width: "3px",
-                          background: "linear-gradient(180deg, rgba(255, 214, 69, 0.3) 0%, rgba(255, 214, 69, 0.8) 50%, rgba(255, 214, 69, 0.3) 100%)",
+                          background:
+                            "linear-gradient(180deg, rgba(255, 214, 69, 0.3) 0%, rgba(255, 214, 69, 0.8) 50%, rgba(255, 214, 69, 0.3) 100%)",
                         }}
                       />
 
                       {/* Right Side - Club Information */}
-                      <div 
+                      <div
                         className="flex-1 flex flex-col justify-center"
                         style={{
                           padding: "16px 18px",
@@ -727,7 +765,8 @@ const ClubsWithMap = () => {
                           style={{
                             padding: "8px 16px",
                             borderRadius: "8px",
-                            background: "linear-gradient(135deg, #FFD645 0%, #FFB800 100%)",
+                            background:
+                              "linear-gradient(135deg, #FFD645 0%, #FFB800 100%)",
                             color: "#0b1a52",
                             fontFamily: "Poppins, sans-serif",
                             fontSize: "13px",
@@ -738,11 +777,13 @@ const ClubsWithMap = () => {
                             width: "fit-content",
                           }}
                           onMouseEnter={(e) => {
-                            e.currentTarget.style.background = "linear-gradient(135deg, #FFE066 0%, #FFC633 100%)";
+                            e.currentTarget.style.background =
+                              "linear-gradient(135deg, #FFE066 0%, #FFC633 100%)";
                             e.currentTarget.style.transform = "scale(1.05)";
                           }}
                           onMouseLeave={(e) => {
-                            e.currentTarget.style.background = "linear-gradient(135deg, #FFD645 0%, #FFB800 100%)";
+                            e.currentTarget.style.background =
+                              "linear-gradient(135deg, #FFD645 0%, #FFB800 100%)";
                             e.currentTarget.style.transform = "scale(1)";
                           }}
                         >
@@ -752,7 +793,10 @@ const ClubsWithMap = () => {
                     </div>
                   ) : (
                     // Inactive Card Design - minimal, no image, just name and location
-                    <div className="flex flex-col justify-center h-full" style={{ padding: "12px 16px" }}>
+                    <div
+                      className="flex flex-col justify-center h-full"
+                      style={{ padding: "12px 16px" }}
+                    >
                       {/* Club Name */}
                       <h3
                         style={{
