@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { Plus, Minus, Locate } from "lucide-react";
+import { Plus, Minus, Locate, ChevronUp, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Club } from "../../shared/schema";
 import birdLogo from "@/assets/attached_assets/Group 288941_1762708813825.png";
@@ -33,10 +33,16 @@ const ClubsWithMap = () => {
   const [mapCenter, setMapCenter] = useState({ lat: 35.2517, lng: -3.9317 });
   const [mapZoom, setMapZoom] = useState(14);
   const [mapStyleUrl, setMapStyleUrl] = useState<string | null>(null);
+  const [cityScrollIndex, setCityScrollIndex] = useState(0);
   const navigate = useNavigate();
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
   const markers = useRef<maplibregl.Marker[]>([]);
+  
+  const CITIES_PER_PAGE = 8;
+  const visibleCities = moroccanCities.slice(cityScrollIndex, cityScrollIndex + CITIES_PER_PAGE);
+  const canScrollUp = cityScrollIndex > 0;
+  const canScrollDown = cityScrollIndex + CITIES_PER_PAGE < moroccanCities.length;
 
   const { data: clubsResponse, isLoading } = useQuery({
     queryKey: ["clubs"],
@@ -172,11 +178,11 @@ const ClubsWithMap = () => {
           crossSourceCollisions: false,
         });
 
-        // Disable default controls
-        map.current.scrollZoom.disable();
-        map.current.dragPan.disable();
-        map.current.touchZoomRotate.disable();
-        map.current.doubleClickZoom.disable();
+        // Enable interactive map controls
+        map.current.scrollZoom.enable();
+        map.current.dragPan.enable();
+        map.current.touchZoomRotate.enable();
+        map.current.doubleClickZoom.enable();
 
         map.current.on("load", () => {
           console.log("✅ Map loaded successfully with satellite tiles!");
@@ -278,6 +284,18 @@ const ClubsWithMap = () => {
 
   const handleZoomIn = () => setMapZoom((prev) => Math.min(prev + 1, 18));
   const handleZoomOut = () => setMapZoom((prev) => Math.max(prev - 1, 10));
+  
+  const handleCityScrollUp = () => {
+    if (canScrollUp) {
+      setCityScrollIndex((prev) => Math.max(0, prev - 1));
+    }
+  };
+  
+  const handleCityScrollDown = () => {
+    if (canScrollDown) {
+      setCityScrollIndex((prev) => Math.min(moroccanCities.length - CITIES_PER_PAGE, prev + 1));
+    }
+  };
 
   if (isLoading) {
     return (
@@ -386,48 +404,100 @@ const ClubsWithMap = () => {
           </p>
         </div>
 
-        {/* Sidebar (Cities List) - Left Side, Transparent Background */}
+        {/* Sidebar (Cities List) - Left Side, with Scroll Arrows */}
         <div
           className="absolute left-0 top-1/2 transform -translate-y-1/2 sidebar-cities"
           style={{
             width: "260px",
-            padding: "60px 40px",
             background: "transparent",
             fontFamily: "Poppins, sans-serif",
           }}
         >
-          {moroccanCities.map((city) => {
-            const isActive = selectedCity === city.name;
-            return (
-              <motion.button
-                key={city.name}
-                onClick={() => handleCitySelect(city.name)}
-                className="relative block text-left w-full group"
-                style={{
-                  fontSize: "18px",
-                  fontWeight: isActive ? 700 : 400,
-                  color: isActive ? "#ffffff" : "#c8c8c8",
-                  marginBottom: "20px",
-                  fontFamily: "Poppins, sans-serif",
-                  borderLeft: isActive
-                    ? "3px solid #ffd54a"
-                    : "3px solid transparent",
-                  paddingLeft: "16px",
-                  transition: "all 0.2s ease-in-out",
-                  textShadow: isActive
-                    ? "0 2px 4px rgba(0, 0, 0, 0.3)"
-                    : "none",
-                }}
-                whileHover={{
-                  scale: 1.05,
-                  color: "#ffffff",
-                }}
-                transition={{ duration: 0.2 }}
-              >
-                {city.name}
-              </motion.button>
-            );
-          })}
+          {/* Scroll Up Arrow */}
+          {canScrollUp && (
+            <button
+              onClick={handleCityScrollUp}
+              className="w-full flex items-center justify-center mb-2 transition-all duration-300"
+              style={{
+                padding: "8px",
+                background: "rgba(255, 255, 255, 0.1)",
+                backdropFilter: "blur(8px)",
+                borderRadius: "8px",
+                border: "1px solid rgba(255, 213, 74, 0.3)",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "rgba(255, 213, 74, 0.2)";
+                e.currentTarget.style.borderColor = "rgba(255, 213, 74, 0.6)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "rgba(255, 255, 255, 0.1)";
+                e.currentTarget.style.borderColor = "rgba(255, 213, 74, 0.3)";
+              }}
+            >
+              <ChevronUp className="w-5 h-5" style={{ color: "#FFD645" }} />
+            </button>
+          )}
+
+          {/* Cities List */}
+          <div style={{ padding: "20px 40px" }}>
+            {visibleCities.map((city) => {
+              const isActive = selectedCity === city.name;
+              return (
+                <motion.button
+                  key={city.name}
+                  onClick={() => handleCitySelect(city.name)}
+                  className="relative block text-left w-full group"
+                  style={{
+                    fontSize: "18px",
+                    fontWeight: isActive ? 700 : 400,
+                    color: isActive ? "#ffffff" : "#c8c8c8",
+                    marginBottom: "20px",
+                    fontFamily: "Poppins, sans-serif",
+                    borderLeft: isActive
+                      ? "3px solid #ffd54a"
+                      : "3px solid transparent",
+                    paddingLeft: "16px",
+                    transition: "all 0.2s ease-in-out",
+                    textShadow: isActive
+                      ? "0 2px 4px rgba(0, 0, 0, 0.3)"
+                      : "none",
+                  }}
+                  whileHover={{
+                    scale: 1.05,
+                    color: "#ffffff",
+                  }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {city.name}
+                </motion.button>
+              );
+            })}
+          </div>
+
+          {/* Scroll Down Arrow */}
+          {canScrollDown && (
+            <button
+              onClick={handleCityScrollDown}
+              className="w-full flex items-center justify-center mt-2 transition-all duration-300"
+              style={{
+                padding: "8px",
+                background: "rgba(255, 255, 255, 0.1)",
+                backdropFilter: "blur(8px)",
+                borderRadius: "8px",
+                border: "1px solid rgba(255, 213, 74, 0.3)",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "rgba(255, 213, 74, 0.2)";
+                e.currentTarget.style.borderColor = "rgba(255, 213, 74, 0.6)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "rgba(255, 255, 255, 0.1)";
+                e.currentTarget.style.borderColor = "rgba(255, 213, 74, 0.3)";
+              }}
+            >
+              <ChevronDown className="w-5 h-5" style={{ color: "#FFD645" }} />
+            </button>
+          )}
         </div>
 
         {/* Map Controls (Zoom / Locate) - Right Center */}
