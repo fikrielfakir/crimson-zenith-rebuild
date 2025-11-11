@@ -71,12 +71,12 @@ const OurPartners = () => {
       id="partners"
       className="relative w-full py-20 scroll-mt-32 bg-white"
     >
-      {/* White Gradient Overlay - Similar to Our Mission & Focus */}
+      {/* Top Linear Gradient Overlay - Navy Blue to White */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
           background:
-            "linear-gradient(#FFFFFF 0%, rgba(255, 255, 255, 0.6) 30%, rgba(249, 250, 251, 0.3) 60%, transparent 100%)",
+            "linear-gradient(180deg, #112250 0%, rgba(17, 34, 80, 0.7) 15%, rgba(17, 34, 80, 0.3) 30%, transparent 50%)",
           zIndex: 1,
         }}
       />
@@ -90,9 +90,10 @@ const OurPartners = () => {
               fontFamily: "Poppins, sans-serif",
               fontSize: "14px",
               fontWeight: 600,
-              color: "#112250",
+              color: "#FFFFFF",
               letterSpacing: "2px",
-              textTransform: "uppercase"
+              textTransform: "uppercase",
+              textShadow: "0 2px 4px rgba(0,0,0,0.2)"
             }}
           >
             Associates & Clients
@@ -103,7 +104,8 @@ const OurPartners = () => {
               fontFamily: "Poppins, sans-serif",
               fontSize: "42px",
               fontWeight: 700,
-              color: "#112250"
+              color: "#FFFFFF",
+              textShadow: "0 2px 8px rgba(0,0,0,0.3)"
             }}
           >
             Our Partners & Supporters
