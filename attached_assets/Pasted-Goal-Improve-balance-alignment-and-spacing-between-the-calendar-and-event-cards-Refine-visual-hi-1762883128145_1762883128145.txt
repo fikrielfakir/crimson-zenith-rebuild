@@ -1,0 +1,178 @@
+Goal:
+Improve balance, alignment, and spacing between the calendar and event cards. Refine visual hierarchy and typography for a polished, modern, and consistent layout.
+
+🧱 Overall Layout
+
+Keep a 2-column grid layout (Calendar on the left, Event cards on the right).
+
+Ensure both columns align perfectly at the top and bottom.
+
+Set a max container width of 1200px, centered horizontally with margin: 0 auto.
+
+Add padding: 80px 40px for desktop and 40px 20px for mobile.
+
+Background color: #FFFFFF.
+
+🎨 Header Section
+
+Title:
+
+Text: Events & Activities Calendar
+
+Font: Poppins or Inter, Bold, font-size: 38px, line-height: 1.3
+
+Color:
+
+“Events & Activities” → #0A0A0A
+
+“Calendar” → #D4B26A
+
+Margin-bottom: 12px
+
+Subtitle:
+
+Font: Inter, Regular, font-size: 16px, color: #666A73
+
+Text-align: center
+
+Margin-bottom: 40px
+
+📅 Left Column – Calendar Section
+
+Width: 30–32% of total container
+
+Align top edge with the first event card image.
+
+Calendar Box:
+
+Background: white, no outer shadow
+
+Rounded corners: 12px
+
+Font: Inter, font-size: 14px, color: #444444
+
+Navigation arrows small and subtle (#888888)
+
+Active date background: #F9EBD0, text color #0A0A0A, font-weight: 600
+
+Selected Date Box:
+
+Background: #F9EBD0, border-radius: 10px, padding: 12px 16px
+
+Label: “Selected Date” in small uppercase, font-size: 12px, color: #555555
+
+Date: font-size: 14px, font-weight: 600, color: #0A0A0A
+
+Icon: Small, aligned left of text.
+
+Summary Boxes (below calendar):
+
+Place two boxes side by side.
+
+Box size: width: 140px, height: 70px, background #F9F9F9, border-radius: 10px
+
+Number: bold, font-size: 24px, color: #0A0A0A
+
+Label: font-size: 13px, color: #757575
+
+Use even spacing and center alignment inside each box.
+
+🎟️ Right Column – Event Cards
+
+Width: 68–70% of container.
+
+Ensure card tops align perfectly with calendar top.
+
+Card Layout:
+
+Full-width cards, border-radius: 16px, overflow: hidden
+
+Background: #FFFFFF, with subtle shadow 0 4px 12px rgba(0,0,0,0.06)
+
+Margin-bottom: 24px
+
+Event Image:
+
+Full width at top of card, height: 240px
+
+object-fit: cover, rounded top corners
+
+Overlay icons (favorite/share) aligned to top-right:
+
+Heart + Share icons white with subtle shadow
+
+Positioned top: 14px, right: 14px, gap: 8px
+
+Add “Featured” badge (if any) in top-right corner in gold #D4B26A, font-size 12px, rounded pill style.
+
+Event Info Section:
+
+Padding: 20px 24px
+
+Event Title:
+
+Font: Poppins Bold, font-size: 20px, color: #0A0A0A
+
+Margin-bottom: 6px
+
+Date/Time/Location Row:
+
+Display as inline-flex with small icons
+
+Font: Inter, font-size: 13px, color: #666A73, gap: 10px, margin-bottom: 8px
+
+Description:
+
+Font: Inter Regular, font-size: 14px, color: #444444, line-height 1.6, margin-bottom: 10px
+
+Price and Button Row:
+
+Display: flex, justify-content: space-between, align-items: center
+
+Price:
+
+Text “From $45” style
+
+Font: Poppins Bold, font-size: 16px, color #D4B26A
+
+Button “Book Now”:
+
+Background: #D4B26A, text color: white
+
+Font-size: 14px, padding: 10px 22px, border-radius: 10px
+
+Hover color: #C9A758, smooth transition 0.25s
+
+🧾 Pagination (Bottom)
+
+Center pagination horizontally below the cards.
+
+Buttons small, round, and minimal.
+
+Active page highlighted in gold #D4B26A.
+
+⚙️ Alignment & Spacing Fixes
+
+Top alignment: Calendar top should align with the top of the first event image.
+
+Bottom alignment: Bottom of calendar should align visually with the last event card bottom edge.
+
+Vertical spacing: Keep even spacing between cards — 24px.
+
+Reduce extra white space between calendar and card column (target gap: 40px).
+
+🌈 Color Palette
+Element	Color
+Primary Text	#0A0A0A
+Accent Gold	#D4B26A
+Muted Gray	#757575
+Light Beige	#F9EBD0
+Background	#FFFFFF
+Button Hover	#C9A758
+💡 UX Enhancements
+
+Apply hover animation on each card (transform: scale(1.01), shadow increase).
+
+Keep text readable on all screens (no line breaks in title).
+
+Ensure accessibility: maintain contrast ratio above 4.5:1 for text.

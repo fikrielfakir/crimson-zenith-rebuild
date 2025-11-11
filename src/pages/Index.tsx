@@ -5,7 +5,7 @@ import Hero from "@/components/Hero";
 import About from "@/components/About";
 import OurPartners from "@/components/OurPartners";
 import PresidentMessage from "@/components/PresidentMessage";
-import EventCalendar from "@/components/EventCalendar";
+import EventsActivitiesCalendar from "@/components/EventsActivitiesCalendar";
 import ClubsWithMap from "@/components/ClubsWithMap";
 import Stats from "@/components/Stats";
 import Testimonials from "@/components/Testimonials";
@@ -39,7 +39,7 @@ const Index = () => {
       <PresidentMessage />
       <About />
       <ClubsWithMap />
-      <EventCalendar />
+      <EventsActivitiesCalendar />
       <Stats />
       <Testimonials />
       <OurPartners />
