@@ -3,6 +3,39 @@ import useEmblaCarousel from "embla-carousel-react";
 import AutoScroll from "embla-carousel-auto-scroll";
 
 const OurPartners = () => {
+  const moroccanPattern = `
+    <svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="moroccan-pattern" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
+          <!-- Moroccan Zellige-inspired star pattern -->
+          <g opacity="0.15">
+            <!-- Central star -->
+            <path d="M50,25 L55,40 L70,40 L58,50 L62,65 L50,55 L38,65 L42,50 L30,40 L45,40 Z" 
+                  fill="#C9A35B" stroke="#C9A35B" stroke-width="0.5"/>
+            
+            <!-- Corner decorative elements -->
+            <circle cx="10" cy="10" r="3" fill="#C9A35B" opacity="0.6"/>
+            <circle cx="90" cy="10" r="3" fill="#C9A35B" opacity="0.6"/>
+            <circle cx="10" cy="90" r="3" fill="#C9A35B" opacity="0.6"/>
+            <circle cx="90" cy="90" r="3" fill="#C9A35B" opacity="0.6"/>
+            
+            <!-- Connecting lines -->
+            <path d="M10,10 L50,25 L90,10" stroke="#C9A35B" stroke-width="0.5" fill="none" opacity="0.4"/>
+            <path d="M10,90 L50,75 L90,90" stroke="#C9A35B" stroke-width="0.5" fill="none" opacity="0.4"/>
+            <path d="M10,10 L25,50 L10,90" stroke="#C9A35B" stroke-width="0.5" fill="none" opacity="0.4"/>
+            <path d="M90,10 L75,50 L90,90" stroke="#C9A35B" stroke-width="0.5" fill="none" opacity="0.4"/>
+            
+            <!-- Small decorative diamonds -->
+            <path d="M25,25 L27,27 L25,29 L23,27 Z" fill="#D4AF37" opacity="0.7"/>
+            <path d="M75,25 L77,27 L75,29 L73,27 Z" fill="#D4AF37" opacity="0.7"/>
+            <path d="M25,75 L27,77 L25,79 L23,77 Z" fill="#D4AF37" opacity="0.7"/>
+            <path d="M75,75 L77,77 L75,79 L73,77 Z" fill="#D4AF37" opacity="0.7"/>
+          </g>
+        </pattern>
+      </defs>
+    </svg>
+  `;
+
   const partners = [
     {
       name: "Partner 1",
@@ -69,8 +102,21 @@ const OurPartners = () => {
   return (
     <section
       id="partners"
-      className="relative w-full py-20 scroll-mt-32 bg-white"
+      className="relative w-full py-20 scroll-mt-32 bg-white overflow-hidden"
     >
+      {/* Moroccan Pattern Background - Decorative Texture */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,${encodeURIComponent(moroccanPattern)}")`,
+          backgroundRepeat: 'repeat',
+          backgroundPosition: 'top center',
+          backgroundSize: '120px 120px',
+          opacity: 0.4,
+          zIndex: 0,
+        }}
+      />
+
       {/* Top Linear Gradient Overlay - Navy Blue to White */}
       <div
         className="absolute inset-0 pointer-events-none"
