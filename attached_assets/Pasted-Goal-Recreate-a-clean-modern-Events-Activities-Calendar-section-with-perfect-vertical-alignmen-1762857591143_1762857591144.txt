@@ -1,0 +1,89 @@
+Goal: Recreate a clean, modern “Events & Activities Calendar” section with perfect vertical alignment between the calendar sidebar (left) and event cards list (right). The top of both columns and the bottom of the last elements must be aligned.
+
+Layout Structure
+
+Use a 2-column grid layout centered on the page:
+
+Left column (Calendar panel): 30–35% width
+
+Right column (Event cards list): 65–70% width
+
+Keep consistent top padding (e.g. 60px) and bottom margin (e.g. 60px) so both columns visually start and end on the same line.
+
+Add a subtle shadow and rounded corners (radius 16px) for both the calendar and event cards.
+
+Left Column – Calendar Panel
+
+Card background: #FFFFFF
+
+Shadow: soft, rgba(0,0,0,0.05), blur 12px
+
+Padding: 24px
+
+Include:
+
+Title: “Event Calendar” – font-weight: 600, size: 16px, color: #1F2937
+
+Calendar component: minimalist square grid, highlighted selected date with accent color (#FBBF24)
+
+Selected date info box: small rounded card, light yellow background (#FFF8E6), subtle border
+
+Stats row: 2 small info cards side by side (e.g., “Total Events”, “Cities”), both 50% width, border radius 12px
+
+Right Column – Event Cards List
+
+Each card:
+
+Width: 100%
+
+Background: white (#FFFFFF)
+
+Border radius: 16px
+
+Shadow: rgba(0, 0, 0, 0.06), blur 14px
+
+Overflow hidden for image
+
+Image section:
+
+Height: 280px
+
+Full-width image with cover mode
+
+Badge in top-right corner (“Featured”) – small rounded label, background #FBBF24, font-size 12px
+
+Text section:
+
+Event title: 18px, bold, #111827
+
+Date/time/location row with icons – 14px, gray (#6B7280)
+
+Description: 14px, color #4B5563, max 2 lines
+
+Price text: bold, orange (#F97316)
+
+Button: “Book Now” – small black rounded button (radius 8px)
+
+Space between cards: 32px
+
+Pagination buttons centered at bottom
+
+Typography
+
+Main font: Inter or Poppins
+
+Headline: 20px, weight 700
+
+Body text: 14–16px, weight 400–500
+
+Accent color for highlighted text: #FBBF24
+
+Responsive Behavior
+
+On mobile: stack vertically, calendar on top, events list below.
+
+On desktop: maintain perfect column alignment and equal visual spacing top and bottom.
+
+Prompt Summary
+
+“Design an Events & Activities Calendar section with two perfectly aligned columns — a left calendar panel and right event list. Use a clean modern layout with soft shadows, rounded corners, and matching top and bottom spacing between both sections. The typography should be elegant and readable (Inter/Poppins), with yellow and orange accent colors for highlights and pricing.”
