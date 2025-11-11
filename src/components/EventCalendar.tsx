@@ -110,7 +110,7 @@ const EventCalendar = () => {
         {/* Header Section */}
         <div className="text-center mb-16 animate-fade-in">
           <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            Events Calendar
+            Events & Activities Calendar
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Discover upcoming adventures and cultural experiences across Morocco

@@ -66,7 +66,7 @@ const OurPartners = () => {
               color: "#FFFFFF"
             }}
           >
-            We Have Worked with Great People
+            Our Partners & Supporters
           </h2>
         </div>
 

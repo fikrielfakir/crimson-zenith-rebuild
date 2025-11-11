@@ -444,7 +444,7 @@ const ClubsWithMap = () => {
               marginBottom: "8px",
             }}
           >
-            Our Clubs
+            Our Clubs & Initiatives
           </h2>
           <p
             className="mx-auto subtitle-text"

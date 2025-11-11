@@ -66,7 +66,7 @@ const PresidentMessage = () => {
                     textShadow: "0px 2px 8px rgba(0,0,0,0.3)"
                   }}
                 >
-                  A Word from the President
+                  Message from the President
                 </h2>
                 <div 
                   className="w-24 h-1 rounded-full mb-8"

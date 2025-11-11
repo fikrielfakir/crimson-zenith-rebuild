@@ -39,7 +39,7 @@ const Stats = () => {
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center mb-16 animate-fade-in">
           <h2 className="text-4xl md:text-5xl font-bold mb-6 font-heading">
-            Our Footprint
+            Our Impact
           </h2>
           <p className="text-xl text-primary-foreground/80 max-w-2xl mx-auto font-body">
             Making a positive impact through sustainable tourism and community engagement
