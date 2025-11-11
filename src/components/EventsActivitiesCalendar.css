@@ -16,15 +16,19 @@
   display: flex;
   margin-bottom: 1rem;
   height: 44px;
+  align-items: center;
+  justify-content: center;
 }
 
 .events-activities-calendar .react-calendar__navigation button {
   min-width: 44px;
   background: transparent;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
-  color: #0A0A0A;
-  font-family: 'Poppins', sans-serif;
+  color: #222;
+  font-family: 'Inter', sans-serif;
+  border: none;
+  cursor: pointer;
 }
 
 .events-activities-calendar .react-calendar__navigation button:enabled:hover,
@@ -39,12 +43,18 @@
 }
 
 .events-activities-calendar .react-calendar__navigation__arrow {
-  font-size: 16px;
+  font-size: 14px;
   opacity: 0.6;
 }
 
 .events-activities-calendar .react-calendar__navigation__arrow:hover {
   opacity: 1;
+}
+
+.events-activities-calendar .react-calendar__navigation__label {
+  font-size: 16px;
+  font-weight: 600;
+  color: #222;
 }
 
 /* Weekday labels */
@@ -62,6 +72,7 @@
 
 .events-activities-calendar .react-calendar__month-view__weekdays abbr {
   text-decoration: none;
+  text-transform: uppercase;
 }
 
 /* Date tiles */
@@ -71,36 +82,45 @@
   width: 40px;
   margin: 2px auto;
   background: transparent;
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 14px;
   font-weight: 400;
-  color: #0A0A0A;
+  color: #000000;
   border: none;
   transition: all 0.25s ease-in-out;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-family: 'Inter', sans-serif;
 }
 
 .events-activities-calendar .react-calendar__tile:enabled:hover,
 .events-activities-calendar .react-calendar__tile:enabled:focus {
-  background-color: #E6D1A3;
-  color: #0A0A0A;
+  background-color: #F9EBD0;
+  color: #000000;
 }
 
 .events-activities-calendar .react-calendar__tile--active {
-  background-color: #E6D1A3 !important;
-  color: #0A0A0A !important;
-  font-weight: 700;
+  background-color: #F9EBD0 !important;
+  color: #000000 !important;
+  font-weight: 600;
+  border-radius: 10px;
 }
 
 .events-activities-calendar .react-calendar__tile--now {
-  background-color: #F9F9F9;
-  font-weight: 600;
+  background-color: transparent;
+  font-weight: 500;
+  border: 2px solid #D4B26A;
+  border-radius: 10px;
 }
 
 .events-activities-calendar .react-calendar__tile--now:enabled:hover {
-  background-color: #E6D1A3;
+  background-color: #F9EBD0;
+}
+
+.events-activities-calendar .react-calendar__tile--active.react-calendar__tile--now {
+  background-color: #F9EBD0 !important;
+  border: 2px solid #D4B26A;
 }
 
 /* Neighboring month dates */
