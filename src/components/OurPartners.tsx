@@ -1,3 +1,7 @@
+import { useEffect, useCallback } from "react";
+import useEmblaCarousel from "embla-carousel-react";
+import AutoScroll from "embla-carousel-auto-scroll";
+
 const OurPartners = () => {
   const partners = [
     {
@@ -31,18 +35,54 @@ const OurPartners = () => {
     {
       name: "Partner 8",
       logo: "https://via.placeholder.com/180x80/FFFFFF/112250?text=LOGO+8"
+    },
+    {
+      name: "Partner 9",
+      logo: "https://via.placeholder.com/180x80/FFFFFF/112250?text=LOGO+9"
+    },
+    {
+      name: "Partner 10",
+      logo: "https://via.placeholder.com/180x80/FFFFFF/112250?text=LOGO+10"
     }
   ];
+
+  const [emblaRef, emblaApi] = useEmblaCarousel(
+    { 
+      loop: true,
+      align: 'start',
+      dragFree: true,
+      containScroll: 'trimSnaps'
+    },
+    [AutoScroll({ playOnInit: true, speed: 1, stopOnInteraction: false })]
+  );
+
+  const onMouseEnter = useCallback(() => {
+    const autoScroll = emblaApi?.plugins()?.autoScroll;
+    if (autoScroll) autoScroll.stop();
+  }, [emblaApi]);
+
+  const onMouseLeave = useCallback(() => {
+    const autoScroll = emblaApi?.plugins()?.autoScroll;
+    if (autoScroll) autoScroll.play();
+  }, [emblaApi]);
 
   return (
     <section
       id="partners"
-      className="relative w-full py-20 scroll-mt-32"
-      style={{ 
-        background: "linear-gradient(180deg, #112250 0%, #1a3366 100%)"
-      }}
+      className="relative w-full py-20 scroll-mt-32 bg-white"
     >
-      <div className="container mx-auto px-4">
+      {/* White Gradient Overlay - Similar to Our Mission & Focus */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            "linear-gradient(#FFFFFF 0%, rgba(255, 255, 255, 0.6) 30%, rgba(249, 250, 251, 0.3) 60%, transparent 100%)",
+          zIndex: 1,
+        }}
+      />
+
+      <div className="container mx-auto px-4 relative z-10">
+        {/* Header Section */}
         <div className="text-center mb-16">
           <p
             className="mb-3"
@@ -50,7 +90,7 @@ const OurPartners = () => {
               fontFamily: "Poppins, sans-serif",
               fontSize: "14px",
               fontWeight: 600,
-              color: "#D8C18D",
+              color: "#112250",
               letterSpacing: "2px",
               textTransform: "uppercase"
             }}
@@ -63,43 +103,69 @@ const OurPartners = () => {
               fontFamily: "Poppins, sans-serif",
               fontSize: "42px",
               fontWeight: 700,
-              color: "#FFFFFF"
+              color: "#112250"
             }}
           >
             Our Partners & Supporters
           </h2>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 items-center justify-items-center max-w-6xl mx-auto">
-          {partners.map((partner, index) => (
-            <div
-              key={index}
-              className="group flex items-center justify-center p-6 bg-white rounded-lg transition-all duration-300 hover:shadow-xl hover:scale-105"
-              style={{
-                border: "1px solid #e5e7eb",
-                minHeight: "120px",
-                width: "100%"
-              }}
-            >
-              <img
-                src={partner.logo}
-                alt={partner.name}
-                className="max-w-full h-auto opacity-60 group-hover:opacity-100 transition-all duration-300"
-                style={{
-                  maxHeight: "60px",
-                  objectFit: "contain",
-                  filter: "grayscale(100%)",
-                  transition: "all 0.3s ease"
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.filter = "grayscale(0%)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.filter = "grayscale(100%)";
-                }}
-              />
-            </div>
-          ))}
+        {/* Auto-Sliding Carousel */}
+        <div 
+          className="overflow-hidden" 
+          ref={emblaRef}
+          onMouseEnter={onMouseEnter}
+          onMouseLeave={onMouseLeave}
+        >
+          <div className="flex gap-8">
+            {partners.map((partner, index) => (
+              <div
+                key={index}
+                className="flex-[0_0_280px] min-w-0"
+              >
+                <div
+                  className="group flex items-center justify-center p-8 bg-white rounded-xl transition-all duration-300 hover:shadow-2xl hover:scale-105"
+                  style={{
+                    border: "2px solid #f3f4f6",
+                    minHeight: "140px",
+                    width: "100%"
+                  }}
+                >
+                  <img
+                    src={partner.logo}
+                    alt={partner.name}
+                    className="max-w-full h-auto opacity-50 group-hover:opacity-100 transition-all duration-300"
+                    style={{
+                      maxHeight: "70px",
+                      objectFit: "contain",
+                      filter: "grayscale(100%)",
+                      transition: "all 0.3s ease"
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.filter = "grayscale(0%)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.filter = "grayscale(100%)";
+                    }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Instruction Text */}
+        <div className="text-center mt-8">
+          <p
+            className="text-sm"
+            style={{
+              fontFamily: "Poppins, sans-serif",
+              color: "#6b7280",
+              fontStyle: "italic"
+            }}
+          >
+            Hover to pause • Auto-scrolling partners
+          </p>
         </div>
       </div>
     </section>
