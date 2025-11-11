@@ -1,0 +1,150 @@
+Goal:
+Fix alignment, balance, spacing, and hierarchy in the Events & Activities Calendar section to match a professional, modern layout — with the calendar and event list perfectly aligned at top and bottom, consistent margins, and refined typography.
+
+🧱 Layout Structure
+
+Main Layout:
+
+Use a 2-column responsive grid layout:
+
+Left column: Calendar (30–35% width)
+
+Right column: Event list (65–70% width)
+
+Both columns must align at the top and bottom edges.
+
+Apply max-width: 1200px, center section with margin: 0 auto.
+
+Padding: 80px 40px for desktop, 40px 20px for mobile.
+
+📅 Left Column – Calendar Panel
+
+Panel Width: ~320px
+
+Background: White #FFFFFF, no shadow
+
+Calendar Widget:
+
+Header: month navigation arrows small & centered with month name (font-size: 16px, font-weight: 600, color: #222).
+
+Selected day: background #F9EBD0, text color #000000, rounded corners 10px.
+
+Font: Inter or Poppins, 14px regular.
+
+Selected Date Box:
+
+Background: #F9EBD0, rounded corners 8px, padding 12px 16px.
+
+Text:
+
+Label: “Selected Date” → small, uppercase, font-size: 12px, color: #555555.
+
+Date: font-size: 14px, font-weight: 600, color: #000000.
+
+Add a small calendar icon aligned left.
+
+Event Summary Boxes (below calendar):
+
+Two boxes in one row (equal width)
+
+Size: width: 140px, height: 70px
+
+Background: #F9F9F9, border-radius: 10px
+
+Number: bold, font-size: 22px, color: #000000
+
+Label: font-size: 14px, color: #757575
+
+🎟️ Right Column – Event Cards List
+
+Card Size: fixed width 800px, height around 280px.
+
+Card Layout:
+
+Left side: Event image (width: 40%)
+
+Right side: Event content (width: 60%)
+
+Use a horizontal flexbox layout inside each card.
+
+Each card has border-radius: 16px, white background, and subtle shadow 0 4px 10px rgba(0,0,0,0.05)
+
+Add uniform spacing between cards: margin-bottom: 24px.
+
+Event Image:
+
+Rounded top-left & bottom-left corners.
+
+Use object-fit: cover and height: 100%.
+
+Add overlay icon (heart + share) in top-right corner, position: absolute; top: 10px; right: 10px;
+
+Event Info Section:
+
+Padding: 20px 24px.
+
+Title: font-size: 20px, font-weight: 700, color #0A0A0A.
+
+Date/Time: font-size: 14px, color #666A73, margin-top 4px.
+
+Location: font-size: 14px, color #666A73, margin-top 2px.
+
+Description: font-size: 14px, color #444, line-height 1.6, margin-top 10px.
+
+Price: bold, font-size: 16px, color #D4B26A, margin-top 10px.
+
+Book Now Button:
+
+Color: #D4B26A
+
+Text color: #FFFFFF
+
+Font-size: 14px, padding 10px 20px, border-radius 10px
+
+Hover color: darker gold #C9A758
+
+Align button right (justify-content: flex-end inside event info)
+
+🧾 Typography
+
+Header Title:
+
+Text: “Events & Activities Calendar”
+
+Font: Poppins, font-weight: 700,
+
+Font-size: 36px, color #0A0A0A for main, and gold #D4B26A for “Calendar”.
+
+Line-height: 1.3, centered at top.
+
+Subtitle:
+
+Font: Inter, font-size: 16px, color #666A73, centered under title with margin-top: 8px.
+
+🧭 Alignment & Spacing Fixes
+
+Make sure calendar box and event list top edges align.
+
+Adjust vertical padding inside cards so that image height = card height.
+
+Maintain equal space between the last card and bottom of calendar panel.
+
+Pagination (bottom): center horizontally, use small buttons with gold active color.
+
+🌈 Color Palette
+Element	Color
+Primary Text	#0A0A0A
+Accent Gold	#D4B26A
+Muted Gray	#757575
+Background	#FFFFFF
+Light Beige	#F9EBD0
+Button Hover	#C9A758
+💡 UX Enhancements
+
+Use smooth hover animations on buttons and cards (0.25s ease-in-out).
+
+Maintain consistent image aspect ratio to prevent distortion.
+
+Add lazy loading for event images for performance.
+
+Highlight today’s date on calendar subtly with border #D4B26A.
