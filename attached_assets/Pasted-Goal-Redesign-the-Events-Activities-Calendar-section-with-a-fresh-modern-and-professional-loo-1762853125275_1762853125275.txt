@@ -1,0 +1,116 @@
+Goal:
+Redesign the “Events & Activities Calendar” section with a fresh, modern, and professional look, keeping the same horizontal and vertical spacing (same left/right/top/bottom limits) as the current layout.
+
+🧭 Layout & Structure
+
+Keep a two-column layout:
+
+Left side: Event Calendar widget
+
+Right side: Upcoming events list
+
+Maintain the same container width and padding as the original page to preserve alignment with the navbar and overall site structure.
+
+Add a consistent vertical rhythm (spacing between calendar, event cards, and section titles).
+
+🪶 Design Style
+
+Use a clean modern aesthetic with soft shadows, rounded corners (12–16px), and minimal borders.
+
+Incorporate subtle gradient accents in the buttons and section titles (e.g., gold-to-beige gradient for highlights).
+
+Replace the plain white background with a very light off-white or slightly tinted gradient background (#FAFAFB or #F9F9F9).
+
+Use a frosted glass or blurred panel effect behind the event cards for a premium feel.
+
+🧩 Typography
+
+Section Title:
+
+Font: “Sora” or “Poppins”
+
+Weight: 700 (Bold)
+
+Size: 36–42px
+
+Color: #2C2C2C with gradient accent on the word “Calendar”
+
+Subtitle:
+
+Font: “Sora” regular
+
+Color: #707070
+
+Size: 16–18px
+
+Add subtle spacing (letter-spacing: 0.5px)
+
+📅 Event Calendar (Left Side)
+
+Card background: #FFFFFF with soft shadow (0 2px 8px rgba(0,0,0,0.05))
+
+Top header: add icon + title (“Event Calendar”) in a pill-style header with a soft background (#F3F5F7).
+
+Calendar cells:
+
+Rounded corners (6px)
+
+Hover state: light gradient fill (#E8EAFB → #D9DDF8)
+
+Active date: bold and highlighted with brand gradient or accent color (gold/blue tone).
+
+Selected date box:
+
+Subtle border (#E0E0E0) and small icon on the left.
+
+🎟️ Upcoming Events (Right Side)
+
+Each event card:
+
+Rounded corners (16px)
+
+Subtle shadow and light hover animation (lift + glow).
+
+Event image: full-width top cover with 4:3 ratio and rounded top edges.
+
+Event details area:
+
+Title: bold (20px)
+
+Date + Location: smaller, muted gray text (#666)
+
+Price: highlight in accent color (#C9A04F or #F3B33A)
+
+“Book Now” button:
+
+Gradient background (navy → gold or gold → beige)
+
+Rounded (8px) with soft glow on hover
+
+Add small event category tag (e.g., “Featured”, “Festival”) in a corner with color-coded pill badges.
+
+📊 Footer Section (Bottom of Calendar)
+
+Keep the total events and cities counters but redesign them as mini cards:
+
+Each with icon, label, and value centered.
+
+Use soft gradient backgrounds and gentle inner shadows for depth.
+
+💡 Interactions & Animations
+
+Smooth fade-in on scroll for each event card.
+
+Slight hover lift animation on buttons and cards.
+
+Use micro-interactions when selecting a date in the calendar (e.g., pop highlight pulse).
+
+🧠 Color Palette Suggestions
+
+Primary: #1C2140 (deep navy)
+
+Accent: #D1A954 (gold beige)
+
+Background: #FAFAFB or #F9F9F9
+
+Text: #2C2C2C (main), #707070 (secondary)
