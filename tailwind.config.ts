@@ -94,6 +94,8 @@ export default {
         heading: ['Poppins', 'system-ui', 'sans-serif'],
         body: ['Open Sans', 'system-ui', 'sans-serif'],
         sans: ['Open Sans', 'system-ui', 'sans-serif'],
+        sora: ['Sora', 'system-ui', 'sans-serif'],
+        poppins: ['Poppins', 'system-ui', 'sans-serif'],
       },
       spacing: {
         '0.5': '0.125rem', // 2px
