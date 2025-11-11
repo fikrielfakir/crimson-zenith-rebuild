@@ -89,32 +89,32 @@ const EventsActivitiesCalendar = () => {
         paddingRight: '40px' 
       }}>
         {/* Header Section */}
-        <div className="text-center mb-12">
-          <h2 className="font-['Poppins'] font-bold mb-2" style={{ 
-            fontSize: '36px', 
+        <div className="text-center" style={{ marginBottom: '40px' }}>
+          <h2 className="font-['Poppins'] font-bold" style={{ 
+            fontSize: '38px', 
             lineHeight: '1.3', 
-            color: '#0A0A0A' 
+            color: '#0A0A0A',
+            marginBottom: '12px'
           }}>
             Events & Activities <span style={{ color: '#D4B26A' }}>Calendar</span>
           </h2>
           <p className="font-['Inter']" style={{ 
             fontSize: '16px', 
-            color: '#666A73', 
-            marginTop: '8px' 
+            color: '#666A73'
           }}>
             Discover upcoming adventures and cultural experiences across Morocco
           </p>
         </div>
         
         {/* Main Content Grid */}
-        <div className="flex gap-8 items-start" style={{ 
+        <div className="flex gap-10 items-start" style={{ 
           display: 'flex',
           alignItems: 'flex-start',
-          gap: '32px'
+          gap: '40px'
         }}>
-          {/* Calendar Panel - Left Side (30-35%) */}
+          {/* Calendar Panel - Left Side (30-32%) */}
           <div style={{ 
-            width: '320px',
+            width: '32%',
             flexShrink: 0
           }}>
             <div className="events-activities-calendar">
@@ -122,7 +122,8 @@ const EventsActivitiesCalendar = () => {
               <Card className="border-none mb-4" style={{ 
                 backgroundColor: '#FFFFFF',
                 boxShadow: 'none',
-                padding: '20px'
+                padding: '20px',
+                borderRadius: '12px'
               }}>
                 <CalendarComponent
                   onChange={handleDateChange}
@@ -134,7 +135,7 @@ const EventsActivitiesCalendar = () => {
               {/* Selected Date Info Box */}
               <div className="mb-4" style={{ 
                 backgroundColor: '#F9EBD0',
-                borderRadius: '8px',
+                borderRadius: '10px',
                 padding: '12px 16px'
               }}>
                 <div className="flex items-center gap-2 mb-1">
@@ -150,7 +151,7 @@ const EventsActivitiesCalendar = () => {
                 <div className="font-['Inter']" style={{ 
                   fontSize: '14px', 
                   fontWeight: 600, 
-                  color: '#000000' 
+                  color: '#0A0A0A'
                 }}>
                   {selectedDate.toLocaleDateString('en-US', { 
                     weekday: 'short', 
@@ -175,13 +176,13 @@ const EventsActivitiesCalendar = () => {
                   padding: '12px'
                 }}>
                   <div className="font-['Inter'] font-bold" style={{ 
-                    fontSize: '22px', 
-                    color: '#000000' 
+                    fontSize: '24px', 
+                    color: '#0A0A0A'
                   }}>
                     {totalEvents}
                   </div>
                   <div className="font-['Inter']" style={{ 
-                    fontSize: '14px', 
+                    fontSize: '13px', 
                     color: '#757575' 
                   }}>
                     Total Events
@@ -199,13 +200,13 @@ const EventsActivitiesCalendar = () => {
                   padding: '12px'
                 }}>
                   <div className="font-['Inter'] font-bold" style={{ 
-                    fontSize: '22px', 
-                    color: '#000000' 
+                    fontSize: '24px', 
+                    color: '#0A0A0A'
                   }}>
                     {cities}
                   </div>
                   <div className="font-['Inter']" style={{ 
-                    fontSize: '14px', 
+                    fontSize: '13px', 
                     color: '#757575' 
                   }}>
                     Cities
@@ -215,152 +216,143 @@ const EventsActivitiesCalendar = () => {
             </div>
           </div>
           
-          {/* Events List - Right Side (65-70%) */}
+          {/* Events List - Right Side (68-70%) */}
           <div style={{ 
             flex: 1,
             display: 'flex',
             flexDirection: 'column'
           }}>
-            <div className="space-y-6" style={{ marginBottom: '24px' }}>
+            <div className="grid grid-cols-2 gap-6" style={{ marginBottom: '24px' }}>
               {displayedEvents.map((event) => (
                 <Card 
                   key={event.id} 
                   className="border-none overflow-hidden"
                   style={{ 
                     backgroundColor: '#FFFFFF',
-                    boxShadow: '0 4px 10px rgba(0,0,0,0.05)',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
                     borderRadius: '16px',
-                    height: '280px',
-                    width: '100%',
-                    maxWidth: '800px',
                     transition: 'transform 0.25s ease-in-out, box-shadow 0.25s ease-in-out',
                     cursor: 'pointer'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-4px)';
-                    e.currentTarget.style.boxShadow = '0 8px 20px rgba(0,0,0,0.1)';
+                    e.currentTarget.style.transform = 'scale(1.01)';
+                    e.currentTarget.style.boxShadow = '0 8px 20px rgba(0,0,0,0.12)';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.boxShadow = '0 4px 10px rgba(0,0,0,0.05)';
+                    e.currentTarget.style.transform = 'scale(1)';
+                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.06)';
                   }}
                 >
-                  <div className="flex h-full">
-                    {/* Image Section - Left 40% */}
-                    <div className="relative" style={{ width: '40%', height: '100%' }}>
-                      <img 
-                        src={event.image} 
-                        alt={event.title}
-                        className="w-full h-full object-cover"
+                  {/* Image Section - Top */}
+                  <div className="relative" style={{ width: '100%', height: '240px' }}>
+                    <img 
+                      src={event.image} 
+                      alt={event.title}
+                      className="w-full h-full object-cover"
+                      style={{ 
+                        borderTopLeftRadius: '16px', 
+                        borderTopRightRadius: '16px' 
+                      }}
+                    />
+                    
+                    {/* Icons - Top Right of Image */}
+                    <div className="absolute flex gap-2" style={{ 
+                      top: '14px', 
+                      right: '14px' 
+                    }}>
+                      <button 
+                        className="p-2 rounded-full bg-white/90 backdrop-blur-sm hover:bg-white"
                         style={{ 
-                          borderTopLeftRadius: '16px', 
-                          borderBottomLeftRadius: '16px' 
+                          boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
+                          transition: 'all 0.25s ease-in-out'
                         }}
-                      />
-                      
-                      {/* Icons - Top Right of Image */}
-                      <div className="absolute flex gap-2" style={{ 
-                        top: '10px', 
-                        right: '10px' 
-                      }}>
-                        <button 
-                          className="p-2 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white"
-                          style={{ 
-                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                            transition: 'all 0.25s ease-in-out'
-                          }}
-                        >
-                          <Heart className="w-4 h-4" style={{ color: '#666A73' }} strokeWidth={2} />
-                        </button>
-                        <button 
-                          className="p-2 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white"
-                          style={{ 
-                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                            transition: 'all 0.25s ease-in-out'
-                          }}
-                        >
-                          <Share2 className="w-4 h-4" style={{ color: '#666A73' }} strokeWidth={2} />
-                        </button>
+                      >
+                        <Heart className="w-4 h-4" style={{ color: '#666A73' }} strokeWidth={2} />
+                      </button>
+                      <button 
+                        className="p-2 rounded-full bg-white/90 backdrop-blur-sm hover:bg-white"
+                        style={{ 
+                          boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
+                          transition: 'all 0.25s ease-in-out'
+                        }}
+                      >
+                        <Share2 className="w-4 h-4" style={{ color: '#666A73' }} strokeWidth={2} />
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {/* Content Section - Bottom */}
+                  <div style={{ padding: '20px 24px' }}>
+                    {/* Event Title */}
+                    <h3 className="font-['Poppins'] font-bold" style={{ 
+                      fontSize: '20px', 
+                      color: '#0A0A0A', 
+                      lineHeight: '1.3',
+                      marginBottom: '6px'
+                    }}>
+                      {event.title}
+                    </h3>
+                    
+                    {/* Date & Time & Location Row */}
+                    <div className="flex items-center gap-2 flex-wrap" style={{ marginBottom: '8px' }}>
+                      <div className="flex items-center gap-1">
+                        <Clock className="w-4 h-4" style={{ color: '#666A73' }} />
+                        <span className="font-['Inter']" style={{ 
+                          fontSize: '13px', 
+                          color: '#666A73' 
+                        }}>
+                          {event.time}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <MapPin className="w-4 h-4" style={{ color: '#666A73' }} />
+                        <span className="font-['Inter']" style={{ 
+                          fontSize: '13px', 
+                          color: '#666A73' 
+                        }}>
+                          {event.location}
+                        </span>
                       </div>
                     </div>
                     
-                    {/* Content Section - Right 60% */}
-                    <div className="flex flex-col justify-between" style={{ 
-                      width: '60%', 
-                      padding: '20px 24px' 
+                    {/* Description */}
+                    <p className="font-['Inter'] line-clamp-2" style={{ 
+                      fontSize: '14px', 
+                      color: '#444444', 
+                      lineHeight: '1.6', 
+                      marginBottom: '10px' 
                     }}>
-                      <div>
-                        {/* Event Title */}
-                        <h3 className="font-['Poppins'] font-bold mb-1" style={{ 
-                          fontSize: '20px', 
-                          color: '#0A0A0A', 
-                          lineHeight: '1.3' 
-                        }}>
-                          {event.title}
-                        </h3>
-                        
-                        {/* Date & Time */}
-                        <div className="flex items-center gap-1.5 mb-1" style={{ marginTop: '4px' }}>
-                          <Clock className="w-4 h-4" style={{ color: '#666A73' }} />
-                          <span className="font-['Inter']" style={{ 
-                            fontSize: '14px', 
-                            color: '#666A73' 
-                          }}>
-                            {event.time}
-                          </span>
-                        </div>
-                        
-                        {/* Location */}
-                        <div className="flex items-center gap-1.5 mb-2" style={{ marginTop: '2px' }}>
-                          <MapPin className="w-4 h-4" style={{ color: '#666A73' }} />
-                          <span className="font-['Inter']" style={{ 
-                            fontSize: '14px', 
-                            color: '#666A73' 
-                          }}>
-                            {event.location}
-                          </span>
-                        </div>
-                        
-                        {/* Description */}
-                        <p className="font-['Inter'] line-clamp-2" style={{ 
-                          fontSize: '14px', 
-                          color: '#444', 
-                          lineHeight: '1.6', 
-                          marginTop: '10px' 
-                        }}>
-                          {event.description}
-                        </p>
+                      {event.description}
+                    </p>
+                    
+                    {/* Price and Button */}
+                    <div className="flex items-center justify-between mt-4">
+                      <div className="font-['Poppins'] font-bold" style={{ 
+                        fontSize: '16px', 
+                        color: '#D4B26A' 
+                      }}>
+                        {event.price}
                       </div>
-                      
-                      {/* Price and Button */}
-                      <div className="flex items-center justify-between mt-4">
-                        <div className="font-['Inter'] font-bold" style={{ 
-                          fontSize: '16px', 
-                          color: '#D4B26A' 
-                        }}>
-                          {event.price}
-                        </div>
-                        <Button 
-                          className="font-['Poppins'] font-medium"
-                          style={{
-                            backgroundColor: '#D4B26A',
-                            color: '#FFFFFF',
-                            borderRadius: '10px',
-                            padding: '10px 20px',
-                            fontSize: '14px',
-                            transition: 'background-color 0.25s ease-in-out'
-                          }}
-                          onClick={() => navigate(`/book?event=${encodeURIComponent(event.title)}`)}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = '#C9A758';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = '#D4B26A';
-                          }}
-                        >
-                          Book Now
-                        </Button>
-                      </div>
+                      <Button 
+                        className="font-['Poppins'] font-medium"
+                        style={{
+                          backgroundColor: '#D4B26A',
+                          color: '#FFFFFF',
+                          borderRadius: '10px',
+                          padding: '10px 22px',
+                          fontSize: '14px',
+                          transition: 'background-color 0.25s ease-in-out'
+                        }}
+                        onClick={() => navigate(`/book?event=${encodeURIComponent(event.title)}`)}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = '#C9A758';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = '#D4B26A';
+                        }}
+                      >
+                        Book Now
+                      </Button>
                     </div>
                   </div>
                 </Card>
@@ -368,7 +360,7 @@ const EventsActivitiesCalendar = () => {
             </div>
             
             {/* Pagination Controls */}
-            <div className="flex items-center justify-center gap-2 mt-auto">
+            <div className="flex items-center justify-center gap-2 mt-4">
               {Array.from({ length: Math.ceil(events.length / eventsPerPage) }).map((_, index) => (
                 <button
                   key={index}
