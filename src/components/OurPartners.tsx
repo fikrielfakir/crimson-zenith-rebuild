@@ -114,7 +114,8 @@ const OurPartners = () => {
 
         {/* Auto-Sliding Carousel */}
         <div 
-          className="overflow-hidden" 
+          className="overflow-hidden pb-8" 
+          style={{ minHeight: "200px" }}
           ref={emblaRef}
           onMouseEnter={onMouseEnter}
           onMouseLeave={onMouseLeave}
@@ -154,20 +155,6 @@ const OurPartners = () => {
               </div>
             ))}
           </div>
-        </div>
-
-        {/* Instruction Text */}
-        <div className="text-center mt-8">
-          <p
-            className="text-sm"
-            style={{
-              fontFamily: "Poppins, sans-serif",
-              color: "#6b7280",
-              fontStyle: "italic"
-            }}
-          >
-            Hover to pause • Auto-scrolling partners
-          </p>
         </div>
       </div>
     </section>
