@@ -140,7 +140,30 @@ export async function setupAuth(app: Express) {
     });
   });
 
-  // Get current user endpoint
+  // Get current user endpoint (for protected routes)
+  app.get("/api/user", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = req.user;
+      res.json({
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        isAdmin: user.isAdmin,
+        profileImageUrl: user.profileImageUrl,
+        bio: user.bio,
+        phone: user.phone,
+        location: user.location,
+        interests: user.interests
+      });
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
+  // Get current user endpoint (legacy support)
   app.get("/api/auth/user", isAuthenticated, async (req: any, res) => {
     try {
       const user = req.user;
