@@ -1,0 +1,1378 @@
+
+
+
+📋 Phase 1: Foundation & Authentication (Week 1)
+Step 1.1: Delete Old Admin Files
+bash# Backup first!
+git commit -am "Backup before admin rebuild"
+
+# Delete old admin files
+rm -rf src/pages/admin/*
+rm -rf src/components/admin/*
+Step 1.2: Set Up Admin Layout Structure
+Create: src/components/admin/AdminLayout.tsx
+Build a responsive admin layout with:
+
+Sidebar Navigation (collapsible on mobile)
+
+Logo/branding at top
+Navigation menu with icons (use lucide-react)
+User profile at bottom
+Logout button
+
+
+Top Header Bar
+
+Breadcrumbs showing current location
+Search bar (global search)
+Notifications bell icon
+User dropdown menu
+Theme toggle (light/dark)
+
+
+Main Content Area
+
+Responsive padding
+Max-width container for readability
+Scroll area for content
+
+
+
+Navigation Menu Structure:
+typescriptconst navigationItems = [
+  { label: 'Dashboard', icon: 'LayoutDashboard', href: '/admin' },
+  { 
+    label: 'Users', 
+    icon: 'Users', 
+    children: [
+      { label: 'All Users', href: '/admin/users' },
+      { label: 'Roles & Permissions', href: '/admin/users/roles' }
+    ]
+  },
+  { 
+    label: 'Clubs', 
+    icon: 'Building', 
+    children: [
+      { label: 'All Clubs', href: '/admin/clubs' },
+      { label: 'Pending Approval', href: '/admin/clubs/pending' }
+    ]
+  },
+  { label: 'Events', icon: 'Calendar', href: '/admin/events' },
+  { label: 'Bookings', icon: 'Ticket', href: '/admin/bookings' },
+  { label: 'Applications', icon: 'FileText', href: '/admin/applications' },
+  { 
+    label: 'Content', 
+    icon: 'FileEdit', 
+    children: [
+      { label: 'News/Blog', href: '/admin/news' },
+      { label: 'Landing Page', href: '/admin/landing' },
+      { label: 'Media Library', href: '/admin/media' }
+    ]
+  },
+  { label: 'Analytics', icon: 'BarChart3', href: '/admin/analytics' },
+  { 
+    label: 'Settings', 
+    icon: 'Settings', 
+    children: [
+      { label: 'Site Settings', href: '/admin/settings' },
+      { label: 'Theme', href: '/admin/theme' },
+      { label: 'Payments', href: '/admin/payments' },
+      { label: 'Email', href: '/admin/email' },
+      { label: 'Auth', href: '/admin/auth' },
+      { label: 'Cookies', href: '/admin/cookies' }
+    ]
+  },
+  { label: 'System', icon: 'Server', href: '/admin/system' }
+];
+Key Features:
+
+Use shadcn/ui components: Sidebar, Sheet (mobile menu), ScrollArea, Separator
+Implement active route highlighting
+Add keyboard shortcuts (e.g., Cmd+K for search)
+Responsive design: sidebar becomes drawer on mobile
+Store sidebar collapsed state in localStorage
+
+
+Step 1.3: Protected Route Component
+Create: src/components/admin/ProtectedRoute.tsx
+Build route protection that:
+
+Checks if user is authenticated
+Verifies admin role (isAdmin === true)
+Redirects to /admin/login if not authorized
+Shows loading spinner during auth check
+Uses React Query to fetch current user
+
+typescript// Example structure
+const ProtectedRoute = ({ children }) => {
+  const { data: user, isLoading } = useQuery('currentUser', fetchCurrentUser);
+  
+  if (isLoading) return <LoadingSpinner />;
+  if (!user || !user.isAdmin) {
+    return <Navigate to="/admin/login" replace />;
+  }
+  
+  return <AdminLayout>{children}</AdminLayout>;
+};
+
+Step 1.4: Admin Login Page
+Create: src/pages/admin/AdminLogin.tsx
+Build a clean login page with:
+
+Form Fields:
+
+Email/Username input
+Password input (with show/hide toggle)
+"Remember me" checkbox
+
+
+Form Validation:
+
+Required field validation
+Email format validation
+Error messages display
+
+
+Features:
+
+Submit button with loading state
+"Forgot password?" link (optional)
+Error handling for wrong credentials
+Auto-redirect to /admin on success
+
+
+Styling:
+
+Centered card on page
+Journey Association branding
+Professional, minimal design
+Use shadcn/ui: Card, Form, Input, Button, Checkbox
+
+
+
+API Integration:
+typescript// Login mutation
+const loginMutation = useMutation({
+  mutationFn: (credentials) => fetch('/api/admin/login', {
+    method: 'POST',
+    body: JSON.stringify(credentials)
+  }),
+  onSuccess: () => {
+    queryClient.invalidateQueries('currentUser');
+    navigate('/admin');
+  }
+});
+
+📊 Phase 2: Dashboard & Analytics (Week 1-2)
+Step 2.1: Admin Dashboard
+Create: src/pages/admin/AdminDashboard.tsx
+Build an overview dashboard with:
+Top Row - Key Metrics (4 stat cards):
+
+Total Users (with growth percentage)
+Active Clubs (with new this month)
+Upcoming Events (with this week count)
+Total Revenue (with monthly comparison)
+
+Each stat card should have:
+
+Large number display
+Icon (lucide-react)
+Growth indicator (up/down arrow + percentage)
+Background color coding
+Click to navigate to detail page
+
+Second Row - Charts (2 columns):
+
+Left: Users Growth Chart (line chart, last 6 months)
+Right: Revenue Chart (bar chart, last 6 months)
+
+Third Row:
+
+Recent Activity Feed (3 columns width)
+
+List of latest actions (user registrations, club approvals, bookings)
+Time stamps
+Avatar/icon for each activity
+"View all" link
+
+
+Upcoming Events (1 column width)
+
+Next 5 events list
+Date badges
+"Manage Events" button
+
+
+
+Fourth Row - Quick Actions:
+
+Grid of action buttons:
+
+"Add New Club"
+"Create Event"
+"Review Applications"
+"Send Email Campaign"
+"View Reports"
+
+
+
+Technical Requirements:
+
+Use React Query for data fetching
+Use Recharts for charts (LineChart, BarChart, XAxis, YAxis, Tooltip, Legend)
+Use shadcn/ui: Card, Badge, Button, Skeleton (loading states)
+Implement loading skeletons for all data sections
+Add error boundaries for chart rendering
+Make responsive (stack on mobile)
+
+
+Step 2.2: Analytics Page
+Create: src/pages/admin/Analytics.tsx
+Build comprehensive analytics with:
+Filter Controls:
+
+Date range picker (last 7 days, 30 days, 3 months, 6 months, custom)
+Export data button (CSV download)
+
+Metrics Sections:
+
+Traffic Analytics:
+
+Page views chart (line)
+Unique visitors
+Bounce rate
+Average session duration
+Top pages table
+
+
+User Engagement:
+
+New registrations over time
+Active users (DAU, MAU)
+User retention cohort chart
+Most active users table
+
+
+Event Analytics:
+
+Events created over time
+Total participants
+Most popular events table
+Event categories breakdown (pie chart)
+Average attendance rate
+
+
+Revenue Analytics:
+
+Revenue over time (bar chart)
+Revenue by source (memberships, bookings, donations)
+Average transaction value
+Top revenue-generating events
+
+
+Club Analytics:
+
+New clubs over time
+Most popular clubs (by members)
+Club activity heatmap
+Geographic distribution map
+
+
+
+Components:
+
+Use Recharts for all visualizations
+Use shadcn/ui: Card, Tabs, Select, Calendar, Table
+Implement data export functionality
+Add comparison mode (compare two date ranges)
+Make all charts interactive (hover tooltips, click to drill down)
+
+
+👥 Phase 3: User Management (Week 2)
+Step 3.1: User Management Page
+Create: src/pages/admin/UserManagement.tsx
+Build user management interface with:
+Top Controls Bar:
+
+Search input (search by name, email, username)
+Filter dropdowns:
+
+Role filter (All, Admin, Member)
+Status filter (All, Active, Inactive)
+Date joined filter
+
+
+"Add New User" button
+"Export Users" button
+Bulk actions dropdown (visible when users selected)
+
+User Table:
+Columns:
+
+Checkbox (select for bulk operations)
+Avatar + Name
+Username
+Email
+Role (badge: admin/member)
+Status (badge: active/inactive)
+Clubs (count with popover showing list)
+Events (count)
+Joined Date
+Actions dropdown
+
+Actions Dropdown Menu Items:
+
+View Profile
+Edit User
+Reset Password
+Toggle Admin Status
+Suspend Account
+Delete User (with confirmation)
+
+Bulk Operations:
+
+Select All checkbox
+Bulk actions: Delete, Export, Send Email, Change Role
+Show count of selected users
+
+Pagination:
+
+Show 10/25/50/100 per page selector
+Page numbers
+Previous/Next buttons
+Total count display
+
+Modals/Dialogs:
+
+Add/Edit User Dialog:
+
+Form fields:
+
+Profile image upload
+First name, Last name
+Username, Email
+Phone, Location
+Bio (textarea)
+Interests (multi-select tags)
+Role (radio: admin/member)
+Status (toggle: active/inactive)
+
+
+Validation for all fields
+Submit button with loading state
+
+
+Delete Confirmation Dialog:
+
+Warning message
+List of consequences (membership cancellations, etc.)
+Confirm/Cancel buttons
+
+
+
+Technical Requirements:
+
+Use React Query for data fetching and mutations
+Use shadcn/ui: Table, Checkbox, DropdownMenu, Dialog, Form, Input, Select, Badge, Avatar, Pagination
+Implement debounced search (500ms)
+Implement optimistic updates for status changes
+Add success/error toasts for all actions
+Handle loading states for all operations
+
+Create Reusable Component: src/components/admin/BulkOperations.tsx
+
+Reusable across all admin tables
+Props: selectedItems, onDelete, onExport, customActions
+
+
+🏢 Phase 4: Club Management (Week 3)
+Step 4.1: Clubs Management Page
+Create: src/pages/admin/ClubsManagement.tsx
+Similar structure to User Management but for clubs:
+Top Controls:
+
+Search clubs (by name, location)
+Filters: Status (All, Active, Pending, Inactive), City
+"Add New Club" button
+"Export Clubs" button
+
+Clubs Table:
+Columns:
+
+Checkbox
+Image thumbnail
+Name
+Location (with icon)
+Owner (user link)
+Members (count)
+Events (count)
+Rating (stars)
+Status (badge: active/pending/inactive)
+Created Date
+Actions
+
+Actions:
+
+View Club Page
+Edit Club
+View Members
+View Events
+Approve (if pending)
+Feature on Homepage
+Deactivate/Activate
+Delete
+
+Modals:
+
+Add/Edit Club Dialog (Full-page or large modal):
+Tabs:
+
+Basic Info:
+
+Name, Short description
+Long description (rich text editor)
+Image upload
+Location (with map picker)
+Contact (phone, email, website)
+Social media links
+
+
+Details:
+
+Features (multi-select chips)
+Established year
+Rating
+Member count
+
+
+Settings:
+
+Status (active/inactive)
+Featured (toggle)
+Owner (user select)
+
+
+
+
+Approve Club Dialog:
+
+Club details preview
+Approval notes (textarea)
+Approve/Reject buttons
+Email notification toggle
+
+
+Members List Dialog:
+
+Table of members with roles
+Add member button
+Remove member button
+
+
+
+Special Features:
+
+Map view toggle (switch between table and map with club markers)
+Featured clubs section (drag-and-drop to reorder)
+Pending approvals counter badge in navigation
+
+
+📅 Phase 5: Events & Bookings (Week 3-4)
+Step 5.1: Events Management Page
+Create: src/pages/admin/EventsManagement.tsx
+Dual-view interface for events:
+View Toggle: Calendar View | Table View
+Calendar View:
+
+Full calendar showing all events
+Color-coded by status (upcoming/ongoing/completed/cancelled)
+Click event to see details
+Drag to reschedule
+Month/Week/Day view options
+Filter by club, category, status
+
+Table View:
+Similar to clubs table:
+
+Event image/icon
+Title
+Club (link)
+Date & Time
+Location
+Participants (current/max)
+Status (badge)
+Creator
+Actions
+
+Actions:
+
+View Event
+Edit Event
+View Participants
+Cancel Event
+Duplicate Event
+Export Participants List
+Send Notification to Participants
+Delete
+
+Modals:
+
+Create/Edit Event Dialog:
+
+Title, Description
+Club (select)
+Date & Time (date-time picker)
+Location
+Max participants
+Status
+Image/banner upload
+Event type/category
+
+
+Participants Dialog:
+
+Table of registered users
+Attendance status (toggle attended/not attended)
+Add participant manually
+Remove participant
+Export list button
+Send email to all button
+
+
+
+Special Features:
+
+Conflict detection (events at same time/location)
+Recurring events creator
+Event templates
+QR code generation for check-in
+
+
+Step 5.2: Booking Management Page
+Create: src/pages/admin/BookingManagement.tsx
+Manage event bookings and payments:
+Top Controls:
+
+Search bookings
+Filters: Status (All, Pending, Confirmed, Cancelled, Refunded), Date range, Event
+Export bookings
+
+Bookings Table:
+Columns:
+
+Booking ID
+User (name + email)
+Event
+Date booked
+Event date
+Participants count
+Amount paid
+Payment status (badge)
+Payment method (Stripe/PayPal icon)
+Status
+Actions
+
+Actions:
+
+View Details
+Confirm Booking
+Cancel Booking
+Process Refund
+Send Confirmation Email
+Download Receipt
+
+Modals:
+
+Booking Details Dialog:
+
+User information
+Event information
+Participants details
+Payment information
+Transaction ID
+Notes/special requests
+Timeline of booking events
+
+
+Refund Dialog:
+
+Refund amount (default: full, allow partial)
+Refund reason (select)
+Notes
+Send notification toggle
+Process refund button
+
+
+
+Revenue Section:
+
+Total revenue card
+Revenue by event chart
+Revenue by payment method
+Refund statistics
+
+
+📝 Phase 6: Content Management (Week 4-5)
+Step 6.1: News/Blog Management
+Create: src/pages/admin/NewsManagement.tsx
+Manage blog posts and news:
+Top Controls:
+
+Search articles
+Filters: Status (All, Published, Draft, Scheduled), Category
+"New Article" button
+
+Articles Table:
+
+Thumbnail
+Title
+Author
+Category (badge)
+Status (badge)
+Published date
+Views count
+Actions
+
+Create/Edit Article Page (separate route: /admin/news/edit/:id):
+Full-page editor with:
+
+Title input (large)
+Slug (auto-generated, editable)
+Rich text editor (WYSIWYG) for content
+
+Use TipTap or similar
+Support: headings, bold, italic, lists, links, images, code blocks
+
+
+Sidebar with:
+
+Publish Settings:
+
+Status (draft/published/scheduled)
+Publish date (if scheduled)
+Author (select)
+
+
+Featured Image:
+
+Image upload
+Alt text input
+
+
+Categories:
+
+Select/create categories
+Multi-select tags
+
+
+SEO:
+
+Meta title
+Meta description
+Focus keyword
+URL slug
+
+
+Preview: Button to preview article
+
+
+
+Actions:
+
+Save Draft
+Publish
+Schedule
+Preview
+Delete
+
+
+Step 6.2: Landing Page Management
+Create: src/pages/admin/LandingManagement.tsx
+Visual page builder for homepage:
+Structure: Tabbed interface (shadcn/ui Tabs)
+Tabs:
+
+Navbar Tab:
+
+Logo settings (upload/text/SVG)
+Navigation links editor (add/edit/remove/reorder)
+Button settings (Login, Join Us)
+Language switcher toggle
+Dark mode toggle
+
+
+Hero Tab:
+
+Title & Subtitle
+Typewriter effect texts (array input)
+Background (image/video upload)
+Overlay color & opacity sliders
+Button texts & links
+Font size & color pickers
+
+
+Focus Items Tab:
+
+List of focus items (drag to reorder)
+Add/Edit form for each item:
+
+Title, Description
+Icon selector
+Media upload
+Active toggle
+
+
+
+
+Featured Clubs Tab:
+
+Select clubs to feature
+Order clubs (drag-and-drop)
+Number of clubs to show
+
+
+Featured Activities Tab:
+
+Similar to clubs
+
+
+Events Tab:
+
+Featured events selector
+Display settings
+
+
+Team Tab:
+
+Team members list (drag to reorder)
+Add/Edit member form:
+
+Photo upload
+Name, Role, Bio
+Email, Phone
+Social links
+Active toggle
+
+
+
+
+Testimonials Tab:
+
+Testimonials list
+Approval system (show pending testimonials)
+Add/Edit form
+Order management
+
+
+Stats Tab:
+
+Stats editor (4 stats)
+Label, Value, Icon, Suffix
+Order management
+
+
+Contact Tab:
+
+Office address
+Email, Phone
+Office hours
+Map coordinates
+Social links
+
+
+Footer Tab:
+
+Copyright text
+Description
+Links editor (add/edit/remove)
+Social links
+Newsletter settings
+
+
+SEO Tab:
+
+Site title, Description
+Keywords
+Open Graph image
+Analytics IDs (Google Analytics, Facebook Pixel)
+Custom head/body code
+
+
+
+Preview Panel:
+
+Live preview mode (toggle)
+Preview updates in real-time as you edit
+Mobile/tablet/desktop view switcher
+
+Save System:
+
+Auto-save draft every 30 seconds
+"Save Changes" button
+"Publish" button (makes changes live)
+"Discard Changes" button
+
+
+Step 6.3: Media Library
+Create: src/pages/admin/MediaLibrary.tsx
+Complete media asset management:
+Top Section:
+
+Upload area (drag-and-drop or click)
+
+Multiple file upload
+Progress bars for each upload
+Preview thumbnails immediately
+
+
+Search media
+Filters: Type (All, Images, Videos, Documents), Upload date
+View toggle: Grid | List
+
+Grid View:
+
+Masonry/grid layout
+Each item shows:
+
+Thumbnail preview
+Filename
+File size
+Upload date
+Checkbox (for bulk operations)
+Hover actions: View, Edit, Delete
+
+
+
+List View:
+
+Table with columns:
+
+Thumbnail
+Filename
+Type (badge)
+Size
+Dimensions (for images)
+Uploaded by
+Date
+Used in (count with popover showing where it's used)
+Actions
+
+
+
+Lightbox/Media Viewer:
+Click image to open full-screen viewer with:
+
+Image display
+Previous/Next navigation
+Zoom controls
+Download button
+Share button
+Delete button
+
+Edit Media Dialog:
+
+Image preview
+Basic Info:
+
+Filename
+Alt text (for accessibility)
+Caption
+
+
+Image Editor (for images only):
+
+Crop tool
+Resize
+Rotate
+Focal point selector (for responsive crops)
+
+
+Details:
+
+File size
+Dimensions
+Format
+Upload date
+Uploaded by
+Used in (links)
+
+
+Save button
+
+Bulk Operations:
+
+Select all
+Delete selected
+Download selected (as zip)
+Change alt text (batch)
+
+Media Upload Component: src/components/admin/MediaUpload.tsx
+Reusable upload component with:
+
+Drag-and-drop zone
+File type validation
+Size limit validation (5MB per file)
+Image compression option
+Preview before upload
+Progress tracking
+Error handling
+
+
+⚙️ Phase 7: Settings & Configuration (Week 5-6)
+Step 7.1: Theme Customization
+Create: src/pages/admin/ThemeCustomization.tsx
+Visual theme editor:
+Color Settings:
+
+Primary color picker
+Secondary color picker
+Preview color swatches
+"Reset to default" button
+
+Typography Settings:
+
+Font family selector (Google Fonts integration)
+Heading font
+Body font
+Font size scale
+
+Custom CSS Editor:
+
+Code editor (Monaco or CodeMirror)
+Syntax highlighting
+Auto-save
+Preview toggle
+
+Preview Panel:
+
+Live preview of theme changes
+Sample components displayed
+Mobile/desktop view toggle
+
+Export/Import:
+
+Export theme as JSON
+Import theme from JSON
+Theme presets (light, dark, high-contrast)
+
+
+Step 7.2: Payment Settings
+Create: src/pages/admin/PaymentSettings.tsx
+Configure payment integrations:
+Tabs:
+
+Stripe:
+
+Publishable key input
+Secret key input (masked)
+Webhook URL display (copy button)
+Test mode toggle
+Connection status indicator
+"Test Connection" button
+
+
+PayPal:
+
+Client ID input
+Client secret input (masked)
+Sandbox mode toggle
+Connection status
+"Test Connection" button
+
+
+General Settings:
+
+Enabled payment methods (checkboxes)
+Currency selector
+Transaction fee settings
+Minimum booking amount
+Refund policy settings
+
+
+
+Test Transaction Section:
+
+Form to test payment
+Amount input
+"Process Test Payment" button
+Transaction result display
+
+
+Step 7.3: Email Campaign Manager
+Create: src/pages/admin/EmailCampaigns.tsx
+Email marketing tool:
+Campaigns List:
+
+Table showing all campaigns
+Columns: Name, Status, Recipients, Sent date, Open rate, Click rate, Actions
+
+Create Campaign Page:
+
+Campaign Details:
+
+Campaign name
+Subject line
+Preheader text
+
+
+Recipients:
+
+Select audience:
+
+All users
+All members
+Club members (select clubs)
+Custom list (upload CSV)
+
+
+Show recipient count
+"Send test email" button
+
+
+Email Template Editor:
+
+Visual drag-and-drop builder OR
+HTML code editor
+Template variables: {{user.firstName}}, {{user.email}}, etc.
+Preview in desktop/mobile
+
+
+Schedule:
+
+Send now (radio)
+Schedule for later (radio + date-time picker)
+
+
+Review & Send:
+
+Summary of campaign
+Preview email
+"Send Campaign" button
+
+
+
+Campaign Analytics:
+
+Open rate chart
+Click rate chart
+Top clicked links
+Geographic data
+Device breakdown
+
+
+Step 7.4: Authentication Settings
+Create: src/pages/admin/AuthSettings.tsx
+Configure authentication:
+OAuth Providers:
+
+Google (toggle, client ID/secret)
+Facebook (toggle, app ID/secret)
+Replit (toggle, client ID/secret)
+
+Registration Settings:
+
+Allow registration (toggle)
+Email verification required (toggle)
+Admin approval required (toggle)
+Default user role
+
+Password Policy:
+
+Minimum length (number input)
+Require uppercase
+Require numbers
+Require special characters
+Password expiration (days)
+
+Session Settings:
+
+Session timeout (minutes)
+Remember me duration (days)
+Max concurrent sessions
+
+Two-Factor Authentication:
+
+Enable 2FA (toggle)
+Enforce for admins (toggle)
+Methods (SMS, Authenticator app)
+
+
+Step 7.5: System Monitoring
+Create: src/pages/admin/SystemMonitoring.tsx
+System health dashboard:
+Server Status Section:
+
+Server uptime
+CPU usage (gauge)
+Memory usage (gauge)
+Disk usage (gauge)
+Status: Online/Offline badge
+
+Database Status:
+
+Connection status
+Active connections count
+Database size
+Last backup date
+"Backup Now" button
+
+Error Logs:
+
+Table of recent errors
+Columns: Timestamp, Level (error/warning/info), Message, Stack trace, User (if applicable)
+Filters: Level, Date range
+"Clear logs" button
+
+Performance Metrics:
+
+Average response time chart
+Requests per minute chart
+Slow queries list
+Cache hit rate
+
+Backup Management:
+
+List of backups (table)
+Columns: Date, Size, Status, Actions (Download, Restore, Delete)
+"Create Backup" button
+Auto-backup schedule settings
+
+System Information:
+
+Node.js version
+MySQL version
+Application version
+Environment (production/development)
+Server location
+
+
+🔧 Phase 8: Additional Features & Polish (Week 6-7)
+Step 8.1: Applications Management
+Create: src/pages/admin/ApplicationsManagement.tsx
+Manage membership applications:
+Applications Table:
+
+Applicant name
+Email
+Phone
+Application date
+Membership tier
+Status (pending/approved/rejected)
+Actions
+
+Review Application Dialog:
+
+Full application details
+Applicant information
+Membership tier selected
+Answers to application questions
+Decision Section:
+
+Approve/Reject buttons
+Notes textarea
+Send notification email (toggle)
+
+
+Timeline of application events
+
+Bulk Approval:
+
+Select multiple pending applications
+"Approve Selected" button
+"Reject Selected" button
+
+
+Step 8.2: Global Search (Command Palette)
+Create: src/components/admin/CommandPalette.tsx
+Keyboard-accessible search:
+
+Trigger: Cmd+K (Mac) or Ctrl+K (Windows/Linux)
+Modal dialog with search input
+Search across:
+
+Pages/routes (navigate)
+Users (open profile)
+Clubs (open club)
+Events (open event)
+Settings (navigate)
+
+
+Recent searches
+Keyboard navigation (arrow keys, enter to select)
+Use shadcn/ui Command component
+
+
+Step 8.3: Notifications System
+Create notification dropdown in AdminLayout header:
+
+Bell icon with badge (unread count)
+Dropdown showing recent notifications
+Types of notifications:
+
+New user registration
+New club submission
+Event registration
+Application submitted
+Payment received
+System alerts
+
+
+Mark as read functionality
+"View all notifications" link to /admin/notifications
+
+Create: src/pages/admin/Notifications.tsx
+
+Full list of all notifications
+Filter by type, read/unread
+Bulk mark as read
+Clear all button
+
+
+Step 8.4: Activity Log
+Create: src/pages/admin/ActivityLog.tsx
+Audit trail of admin actions:
+Activity Table:
+
+Timestamp
+Admin user
+Action (created, updated, deleted, etc.)
+Entity type (user, club, event, etc.)
+Entity ID/name
+IP address
+Details (expandable)
+
+Filters:
+
+Date range
+Admin user
+Action type
+Entity type
+
+Export:
+
+Export filtered logs to CSV
+
+
+Step 8.5: Data Export Tools
+Create: src/components/admin/ExportData.tsx
+Reusable export component:
+
+Export format selector (CSV, Excel, JSON, PDF)
+Field selector (choose which columns to export)
+Filter application (export filtered data only)
+Progress indicator for large exports
+Download button
+
+Integrate into:
+
+User management
+Clubs management
+Events management
+Bookings
+Applications
+
+
+Step 8.6: Join Us Configuration
+Create: src/pages/admin/JoinUsConfig.tsx
+Configure membership registration:
+Form Builder:
+
+Drag-and-drop form fields
+Field types: text, email, phone, textarea, select, checkbox, radio, file upload
+Required field toggle
+Placeholder text
+Help text
+Validation rules
+Conditional logic (show field if...)
+
+Membership Tiers:
+
+List of tiers (table)
+Add/Edit tier form:
+
+Name, Description
+Price
+Duration (monthly, yearly)
+Benefits (list)
+Active toggle
+Featured toggle
+
+
+
+Welcome Email:
+
+Email template editor
+Subject line
+Body (rich text)
+Variables: {{firstName}}, {{tierName}}, etc.
+Send test email
+
+
+Step 8.7: Cookie Settings
+Create: src/pages/admin/CookieSettings.tsx
+Manage cookie consent:
+Banner Settings:
+
+Banner text
+Accept button text
+Reject button text
+Customize button text
+Position (top, bottom)
+Style (bar, popup)
+
+Cookie Categories:
+
+Table of categories:
+
+Name (Essential, Analytics, Marketing)
+Description
+Default state (always on, opt-in, opt-out)
+Cookies list
+
+
+Add/Edit category form
+
+Compliance:
+
+GDPR compliance mode (toggle)
+CCPA compliance mode (toggle)
+Privacy policy link
+Cookie policy link
+
+Preview:
+
+Preview cookie banner
+Test accept/reject flow
+
+
+🎨 Phase 9: UI/UX Enhancements (Week 7)
+Step 9.1: Loading States & Skeletons
+For every data-fetching component, add:
+
+Skeleton loaders using shadcn/ui Skeleton
+Loading spinners for actions
+Progressive loading (show data as it arrives)
+Error states with retry buttons
+
+
+Step 9.2: Empty States
+For all lists/tables, add empty states when no data:
+
+Friendly illustration or icon
+Helpful message
+Call-to-action button (e.g., "Add your first club")
+Use shadcn/ui Card for empty state containers
+
+
+Step 9.3: Toast Notifications
+Implement toast notifications for all actions:
+
+Success toasts (green)
+Error toasts (red)
+Info toasts (blue)
+Warning toasts (yellow)
+Use shadcn/ui Sonner or Toast
+Position: bottom-right
+Auto-dismiss after 3-5 seconds
+Action buttons in toasts (e.g., "Undo")
