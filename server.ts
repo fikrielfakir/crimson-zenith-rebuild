@@ -1472,10 +1472,10 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
-const host = process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost';
+const host = '0.0.0.0';
 
 app.listen(PORT, host, () => {
-  console.log(`Server running on http://${host}:${PORT}`);
+  console.log(`Server running on http://localhost:${PORT}`);
   if (process.env.NODE_ENV === 'production') {
     console.log('Production mode: Serving built frontend and API');
   } else {
