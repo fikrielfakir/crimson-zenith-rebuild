@@ -1,0 +1,3453 @@
+ rebuilding a complete admin dashboard for Journey Association - a Moroccan club/journey management platform. The admin interface will manage:
+
+Users & authentication
+Clubs & memberships
+Events & bookings
+Content management (CMS)
+Media library
+Analytics & reporting
+System configuration
+
+
+📋 Phase 1: Foundation & Authentication ( 1)
+Step 1.1: Delete Old Admin Files
+bash# Backup first!
+git commit -am "Backup before admin rebuild"
+
+# Delete old admin files
+rm -rf src/pages/admin/*
+rm -rf src/components/admin/*
+Step 1.2: Set Up Admin Layout Structure
+Create: src/components/admin/AdminLayout.tsx
+Build a responsive admin layout with:
+
+Sidebar Navigation (collapsible on mobile)
+
+Logo/branding at top
+Navigation menu with icons (use lucide-react)
+User profile at bottom
+Logout button
+
+
+Top Header Bar
+
+Breadcrumbs showing current location
+Search bar (global search)
+Notifications bell icon
+User dropdown menu
+Theme toggle (light/dark)
+
+
+Main Content Area
+
+Responsive padding
+Max-width container for readability
+Scroll area for content
+
+
+
+Navigation Menu Structure:
+typescriptconst navigationItems = [
+  { label: 'Dashboard', icon: 'LayoutDashboard', href: '/admin' },
+  { 
+    label: 'Users', 
+    icon: 'Users', 
+    children: [
+      { label: 'All Users', href: '/admin/users' },
+      { label: 'Roles & Permissions', href: '/admin/users/roles' }
+    ]
+  },
+  { 
+    label: 'Clubs', 
+    icon: 'Building', 
+    children: [
+      { label: 'All Clubs', href: '/admin/clubs' },
+      { label: 'Pending Approval', href: '/admin/clubs/pending' }
+    ]
+  },
+  { label: 'Events', icon: 'Calendar', href: '/admin/events' },
+  { label: 'Bookings', icon: 'Ticket', href: '/admin/bookings' },
+  { label: 'Applications', icon: 'FileText', href: '/admin/applications' },
+  { 
+    label: 'Content', 
+    icon: 'FileEdit', 
+    children: [
+      { label: 'News/Blog', href: '/admin/news' },
+      { label: 'Landing Page', href: '/admin/landing' },
+      { label: 'Media Library', href: '/admin/media' }
+    ]
+  },
+  { label: 'Analytics', icon: 'BarChart3', href: '/admin/analytics' },
+  { 
+    label: 'Settings', 
+    icon: 'Settings', 
+    children: [
+      { label: 'Site Settings', href: '/admin/settings' },
+      { label: 'Theme', href: '/admin/theme' },
+      { label: 'Payments', href: '/admin/payments' },
+      { label: 'Email', href: '/admin/email' },
+      { label: 'Auth', href: '/admin/auth' },
+      { label: 'Cookies', href: '/admin/cookies' }
+    ]
+  },
+  { label: 'System', icon: 'Server', href: '/admin/system' }
+];
+Key Features:
+
+Use shadcn/ui components: Sidebar, Sheet (mobile menu), ScrollArea, Separator
+Implement active route highlighting
+Add keyboard shortcuts (e.g., Cmd+K for search)
+Responsive design: sidebar becomes drawer on mobile
+Store sidebar collapsed state in localStorage
+
+
+Step 1.3: Protected Route Component
+Create: src/components/admin/ProtectedRoute.tsx
+Build route protection that:
+
+Checks if user is authenticated
+Verifies admin role (isAdmin === true)
+Redirects to /admin/login if not authorized
+Shows loading spinner during auth check
+Uses React Query to fetch current user
+
+typescript// Example structure
+const ProtectedRoute = ({ children }) => {
+  const { data: user, isLoading } = useQuery('currentUser', fetchCurrentUser);
+  
+  if (isLoading) return <LoadingSpinner />;
+  if (!user || !user.isAdmin) {
+    return <Navigate to="/admin/login" replace />;
+  }
+  
+  return <AdminLayout>{children}</AdminLayout>;
+};
+
+Step 1.4: Admin Login Page
+Create: src/pages/admin/AdminLogin.tsx
+Build a clean login page with:
+
+Form Fields:
+
+Email/Username input
+Password input (with show/hide toggle)
+"Remember me" checkbox
+
+
+Form Validation:
+
+Required field validation
+Email format validation
+Error messages display
+
+
+Features:
+
+Submit button with loading state
+"Forgot password?" link (optional)
+Error handling for wrong credentials
+Auto-redirect to /admin on success
+
+
+Styling:
+
+Centered card on page
+Journey Association branding
+Professional, minimal design
+Use shadcn/ui: Card, Form, Input, Button, Checkbox
+
+
+
+API Integration:
+typescript// Login mutation
+const loginMutation = useMutation({
+  mutationFn: (credentials) => fetch('/api/admin/login', {
+    method: 'POST',
+    body: JSON.stringify(credentials)
+  }),
+  onSuccess: () => {
+    queryClient.invalidateQueries('currentUser');
+    navigate('/admin');
+  }
+});
+
+📊 Phase 2: Dashboard & Analytics ( 1-2)
+Step 2.1: Admin Dashboard
+Create: src/pages/admin/AdminDashboard.tsx
+Build an overview dashboard with:
+Top Row - Key Metrics (4 stat cards):
+
+Total Users (with growth percentage)
+Active Clubs (with new this month)
+Upcoming Events (with this  count)
+Total Revenue (with monthly comparison)
+
+Each stat card should have:
+
+Large number display
+Icon (lucide-react)
+Growth indicator (up/down arrow + percentage)
+Background color coding
+Click to navigate to detail page
+
+Second Row - Charts (2 columns):
+
+Left: Users Growth Chart (line chart, last 6 months)
+Right: Revenue Chart (bar chart, last 6 months)
+
+Third Row:
+
+Recent Activity Feed (3 columns width)
+
+List of latest actions (user registrations, club approvals, bookings)
+Time stamps
+Avatar/icon for each activity
+"View all" link
+
+
+Upcoming Events (1 column width)
+
+Next 5 events list
+Date badges
+"Manage Events" button
+
+
+
+Fourth Row - Quick Actions:
+
+Grid of action buttons:
+
+"Add New Club"
+"Create Event"
+"Review Applications"
+"Send Email Campaign"
+"View Reports"
+
+
+
+Technical Requirements:
+
+Use React Query for data fetching
+Use Recharts for charts (LineChart, BarChart, XAxis, YAxis, Tooltip, Legend)
+Use shadcn/ui: Card, Badge, Button, Skeleton (loading states)
+Implement loading skeletons for all data sections
+Add error boundaries for chart rendering
+Make responsive (stack on mobile)
+
+
+Step 2.2: Analytics Page
+Create: src/pages/admin/Analytics.tsx
+Build comprehensive analytics with:
+Filter Controls:
+
+Date range picker (last 7 days, 30 days, 3 months, 6 months, custom)
+Export data button (CSV download)
+
+Metrics Sections:
+
+Traffic Analytics:
+
+Page views chart (line)
+Unique visitors
+Bounce rate
+Average session duration
+Top pages table
+
+
+User Engagement:
+
+New registrations over time
+Active users (DAU, MAU)
+User retention cohort chart
+Most active users table
+
+
+Event Analytics:
+
+Events created over time
+Total participants
+Most popular events table
+Event categories breakdown (pie chart)
+Average attendance rate
+
+
+Revenue Analytics:
+
+Revenue over time (bar chart)
+Revenue by source (memberships, bookings, donations)
+Average transaction value
+Top revenue-generating events
+
+
+Club Analytics:
+
+New clubs over time
+Most popular clubs (by members)
+Club activity heatmap
+Geographic distribution map
+
+
+
+Components:
+
+Use Recharts for all visualizations
+Use shadcn/ui: Card, Tabs, Select, Calendar, Table
+Implement data export functionality
+Add comparison mode (compare two date ranges)
+Make all charts interactive (hover tooltips, click to drill down)
+
+
+👥 Phase 3: User Management ( 2)
+Step 3.1: User Management Page
+Create: src/pages/admin/UserManagement.tsx
+Build user management interface with:
+Top Controls Bar:
+
+Search input (search by name, email, username)
+Filter dropdowns:
+
+Role filter (All, Admin, Member)
+Status filter (All, Active, Inactive)
+Date joined filter
+
+
+"Add New User" button
+"Export Users" button
+Bulk actions dropdown (visible when users selected)
+
+User Table:
+Columns:
+
+Checkbox (select for bulk operations)
+Avatar + Name
+Username
+Email
+Role (badge: admin/member)
+Status (badge: active/inactive)
+Clubs (count with popover showing list)
+Events (count)
+Joined Date
+Actions dropdown
+
+Actions Dropdown Menu Items:
+
+View Profile
+Edit User
+Reset Password
+Toggle Admin Status
+Suspend Account
+Delete User (with confirmation)
+
+Bulk Operations:
+
+Select All checkbox
+Bulk actions: Delete, Export, Send Email, Change Role
+Show count of selected users
+
+Pagination:
+
+Show 10/25/50/100 per page selector
+Page numbers
+Previous/Next buttons
+Total count display
+
+Modals/Dialogs:
+
+Add/Edit User Dialog:
+
+Form fields:
+
+Profile image upload
+First name, Last name
+Username, Email
+Phone, Location
+Bio (textarea)
+Interests (multi-select tags)
+Role (radio: admin/member)
+Status (toggle: active/inactive)
+
+
+Validation for all fields
+Submit button with loading state
+
+
+Delete Confirmation Dialog:
+
+Warning message
+List of consequences (membership cancellations, etc.)
+Confirm/Cancel buttons
+
+
+
+Technical Requirements:
+
+Use React Query for data fetching and mutations
+Use shadcn/ui: Table, Checkbox, DropdownMenu, Dialog, Form, Input, Select, Badge, Avatar, Pagination
+Implement debounced search (500ms)
+Implement optimistic updates for status changes
+Add success/error toasts for all actions
+Handle loading states for all operations
+
+Create Reusable Component: src/components/admin/BulkOperations.tsx
+
+Reusable across all admin tables
+Props: selectedItems, onDelete, onExport, customActions
+
+
+🏢 Phase 4: Club Management ( 3)
+Step 4.1: Clubs Management Page
+Create: src/pages/admin/ClubsManagement.tsx
+Similar structure to User Management but for clubs:
+Top Controls:
+
+Search clubs (by name, location)
+Filters: Status (All, Active, Pending, Inactive), City
+"Add New Club" button
+"Export Clubs" button
+
+Clubs Table:
+Columns:
+
+Checkbox
+Image thumbnail
+Name
+Location (with icon)
+Owner (user link)
+Members (count)
+Events (count)
+Rating (stars)
+Status (badge: active/pending/inactive)
+Created Date
+Actions
+
+Actions:
+
+View Club Page
+Edit Club
+View Members
+View Events
+Approve (if pending)
+Feature on Homepage
+Deactivate/Activate
+Delete
+
+Modals:
+
+Add/Edit Club Dialog (Full-page or large modal):
+Tabs:
+
+Basic Info:
+
+Name, Short description
+Long description (rich text editor)
+Image upload
+Location (with map picker)
+Contact (phone, email, website)
+Social media links
+
+
+Details:
+
+Features (multi-select chips)
+Established year
+Rating
+Member count
+
+
+Settings:
+
+Status (active/inactive)
+Featured (toggle)
+Owner (user select)
+
+
+
+
+Approve Club Dialog:
+
+Club details preview
+Approval notes (textarea)
+Approve/Reject buttons
+Email notification toggle
+
+
+Members List Dialog:
+
+Table of members with roles
+Add member button
+Remove member button
+
+
+
+Special Features:
+
+Map view toggle (switch between table and map with club markers)
+Featured clubs section (drag-and-drop to reorder)
+Pending approvals counter badge in navigation
+
+
+📅 Phase 5: Events & Bookings ( 3-4)
+Step 5.1: Events Management Page
+Create: src/pages/admin/EventsManagement.tsx
+Dual-view interface for events:
+View Toggle: Calendar View | Table View
+Calendar View:
+
+Full calendar showing all events
+Color-coded by status (upcoming/ongoing/completed/cancelled)
+Click event to see details
+Drag to reschedule
+Month/Week/Day view options
+Filter by club, category, status
+
+Table View:
+Similar to clubs table:
+
+Event image/icon
+Title
+Club (link)
+Date & Time
+Location
+Participants (current/max)
+Status (badge)
+Creator
+Actions
+
+Actions:
+
+View Event
+Edit Event
+View Participants
+Cancel Event
+Duplicate Event
+Export Participants List
+Send Notification to Participants
+Delete
+
+Modals:
+
+Create/Edit Event Dialog:
+
+Title, Description
+Club (select)
+Date & Time (date-time picker)
+Location
+Max participants
+Status
+Image/banner upload
+Event type/category
+
+
+Participants Dialog:
+
+Table of registered users
+Attendance status (toggle attended/not attended)
+Add participant manually
+Remove participant
+Export list button
+Send email to all button
+
+
+
+Special Features:
+
+Conflict detection (events at same time/location)
+Recurring events creator
+Event templates
+QR code generation for check-in
+
+
+Step 5.2: Booking Management Page
+Create: src/pages/admin/BookingManagement.tsx
+Manage event bookings and payments:
+Top Controls:
+
+Search bookings
+Filters: Status (All, Pending, Confirmed, Cancelled, Refunded), Date range, Event
+Export bookings
+
+Bookings Table:
+Columns:
+
+Booking ID
+User (name + email)
+Event
+Date booked
+Event date
+Participants count
+Amount paid
+Payment status (badge)
+Payment method (Stripe/PayPal icon)
+Status
+Actions
+
+Actions:
+
+View Details
+Confirm Booking
+Cancel Booking
+Process Refund
+Send Confirmation Email
+Download Receipt
+
+Modals:
+
+Booking Details Dialog:
+
+User information
+Event information
+Participants details
+Payment information
+Transaction ID
+Notes/special requests
+Timeline of booking events
+
+
+Refund Dialog:
+
+Refund amount (default: full, allow partial)
+Refund reason (select)
+Notes
+Send notification toggle
+Process refund button
+
+
+
+Revenue Section:
+
+Total revenue card
+Revenue by event chart
+Revenue by payment method
+Refund statistics
+
+
+📝 Phase 6: Content Management ( 4-5)
+Step 6.1: News/Blog Management
+Create: src/pages/admin/NewsManagement.tsx
+Manage blog posts and news:
+Top Controls:
+
+Search articles
+Filters: Status (All, Published, Draft, Scheduled), Category
+"New Article" button
+
+Articles Table:
+
+Thumbnail
+Title
+Author
+Category (badge)
+Status (badge)
+Published date
+Views count
+Actions
+
+Create/Edit Article Page (separate route: /admin/news/edit/:id):
+Full-page editor with:
+
+Title input (large)
+Slug (auto-generated, editable)
+Rich text editor (WYSIWYG) for content
+
+Use TipTap or similar
+Support: headings, bold, italic, lists, links, images, code blocks
+
+
+Sidebar with:
+
+Publish Settings:
+
+Status (draft/published/scheduled)
+Publish date (if scheduled)
+Author (select)
+
+
+Featured Image:
+
+Image upload
+Alt text input
+
+
+Categories:
+
+Select/create categories
+Multi-select tags
+
+
+SEO:
+
+Meta title
+Meta description
+Focus keyword
+URL slug
+
+
+Preview: Button to preview article
+
+
+
+Actions:
+
+Save Draft
+Publish
+Schedule
+Preview
+Delete
+
+
+Step 6.2: Landing Page Management
+Create: src/pages/admin/LandingManagement.tsx
+Visual page builder for homepage:
+Structure: Tabbed interface (shadcn/ui Tabs)
+Tabs:
+
+Navbar Tab:
+
+Logo settings (upload/text/SVG)
+Navigation links editor (add/edit/remove/reorder)
+Button settings (Login, Join Us)
+Language switcher toggle
+Dark mode toggle
+
+
+Hero Tab:
+
+Title & Subtitle
+Typewriter effect texts (array input)
+Background (image/video upload)
+Overlay color & opacity sliders
+Button texts & links
+Font size & color pickers
+
+
+Focus Items Tab:
+
+List of focus items (drag to reorder)
+Add/Edit form for each item:
+
+Title, Description
+Icon selector
+Media upload
+Active toggle
+
+
+
+
+Featured Clubs Tab:
+
+Select clubs to feature
+Order clubs (drag-and-drop)
+Number of clubs to show
+
+
+Featured Activities Tab:
+
+Similar to clubs
+
+
+Events Tab:
+
+Featured events selector
+Display settings
+
+
+Team Tab:
+
+Team members list (drag to reorder)
+Add/Edit member form:
+
+Photo upload
+Name, Role, Bio
+Email, Phone
+Social links
+Active toggle
+
+
+
+
+Testimonials Tab:
+
+Testimonials list
+Approval system (show pending testimonials)
+Add/Edit form
+Order management
+
+
+Stats Tab:
+
+Stats editor (4 stats)
+Label, Value, Icon, Suffix
+Order management
+
+
+Contact Tab:
+
+Office address
+Email, Phone
+Office hours
+Map coordinates
+Social links
+
+
+Footer Tab:
+
+Copyright text
+Description
+Links editor (add/edit/remove)
+Social links
+Newsletter settings
+
+
+SEO Tab:
+
+Site title, Description
+Keywords
+Open Graph image
+Analytics IDs (Google Analytics, Facebook Pixel)
+Custom head/body code
+
+
+
+Preview Panel:
+
+Live preview mode (toggle)
+Preview updates in real-time as you edit
+Mobile/tablet/desktop view switcher
+
+Save System:
+
+Auto-save draft every 30 seconds
+"Save Changes" button
+"Publish" button (makes changes live)
+"Discard Changes" button
+
+
+Step 6.3: Media Library
+Create: src/pages/admin/MediaLibrary.tsx
+Complete media asset management:
+Top Section:
+
+Upload area (drag-and-drop or click)
+
+Multiple file upload
+Progress bars for each upload
+Preview thumbnails immediately
+
+
+Search media
+Filters: Type (All, Images, Videos, Documents), Upload date
+View toggle: Grid | List
+
+Grid View:
+
+Masonry/grid layout
+Each item shows:
+
+Thumbnail preview
+Filename
+File size
+Upload date
+Checkbox (for bulk operations)
+Hover actions: View, Edit, Delete
+
+
+
+List View:
+
+Table with columns:
+
+Thumbnail
+Filename
+Type (badge)
+Size
+Dimensions (for images)
+Uploaded by
+Date
+Used in (count with popover showing where it's used)
+Actions
+
+
+
+Lightbox/Media Viewer:
+Click image to open full-screen viewer with:
+
+Image display
+Previous/Next navigation
+Zoom controls
+Download button
+Share button
+Delete button
+
+Edit Media Dialog:
+
+Image preview
+Basic Info:
+
+Filename
+Alt text (for accessibility)
+Caption
+
+
+Image Editor (for images only):
+
+Crop tool
+Resize
+Rotate
+Focal point selector (for responsive crops)
+
+
+Details:
+
+File size
+Dimensions
+Format
+Upload date
+Uploaded by
+Used in (links)
+
+
+Save button
+
+Bulk Operations:
+
+Select all
+Delete selected
+Download selected (as zip)
+Change alt text (batch)
+
+Media Upload Component: src/components/admin/MediaUpload.tsx
+Reusable upload component with:
+
+Drag-and-drop zone
+File type validation
+Size limit validation (5MB per file)
+Image compression option
+Preview before upload
+Progress tracking
+Error handling
+
+
+⚙️ Phase 7: Settings & Configuration ( 5-6)
+Step 7.1: Theme Customization
+Create: src/pages/admin/ThemeCustomization.tsx
+Visual theme editor:
+Color Settings:
+
+Primary color picker
+Secondary color picker
+Preview color swatches
+"Reset to default" button
+
+Typography Settings:
+
+Font family selector (Google Fonts integration)
+Heading font
+Body font
+Font size scale
+
+Custom CSS Editor:
+
+Code editor (Monaco or CodeMirror)
+Syntax highlighting
+Auto-save
+Preview toggle
+
+Preview Panel:
+
+Live preview of theme changes
+Sample components displayed
+Mobile/desktop view toggle
+
+Export/Import:
+
+Export theme as JSON
+Import theme from JSON
+Theme presets (light, dark, high-contrast)
+
+
+Step 7.2: Payment Settings
+Create: src/pages/admin/PaymentSettings.tsx
+Configure payment integrations:
+Tabs:
+
+Stripe:
+
+Publishable key input
+Secret key input (masked)
+Webhook URL display (copy button)
+Test mode toggle
+Connection status indicator
+"Test Connection" button
+
+
+PayPal:
+
+Client ID input
+Client secret input (masked)
+Sandbox mode toggle
+Connection status
+"Test Connection" button
+
+
+General Settings:
+
+Enabled payment methods (checkboxes)
+Currency selector
+Transaction fee settings
+Minimum booking amount
+Refund policy settings
+
+
+
+Test Transaction Section:
+
+Form to test payment
+Amount input
+"Process Test Payment" button
+Transaction result display
+
+
+Step 7.3: Email Campaign Manager
+Create: src/pages/admin/EmailCampaigns.tsx
+Email marketing tool:
+Campaigns List:
+
+Table showing all campaigns
+Columns: Name, Status, Recipients, Sent date, Open rate, Click rate, Actions
+
+Create Campaign Page:
+
+Campaign Details:
+
+Campaign name
+Subject line
+Preheader text
+
+
+Recipients:
+
+Select audience:
+
+All users
+All members
+Club members (select clubs)
+Custom list (upload CSV)
+
+
+Show recipient count
+"Send test email" button
+
+
+Email Template Editor:
+
+Visual drag-and-drop builder OR
+HTML code editor
+Template variables: {{user.firstName}}, {{user.email}}, etc.
+Preview in desktop/mobile
+
+
+Schedule:
+
+Send now (radio)
+Schedule for later (radio + date-time picker)
+
+
+Review & Send:
+
+Summary of campaign
+Preview email
+"Send Campaign" button
+
+
+
+Campaign Analytics:
+
+Open rate chart
+Click rate chart
+Top clicked links
+Geographic data
+Device breakdown
+
+
+Step 7.4: Authentication Settings
+Create: src/pages/admin/AuthSettings.tsx
+Configure authentication:
+OAuth Providers:
+
+Google (toggle, client ID/secret)
+Facebook (toggle, app ID/secret)
+Replit (toggle, client ID/secret)
+
+Registration Settings:
+
+Allow registration (toggle)
+Email verification required (toggle)
+Admin approval required (toggle)
+Default user role
+
+Password Policy:
+
+Minimum length (number input)
+Require uppercase
+Require numbers
+Require special characters
+Password expiration (days)
+
+Session Settings:
+
+Session timeout (minutes)
+Remember me duration (days)
+Max concurrent sessions
+
+Two-Factor Authentication:
+
+Enable 2FA (toggle)
+Enforce for admins (toggle)
+Methods (SMS, Authenticator app)
+
+
+Step 7.5: System Monitoring
+Create: src/pages/admin/SystemMonitoring.tsx
+System health dashboard:
+Server Status Section:
+
+Server uptime
+CPU usage (gauge)
+Memory usage (gauge)
+Disk usage (gauge)
+Status: Online/Offline badge
+
+Database Status:
+
+Connection status
+Active connections count
+Database size
+Last backup date
+"Backup Now" button
+
+Error Logs:
+
+Table of recent errors
+Columns: Timestamp, Level (error/warning/info), Message, Stack trace, User (if applicable)
+Filters: Level, Date range
+"Clear logs" button
+
+Performance Metrics:
+
+Average response time chart
+Requests per minute chart
+Slow queries list
+Cache hit rate
+
+Backup Management:
+
+List of backups (table)
+Columns: Date, Size, Status, Actions (Download, Restore, Delete)
+"Create Backup" button
+Auto-backup schedule settings
+
+System Information:
+
+Node.js version
+MySQL version
+Application version
+Environment (production/development)
+Server location
+
+
+🔧 Phase 8: Additional Features & Polish ( 6-7)
+Step 8.1: Applications Management
+Create: src/pages/admin/ApplicationsManagement.tsx
+Manage membership applications:
+Applications Table:
+
+Applicant name
+Email
+Phone
+Application date
+Membership tier
+Status (pending/approved/rejected)
+Actions
+
+Review Application Dialog:
+
+Full application details
+Applicant information
+Membership tier selected
+Answers to application questions
+Decision Section:
+
+Approve/Reject buttons
+Notes textarea
+Send notification email (toggle)
+
+
+Timeline of application events
+
+Bulk Approval:
+
+Select multiple pending applications
+"Approve Selected" button
+"Reject Selected" button
+
+
+Step 8.2: Global Search (Command Palette)
+Create: src/components/admin/CommandPalette.tsx
+Keyboard-accessible search:
+
+Trigger: Cmd+K (Mac) or Ctrl+K (Windows/Linux)
+Modal dialog with search input
+Search across:
+
+Pages/routes (navigate)
+Users (open profile)
+Clubs (open club)
+Events (open event)
+Settings (navigate)
+
+
+Recent searches
+Keyboard navigation (arrow keys, enter to select)
+Use shadcn/ui Command component
+
+
+Step 8.3: Notifications System
+Create notification dropdown in AdminLayout header:
+
+Bell icon with badge (unread count)
+Dropdown showing recent notifications
+Types of notifications:
+
+New user registration
+New club submission
+Event registration
+Application submitted
+Payment received
+System alerts
+
+
+Mark as read functionality
+"View all notifications" link to /admin/notifications
+
+Create: src/pages/admin/Notifications.tsx
+
+Full list of all notifications
+Filter by type, read/unread
+Bulk mark as read
+Clear all button
+
+
+Step 8.4: Activity Log
+Create: src/pages/admin/ActivityLog.tsx
+Audit trail of admin actions:
+Activity Table:
+
+Timestamp
+Admin user
+Action (created, updated, deleted, etc.)
+Entity type (user, club, event, etc.)
+Entity ID/name
+IP address
+Details (expandable)
+
+Filters:
+
+Date range
+Admin user
+Action type
+Entity type
+
+Export:
+
+Export filtered logs to CSV
+
+
+Step 8.5: Data Export Tools
+Create: src/components/admin/ExportData.tsx
+Reusable export component:
+
+Export format selector (CSV, Excel, JSON, PDF)
+Field selector (choose which columns to export)
+Filter application (export filtered data only)
+Progress indicator for large exports
+Download button
+
+Integrate into:
+
+User management
+Clubs management
+Events management
+Bookings
+Applications
+
+
+Step 8.6: Join Us Configuration
+Create: src/pages/admin/JoinUsConfig.tsx
+Configure membership registration:
+Form Builder:
+
+Drag-and-drop form fields
+Field types: text, email, phone, textarea, select, checkbox, radio, file upload
+Required field toggle
+Placeholder text
+Help text
+Validation rules
+Conditional logic (show field if...)
+
+Membership Tiers:
+
+List of tiers (table)
+Add/Edit tier form:
+
+Name, Description
+Price
+Duration (monthly, yearly)
+Benefits (list)
+Active toggle
+Featured toggle
+
+
+
+Welcome Email:
+
+Email template editor
+Subject line
+Body (rich text)
+Variables: {{firstName}}, {{tierName}}, etc.
+Send test email
+
+
+Step 8.7: Cookie Settings
+Create: src/pages/admin/CookieSettings.tsx
+Manage cookie consent:
+Banner Settings:
+
+Banner text
+Accept button text
+Reject button text
+Customize button text
+Position (top, bottom)
+Style (bar, popup)
+
+Cookie Categories:
+
+Table of categories:
+
+Name (Essential, Analytics, Marketing)
+Description
+Default state (always on, opt-in, opt-out)
+Cookies list
+
+
+Add/Edit category form
+
+Compliance:
+
+GDPR compliance mode (toggle)
+CCPA compliance mode (toggle)
+Privacy policy link
+Cookie policy link
+
+Preview:
+
+Preview cookie banner
+Test accept/reject flow
+
+
+🎨 Phase 9: UI/UX Enhancements ( 7)
+Step 9.1: Loading States & Skeletons
+For every data-fetching component, add:
+
+Skeleton loaders using shadcn/ui Skeleton
+Loading spinners for actions
+Progressive loading (show data as it arrives)
+Error states with retry buttons
+
+
+Step 9.2: Empty States
+For all lists/tables, add empty states when no data:
+
+Friendly illustration or icon
+Helpful message
+Call-to-action button (e.g., "Add your first club")
+Use shadcn/ui Card for empty state containers
+
+
+Step 9.3: Toast Notifications
+Implement toast notifications for all actions:
+
+Success toasts (green)
+Error toasts (red)
+Info toasts (blue)
+Warning toasts (yellow)
+Use shadcn/ui Sonner or Toast
+Position: bottom-right
+Auto-dismiss after 3-5 seconds
+Action buttons in toasts (e.g., "Undo")
+
+Step 9.4: Responsive Design Optimization
+Ensure all admin pages are mobile-responsive:
+Mobile Navigation:
+
+Sidebar becomes bottom sheet/drawer
+Hamburger menu in header
+Fixed bottom navigation for key actions
+Swipe gestures for drawer
+
+Table Responsiveness:
+
+Convert tables to card layout on mobile
+Stack columns vertically
+Show most important columns only
+"View more" expandable sections
+Horizontal scroll for wide tables with sticky first column
+
+Form Optimization:
+
+Full-width inputs on mobile
+Larger touch targets (min 44px)
+Sticky form submission buttons
+Progressive disclosure (show fields as needed)
+
+Mobile-specific Features:
+
+Pull-to-refresh
+Infinite scroll for lists
+Bottom sheets for modals
+Native-like transitions
+
+
+Step 9.5: Dark Mode Support
+Implement comprehensive dark mode:
+
+Use CSS variables for all colors
+Toggle in AdminLayout header
+Store preference in localStorage
+Respect system preference (prefers-color-scheme)
+Smooth transition between modes
+
+Dark mode color scheme:
+css:root[data-theme="dark"] {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+  --card: #1a1a1a;
+  --card-foreground: #ededed;
+  --primary: #3b82f6;
+  --primary-foreground: #ffffff;
+  /* etc. */
+}
+Test dark mode on:
+
+All admin pages
+All modals/dialogs
+Charts and graphs
+Data tables
+Forms
+Loading states
+
+
+Step 9.6: Keyboard Shortcuts
+Implement keyboard shortcuts for power users:
+
+Cmd/Ctrl + K - Open command palette
+Cmd/Ctrl + / - Show keyboard shortcuts help
+Cmd/Ctrl + S - Save current form
+Cmd/Ctrl + N - New item (context-dependent)
+Cmd/Ctrl + E - Edit selected item
+Esc - Close modal/dialog
+Arrow keys - Navigate tables/lists
+Enter - Confirm action
+Del/Backspace - Delete selected item
+
+Create: src/components/admin/KeyboardShortcuts.tsx
+
+Modal showing all available shortcuts
+Grouped by category (Navigation, Actions, etc.)
+Visual keyboard key display
+Search shortcuts
+Triggered by Cmd + /
+
+
+Step 9.7: Accessibility Improvements
+WCAG 2.1 AA Compliance:
+
+Proper heading hierarchy (h1 → h2 → h3)
+ARIA labels on all interactive elements
+Focus indicators (visible focus states)
+Keyboard navigation for all features
+Screen reader announcements for dynamic content
+Color contrast ratios (minimum 4.5:1)
+Alt text for all images
+Form labels properly associated
+Error messages clearly announced
+
+Test with:
+
+Screen reader (NVDA/JAWS/VoiceOver)
+Keyboard-only navigation
+High contrast mode
+Zoom to 200%
+
+
+🔐 Phase 10: Security & Validation ( 8)
+Step 10.1: Form Validation
+Implement comprehensive validation for all forms:
+Client-side validation:
+
+Use React Hook Form with Zod schema validation
+Real-time validation on blur
+Show inline error messages
+Disable submit until valid
+Custom validators for:
+
+Email format
+Phone format
+URL format
+Password strength
+File size/type
+Date ranges
+
+
+
+Example validation schema:
+typescriptimport { z } from 'zod';
+
+const clubSchema = z.object({
+  name: z.string().min(3, 'Name must be at least 3 characters'),
+  email: z.string().email('Invalid email address'),
+  phone: z.string().regex(/^[0-9+\-\s()]+$/, 'Invalid phone number'),
+  description: z.string().min(20, 'Description too short'),
+  location: z.string().min(1, 'Location required'),
+  website: z.string().url('Invalid URL').optional(),
+  memberCount: z.number().int().positive().optional(),
+});
+Server-side validation:
+
+Validate all API requests
+Return detailed error messages
+Sanitize inputs (prevent XSS)
+Rate limiting on sensitive endpoints
+
+
+Step 10.2: Permission System
+Create: src/hooks/usePermissions.ts
+Role-based access control:
+typescriptconst permissions = {
+  admin: ['*'], // all permissions
+  moderator: [
+    'users.view', 'users.edit',
+    'clubs.view', 'clubs.edit', 'clubs.approve',
+    'events.view', 'events.edit',
+    'content.view', 'content.edit',
+  ],
+  content_manager: [
+    'content.view', 'content.edit', 'content.create',
+    'media.view', 'media.upload',
+  ],
+};
+
+const usePermissions = () => {
+  const { user } = useAuth();
+  
+  const hasPermission = (permission: string) => {
+    const userPermissions = permissions[user.role] || [];
+    return userPermissions.includes('*') || userPermissions.includes(permission);
+  };
+  
+  return { hasPermission };
+};
+Implement permission checks:
+
+Wrap actions in permission checks
+Hide UI elements user doesn't have access to
+Show permission denied messages
+Redirect unauthorized access attempts
+
+Example usage:
+typescriptconst { hasPermission } = usePermissions();
+
+{hasPermission('users.delete') && (
+  <Button onClick={handleDelete}>Delete User</Button>
+)}
+
+Step 10.3: Audit Logging
+Enhance Activity Log with detailed audit trails:
+Log all admin actions:
+
+Who performed the action
+What action was performed
+When it was performed
+What entity was affected
+Before/after values for updates
+IP address and user agent
+Session ID
+
+Create: src/utils/auditLog.ts
+typescriptexport const logAction = async (action: {
+  userId: string;
+  action: 'create' | 'update' | 'delete';
+  entityType: string;
+  entityId: string;
+  changes?: Record<string, any>;
+  metadata?: Record<string, any>;
+}) => {
+  await fetch('/api/audit-log', {
+    method: 'POST',
+    body: JSON.stringify({
+      ...action,
+      timestamp: new Date(),
+      ipAddress: getUserIP(),
+      userAgent: navigator.userAgent,
+    }),
+  });
+};
+Integrate audit logging into all mutations:
+typescriptconst deleteUserMutation = useMutation({
+  mutationFn: deleteUser,
+  onSuccess: (data, userId) => {
+    logAction({
+      userId: currentUser.id,
+      action: 'delete',
+      entityType: 'user',
+      entityId: userId,
+    });
+    queryClient.invalidateQueries('users');
+  },
+});
+
+Step 10.4: Data Sanitization
+Prevent XSS and injection attacks:
+Install and use DOMPurify:
+bashnpm install dompurify @types/dompurify
+Create: src/utils/sanitize.ts
+typescriptimport DOMPurify from 'dompurify';
+
+export const sanitizeHTML = (html: string) => {
+  return DOMPurify.sanitize(html, {
+    ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'h1', 'h2', 'h3', 'ul', 'ol', 'li', 'a'],
+    ALLOWED_ATTR: ['href', 'target', 'rel'],
+  });
+};
+
+export const sanitizeInput = (input: string) => {
+  return input.trim().replace(/[<>]/g, '');
+};
+Use in all rich text displays:
+typescript<div dangerouslySetInnerHTML={{ 
+  __html: sanitizeHTML(content) 
+}} />
+
+Step 10.5: CSRF Protection
+Implement CSRF tokens:
+
+Use csurf middleware on backend
+Include CSRF token in all mutation requests
+Validate token on server
+Refresh token on expiration
+
+Create: src/hooks/useCSRFToken.ts
+typescriptconst useCSRFToken = () => {
+  const { data: token } = useQuery('csrfToken', fetchCSRFToken);
+  return token;
+};
+Include in all POST/PUT/DELETE requests:
+typescriptconst mutation = useMutation({
+  mutationFn: (data) => {
+    const csrfToken = useCSRFToken();
+    return fetch('/api/endpoint', {
+      method: 'POST',
+      headers: {
+        'X-CSRF-Token': csrfToken,
+      },
+      body: JSON.stringify(data),
+    });
+  },
+});
+
+📊 Phase 11: Advanced Features ( 8-9)
+Step 11.1: Batch Processing
+For large datasets, implement batch processing:
+Create: src/components/admin/BatchProcessor.tsx
+Features:
+
+Process records in batches (e.g., 100 at a time)
+Progress bar showing completion
+Pause/resume capability
+Error handling (continue on error or stop)
+Results summary (success/failed counts)
+Export failed records
+
+Use cases:
+
+Bulk user import from CSV
+Bulk email sending
+Bulk image optimization
+Bulk data migration
+
+Example implementation:
+typescriptconst BatchProcessor = ({ records, processFn, onComplete }) => {
+  const [progress, setProgress] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const [results, setResults] = useState({ success: 0, failed: 0 });
+  
+  const processBatch = async (batch) => {
+    for (const record of batch) {
+      if (isPaused) break;
+      try {
+        await processFn(record);
+        setResults(r => ({ ...r, success: r.success + 1 }));
+      } catch (error) {
+        setResults(r => ({ ...r, failed: r.failed + 1 }));
+      }
+      setProgress(p => p + 1);
+    }
+  };
+  
+  // Process in batches of 100
+  const batchSize = 100;
+  for (let i = 0; i < records.length; i += batchSize) {
+    const batch = records.slice(i, i + batchSize);
+    await processBatch(batch);
+  }
+  
+  onComplete(results);
+};
+
+Step 11.2: Data Caching Strategy
+Implement intelligent caching with React Query:
+Create: src/lib/queryClient.ts
+typescriptimport { QueryClient } from '@tanstack/react-query';
+
+export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      cacheTime: 10 * 60 * 1000, // 10 minutes
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
+Cache strategies by data type:
+
+Static data (long cache):
+
+Theme settings: 1 hour
+System config: 1 hour
+Categories: 30 minutes
+
+
+Semi-dynamic data (medium cache):
+
+User list: 5 minutes
+Club list: 5 minutes
+Stats: 2 minutes
+
+
+Dynamic data (short cache):
+
+Event participants: 30 seconds
+Booking status: 30 seconds
+Notifications: 15 seconds
+
+
+
+Prefetching:
+typescript// Prefetch likely next page
+const prefetchNextPage = (currentPage) => {
+  queryClient.prefetchQuery(['users', currentPage + 1], () =>
+    fetchUsers(currentPage + 1)
+  );
+};
+Optimistic updates:
+typescriptconst updateUserMutation = useMutation({
+  mutationFn: updateUser,
+  onMutate: async (newData) => {
+    // Cancel outgoing refetches
+    await queryClient.cancelQueries(['user', newData.id]);
+    
+    // Snapshot previous value
+    const previous = queryClient.getQueryData(['user', newData.id]);
+    
+    // Optimistically update
+    queryClient.setQueryData(['user', newData.id], newData);
+    
+    return { previous };
+  },
+  onError: (err, newData, context) => {
+    // Rollback on error
+    queryClient.setQueryData(['user', newData.id], context.previous);
+  },
+  onSettled: (data, error, variables) => {
+    // Refetch to ensure sync
+    queryClient.invalidateQueries(['user', variables.id]);
+  },
+});
+
+Step 11.3: Real-time Updates with WebSockets
+Implement Socket.io for real-time features:
+Create: src/hooks/useSocket.ts
+typescriptimport { useEffect } from 'react';
+import { io } from 'socket.io-client';
+import { useQueryClient } from '@tanstack/react-query';
+
+export const useSocket = () => {
+  const queryClient = useQueryClient();
+  
+  useEffect(() => {
+    const socket = io(import.meta.env.VITE_WS_URL);
+    
+    // Listen for real-time updates
+    socket.on('user:created', (user) => {
+      queryClient.invalidateQueries(['users']);
+      toast.success('New user registered!');
+    });
+    
+    socket.on('booking:created', (booking) => {
+      queryClient.invalidateQueries(['bookings']);
+      queryClient.invalidateQueries(['stats']);
+      toast.info('New booking received!');
+    });
+    
+    socket.on('club:approved', (club) => {
+      queryClient.invalidateQueries(['clubs']);
+      toast.success(`Club "${club.name}" approved!`);
+    });
+    
+    return () => socket.disconnect();
+  }, [queryClient]);
+};
+Use in AdminLayout:
+typescriptconst AdminLayout = ({ children }) => {
+  useSocket(); // Enable real-time updates
+  
+  return (
+    <div className="admin-layout">
+      {/* ... */}
+    </div>
+  );
+};
+Real-time features:
+
+Live notification updates
+Live booking updates
+Live user count updates
+Live event participant updates
+Admin collaboration (show who's editing what)
+
+
+Step 11.4: Advanced Filtering & Search
+Create: src/components/admin/AdvancedFilters.tsx
+Reusable advanced filtering component:
+Features:
+
+Multiple filter criteria
+Filter combinations (AND/OR logic)
+Saved filter presets
+Filter tags display
+Clear all filters
+Export filtered results
+
+Filter types:
+
+Text search (contains, starts with, ends with, exact)
+Number range (min, max)
+Date range (from, to, last 7/30/90 days)
+Select (single, multiple)
+Boolean (yes/no/any)
+Custom filters
+
+Example usage:
+typescript<AdvancedFilters
+  fields={[
+    { name: 'name', label: 'Name', type: 'text' },
+    { name: 'status', label: 'Status', type: 'select', options: ['active', 'inactive'] },
+    { name: 'createdAt', label: 'Created', type: 'dateRange' },
+    { name: 'memberCount', label: 'Members', type: 'numberRange' },
+  ]}
+  onFilterChange={(filters) => {
+    setFilters(filters);
+  }}
+  savedPresets={[
+    { name: 'Active Clubs', filters: { status: 'active' } },
+    { name: 'New This Week', filters: { createdAt: { last: '7days' } } },
+  ]}
+/>
+Implement search highlighting:
+
+Highlight search terms in results
+Use <mark> tag for highlights
+Case-insensitive matching
+
+
+Step 11.5: Data Visualization Dashboard
+Enhance dashboard with interactive charts:
+Create custom chart components:
+1. Users Growth Chart:
+typescript<ResponsiveContainer width="100%" height={300}>
+  <LineChart data={userGrowthData}>
+    <CartesianGrid strokeDasharray="3 3" />
+    <XAxis dataKey="month" />
+    <YAxis />
+    <Tooltip />
+    <Legend />
+    <Line 
+      type="monotone" 
+      dataKey="users" 
+      stroke="#3b82f6" 
+      strokeWidth={2}
+      dot={{ fill: '#3b82f6', r: 4 }}
+    />
+  </LineChart>
+</ResponsiveContainer>
+2. Revenue by Category (Pie Chart):
+typescript<ResponsiveContainer width="100%" height={300}>
+  <PieChart>
+    <Pie
+      data={revenueData}
+      dataKey="value"
+      nameKey="name"
+      cx="50%"
+      cy="50%"
+      outerRadius={80}
+      label
+    >
+      {revenueData.map((entry, index) => (
+        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+      ))}
+    </Pie>
+    <Tooltip />
+    <Legend />
+  </PieChart>
+</ResponsiveContainer>
+3. Event Attendance Heatmap:
+typescript<ResponsiveContainer width="100%" height={400}>
+  <BarChart data={attendanceData}>
+    <CartesianGrid strokeDasharray="3 3" />
+    <XAxis dataKey="event" />
+    <YAxis />
+    <Tooltip />
+    <Legend />
+    <Bar dataKey="registered" fill="#3b82f6" />
+    <Bar dataKey="attended" fill="#10b981" />
+  </BarChart>
+</ResponsiveContainer>
+Interactive features:
+
+Click chart to drill down
+Hover for detailed tooltips
+Export chart as image
+Toggle data series visibility
+Zoom and pan
+Time period selector
+
+
+Step 11.6: Export & Reporting System
+Create: src/components/admin/ReportGenerator.tsx
+Automated report generation:
+Report types:
+
+User Report:
+
+Total users, growth rate
+Users by location
+Most active users
+Inactive users
+
+
+Club Report:
+
+Total clubs, approval rate
+Clubs by city
+Top clubs by members
+Club activity summary
+
+
+Event Report:
+
+Total events, attendance rate
+Events by category
+Popular events
+Revenue by event
+
+
+Revenue Report:
+
+Total revenue, growth
+Revenue by source
+Revenue trends
+Payment method breakdown
+
+
+Custom Report:
+
+User-defined fields
+Custom date ranges
+Custom filters
+Custom grouping
+
+
+
+Report features:
+
+Schedule reports (daily, weekly, monthly)
+Email delivery
+Multiple formats (PDF, Excel, CSV)
+Charts and tables
+Executive summary
+Detailed breakdown
+
+Example report generator:
+typescriptconst ReportGenerator = () => {
+  const [reportType, setReportType] = useState('users');
+  const [dateRange, setDateRange] = useState({ from: null, to: null });
+  const [format, setFormat] = useState('pdf');
+  
+  const generateReport = async () => {
+    const report = await fetch('/api/reports/generate', {
+      method: 'POST',
+      body: JSON.stringify({ reportType, dateRange, format }),
+    });
+    
+    const blob = await report.blob();
+    downloadFile(blob, `report-${reportType}-${Date.now()}.${format}`);
+  };
+  
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Generate Report</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Select value={reportType} onValueChange={setReportType}>
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="users">User Report</SelectItem>
+            <SelectItem value="clubs">Club Report</SelectItem>
+            <SelectItem value="events">Event Report</SelectItem>
+            <SelectItem value="revenue">Revenue Report</SelectItem>
+          </SelectContent>
+        </Select>
+        
+        <DateRangePicker value={dateRange} onChange={setDateRange} />
+        
+        <Select value={format} onValueChange={setFormat}>
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="pdf">PDF</SelectItem>
+            <SelectItem value="xlsx">Excel</SelectItem>
+            <SelectItem value="csv">CSV</SelectItem>
+          </SelectContent>
+        </Select>
+        
+        <Button onClick={generateReport}>
+          <Download className="mr-2 h-4 w-4" />
+          Generate Report
+        </Button>
+      </CardContent>
+    </Card>
+  );
+};
+
+🧪 Phase 12: Testing & Quality Assurance ( 9-10)
+Step 12.1: Component Testing
+Set up testing environment:
+bashnpm install -D @testing-library/react @testing-library/jest-dom @testing-library/user-event vitest jsdom
+Create test files for each component:
+Example: src/pages/admin/__tests__/UserManagement.test.tsx
+typescriptimport { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { UserManagement } from '../UserManagement';
+
+describe('UserManagement', () => {
+  it('renders user table', async () => {
+    render(
+      <QueryClientProvider client={queryClient}>
+        <UserManagement />
+      </QueryClientProvider>
+    );
+    
+    await waitFor(() => {
+      expect(screen.getByRole('table')).toBeInTheDocument();
+    });
+  });
+  
+  it('filters users by search term', async () => {
+    const user = userEvent.setup();
+    render(<UserManagement />);
+    
+    const searchInput = screen.getByPlaceholderText('Search users...');
+    await user.type(searchInput, 'John');
+    
+    await waitFor(() => {
+      expect(screen.getByText('John Doe')).toBeInTheDocument();
+      expect(screen.queryByText('Jane Smith')).not.toBeInTheDocument();
+    });
+  });
+  
+  it('opens edit dialog when edit button clicked', async () => {
+    const user = userEvent.setup();
+    render(<UserManagement />);
+    
+    const editButton = screen.getAllByRole('button', { name: /edit/i })[0];
+    await user.click(editButton);
+    
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+  });
+});
+Test coverage goals:
+
+Unit tests for utilities and hooks: 80%+
+Component tests for critical flows: 60%+
+Integration tests for key features: 50%+
+
+
+Step 12.2: E2E Testing
+Set up Playwright or Cypress:
+bashnpm install -D @playwright/test
+Create E2E test suites:
+Example: e2e/admin-login.spec.ts
+typescriptimport { test, expect } from '@playwright/test';
+
+test('admin login flow', async ({ page }) => {
+  await page.goto('/admin/login');
+  
+  await page.fill('input[name="email"]', 'admin@example.com');
+  await page.fill('input[name="password"]', 'password123');
+  await page.click('button[type="submit"]');
+  
+  await expect(page).toHaveURL('/admin');
+  await expect(page.locator('h1')).toContainText('Dashboard');
+});
+
+test('create new club', async ({ page }) => {
+  // Login first
+  await page.goto('/admin/login');
+  // ... login steps
+  
+  await page.goto('/admin/clubs');
+  await page.click('button:has-text("Add New Club")');
+  
+  await page.fill('input[name="name"]', 'Test Club');
+  await page.fill('textarea[name="description"]', 'Test description');
+  await page.fill('input[name="location"]', 'Casablanca');
+  await page.click('button:has-text("Save")');
+  
+  await expect(page.locator('.toast')).toContainText('Club created');
+  await expect(page.locator('table')).toContainText('Test Club');
+});
+Critical E2E flows to test:
+
+Admin login/logout
+User CRUD operations
+Club CRUD operations
+Event creation and management
+Booking workflow
+Media upload
+Settings changes
+Report generation
+
+
+Step 12.3: Performance Testing
+Use Lighthouse for performance audits:
+Run Lighthouse on admin pages:
+bashlighthouse https://your-admin-url.com/admin --view
+Performance targets:
+
+First Contentful Paint: < 1.5s
+Time to Interactive: < 3.5s
+Largest Contentful Paint: < 2.5s
+Cumulative Layout Shift: < 0.1
+Total Blocking Time: < 300ms
+
+Optimization strategies:
+
+Code splitting (lazy load routes)
+Image optimization (WebP, lazy loading)
+Bundle size reduction (tree shaking)
+Memoization of expensive calculations
+Virtual scrolling for large lists
+Debouncing search inputs
+Pagination for large datasets
+
+Example code splitting:
+typescriptconst UserManagement = lazy(() => import('./pages/admin/UserManagement'));
+const ClubsManagement = lazy(() => import('./pages/admin/ClubsManagement'));
+
+<Route
+  path="/admin/users"
+  element={
+    <Suspense fallback={<LoadingSpinner />}>
+      <UserManagement />
+    </Suspense>
+  }
+/>
+
+Step 12.4: Accessibility Audit
+Use tools:
+
+axe DevTools browser extension
+WAVE browser extension
+Lighthouse accessibility audit
+
+Manual testing:
+
+Keyboard-only navigation
+Screen reader testing (NVDA, JAWS, VoiceOver)
+High contrast mode
+Text scaling to 200%
+Color blindness simulation
+
+Common issues to fix:
+
+Missing alt text
+Low color contrast
+Missing form labels
+Broken keyboard navigation
+Missing ARIA landmarks
+Improper heading hierarchy
+
+
+Step 12.5: Browser Compatibility Testing
+Test on:
+
+Chrome (latest, latest - 1)
+Firefox (latest, latest - 1)
+Safari (latest, latest - 1)
+Edge (latest)
+Mobile Safari (iOS 15+)
+Mobile Chrome (Android 10+)
+
+Test features:
+
+Layout responsiveness
+Form interactions
+File uploads
+Date pickers
+Charts rendering
+WebSocket connections
+Local storage
+Session management
+
+
+📚 Phase 13: Documentation & Training ( 10)
+Step 13.1: Admin User Guide
+Create comprehensive documentation:
+Document structure:
+
+Getting Started
+
+Logging in
+Dashboard overview
+Navigation basics
+
+
+User Management
+
+Viewing users
+Adding users
+Editing users
+Managing roles
+Bulk operations
+
+
+Club Management
+
+Approving clubs
+Editing clubs
+Managing members
+Featured clubs
+
+
+Event Management
+
+Creating events
+Managing participants
+Cancelling events
+Event analytics
+
+
+Content Management
+
+Writing blog posts
+Managing landing page
+Media library
+SEO settings
+
+
+Bookings & Payments
+
+Viewing bookings
+Processing refunds
+Payment settings
+Revenue reports
+
+
+Settings & Configuration
+
+Theme customization
+Email campaigns
+Authentication settings
+System monitoring
+
+
+Troubleshooting
+
+Common issues
+Error messages
+Support contacts
+
+
+
+Format options:
+
+In-app help tooltips
+PDF manual
+Video tutorials
+Interactive walkthrough
+
+
+Step 13.2: Inline Help System
+Create: src/components/admin/HelpTooltip.tsx
+Contextual help throughout admin:
+typescriptconst HelpTooltip = ({ content }) => (
+  <Tooltip>
+    <TooltipTrigger>
+      <HelpCircle className="h-4 w-4 text-muted-foreground" />
+    </TooltipTrigger>
+    <TooltipContent>
+      <p className="max-w-xs">{content}</p>
+    </TooltipContent>
+  </Tooltip>
+);
+Add to complex features:
+
+Form fields (explain what they do)
+Settings (explain impact)
+Bulk operations (explain consequences)
+Advanced filters (explain syntax)
+
+Create: src/components/admin/OnboardingTour.tsx
+Interactive tour for new admins:
+
+Uses react-joyride or similar
+Highlights key features
+Step-by-step guidance
+Can be replayed anytime
+Dismissible
+
+
+Step 13.3: Developer Documentation
+Create: ADMIN_DEVELOPMENT.md
+For developers working on admin:
+Topics:
+
+Project structure
+Component architecture
+State management patterns
+API integration
+Adding new admin pages
+Styling conventions
+Testing guidelines
+Deployment process
+
+Code comments:
+
+Add JSDoc comments to complex functions
+Explain business logic
+Document component props
+Note performance considerations
+
+
+🚀 Phase 14: Deployment & Optimization ( 10-11)
+Step 14.1: Build Optimization
+Optimize production build:
+vite.config.ts optimization:
+typescriptexport default defineConfig({
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-ui': ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', ...],
+          'vendor-charts': ['recharts'],
+          'vendor-forms': ['react-hook-form', 'zod'],
+        },
+      },
+    },
+    chunkSizeWarningLimit: 1000,
+  },
+  optimizeDeps: {
+    include: ['react', 'react-dom'],
+  },
+});
+Image optimization:
+
+Convert to WebP
+Generate multiple sizes
+Implement lazy loading
+Use CDN for static assets
+
+Font optimization:
+
+Subset fonts (Latin only if applicable)
+Use font-display: swap
+Preload critical fonts
+
+
+Step 14.2: Caching Strategy
+HTTP caching headers:
+nginx# Static assets (images, fonts, etc.)
+location ~* \.(jpg|jpeg|png|gif|ico|css|js|woff2)$ {
+  expires 1y;
+  add_header Cache-Control "public, immutable";
+}
+
+# HTML (admin pages)
+location ~* \.html$ {
+  expires -1;
+  add_header Cache-Control "no-store, no-cache, must-revalidate";
+}
+Service Worker for offline support:
+typescript// service-worker.ts
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open('admin-v1').then((cache) => {
+      return cache.addAll([
+        '/admin',
+        '/admin/users',
+        '/admin/clubs',
+        // ... critical admin routes
+      ]);
+    })
+  );
+});
+
+Step 14.3: Error Tracking
+Integrate Sentry or similar:
+bashnpm install @sentry/react
+Configure error tracking:
+typescriptimport * as Sentry from '@sentry/react';
+
+typescriptimport * as Sentry from '@sentry/react';
+
+Sentry.init({
+  dsn: import.meta.env.VITE_SENTRY_DSN,
+  environment: import.meta.env.MODE,
+  integrations: [
+    new Sentry.BrowserTracing({
+      routingInstrumentation: Sentry.reactRouterV6Instrumentation(
+        useEffect,
+        useLocation,
+        useNavigationType,
+        createRoutesFromChildren,
+        matchRoutes
+      ),
+    }),
+    new Sentry.Replay({
+      maskAllText: true,
+      blockAllMedia: true,
+    }),
+  ],
+  tracesSampleRate: 1.0,
+  replaysSessionSampleRate: 0.1,
+  replaysOnErrorSampleRate: 1.0,
+});
+Add error boundaries:
+typescript// src/components/admin/ErrorBoundary.tsx
+import { Component, ErrorInfo, ReactNode } from 'react';
+import * as Sentry from '@sentry/react';
+
+interface Props {
+  children: ReactNode;
+  fallback?: ReactNode;
+}
+
+interface State {
+  hasError: boolean;
+  error?: Error;
+}
+
+class ErrorBoundary extends Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error: Error): State {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    Sentry.captureException(error, {
+      contexts: {
+        react: {
+          componentStack: errorInfo.componentStack,
+        },
+      },
+    });
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return this.props.fallback || (
+        <div className="flex min-h-screen items-center justify-center p-4">
+          <Card className="max-w-md">
+            <CardHeader>
+              <CardTitle>Something went wrong</CardTitle>
+              <CardDescription>
+                An unexpected error occurred. Our team has been notified.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button onClick={() => window.location.reload()}>
+                Reload Page
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
+export default ErrorBoundary;
+Wrap admin routes:
+typescript<Route
+  path="/admin/*"
+  element={
+    <ErrorBoundary>
+      <ProtectedRoute>
+        {/* Admin routes */}
+      </ProtectedRoute>
+    </ErrorBoundary>
+  }
+/>
+
+Step 14.4: Analytics Integration
+Add admin analytics tracking:
+typescript// src/utils/analytics.ts
+import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+
+export const usePageTracking = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    // Google Analytics
+    if (window.gtag) {
+      window.gtag('config', 'GA_MEASUREMENT_ID', {
+        page_path: location.pathname,
+      });
+    }
+
+    // Custom analytics
+    fetch('/api/analytics/pageview', {
+      method: 'POST',
+      body: JSON.stringify({
+        path: location.pathname,
+        timestamp: new Date(),
+      }),
+    });
+  }, [location]);
+};
+
+export const trackEvent = (eventName: string, properties?: Record<string, any>) => {
+  // Google Analytics
+  if (window.gtag) {
+    window.gtag('event', eventName, properties);
+  }
+
+  // Custom analytics
+  fetch('/api/analytics/event', {
+    method: 'POST',
+    body: JSON.stringify({
+      event: eventName,
+      properties,
+      timestamp: new Date(),
+    }),
+  });
+};
+Track important admin actions:
+typescript// In UserManagement.tsx
+const deleteUser = () => {
+  trackEvent('admin_delete_user', { userId: user.id });
+  // ... deletion logic
+};
+
+const approveClub = () => {
+  trackEvent('admin_approve_club', { clubId: club.id });
+  // ... approval logic
+};
+Create admin analytics dashboard showing:
+
+Most used admin features
+Average time spent on pages
+Action frequency (CRUD operations)
+Error rates by page
+Admin user activity
+
+
+Step 14.5: Performance Monitoring
+Add performance tracking:
+typescript// src/utils/performance.ts
+export const measurePerformance = (metricName: string, startTime: number) => {
+  const duration = performance.now() - startTime;
+  
+  // Send to analytics
+  trackEvent('performance_metric', {
+    metric: metricName,
+    duration: Math.round(duration),
+  });
+  
+  // Log slow operations
+  if (duration > 1000) {
+    console.warn(`Slow operation: ${metricName} took ${duration}ms`);
+  }
+};
+
+// Usage
+const startTime = performance.now();
+await fetchUsers();
+measurePerformance('fetch_users', startTime);
+Monitor:
+
+API response times
+Component render times
+Query execution times
+Image load times
+Bundle load times
+
+Set up alerts for:
+
+Response time > 3 seconds
+Error rate > 5%
+Memory usage > 80%
+CPU usage > 80%
+
+
+🎓 Phase 15: Advanced Admin Features ( 11-12)
+Step 15.1: Multi-language Admin Support
+Add i18n to admin interface:
+bashnpm install i18next react-i18next
+Configure i18n:
+typescript// src/i18n/admin.ts
+import i18n from 'i18next';
+import { initReactI18next } from 'react-i18next';
+
+const resources = {
+  en: {
+    admin: {
+      dashboard: {
+        title: 'Dashboard',
+        totalUsers: 'Total Users',
+        activeClubs: 'Active Clubs',
+        // ... more translations
+      },
+      users: {
+        title: 'User Management',
+        addUser: 'Add User',
+        editUser: 'Edit User',
+        deleteUser: 'Delete User',
+        // ... more translations
+      },
+      // ... more namespaces
+    },
+  },
+  fr: {
+    admin: {
+      dashboard: {
+        title: 'Tableau de bord',
+        totalUsers: 'Total des utilisateurs',
+        activeClubs: 'Clubs actifs',
+        // ... French translations
+      },
+      // ...
+    },
+  },
+  ar: {
+    admin: {
+      dashboard: {
+        title: 'لوحة القيادة',
+        totalUsers: 'إجمالي المستخدمين',
+        activeClubs: 'الأندية النشطة',
+        // ... Arabic translations
+      },
+      // ...
+    },
+  },
+};
+
+i18n.use(initReactI18next).init({
+  resources,
+  lng: 'en',
+  fallbackLng: 'en',
+  interpolation: {
+    escapeValue: false,
+  },
+});
+
+export default i18n;
+Use in components:
+typescriptimport { useTranslation } from 'react-i18next';
+
+const UserManagement = () => {
+  const { t } = useTranslation('admin');
+
+  return (
+    <div>
+      <h1>{t('users.title')}</h1>
+      <Button>{t('users.addUser')}</Button>
+    </div>
+  );
+};
+Language switcher in header:
+typescriptconst LanguageSwitcher = () => {
+  const { i18n } = useTranslation();
+
+  return (
+    <Select value={i18n.language} onValueChange={(lng) => i18n.changeLanguage(lng)}>
+      <SelectTrigger className="w-24">
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="en">EN</SelectItem>
+        <SelectItem value="fr">FR</SelectItem>
+        <SelectItem value="ar">AR</SelectItem>
+      </SelectContent>
+    </Select>
+  );
+};
+
+Step 15.2: Advanced Role Management
+Create: src/pages/admin/RoleManagement.tsx
+Granular permission system:
+Roles table:
+
+Role name (Admin, Moderator, Content Manager, Event Manager, etc.)
+Description
+User count
+Permissions (expandable list)
+Actions (Edit, Delete, Duplicate)
+
+Create/Edit Role Dialog:
+typescriptconst RoleDialog = ({ role, onSave }) => {
+  const [permissions, setPermissions] = useState(role?.permissions || []);
+
+  const permissionGroups = {
+    users: [
+      { key: 'users.view', label: 'View Users' },
+      { key: 'users.create', label: 'Create Users' },
+      { key: 'users.edit', label: 'Edit Users' },
+      { key: 'users.delete', label: 'Delete Users' },
+      { key: 'users.manage_roles', label: 'Manage User Roles' },
+    ],
+    clubs: [
+      { key: 'clubs.view', label: 'View Clubs' },
+      { key: 'clubs.create', label: 'Create Clubs' },
+      { key: 'clubs.edit', label: 'Edit Clubs' },
+      { key: 'clubs.delete', label: 'Delete Clubs' },
+      { key: 'clubs.approve', label: 'Approve Clubs' },
+    ],
+    events: [
+      { key: 'events.view', label: 'View Events' },
+      { key: 'events.create', label: 'Create Events' },
+      { key: 'events.edit', label: 'Edit Events' },
+      { key: 'events.delete', label: 'Delete Events' },
+      { key: 'events.manage_participants', label: 'Manage Participants' },
+    ],
+    content: [
+      { key: 'content.view', label: 'View Content' },
+      { key: 'content.create', label: 'Create Content' },
+      { key: 'content.edit', label: 'Edit Content' },
+      { key: 'content.delete', label: 'Delete Content' },
+      { key: 'content.publish', label: 'Publish Content' },
+    ],
+    settings: [
+      { key: 'settings.view', label: 'View Settings' },
+      { key: 'settings.edit', label: 'Edit Settings' },
+      { key: 'settings.manage_theme', label: 'Manage Theme' },
+      { key: 'settings.manage_payments', label: 'Manage Payments' },
+    ],
+    analytics: [
+      { key: 'analytics.view', label: 'View Analytics' },
+      { key: 'analytics.export', label: 'Export Data' },
+    ],
+    system: [
+      { key: 'system.view', label: 'View System Info' },
+      { key: 'system.manage', label: 'Manage System' },
+      { key: 'system.view_logs', label: 'View Logs' },
+    ],
+  };
+
+  return (
+    <Dialog>
+      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>{role ? 'Edit Role' : 'Create Role'}</DialogTitle>
+        </DialogHeader>
+        
+        <div className="space-y-4">
+          <div>
+            <Label>Role Name</Label>
+            <Input placeholder="e.g., Content Manager" />
+          </div>
+          
+          <div>
+            <Label>Description</Label>
+            <Textarea placeholder="Describe this role..." />
+          </div>
+          
+          <div>
+            <Label>Permissions</Label>
+            <Accordion type="multiple">
+              {Object.entries(permissionGroups).map(([group, perms]) => (
+                <AccordionItem key={group} value={group}>
+                  <AccordionTrigger className="capitalize">
+                    {group}
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div className="space-y-2">
+                      {perms.map((perm) => (
+                        <div key={perm.key} className="flex items-center space-x-2">
+                          <Checkbox
+                            checked={permissions.includes(perm.key)}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setPermissions([...permissions, perm.key]);
+                              } else {
+                                setPermissions(permissions.filter(p => p !== perm.key));
+                              }
+                            }}
+                          />
+                          <Label>{perm.label}</Label>
+                        </div>
+                      ))}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </div>
+        </div>
+        
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>Cancel</Button>
+          <Button onClick={() => onSave({ name, description, permissions })}>
+            Save Role
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
+Assign roles to users:
+
+In user edit dialog, add role selector
+Support multiple roles per user
+Show inherited permissions
+
+
+Step 15.3: Activity Timeline
+Create: src/components/admin/ActivityTimeline.tsx
+Visual timeline of all admin actions:
+typescriptconst ActivityTimeline = () => {
+  const { data: activities } = useQuery('activities', fetchActivities);
+
+  const getActivityIcon = (type: string) => {
+    const icons = {
+      user_created: UserPlus,
+      user_updated: UserCog,
+      user_deleted: UserX,
+      club_approved: CheckCircle,
+      club_rejected: XCircle,
+      event_created: Calendar,
+      content_published: FileText,
+      settings_changed: Settings,
+    };
+    return icons[type] || Activity;
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Recent Activity</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <ScrollArea className="h-96">
+          <div className="space-y-4">
+            {activities.map((activity) => {
+              const Icon = getActivityIcon(activity.type);
+              return (
+                <div key={activity.id} className="flex gap-4">
+                  <div className="flex flex-col items-center">
+                    <div className="rounded-full bg-primary/10 p-2">
+                      <Icon className="h-4 w-4 text-primary" />
+                    </div>
+                    {/* Vertical line */}
+                    <div className="h-full w-px bg-border" />
+                  </div>
+                  
+                  <div className="flex-1 pb-4">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <p className="font-medium">{activity.title}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {activity.description}
+                        </p>
+                        <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
+                          <Avatar className="h-4 w-4">
+                            <AvatarImage src={activity.user.avatar} />
+                            <AvatarFallback>{activity.user.initials}</AvatarFallback>
+                          </Avatar>
+                          <span>{activity.user.name}</span>
+                          <span>•</span>
+                          <span>{formatRelativeTime(activity.timestamp)}</span>
+                        </div>
+                      </div>
+                      
+                      {activity.entityLink && (
+                        <Button variant="ghost" size="sm" asChild>
+                          <Link to={activity.entityLink}>View</Link>
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </ScrollArea>
+      </CardContent>
+    </Card>
+  );
+};
+Add to dashboard and dedicated page /admin/activity
+
+Step 15.4: Webhook Management
+Create: src/pages/admin/WebhookManagement.tsx
+Allow admins to configure webhooks for external integrations:
+Webhooks table:
+
+Name
+URL
+Events (which events trigger webhook)
+Status (active/inactive)
+Last triggered
+Success rate
+Actions
+
+Create Webhook Dialog:
+typescriptconst WebhookDialog = () => {
+  const events = [
+    'user.created',
+    'user.updated',
+    'user.deleted',
+    'club.approved',
+    'club.rejected',
+    'event.created',
+    'event.updated',
+    'booking.created',
+    'booking.cancelled',
+    'payment.successful',
+    'payment.failed',
+  ];
+
+  return (
+    <Dialog>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Add Webhook</DialogTitle>
+        </DialogHeader>
+        
+        <div className="space-y-4">
+          <div>
+            <Label>Name</Label>
+            <Input placeholder="My Webhook" />
+          </div>
+          
+          <div>
+            <Label>Webhook URL</Label>
+            <Input type="url" placeholder="https://api.example.com/webhook" />
+          </div>
+          
+          <div>
+            <Label>Events</Label>
+            <div className="grid grid-cols-2 gap-2 mt-2">
+              {events.map((event) => (
+                <div key={event} className="flex items-center space-x-2">
+                  <Checkbox id={event} />
+                  <Label htmlFor={event} className="text-sm">
+                    {event}
+                  </Label>
+                </div>
+              ))}
+            </div>
+          </div>
+          
+          <div>
+            <Label>Secret Key (optional)</Label>
+            <Input type="password" placeholder="For signature verification" />
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <Switch id="active" />
+            <Label htmlFor="active">Active</Label>
+          </div>
+        </div>
+        
+        <DialogFooter>
+          <Button variant="outline">Test Webhook</Button>
+          <Button>Save Webhook</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
+Webhook logs:
+
+Show recent webhook deliveries
+Request/response details
+Retry failed webhooks
+Export webhook logs
+
+
+Step 15.5: API Key Management
+Create: src/pages/admin/ApiKeys.tsx
+Manage API keys for external integrations:
+API Keys table:
+
+Key name
+Key (partially masked)
+Permissions
+Created date
+Last used
+Status
+Actions
+
+Create API Key Dialog:
+typescriptconst ApiKeyDialog = () => {
+  const [generatedKey, setGeneratedKey] = useState(null);
+
+  const permissions = [
+    { key: 'read:users', label: 'Read Users' },
+    { key: 'write:users', label: 'Write Users' },
+    { key: 'read:clubs', label: 'Read Clubs' },
+    { key: 'write:clubs', label: 'Write Clubs' },
+    { key: 'read:events', label: 'Read Events' },
+    { key: 'write:events', label: 'Write Events' },
+  ];
+
+  const generateKey = () => {
+    const key = 'ja_' + crypto.randomUUID().replace(/-/g, '');
+    setGeneratedKey(key);
+  };
+
+  return (
+    <Dialog>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Create API Key</DialogTitle>
+        </DialogHeader>
+        
+        {!generatedKey ? (
+          <div className="space-y-4">
+            <div>
+              <Label>Key Name</Label>
+              <Input placeholder="e.g., Mobile App" />
+            </div>
+            
+            <div>
+              <Label>Permissions</Label>
+              <div className="space-y-2 mt-2">
+                {permissions.map((perm) => (
+                  <div key={perm.key} className="flex items-center space-x-2">
+                    <Checkbox id={perm.key} />
+                    <Label htmlFor={perm.key}>{perm.label}</Label>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            <div>
+              <Label>Rate Limit (requests per hour)</Label>
+              <Input type="number" defaultValue={1000} />
+            </div>
+            
+            <Button onClick={generateKey} className="w-full">
+              Generate API Key
+            </Button>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Save your API key</AlertTitle>
+              <AlertDescription>
+                Make sure to copy your API key now. You won't be able to see it again!
+              </AlertDescription>
+            </Alert>
+            
+            <div>
+              <Label>Your API Key</Label>
+              <div className="flex gap-2 mt-2">
+                <Input value={generatedKey} readOnly className="font-mono" />
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    navigator.clipboard.writeText(generatedKey);
+                    toast.success('Copied to clipboard');
+                  }}
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+            
+            <Button onClick={onClose} className="w-full">
+              Done
+            </Button>
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+};
+API usage analytics:
+
+Requests per day chart
+Top endpoints
+Error rate
+Response time
+
+
+Step 15.6: Backup & Restore System
+Create: src/pages/admin/BackupRestore.tsx
+Complete backup and restore interface:
+Backup section:
+typescriptconst BackupSection = () => {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Create Backup</CardTitle>
+        <CardDescription>
+          Create a complete backup of your data
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div>
+          <Label>Backup Type</Label>
+          <RadioGroup defaultValue="full">
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="full" id="full" />
+              <Label htmlFor="full">Full Backup (All data)</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="partial" id="partial" />
+              <Label htmlFor="partial">Partial Backup (Select tables)</Label>
+            </div>
+          </RadioGroup>
+        </div>
+        
+        <div>
+          <Label>Include Media Files</Label>
+          <Switch />
+        </div>
+        
+        <Button onClick={createBackup} className="w-full">
+          <Download className="mr-2 h-4 w-4" />
+          Create Backup
+        </Button>
+      </CardContent>
+    </Card>
+  );
+};
+Backups list:
+
+Table of past backups
+Columns: Date, Size, Type, Status, Actions
+Actions: Download, Restore, Delete
+Auto-backup schedule configuration
+
+Restore dialog:
+typescriptconst RestoreDialog = ({ backup }) => {
+  return (
+    <AlertDialog>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Restore from Backup?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This will restore your data to the state from {formatDate(backup.date)}.
+            Current data will be backed up automatically before restore.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Warning</AlertTitle>
+          <AlertDescription>
+            This action cannot be undone. All current data will be replaced.
+          </AlertDescription>
+        </Alert>
+        
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={handleRestore}>
+            Restore Backup
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+};
+
+🏁 Phase 16: Final Polish & Launch ( 12)
+Step 16.1: Final UI/UX Review
+Review checklist:
+Consistency:
+
+ All buttons use consistent styling
+ All forms use consistent layouts
+ All tables use consistent column widths
+ All modals use consistent sizes
+ All colors match theme
+ All icons are from same library
+ All spacing is consistent
+
+Usability:
+
+ All actions have loading states
+ All forms have validation
+ All tables have sorting
+ All lists have search/filter
+ All pages have breadcrumbs
+ All actions have confirmations (for destructive)
+ All success/error messages are clear
+
+Performance:
+
+ All images are optimized
+ All lists are paginated
+ All expensive operations are debounced
+ All queries are cached properly
+ All routes are code-split
+ No console errors or warnings
+
+Accessibility:
+
+ All images have alt text
+ All forms have labels
+ All interactive elements are keyboard accessible
+ All color contrasts meet WCAG AA
+ All focus states are visible
+ Screen reader tested
+
+
+Step 16.2: Cross-browser Testing
+Test matrix:
+FeatureChromeFirefoxSafariEdgeLogin✓✓✓✓Dashboard✓✓✓✓Tables✓✓✓✓Forms✓✓✓✓Charts✓✓✓✓File uploads✓✓✓✓Modals✓✓✓✓Date pickers✓✓✓✓
+
+Step 16.3: Security Audit
+Security checklist:
+
+ All API endpoints require authentication
+ All mutations require CSRF tokens
+ All inputs are sanitized
+ All SQL queries use parameterized queries
+ All passwords are hashed with bcrypt
+ All sessions expire after inactivity
+ All sensitive data is encrypted at rest
+ All file uploads are validated
+ All rate limiting is in place
+ All errors don't expose sensitive info
+ All dependencies are up to date
+ No API keys in frontend code
+ HTTPS enforced in production
+ Content Security Policy configured
+ XSS protection enabled
+
+
+Step 16.4: Performance Optimization Final Pass
+Run audits:
+bash# Lighthouse
+lighthouse https://your-site.com/admin --view
+
+# Bundle analysis
+npm run build
+npx vite-bundle-visualizer
+Optimize based on results:
+
+Lazy load heavy components
+Compress images further
+Minify CSS/JS
+Enable gzip/brotli compression
+Set up CDN for static assets
+Optimize database queries
+Add database indexes
+Enable query caching
+
+Performance targets:
+
+Initial load: < 2 seconds
+Time to interactive: < 3 seconds
+Lighthouse score: > 90
+
+
+Step 16.5: Final Documentation
+Complete documentation:
+
+Admin User Manual (PDF + In-app)
+
+Getting started guide
+Feature tutorials
+Best practices
+Troubleshooting
+FAQ
+
+
+Developer Documentation (Markdown)
+
+Setup instructions
+Architecture overview
+Component guide
+API documentation
+Deployment guide
+Contribution guidelines
+
+
+API Documentation (Swagger/OpenAPI)
+
+All endpoints documented
+Request/response examples
+Authentication guide
+Rate limits
+Error codes
+
+
+Change Log (CHANGELOG.md)
+
+Version history
+New features
+Bug fixes
+Breaking changes
+
+
+
+
+Step 16.6: Launch Preparation
+Pre-launch checklist:
+Code:
+
+ All features complete and tested
+ All known bugs fixed
+ Code reviewed and approved
+ No console logs in production
+ Environment variables configured
+ Version number updated
+
+Infrastructure:
+
+ Production database ready
+ Production server provisioned
+ SSL certificate installed
+ Domain configured
+ CDN configured
+ Monitoring set up (Sentry, etc.)
+ Backup system configured
+ Load balancer configured (if needed)
+
+Data:
+
+ Database migrated
+ Initial admin user created
+ Test data cleaned
+ Production data verified
+
+Security:
+
+ Security audit completed
+ Penetration testing done (optional)
+ Rate limiting configured
+ Firewall rules set
+ Backups working
+
+Communication:
+
+ Admin users notified
+ Training scheduled
+ Support channels ready
+ Announcement prepared
+
+
+📋 Quick Start Checklist
+Use this checklist to track your progress:
+ 1-2: Foundation
+
+ Delete old admin files
+ Build AdminLayout component
+ Create ProtectedRoute
+ Build AdminLogin page
+ Create AdminDashboard
+ Build Analytics page
+
+ 2-3: User & Club Management
+
+ Build UserManagement page
+ Create BulkOperations component
+ Build ClubsManagement page
+ Add approval workflows
+
+ 3-4: Events & Bookings
+
+ Build EventsManagement page
+ Add calendar integration
+ Build BookingManagement page
+ Implement payment tracking
+
+ 4-5: Content Management
+
+ Build NewsManagement page
+ Add rich text editor
+ Build LandingManagement page
+ Create MediaLibrary page
+ Build MediaUpload component
+
+ 5-6: Settings
+
+ Build ThemeCustomization page
+ Build PaymentSettings page
+ Build EmailCampaigns page
+ Build AuthSettings page
+ Build SystemMonitoring page
+
+ 6-7: Additional Features
+
+ Build ApplicationsManagement page
+ Create CommandPalette
+ Build notifications system
+ Create ActivityLog page
+ Add data export tools
+
+ 7-8: UI/UX & Security
+
+ Add loading states everywhere
+ Implement dark mode
+ Add keyboard shortcuts
+ Implement form validation
+ Add permission system
+ Set up audit logging
+
+ 8-9: Advanced Features
+
+ Add batch processing
+ Implement caching strategy
+ Add real-time updates
+ Build advanced filters
+ Create report generator

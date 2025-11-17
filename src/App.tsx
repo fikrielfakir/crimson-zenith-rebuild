@@ -45,7 +45,7 @@ import CityDetail from "./pages/CityDetail";
 import UserProfile from "./pages/UserProfile";
 import ClubProfileEdit from "./pages/ClubProfileEdit";
 import UserLogin from "./pages/UserLogin";
-import ProtectedRoute from "./components/admin/ProtectedRoute";
+import { ProtectedRoute } from "./components/admin/ProtectedRoute";
 import CookieConsent from "./components/CookieConsent";
 
 // Talents pages

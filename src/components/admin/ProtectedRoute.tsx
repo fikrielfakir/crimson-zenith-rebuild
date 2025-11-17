@@ -1,38 +1,45 @@
-import { ReactNode, useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { AdminLayout } from './AdminLayout';
+import { Loader2 } from 'lucide-react';
 
-interface ProtectedRouteProps {
-  children: ReactNode;
+async function fetchCurrentUser() {
+  const response = await fetch('/api/user', {
+    credentials: 'include'
+  });
+  
+  if (!response.ok) {
+    if (response.status === 401) {
+      return null;
+    }
+    throw new Error('Failed to fetch user');
+  }
+  
+  return response.json();
 }
 
-const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+export function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { data: user, isLoading, error } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: fetchCurrentUser,
+    retry: false,
+    staleTime: 5 * 60 * 1000,
+  });
 
-  useEffect(() => {
-    // Check authentication status
-    const authStatus = localStorage.getItem('adminAuth');
-    setIsAuthenticated(authStatus === 'authenticated');
-  }, []);
-
-  // Still checking authentication
-  if (isAuthenticated === null) {
+  if (isLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Checking authentication...</p>
+      <div className="flex h-screen items-center justify-center">
+        <div className="flex flex-col items-center space-y-4">
+          <Loader2 className="h-12 w-12 animate-spin text-primary" />
+          <p className="text-muted-foreground">Loading...</p>
         </div>
       </div>
     );
   }
 
-  // Not authenticated, redirect to login
-  if (!isAuthenticated) {
+  if (error || !user || !user.isAdmin) {
     return <Navigate to="/admin/login" replace />;
   }
 
-  // Authenticated, render children
-  return <>{children}</>;
-};
-
-export default ProtectedRoute;
+  return <AdminLayout>{children}</AdminLayout>;
+}
