@@ -115,6 +115,64 @@ const CitiesDropdown = () => {
   );
 };
 
+// Talents Dropdown Component
+const TalentsDropdown = () => {
+  const [volunteersOpen, setVolunteersOpen] = useState(false);
+
+  return (
+    <div className="absolute left-0 top-full mt-2 w-64 bg-white/95 dark:bg-card/95 backdrop-blur-sm rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 border border-border/20">
+      <div className="p-4">
+        <div className="flex flex-col gap-1">
+          {/* Volunteers with sub-menu */}
+          <div 
+            className="relative group/volunteers"
+            onMouseEnter={() => setVolunteersOpen(true)}
+            onMouseLeave={() => setVolunteersOpen(false)}
+          >
+            <div className="flex items-center justify-between px-4 py-3 text-foreground hover:bg-secondary/10 rounded-lg transition-colors cursor-pointer">
+              <span className="font-medium text-sm">Volunteers</span>
+              <ChevronRight className="w-4 h-4" />
+            </div>
+            {/* Volunteers submenu */}
+            <div className={`absolute left-full top-0 ml-2 w-48 bg-white/95 dark:bg-card/95 backdrop-blur-sm rounded-xl shadow-2xl border border-border/20 transition-all duration-300 ${volunteersOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}`}>
+              <div className="p-2">
+                <Link
+                  to="/talents/volunteers/spontaneous"
+                  className="block px-4 py-2 text-foreground hover:bg-secondary/10 rounded-lg transition-colors text-sm"
+                >
+                  Spontaneous
+                </Link>
+                <Link
+                  to="/talents/volunteers/posts"
+                  className="block px-4 py-2 text-foreground hover:bg-secondary/10 rounded-lg transition-colors text-sm"
+                >
+                  Available posts
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* Our Experts */}
+          <Link
+            to="/talents/experts"
+            className="block px-4 py-3 text-foreground hover:bg-secondary/10 rounded-lg transition-colors font-medium text-sm"
+          >
+            Our Experts
+          </Link>
+
+          {/* Work offers */}
+          <Link
+            to="/talents/work-offers"
+            className="block px-4 py-3 text-foreground hover:bg-secondary/10 rounded-lg transition-colors font-medium text-sm"
+          >
+            Work offers
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // Top Navbar (Utility Bar - Only utilities, no navigation)
 const TopNavbar = ({ 
   isDarkMode, 
@@ -323,6 +381,20 @@ const BottomNavbar = ({
                   );
                 }
                 
+                if (link.label === "Talents" && !link.isExternal) {
+                  return (
+                    <div key={index} className="relative group">
+                      <span 
+                        className="text-white hover:text-secondary transition-all duration-300 font-normal text-sm tracking-wide font-body flex items-center gap-1 cursor-pointer"
+                      >
+                        {link.label}
+                        <ChevronDown className="w-3 h-3 transition-transform group-hover:rotate-180 duration-300" />
+                      </span>
+                      <TalentsDropdown />
+                    </div>
+                  );
+                }
+                
                 return link.isExternal ? (
                   <a
                     key={index}
@@ -372,6 +444,20 @@ const BottomNavbar = ({
                         <ChevronDown className="w-3 h-3 transition-transform group-hover:rotate-180 duration-300" />
                       </span>
                       <CitiesDropdown />
+                    </div>
+                  );
+                }
+                
+                if (link.label === "Talents" && !link.isExternal) {
+                  return (
+                    <div key={index} className="relative group">
+                      <span 
+                        className="text-white hover:text-secondary transition-all duration-300 font-normal text-sm tracking-wide font-body flex items-center gap-1 cursor-pointer"
+                      >
+                        {link.label}
+                        <ChevronDown className="w-3 h-3 transition-transform group-hover:rotate-180 duration-300" />
+                      </span>
+                      <TalentsDropdown />
                     </div>
                   );
                 }
@@ -429,11 +515,11 @@ const Header = () => {
   const defaultNavigationLinks: NavLink[] = [
     { label: "Discover", url: "/discover" },
     { label: "Activities", url: "/#events" },
-    { label: "Membership", url: "/#membership" },
-    { label: "Clubs", url: "/#clubs" },
     { label: "Projects", url: "/projects" },
+    { label: "Clubs", url: "/#clubs" },
     { label: "Gallery", url: "/gallery" },
-    { label: "News", url: "/news" },
+    { label: "Blog", url: "/news" },
+    { label: "Talents", url: "/talents" },
     { label: "Contact", url: "/contact" },
   ];
 
