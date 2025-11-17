@@ -48,6 +48,12 @@ import UserLogin from "./pages/UserLogin";
 import ProtectedRoute from "./components/admin/ProtectedRoute";
 import CookieConsent from "./components/CookieConsent";
 
+// Talents pages
+import VolunteersSpontaneous from "./pages/VolunteersSpontaneous";
+import VolunteersPosts from "./pages/VolunteersPosts";
+import TalentsExperts from "./pages/TalentsExperts";
+import WorkOffers from "./pages/WorkOffers";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -78,6 +84,12 @@ const App = () => (
           <Route path="/login" element={<UserLogin />} />
           <Route path="/profile" element={<UserProfile />} />
           <Route path="/club/:clubId/edit" element={<ClubProfileEdit />} />
+          
+          {/* Talents Routes */}
+          <Route path="/talents/volunteers/spontaneous" element={<VolunteersSpontaneous />} />
+          <Route path="/talents/volunteers/posts" element={<VolunteersPosts />} />
+          <Route path="/talents/experts" element={<TalentsExperts />} />
+          <Route path="/talents/work-offers" element={<WorkOffers />} />
           
           {/* Admin Routes */}
           <Route path="/admin/login" element={<AdminLogin />} />
