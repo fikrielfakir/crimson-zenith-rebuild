@@ -114,6 +114,7 @@ export default function AdminLogin() {
                       <FormControl>
                         <Input
                           placeholder="admin@journey.ma"
+                          autoComplete="username"
                           {...field}
                           disabled={loginMutation.isPending}
                         />
@@ -134,6 +135,7 @@ export default function AdminLogin() {
                           <Input
                             type={showPassword ? 'text' : 'password'}
                             placeholder="••••••••"
+                            autoComplete="current-password"
                             {...field}
                             disabled={loginMutation.isPending}
                           />
