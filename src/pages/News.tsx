@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -12,14 +12,30 @@ import {
   TrendingUp,
   Filter,
   Download,
-  Mail
+  Mail,
+  Home,
+  ChevronRight
 } from "lucide-react";
+import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
 const News = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [isVisible, setIsVisible] = useState(false);
+  const [scrollY, setScrollY] = useState(0);
+
+  useEffect(() => {
+    setIsVisible(true);
+    
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
+    
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Mock news articles data
   const articles = [
@@ -140,50 +156,57 @@ const News = () => {
     <div className="min-h-screen bg-background">
       <Header />
       
-      {/* Featured Article Hero */}
-      <section className="relative min-h-[70vh] flex items-end overflow-hidden">
-        <img 
-          src="/news-hero.jpg" 
-          alt={featuredArticle.title}
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-        
-        <div className="relative z-10 container mx-auto px-4 pb-16">
-          <div className="max-w-4xl">
-            <Badge className={`${getCategoryColor(featuredArticle.category)} text-white mb-4`}>
-              Featured • {featuredArticle.category}
-            </Badge>
-            <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 font-heading leading-tight">
-              {featuredArticle.title}
-            </h1>
-            <p className="text-xl text-white/90 mb-6 font-body max-w-2xl">
-              {featuredArticle.excerpt}
-            </p>
-            <div className="flex items-center gap-6 text-white/80 mb-8">
-              <div className="flex items-center gap-2">
-                <img 
-                  src={featuredArticle.authorImage} 
-                  alt={featuredArticle.author}
-                  className="w-8 h-8 rounded-full object-cover"
-                />
-                <span className="font-body">{featuredArticle.author}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Calendar className="w-4 h-4" />
-                <span className="font-body">{new Date(featuredArticle.date).toLocaleDateString()}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Clock className="w-4 h-4" />
-                <span className="font-body">{featuredArticle.readTime}</span>
-              </div>
+      <main className="relative">
+        {/* Hero Section with Background Image */}
+        <section className="relative py-20 overflow-hidden" style={{ paddingTop: '15rem' }}>
+          {/* Background Image with Parallax */}
+          <div 
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            style={{
+              backgroundImage: `url('/attached_assets/generated_images/Atlas_Mountain_Sunrise_9a8b7c6d.png')`,
+              transform: `translateY(${scrollY * 0.3}px)`,
+              filter: 'brightness(0.6) contrast(1.1) saturate(1.2)',
+            }}
+          />
+
+          {/* Gradient Overlay for Better Text Readability */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/50" />
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-transparent to-primary/20" />
+
+          {/* Content */}
+          <div className="relative container mx-auto px-6">
+            {/* Breadcrumb Navigation */}
+            <nav className={`mb-8 transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
+              <ol className="flex items-center space-x-2 text-sm">
+                <li>
+                  <Link 
+                    to="/" 
+                    className="flex items-center text-white/90 hover:text-white transition-colors bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-full border border-white/20 hover:border-white/40"
+                  >
+                    <Home className="w-4 h-4 mr-1.5" />
+                    Home
+                  </Link>
+                </li>
+                <li className="flex items-center">
+                  <ChevronRight className="w-4 h-4 mx-2 text-white/50" />
+                  <span className="text-white font-semibold bg-white/15 backdrop-blur-sm px-3 py-1.5 rounded-full border border-white/30 shadow-lg">
+                    Blog
+                  </span>
+                </li>
+              </ol>
+            </nav>
+
+            {/* Main Heading */}
+            <div className={`transition-all duration-700 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-4 drop-shadow-2xl">
+                Blog
+              </h1>
+              <p className="text-lg md:text-xl text-white/95 max-w-2xl leading-relaxed drop-shadow-lg">
+                Stay updated with the latest adventure tips, safety guidelines, member spotlights, and gear reviews. Your go-to resource for all things Morocco exploration.
+              </p>
             </div>
-            <Button className="bg-secondary hover:bg-secondary/90 text-lg px-8 py-3 h-auto">
-              Read Full Article
-            </Button>
           </div>
-        </div>
-      </section>
+        </section>
 
       {/* Category Navigation */}
       <section className="py-8 bg-muted/50">
@@ -386,6 +409,7 @@ const News = () => {
           </div>
         </div>
       </section>
+      </main>
 
       <Footer />
     </div>
