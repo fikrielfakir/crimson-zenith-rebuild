@@ -23,9 +23,11 @@ import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import Analytics from "./pages/admin/Analytics";
 import ClubsManagement from "./pages/admin/ClubsManagement";
+import ClubsPendingApproval from "./pages/admin/ClubsPendingApproval";
 import EventsManagement from "./pages/admin/EventsManagement";
 import NewsManagement from "./pages/admin/NewsManagement";
 import UserManagement from "./pages/admin/UserManagement";
+import UserRolesManagement from "./pages/admin/UserRolesManagement";
 import MediaLibrary from "./pages/admin/MediaLibrary";
 import EmailCampaigns from "./pages/admin/EmailCampaigns";
 import SystemMonitoring from "./pages/admin/SystemMonitoring";
@@ -121,6 +123,16 @@ const App = () => (
           <Route path="/admin/users" element={
             <ProtectedRoute>
               <UserManagement />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/users/roles" element={
+            <ProtectedRoute>
+              <UserRolesManagement />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/clubs/pending" element={
+            <ProtectedRoute>
+              <ClubsPendingApproval />
             </ProtectedRoute>
           } />
           <Route path="/admin/media" element={

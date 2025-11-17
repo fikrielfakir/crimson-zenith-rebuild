@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import {
@@ -124,7 +124,7 @@ export default function UserManagement() {
 
   const form = useForm<UserFormData>({
     resolver: zodResolver(userSchema),
-    defaultValues: editingUser || {
+    defaultValues: {
       firstName: '',
       lastName: '',
       username: '',
@@ -137,6 +137,37 @@ export default function UserManagement() {
       isActive: true,
     },
   });
+
+  // Reset form when editingUser changes
+  useEffect(() => {
+    if (editingUser) {
+      form.reset({
+        firstName: editingUser.firstName || '',
+        lastName: editingUser.lastName || '',
+        username: editingUser.username || '',
+        email: editingUser.email || '',
+        phone: editingUser.phone || '',
+        location: editingUser.location || '',
+        bio: editingUser.bio || '',
+        interests: editingUser.interests || '',
+        isAdmin: editingUser.isAdmin || false,
+        isActive: editingUser.isActive !== undefined ? editingUser.isActive : true,
+      });
+    } else {
+      form.reset({
+        firstName: '',
+        lastName: '',
+        username: '',
+        email: '',
+        phone: '',
+        location: '',
+        bio: '',
+        interests: '',
+        isAdmin: false,
+        isActive: true,
+      });
+    }
+  }, [editingUser, form]);
 
   const deleteUserMutation = useMutation({
     mutationFn: async (userId: number) => {
