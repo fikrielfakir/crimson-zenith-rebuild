@@ -4,11 +4,11 @@ import * as schema from "../shared/schema.js";
 
 // Create MySQL connection pool using Hostinger credentials
 const pool = mysql.createPool({
-  host: process.env.DB_HOST || "srv1849.hstgr.io",
+  host: process.env.DB_HOST!,
   port: parseInt(process.env.DB_PORT || "3306"),
-  user: process.env.DB_USER || "u613266227_test",
-  password: process.env.DB_PASSWORD || "#2XnlY6^Dn",
-  database: process.env.DB_NAME || "u613266227_test",
+  user: process.env.DB_USER!,
+  password: process.env.DB_PASSWORD!,
+  database: process.env.DB_NAME!,
   connectionLimit: 10,
   waitForConnections: true,
   queueLimit: 0
