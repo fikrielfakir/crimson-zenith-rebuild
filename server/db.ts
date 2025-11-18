@@ -1,17 +1,17 @@
-import { drizzle } from 'drizzle-orm/mysql2';
-import mysql from 'mysql2/promise';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
 import * as schema from "../shared/schema.js";
 
-// Create MySQL connection to remote Hostinger database
-// Requires MYSQL_DATABASE_URL environment variable with MySQL connection string
-const databaseUrl = process.env.MYSQL_DATABASE_URL || process.env.DATABASE_URL;
+// Create PostgreSQL connection to Replit database
+// Uses DATABASE_URL environment variable with PostgreSQL connection string
+const databaseUrl = process.env.DATABASE_URL;
 
 if (!databaseUrl) {
-  throw new Error('MYSQL_DATABASE_URL or DATABASE_URL environment variable is required for MySQL connection');
+  throw new Error('DATABASE_URL environment variable is required for PostgreSQL connection');
 }
 
-const poolConnection = mysql.createPool(databaseUrl);
+const poolConnection = postgres(databaseUrl);
 
-const db = drizzle(poolConnection, { schema, mode: 'default' });
+const db = drizzle(poolConnection, { schema });
 
 export { poolConnection as pool, db };

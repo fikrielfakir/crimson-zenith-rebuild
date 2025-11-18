@@ -1,15 +1,15 @@
 import { defineConfig } from "drizzle-kit";
 
-const databaseUrl = process.env.MYSQL_DATABASE_URL || process.env.DATABASE_URL;
+const databaseUrl = process.env.DATABASE_URL;
 
 if (!databaseUrl) {
-  throw new Error('MYSQL_DATABASE_URL or DATABASE_URL environment variable is required for MySQL connection');
+  throw new Error('DATABASE_URL environment variable is required for PostgreSQL connection');
 }
 
 export default defineConfig({
   schema: "./shared/schema.ts",
   out: "./drizzle",
-  dialect: "mysql",
+  dialect: "postgresql",
   dbCredentials: {
     url: databaseUrl,
   },
