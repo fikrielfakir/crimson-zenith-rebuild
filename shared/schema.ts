@@ -2,15 +2,15 @@ import { sql } from 'drizzle-orm';
 import {
   index,
   json,
-  mysqlTable,
+  pgTable,
   timestamp,
   varchar,
-  int,
-  
+  serial,
+  integer,
   text,
   boolean,
-  decimal,
-} from "drizzle-orm/mysql-core";
+  numeric,
+} from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
 // Session storage table.
@@ -380,6 +380,61 @@ export const seoSettings = mysqlTable("seo_settings", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// About section settings table
+export const aboutSettings = mysqlTable("about_settings", {
+  id: varchar("id", { length: 255 }).primaryKey().default("default"),
+  isActive: boolean("is_active").default(true),
+  title: varchar("title", { length: 255 }).default("About Us"),
+  subtitle: text("subtitle"),
+  description: text("description").notNull(),
+  imageId: int("image_id").references(() => mediaAssets.id),
+  backgroundImageId: int("background_image_id").references(() => mediaAssets.id),
+  backgroundColor: varchar("background_color", { length: 50 }),
+  updatedBy: varchar("updated_by", { length: 255 }).references(() => users.id),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// President message settings table
+export const presidentMessageSettings = mysqlTable("president_message_settings", {
+  id: varchar("id", { length: 255 }).primaryKey().default("default"),
+  isActive: boolean("is_active").default(true),
+  title: varchar("title", { length: 255 }).default("Message from Our President"),
+  presidentName: varchar("president_name", { length: 255 }).notNull(),
+  presidentRole: varchar("president_role", { length: 255 }).default("President"),
+  message: text("message").notNull(),
+  photoId: int("photo_id").references(() => mediaAssets.id),
+  signatureId: int("signature_id").references(() => mediaAssets.id),
+  backgroundImageId: int("background_image_id").references(() => mediaAssets.id),
+  backgroundColor: varchar("background_color", { length: 50 }),
+  updatedBy: varchar("updated_by", { length: 255 }).references(() => users.id),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Partners settings table
+export const partnerSettings = mysqlTable("partner_settings", {
+  id: varchar("id", { length: 255 }).primaryKey().default("default"),
+  isActive: boolean("is_active").default(true),
+  title: varchar("title", { length: 255 }).default("Our Partners"),
+  subtitle: text("subtitle"),
+  backgroundColor: varchar("background_color", { length: 50 }),
+  updatedBy: varchar("updated_by", { length: 255 }).references(() => users.id),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Partners table - individual partner entries
+export const partners = mysqlTable("partners", {
+  id: int("id").primaryKey().autoincrement(),
+  name: varchar("name", { length: 255 }).notNull(),
+  logoId: int("logo_id").references(() => mediaAssets.id),
+  websiteUrl: varchar("website_url", { length: 500 }),
+  description: text("description"),
+  ordering: int("ordering").default(0).notNull(),
+  isActive: boolean("is_active").default(true),
+  createdBy: varchar("created_by", { length: 255 }).references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   ownedClubs: many(clubs),
@@ -501,3 +556,11 @@ export type FooterSettings = typeof footerSettings.$inferSelect;
 export type InsertFooterSettings = typeof footerSettings.$inferInsert;
 export type SeoSettings = typeof seoSettings.$inferSelect;
 export type InsertSeoSettings = typeof seoSettings.$inferInsert;
+export type AboutSettings = typeof aboutSettings.$inferSelect;
+export type InsertAboutSettings = typeof aboutSettings.$inferInsert;
+export type PresidentMessageSettings = typeof presidentMessageSettings.$inferSelect;
+export type InsertPresidentMessageSettings = typeof presidentMessageSettings.$inferInsert;
+export type PartnerSettings = typeof partnerSettings.$inferSelect;
+export type InsertPartnerSettings = typeof partnerSettings.$inferInsert;
+export type Partner = typeof partners.$inferSelect;
+export type InsertPartner = typeof partners.$inferInsert;
