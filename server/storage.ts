@@ -203,7 +203,7 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
-  // Helper functions for MySQL compatibility (no .returning() support)
+  // Helper functions for PostgreSQL (uses .returning() support)
   
   // Insert and fetch - handles both auto-increment IDs and user-provided IDs (including strings)
   private async insertAndFetch<T extends { id: number | string }>(
@@ -211,11 +211,9 @@ export class DatabaseStorage implements IStorage {
     values: any,
     dbOrTx: any = db
   ): Promise<T> {
-    const result = await dbOrTx.insert(table).values(values);
-    // If ID was provided in values (e.g., string IDs), use that; otherwise use insertId
-    const idToFetch = values.id !== undefined ? values.id : result[0].insertId;
-    const [record] = await dbOrTx.select().from(table).where(eq(table.id, idToFetch));
-    return record as T;
+    // PostgreSQL supports RETURNING clause
+    const [result] = await dbOrTx.insert(table).values(values).returning();
+    return result as T;
   }
   
   // Update and fetch using primary key
@@ -243,38 +241,45 @@ export class DatabaseStorage implements IStorage {
   }
 
   async upsertUser(userData: UpsertUser): Promise<User> {
-    // MySQL uses ON DUPLICATE KEY UPDATE instead of PostgreSQL's onConflictDoUpdate
+    // PostgreSQL uses ON CONFLICT DO UPDATE instead of MySQL's ON DUPLICATE KEY UPDATE
     const now = new Date();
-    await db.execute(sql`
-      INSERT INTO users (
-        id, username, password, email, first_name, last_name, 
-        profile_image_url, bio, phone, location, interests, 
-        is_admin, created_at, updated_at
-      ) VALUES (
-        ${userData.id}, ${userData.username}, ${userData.password}, 
-        ${userData.email}, ${userData.firstName}, ${userData.lastName},
-        ${userData.profileImageUrl}, ${userData.bio}, ${userData.phone}, 
-        ${userData.location}, ${JSON.stringify(userData.interests)}, 
-        ${userData.isAdmin}, ${now}, ${now}
-      )
-      ON DUPLICATE KEY UPDATE
-        username = VALUES(username),
-        password = VALUES(password),
-        email = VALUES(email),
-        first_name = VALUES(first_name),
-        last_name = VALUES(last_name),
-        profile_image_url = VALUES(profile_image_url),
-        bio = VALUES(bio),
-        phone = VALUES(phone),
-        location = VALUES(location),
-        interests = VALUES(interests),
-        is_admin = VALUES(is_admin),
-        updated_at = ${now}
-    `);
+    const [result] = await db.insert(users)
+      .values({
+        id: userData.id,
+        username: userData.username,
+        password: userData.password,
+        email: userData.email,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        profileImageUrl: userData.profileImageUrl,
+        bio: userData.bio,
+        phone: userData.phone,
+        location: userData.location,
+        interests: userData.interests,
+        isAdmin: userData.isAdmin,
+        createdAt: now,
+        updatedAt: now,
+      })
+      .onConflictDoUpdate({
+        target: users.id,
+        set: {
+          username: userData.username,
+          password: userData.password,
+          email: userData.email,
+          firstName: userData.firstName,
+          lastName: userData.lastName,
+          profileImageUrl: userData.profileImageUrl,
+          bio: userData.bio,
+          phone: userData.phone,
+          location: userData.location,
+          interests: userData.interests,
+          isAdmin: userData.isAdmin,
+          updatedAt: now,
+        },
+      })
+      .returning();
     
-    // Fetch and return the user
-    const result = await db.select().from(users).where(sql`${users.id} = ${userData.id}`);
-    return result[0]!;
+    return result;
   }
 
   // Club operations
