@@ -3,12 +3,14 @@ import mysql from 'mysql2/promise';
 import * as schema from "../shared/schema.js";
 
 // Create MySQL connection to remote Hostinger database
-// Requires DATABASE_URL environment variable with MySQL connection string
-if (!process.env.DATABASE_URL) {
-  throw new Error('DATABASE_URL environment variable is required for MySQL connection');
+// Requires MYSQL_DATABASE_URL environment variable with MySQL connection string
+const databaseUrl = process.env.MYSQL_DATABASE_URL || process.env.DATABASE_URL;
+
+if (!databaseUrl) {
+  throw new Error('MYSQL_DATABASE_URL or DATABASE_URL environment variable is required for MySQL connection');
 }
 
-const poolConnection = mysql.createPool(process.env.DATABASE_URL);
+const poolConnection = mysql.createPool(databaseUrl);
 
 const db = drizzle(poolConnection, { schema, mode: 'default' });
 
