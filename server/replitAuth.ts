@@ -199,3 +199,13 @@ export const isAuthenticated: RequestHandler = async (req, res, next) => {
   }
   return next();
 };
+
+export const isAdmin: RequestHandler = async (req: any, res, next) => {
+  if (!req.isAuthenticated()) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+  if (!req.user || !req.user.isAdmin) {
+    return res.status(403).json({ message: "Forbidden - Admin access required" });
+  }
+  return next();
+};

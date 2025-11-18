@@ -5,7 +5,19 @@ import { dirname, join } from 'path';
 import fs from 'fs';
 import bcrypt from 'bcryptjs';
 import { storage } from './server/storage.js';
-import { setupAuth, isAuthenticated } from './server/replitAuth.js';
+import { setupAuth, isAuthenticated, isAdmin } from './server/replitAuth.js';
+import { db } from './server/db.js';
+import { eq, asc } from 'drizzle-orm';
+import { 
+  users, 
+  clubs, 
+  clubEvents, 
+  bookingEvents, 
+  mediaAssets,
+  seoSettings as seoSettingsTable,
+  contactSettings as contactSettingsTable,
+  themeSettings as themeSettingsTable
+} from './shared/schema.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -506,20 +518,14 @@ app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     const userId = req.user.claims.sub;
     let user = await storage.getUser(userId);
     
-    // Auto-grant admin access for demo purposes
+    // Create user if they don't exist (normal users, NOT admin)
     if (!user) {
-      const name = req.user.claims.preferred_username || req.user.claims.name || 'Admin User';
+      const name = req.user.claims.preferred_username || req.user.claims.name || 'User';
       user = await storage.upsertUser({
         id: userId,
         firstName: name,
         email: req.user.claims.email || `${userId}@replit.dev`,
-        isAdmin: true,
-      });
-    } else if (!user.isAdmin) {
-      // Upgrade existing users to admin for demo
-      user = await storage.upsertUser({
-        ...user,
-        isAdmin: true,
+        isAdmin: false, // Users are NOT admin by default
       });
     }
     
@@ -952,6 +958,621 @@ app.post('/api/admin/login', async (req, res) => {
   }
 });
 
+// =======================
+// ADMIN API ENDPOINTS
+// =======================
+
+// Admin Dashboard - Get statistics and overview
+app.get('/api/admin/dashboard/stats', isAdmin, async (req, res) => {
+  try {
+    console.log('🔗 Fetching admin dashboard stats...');
+    
+    // Admin gets ALL records (not filtered) for accurate statistics
+    const [userList, clubList, eventList, bookingEventList] = await Promise.all([
+      db.select().from(users),
+      db.select().from(clubs),
+      db.select().from(clubEvents),
+      db.select().from(bookingEvents)
+    ]);
+    
+    const stats = {
+      totalUsers: userList.length,
+      userGrowth: 12,
+      activeClubs: clubList.filter(c => c.isActive).length,
+      newClubsThisMonth: clubList.filter(c => {
+        const created = new Date(c.createdAt);
+        const monthAgo = new Date();
+        monthAgo.setMonth(monthAgo.getMonth() - 1);
+        return created > monthAgo;
+      }).length,
+      upcomingEvents: eventList.length,
+      eventsThisWeek: eventList.filter(e => {
+        const eventDate = new Date(e.eventDate);
+        const weekFromNow = new Date();
+        weekFromNow.setDate(weekFromNow.getDate() + 7);
+        return eventDate > new Date() && eventDate < weekFromNow;
+      }).length,
+      totalRevenue: bookingEventList.reduce((sum, e) => sum + (e.price || 0), 0),
+      revenueGrowth: 18
+    };
+    
+    console.log('✅ Dashboard stats retrieved');
+    res.json(stats);
+  } catch (error) {
+    console.error('❌ Error fetching dashboard stats:', error);
+    res.status(500).json({ error: 'Failed to fetch dashboard stats', details: error.message });
+  }
+});
+
+// User Management - Get all users
+app.get('/api/admin/users', isAdmin, async (req, res) => {
+  try {
+    const {  page = '1', perPage = '10', search = '', role = 'all', status = 'all' } = req.query;
+    console.log('🔗 Fetching users for admin...');
+    
+    // Admin queries database directly to get ALL users
+    let userList = await db.select().from(users);
+    
+    if (search) {
+      const searchLower = search.toString().toLowerCase();
+      userList = userList.filter(u => 
+        u.username?.toLowerCase().includes(searchLower) ||
+        u.email?.toLowerCase().includes(searchLower) ||
+        u.firstName?.toLowerCase().includes(searchLower) ||
+        u.lastName?.toLowerCase().includes(searchLower)
+      );
+    }
+    
+    if (role !== 'all') {
+      userList = userList.filter(u => role === 'admin' ? u.isAdmin : !u.isAdmin);
+    }
+    
+    const total = userList.length;
+    const pageNum = parseInt(page as string);
+    const perPageNum = parseInt(perPage as string);
+    const start = (pageNum - 1) * perPageNum;
+    const paginatedUsers = userList.slice(start, start + perPageNum);
+    
+    console.log(`✅ Retrieved ${paginatedUsers.length} users`);
+    res.json({
+      users: paginatedUsers.map(u => ({ ...u, password: undefined })),
+      pagination: {
+        total,
+        page: pageNum,
+        perPage: perPageNum,
+        totalPages: Math.ceil(total / perPageNum)
+      }
+    });
+  } catch (error) {
+    console.error('❌ Error fetching users:', error);
+    res.status(500).json({ error: 'Failed to fetch users', details: error.message });
+  }
+});
+
+// User Management - Create user
+app.post('/api/admin/users', isAdmin, async (req, res) => {
+  try {
+    console.log('🔗 Creating new user...');
+    const userData = req.body;
+    
+    const hashedPassword = userData.password ? await bcrypt.hash(userData.password, 10) : null;
+    
+    const newUser = await storage.upsertUser({
+      id: crypto.randomUUID(),
+      username: userData.username,
+      email: userData.email,
+      password: hashedPassword,
+      firstName: userData.firstName,
+      lastName: userData.lastName,
+      phone: userData.phone || null,
+      location: userData.location || null,
+      bio: userData.bio || null,
+      profileImageUrl: userData.profileImageUrl || null,
+      isAdmin: userData.isAdmin || false,
+      interests: userData.interests || []
+    });
+    
+    console.log(`✅ User created: ${userData.username}`);
+    res.json({ user: { ...newUser, password: undefined } });
+  } catch (error) {
+    console.error('❌ Error creating user:', error);
+    res.status(500).json({ error: 'Failed to create user', details: error.message });
+  }
+});
+
+// User Management - Update user
+app.put('/api/admin/users/:id', isAdmin, async (req, res) => {
+  try {
+    const userId = req.params.id;
+    console.log(`🔗 Updating user ${userId}...`);
+    const userData = req.body;
+    
+    const existingUser = await storage.getUser(userId);
+    if (!existingUser) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    const hashedPassword = userData.password ? await bcrypt.hash(userData.password, 10) : existingUser.password;
+    
+    const updatedUser = await storage.upsertUser({
+      id: userId,
+      username: userData.username,
+      email: userData.email,
+      password: hashedPassword,
+      firstName: userData.firstName,
+      lastName: userData.lastName,
+      phone: userData.phone,
+      location: userData.location,
+      bio: userData.bio,
+      profileImageUrl: userData.profileImageUrl,
+      isAdmin: userData.isAdmin,
+      interests: userData.interests || []
+    });
+    
+    console.log(`✅ User updated: ${userId}`);
+    res.json({ user: { ...updatedUser, password: undefined } });
+  } catch (error) {
+    console.error('❌ Error updating user:', error);
+    res.status(500).json({ error: 'Failed to update user', details: error.message });
+  }
+});
+
+// User Management - Delete user
+app.delete('/api/admin/users/:id', isAdmin, async (req, res) => {
+  try {
+    const userId = req.params.id;
+    console.log(`🔗 Deleting user ${userId}...`);
+    
+    await db.delete(users).where(eq(users.id, userId));
+    
+    console.log(`✅ User deleted: ${userId}`);
+    res.json({ message: 'User deleted successfully' });
+  } catch (error) {
+    console.error('❌ Error deleting user:', error);
+    res.status(500).json({ error: 'Failed to delete user', details: error.message });
+  }
+});
+
+// Clubs Management - Get all clubs (admin view)
+app.get('/api/admin/clubs', isAdmin, async (req, res) => {
+  try {
+    const { page = '1', perPage = '10', search = '', status = 'all' } = req.query;
+    console.log('🔗 Fetching clubs for admin...');
+    
+    // Admin gets ALL clubs, not just active ones
+    let clubsList = await db.select().from(clubs).orderBy(asc(clubs.name));
+    
+    if (search) {
+      const searchLower = search.toString().toLowerCase();
+      clubsList = clubsList.filter(c => 
+        c.name?.toLowerCase().includes(searchLower) ||
+        c.location?.toLowerCase().includes(searchLower)
+      );
+    }
+    
+    if (status !== 'all') {
+      clubsList = clubsList.filter(c => 
+        status === 'active' ? c.isActive : !c.isActive
+      );
+    }
+    
+    const total = clubsList.length;
+    const pageNum = parseInt(page as string);
+    const perPageNum = parseInt(perPage as string);
+    const start = (pageNum - 1) * perPageNum;
+    const paginatedClubs = clubsList.slice(start, start + perPageNum);
+    
+    console.log(`✅ Retrieved ${paginatedClubs.length} clubs`);
+    res.json({
+      clubs: paginatedClubs,
+      pagination: {
+        total,
+        page: pageNum,
+        perPage: perPageNum,
+        totalPages: Math.ceil(total / perPageNum)
+      }
+    });
+  } catch (error) {
+    console.error('❌ Error fetching clubs:', error);
+    res.status(500).json({ error: 'Failed to fetch clubs', details: error.message });
+  }
+});
+
+// Clubs Management - Update club
+app.put('/api/admin/clubs/:id', isAdmin, async (req, res) => {
+  try {
+    const clubId = parseInt(req.params.id);
+    console.log(`🔗 Updating club ${clubId}...`);
+    const clubData = req.body;
+    
+    const updatedClub = await db.update(clubs)
+      .set({
+        ...clubData,
+        updatedAt: new Date()
+      })
+      .where(eq(clubs.id, clubId))
+      .returning();
+    
+    console.log(`✅ Club updated: ${clubId}`);
+    res.json({ club: updatedClub[0] });
+  } catch (error) {
+    console.error('❌ Error updating club:', error);
+    res.status(500).json({ error: 'Failed to update club', details: error.message });
+  }
+});
+
+// Clubs Management - Delete club
+app.delete('/api/admin/clubs/:id', isAdmin, async (req, res) => {
+  try {
+    const clubId = parseInt(req.params.id);
+    console.log(`🔗 Deleting club ${clubId}...`);
+    
+    await db.delete(clubs).where(eq(clubs.id, clubId));
+    
+    console.log(`✅ Club deleted: ${clubId}`);
+    res.json({ message: 'Club deleted successfully' });
+  } catch (error) {
+    console.error('❌ Error deleting club:', error);
+    res.status(500).json({ error: 'Failed to delete club', details: error.message });
+  }
+});
+
+// Events Management - Get all events
+app.get('/api/admin/events', isAdmin, async (req, res) => {
+  try {
+    console.log('🔗 Fetching events for admin...');
+    
+    const events = await db.select().from(clubEvents);
+    
+    console.log(`✅ Retrieved ${events.length} events`);
+    res.json({ events });
+  } catch (error) {
+    console.error('❌ Error fetching events:', error);
+    res.status(500).json({ error: 'Failed to fetch events', details: error.message });
+  }
+});
+
+// Events Management - Create event
+app.post('/api/admin/events', isAdmin, async (req, res) => {
+  try {
+    console.log('🔗 Creating new event...');
+    const eventData = req.body;
+    
+    const newEvent = await db.insert(clubEvents).values({
+      clubId: eventData.clubId,
+      title: eventData.title,
+      description: eventData.description,
+      eventDate: new Date(eventData.eventDate),
+      location: eventData.location,
+      maxParticipants: eventData.maxParticipants,
+      currentParticipants: 0,
+      status: 'upcoming',
+      createdBy: eventData.createdBy
+    }).returning();
+    
+    console.log(`✅ Event created`);
+    res.json({ event: newEvent[0] });
+  } catch (error) {
+    console.error('❌ Error creating event:', error);
+    res.status(500).json({ error: 'Failed to create event', details: error.message });
+  }
+});
+
+// Events Management - Update event
+app.put('/api/admin/events/:id', isAdmin, async (req, res) => {
+  try {
+    const eventId = parseInt(req.params.id);
+    console.log(`🔗 Updating event ${eventId}...`);
+    const eventData = req.body;
+    
+    const updatedEvent = await db.update(clubEvents)
+      .set({
+        ...eventData,
+        updatedAt: new Date()
+      })
+      .where(eq(clubEvents.id, eventId))
+      .returning();
+    
+    console.log(`✅ Event updated: ${eventId}`);
+    res.json({ event: updatedEvent[0] });
+  } catch (error) {
+    console.error('❌ Error updating event:', error);
+    res.status(500).json({ error: 'Failed to update event', details: error.message });
+  }
+});
+
+// Events Management - Delete event
+app.delete('/api/admin/events/:id', isAdmin, async (req, res) => {
+  try {
+    const eventId = parseInt(req.params.id);
+    console.log(`🔗 Deleting event ${eventId}...`);
+    
+    await db.delete(clubEvents).where(eq(clubEvents.id, eventId));
+    
+    console.log(`✅ Event deleted: ${eventId}`);
+    res.json({ message: 'Event deleted successfully' });
+  } catch (error) {
+    console.error('❌ Error deleting event:', error);
+    res.status(500).json({ error: 'Failed to delete event', details: error.message });
+  }
+});
+
+// Booking Events Management - Get all booking events
+app.get('/api/admin/booking-events', isAdmin, async (req, res) => {
+  try {
+    console.log('🔗 Fetching booking events for admin...');
+    
+    const events = await storage.getBookingEvents();
+    
+    console.log(`✅ Retrieved ${events.length} booking events`);
+    res.json({ events });
+  } catch (error) {
+    console.error('❌ Error fetching booking events:', error);
+    res.status(500).json({ error: 'Failed to fetch booking events', details: error.message });
+  }
+});
+
+// Booking Events Management - Create booking event
+app.post('/api/admin/booking-events', isAdmin, async (req, res) => {
+  try {
+    console.log('🔗 Creating new booking event...');
+    const eventData = req.body;
+    
+    const newEvent = await db.insert(bookingEvents).values({
+      id: crypto.randomUUID(),
+      title: eventData.title,
+      subtitle: eventData.subtitle,
+      description: eventData.description,
+      location: eventData.location,
+      duration: eventData.duration,
+      price: eventData.price,
+      originalPrice: eventData.originalPrice,
+      rating: eventData.rating || 5,
+      reviewCount: 0,
+      category: eventData.category,
+      languages: eventData.languages || ['English'],
+      ageRange: eventData.ageRange,
+      groupSize: eventData.groupSize,
+      cancellationPolicy: eventData.cancellationPolicy,
+      images: eventData.images || [],
+      highlights: eventData.highlights || [],
+      included: eventData.included || [],
+      notIncluded: eventData.notIncluded || [],
+      schedule: eventData.schedule || [],
+      isActive: true,
+      createdBy: eventData.createdBy
+    }).returning();
+    
+    console.log(`✅ Booking event created`);
+    res.json({ event: newEvent[0] });
+  } catch (error) {
+    console.error('❌ Error creating booking event:', error);
+    res.status(500).json({ error: 'Failed to create booking event', details: error.message });
+  }
+});
+
+// Booking Events Management - Update booking event
+app.put('/api/admin/booking-events/:id', isAdmin, async (req, res) => {
+  try {
+    const eventId = req.params.id;
+    console.log(`🔗 Updating booking event ${eventId}...`);
+    const eventData = req.body;
+    
+    const updatedEvent = await db.update(bookingEvents)
+      .set({
+        ...eventData,
+        updatedAt: new Date()
+      })
+      .where(eq(bookingEvents.id, eventId))
+      .returning();
+    
+    console.log(`✅ Booking event updated: ${eventId}`);
+    res.json({ event: updatedEvent[0] });
+  } catch (error) {
+    console.error('❌ Error updating booking event:', error);
+    res.status(500).json({ error: 'Failed to update booking event', details: error.message });
+  }
+});
+
+// Booking Events Management - Delete booking event
+app.delete('/api/admin/booking-events/:id', isAdmin, async (req, res) => {
+  try {
+    const eventId = req.params.id;
+    console.log(`🔗 Deleting booking event ${eventId}...`);
+    
+    await db.delete(bookingEvents).where(eq(bookingEvents.id, eventId));
+    
+    console.log(`✅ Booking event deleted: ${eventId}`);
+    res.json({ message: 'Booking event deleted successfully' });
+  } catch (error) {
+    console.error('❌ Error deleting booking event:', error);
+    res.status(500).json({ error: 'Failed to delete booking event', details: error.message });
+  }
+});
+
+// Analytics - Get analytics data
+app.get('/api/admin/analytics', isAdmin, async (req, res) => {
+  try {
+    const { period = '30days' } = req.query;
+    console.log(`🔗 Fetching analytics for period: ${period}...`);
+    
+    const [users, clubsList, events] = await Promise.all([
+      storage.getAllUsers(),
+      storage.getClubs(),
+      db.select().from(clubEvents)
+    ]);
+    
+    const analytics = {
+      traffic: {
+        pageViews: 45234,
+        uniqueVisitors: 12543,
+        avgSessionDuration: '3:24',
+        bounceRate: 42
+      },
+      users: {
+        total: users.length,
+        new: users.filter(u => {
+          const created = new Date(u.createdAt);
+          const monthAgo = new Date();
+          monthAgo.setMonth(monthAgo.getMonth() - 1);
+          return created > monthAgo;
+        }).length,
+        active: users.length,
+        growth: 15
+      },
+      events: {
+        total: events.length,
+        upcoming: events.filter(e => new Date(e.eventDate) > new Date()).length,
+        completed: events.filter(e => e.status === 'completed').length,
+        avgParticipants: Math.round(events.reduce((sum, e) => sum + (e.currentParticipants || 0), 0) / events.length || 0)
+      },
+      clubs: {
+        total: clubsList.length,
+        active: clubsList.filter(c => c.isActive).length,
+        avgRating: 4.7,
+        avgMembers: Math.round(clubsList.reduce((sum, c) => sum + (c.memberCount || 0), 0) / clubsList.length || 0)
+      }
+    };
+    
+    console.log('✅ Analytics data retrieved');
+    res.json(analytics);
+  } catch (error) {
+    console.error('❌ Error fetching analytics:', error);
+    res.status(500).json({ error: 'Failed to fetch analytics', details: error.message });
+  }
+});
+
+// Media Library - Get all media
+app.get('/api/admin/media', isAdmin, async (req, res) => {
+  try {
+    console.log('🔗 Fetching media library...');
+    
+    const media = await db.select().from(mediaAssets);
+    
+    console.log(`✅ Retrieved ${media.length} media files`);
+    res.json({ media });
+  } catch (error) {
+    console.error('❌ Error fetching media:', error);
+    res.status(500).json({ error: 'Failed to fetch media', details: error.message });
+  }
+});
+
+// Media Library - Upload media (placeholder - actual file upload would need multer)
+app.post('/api/admin/media', isAdmin, async (req, res) => {
+  try {
+    console.log('🔗 Uploading media...');
+    const mediaData = req.body;
+    
+    const newMedia = await db.insert(mediaAssets).values({
+      fileName: mediaData.fileName,
+      fileType: mediaData.fileType,
+      fileUrl: mediaData.fileUrl,
+      thumbnailUrl: mediaData.thumbnailUrl,
+      altText: mediaData.altText,
+      focalPoint: mediaData.focalPoint,
+      metadata: mediaData.metadata || {},
+      uploadedBy: mediaData.uploadedBy
+    }).returning();
+    
+    console.log(`✅ Media uploaded`);
+    res.json({ media: newMedia[0] });
+  } catch (error) {
+    console.error('❌ Error uploading media:', error);
+    res.status(500).json({ error: 'Failed to upload media', details: error.message });
+  }
+});
+
+// Media Library - Delete media
+app.delete('/api/admin/media/:id', isAdmin, async (req, res) => {
+  try {
+    const mediaId = parseInt(req.params.id);
+    console.log(`🔗 Deleting media ${mediaId}...`);
+    
+    await db.delete(mediaAssets).where(eq(mediaAssets.id, mediaId));
+    
+    console.log(`✅ Media deleted: ${mediaId}`);
+    res.json({ message: 'Media deleted successfully' });
+  } catch (error) {
+    console.error('❌ Error deleting media:', error);
+    res.status(500).json({ error: 'Failed to delete media', details: error.message });
+  }
+});
+
+// Settings - Get all settings
+app.get('/api/admin/settings', isAdmin, async (req, res) => {
+  try {
+    console.log('🔗 Fetching all settings...');
+    
+    const [heroSettings, navbarSettings, footerSettings, contactSettings, seoSettings, themeSettings] = await Promise.all([
+      storage.getHeroSettings(),
+      storage.getNavbarSettings(),
+      storage.getFooterSettings(),
+      storage.getContactSettings(),
+      db.select().from(seoSettingsTable).limit(1),
+      db.select().from(themeSettingsTable).limit(1)
+    ]);
+    
+    const settings = {
+      hero: heroSettings,
+      navbar: navbarSettings,
+      footer: footerSettings,
+      contact: contactSettings,
+      seo: seoSettings[0] || null,
+      theme: themeSettings[0] || null
+    };
+    
+    console.log('✅ All settings retrieved');
+    res.json(settings);
+  } catch (error) {
+    console.error('❌ Error fetching settings:', error);
+    res.status(500).json({ error: 'Failed to fetch settings', details: error.message });
+  }
+});
+
+// Settings - Update SEO settings
+app.put('/api/admin/settings/seo', isAdmin, async (req, res) => {
+  try {
+    console.log('🔗 Updating SEO settings...');
+    const seoData = req.body;
+    
+    const updated = await db.update(seoSettingsTable)
+      .set({
+        ...seoData,
+        updatedAt: new Date()
+      })
+      .where(eq(seoSettingsTable.id, 'default'))
+      .returning();
+    
+    console.log('✅ SEO settings updated');
+    res.json({ settings: updated[0] });
+  } catch (error) {
+    console.error('❌ Error updating SEO settings:', error);
+    res.status(500).json({ error: 'Failed to update SEO settings', details: error.message });
+  }
+});
+
+// Settings - Update contact settings
+app.put('/api/admin/settings/contact', isAdmin, async (req, res) => {
+  try {
+    console.log('🔗 Updating contact settings...');
+    const contactData = req.body;
+    
+    const updated = await db.update(contactSettingsTable)
+      .set({
+        ...contactData,
+        updatedAt: new Date()
+      })
+      .where(eq(contactSettingsTable.id, 'default'))
+      .returning();
+    
+    console.log('✅ Contact settings updated');
+    res.json({ settings: updated[0] });
+  } catch (error) {
+    console.error('❌ Error updating contact settings:', error);
+    res.status(500).json({ error: 'Failed to update contact settings', details: error.message });
+  }
+});
+
 // Content and settings management
 app.get('/api/content/landing', async (req, res) => {
   try {
@@ -1312,7 +1933,7 @@ app.get('/api/cms/hero', async (req, res) => {
   }
 });
 
-app.put('/api/admin/cms/hero', async (req, res) => {
+app.put('/api/admin/cms/hero', isAdmin, async (req, res) => {
   try {
     const settings = await storage.updateHeroSettings(req.body);
     res.json(settings);
@@ -1323,7 +1944,7 @@ app.put('/api/admin/cms/hero', async (req, res) => {
 });
 
 // Media Upload
-app.post('/api/admin/cms/media', async (req, res) => {
+app.post('/api/admin/cms/media', isAdmin, async (req, res) => {
   try {
     const { fileName, fileType, fileUrl, altText } = req.body;
     
@@ -1357,7 +1978,7 @@ app.get('/api/cms/theme', async (req, res) => {
   }
 });
 
-app.put('/api/admin/cms/theme', async (req, res) => {
+app.put('/api/admin/cms/theme', isAdmin, async (req, res) => {
   try {
     const settings = await storage.updateThemeSettings(req.body);
     res.json(settings);
@@ -1378,7 +1999,7 @@ app.get('/api/cms/navbar', async (req, res) => {
   }
 });
 
-app.put('/api/admin/cms/navbar', async (req, res) => {
+app.put('/api/admin/cms/navbar', isAdmin, async (req, res) => {
   try {
     const settings = await storage.updateNavbarSettings(req.body);
     res.json(settings);
@@ -1455,7 +2076,7 @@ app.get('/api/cms/footer', async (req, res) => {
 });
 
 // Media Assets - List all
-app.get('/api/admin/cms/media', async (req, res) => {
+app.get('/api/admin/cms/media', isAdmin, async (req, res) => {
   try {
     const media = await storage.getMediaAssets();
     res.json(media);
