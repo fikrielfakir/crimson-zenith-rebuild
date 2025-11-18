@@ -1,21 +1,15 @@
-import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
+import { drizzle } from 'drizzle-orm/mysql2';
+import mysql from 'mysql2/promise';
 import * as schema from "../shared/schema.js";
 
-// Create PostgreSQL connection using Supabase
-// Use transaction pooler mode (disable prepared statements)
-// Requires DATABASE_URL environment variable with Supabase pooler connection
+// Create MySQL connection
+// Requires DATABASE_URL environment variable with MySQL connection string
 if (!process.env.DATABASE_URL) {
-  throw new Error('DATABASE_URL environment variable is required for Supabase connection');
+  throw new Error('DATABASE_URL environment variable is required for MySQL connection');
 }
 
-const client = postgres(process.env.DATABASE_URL, {
-  prepare: false,
-  max: 10,
-  idle_timeout: 20,
-  connect_timeout: 10,
-});
+const poolConnection = mysql.createPool(process.env.DATABASE_URL);
 
-const db = drizzle(client, { schema });
+const db = drizzle(poolConnection, { schema, mode: 'default' });
 
-export { client as pool, db };
+export { poolConnection as pool, db };
