@@ -659,6 +659,116 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // About Settings
+  app.get('/api/cms/about', async (req, res) => {
+    try {
+      const settings = await storage.getAboutSettings();
+      res.json(settings || {});
+    } catch (error) {
+      console.error("Error fetching about settings:", error);
+      res.status(500).json({ message: "Failed to fetch about settings" });
+    }
+  });
+
+  app.put('/api/admin/cms/about', isAuthenticated, isAdmin, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const settings = await storage.updateAboutSettings(req.body, userId);
+      res.json(settings);
+    } catch (error) {
+      console.error("Error updating about settings:", error);
+      res.status(500).json({ message: "Failed to update about settings" });
+    }
+  });
+
+  // President Message Settings
+  app.get('/api/cms/president-message', async (req, res) => {
+    try {
+      const settings = await storage.getPresidentMessageSettings();
+      res.json(settings || {});
+    } catch (error) {
+      console.error("Error fetching president message settings:", error);
+      res.status(500).json({ message: "Failed to fetch president message settings" });
+    }
+  });
+
+  app.put('/api/admin/cms/president-message', isAuthenticated, isAdmin, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const settings = await storage.updatePresidentMessageSettings(req.body, userId);
+      res.json(settings);
+    } catch (error) {
+      console.error("Error updating president message settings:", error);
+      res.status(500).json({ message: "Failed to update president message settings" });
+    }
+  });
+
+  // Partner Settings
+  app.get('/api/cms/partner-settings', async (req, res) => {
+    try {
+      const settings = await storage.getPartnerSettings();
+      res.json(settings || {});
+    } catch (error) {
+      console.error("Error fetching partner settings:", error);
+      res.status(500).json({ message: "Failed to fetch partner settings" });
+    }
+  });
+
+  app.put('/api/admin/cms/partner-settings', isAuthenticated, isAdmin, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const settings = await storage.updatePartnerSettings(req.body, userId);
+      res.json(settings);
+    } catch (error) {
+      console.error("Error updating partner settings:", error);
+      res.status(500).json({ message: "Failed to update partner settings" });
+    }
+  });
+
+  // Partners CRUD
+  app.get('/api/admin/cms/partners', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const partners = await storage.getPartners();
+      res.json(partners);
+    } catch (error) {
+      console.error("Error fetching partners:", error);
+      res.status(500).json({ message: "Failed to fetch partners" });
+    }
+  });
+
+  app.post('/api/admin/cms/partners', isAuthenticated, isAdmin, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const partner = await storage.createPartner({ ...req.body, createdBy: userId });
+      res.status(201).json(partner);
+    } catch (error) {
+      console.error("Error creating partner:", error);
+      res.status(500).json({ message: "Failed to create partner" });
+    }
+  });
+
+  app.put('/api/admin/cms/partners/:id', isAuthenticated, isAdmin, async (req: any, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const partner = await storage.updatePartner(id, req.body);
+      res.json(partner);
+    } catch (error) {
+      console.error("Error updating partner:", error);
+      res.status(500).json({ message: "Failed to update partner" });
+    }
+  });
+
+  app.delete('/api/admin/cms/partners/:id', isAuthenticated, isAdmin, async (req: any, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deletePartner(id);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting partner:", error);
+      res.status(500).json({ message: "Failed to delete partner" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
