@@ -1,19 +1,18 @@
-import { drizzle } from 'drizzle-orm/mysql2';
-import mysql from 'mysql2/promise';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
 import * as schema from "../shared/schema.js";
 
-// Create MySQL connection pool
-const pool = mysql.createPool({
-  host: process.env.DB_HOST!,
-  port: parseInt(process.env.DB_PORT || "3306"),
-  user: process.env.DB_USER!,
-  password: process.env.DB_PASSWORD!,
-  database: process.env.DB_NAME!,
-  connectionLimit: 10,
-  waitForConnections: true,
-  queueLimit: 0
+// Create PostgreSQL connection using Supabase
+const connectionString = process.env.SUPABASE_URL 
+  ? `postgresql://postgres.${process.env.SUPABASE_URL.split('//')[1].split('.')[0]}:[YOUR-PASSWORD]@${process.env.SUPABASE_URL.split('//')[1]}/postgres`
+  : process.env.DATABASE_URL!;
+
+const client = postgres(connectionString, {
+  max: 10,
+  idle_timeout: 20,
+  connect_timeout: 10,
 });
 
-const db = drizzle(pool, { schema, mode: 'default' });
+const db = drizzle(client, { schema });
 
-export { pool, db };
+export { client as pool, db };
