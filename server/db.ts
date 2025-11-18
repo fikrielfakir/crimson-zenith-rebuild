@@ -1,19 +1,12 @@
-import { drizzle } from 'drizzle-orm/mysql2';
-import mysql from 'mysql2/promise';
+import { drizzle } from 'drizzle-orm/neon-serverless';
+import { Pool } from '@neondatabase/serverless';
 import * as schema from "../shared/schema.js";
 
-// Create MySQL connection pool
-const pool = mysql.createPool({
-  host: process.env.DB_HOST!,
-  port: parseInt(process.env.DB_PORT || "3306"),
-  user: process.env.DB_USER!,
-  password: process.env.DB_PASSWORD!,
-  database: process.env.DB_NAME!,
-  connectionLimit: 10,
-  waitForConnections: true,
-  queueLimit: 0
+// Create PostgreSQL connection pool using the DATABASE_URL from Replit
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL!
 });
 
-const db = drizzle(pool, { schema, mode: 'default' });
+const db = drizzle(pool, { schema });
 
 export { pool, db };
