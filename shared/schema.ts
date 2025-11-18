@@ -207,7 +207,7 @@ export const navbarSettings = pgTable("navbar_settings", {
   logoText: varchar("logo_text", { length: 255 }),
   navigationLinks: json("navigation_links").default(sql`'[]'::jsonb`),
   showLanguageSwitcher: boolean("show_language_switcher").default(true),
-  availableLanguages: json("available_languages").default(sql`(JSON_ARRAY('EN', 'FR', 'AR'))`),
+  availableLanguages: json("available_languages").default(sql`'["EN","FR","AR"]'::jsonb`),
   showDarkModeToggle: boolean("show_dark_mode_toggle").default(true),
   loginButtonText: varchar("login_button_text", { length: 100 }).default("Login"),
   loginButtonLink: varchar("login_button_link", { length: 500 }).default("/admin/login"),

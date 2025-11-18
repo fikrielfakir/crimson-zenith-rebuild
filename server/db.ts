@@ -4,12 +4,12 @@ import * as schema from "../shared/schema.js";
 
 // Create PostgreSQL connection using Supabase
 // Use transaction pooler mode (disable prepared statements)
-// Prioritize the correct pooler connection string
-const connectionString = process.env.DATABASE_URL?.includes('pooler.supabase.com:6543')
-  ? process.env.DATABASE_URL
-  : 'postgresql://postgres.uktcwapwgvkazlmajnhf:thejourny@aws-1-eu-west-1.pooler.supabase.com:6543/postgres';
+// Requires DATABASE_URL environment variable with Supabase pooler connection
+if (!process.env.DATABASE_URL) {
+  throw new Error('DATABASE_URL environment variable is required for Supabase connection');
+}
 
-const client = postgres(connectionString, {
+const client = postgres(process.env.DATABASE_URL, {
   prepare: false,
   max: 10,
   idle_timeout: 20,
