@@ -2,7 +2,7 @@ import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 import session from "express-session";
 import type { Express, RequestHandler } from "express";
-import MySQLStoreFactory from "express-mysql-session";
+import connectPg from "connect-pg-simple";
 import bcrypt from "bcryptjs";
 import { storage } from "./storage";
 import { db, pool } from "./db";
@@ -11,18 +11,12 @@ import { eq } from "drizzle-orm";
 
 export function getSession() {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
-  const MySQLStore = MySQLStoreFactory(session);
-  const sessionStore = new MySQLStore({
-    createDatabaseTable: true,
-    schema: {
-      tableName: 'sessions',
-      columnNames: {
-        session_id: 'session_id',
-        expires: 'expires',
-        data: 'data'
-      }
-    }
-  }, pool);
+  const PgStore = connectPg(session);
+  const sessionStore = new PgStore({
+    pool: pool as any,
+    tableName: 'sessions',
+    createTableIfMissing: true,
+  });
   
   return session({
     secret: process.env.SESSION_SECRET || 'default-secret-change-in-production',
