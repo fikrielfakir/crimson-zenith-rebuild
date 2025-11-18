@@ -20,6 +20,10 @@ import {
   contactSettings,
   footerSettings,
   seoSettings,
+  aboutSettings,
+  presidentMessageSettings,
+  partnerSettings,
+  partners,
   type User,
   type UpsertUser,
   type Club,
@@ -57,6 +61,14 @@ import {
   type InsertFooterSettings,
   type SeoSettings,
   type InsertSeoSettings,
+  type AboutSettings,
+  type InsertAboutSettings,
+  type PresidentMessageSettings,
+  type InsertPresidentMessageSettings,
+  type PartnerSettings,
+  type InsertPartnerSettings,
+  type Partner,
+  type InsertPartner,
 } from "../shared/schema.js";
 import { db } from "./db";
 import { eq, and, desc, asc, count, sql } from "drizzle-orm";
@@ -169,6 +181,25 @@ export interface IStorage {
   // SEO settings operations
   getSeoSettings(): Promise<SeoSettings | undefined>;
   updateSeoSettings(settings: Partial<InsertSeoSettings>, userId?: string): Promise<SeoSettings>;
+  
+  // About settings operations
+  getAboutSettings(): Promise<AboutSettings | undefined>;
+  updateAboutSettings(settings: Partial<InsertAboutSettings>, userId?: string): Promise<AboutSettings>;
+  
+  // President message settings operations
+  getPresidentMessageSettings(): Promise<PresidentMessageSettings | undefined>;
+  updatePresidentMessageSettings(settings: Partial<InsertPresidentMessageSettings>, userId?: string): Promise<PresidentMessageSettings>;
+  
+  // Partner settings operations
+  getPartnerSettings(): Promise<PartnerSettings | undefined>;
+  updatePartnerSettings(settings: Partial<InsertPartnerSettings>, userId?: string): Promise<PartnerSettings>;
+  
+  // Partners operations
+  getPartners(): Promise<Partner[]>;
+  getPartner(id: number): Promise<Partner | undefined>;
+  createPartner(partner: InsertPartner): Promise<Partner>;
+  updatePartner(id: number, partner: Partial<InsertPartner>): Promise<Partner>;
+  deletePartner(id: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -779,6 +810,97 @@ export class DatabaseStorage implements IStorage {
         { ...settingsData, id: 'default', updatedBy: userId } as InsertSeoSettings
       );
     }
+  }
+
+  // About settings operations
+  async getAboutSettings(): Promise<AboutSettings | undefined> {
+    const [settings] = await db.select().from(aboutSettings).where(eq(aboutSettings.id, 'default'));
+    return settings;
+  }
+
+  async updateAboutSettings(settingsData: Partial<InsertAboutSettings>, userId?: string): Promise<AboutSettings> {
+    const existing = await this.getAboutSettings();
+    
+    if (existing) {
+      return await this.updateAndFetch<AboutSettings>(
+        aboutSettings,
+        'default',
+        { ...settingsData, updatedBy: userId, updatedAt: new Date() }
+      );
+    } else {
+      return await this.insertAndFetch<AboutSettings>(
+        aboutSettings,
+        { ...settingsData, id: 'default', updatedBy: userId } as InsertAboutSettings
+      );
+    }
+  }
+
+  // President message settings operations
+  async getPresidentMessageSettings(): Promise<PresidentMessageSettings | undefined> {
+    const [settings] = await db.select().from(presidentMessageSettings).where(eq(presidentMessageSettings.id, 'default'));
+    return settings;
+  }
+
+  async updatePresidentMessageSettings(settingsData: Partial<InsertPresidentMessageSettings>, userId?: string): Promise<PresidentMessageSettings> {
+    const existing = await this.getPresidentMessageSettings();
+    
+    if (existing) {
+      return await this.updateAndFetch<PresidentMessageSettings>(
+        presidentMessageSettings,
+        'default',
+        { ...settingsData, updatedBy: userId, updatedAt: new Date() }
+      );
+    } else {
+      return await this.insertAndFetch<PresidentMessageSettings>(
+        presidentMessageSettings,
+        { ...settingsData, id: 'default', updatedBy: userId } as InsertPresidentMessageSettings
+      );
+    }
+  }
+
+  // Partner settings operations
+  async getPartnerSettings(): Promise<PartnerSettings | undefined> {
+    const [settings] = await db.select().from(partnerSettings).where(eq(partnerSettings.id, 'default'));
+    return settings;
+  }
+
+  async updatePartnerSettings(settingsData: Partial<InsertPartnerSettings>, userId?: string): Promise<PartnerSettings> {
+    const existing = await this.getPartnerSettings();
+    
+    if (existing) {
+      return await this.updateAndFetch<PartnerSettings>(
+        partnerSettings,
+        'default',
+        { ...settingsData, updatedBy: userId, updatedAt: new Date() }
+      );
+    } else {
+      return await this.insertAndFetch<PartnerSettings>(
+        partnerSettings,
+        { ...settingsData, id: 'default', updatedBy: userId } as InsertPartnerSettings
+      );
+    }
+  }
+
+  // Partners operations
+  async getPartners(): Promise<Partner[]> {
+    return await db.select().from(partners).where(eq(partners.isActive, true)).orderBy(asc(partners.ordering));
+  }
+
+  async getPartner(id: number): Promise<Partner | undefined> {
+    const [partner] = await db.select().from(partners).where(eq(partners.id, id));
+    return partner;
+  }
+
+  async createPartner(partnerData: InsertPartner): Promise<Partner> {
+    return await this.insertAndFetch<Partner>(partners, partnerData);
+  }
+
+  async updatePartner(id: number, partnerData: Partial<InsertPartner>): Promise<Partner> {
+    return await this.updateAndFetch<Partner>(partners, id, { ...partnerData, updatedAt: new Date() });
+  }
+
+  async deletePartner(id: number): Promise<void> {
+    await db.delete(partners).where(eq(partners.id, id));
   }
 }
 
