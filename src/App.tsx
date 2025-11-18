@@ -110,6 +110,16 @@ const App = () => (
               <ClubsManagement />
             </ProtectedRoute>
           } />
+          <Route path="/admin/clubs/new" element={
+            <ProtectedRoute>
+              <ClubsManagement />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/clubs/:id/edit" element={
+            <ProtectedRoute>
+              <ClubProfileEdit />
+            </ProtectedRoute>
+          } />
           <Route path="/admin/events" element={
             <ProtectedRoute>
               <EventsManagement />
@@ -146,6 +156,11 @@ const App = () => (
             </ProtectedRoute>
           } />
           <Route path="/admin/monitor" element={
+            <ProtectedRoute>
+              <SystemMonitoring />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/system" element={
             <ProtectedRoute>
               <SystemMonitoring />
             </ProtectedRoute>
@@ -191,6 +206,11 @@ const App = () => (
             </ProtectedRoute>
           } />
           <Route path="/admin/booking" element={
+            <ProtectedRoute>
+              <BookingManagement />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/bookings" element={
             <ProtectedRoute>
               <BookingManagement />
             </ProtectedRoute>
