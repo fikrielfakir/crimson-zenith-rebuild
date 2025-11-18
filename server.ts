@@ -13,7 +13,7 @@ const __dirname = dirname(__filename);
 const app = express();
 const PORT = process.env.NODE_ENV === 'production' ? (Number(process.env.PORT) || 5000) : 3001;
 
-console.log('✅ Server configured for PostgreSQL database integration');
+console.log('✅ Server configured for MySQL database integration');
 
 // Main server initialization
 async function initializeServer() {
