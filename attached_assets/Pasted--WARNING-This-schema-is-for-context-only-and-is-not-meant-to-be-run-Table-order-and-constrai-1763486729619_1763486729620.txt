@@ -1,0 +1,433 @@
+-- WARNING: This schema is for context only and is not meant to be run.
+-- Table order and constraints may not be valid for execution.
+
+CREATE TABLE public.about_settings (
+  id character varying NOT NULL DEFAULT 'default'::character varying,
+  is_active boolean DEFAULT true,
+  title character varying DEFAULT 'About Us'::character varying,
+  subtitle text,
+  description text NOT NULL,
+  image_id integer,
+  background_image_id integer,
+  background_color character varying,
+  updated_by character varying,
+  updated_at timestamp without time zone DEFAULT now(),
+  CONSTRAINT about_settings_pkey PRIMARY KEY (id),
+  CONSTRAINT about_settings_image_id_media_assets_id_fk FOREIGN KEY (image_id) REFERENCES public.media_assets(id),
+  CONSTRAINT about_settings_background_image_id_media_assets_id_fk FOREIGN KEY (background_image_id) REFERENCES public.media_assets(id),
+  CONSTRAINT about_settings_updated_by_users_id_fk FOREIGN KEY (updated_by) REFERENCES public.users(id)
+);
+CREATE TABLE public.booking_events (
+  id character varying NOT NULL,
+  title character varying NOT NULL,
+  subtitle character varying,
+  description text NOT NULL,
+  location character varying NOT NULL,
+  duration character varying,
+  price integer NOT NULL,
+  original_price integer,
+  rating integer DEFAULT 5,
+  review_count integer DEFAULT 0,
+  category character varying,
+  languages json DEFAULT '["English"]'::jsonb,
+  age_range character varying,
+  group_size character varying,
+  cancellation_policy text,
+  images json DEFAULT '[]'::jsonb,
+  highlights json DEFAULT '[]'::jsonb,
+  included json DEFAULT '[]'::jsonb,
+  not_included json DEFAULT '[]'::jsonb,
+  schedule json DEFAULT '[]'::jsonb,
+  is_active boolean DEFAULT true,
+  created_by character varying,
+  created_at timestamp without time zone DEFAULT now(),
+  updated_at timestamp without time zone DEFAULT now(),
+  CONSTRAINT booking_events_pkey PRIMARY KEY (id),
+  CONSTRAINT booking_events_created_by_users_id_fk FOREIGN KEY (created_by) REFERENCES public.users(id)
+);
+CREATE TABLE public.booking_page_settings (
+  id character varying NOT NULL,
+  title character varying NOT NULL,
+  subtitle character varying,
+  header_background_image character varying,
+  footer_text text,
+  contact_email character varying,
+  contact_phone character varying,
+  enable_reviews boolean DEFAULT true,
+  enable_similar_events boolean DEFAULT true,
+  enable_image_gallery boolean DEFAULT true,
+  max_participants integer DEFAULT 25,
+  minimum_booking_hours integer DEFAULT 24,
+  custom_css text,
+  seo_title character varying,
+  seo_description text,
+  updated_at timestamp without time zone DEFAULT now(),
+  CONSTRAINT booking_page_settings_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.club_events (
+  id integer NOT NULL DEFAULT nextval('club_events_id_seq'::regclass),
+  club_id integer NOT NULL,
+  title character varying NOT NULL,
+  description text,
+  event_date timestamp without time zone NOT NULL,
+  location character varying,
+  max_participants integer,
+  current_participants integer DEFAULT 0,
+  status character varying DEFAULT 'upcoming'::character varying,
+  created_by character varying,
+  created_at timestamp without time zone DEFAULT now(),
+  updated_at timestamp without time zone DEFAULT now(),
+  CONSTRAINT club_events_pkey PRIMARY KEY (id),
+  CONSTRAINT club_events_club_id_clubs_id_fk FOREIGN KEY (club_id) REFERENCES public.clubs(id),
+  CONSTRAINT club_events_created_by_users_id_fk FOREIGN KEY (created_by) REFERENCES public.users(id)
+);
+CREATE TABLE public.club_gallery (
+  id integer NOT NULL DEFAULT nextval('club_gallery_id_seq'::regclass),
+  club_id integer NOT NULL,
+  image_url character varying NOT NULL,
+  caption character varying,
+  uploaded_by character varying,
+  uploaded_at timestamp without time zone DEFAULT now(),
+  CONSTRAINT club_gallery_pkey PRIMARY KEY (id),
+  CONSTRAINT club_gallery_club_id_clubs_id_fk FOREIGN KEY (club_id) REFERENCES public.clubs(id),
+  CONSTRAINT club_gallery_uploaded_by_users_id_fk FOREIGN KEY (uploaded_by) REFERENCES public.users(id)
+);
+CREATE TABLE public.club_memberships (
+  id integer NOT NULL DEFAULT nextval('club_memberships_id_seq'::regclass),
+  user_id character varying NOT NULL,
+  club_id integer NOT NULL,
+  role character varying DEFAULT 'member'::character varying,
+  joined_at timestamp without time zone DEFAULT now(),
+  is_active boolean DEFAULT true,
+  CONSTRAINT club_memberships_pkey PRIMARY KEY (id),
+  CONSTRAINT club_memberships_user_id_users_id_fk FOREIGN KEY (user_id) REFERENCES public.users(id),
+  CONSTRAINT club_memberships_club_id_clubs_id_fk FOREIGN KEY (club_id) REFERENCES public.clubs(id)
+);
+CREATE TABLE public.club_reviews (
+  id integer NOT NULL DEFAULT nextval('club_reviews_id_seq'::regclass),
+  club_id integer NOT NULL,
+  user_id character varying NOT NULL,
+  rating integer NOT NULL,
+  comment text,
+  created_at timestamp without time zone DEFAULT now(),
+  CONSTRAINT club_reviews_pkey PRIMARY KEY (id),
+  CONSTRAINT club_reviews_club_id_clubs_id_fk FOREIGN KEY (club_id) REFERENCES public.clubs(id),
+  CONSTRAINT club_reviews_user_id_users_id_fk FOREIGN KEY (user_id) REFERENCES public.users(id)
+);
+CREATE TABLE public.clubs (
+  id integer NOT NULL DEFAULT nextval('clubs_id_seq'::regclass),
+  name character varying NOT NULL,
+  description text NOT NULL,
+  long_description text,
+  image character varying,
+  location character varying NOT NULL,
+  member_count integer DEFAULT 0,
+  features json DEFAULT '[]'::jsonb,
+  contact_phone character varying,
+  contact_email character varying,
+  website character varying,
+  social_media json DEFAULT '{}'::jsonb,
+  rating integer DEFAULT 5,
+  established character varying,
+  is_active boolean DEFAULT true,
+  latitude numeric,
+  longitude numeric,
+  owner_id character varying,
+  created_at timestamp without time zone DEFAULT now(),
+  updated_at timestamp without time zone DEFAULT now(),
+  CONSTRAINT clubs_pkey PRIMARY KEY (id),
+  CONSTRAINT clubs_owner_id_users_id_fk FOREIGN KEY (owner_id) REFERENCES public.users(id)
+);
+CREATE TABLE public.contact_settings (
+  id character varying NOT NULL DEFAULT 'default'::character varying,
+  office_address text,
+  email character varying,
+  phone character varying,
+  office_hours text,
+  map_latitude numeric,
+  map_longitude numeric,
+  form_recipients json DEFAULT '[]'::jsonb,
+  auto_reply_enabled boolean DEFAULT false,
+  auto_reply_message text,
+  social_links json DEFAULT '{}'::jsonb,
+  updated_by character varying,
+  updated_at timestamp without time zone DEFAULT now(),
+  CONSTRAINT contact_settings_pkey PRIMARY KEY (id),
+  CONSTRAINT contact_settings_updated_by_users_id_fk FOREIGN KEY (updated_by) REFERENCES public.users(id)
+);
+CREATE TABLE public.event_participants (
+  id integer NOT NULL DEFAULT nextval('event_participants_id_seq'::regclass),
+  event_id integer NOT NULL,
+  user_id character varying NOT NULL,
+  registered_at timestamp without time zone DEFAULT now(),
+  attended boolean DEFAULT false,
+  CONSTRAINT event_participants_pkey PRIMARY KEY (id),
+  CONSTRAINT event_participants_event_id_club_events_id_fk FOREIGN KEY (event_id) REFERENCES public.club_events(id),
+  CONSTRAINT event_participants_user_id_users_id_fk FOREIGN KEY (user_id) REFERENCES public.users(id)
+);
+CREATE TABLE public.focus_items (
+  id integer NOT NULL DEFAULT nextval('focus_items_id_seq'::regclass),
+  title character varying NOT NULL,
+  icon character varying,
+  description text NOT NULL,
+  ordering integer NOT NULL DEFAULT 0,
+  is_active boolean DEFAULT true,
+  media_id integer,
+  created_by character varying,
+  created_at timestamp without time zone DEFAULT now(),
+  updated_at timestamp without time zone DEFAULT now(),
+  CONSTRAINT focus_items_pkey PRIMARY KEY (id),
+  CONSTRAINT focus_items_media_id_media_assets_id_fk FOREIGN KEY (media_id) REFERENCES public.media_assets(id),
+  CONSTRAINT focus_items_created_by_users_id_fk FOREIGN KEY (created_by) REFERENCES public.users(id)
+);
+CREATE TABLE public.footer_settings (
+  id character varying NOT NULL DEFAULT 'default'::character varying,
+  copyright_text character varying,
+  description text,
+  links json DEFAULT '[]'::jsonb,
+  social_links json DEFAULT '{}'::jsonb,
+  newsletter_enabled boolean DEFAULT true,
+  newsletter_title character varying,
+  newsletter_description text,
+  updated_by character varying,
+  updated_at timestamp without time zone DEFAULT now(),
+  CONSTRAINT footer_settings_pkey PRIMARY KEY (id),
+  CONSTRAINT footer_settings_updated_by_users_id_fk FOREIGN KEY (updated_by) REFERENCES public.users(id)
+);
+CREATE TABLE public.hero_settings (
+  id character varying NOT NULL DEFAULT 'default'::character varying,
+  title text NOT NULL DEFAULT 'Where Adventure Meets
+Transformation'::text,
+  subtitle text NOT NULL DEFAULT 'Experience Morocco''s soul through sustainable journeys. Discover culture, embrace adventure, and create lasting connections with local communities.'::text,
+  primary_button_text character varying DEFAULT 'Start Your Journey'::character varying,
+  primary_button_link character varying DEFAULT '/discover'::character varying,
+  secondary_button_text character varying DEFAULT 'Explore Clubs'::character varying,
+  secondary_button_link character varying DEFAULT '/clubs'::character varying,
+  background_type character varying DEFAULT 'image'::character varying,
+  background_media_id integer,
+  background_overlay_color character varying DEFAULT 'rgba(26, 54, 93, 0.7)'::character varying,
+  background_overlay_opacity integer DEFAULT 70,
+  title_font_size character varying DEFAULT '65px'::character varying,
+  title_color character varying DEFAULT '#ffffff'::character varying,
+  subtitle_font_size character varying DEFAULT '20px'::character varying,
+  subtitle_color character varying DEFAULT '#ffffff'::character varying,
+  enable_typewriter boolean DEFAULT true,
+  typewriter_texts json DEFAULT '[]'::jsonb,
+  updated_by character varying,
+  updated_at timestamp without time zone DEFAULT now(),
+  CONSTRAINT hero_settings_pkey PRIMARY KEY (id),
+  CONSTRAINT hero_settings_background_media_id_media_assets_id_fk FOREIGN KEY (background_media_id) REFERENCES public.media_assets(id),
+  CONSTRAINT hero_settings_updated_by_users_id_fk FOREIGN KEY (updated_by) REFERENCES public.users(id)
+);
+CREATE TABLE public.landing_sections (
+  id integer NOT NULL DEFAULT nextval('landing_sections_id_seq'::regclass),
+  slug character varying NOT NULL UNIQUE,
+  title character varying NOT NULL,
+  section_type character varying NOT NULL,
+  ordering integer NOT NULL DEFAULT 0,
+  is_active boolean DEFAULT true,
+  background_color character varying,
+  background_media_id integer,
+  title_font_size character varying DEFAULT '32px'::character varying,
+  title_color character varying DEFAULT '#112250'::character varying,
+  custom_css text,
+  updated_by character varying,
+  created_at timestamp without time zone DEFAULT now(),
+  updated_at timestamp without time zone DEFAULT now(),
+  CONSTRAINT landing_sections_pkey PRIMARY KEY (id),
+  CONSTRAINT landing_sections_background_media_id_media_assets_id_fk FOREIGN KEY (background_media_id) REFERENCES public.media_assets(id),
+  CONSTRAINT landing_sections_updated_by_users_id_fk FOREIGN KEY (updated_by) REFERENCES public.users(id)
+);
+CREATE TABLE public.landing_testimonials (
+  id integer NOT NULL DEFAULT nextval('landing_testimonials_id_seq'::regclass),
+  name character varying NOT NULL,
+  role character varying,
+  photo_id integer,
+  rating integer DEFAULT 5,
+  feedback text NOT NULL,
+  is_approved boolean DEFAULT false,
+  is_active boolean DEFAULT true,
+  ordering integer NOT NULL DEFAULT 0,
+  user_id character varying,
+  created_at timestamp without time zone DEFAULT now(),
+  updated_at timestamp without time zone DEFAULT now(),
+  CONSTRAINT landing_testimonials_pkey PRIMARY KEY (id),
+  CONSTRAINT landing_testimonials_photo_id_media_assets_id_fk FOREIGN KEY (photo_id) REFERENCES public.media_assets(id),
+  CONSTRAINT landing_testimonials_user_id_users_id_fk FOREIGN KEY (user_id) REFERENCES public.users(id)
+);
+CREATE TABLE public.media_assets (
+  id integer NOT NULL DEFAULT nextval('media_assets_id_seq'::regclass),
+  file_name character varying NOT NULL,
+  file_type character varying NOT NULL,
+  file_url character varying NOT NULL,
+  thumbnail_url character varying,
+  alt_text character varying,
+  focal_point json,
+  metadata json DEFAULT '{}'::jsonb,
+  uploaded_by character varying,
+  created_at timestamp without time zone DEFAULT now(),
+  CONSTRAINT media_assets_pkey PRIMARY KEY (id),
+  CONSTRAINT media_assets_uploaded_by_users_id_fk FOREIGN KEY (uploaded_by) REFERENCES public.users(id)
+);
+CREATE TABLE public.navbar_settings (
+  id character varying NOT NULL DEFAULT 'default'::character varying,
+  logo_type character varying DEFAULT 'image'::character varying,
+  logo_image_id integer,
+  logo_svg text,
+  logo_text character varying,
+  navigation_links json DEFAULT '[]'::jsonb,
+  show_language_switcher boolean DEFAULT true,
+  available_languages json DEFAULT JSON_ARRAY('EN'::text, 'FR'::text, 'AR'::text RETURNING json),
+  show_dark_mode_toggle boolean DEFAULT true,
+  login_button_text character varying DEFAULT 'Login'::character varying,
+  login_button_link character varying DEFAULT '/admin/login'::character varying,
+  show_login_button boolean DEFAULT true,
+  join_button_text character varying DEFAULT 'Join Us'::character varying,
+  join_button_link character varying DEFAULT '/join'::character varying,
+  join_button_style character varying DEFAULT 'secondary'::character varying,
+  show_join_button boolean DEFAULT true,
+  updated_by character varying,
+  updated_at timestamp without time zone DEFAULT now(),
+  CONSTRAINT navbar_settings_pkey PRIMARY KEY (id),
+  CONSTRAINT navbar_settings_logo_image_id_media_assets_id_fk FOREIGN KEY (logo_image_id) REFERENCES public.media_assets(id),
+  CONSTRAINT navbar_settings_updated_by_users_id_fk FOREIGN KEY (updated_by) REFERENCES public.users(id)
+);
+CREATE TABLE public.partner_settings (
+  id character varying NOT NULL DEFAULT 'default'::character varying,
+  is_active boolean DEFAULT true,
+  title character varying DEFAULT 'Our Partners'::character varying,
+  subtitle text,
+  background_color character varying,
+  updated_by character varying,
+  updated_at timestamp without time zone DEFAULT now(),
+  CONSTRAINT partner_settings_pkey PRIMARY KEY (id),
+  CONSTRAINT partner_settings_updated_by_users_id_fk FOREIGN KEY (updated_by) REFERENCES public.users(id)
+);
+CREATE TABLE public.partners (
+  id integer NOT NULL DEFAULT nextval('partners_id_seq'::regclass),
+  name character varying NOT NULL,
+  logo_id integer,
+  website_url character varying,
+  description text,
+  ordering integer NOT NULL DEFAULT 0,
+  is_active boolean DEFAULT true,
+  created_by character varying,
+  created_at timestamp without time zone DEFAULT now(),
+  updated_at timestamp without time zone DEFAULT now(),
+  CONSTRAINT partners_pkey PRIMARY KEY (id),
+  CONSTRAINT partners_logo_id_media_assets_id_fk FOREIGN KEY (logo_id) REFERENCES public.media_assets(id),
+  CONSTRAINT partners_created_by_users_id_fk FOREIGN KEY (created_by) REFERENCES public.users(id)
+);
+CREATE TABLE public.president_message_settings (
+  id character varying NOT NULL DEFAULT 'default'::character varying,
+  is_active boolean DEFAULT true,
+  title character varying DEFAULT 'Message from Our President'::character varying,
+  president_name character varying NOT NULL,
+  president_role character varying DEFAULT 'President'::character varying,
+  message text NOT NULL,
+  photo_id integer,
+  signature_id integer,
+  background_image_id integer,
+  background_color character varying,
+  updated_by character varying,
+  updated_at timestamp without time zone DEFAULT now(),
+  CONSTRAINT president_message_settings_pkey PRIMARY KEY (id),
+  CONSTRAINT president_message_settings_photo_id_media_assets_id_fk FOREIGN KEY (photo_id) REFERENCES public.media_assets(id),
+  CONSTRAINT president_message_settings_signature_id_media_assets_id_fk FOREIGN KEY (signature_id) REFERENCES public.media_assets(id),
+  CONSTRAINT president_message_settings_background_image_id_media_assets_id_ FOREIGN KEY (background_image_id) REFERENCES public.media_assets(id),
+  CONSTRAINT president_message_settings_updated_by_users_id_fk FOREIGN KEY (updated_by) REFERENCES public.users(id)
+);
+CREATE TABLE public.section_blocks (
+  id integer NOT NULL DEFAULT nextval('section_blocks_id_seq'::regclass),
+  section_id integer NOT NULL,
+  block_type character varying NOT NULL,
+  ordering integer NOT NULL DEFAULT 0,
+  content json NOT NULL DEFAULT '{}'::jsonb,
+  is_active boolean DEFAULT true,
+  created_at timestamp without time zone DEFAULT now(),
+  updated_at timestamp without time zone DEFAULT now(),
+  CONSTRAINT section_blocks_pkey PRIMARY KEY (id),
+  CONSTRAINT section_blocks_section_id_landing_sections_id_fk FOREIGN KEY (section_id) REFERENCES public.landing_sections(id)
+);
+CREATE TABLE public.seo_settings (
+  id character varying NOT NULL DEFAULT 'default'::character varying,
+  site_title character varying,
+  site_description text,
+  keywords text,
+  og_image integer,
+  twitter_handle character varying,
+  google_analytics_id character varying,
+  facebook_pixel_id character varying,
+  custom_head_code text,
+  custom_body_code text,
+  updated_by character varying,
+  updated_at timestamp without time zone DEFAULT now(),
+  CONSTRAINT seo_settings_pkey PRIMARY KEY (id),
+  CONSTRAINT seo_settings_og_image_media_assets_id_fk FOREIGN KEY (og_image) REFERENCES public.media_assets(id),
+  CONSTRAINT seo_settings_updated_by_users_id_fk FOREIGN KEY (updated_by) REFERENCES public.users(id)
+);
+CREATE TABLE public.sessions (
+  sid character varying NOT NULL,
+  sess json NOT NULL,
+  expires timestamp without time zone NOT NULL,
+  CONSTRAINT sessions_pkey PRIMARY KEY (sid)
+);
+CREATE TABLE public.site_stats (
+  id integer NOT NULL DEFAULT nextval('site_stats_id_seq'::regclass),
+  label character varying NOT NULL,
+  value character varying NOT NULL,
+  icon character varying,
+  suffix character varying,
+  ordering integer NOT NULL DEFAULT 0,
+  is_active boolean DEFAULT true,
+  updated_by character varying,
+  created_at timestamp without time zone DEFAULT now(),
+  updated_at timestamp without time zone DEFAULT now(),
+  CONSTRAINT site_stats_pkey PRIMARY KEY (id),
+  CONSTRAINT site_stats_updated_by_users_id_fk FOREIGN KEY (updated_by) REFERENCES public.users(id)
+);
+CREATE TABLE public.team_members (
+  id integer NOT NULL DEFAULT nextval('team_members_id_seq'::regclass),
+  name character varying NOT NULL,
+  role character varying NOT NULL,
+  bio text,
+  photo_id integer,
+  email character varying,
+  phone character varying,
+  social_links json DEFAULT '{}'::jsonb,
+  ordering integer NOT NULL DEFAULT 0,
+  is_active boolean DEFAULT true,
+  created_by character varying,
+  created_at timestamp without time zone DEFAULT now(),
+  updated_at timestamp without time zone DEFAULT now(),
+  CONSTRAINT team_members_pkey PRIMARY KEY (id),
+  CONSTRAINT team_members_photo_id_media_assets_id_fk FOREIGN KEY (photo_id) REFERENCES public.media_assets(id),
+  CONSTRAINT team_members_created_by_users_id_fk FOREIGN KEY (created_by) REFERENCES public.users(id)
+);
+CREATE TABLE public.theme_settings (
+  id character varying NOT NULL DEFAULT 'default'::character varying,
+  primary_color character varying DEFAULT '#112250'::character varying,
+  secondary_color character varying DEFAULT '#D8C18D'::character varying,
+  custom_css text,
+  updated_by character varying,
+  updated_at timestamp without time zone DEFAULT now(),
+  CONSTRAINT theme_settings_pkey PRIMARY KEY (id),
+  CONSTRAINT theme_settings_updated_by_users_id_fk FOREIGN KEY (updated_by) REFERENCES public.users(id)
+);
+CREATE TABLE public.users (
+  id character varying NOT NULL DEFAULT gen_random_uuid(),
+  username character varying UNIQUE,
+  password character varying,
+  email character varying UNIQUE,
+  first_name character varying,
+  last_name character varying,
+  profile_image_url character varying,
+  bio text,
+  phone character varying,
+  location character varying,
+  interests json DEFAULT '[]'::jsonb,
+  is_admin boolean DEFAULT false,
+  created_at timestamp without time zone DEFAULT now(),
+  updated_at timestamp without time zone DEFAULT now(),
+  CONSTRAINT users_pkey PRIMARY KEY (id)
+);
