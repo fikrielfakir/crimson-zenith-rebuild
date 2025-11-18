@@ -2,15 +2,15 @@ import { sql } from 'drizzle-orm';
 import {
   index,
   json,
-  pgTable,
+  mysqlTable,
   timestamp,
   varchar,
-  serial,
-  integer,
+  int,
+  
   text,
   boolean,
-  numeric,
-} from "drizzle-orm/pg-core";
+  decimal,
+} from "drizzle-orm/mysql-core";
 import { relations } from "drizzle-orm";
 
 // Session storage table.
