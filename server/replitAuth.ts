@@ -8,12 +8,24 @@ import { storage } from "./storage";
 import { db, pool } from "./db";
 import { users } from "../shared/schema";
 import { eq } from "drizzle-orm";
+import pgPackage from "pg";
+
+const { Pool } = pgPackage;
 
 export function getSession() {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
   const PgStore = connectPg(session);
+  
+  // Create a pg Pool specifically for connect-pg-simple
+  const pgPool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    max: 10,
+    idleTimeoutMillis: 20000,
+    connectionTimeoutMillis: 10000,
+  });
+  
   const sessionStore = new PgStore({
-    pool: pool as any,
+    pool: pgPool,
     tableName: 'sessions',
     createTableIfMissing: true,
   });
