@@ -622,30 +622,53 @@ app.get('/api/clubs', async (req, res) => {
 
 app.get('/api/events', async (req, res) => {
   try {
-    console.log('🔗 Fetching events from MySQL database...');
-    const clubs = await storage.getClubs();
-    const allEvents: any[] = [];
+    console.log('🔗 Fetching public events from MySQL database...');
     
-    for (const club of clubs) {
-      const events = await storage.getClubEvents(club.id);
-      allEvents.push(...events.map(event => ({
-        id: event.id,
-        club_id: event.clubId,
-        title: event.title,
-        description: event.description,
-        event_date: event.eventDate?.toISOString(),
-        location: event.location,
-        max_participants: event.maxParticipants,
-        current_participants: event.currentParticipants,
-        status: event.status,
-        created_at: event.createdAt?.toISOString()
-      })));
+    const { status, perPage = '100', page = '1' } = req.query;
+    const perPageNum = parseInt(perPage as string);
+    const pageNum = parseInt(page as string);
+    const offset = (pageNum - 1) * perPageNum;
+    
+    // Fetch all events from the database
+    let allEvents = await db.select().from(clubEvents);
+    
+    // Filter by status (default to showing only 'upcoming' events which maps to 'published' in frontend)
+    if (status && status !== 'all') {
+      if (status === 'published') {
+        allEvents = allEvents.filter(e => e.status === 'upcoming');
+      } else {
+        allEvents = allEvents.filter(e => e.status === status);
+      }
+    } else {
+      // By default, only show upcoming (published) events to public
+      allEvents = allEvents.filter(e => e.status === 'upcoming');
     }
     
-    console.log(`✅ Retrieved ${allEvents.length} events from database`);
+    // Map events to frontend format
+    const events = allEvents
+      .slice(offset, offset + perPageNum)
+      .map(event => ({
+        id: event.id,
+        clubId: event.clubId,
+        title: event.title,
+        description: event.description,
+        startDate: event.eventDate,
+        endDate: event.endDate || event.eventDate,
+        location: event.location,
+        category: event.category || 'workshop',
+        price: event.price,
+        maxParticipants: event.maxParticipants,
+        currentParticipants: event.currentParticipants,
+        status: event.status === 'upcoming' ? 'published' : event.status,
+        createdAt: event.createdAt
+      }));
+    
+    console.log(`✅ Retrieved ${events.length} public events from database`);
     res.json({
-      events: allEvents,
+      events,
       total: allEvents.length,
+      page: pageNum,
+      perPage: perPageNum,
       source: 'MySQL database via Drizzle ORM'
     });
   } catch (error) {
@@ -1646,12 +1669,11 @@ app.get('/api/admin/events', isAdmin, async (req, res) => {
       .map(event => ({
         ...event,
         startDate: event.eventDate,
-        endDate: event.eventDate,
+        endDate: event.endDate || event.eventDate,
         maxAttendees: event.maxParticipants,
         attendees: event.currentParticipants || 0,
-        category: 'workshop', // Default category since not in database
-        price: null, // Not stored in database yet
-        status: event.status === 'upcoming' ? 'published' : event.status // Map backend status to frontend
+        // Map backend status to frontend: upcoming → published, others stay the same
+        status: event.status === 'upcoming' ? 'published' : event.status
       }));
     
     console.log(`✅ Retrieved ${events.length} events`);
@@ -1672,29 +1694,31 @@ app.post('/api/admin/events', isAdmin, async (req, res) => {
     console.log('🔗 Creating new event...');
     const eventData = req.body;
     
-    // Map frontend data to backend schema
-    // Use startDate as the eventDate (ignoring endDate for now)
+    // Parse dates
     const eventDate = eventData.startDate ? new Date(eventData.startDate) : null;
+    const endDate = eventData.endDate ? new Date(eventData.endDate) : null;
     
     if (!eventDate || isNaN(eventDate.getTime())) {
       return res.status(400).json({ error: 'Invalid start date' });
     }
     
-    // Get first club as default or create a general events club
+    // Get first club as default
     const [firstClub] = await db.select().from(clubs).limit(1);
     const defaultClubId = firstClub?.id || eventData.clubId || 1;
     
-    // Map status from frontend (draft/published/cancelled) to backend (upcoming/ongoing/completed/cancelled)
+    // Map status: draft → upcoming, published → upcoming, cancelled → cancelled
     let backendStatus = 'upcoming';
-    if (eventData.status === 'published') backendStatus = 'upcoming';
-    else if (eventData.status === 'cancelled') backendStatus = 'cancelled';
-    else if (eventData.status === 'draft') backendStatus = 'upcoming';
+    if (eventData.status === 'cancelled') backendStatus = 'cancelled';
+    // Both draft and published map to upcoming in database
     
     const result: any = await db.insert(clubEvents).values({
       clubId: defaultClubId,
       title: eventData.title,
       description: eventData.description,
       eventDate: eventDate,
+      endDate: endDate,
+      category: eventData.category || 'workshop',
+      price: eventData.price ? eventData.price.toString() : null,
       location: eventData.location,
       maxParticipants: eventData.maxAttendees ? parseInt(eventData.maxAttendees) : null,
       currentParticipants: 0,
@@ -1710,11 +1734,10 @@ app.post('/api/admin/events', isAdmin, async (req, res) => {
       event: {
         ...newEvent,
         startDate: newEvent.eventDate,
-        endDate: newEvent.eventDate,
+        endDate: newEvent.endDate || newEvent.eventDate,
         maxAttendees: newEvent.maxParticipants,
-        category: eventData.category || 'workshop',
-        price: eventData.price ? parseFloat(eventData.price) : null,
-        status: eventData.status || 'draft' // Return original frontend status
+        attendees: newEvent.currentParticipants || 0,
+        status: eventData.status || 'published' // Return original frontend status
       }
     });
   } catch (error) {
@@ -1730,27 +1753,30 @@ app.put('/api/admin/events/:id', isAdmin, async (req, res) => {
     console.log(`🔗 Updating event ${eventId}...`);
     const eventData = req.body;
     
-    // Map frontend data to backend schema
+    // Parse dates
     const eventDate = eventData.startDate ? new Date(eventData.startDate) : null;
+    const endDate = eventData.endDate ? new Date(eventData.endDate) : null;
     
     if (eventDate && isNaN(eventDate.getTime())) {
       return res.status(400).json({ error: 'Invalid start date' });
     }
     
-    // Map status from frontend to backend
-    let backendStatus = eventData.status;
-    if (eventData.status === 'published') backendStatus = 'upcoming';
-    else if (eventData.status === 'draft') backendStatus = 'upcoming';
+    // Map status: draft → upcoming, published → upcoming, cancelled → cancelled
+    let backendStatus = 'upcoming';
+    if (eventData.status === 'cancelled') backendStatus = 'cancelled';
     
     const updateData: any = {
       title: eventData.title,
       description: eventData.description,
       location: eventData.location,
       status: backendStatus,
+      category: eventData.category || 'workshop',
+      price: eventData.price ? eventData.price.toString() : null,
       updatedAt: new Date()
     };
     
     if (eventDate) updateData.eventDate = eventDate;
+    if (endDate) updateData.endDate = endDate;
     if (eventData.maxAttendees) updateData.maxParticipants = parseInt(eventData.maxAttendees);
     if (eventData.clubId) updateData.clubId = eventData.clubId;
     
@@ -1765,11 +1791,10 @@ app.put('/api/admin/events/:id', isAdmin, async (req, res) => {
       event: {
         ...updatedEvent,
         startDate: updatedEvent.eventDate,
-        endDate: updatedEvent.eventDate,
+        endDate: updatedEvent.endDate || updatedEvent.eventDate,
         maxAttendees: updatedEvent.maxParticipants,
-        category: eventData.category || 'workshop',
-        price: eventData.price ? parseFloat(eventData.price) : null,
-        status: eventData.status || 'draft' // Return original frontend status
+        attendees: updatedEvent.currentParticipants || 0,
+        status: eventData.status || 'published' // Return original frontend status
       }
     });
   } catch (error) {

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar as CalendarIcon, MapPin, Clock, Heart, Share2 } from "lucide-react";
@@ -9,11 +9,47 @@ import timitar from "@/assets/timitar-festival.jpg";
 import "react-calendar/dist/Calendar.css";
 import "./EventsActivitiesCalendar.css";
 
+interface Event {
+  id: number;
+  title: string;
+  description: string;
+  startDate: string;
+  endDate: string;
+  location: string;
+  category: string;
+  price: string;
+  maxParticipants: number;
+  currentParticipants: number;
+  status: string;
+}
+
 const EventsActivitiesCalendar = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [currentPage, setCurrentPage] = useState(0);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const eventsPerPage = 2;
+
+  // Fetch events from the database
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/events?status=published&perPage=100');
+        const data = await response.json();
+        if (data.events) {
+          setEvents(data.events);
+        }
+      } catch (error) {
+        console.error('Failed to fetch events:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEvents();
+  }, []);
 
   const handleDateChange = (value: any) => {
     if (value instanceof Date) {
@@ -21,58 +57,25 @@ const EventsActivitiesCalendar = () => {
     }
   };
 
-  const events = [
-    {
-      id: 1,
-      title: "Gnaoua World Music Festival",
-      date: "June 21-23, 2024",
-      time: "7:00 PM - 11:00 PM",
-      location: "Essaouira",
-      description: "A vibrant celebration of Gnaoua music and culture, featuring international artists and traditional performances.",
-      image: gnaoua,
-      price: "350 MAD",
-    },
-    {
-      id: 2,
-      title: "Gnaoua World Music Festival",
-      date: "June 21-23, 2024",
-      time: "7:00 PM - 11:00 PM",
-      location: "Essaouira",
-      description: "A vibrant celebration of Gnaoua music and culture, featuring international artists and traditional performances.",
-      image: timitar,
-      price: "350 MAD",
-    },
-    {
-      id: 3,
-      title: "Timitar Festival",
-      date: "July 15-20, 2024", 
-      time: "6:00 PM - 12:00 AM",
-      location: "Agadir",
-      description: "A festival showcasing a fusion of traditional and world music, celebrating Morocco's rich musical heritage.",
-      image: timitar,
-      price: "450 MAD",
-    },
-    {
-      id: 4,
-      title: "Mawazine Festival",
-      date: "May 24-June 1, 2024",
-      time: "8:00 PM - 2:00 AM",
-      location: "Rabat",
-      description: "One of the world's largest music festivals featuring international and Moroccan artists across multiple genres.",
-      image: gnaoua,
-      price: "250 MAD",
-    },
-    {
-      id: 5,
-      title: "Rose Festival",
-      date: "May 10-12, 2024",
-      time: "9:00 AM - 6:00 PM",
-      location: "Kelaat M'Gouna",
-      description: "Annual celebration of the rose harvest in the Valley of Roses with traditional music and dances.",
-      image: timitar,
-      price: "180 MAD",
-    },
-  ];
+  // Helper function to format date
+  const formatEventDate = (startDate: string, endDate: string) => {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    
+    if (start.toDateString() === end.toDateString()) {
+      return start.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    } else {
+      return `${start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+    }
+  };
+
+  // Helper function to format time
+  const formatEventTime = (startDate: string, endDate: string) => {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    
+    return `${start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })} - ${end.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}`;
+  };
 
   const totalEvents = events.length;
   const cities = new Set(events.map(e => e.location)).size;
@@ -222,142 +225,152 @@ const EventsActivitiesCalendar = () => {
             display: 'flex',
             flexDirection: 'column'
           }}>
-            <div className="grid grid-cols-2 gap-6" style={{ marginBottom: '24px' }}>
-              {displayedEvents.map((event) => (
-                <Card 
-                  key={event.id} 
-                  className="border-none overflow-hidden"
-                  style={{ 
-                    backgroundColor: '#FFFFFF',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
-                    borderRadius: '16px',
-                    transition: 'transform 0.25s ease-in-out, box-shadow 0.25s ease-in-out',
-                    cursor: 'pointer'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'scale(1.01)';
-                    e.currentTarget.style.boxShadow = '0 8px 20px rgba(0,0,0,0.12)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'scale(1)';
-                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.06)';
-                  }}
-                >
-                  {/* Image Section - Top */}
-                  <div className="relative" style={{ width: '100%', height: '240px' }}>
-                    <img 
-                      src={event.image} 
-                      alt={event.title}
-                      className="w-full h-full object-cover"
-                      style={{ 
-                        borderTopLeftRadius: '16px', 
-                        borderTopRightRadius: '16px' 
-                      }}
-                    />
-                    
-                    {/* Icons - Top Right of Image */}
-                    <div className="absolute flex gap-2" style={{ 
-                      top: '14px', 
-                      right: '14px' 
-                    }}>
-                      <button 
-                        className="p-2 rounded-full bg-white/90 backdrop-blur-sm hover:bg-white"
+            {loading ? (
+              <div className="text-center py-12">
+                <p className="font-['Inter'] text-gray-500">Loading events...</p>
+              </div>
+            ) : events.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="font-['Inter'] text-gray-500">No events found. Please check back later!</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-6" style={{ marginBottom: '24px' }}>
+                {displayedEvents.map((event) => (
+                  <Card 
+                    key={event.id} 
+                    className="border-none overflow-hidden"
+                    style={{ 
+                      backgroundColor: '#FFFFFF',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
+                      borderRadius: '16px',
+                      transition: 'transform 0.25s ease-in-out, box-shadow 0.25s ease-in-out',
+                      cursor: 'pointer'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'scale(1.01)';
+                      e.currentTarget.style.boxShadow = '0 8px 20px rgba(0,0,0,0.12)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'scale(1)';
+                      e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.06)';
+                    }}
+                  >
+                    {/* Image Section - Top */}
+                    <div className="relative" style={{ width: '100%', height: '240px' }}>
+                      <img 
+                        src={event.id % 2 === 0 ? timitar : gnaoua} 
+                        alt={event.title}
+                        className="w-full h-full object-cover"
                         style={{ 
-                          boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
-                          transition: 'all 0.25s ease-in-out'
+                          borderTopLeftRadius: '16px', 
+                          borderTopRightRadius: '16px' 
                         }}
-                      >
-                        <Heart className="w-4 h-4" style={{ color: '#666A73' }} strokeWidth={2} />
-                      </button>
-                      <button 
-                        className="p-2 rounded-full bg-white/90 backdrop-blur-sm hover:bg-white"
-                        style={{ 
-                          boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
-                          transition: 'all 0.25s ease-in-out'
-                        }}
-                      >
-                        <Share2 className="w-4 h-4" style={{ color: '#666A73' }} strokeWidth={2} />
-                      </button>
-                    </div>
-                  </div>
-                  
-                  {/* Content Section - Bottom */}
-                  <div style={{ padding: '20px 24px' }}>
-                    {/* Event Title */}
-                    <h3 className="font-['Poppins'] font-bold" style={{ 
-                      fontSize: '20px', 
-                      color: '#0A0A0A', 
-                      lineHeight: '1.3',
-                      marginBottom: '6px'
-                    }}>
-                      {event.title}
-                    </h3>
-                    
-                    {/* Date & Time & Location Row */}
-                    <div className="flex items-center gap-2 flex-wrap" style={{ marginBottom: '8px' }}>
-                      <div className="flex items-center gap-1">
-                        <Clock className="w-4 h-4" style={{ color: '#666A73' }} />
-                        <span className="font-['Inter']" style={{ 
-                          fontSize: '13px', 
-                          color: '#666A73' 
-                        }}>
-                          {event.time}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <MapPin className="w-4 h-4" style={{ color: '#666A73' }} />
-                        <span className="font-['Inter']" style={{ 
-                          fontSize: '13px', 
-                          color: '#666A73' 
-                        }}>
-                          {event.location}
-                        </span>
-                      </div>
-                    </div>
-                    
-                    {/* Description */}
-                    <p className="font-['Inter'] line-clamp-2" style={{ 
-                      fontSize: '14px', 
-                      color: '#444444', 
-                      lineHeight: '1.6', 
-                      marginBottom: '10px' 
-                    }}>
-                      {event.description}
-                    </p>
-                    
-                    {/* Price and Button */}
-                    <div className="flex items-center justify-between mt-4">
-                      <div className="font-['Poppins'] font-bold" style={{ 
-                        fontSize: '16px', 
-                        color: '#D4B26A' 
+                      />
+                      
+                      {/* Icons - Top Right of Image */}
+                      <div className="absolute flex gap-2" style={{ 
+                        top: '14px', 
+                        right: '14px' 
                       }}>
-                        {event.price}
+                        <button 
+                          className="p-2 rounded-full bg-white/90 backdrop-blur-sm hover:bg-white"
+                          style={{ 
+                            boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
+                            transition: 'all 0.25s ease-in-out'
+                          }}
+                        >
+                          <Heart className="w-4 h-4" style={{ color: '#666A73' }} strokeWidth={2} />
+                        </button>
+                        <button 
+                          className="p-2 rounded-full bg-white/90 backdrop-blur-sm hover:bg-white"
+                          style={{ 
+                            boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
+                            transition: 'all 0.25s ease-in-out'
+                          }}
+                        >
+                          <Share2 className="w-4 h-4" style={{ color: '#666A73' }} strokeWidth={2} />
+                        </button>
                       </div>
-                      <Button 
-                        className="font-['Poppins'] font-medium"
-                        style={{
-                          backgroundColor: '#D4B26A',
-                          color: '#FFFFFF',
-                          borderRadius: '10px',
-                          padding: '10px 22px',
-                          fontSize: '14px',
-                          transition: 'background-color 0.25s ease-in-out'
-                        }}
-                        onClick={() => navigate(`/book?event=${encodeURIComponent(event.title)}`)}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.backgroundColor = '#C9A758';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.backgroundColor = '#D4B26A';
-                        }}
-                      >
-                        Book Now
-                      </Button>
                     </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
+                    
+                    {/* Content Section - Bottom */}
+                    <div style={{ padding: '20px 24px' }}>
+                      {/* Event Title */}
+                      <h3 className="font-['Poppins'] font-bold" style={{ 
+                        fontSize: '20px', 
+                        color: '#0A0A0A', 
+                        lineHeight: '1.3',
+                        marginBottom: '6px'
+                      }}>
+                        {event.title}
+                      </h3>
+                      
+                      {/* Date & Time & Location Row */}
+                      <div className="flex items-center gap-2 flex-wrap" style={{ marginBottom: '8px' }}>
+                        <div className="flex items-center gap-1">
+                          <Clock className="w-4 h-4" style={{ color: '#666A73' }} />
+                          <span className="font-['Inter']" style={{ 
+                            fontSize: '13px', 
+                            color: '#666A73' 
+                          }}>
+                            {formatEventTime(event.startDate, event.endDate)}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <MapPin className="w-4 h-4" style={{ color: '#666A73' }} />
+                          <span className="font-['Inter']" style={{ 
+                            fontSize: '13px', 
+                            color: '#666A73' 
+                          }}>
+                            {event.location}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      {/* Description */}
+                      <p className="font-['Inter'] line-clamp-2" style={{ 
+                        fontSize: '14px', 
+                        color: '#444444', 
+                        lineHeight: '1.6', 
+                        marginBottom: '10px' 
+                      }}>
+                        {event.description}
+                      </p>
+                      
+                      {/* Price and Button */}
+                      <div className="flex items-center justify-between mt-4">
+                        <div className="font-['Poppins'] font-bold" style={{ 
+                          fontSize: '16px', 
+                          color: '#D4B26A' 
+                        }}>
+                          {event.price ? `${event.price} MAD` : 'Free'}
+                        </div>
+                        <Button 
+                          className="font-['Poppins'] font-medium"
+                          style={{
+                            backgroundColor: '#D4B26A',
+                            color: '#FFFFFF',
+                            borderRadius: '10px',
+                            padding: '10px 22px',
+                            fontSize: '14px',
+                            transition: 'background-color 0.25s ease-in-out'
+                          }}
+                          onClick={() => navigate(`/book?event=${encodeURIComponent(event.title)}`)}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = '#C9A758';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = '#D4B26A';
+                          }}
+                        >
+                          Book Now
+                        </Button>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            )}
             
             {/* Pagination Controls */}
             <div className="flex items-center justify-center gap-2 mt-4">

@@ -1,0 +1,27 @@
+	1	id Primärschlüssel	int(11)			Nein	kein(e)		AUTO_INCREMENT	Bearbeiten Bearbeiten	Löschen Löschen	
+	2	club_id Index	int(11)			Nein	kein(e)			Bearbeiten Bearbeiten	Löschen Löschen	
+	3	title	varchar(255)	utf8mb4_unicode_ci		Nein	kein(e)			Bearbeiten Bearbeiten	Löschen Löschen	
+	4	description	text	utf8mb4_unicode_ci		Ja	NULL			Bearbeiten Bearbeiten	Löschen Löschen	
+	5	event_date	timestamp			Nein	kein(e)			Bearbeiten Bearbeiten	Löschen Löschen	
+	6	end_date	timestamp			Ja	NULL			Bearbeiten Bearbeiten	Löschen Löschen	
+	7	category	varchar(100)	utf8mb4_unicode_ci		Ja	NULL			Bearbeiten Bearbeiten	Löschen Löschen	
+	8	price	decimal(10,2)			Ja	NULL			Bearbeiten Bearbeiten	Löschen Löschen	
+	9	location	varchar(255)	utf8mb4_unicode_ci		Ja	NULL			Bearbeiten Bearbeiten	Löschen Löschen	
+	10	max_participants	int(11)			Ja	NULL			Bearbeiten Bearbeiten	Löschen Löschen	
+	11	current_participants	int(11)			Ja	0			Bearbeiten Bearbeiten	Löschen Löschen	
+	12	status	varchar(20)	utf8mb4_unicode_ci		Ja	upcoming			Bearbeiten Bearbeiten	Löschen Löschen	
+	13	created_by Index	varchar(255)	utf8mb4_unicode_ci		Ja	NULL			Bearbeiten Bearbeiten	Löschen Löschen	
+	14	created_at	timestamp			Ja	current_timestamp()			Bearbeiten Bearbeiten	Löschen Löschen	
+	15	updated_at	timestamp			Ja	current_timestamp()			Bearbeiten Bearbeiten	Löschen Löschen	
+markierte:  Alle auswählen markierte:        
+ Tabellenstruktur analysieren Tabellenstruktur analysieren Dokumentation Spalten verschieben Spalten verschieben Normalisieren Normalisieren
+Spalte hinzufügen  
+1
+ Spalte(n) einfügen   
+nach updated_at
+ 
+Indizes Dokumentation
+Aktion	Schlüsselname	Typ	Unique	Gepackt	Spalte	Kardinalität	Kollation	Null	Kommentar
+Bearbeiten Bearbeiten	Umbenennen Umbenennen	Löschen Löschen	PRIMARY	BTREE	Ja	Nein	id	1	A	Nein	
+Bearbeiten Bearbeiten	Umbenennen Umbenennen	Löschen Löschen	club_events_club_id_clubs_id_fk	BTREE	Nein	Nein	club_id	1	A	Nein	
+Bearbeiten Bearbeiten	Umbenennen Umbenennen	Löschen Löschen	club_events_created_by_users_id_fk	BTREE	Nein	Nein	created_by	1	A	Ja	
