@@ -72,11 +72,20 @@ const eventSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   description: z.string().min(10, 'Description must be at least 10 characters'),
   location: z.string().min(1, 'Location is required'),
+  locationDetails: z.string().optional(),
   startDate: z.string().min(1, 'Start date is required'),
   endDate: z.string().min(1, 'End date is required'),
+  duration: z.string().optional(),
   category: z.string().min(1, 'Category is required'),
+  languages: z.string().optional(),
+  minAge: z.string().optional(),
+  maxPeople: z.string().optional(),
   maxAttendees: z.string().optional(),
   price: z.string().optional(),
+  highlights: z.string().optional(),
+  included: z.string().optional(),
+  notIncluded: z.string().optional(),
+  importantInfo: z.string().optional(),
   status: z.enum(['draft', 'published', 'cancelled']).default('draft'),
 });
 
@@ -127,11 +136,20 @@ export default function EventsManagement() {
       title: '',
       description: '',
       location: '',
+      locationDetails: '',
       startDate: '',
       endDate: '',
+      duration: '',
       category: '',
+      languages: '',
+      minAge: '',
+      maxPeople: '',
       maxAttendees: '',
       price: '',
+      highlights: '',
+      included: '',
+      notIncluded: '',
+      importantInfo: '',
       status: 'draft',
     },
   });
@@ -142,11 +160,20 @@ export default function EventsManagement() {
         title: editingEvent.title || '',
         description: editingEvent.description || '',
         location: editingEvent.location || '',
+        locationDetails: editingEvent.locationDetails || '',
         startDate: editingEvent.startDate ? new Date(editingEvent.startDate).toISOString().slice(0, 16) : '',
         endDate: editingEvent.endDate ? new Date(editingEvent.endDate).toISOString().slice(0, 16) : '',
+        duration: editingEvent.duration || '',
         category: editingEvent.category || '',
+        languages: editingEvent.languages || '',
+        minAge: editingEvent.minAge?.toString() || '',
+        maxPeople: editingEvent.maxPeople?.toString() || '',
         maxAttendees: editingEvent.maxAttendees?.toString() || '',
         price: editingEvent.price?.toString() || '',
+        highlights: editingEvent.highlights || '',
+        included: editingEvent.included || '',
+        notIncluded: editingEvent.notIncluded || '',
+        importantInfo: editingEvent.importantInfo || '',
         status: editingEvent.status || 'draft',
       });
     } else {
@@ -154,11 +181,20 @@ export default function EventsManagement() {
         title: '',
         description: '',
         location: '',
+        locationDetails: '',
         startDate: '',
         endDate: '',
+        duration: '',
         category: '',
+        languages: '',
+        minAge: '',
+        maxPeople: '',
         maxAttendees: '',
         price: '',
+        highlights: '',
+        included: '',
+        notIncluded: '',
+        importantInfo: '',
         status: 'draft',
       });
     }
@@ -191,6 +227,8 @@ export default function EventsManagement() {
         ...data,
         maxAttendees: data.maxAttendees ? parseInt(data.maxAttendees) : null,
         price: data.price ? parseFloat(data.price) : null,
+        minAge: data.minAge ? parseInt(data.minAge) : null,
+        maxPeople: data.maxPeople ? parseInt(data.maxPeople) : null,
       };
       
       const response = await fetch(url, {
@@ -484,6 +522,21 @@ export default function EventsManagement() {
                 />
                 <FormField
                   control={form.control}
+                  name="locationDetails"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Location Details (optional)</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="e.g., Atlas Mountains, Morocco" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
                   name="category"
                   render={({ field }) => (
                     <FormItem>
@@ -501,6 +554,19 @@ export default function EventsManagement() {
                           <SelectItem value="webinar">Webinar</SelectItem>
                         </SelectContent>
                       </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="duration"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Duration (optional)</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="e.g., 3 Days / 2 Nights" />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -562,6 +628,99 @@ export default function EventsManagement() {
                   )}
                 />
               </div>
+              <div className="grid grid-cols-3 gap-4">
+                <FormField
+                  control={form.control}
+                  name="languages"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Languages (optional)</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="e.g., English, French, Arabic" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="minAge"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Min Age (optional)</FormLabel>
+                      <FormControl>
+                        <Input type="number" {...field} placeholder="12+" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="maxPeople"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Max People (optional)</FormLabel>
+                      <FormControl>
+                        <Input type="number" {...field} placeholder="12" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <FormField
+                control={form.control}
+                name="highlights"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Highlights (optional)</FormLabel>
+                    <FormControl>
+                      <Textarea {...field} placeholder="Enter each highlight on a new line" rows={3} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="included"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>What's Included (optional)</FormLabel>
+                    <FormControl>
+                      <Textarea {...field} placeholder="Enter each item on a new line" rows={3} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="notIncluded"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>What's Not Included (optional)</FormLabel>
+                    <FormControl>
+                      <Textarea {...field} placeholder="Enter each item on a new line" rows={3} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="importantInfo"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Important Information (optional)</FormLabel>
+                    <FormControl>
+                      <Textarea {...field} placeholder="Any important information for participants" rows={4} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={form.control}
                 name="status"

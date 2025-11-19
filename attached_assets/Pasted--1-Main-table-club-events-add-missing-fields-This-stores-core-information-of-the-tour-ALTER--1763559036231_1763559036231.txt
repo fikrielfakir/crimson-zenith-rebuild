@@ -1,0 +1,95 @@
+✅ 1. Main table: club_events (add missing fields)
+
+This stores core information of the tour.
+
+ALTER TABLE club_events
+ADD COLUMN duration VARCHAR(100) NULL AFTER category,              -- like "3 Days / 2 Nights"
+ADD COLUMN location_details VARCHAR(255) NULL AFTER location,      -- "Atlas Mountains, Morocco"
+ADD COLUMN languages VARCHAR(255) NULL AFTER duration,             -- "English, French, Arabic"
+ADD COLUMN min_age INT NULL,                                       -- "Age Range: 12+"
+ADD COLUMN max_people INT NULL,                                    -- "Max 12 people"
+ADD COLUMN highlights TEXT NULL,                                   -- JSON or text list
+ADD COLUMN included TEXT NULL,                                     -- JSON or text list
+ADD COLUMN not_included TEXT NULL,                                 -- JSON or text list
+ADD COLUMN important_info TEXT NULL;                               -- text block
+
+✅ 2. Add table for gallery images
+
+This matches the image carousel in your screenshot.
+
+CREATE TABLE event_gallery (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    event_id INT NOT NULL,
+    image_url VARCHAR(255) NOT NULL,
+    sort_order INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (event_id) REFERENCES club_events(id) ON DELETE CASCADE
+);
+
+✅ 3. Add schedule (multi-day plan)
+
+The UI shows “Overview / Schedule / Reviews / Photos” → You need a schedule table.
+
+CREATE TABLE event_schedule (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    event_id INT NOT NULL,
+    day_number INT NOT NULL,
+    title VARCHAR(255),
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (event_id) REFERENCES club_events(id) ON DELETE CASCADE
+);
+
+
+Example:
+Day 1 – Marrakech → Imlil
+Day 2 – Mountain trek …
+Day 3 – Return to city
+
+✅ 4. Add reviews table
+CREATE TABLE event_reviews (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    event_id INT NOT NULL,
+    user_name VARCHAR(255),
+    rating INT NOT NULL,
+    review TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (event_id) REFERENCES club_events(id) ON DELETE CASCADE
+);
+
+✅ 5. Add pricing table (optional but recommended)
+
+Because prices change depending on number of travelers.
+
+CREATE TABLE event_prices (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    event_id INT NOT NULL,
+    travelers INT NOT NULL,
+    price_per_person DECIMAL(10,2) NOT NULL,
+    FOREIGN KEY (event_id) REFERENCES club_events(id) ON DELETE CASCADE
+);
+
+
+Example:
+1 person → $299
+2 persons → $280 per person
+4 persons → $250 per person
+
+📌 Now your event system supports everything in the UI:
+
+✔ Title
+✔ Description
+✔ Duration
+✔ Location
+✔ Map / region
+✔ Language
+✔ Age range
+✔ Max people
+✔ Highlights
+✔ What’s included
+✔ What’s not included
+✔ Gallery images
+✔ Price per person
+✔ Live booking calendar
+✔ Schedule (multi-day program)
+✔ Reviews

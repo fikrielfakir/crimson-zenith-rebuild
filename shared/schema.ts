@@ -88,8 +88,17 @@ export const clubEvents = mysqlTable("club_events", {
   eventDate: timestamp("event_date").notNull(),
   endDate: timestamp("end_date"),
   category: varchar("category", { length: 100 }),
+  duration: varchar("duration", { length: 100 }), // e.g., "3 Days / 2 Nights"
   price: decimal("price", { precision: 10, scale: 2 }),
   location: varchar("location", { length: 255 }),
+  locationDetails: varchar("location_details", { length: 255 }), // e.g., "Atlas Mountains, Morocco"
+  languages: varchar("languages", { length: 255 }), // e.g., "English, French, Arabic"
+  minAge: int("min_age"), // minimum age requirement
+  maxPeople: int("max_people"), // maximum group size
+  highlights: text("highlights"), // JSON or text list
+  included: text("included"), // JSON or text list of what's included
+  notIncluded: text("not_included"), // JSON or text list of what's not included
+  importantInfo: text("important_info"), // important information block
   maxParticipants: int("max_participants"),
   currentParticipants: int("current_participants").default(0),
   status: varchar("status", { length: 20 }).default("upcoming"), // upcoming, ongoing, completed, cancelled
@@ -105,6 +114,43 @@ export const eventParticipants = mysqlTable("event_participants", {
   userId: varchar("user_id", { length: 255 }).references(() => users.id).notNull(),
   registeredAt: timestamp("registered_at").defaultNow(),
   attended: boolean("attended").default(false),
+});
+
+// Event gallery - stores multiple images for event carousel
+export const eventGallery = mysqlTable("event_gallery", {
+  id: serial().primaryKey(),
+  eventId: int("event_id").references(() => clubEvents.id).notNull(),
+  imageUrl: varchar("image_url", { length: 500 }).notNull(),
+  sortOrder: int("sort_order").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Event schedule - stores day-by-day itinerary for multi-day events
+export const eventSchedule = mysqlTable("event_schedule", {
+  id: serial().primaryKey(),
+  eventId: int("event_id").references(() => clubEvents.id).notNull(),
+  dayNumber: int("day_number").notNull(),
+  title: varchar("title", { length: 255 }),
+  description: text("description"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Event reviews - stores user reviews and ratings for events
+export const eventReviews = mysqlTable("event_reviews", {
+  id: serial().primaryKey(),
+  eventId: int("event_id").references(() => clubEvents.id).notNull(),
+  userName: varchar("user_name", { length: 255 }),
+  rating: int("rating").notNull(),
+  review: text("review"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Event prices - stores dynamic pricing based on number of travelers
+export const eventPrices = mysqlTable("event_prices", {
+  id: serial().primaryKey(),
+  eventId: int("event_id").references(() => clubEvents.id).notNull(),
+  travelers: int("travelers").notNull(),
+  pricePerPerson: decimal("price_per_person", { precision: 10, scale: 2 }).notNull(),
 });
 
 // Club gallery/images
@@ -498,6 +544,10 @@ export const clubEventsRelations = relations(clubEvents, ({ one, many }) => ({
     references: [users.id],
   }),
   participants: many(eventParticipants),
+  gallery: many(eventGallery),
+  schedule: many(eventSchedule),
+  reviews: many(eventReviews),
+  prices: many(eventPrices),
 }));
 
 export const eventParticipantsRelations = relations(eventParticipants, ({ one }) => ({
@@ -508,6 +558,34 @@ export const eventParticipantsRelations = relations(eventParticipants, ({ one })
   user: one(users, {
     fields: [eventParticipants.userId],
     references: [users.id],
+  }),
+}));
+
+export const eventGalleryRelations = relations(eventGallery, ({ one }) => ({
+  event: one(clubEvents, {
+    fields: [eventGallery.eventId],
+    references: [clubEvents.id],
+  }),
+}));
+
+export const eventScheduleRelations = relations(eventSchedule, ({ one }) => ({
+  event: one(clubEvents, {
+    fields: [eventSchedule.eventId],
+    references: [clubEvents.id],
+  }),
+}));
+
+export const eventReviewsRelations = relations(eventReviews, ({ one }) => ({
+  event: one(clubEvents, {
+    fields: [eventReviews.eventId],
+    references: [clubEvents.id],
+  }),
+}));
+
+export const eventPricesRelations = relations(eventPrices, ({ one }) => ({
+  event: one(clubEvents, {
+    fields: [eventPrices.eventId],
+    references: [clubEvents.id],
   }),
 }));
 

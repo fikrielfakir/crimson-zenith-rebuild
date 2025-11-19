@@ -3,6 +3,10 @@ import {
   clubs,
   clubMemberships,
   clubEvents,
+  eventGallery,
+  eventSchedule,
+  eventReviews,
+  eventPrices,
   clubGallery,
   clubReviews,
   bookingEvents,
@@ -101,6 +105,29 @@ export interface IStorage {
   getClubEvents(clubId: number): Promise<ClubEvent[]>;
   getUpcomingClubEvents(clubId: number): Promise<ClubEvent[]>;
   createClubEvent(event: InsertClubEvent): Promise<ClubEvent>;
+  updateClubEvent(id: number, event: Partial<InsertClubEvent>): Promise<ClubEvent>;
+  
+  // Event gallery operations
+  getEventGallery(eventId: number): Promise<any[]>;
+  addEventImage(eventId: number, imageUrl: string, sortOrder?: number): Promise<any>;
+  deleteEventImage(id: number): Promise<void>;
+  
+  // Event schedule operations
+  getEventSchedule(eventId: number): Promise<any[]>;
+  addEventScheduleDay(eventId: number, dayNumber: number, title: string, description?: string): Promise<any>;
+  updateEventScheduleDay(id: number, data: any): Promise<any>;
+  deleteEventScheduleDay(id: number): Promise<void>;
+  
+  // Event reviews operations
+  getEventReviews(eventId: number): Promise<any[]>;
+  addEventReview(eventId: number, userName: string, rating: number, review?: string): Promise<any>;
+  deleteEventReview(id: number): Promise<void>;
+  
+  // Event prices operations
+  getEventPrices(eventId: number): Promise<any[]>;
+  addEventPrice(eventId: number, travelers: number, pricePerPerson: number): Promise<any>;
+  updateEventPrice(id: number, data: any): Promise<any>;
+  deleteEventPrice(id: number): Promise<void>;
   
   // Club gallery operations
   getClubGallery(clubId: number): Promise<any[]>;
@@ -446,6 +473,86 @@ export class DatabaseStorage implements IStorage {
 
   async createClubEvent(eventData: InsertClubEvent): Promise<ClubEvent> {
     return await this.insertAndFetch<ClubEvent>(clubEvents, eventData);
+  }
+
+  async updateClubEvent(id: number, eventData: Partial<InsertClubEvent>): Promise<ClubEvent> {
+    return await this.updateAndFetch<ClubEvent>(clubEvents, id, { ...eventData, updatedAt: new Date() });
+  }
+
+  // Event gallery operations
+  async getEventGallery(eventId: number): Promise<any[]> {
+    return await db
+      .select()
+      .from(eventGallery)
+      .where(eq(eventGallery.eventId, eventId))
+      .orderBy(asc(eventGallery.sortOrder));
+  }
+
+  async addEventImage(eventId: number, imageUrl: string, sortOrder: number = 0): Promise<any> {
+    return await this.insertAndFetch<any>(eventGallery, { eventId, imageUrl, sortOrder });
+  }
+
+  async deleteEventImage(id: number): Promise<void> {
+    await db.delete(eventGallery).where(eq(eventGallery.id, id));
+  }
+
+  // Event schedule operations
+  async getEventSchedule(eventId: number): Promise<any[]> {
+    return await db
+      .select()
+      .from(eventSchedule)
+      .where(eq(eventSchedule.eventId, eventId))
+      .orderBy(asc(eventSchedule.dayNumber));
+  }
+
+  async addEventScheduleDay(eventId: number, dayNumber: number, title: string, description?: string): Promise<any> {
+    return await this.insertAndFetch<any>(eventSchedule, { eventId, dayNumber, title, description });
+  }
+
+  async updateEventScheduleDay(id: number, data: any): Promise<any> {
+    return await this.updateAndFetch<any>(eventSchedule, id, data);
+  }
+
+  async deleteEventScheduleDay(id: number): Promise<void> {
+    await db.delete(eventSchedule).where(eq(eventSchedule.id, id));
+  }
+
+  // Event reviews operations
+  async getEventReviews(eventId: number): Promise<any[]> {
+    return await db
+      .select()
+      .from(eventReviews)
+      .where(eq(eventReviews.eventId, eventId))
+      .orderBy(desc(eventReviews.createdAt));
+  }
+
+  async addEventReview(eventId: number, userName: string, rating: number, review?: string): Promise<any> {
+    return await this.insertAndFetch<any>(eventReviews, { eventId, userName, rating, review });
+  }
+
+  async deleteEventReview(id: number): Promise<void> {
+    await db.delete(eventReviews).where(eq(eventReviews.id, id));
+  }
+
+  // Event prices operations
+  async getEventPrices(eventId: number): Promise<any[]> {
+    return await db
+      .select()
+      .from(eventPrices)
+      .where(eq(eventPrices.eventId, eventId))
+      .orderBy(asc(eventPrices.travelers));
+  }
+
+  async addEventPrice(eventId: number, travelers: number, pricePerPerson: number): Promise<any> {
+    return await this.insertAndFetch<any>(eventPrices, { eventId, travelers, pricePerPerson });
+  }
+
+  async updateEventPrice(id: number, data: any): Promise<any> {
+    return await this.updateAndFetch<any>(eventPrices, id, data);
+  }
+
+  async deleteEventPrice(id: number): Promise<void> {
+    await db.delete(eventPrices).where(eq(eventPrices.id, id));
   }
 
   // Club gallery operations

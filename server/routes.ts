@@ -769,6 +769,203 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Event Management Routes
+  app.get('/api/admin/events', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const page = parseInt(req.query.page as string) || 1;
+      const perPage = parseInt(req.query.perPage as string) || 25;
+      const search = req.query.search as string || '';
+      const status = req.query.status as string;
+      const category = req.query.category as string;
+      
+      let events = await storage.getBookingEvents();
+      
+      // Transform events for the form
+      events = events.map((e: any) => {
+        // Extract minAge from ageRange (e.g., "12+" -> 12)
+        const minAge = e.ageRange ? parseInt(e.ageRange.replace(/\D/g, '')) : null;
+        
+        // Extract maxPeople from groupSize (e.g., "Max 12 people" -> 12)
+        const maxPeople = e.groupSize ? parseInt(e.groupSize.replace(/\D/g, '')) : null;
+        
+        return {
+          ...e,
+          locationDetails: e.subtitle || '',
+          languages: Array.isArray(e.languages) ? e.languages.join(', ') : (e.languages || ''),
+          minAge: minAge,
+          maxPeople: maxPeople,
+          highlights: Array.isArray(e.highlights) ? e.highlights.join('\n') : (e.highlights || ''),
+          included: Array.isArray(e.included) ? e.included.join('\n') : (e.included || ''),
+          notIncluded: Array.isArray(e.notIncluded) ? e.notIncluded.join('\n') : (e.notIncluded || ''),
+          importantInfo: e.cancellationPolicy || '',
+          price: e.price?.toString() || '',
+          startDate: '',
+          endDate: '',
+        };
+      });
+      
+      // Apply filters
+      if (search) {
+        events = events.filter((e: any) => 
+          e.title?.toLowerCase().includes(search.toLowerCase()) ||
+          e.description?.toLowerCase().includes(search.toLowerCase())
+        );
+      }
+      if (status && status !== 'all') {
+        events = events.filter((e: any) => e.status === status);
+      }
+      if (category && category !== 'all') {
+        events = events.filter((e: any) => e.category === category);
+      }
+      
+      const totalPages = Math.ceil(events.length / perPage);
+      const paginatedEvents = events.slice((page - 1) * perPage, page * perPage);
+      
+      res.json({ 
+        events: paginatedEvents, 
+        totalPages, 
+        currentPage: page,
+        total: events.length 
+      });
+    } catch (error) {
+      console.error("Error fetching events:", error);
+      res.status(500).json({ message: "Failed to fetch events" });
+    }
+  });
+
+  app.post('/api/admin/events', isAuthenticated, isAdmin, async (req: any, res) => {
+    try {
+      const {
+        title,
+        description,
+        location,
+        locationDetails,
+        startDate,
+        endDate,
+        duration,
+        category,
+        languages,
+        minAge,
+        maxPeople,
+        maxAttendees,
+        price,
+        highlights,
+        included,
+        notIncluded,
+        importantInfo,
+        status,
+      } = req.body;
+
+      // Create as a booking event
+      const eventData = {
+        id: `event-${Date.now()}`,
+        title: title || '',
+        subtitle: locationDetails || null, // Using subtitle field for locationDetails
+        description: description || '',
+        location: location || '',
+        duration: duration || null,
+        price: price ? parseInt(price) : 0,
+        originalPrice: price ? parseInt(price) : null,
+        rating: 5,
+        reviewCount: 0,
+        category: category || null,
+        languages: languages ? languages.split(',').map((l: string) => l.trim()) : ['English'],
+        ageRange: minAge ? `${minAge}+` : null,
+        groupSize: maxPeople ? `Max ${maxPeople} people` : null,
+        cancellationPolicy: importantInfo || null, // Using cancellationPolicy for importantInfo
+        images: [],
+        highlights: highlights ? highlights.split('\n').filter((h: string) => h.trim()).map(h => h.trim()) : [],
+        included: included ? included.split('\n').filter((i: string) => i.trim()).map(i => i.trim()) : [],
+        notIncluded: notIncluded ? notIncluded.split('\n').filter((n: string) => n.trim()).map(n => n.trim()) : [],
+        schedule: [],
+        isActive: status === 'published',
+        status: status || 'draft',
+        createdBy: req.user.id,
+      };
+
+      const event = await storage.createBookingEvent(eventData as any);
+      res.json(event);
+    } catch (error) {
+      console.error("Error creating event:", error);
+      res.status(500).json({ message: "Failed to create event" });
+    }
+  });
+
+  app.put('/api/admin/events/:id', isAuthenticated, isAdmin, async (req: any, res) => {
+    try {
+      const id = req.params.id;
+      const {
+        title,
+        description,
+        location,
+        locationDetails,
+        startDate,
+        endDate,
+        duration,
+        category,
+        languages,
+        minAge,
+        maxPeople,
+        maxAttendees,
+        price,
+        highlights,
+        included,
+        notIncluded,
+        importantInfo,
+        status,
+      } = req.body;
+
+      const eventData = {
+        title: title || '',
+        subtitle: locationDetails || null,
+        description: description || '',
+        location: location || '',
+        duration: duration || null,
+        price: price ? parseInt(price) : 0,
+        originalPrice: price ? parseInt(price) : null,
+        category: category || null,
+        languages: languages ? languages.split(',').map((l: string) => l.trim()) : ['English'],
+        ageRange: minAge ? `${minAge}+` : null,
+        groupSize: maxPeople ? `Max ${maxPeople} people` : null,
+        cancellationPolicy: importantInfo || null,
+        highlights: highlights ? highlights.split('\n').filter((h: string) => h.trim()).map(h => h.trim()) : [],
+        included: included ? included.split('\n').filter((i: string) => i.trim()).map(i => i.trim()) : [],
+        notIncluded: notIncluded ? notIncluded.split('\n').filter((n: string) => n.trim()).map(n => n.trim()) : [],
+        isActive: status === 'published',
+        status: status || 'draft',
+      };
+
+      const event = await storage.updateBookingEvent(id, eventData as any);
+      res.json(event);
+    } catch (error) {
+      console.error("Error updating event:", error);
+      res.status(500).json({ message: "Failed to update event" });
+    }
+  });
+
+  app.delete('/api/admin/events/:id', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = req.params.id;
+      await storage.deleteBookingEvent(id);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting event:", error);
+      res.status(500).json({ message: "Failed to delete event" });
+    }
+  });
+
+  // Public events endpoint
+  app.get('/api/events', async (req, res) => {
+    try {
+      const events = await storage.getBookingEvents();
+      const filteredEvents = events.filter((e: any) => e.status === 'published' || req.query.status === 'all');
+      res.json({ events: filteredEvents });
+    } catch (error) {
+      console.error("Error fetching events:", error);
+      res.status(500).json({ message: "Failed to fetch events" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

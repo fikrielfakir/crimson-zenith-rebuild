@@ -16,10 +16,19 @@ interface Event {
   startDate: string;
   endDate: string;
   location: string;
+  locationDetails?: string;
+  duration?: string;
   category: string;
+  languages?: string;
+  minAge?: number;
+  maxPeople?: number;
   price: string;
   maxParticipants: number;
   currentParticipants: number;
+  highlights?: string;
+  included?: string;
+  notIncluded?: string;
+  importantInfo?: string;
   status: string;
 }
 
