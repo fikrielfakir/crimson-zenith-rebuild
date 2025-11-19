@@ -1372,16 +1372,17 @@ app.put('/api/admin/clubs/:id', isAdmin, async (req, res) => {
     console.log(`🔗 Updating club ${clubId}...`);
     const clubData = req.body;
     
-    const updatedClub = await db.update(clubs)
+    await db.update(clubs)
       .set({
         ...clubData,
         updatedAt: new Date()
       })
-      .where(eq(clubs.id, clubId))
-      .returning();
+      .where(eq(clubs.id, clubId));
+    
+    const [updatedClub] = await db.select().from(clubs).where(eq(clubs.id, clubId));
     
     console.log(`✅ Club updated: ${clubId}`);
-    res.json({ club: updatedClub[0] });
+    res.json({ club: updatedClub });
   } catch (error) {
     console.error('❌ Error updating club:', error);
     res.status(500).json({ error: 'Failed to update club', details: error.message });
@@ -1425,7 +1426,7 @@ app.post('/api/admin/events', isAdmin, async (req, res) => {
     console.log('🔗 Creating new event...');
     const eventData = req.body;
     
-    const newEvent = await db.insert(clubEvents).values({
+    const result: any = await db.insert(clubEvents).values({
       clubId: eventData.clubId,
       title: eventData.title,
       description: eventData.description,
@@ -1435,10 +1436,13 @@ app.post('/api/admin/events', isAdmin, async (req, res) => {
       currentParticipants: 0,
       status: 'upcoming',
       createdBy: eventData.createdBy
-    }).returning();
+    });
+    
+    const insertedId = result[0]?.insertId || result.insertId;
+    const [newEvent] = await db.select().from(clubEvents).where(eq(clubEvents.id, insertedId));
     
     console.log(`✅ Event created`);
-    res.json({ event: newEvent[0] });
+    res.json({ event: newEvent });
   } catch (error) {
     console.error('❌ Error creating event:', error);
     res.status(500).json({ error: 'Failed to create event', details: error.message });
@@ -1452,16 +1456,17 @@ app.put('/api/admin/events/:id', isAdmin, async (req, res) => {
     console.log(`🔗 Updating event ${eventId}...`);
     const eventData = req.body;
     
-    const updatedEvent = await db.update(clubEvents)
+    await db.update(clubEvents)
       .set({
         ...eventData,
         updatedAt: new Date()
       })
-      .where(eq(clubEvents.id, eventId))
-      .returning();
+      .where(eq(clubEvents.id, eventId));
+    
+    const [updatedEvent] = await db.select().from(clubEvents).where(eq(clubEvents.id, eventId));
     
     console.log(`✅ Event updated: ${eventId}`);
-    res.json({ event: updatedEvent[0] });
+    res.json({ event: updatedEvent });
   } catch (error) {
     console.error('❌ Error updating event:', error);
     res.status(500).json({ error: 'Failed to update event', details: error.message });
@@ -1505,8 +1510,9 @@ app.post('/api/admin/booking-events', isAdmin, async (req, res) => {
     console.log('🔗 Creating new booking event...');
     const eventData = req.body;
     
-    const newEvent = await db.insert(bookingEvents).values({
-      id: crypto.randomUUID(),
+    const eventId = crypto.randomUUID();
+    await db.insert(bookingEvents).values({
+      id: eventId,
       title: eventData.title,
       subtitle: eventData.subtitle,
       description: eventData.description,
@@ -1528,10 +1534,12 @@ app.post('/api/admin/booking-events', isAdmin, async (req, res) => {
       schedule: eventData.schedule || [],
       isActive: true,
       createdBy: eventData.createdBy
-    }).returning();
+    });
+    
+    const [newEvent] = await db.select().from(bookingEvents).where(eq(bookingEvents.id, eventId));
     
     console.log(`✅ Booking event created`);
-    res.json({ event: newEvent[0] });
+    res.json({ event: newEvent });
   } catch (error) {
     console.error('❌ Error creating booking event:', error);
     res.status(500).json({ error: 'Failed to create booking event', details: error.message });
@@ -1545,16 +1553,17 @@ app.put('/api/admin/booking-events/:id', isAdmin, async (req, res) => {
     console.log(`🔗 Updating booking event ${eventId}...`);
     const eventData = req.body;
     
-    const updatedEvent = await db.update(bookingEvents)
+    await db.update(bookingEvents)
       .set({
         ...eventData,
         updatedAt: new Date()
       })
-      .where(eq(bookingEvents.id, eventId))
-      .returning();
+      .where(eq(bookingEvents.id, eventId));
+    
+    const [updatedEvent] = await db.select().from(bookingEvents).where(eq(bookingEvents.id, eventId));
     
     console.log(`✅ Booking event updated: ${eventId}`);
-    res.json({ event: updatedEvent[0] });
+    res.json({ event: updatedEvent });
   } catch (error) {
     console.error('❌ Error updating booking event:', error);
     res.status(500).json({ error: 'Failed to update booking event', details: error.message });
@@ -1650,7 +1659,7 @@ app.post('/api/admin/media', isAdmin, async (req, res) => {
     console.log('🔗 Uploading media...');
     const mediaData = req.body;
     
-    const newMedia = await db.insert(mediaAssets).values({
+    const result: any = await db.insert(mediaAssets).values({
       fileName: mediaData.fileName,
       fileType: mediaData.fileType,
       fileUrl: mediaData.fileUrl,
@@ -1659,10 +1668,13 @@ app.post('/api/admin/media', isAdmin, async (req, res) => {
       focalPoint: mediaData.focalPoint,
       metadata: mediaData.metadata || {},
       uploadedBy: mediaData.uploadedBy
-    }).returning();
+    });
+    
+    const insertedId = result[0]?.insertId || result.insertId;
+    const [newMedia] = await db.select().from(mediaAssets).where(eq(mediaAssets.id, insertedId));
     
     console.log(`✅ Media uploaded`);
-    res.json({ media: newMedia[0] });
+    res.json({ media: newMedia });
   } catch (error) {
     console.error('❌ Error uploading media:', error);
     res.status(500).json({ error: 'Failed to upload media', details: error.message });
@@ -1722,16 +1734,17 @@ app.put('/api/admin/settings/seo', isAdmin, async (req, res) => {
     console.log('🔗 Updating SEO settings...');
     const seoData = req.body;
     
-    const updated = await db.update(seoSettingsTable)
+    await db.update(seoSettingsTable)
       .set({
         ...seoData,
         updatedAt: new Date()
       })
-      .where(eq(seoSettingsTable.id, 'default'))
-      .returning();
+      .where(eq(seoSettingsTable.id, 'default'));
+    
+    const [updated] = await db.select().from(seoSettingsTable).where(eq(seoSettingsTable.id, 'default'));
     
     console.log('✅ SEO settings updated');
-    res.json({ settings: updated[0] });
+    res.json({ settings: updated });
   } catch (error) {
     console.error('❌ Error updating SEO settings:', error);
     res.status(500).json({ error: 'Failed to update SEO settings', details: error.message });
@@ -1744,16 +1757,17 @@ app.put('/api/admin/settings/contact', isAdmin, async (req, res) => {
     console.log('🔗 Updating contact settings...');
     const contactData = req.body;
     
-    const updated = await db.update(contactSettingsTable)
+    await db.update(contactSettingsTable)
       .set({
         ...contactData,
         updatedAt: new Date()
       })
-      .where(eq(contactSettingsTable.id, 'default'))
-      .returning();
+      .where(eq(contactSettingsTable.id, 'default'));
+    
+    const [updated] = await db.select().from(contactSettingsTable).where(eq(contactSettingsTable.id, 'default'));
     
     console.log('✅ Contact settings updated');
-    res.json({ settings: updated[0] });
+    res.json({ settings: updated });
   } catch (error) {
     console.error('❌ Error updating contact settings:', error);
     res.status(500).json({ error: 'Failed to update contact settings', details: error.message });
