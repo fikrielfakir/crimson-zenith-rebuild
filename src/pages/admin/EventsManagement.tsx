@@ -105,6 +105,7 @@ export default function EventsManagement() {
   const [selectedEvents, setSelectedEvents] = useState<number[]>([]);
   const [editingEvent, setEditingEvent] = useState<any>(null);
   const [deletingEventId, setDeletingEventId] = useState<number | null>(null);
+  const [viewingEvent, setViewingEvent] = useState<any>(null);
   
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -363,7 +364,7 @@ export default function EventsManagement() {
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setViewingEvent(event)}>
                           <Eye className="mr-2 h-4 w-4" />
                           View Details
                         </DropdownMenuItem>
@@ -616,6 +617,106 @@ export default function EventsManagement() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Dialog open={viewingEvent !== null} onOpenChange={(open) => !open && setViewingEvent(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Event Details</DialogTitle>
+            <DialogDescription>
+              View complete information about this event
+            </DialogDescription>
+          </DialogHeader>
+          {viewingEvent && (
+            <div className="space-y-4">
+              <div>
+                <h3 className="font-semibold text-lg">{viewingEvent.title}</h3>
+                <p className="text-sm text-muted-foreground mt-1">{viewingEvent.description}</p>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-xs text-muted-foreground">Location</Label>
+                  <div className="flex items-center mt-1">
+                    <MapPin className="h-4 w-4 mr-1 text-muted-foreground" />
+                    <p className="text-sm">{viewingEvent.location}</p>
+                  </div>
+                </div>
+                <div>
+                  <Label className="text-xs text-muted-foreground">Category</Label>
+                  <p className="text-sm mt-1">
+                    <Badge variant="outline">{viewingEvent.category}</Badge>
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-xs text-muted-foreground">Start Date</Label>
+                  <div className="flex items-center mt-1">
+                    <Calendar className="h-4 w-4 mr-1 text-muted-foreground" />
+                    <p className="text-sm">
+                      {viewingEvent.startDate && format(new Date(viewingEvent.startDate), 'PPP p')}
+                    </p>
+                  </div>
+                </div>
+                <div>
+                  <Label className="text-xs text-muted-foreground">End Date</Label>
+                  <div className="flex items-center mt-1">
+                    <Clock className="h-4 w-4 mr-1 text-muted-foreground" />
+                    <p className="text-sm">
+                      {viewingEvent.endDate && format(new Date(viewingEvent.endDate), 'PPP p')}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-xs text-muted-foreground">Attendees</Label>
+                  <div className="flex items-center mt-1">
+                    <Users className="h-4 w-4 mr-1 text-muted-foreground" />
+                    <p className="text-sm">
+                      {viewingEvent.attendees || 0} / {viewingEvent.maxAttendees || '∞'}
+                    </p>
+                  </div>
+                </div>
+                <div>
+                  <Label className="text-xs text-muted-foreground">Price</Label>
+                  <p className="text-sm mt-1">
+                    {viewingEvent.price ? `$${viewingEvent.price}` : 'Free'}
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <Label className="text-xs text-muted-foreground">Status</Label>
+                <p className="text-sm mt-1">
+                  <Badge variant={
+                    viewingEvent.status === 'published' ? 'default' :
+                    viewingEvent.status === 'draft' ? 'secondary' :
+                    viewingEvent.status === 'upcoming' ? 'default' :
+                    'destructive'
+                  }>
+                    {viewingEvent.status}
+                  </Badge>
+                </p>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setViewingEvent(null)}>
+              Close
+            </Button>
+            <Button onClick={() => {
+              setEditingEvent(viewingEvent);
+              setViewingEvent(null);
+            }}>
+              <Edit className="mr-2 h-4 w-4" />
+              Edit Event
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

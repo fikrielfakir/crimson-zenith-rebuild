@@ -1617,10 +1617,49 @@ app.get('/api/admin/events', isAdmin, async (req, res) => {
   try {
     console.log('🔗 Fetching events for admin...');
     
-    const events = await db.select().from(clubEvents);
+    const { search, status, category, page = '1', perPage = '25' } = req.query;
+    const pageNum = parseInt(page as string);
+    const perPageNum = parseInt(perPage as string);
+    const offset = (pageNum - 1) * perPageNum;
+    
+    let query = db.select().from(clubEvents);
+    
+    const allEvents = await query;
+    let filteredEvents = allEvents;
+    
+    // Apply filters
+    if (search) {
+      const searchLower = (search as string).toLowerCase();
+      filteredEvents = filteredEvents.filter(e => 
+        e.title?.toLowerCase().includes(searchLower) || 
+        e.description?.toLowerCase().includes(searchLower)
+      );
+    }
+    
+    if (status && status !== 'all') {
+      filteredEvents = filteredEvents.filter(e => e.status === status);
+    }
+    
+    // Map events to frontend format with startDate and endDate
+    const events = filteredEvents
+      .slice(offset, offset + perPageNum)
+      .map(event => ({
+        ...event,
+        startDate: event.eventDate,
+        endDate: event.eventDate,
+        maxAttendees: event.maxParticipants,
+        attendees: event.currentParticipants || 0,
+        category: 'workshop', // Default category since not in database
+        price: null, // Not stored in database yet
+        status: event.status === 'upcoming' ? 'published' : event.status // Map backend status to frontend
+      }));
     
     console.log(`✅ Retrieved ${events.length} events`);
-    res.json({ events });
+    res.json({ 
+      events,
+      total: filteredEvents.length,
+      totalPages: Math.ceil(filteredEvents.length / perPageNum)
+    });
   } catch (error) {
     console.error('❌ Error fetching events:', error);
     res.status(500).json({ error: 'Failed to fetch events', details: error.message });
@@ -1633,23 +1672,51 @@ app.post('/api/admin/events', isAdmin, async (req, res) => {
     console.log('🔗 Creating new event...');
     const eventData = req.body;
     
+    // Map frontend data to backend schema
+    // Use startDate as the eventDate (ignoring endDate for now)
+    const eventDate = eventData.startDate ? new Date(eventData.startDate) : null;
+    
+    if (!eventDate || isNaN(eventDate.getTime())) {
+      return res.status(400).json({ error: 'Invalid start date' });
+    }
+    
+    // Get first club as default or create a general events club
+    const [firstClub] = await db.select().from(clubs).limit(1);
+    const defaultClubId = firstClub?.id || eventData.clubId || 1;
+    
+    // Map status from frontend (draft/published/cancelled) to backend (upcoming/ongoing/completed/cancelled)
+    let backendStatus = 'upcoming';
+    if (eventData.status === 'published') backendStatus = 'upcoming';
+    else if (eventData.status === 'cancelled') backendStatus = 'cancelled';
+    else if (eventData.status === 'draft') backendStatus = 'upcoming';
+    
     const result: any = await db.insert(clubEvents).values({
-      clubId: eventData.clubId,
+      clubId: defaultClubId,
       title: eventData.title,
       description: eventData.description,
-      eventDate: new Date(eventData.eventDate),
+      eventDate: eventDate,
       location: eventData.location,
-      maxParticipants: eventData.maxParticipants,
+      maxParticipants: eventData.maxAttendees ? parseInt(eventData.maxAttendees) : null,
       currentParticipants: 0,
-      status: 'upcoming',
-      createdBy: eventData.createdBy
+      status: backendStatus,
+      createdBy: eventData.createdBy || null
     });
     
     const insertedId = result[0]?.insertId || result.insertId;
     const [newEvent] = await db.select().from(clubEvents).where(eq(clubEvents.id, insertedId));
     
-    console.log(`✅ Event created`);
-    res.json({ event: newEvent });
+    console.log(`✅ Event created with ID: ${insertedId}`);
+    res.json({ 
+      event: {
+        ...newEvent,
+        startDate: newEvent.eventDate,
+        endDate: newEvent.eventDate,
+        maxAttendees: newEvent.maxParticipants,
+        category: eventData.category || 'workshop',
+        price: eventData.price ? parseFloat(eventData.price) : null,
+        status: eventData.status || 'draft' // Return original frontend status
+      }
+    });
   } catch (error) {
     console.error('❌ Error creating event:', error);
     res.status(500).json({ error: 'Failed to create event', details: error.message });
@@ -1663,17 +1730,48 @@ app.put('/api/admin/events/:id', isAdmin, async (req, res) => {
     console.log(`🔗 Updating event ${eventId}...`);
     const eventData = req.body;
     
+    // Map frontend data to backend schema
+    const eventDate = eventData.startDate ? new Date(eventData.startDate) : null;
+    
+    if (eventDate && isNaN(eventDate.getTime())) {
+      return res.status(400).json({ error: 'Invalid start date' });
+    }
+    
+    // Map status from frontend to backend
+    let backendStatus = eventData.status;
+    if (eventData.status === 'published') backendStatus = 'upcoming';
+    else if (eventData.status === 'draft') backendStatus = 'upcoming';
+    
+    const updateData: any = {
+      title: eventData.title,
+      description: eventData.description,
+      location: eventData.location,
+      status: backendStatus,
+      updatedAt: new Date()
+    };
+    
+    if (eventDate) updateData.eventDate = eventDate;
+    if (eventData.maxAttendees) updateData.maxParticipants = parseInt(eventData.maxAttendees);
+    if (eventData.clubId) updateData.clubId = eventData.clubId;
+    
     await db.update(clubEvents)
-      .set({
-        ...eventData,
-        updatedAt: new Date()
-      })
+      .set(updateData)
       .where(eq(clubEvents.id, eventId));
     
     const [updatedEvent] = await db.select().from(clubEvents).where(eq(clubEvents.id, eventId));
     
     console.log(`✅ Event updated: ${eventId}`);
-    res.json({ event: updatedEvent });
+    res.json({ 
+      event: {
+        ...updatedEvent,
+        startDate: updatedEvent.eventDate,
+        endDate: updatedEvent.eventDate,
+        maxAttendees: updatedEvent.maxParticipants,
+        category: eventData.category || 'workshop',
+        price: eventData.price ? parseFloat(eventData.price) : null,
+        status: eventData.status || 'draft' // Return original frontend status
+      }
+    });
   } catch (error) {
     console.error('❌ Error updating event:', error);
     res.status(500).json({ error: 'Failed to update event', details: error.message });
