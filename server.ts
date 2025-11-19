@@ -1304,6 +1304,83 @@ app.put('/api/admin/users/:id', isAdmin, async (req, res) => {
   }
 });
 
+// User Management - Toggle admin status
+app.patch('/api/admin/users/:id/toggle-admin', isAdmin, async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const { isAdmin: newAdminStatus } = req.body;
+    console.log(`🔗 Toggling admin status for user ${userId}...`);
+    
+    const user = await storage.getUser(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    await db.update(users)
+      .set({ isAdmin: newAdminStatus })
+      .where(eq(users.id, userId));
+    
+    console.log(`✅ Admin status toggled for user ${userId}`);
+    res.json({ message: 'Admin status updated', isAdmin: newAdminStatus });
+  } catch (error) {
+    console.error('❌ Error toggling admin status:', error);
+    res.status(500).json({ error: 'Failed to toggle admin status', details: error.message });
+  }
+});
+
+// User Management - Toggle active status (suspend/activate)
+app.patch('/api/admin/users/:id/toggle-active', isAdmin, async (req, res) => {
+  try {
+    const userId = req.params.id;
+    console.log(`🔗 Toggling active status for user ${userId}...`);
+    
+    const user = await storage.getUser(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    const newActiveStatus = !user.isActive;
+    await db.update(users)
+      .set({ isActive: newActiveStatus })
+      .where(eq(users.id, userId));
+    
+    console.log(`✅ User ${userId} ${newActiveStatus ? 'activated' : 'suspended'}`);
+    res.json({ message: `User ${newActiveStatus ? 'activated' : 'suspended'}`, isActive: newActiveStatus });
+  } catch (error) {
+    console.error('❌ Error toggling active status:', error);
+    res.status(500).json({ error: 'Failed to toggle active status', details: error.message });
+  }
+});
+
+// User Management - Reset password
+app.post('/api/admin/users/:id/reset-password', isAdmin, async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const { newPassword } = req.body;
+    console.log(`🔗 Resetting password for user ${userId}...`);
+    
+    const user = await storage.getUser(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    if (!newPassword || newPassword.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    }
+    
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await db.update(users)
+      .set({ password: hashedPassword })
+      .where(eq(users.id, userId));
+    
+    console.log(`✅ Password reset for user ${userId}`);
+    res.json({ message: 'Password reset successfully' });
+  } catch (error) {
+    console.error('❌ Error resetting password:', error);
+    res.status(500).json({ error: 'Failed to reset password', details: error.message });
+  }
+});
+
 // User Management - Delete user
 app.delete('/api/admin/users/:id', isAdmin, async (req, res) => {
   try {

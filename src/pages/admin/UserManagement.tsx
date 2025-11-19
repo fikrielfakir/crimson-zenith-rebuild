@@ -74,6 +74,7 @@ const userSchema = z.object({
   lastName: z.string().min(1, 'Last name is required'),
   username: z.string().min(3, 'Username must be at least 3 characters'),
   email: z.string().email('Invalid email address'),
+  password: z.union([z.string().min(6, 'Password must be at least 6 characters'), z.string().length(0)]).optional(),
   phone: z.string().optional(),
   location: z.string().optional(),
   bio: z.string().optional(),
@@ -107,6 +108,8 @@ export default function UserManagement() {
   const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
   const [editingUser, setEditingUser] = useState<any>(null);
   const [deletingUserId, setDeletingUserId] = useState<number | null>(null);
+  const [resettingPasswordUser, setResettingPasswordUser] = useState<any>(null);
+  const [newPassword, setNewPassword] = useState('');
   
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -129,6 +132,7 @@ export default function UserManagement() {
       lastName: '',
       username: '',
       email: '',
+      password: '',
       phone: '',
       location: '',
       bio: '',
@@ -140,12 +144,13 @@ export default function UserManagement() {
 
   // Reset form when editingUser changes
   useEffect(() => {
-    if (editingUser) {
+    if (editingUser && editingUser.id) {
       form.reset({
         firstName: editingUser.firstName || '',
         lastName: editingUser.lastName || '',
         username: editingUser.username || '',
         email: editingUser.email || '',
+        password: '',
         phone: editingUser.phone || '',
         location: editingUser.location || '',
         bio: editingUser.bio || '',
@@ -159,6 +164,7 @@ export default function UserManagement() {
         lastName: '',
         username: '',
         email: '',
+        password: '',
         phone: '',
         location: '',
         bio: '',
@@ -226,6 +232,46 @@ export default function UserManagement() {
     },
   });
 
+  const toggleActiveMutation = useMutation({
+    mutationFn: async (userId: string) => {
+      const response = await fetch(`/api/admin/users/${userId}/toggle-active`, {
+        method: 'PATCH',
+      });
+      if (!response.ok) throw new Error('Failed to toggle active status');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+      toast({ title: 'User status updated' });
+    },
+    onError: (error: Error) => {
+      toast({ title: 'Failed to update status', description: error.message, variant: 'destructive' });
+    },
+  });
+
+  const resetPasswordMutation = useMutation({
+    mutationFn: async ({ userId, newPassword }: { userId: string; newPassword: string }) => {
+      const response = await fetch(`/api/admin/users/${userId}/reset-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ newPassword }),
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to reset password');
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({ title: 'Password reset successfully' });
+      setResettingPasswordUser(null);
+      setNewPassword('');
+    },
+    onError: (error: Error) => {
+      toast({ title: 'Failed to reset password', description: error.message, variant: 'destructive' });
+    },
+  });
+
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
       setSelectedUsers(data?.users.map((u: any) => u.id) || []);
@@ -252,7 +298,21 @@ export default function UserManagement() {
   };
 
   const onSubmit = (data: UserFormData) => {
-    saveUserMutation.mutate(data);
+    if (!editingUser?.id && !data.password) {
+      toast({ 
+        title: 'Password required', 
+        description: 'Please enter a password for the new user',
+        variant: 'destructive' 
+      });
+      return;
+    }
+    
+    const submitData = { ...data };
+    if (!submitData.password) {
+      delete submitData.password;
+    }
+    
+    saveUserMutation.mutate(submitData);
   };
 
   return (
@@ -264,7 +324,7 @@ export default function UserManagement() {
             <Download className="mr-2 h-4 w-4" />
             Export
           </Button>
-          <Button onClick={() => setEditingUser(null)}>
+          <Button onClick={() => setEditingUser({})}>
             <Plus className="mr-2 h-4 w-4" />
             Add User
           </Button>
@@ -416,11 +476,11 @@ export default function UserManagement() {
                           <Shield className="mr-2 h-4 w-4" />
                           {user.isAdmin ? 'Remove Admin' : 'Make Admin'}
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setResettingPasswordUser(user)}>
                           <Key className="mr-2 h-4 w-4" />
                           Reset Password
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => toggleActiveMutation.mutate(user.id)}>
                           <UserX className="mr-2 h-4 w-4" />
                           {user.isActive ? 'Suspend' : 'Activate'}
                         </DropdownMenuItem>
@@ -482,7 +542,7 @@ export default function UserManagement() {
       )}
 
       {/* Add/Edit User Dialog */}
-      <Dialog open={editingUser !== null} onOpenChange={() => setEditingUser(null)}>
+      <Dialog open={editingUser !== null} onOpenChange={(open) => !open && setEditingUser(null)}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>{editingUser?.id ? 'Edit User' : 'Add New User'}</DialogTitle>
@@ -546,6 +606,36 @@ export default function UserManagement() {
                   </FormItem>
                 )}
               />
+              {!editingUser?.id && (
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Password</FormLabel>
+                      <FormControl>
+                        <Input type="password" placeholder="Enter password" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+              {editingUser?.id && (
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Password (leave empty to keep current)</FormLabel>
+                      <FormControl>
+                        <Input type="password" placeholder="Enter new password" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
               <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -623,6 +713,56 @@ export default function UserManagement() {
               </DialogFooter>
             </form>
           </Form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Reset Password Dialog */}
+      <Dialog open={resettingPasswordUser !== null} onOpenChange={(open) => !open && setResettingPasswordUser(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reset Password</DialogTitle>
+            <DialogDescription>
+              Reset password for {resettingPasswordUser?.firstName} {resettingPasswordUser?.lastName}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <FormLabel>New Password</FormLabel>
+              <Input
+                type="password"
+                placeholder="Enter new password (min 6 characters)"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => {
+              setResettingPasswordUser(null);
+              setNewPassword('');
+            }}>
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                if (newPassword.length < 6) {
+                  toast({ 
+                    title: 'Invalid password', 
+                    description: 'Password must be at least 6 characters',
+                    variant: 'destructive' 
+                  });
+                  return;
+                }
+                resetPasswordMutation.mutate({ 
+                  userId: resettingPasswordUser.id, 
+                  newPassword 
+                });
+              }}
+              disabled={resetPasswordMutation.isPending}
+            >
+              {resetPasswordMutation.isPending ? 'Resetting...' : 'Reset Password'}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
