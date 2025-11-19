@@ -85,6 +85,7 @@ export const clubEvents = mysqlTable("club_events", {
   clubId: int("club_id").references(() => clubs.id).notNull(),
   title: varchar("title", { length: 255 }).notNull(),
   description: text("description"),
+  image: varchar("image", { length: 500 }), // Featured event image
   eventDate: timestamp("event_date").notNull(),
   endDate: timestamp("end_date"),
   category: varchar("category", { length: 100 }),
@@ -114,6 +115,15 @@ export const eventParticipants = mysqlTable("event_participants", {
   userId: varchar("user_id", { length: 255 }).references(() => users.id).notNull(),
   registeredAt: timestamp("registered_at").defaultNow(),
   attended: boolean("attended").default(false),
+});
+
+// Events-Clubs junction table - allows events to be associated with multiple clubs
+export const eventsClubs = mysqlTable("events_clubs", {
+  id: serial().primaryKey(),
+  eventId: int("event_id").references(() => clubEvents.id).notNull(),
+  clubId: int("club_id").references(() => clubs.id).notNull(),
+  isPrimaryClub: boolean("is_primary_club").default(false), // Marks the main organizing club
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
 // Event gallery - stores multiple images for event carousel
@@ -633,6 +643,8 @@ export type InsertClub = typeof clubs.$inferInsert;
 export type ClubMembership = typeof clubMemberships.$inferSelect;
 export type ClubEvent = typeof clubEvents.$inferSelect;
 export type InsertClubEvent = typeof clubEvents.$inferInsert;
+export type EventsClub = typeof eventsClubs.$inferSelect;
+export type InsertEventsClub = typeof eventsClubs.$inferInsert;
 export type BookingEvent = typeof bookingEvents.$inferSelect;
 export type InsertBookingEvent = typeof bookingEvents.$inferInsert;
 export type BookingPageSettings = typeof bookingPageSettings.$inferSelect;
