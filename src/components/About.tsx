@@ -141,7 +141,7 @@ const About = () => {
               textShadow: "0px 2px 8px rgba(0,0,0,0.3)",
             }}
           >
-            Our Mission & Focus
+            Our focus
           </h2>
           <p
             className="mx-auto"
