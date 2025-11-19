@@ -161,6 +161,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Club Events Routes
+  app.get('/api/clubs/:id/events', async (req, res) => {
+    try {
+      const clubId = parseInt(req.params.id);
+      const events = await storage.getClubEvents(clubId);
+      res.json({ events });
+    } catch (error) {
+      console.error("Error fetching club events:", error);
+      res.status(500).json({ message: "Failed to fetch club events" });
+    }
+  });
+
   // Admin CMS Routes
   
   // Hero Settings

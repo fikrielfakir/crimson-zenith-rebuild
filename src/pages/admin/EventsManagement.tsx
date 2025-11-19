@@ -284,7 +284,10 @@ export default function EventsManagement() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Events Management</h1>
+        <div>
+          <h1 className="text-3xl font-bold">Journey Events Management</h1>
+          <p className="text-muted-foreground mt-1">Manage bookable events for The Journey Association</p>
+        </div>
         <Button onClick={() => setEditingEvent({})}>
           <Plus className="mr-2 h-4 w-4" />
           Create Event

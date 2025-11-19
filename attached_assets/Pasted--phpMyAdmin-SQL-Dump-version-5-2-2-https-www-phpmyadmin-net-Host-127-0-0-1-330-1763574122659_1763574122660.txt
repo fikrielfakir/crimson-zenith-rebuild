@@ -1,0 +1,1327 @@
+-- phpMyAdmin SQL Dump
+-- version 5.2.2
+-- https://www.phpmyadmin.net/
+--
+-- Host: 127.0.0.1:3306
+-- Erstellungszeit: 19. Nov 2025 um 17:41
+-- Server-Version: 11.8.3-MariaDB-log
+-- PHP-Version: 7.2.34
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+
+--
+-- Datenbank: `u613266227_test`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `about_settings`
+--
+
+CREATE TABLE `about_settings` (
+  `id` varchar(255) NOT NULL DEFAULT 'default',
+  `is_active` tinyint(1) DEFAULT 1,
+  `title` varchar(255) DEFAULT 'About Us',
+  `subtitle` text DEFAULT NULL,
+  `description` text NOT NULL DEFAULT '',
+  `image_id` int(11) DEFAULT NULL,
+  `background_image_id` int(11) DEFAULT NULL,
+  `background_color` varchar(50) DEFAULT NULL,
+  `updated_by` varchar(255) DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Daten für Tabelle `about_settings`
+--
+
+INSERT INTO `about_settings` (`id`, `is_active`, `title`, `subtitle`, `description`, `image_id`, `background_image_id`, `background_color`, `updated_by`, `updated_at`) VALUES
+('default', 1, 'About Us', NULL, 'Welcome to our organization', NULL, NULL, NULL, NULL, '2025-11-18 08:48:36');
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `booking_events`
+--
+
+CREATE TABLE `booking_events` (
+  `id` varchar(255) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `subtitle` varchar(255) DEFAULT NULL,
+  `description` text NOT NULL,
+  `location` varchar(255) NOT NULL,
+  `duration` varchar(100) DEFAULT NULL,
+  `price` int(11) NOT NULL,
+  `original_price` int(11) DEFAULT NULL,
+  `rating` int(11) DEFAULT 5,
+  `review_count` int(11) DEFAULT 0,
+  `category` varchar(100) DEFAULT NULL,
+  `languages` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT json_array('English') CHECK (json_valid(`languages`)),
+  `age_range` varchar(100) DEFAULT NULL,
+  `group_size` varchar(100) DEFAULT NULL,
+  `cancellation_policy` text DEFAULT NULL,
+  `images` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT json_array() CHECK (json_valid(`images`)),
+  `highlights` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT json_array() CHECK (json_valid(`highlights`)),
+  `included` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT json_array() CHECK (json_valid(`included`)),
+  `not_included` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT json_array() CHECK (json_valid(`not_included`)),
+  `schedule` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT json_array() CHECK (json_valid(`schedule`)),
+  `is_active` tinyint(1) DEFAULT 1,
+  `created_by` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Daten für Tabelle `booking_events`
+--
+
+INSERT INTO `booking_events` (`id`, `title`, `subtitle`, `description`, `location`, `duration`, `price`, `original_price`, `rating`, `review_count`, `category`, `languages`, `age_range`, `group_size`, `cancellation_policy`, `images`, `highlights`, `included`, `not_included`, `schedule`, `is_active`, `created_by`, `created_at`, `updated_at`) VALUES
+('atlas-trek-3day', '3-Day Atlas Mountains Trek', 'Discover the majestic peaks and Berber villages', 'Embark on an unforgettable 3-day journey through the Atlas Mountains. Experience breathtaking landscapes, traditional Berber hospitality, and authentic mountain culture. This guided trek takes you through scenic valleys, over mountain passes, and into remote villages where time seems to stand still.', 'Atlas Mountains, Morocco', '3 Days / 2 Nights', 299, 399, 5, 127, 'Mountain Trek', '[\"English\",\"French\",\"Arabic\"]', '12-65 years', 'Max 12 people', 'Free cancellation up to 48 hours before departure', '[\"/api/placeholder/800/600\",\"/api/placeholder/800/600\",\"/api/placeholder/800/600\"]', '[\"Trek through stunning mountain valleys\",\"Visit authentic Berber villages\",\"Stay in traditional mountain guesthouses\",\"Enjoy home-cooked Berber meals\",\"Experience stunning sunrise views\",\"Learn about local culture and traditions\"]', '[\"Professional mountain guide\",\"All meals during the trek\",\"2 nights accommodation\",\"Transportation to/from Marrakech\",\"Mule support for luggage\",\"First aid kit\"]', '[\"Personal travel insurance\",\"Drinks and snacks\",\"Tips for guides\",\"Personal equipment\"]', '[{\"time\":\"Day 1\",\"activity\":\"Depart Marrakech at 8am, trek to first village, 6 hours hiking\"},{\"time\":\"Day 2\",\"activity\":\"Cross mountain pass, visit local market, 7 hours hiking\"},{\"time\":\"Day 3\",\"activity\":\"Morning village tour, descent and return to Marrakech by 5pm\"}]', 1, NULL, '2025-11-02 16:23:29', '2025-11-02 16:23:29'),
+('coastal-surf-camp', 'Atlantic Coast Surf Camp', 'Learn to surf in Morocco\'s best waves', 'Join our 5-day surf camp on Morocco\'s stunning Atlantic coast. Perfect for beginners and intermediate surfers, this package includes daily surf lessons, quality equipment, beachfront accommodation, and plenty of time to enjoy the sun, sea, and local culture.', 'Essaouira, Atlantic Coast', '5 Days / 4 Nights', 449, 599, 5, 89, 'Water Sports', '[\"English\",\"French\"]', '14-50 years', 'Max 8 people', 'Free cancellation up to 7 days before start date', '[\"/api/placeholder/800/600\",\"/api/placeholder/800/600\",\"/api/placeholder/800/600\"]', '[\"Daily professional surf coaching\",\"Beachfront accommodation\",\"Quality surfboard and wetsuit included\",\"Explore Essaouira\'s medina\",\"Beach yoga sessions\",\"Small group sizes for personalized attention\"]', '[\"4 nights beachfront accommodation\",\"Daily surf lessons (2 hours)\",\"Surfboard and wetsuit rental\",\"Breakfast daily\",\"Beach yoga\",\"Airport transfer\"]', '[\"Lunch and dinner\",\"Travel insurance\",\"Personal expenses\",\"Additional activities\"]', '[{\"time\":\"7:00 AM\",\"activity\":\"Beach yoga session\"},{\"time\":\"8:00 AM\",\"activity\":\"Breakfast\"},{\"time\":\"10:00 AM\",\"activity\":\"Surf lesson (2 hours)\"},{\"time\":\"Afternoon\",\"activity\":\"Free time or optional activities\"}]', 1, NULL, '2025-11-02 16:23:29', '2025-11-02 16:23:29'),
+('sahara-desert-adventure', 'Sahara Desert Adventure', 'Sleep under the stars in the Moroccan Sahara', 'Experience the magic of the Sahara Desert on this 2-day adventure. Ride camels across golden dunes, watch spectacular sunsets, and spend the night in a traditional Berber camp under a blanket of stars. This tour includes traditional music, authentic cuisine, and unforgettable desert landscapes.', 'Merzouga, Sahara Desert', '2 Days / 1 Night', 199, 279, 5, 243, 'Desert Experience', '[\"English\",\"French\",\"Spanish\"]', '8-80 years', 'Max 15 people', 'Free cancellation up to 24 hours before departure', '[\"/api/placeholder/800/600\",\"/api/placeholder/800/600\",\"/api/placeholder/800/600\"]', '[\"Camel trek across sand dunes\",\"Spectacular sunset and sunrise views\",\"Traditional Berber camp experience\",\"Campfire with local music\",\"Sandboarding opportunity\",\"Photography opportunities\"]', '[\"Camel ride to and from camp\",\"Dinner and breakfast\",\"Traditional desert camp accommodation\",\"Campfire with music\",\"Sandboarding\",\"Bottled water\"]', '[\"Transport to Merzouga\",\"Lunch\",\"Personal expenses\",\"Tips\"]', '[{\"time\":\"4:00 PM\",\"activity\":\"Meet at Merzouga, camel trek begins\"},{\"time\":\"6:30 PM\",\"activity\":\"Arrive at camp, watch sunset, dinner and music\"},{\"time\":\"6:00 AM\",\"activity\":\"Sunrise viewing, breakfast, camel trek back\"},{\"time\":\"9:00 AM\",\"activity\":\"Return to Merzouga\"}]', 1, NULL, '2025-11-02 16:23:29', '2025-11-02 16:23:29');
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `booking_page_settings`
+--
+
+CREATE TABLE `booking_page_settings` (
+  `id` varchar(255) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `subtitle` varchar(255) DEFAULT NULL,
+  `header_background_image` varchar(500) DEFAULT NULL,
+  `footer_text` text DEFAULT NULL,
+  `contact_email` varchar(255) DEFAULT NULL,
+  `contact_phone` varchar(50) DEFAULT NULL,
+  `enable_reviews` tinyint(1) DEFAULT 1,
+  `enable_similar_events` tinyint(1) DEFAULT 1,
+  `enable_image_gallery` tinyint(1) DEFAULT 1,
+  `max_participants` int(11) DEFAULT 25,
+  `minimum_booking_hours` int(11) DEFAULT 24,
+  `custom_css` text DEFAULT NULL,
+  `seo_title` varchar(255) DEFAULT NULL,
+  `seo_description` text DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `clubs`
+--
+
+CREATE TABLE `clubs` (
+  `id` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `description` text NOT NULL,
+  `long_description` text DEFAULT NULL,
+  `image` varchar(500) DEFAULT NULL,
+  `location` varchar(255) NOT NULL,
+  `member_count` int(11) DEFAULT 0,
+  `features` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT json_array() CHECK (json_valid(`features`)),
+  `contact_phone` varchar(50) DEFAULT NULL,
+  `contact_email` varchar(255) DEFAULT NULL,
+  `website` varchar(500) DEFAULT NULL,
+  `social_media` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT json_object() CHECK (json_valid(`social_media`)),
+  `rating` int(11) DEFAULT 5,
+  `established` varchar(100) DEFAULT NULL,
+  `is_active` tinyint(1) DEFAULT 1,
+  `latitude` decimal(9,6) DEFAULT NULL,
+  `longitude` decimal(9,6) DEFAULT NULL,
+  `owner_id` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Daten für Tabelle `clubs`
+--
+
+INSERT INTO `clubs` (`id`, `name`, `description`, `long_description`, `image`, `location`, `member_count`, `features`, `contact_phone`, `contact_email`, `website`, `social_media`, `rating`, `established`, `is_active`, `latitude`, `longitude`, `owner_id`, `created_at`, `updated_at`) VALUES
+(1, 'Ensah', 'Mountain trekking and hiking adventures', NULL, NULL, 'Atlas Mountains', 250, '[\"Hiking\",\"Camping\",\"Photography\"]', NULL, NULL, NULL, NULL, 5, NULL, 1, NULL, NULL, NULL, '2025-11-02 16:23:29', '2025-11-19 12:26:09'),
+(2, 'Desert Explorers', 'Sahara expeditions and desert camping', NULL, '/images/desert-explorers.jpg', 'Sahara Desert', 180, '[\"Desert Tours\",\"Camping\",\"Camel Rides\"]', NULL, NULL, NULL, '{}', 5, NULL, 1, NULL, NULL, NULL, '2025-11-02 16:23:29', '2025-11-02 16:23:29'),
+(3, 'Coastal Adventures', 'Beach activities and water sports', NULL, '/images/coastal-adventures.jpg', 'Atlantic Coast', 320, '[\"Surfing\",\"Beach Volleyball\",\"Swimming\"]', NULL, NULL, NULL, '{}', 4, NULL, 1, NULL, NULL, NULL, '2025-11-02 16:23:29', '2025-11-02 16:23:29');
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `club_events`
+--
+
+CREATE TABLE `club_events` (
+  `id` int(11) NOT NULL,
+  `club_id` int(11) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `description` text DEFAULT NULL,
+  `event_date` timestamp NOT NULL,
+  `end_date` timestamp NULL DEFAULT NULL,
+  `category` varchar(100) DEFAULT NULL,
+  `duration` varchar(100) DEFAULT NULL,
+  `languages` varchar(255) DEFAULT NULL,
+  `min_age` int(11) DEFAULT NULL,
+  `max_people` int(11) DEFAULT NULL,
+  `highlights` text DEFAULT NULL,
+  `included` text DEFAULT NULL,
+  `not_included` text DEFAULT NULL,
+  `important_info` text DEFAULT NULL,
+  `price` decimal(10,2) DEFAULT NULL,
+  `location` varchar(255) DEFAULT NULL,
+  `location_details` varchar(255) DEFAULT NULL,
+  `max_participants` int(11) DEFAULT NULL,
+  `current_participants` int(11) DEFAULT 0,
+  `status` varchar(20) DEFAULT 'upcoming',
+  `created_by` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Daten für Tabelle `club_events`
+--
+
+INSERT INTO `club_events` (`id`, `club_id`, `title`, `description`, `event_date`, `end_date`, `category`, `duration`, `languages`, `min_age`, `max_people`, `highlights`, `included`, `not_included`, `important_info`, `price`, `location`, `location_details`, `max_participants`, `current_participants`, `status`, `created_by`, `created_at`, `updated_at`) VALUES
+(1, 1, 'aadd', 'ddsdad ddfgfgrtrtrtttrtr', '2025-11-19 14:04:00', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'ddada', NULL, 123, 0, 'upcoming', NULL, '2025-11-19 13:04:25', '2025-11-19 13:08:05');
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `club_gallery`
+--
+
+CREATE TABLE `club_gallery` (
+  `id` int(11) NOT NULL,
+  `club_id` int(11) NOT NULL,
+  `image_url` varchar(500) NOT NULL,
+  `caption` varchar(255) DEFAULT NULL,
+  `uploaded_by` varchar(255) DEFAULT NULL,
+  `uploaded_at` timestamp NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `club_memberships`
+--
+
+CREATE TABLE `club_memberships` (
+  `id` int(11) NOT NULL,
+  `user_id` varchar(255) NOT NULL,
+  `club_id` int(11) NOT NULL,
+  `role` varchar(50) DEFAULT 'member',
+  `joined_at` timestamp NULL DEFAULT current_timestamp(),
+  `is_active` tinyint(1) DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `club_reviews`
+--
+
+CREATE TABLE `club_reviews` (
+  `id` int(11) NOT NULL,
+  `club_id` int(11) NOT NULL,
+  `user_id` varchar(255) NOT NULL,
+  `rating` int(11) NOT NULL,
+  `comment` text DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `contact_settings`
+--
+
+CREATE TABLE `contact_settings` (
+  `id` varchar(255) NOT NULL DEFAULT 'default',
+  `office_address` text DEFAULT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  `phone` varchar(50) DEFAULT NULL,
+  `office_hours` text DEFAULT NULL,
+  `map_latitude` decimal(9,6) DEFAULT NULL,
+  `map_longitude` decimal(9,6) DEFAULT NULL,
+  `form_recipients` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT json_array() CHECK (json_valid(`form_recipients`)),
+  `auto_reply_enabled` tinyint(1) DEFAULT 0,
+  `auto_reply_message` text DEFAULT NULL,
+  `social_links` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT json_object() CHECK (json_valid(`social_links`)),
+  `updated_by` varchar(255) DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Daten für Tabelle `contact_settings`
+--
+
+INSERT INTO `contact_settings` (`id`, `office_address`, `email`, `phone`, `office_hours`, `map_latitude`, `map_longitude`, `form_recipients`, `auto_reply_enabled`, `auto_reply_message`, `social_links`, `updated_by`, `updated_at`) VALUES
+('default', 'Marrakech, Morocco', 'contact@clubsmorocco.com', '+212 524 123 456', 'Monday - Friday: 9:00 AM - 6:00 PM', 31.629500, -7.981100, '[\"contact@clubsmorocco.com\"]', 1, 'Thank you for contacting us! We will get back to you within 24 hours.', '{\"facebook\":\"https://facebook.com/clubsmorocco\",\"instagram\":\"https://instagram.com/clubsmorocco\",\"twitter\":\"https://twitter.com/clubsmorocco\"}', NULL, '2025-11-02 16:23:31');
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `event_gallery`
+--
+
+CREATE TABLE `event_gallery` (
+  `id` int(11) NOT NULL,
+  `event_id` int(11) NOT NULL,
+  `image_url` varchar(500) NOT NULL,
+  `sort_order` int(11) DEFAULT 0,
+  `created_at` timestamp NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `event_participants`
+--
+
+CREATE TABLE `event_participants` (
+  `id` int(11) NOT NULL,
+  `event_id` int(11) NOT NULL,
+  `user_id` varchar(255) NOT NULL,
+  `registered_at` timestamp NULL DEFAULT current_timestamp(),
+  `attended` tinyint(1) DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `event_prices`
+--
+
+CREATE TABLE `event_prices` (
+  `id` int(11) NOT NULL,
+  `event_id` int(11) NOT NULL,
+  `travelers` int(11) NOT NULL,
+  `price_per_person` decimal(10,2) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `event_reviews`
+--
+
+CREATE TABLE `event_reviews` (
+  `id` int(11) NOT NULL,
+  `event_id` int(11) NOT NULL,
+  `user_name` varchar(255) DEFAULT NULL,
+  `rating` int(11) NOT NULL,
+  `review` text DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `event_schedule`
+--
+
+CREATE TABLE `event_schedule` (
+  `id` int(11) NOT NULL,
+  `event_id` int(11) NOT NULL,
+  `day_number` int(11) NOT NULL,
+  `title` varchar(255) DEFAULT NULL,
+  `description` text DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `focus_items`
+--
+
+CREATE TABLE `focus_items` (
+  `id` int(11) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `icon` varchar(100) DEFAULT NULL,
+  `description` text NOT NULL,
+  `ordering` int(11) NOT NULL DEFAULT 0,
+  `is_active` tinyint(1) DEFAULT 1,
+  `media_id` int(11) DEFAULT NULL,
+  `created_by` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Daten für Tabelle `focus_items`
+--
+
+INSERT INTO `focus_items` (`id`, `title`, `icon`, `description`, `ordering`, `is_active`, `media_id`, `created_by`, `created_at`, `updated_at`) VALUES
+(1, 'Adventure & Exploration', 'mountain', 'Experience thrilling outdoor adventures from Atlas Mountains to Sahara Desert', 1, 1, NULL, NULL, '2025-11-02 16:23:30', '2025-11-02 16:23:30'),
+(2, 'Cultural Immersion', 'globe', 'Connect with local communities and discover authentic Moroccan traditions', 2, 1, NULL, NULL, '2025-11-02 16:23:30', '2025-11-02 16:23:30'),
+(3, 'Sustainable Tourism', 'leaf', 'Travel responsibly while supporting local economies and preserving nature', 3, 1, NULL, NULL, '2025-11-02 16:23:30', '2025-11-02 16:23:30'),
+(4, 'Community Building', 'users', 'Join a vibrant network of adventurers and culture enthusiasts', 4, 1, NULL, NULL, '2025-11-02 16:23:30', '2025-11-02 16:23:30');
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `footer_settings`
+--
+
+CREATE TABLE `footer_settings` (
+  `id` varchar(255) NOT NULL DEFAULT 'default',
+  `copyright_text` varchar(500) DEFAULT NULL,
+  `description` text DEFAULT NULL,
+  `links` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT json_array() CHECK (json_valid(`links`)),
+  `social_links` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT json_object() CHECK (json_valid(`social_links`)),
+  `newsletter_enabled` tinyint(1) DEFAULT 1,
+  `newsletter_title` varchar(255) DEFAULT NULL,
+  `newsletter_description` text DEFAULT NULL,
+  `updated_by` varchar(255) DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Daten für Tabelle `footer_settings`
+--
+
+INSERT INTO `footer_settings` (`id`, `copyright_text`, `description`, `links`, `social_links`, `newsletter_enabled`, `newsletter_title`, `newsletter_description`, `updated_by`, `updated_at`) VALUES
+('default', '© 2024 Clubs Morocco. All rights reserved.', 'Experience authentic Moroccan adventures with sustainable tourism practices.', '[{\"label\":\"About Us\",\"url\":\"/about\"},{\"label\":\"Privacy Policy\",\"url\":\"/privacy-policy\"},{\"label\":\"Terms of Service\",\"url\":\"/terms-of-service\"},{\"label\":\"Contact\",\"url\":\"/contact\"}]', '{\"facebook\":\"https://facebook.com/clubsmorocco\",\"instagram\":\"https://instagram.com/clubsmorocco\",\"twitter\":\"https://twitter.com/clubsmorocco\",\"youtube\":\"https://youtube.com/@clubsmorocco\"}', 1, 'Stay Updated', 'Subscribe to our newsletter for exclusive offers and adventure tips', NULL, '2025-11-02 16:23:31');
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `hero_settings`
+--
+
+CREATE TABLE `hero_settings` (
+  `id` varchar(255) NOT NULL DEFAULT 'default',
+  `title` text NOT NULL DEFAULT 'Where Adventure Meets\nTransformation',
+  `subtitle` text NOT NULL DEFAULT 'Experience Morocco\'s soul through sustainable journeys. Discover culture, embrace adventure, and create lasting connections with local communities.',
+  `primary_button_text` varchar(100) DEFAULT 'Start Your Journey',
+  `primary_button_link` varchar(500) DEFAULT '/discover',
+  `secondary_button_text` varchar(100) DEFAULT 'Explore Clubs',
+  `secondary_button_link` varchar(500) DEFAULT '/clubs',
+  `background_type` varchar(20) DEFAULT 'image',
+  `background_media_id` int(11) DEFAULT NULL,
+  `background_overlay_color` varchar(50) DEFAULT 'rgba(26, 54, 93, 0.7)',
+  `background_overlay_opacity` int(11) DEFAULT 70,
+  `title_font_size` varchar(50) DEFAULT '65px',
+  `title_color` varchar(50) DEFAULT '#ffffff',
+  `subtitle_font_size` varchar(50) DEFAULT '20px',
+  `subtitle_color` varchar(50) DEFAULT '#ffffff',
+  `enable_typewriter` tinyint(1) DEFAULT 1,
+  `typewriter_texts` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT json_array() CHECK (json_valid(`typewriter_texts`)),
+  `updated_by` varchar(255) DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `landing_sections`
+--
+
+CREATE TABLE `landing_sections` (
+  `id` int(11) NOT NULL,
+  `slug` varchar(100) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `section_type` varchar(50) NOT NULL,
+  `ordering` int(11) NOT NULL DEFAULT 0,
+  `is_active` tinyint(1) DEFAULT 1,
+  `background_color` varchar(50) DEFAULT NULL,
+  `background_media_id` int(11) DEFAULT NULL,
+  `title_font_size` varchar(50) DEFAULT '32px',
+  `title_color` varchar(50) DEFAULT '#112250',
+  `custom_css` text DEFAULT NULL,
+  `updated_by` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `landing_testimonials`
+--
+
+CREATE TABLE `landing_testimonials` (
+  `id` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `role` varchar(255) DEFAULT NULL,
+  `photo_id` int(11) DEFAULT NULL,
+  `rating` int(11) DEFAULT 5,
+  `feedback` text NOT NULL,
+  `is_approved` tinyint(1) DEFAULT 0,
+  `is_active` tinyint(1) DEFAULT 1,
+  `ordering` int(11) NOT NULL DEFAULT 0,
+  `user_id` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Daten für Tabelle `landing_testimonials`
+--
+
+INSERT INTO `landing_testimonials` (`id`, `name`, `role`, `photo_id`, `rating`, `feedback`, `is_approved`, `is_active`, `ordering`, `user_id`, `created_at`, `updated_at`) VALUES
+(1, 'Sarah Martinez', 'Adventure Traveler', NULL, 5, 'The Atlas Mountains trek was absolutely incredible! Our guide was knowledgeable and the experience was truly authentic.', 1, 1, 1, NULL, '2025-11-02 16:23:30', '2025-11-02 16:23:30'),
+(2, 'James Wilson', 'Cultural Explorer', NULL, 5, 'I loved the cultural immersion. Staying with Berber families and learning about their traditions was unforgettable.', 1, 1, 2, NULL, '2025-11-02 16:23:30', '2025-11-02 16:23:30'),
+(3, 'Emma Thompson', 'Photography Enthusiast', NULL, 5, 'The desert sunset was magical. Every moment was photo-perfect and the guides were exceptional.', 1, 1, 3, NULL, '2025-11-02 16:23:30', '2025-11-02 16:23:30');
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `media_assets`
+--
+
+CREATE TABLE `media_assets` (
+  `id` int(11) NOT NULL,
+  `file_name` varchar(255) NOT NULL,
+  `file_type` varchar(50) NOT NULL,
+  `file_url` varchar(1000) NOT NULL,
+  `thumbnail_url` varchar(1000) DEFAULT NULL,
+  `alt_text` varchar(500) DEFAULT NULL,
+  `focal_point` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`focal_point`)),
+  `metadata` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT json_object() CHECK (json_valid(`metadata`)),
+  `uploaded_by` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `navbar_settings`
+--
+
+CREATE TABLE `navbar_settings` (
+  `id` varchar(255) NOT NULL DEFAULT 'default',
+  `logo_type` varchar(20) DEFAULT 'image',
+  `logo_image_id` int(11) DEFAULT NULL,
+  `logo_svg` text DEFAULT NULL,
+  `logo_text` varchar(255) DEFAULT NULL,
+  `navigation_links` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT json_array() CHECK (json_valid(`navigation_links`)),
+  `show_language_switcher` tinyint(1) DEFAULT 1,
+  `available_languages` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT json_array('EN','FR','AR') CHECK (json_valid(`available_languages`)),
+  `show_dark_mode_toggle` tinyint(1) DEFAULT 1,
+  `login_button_text` varchar(100) DEFAULT 'Login',
+  `login_button_link` varchar(500) DEFAULT '/admin/login',
+  `show_login_button` tinyint(1) DEFAULT 1,
+  `join_button_text` varchar(100) DEFAULT 'Join Us',
+  `join_button_link` varchar(500) DEFAULT '/join',
+  `join_button_style` varchar(50) DEFAULT 'secondary',
+  `show_join_button` tinyint(1) DEFAULT 1,
+  `updated_by` varchar(255) DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `partners`
+--
+
+CREATE TABLE `partners` (
+  `id` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `logo_id` int(11) DEFAULT NULL,
+  `website_url` varchar(500) DEFAULT NULL,
+  `description` text DEFAULT NULL,
+  `ordering` int(11) NOT NULL DEFAULT 0,
+  `is_active` tinyint(1) DEFAULT 1,
+  `created_by` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `partner_settings`
+--
+
+CREATE TABLE `partner_settings` (
+  `id` varchar(255) NOT NULL DEFAULT 'default',
+  `is_active` tinyint(1) DEFAULT 1,
+  `title` varchar(255) DEFAULT 'Our Partners',
+  `subtitle` text DEFAULT NULL,
+  `background_color` varchar(50) DEFAULT NULL,
+  `updated_by` varchar(255) DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Daten für Tabelle `partner_settings`
+--
+
+INSERT INTO `partner_settings` (`id`, `is_active`, `title`, `subtitle`, `background_color`, `updated_by`, `updated_at`) VALUES
+('default', 1, 'Our Partners', NULL, NULL, NULL, '2025-11-18 08:48:36');
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `president_message_settings`
+--
+
+CREATE TABLE `president_message_settings` (
+  `id` varchar(255) NOT NULL DEFAULT 'default',
+  `is_active` tinyint(1) DEFAULT 1,
+  `title` varchar(255) DEFAULT 'Message from Our President',
+  `president_name` varchar(255) NOT NULL DEFAULT 'President Name',
+  `president_role` varchar(255) DEFAULT 'President',
+  `message` text NOT NULL DEFAULT '',
+  `photo_id` int(11) DEFAULT NULL,
+  `signature_id` int(11) DEFAULT NULL,
+  `background_image_id` int(11) DEFAULT NULL,
+  `background_color` varchar(50) DEFAULT NULL,
+  `updated_by` varchar(255) DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Daten für Tabelle `president_message_settings`
+--
+
+INSERT INTO `president_message_settings` (`id`, `is_active`, `title`, `president_name`, `president_role`, `message`, `photo_id`, `signature_id`, `background_image_id`, `background_color`, `updated_by`, `updated_at`) VALUES
+('default', 1, 'Message from Our President', 'John Doe', 'President', 'Welcome message from the president', NULL, NULL, NULL, NULL, NULL, '2025-11-18 08:48:36');
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `section_blocks`
+--
+
+CREATE TABLE `section_blocks` (
+  `id` int(11) NOT NULL,
+  `section_id` int(11) NOT NULL,
+  `block_type` varchar(50) NOT NULL,
+  `ordering` int(11) NOT NULL DEFAULT 0,
+  `content` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT json_object() CHECK (json_valid(`content`)),
+  `is_active` tinyint(1) DEFAULT 1,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `seo_settings`
+--
+
+CREATE TABLE `seo_settings` (
+  `id` varchar(255) NOT NULL DEFAULT 'default',
+  `site_title` varchar(255) DEFAULT NULL,
+  `site_description` text DEFAULT NULL,
+  `keywords` text DEFAULT NULL,
+  `og_image` int(11) DEFAULT NULL,
+  `twitter_handle` varchar(100) DEFAULT NULL,
+  `google_analytics_id` varchar(100) DEFAULT NULL,
+  `facebook_pixel_id` varchar(100) DEFAULT NULL,
+  `custom_head_code` text DEFAULT NULL,
+  `custom_body_code` text DEFAULT NULL,
+  `updated_by` varchar(255) DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Daten für Tabelle `seo_settings`
+--
+
+INSERT INTO `seo_settings` (`id`, `site_title`, `site_description`, `keywords`, `og_image`, `twitter_handle`, `google_analytics_id`, `facebook_pixel_id`, `custom_head_code`, `custom_body_code`, `updated_by`, `updated_at`) VALUES
+('default', 'Clubs Morocco - Authentic Adventures & Cultural Experiences', 'Discover Morocco through sustainable tourism. Join our community for trekking, desert expeditions, cultural tours, and authentic local experiences.', 'Morocco tourism, Atlas Mountains trek, Sahara Desert tour, Moroccan culture, sustainable travel, adventure clubs, cultural immersion', NULL, '@clubsmorocco', NULL, NULL, NULL, NULL, NULL, '2025-11-02 16:23:31');
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `sessions`
+--
+
+CREATE TABLE `sessions` (
+  `session_id` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `expires` int(11) UNSIGNED NOT NULL,
+  `data` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Daten für Tabelle `sessions`
+--
+
+INSERT INTO `sessions` (`session_id`, `expires`, `data`) VALUES
+('1q2VwWnjHZYe-zT_ZzcrX25lIQYKx6VS', 1764148344, '{\"cookie\":{\"originalMaxAge\":604800000,\"expires\":\"2025-11-26T08:54:17.891Z\",\"secure\":false,\"httpOnly\":true,\"path\":\"/\"},\"passport\":{\"user\":\"124a69da-3e07-4aed-b0d7-939f7367144c\"}}'),
+('2nNeEHn3guucaSy6slv_H6oDDtKwG63t', 1764111982, '{\"cookie\":{\"originalMaxAge\":604800000,\"expires\":\"2025-11-25T22:54:22.586Z\",\"secure\":false,\"httpOnly\":true,\"path\":\"/\"},\"passport\":{\"user\":\"124a69da-3e07-4aed-b0d7-939f7367144c\"}}'),
+('8VhmynhtalDSLyRgrvmp7TeRbfu9yjEX', 1764063469, '{\"cookie\":{\"originalMaxAge\":604800000,\"expires\":\"2025-11-25T09:31:20.545Z\",\"secure\":false,\"httpOnly\":true,\"path\":\"/\"},\"passport\":{\"user\":\"124a69da-3e07-4aed-b0d7-939f7367144c\"}}'),
+('AkPsS5IazDrM59DKgpEDk7W3n6druAPI', 1764150724, '{\"cookie\":{\"originalMaxAge\":604800000,\"expires\":\"2025-11-26T09:16:22.851Z\",\"secure\":false,\"httpOnly\":true,\"path\":\"/\"},\"passport\":{\"user\":\"124a69da-3e07-4aed-b0d7-939f7367144c\"}}'),
+('Edu_S7sAUQ2WJC_zCj706nPe6HdRTI5k', 1764156409, '{\"cookie\":{\"originalMaxAge\":604800000,\"expires\":\"2025-11-26T10:06:09.786Z\",\"secure\":false,\"httpOnly\":true,\"path\":\"/\"},\"passport\":{\"user\":\"124a69da-3e07-4aed-b0d7-939f7367144c\"}}'),
+('HsqVDPzQqsCMr_n85Gmd19nlo9_B-B66', 1764176848, '{\"cookie\":{\"originalMaxAge\":604800000,\"expires\":\"2025-11-26T17:07:22.976Z\",\"secure\":false,\"httpOnly\":true,\"path\":\"/\"},\"passport\":{\"user\":\"124a69da-3e07-4aed-b0d7-939f7367144c\"}}'),
+('KXdwndwIsIiXOk8Qn6GVcDfF1Y5hT7P-', 1764171987, '{\"cookie\":{\"originalMaxAge\":604800000,\"expires\":\"2025-11-26T14:38:23.900Z\",\"secure\":false,\"httpOnly\":true,\"path\":\"/\"},\"passport\":{\"user\":\"124a69da-3e07-4aed-b0d7-939f7367144c\"}}'),
+('OKBjfEow9DvrGJnMjETscVxWErlgeUwB', 1764178850, '{\"cookie\":{\"originalMaxAge\":604800000,\"expires\":\"2025-11-26T17:40:44.408Z\",\"secure\":false,\"httpOnly\":true,\"path\":\"/\"},\"passport\":{\"user\":\"124a69da-3e07-4aed-b0d7-939f7367144c\"}}'),
+('VY8j6pOVmRYjj0fEouUBIdWgF8MZNl-B', 1764063021, '{\"cookie\":{\"originalMaxAge\":604800000,\"expires\":\"2025-11-25T09:30:10.494Z\",\"secure\":false,\"httpOnly\":true,\"path\":\"/\"},\"passport\":{\"user\":\"124a69da-3e07-4aed-b0d7-939f7367144c\"}}'),
+('Z1zWSJSO4KoeWytsPpgpDN5W5vsCFVJt', 1764160454, '{\"cookie\":{\"originalMaxAge\":604800000,\"expires\":\"2025-11-26T11:58:46.311Z\",\"secure\":false,\"httpOnly\":true,\"path\":\"/\"},\"passport\":{\"user\":\"124a69da-3e07-4aed-b0d7-939f7367144c\"}}'),
+('bY0oqvm2sgMc41LcmfrJNvvLGlbvq-oy', 1764163746, '{\"cookie\":{\"originalMaxAge\":604800000,\"expires\":\"2025-11-26T12:39:25.198Z\",\"secure\":false,\"httpOnly\":true,\"path\":\"/\"},\"passport\":{\"user\":\"124a69da-3e07-4aed-b0d7-939f7367144c\"}}'),
+('hoJmgF2nIJHBYhvtUAjDNevR_aA7uGdg', 1764005621, '{\"cookie\":{\"originalMaxAge\":604800000,\"expires\":\"2025-11-24T17:33:41.096Z\",\"secure\":false,\"httpOnly\":true,\"path\":\"/\"},\"passport\":{\"user\":\"124a69da-3e07-4aed-b0d7-939f7367144c\"}}'),
+('i3kkwobSb_K1GFmEnj9hvvFXTFlVzeF8', 1764160717, '{\"cookie\":{\"originalMaxAge\":604800000,\"expires\":\"2025-11-26T12:01:35.725Z\",\"secure\":false,\"httpOnly\":true,\"path\":\"/\"},\"passport\":{\"user\":\"124a69da-3e07-4aed-b0d7-939f7367144c\"}}'),
+('kPGgJVQ7T8ltLKG_fZY1LnqwJkP5SdL2', 1764061094, '{\"cookie\":{\"originalMaxAge\":604800000,\"expires\":\"2025-11-25T08:33:00.264Z\",\"secure\":false,\"httpOnly\":true,\"path\":\"/\"},\"passport\":{\"user\":\"124a69da-3e07-4aed-b0d7-939f7367144c\"}}'),
+('lPa-LxodZXfa6EP79Up5XsoJZeJGIc9i', 1764005756, '{\"cookie\":{\"originalMaxAge\":604800000,\"expires\":\"2025-11-24T17:35:56.070Z\",\"secure\":false,\"httpOnly\":true,\"path\":\"/\"},\"passport\":{\"user\":\"124a69da-3e07-4aed-b0d7-939f7367144c\"}}'),
+('mk13Ia958x0fSHs8MIzy80bZ7AGqhdcJ', 1764156999, '{\"cookie\":{\"originalMaxAge\":604800000,\"expires\":\"2025-11-26T10:04:21.553Z\",\"secure\":false,\"httpOnly\":true,\"path\":\"/\"},\"passport\":{\"user\":\"124a69da-3e07-4aed-b0d7-939f7367144c\"}}'),
+('nD7t7aRwQL1mwLsYCBOs0sqPFb96hGxv', 1764158409, '{\"cookie\":{\"originalMaxAge\":604800000,\"expires\":\"2025-11-26T11:48:37.238Z\",\"secure\":false,\"httpOnly\":true,\"path\":\"/\"},\"passport\":{\"user\":\"124a69da-3e07-4aed-b0d7-939f7367144c\"}}'),
+('tSb6_Pr7z4xBO7W5gvGfVUsKdyLSRKV6', 1764158443, '{\"cookie\":{\"originalMaxAge\":604800000,\"expires\":\"2025-11-26T12:00:34.866Z\",\"secure\":false,\"httpOnly\":true,\"path\":\"/\"},\"passport\":{\"user\":\"124a69da-3e07-4aed-b0d7-939f7367144c\"}}'),
+('v-f1K5uhMFcyZh1vidNDwuCcdQOb_QTK', 1764110917, '{\"cookie\":{\"originalMaxAge\":604800000,\"expires\":\"2025-11-25T22:48:37.366Z\",\"secure\":false,\"httpOnly\":true,\"path\":\"/\"},\"passport\":{\"user\":\"124a69da-3e07-4aed-b0d7-939f7367144c\"}}'),
+('xMhJfzHqtcqwwTxVzuxXL6qPTiV-dhNW', 1764010544, '{\"cookie\":{\"originalMaxAge\":604800000,\"expires\":\"2025-11-24T18:42:56.998Z\",\"secure\":false,\"httpOnly\":true,\"path\":\"/\"},\"passport\":{\"user\":\"124a69da-3e07-4aed-b0d7-939f7367144c\"}}'),
+('xX1jjse3R0KHDD3Pn8r6qF89SmqU9feO', 1764009738, '{\"cookie\":{\"originalMaxAge\":604800000,\"expires\":\"2025-11-24T18:42:17.180Z\",\"secure\":false,\"httpOnly\":true,\"path\":\"/\"},\"passport\":{\"user\":\"124a69da-3e07-4aed-b0d7-939f7367144c\"}}');
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `site_stats`
+--
+
+CREATE TABLE `site_stats` (
+  `id` int(11) NOT NULL,
+  `label` varchar(255) NOT NULL,
+  `value` varchar(100) NOT NULL,
+  `icon` varchar(100) DEFAULT NULL,
+  `suffix` varchar(20) DEFAULT NULL,
+  `ordering` int(11) NOT NULL DEFAULT 0,
+  `is_active` tinyint(1) DEFAULT 1,
+  `updated_by` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Daten für Tabelle `site_stats`
+--
+
+INSERT INTO `site_stats` (`id`, `label`, `value`, `icon`, `suffix`, `ordering`, `is_active`, `updated_by`, `created_at`, `updated_at`) VALUES
+(1, 'Happy Travelers', '1500', 'users', '+', 1, 1, NULL, '2025-11-02 16:23:31', '2025-11-02 16:23:31'),
+(2, 'Adventures Completed', '500', 'mountain', '+', 2, 1, NULL, '2025-11-02 16:23:31', '2025-11-02 16:23:31'),
+(3, 'Cultural Collaborations', '50', 'handshake', '+', 3, 1, NULL, '2025-11-02 16:23:31', '2025-11-02 16:23:31'),
+(4, 'Years of Excellence', '10', 'award', '+', 4, 1, NULL, '2025-11-02 16:23:31', '2025-11-02 16:23:31');
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `team_members`
+--
+
+CREATE TABLE `team_members` (
+  `id` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `role` varchar(255) NOT NULL,
+  `bio` text DEFAULT NULL,
+  `photo_id` int(11) DEFAULT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  `phone` varchar(50) DEFAULT NULL,
+  `social_links` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT json_object() CHECK (json_valid(`social_links`)),
+  `ordering` int(11) NOT NULL DEFAULT 0,
+  `is_active` tinyint(1) DEFAULT 1,
+  `created_by` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Daten für Tabelle `team_members`
+--
+
+INSERT INTO `team_members` (`id`, `name`, `role`, `bio`, `photo_id`, `email`, `phone`, `social_links`, `ordering`, `is_active`, `created_by`, `created_at`, `updated_at`) VALUES
+(1, 'Ahmed Benali', 'Founder & CEO', 'Passionate about sustainable tourism and cultural preservation, Ahmed founded our organization to connect adventurers with authentic Moroccan experiences.', NULL, NULL, NULL, '{\"linkedin\":\"#\",\"twitter\":\"#\"}', 1, 1, NULL, '2025-11-02 16:23:30', '2025-11-02 16:23:30'),
+(2, 'Fatima El Amrani', 'Operations Director', 'With 15 years of experience in tourism management, Fatima ensures every journey is safe, memorable, and culturally enriching.', NULL, NULL, NULL, '{\"linkedin\":\"#\"}', 2, 1, NULL, '2025-11-02 16:23:30', '2025-11-02 16:23:30'),
+(3, 'Youssef Kadiri', 'Head Guide', 'Born and raised in the Atlas Mountains, Youssef brings deep local knowledge and passion for sharing Morocco\'s natural beauty.', NULL, NULL, NULL, '{\"instagram\":\"#\"}', 3, 1, NULL, '2025-11-02 16:23:30', '2025-11-02 16:23:30');
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `theme_settings`
+--
+
+CREATE TABLE `theme_settings` (
+  `id` varchar(255) NOT NULL DEFAULT 'default',
+  `primary_color` varchar(7) DEFAULT '#112250',
+  `secondary_color` varchar(7) DEFAULT '#D8C18D',
+  `custom_css` text DEFAULT NULL,
+  `updated_by` varchar(255) DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `users`
+--
+
+CREATE TABLE `users` (
+  `id` varchar(255) NOT NULL DEFAULT uuid(),
+  `username` varchar(255) DEFAULT NULL,
+  `password` varchar(255) DEFAULT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  `first_name` varchar(255) DEFAULT NULL,
+  `last_name` varchar(255) DEFAULT NULL,
+  `profile_image_url` varchar(500) DEFAULT NULL,
+  `bio` text DEFAULT NULL,
+  `phone` varchar(50) DEFAULT NULL,
+  `location` varchar(255) DEFAULT NULL,
+  `interests` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT json_array() CHECK (json_valid(`interests`)),
+  `is_admin` tinyint(1) DEFAULT 0,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp(),
+  `is_active` tinyint(1) DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Daten für Tabelle `users`
+--
+
+INSERT INTO `users` (`id`, `username`, `password`, `email`, `first_name`, `last_name`, `profile_image_url`, `bio`, `phone`, `location`, `interests`, `is_admin`, `created_at`, `updated_at`, `is_active`) VALUES
+('124a69da-3e07-4aed-b0d7-939f7367144c', 'admin', '$2y$10$EppYcI5hTQ8faQrWbKKfZevr5G7s.cK0LqEGilAP84etIvtS4q/bG', 'admin@morocclubs.com', 'admin', 'User', NULL, '', '0696126701', '', '\"\\\"[]\\\"\"', 1, '2025-11-04 14:58:11', '2025-11-19 10:04:42', 1),
+('264d87e2-6522-41bf-a46f-7e606b4b53c9', 'fikrief', '$2b$10$.6y6oQPsLiPfEuuxCTGHfu.adYOh.tOcHru9T68TBDQ/JyN5cytQu', 'dsdsd@dsdsd.com', 'dsd', 'dsd', NULL, 'sds', '069615454', 'dsdsd', '[]', 0, '2025-11-19 11:21:12', '2025-11-19 11:21:12', 1);
+
+--
+-- Indizes der exportierten Tabellen
+--
+
+--
+-- Indizes für die Tabelle `about_settings`
+--
+ALTER TABLE `about_settings`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `image_id` (`image_id`),
+  ADD KEY `background_image_id` (`background_image_id`),
+  ADD KEY `updated_by` (`updated_by`);
+
+--
+-- Indizes für die Tabelle `booking_events`
+--
+ALTER TABLE `booking_events`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `booking_events_created_by_users_id_fk` (`created_by`);
+
+--
+-- Indizes für die Tabelle `booking_page_settings`
+--
+ALTER TABLE `booking_page_settings`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indizes für die Tabelle `clubs`
+--
+ALTER TABLE `clubs`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `clubs_owner_id_users_id_fk` (`owner_id`);
+
+--
+-- Indizes für die Tabelle `club_events`
+--
+ALTER TABLE `club_events`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `club_events_club_id_clubs_id_fk` (`club_id`),
+  ADD KEY `club_events_created_by_users_id_fk` (`created_by`);
+
+--
+-- Indizes für die Tabelle `club_gallery`
+--
+ALTER TABLE `club_gallery`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `club_gallery_club_id_clubs_id_fk` (`club_id`),
+  ADD KEY `club_gallery_uploaded_by_users_id_fk` (`uploaded_by`);
+
+--
+-- Indizes für die Tabelle `club_memberships`
+--
+ALTER TABLE `club_memberships`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `club_memberships_user_id_users_id_fk` (`user_id`),
+  ADD KEY `club_memberships_club_id_clubs_id_fk` (`club_id`);
+
+--
+-- Indizes für die Tabelle `club_reviews`
+--
+ALTER TABLE `club_reviews`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `club_reviews_club_id_clubs_id_fk` (`club_id`),
+  ADD KEY `club_reviews_user_id_users_id_fk` (`user_id`);
+
+--
+-- Indizes für die Tabelle `contact_settings`
+--
+ALTER TABLE `contact_settings`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `contact_settings_updated_by_users_id_fk` (`updated_by`);
+
+--
+-- Indizes für die Tabelle `event_gallery`
+--
+ALTER TABLE `event_gallery`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `event_id` (`event_id`);
+
+--
+-- Indizes für die Tabelle `event_participants`
+--
+ALTER TABLE `event_participants`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `event_participants_event_id_club_events_id_fk` (`event_id`),
+  ADD KEY `event_participants_user_id_users_id_fk` (`user_id`);
+
+--
+-- Indizes für die Tabelle `event_prices`
+--
+ALTER TABLE `event_prices`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `event_id` (`event_id`);
+
+--
+-- Indizes für die Tabelle `event_reviews`
+--
+ALTER TABLE `event_reviews`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `event_id` (`event_id`);
+
+--
+-- Indizes für die Tabelle `event_schedule`
+--
+ALTER TABLE `event_schedule`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `event_id` (`event_id`);
+
+--
+-- Indizes für die Tabelle `focus_items`
+--
+ALTER TABLE `focus_items`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `focus_items_media_id_media_assets_id_fk` (`media_id`),
+  ADD KEY `focus_items_created_by_users_id_fk` (`created_by`);
+
+--
+-- Indizes für die Tabelle `footer_settings`
+--
+ALTER TABLE `footer_settings`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `footer_settings_updated_by_users_id_fk` (`updated_by`);
+
+--
+-- Indizes für die Tabelle `hero_settings`
+--
+ALTER TABLE `hero_settings`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `hero_settings_background_media_id_media_assets_id_fk` (`background_media_id`),
+  ADD KEY `hero_settings_updated_by_users_id_fk` (`updated_by`);
+
+--
+-- Indizes für die Tabelle `landing_sections`
+--
+ALTER TABLE `landing_sections`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `landing_sections_slug_unique` (`slug`),
+  ADD KEY `landing_sections_background_media_id_media_assets_id_fk` (`background_media_id`),
+  ADD KEY `landing_sections_updated_by_users_id_fk` (`updated_by`);
+
+--
+-- Indizes für die Tabelle `landing_testimonials`
+--
+ALTER TABLE `landing_testimonials`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `landing_testimonials_photo_id_media_assets_id_fk` (`photo_id`),
+  ADD KEY `landing_testimonials_user_id_users_id_fk` (`user_id`);
+
+--
+-- Indizes für die Tabelle `media_assets`
+--
+ALTER TABLE `media_assets`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `media_assets_uploaded_by_users_id_fk` (`uploaded_by`);
+
+--
+-- Indizes für die Tabelle `navbar_settings`
+--
+ALTER TABLE `navbar_settings`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `navbar_settings_logo_image_id_media_assets_id_fk` (`logo_image_id`),
+  ADD KEY `navbar_settings_updated_by_users_id_fk` (`updated_by`);
+
+--
+-- Indizes für die Tabelle `partners`
+--
+ALTER TABLE `partners`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `logo_id` (`logo_id`),
+  ADD KEY `created_by` (`created_by`);
+
+--
+-- Indizes für die Tabelle `partner_settings`
+--
+ALTER TABLE `partner_settings`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `updated_by` (`updated_by`);
+
+--
+-- Indizes für die Tabelle `president_message_settings`
+--
+ALTER TABLE `president_message_settings`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `photo_id` (`photo_id`),
+  ADD KEY `signature_id` (`signature_id`),
+  ADD KEY `background_image_id` (`background_image_id`),
+  ADD KEY `updated_by` (`updated_by`);
+
+--
+-- Indizes für die Tabelle `section_blocks`
+--
+ALTER TABLE `section_blocks`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `section_blocks_section_id_landing_sections_id_fk` (`section_id`);
+
+--
+-- Indizes für die Tabelle `seo_settings`
+--
+ALTER TABLE `seo_settings`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `seo_settings_og_image_media_assets_id_fk` (`og_image`),
+  ADD KEY `seo_settings_updated_by_users_id_fk` (`updated_by`);
+
+--
+-- Indizes für die Tabelle `sessions`
+--
+ALTER TABLE `sessions`
+  ADD PRIMARY KEY (`session_id`);
+
+--
+-- Indizes für die Tabelle `site_stats`
+--
+ALTER TABLE `site_stats`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `site_stats_updated_by_users_id_fk` (`updated_by`);
+
+--
+-- Indizes für die Tabelle `team_members`
+--
+ALTER TABLE `team_members`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `team_members_photo_id_media_assets_id_fk` (`photo_id`),
+  ADD KEY `team_members_created_by_users_id_fk` (`created_by`);
+
+--
+-- Indizes für die Tabelle `theme_settings`
+--
+ALTER TABLE `theme_settings`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `theme_settings_updated_by_users_id_fk` (`updated_by`);
+
+--
+-- Indizes für die Tabelle `users`
+--
+ALTER TABLE `users`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `users_username_unique` (`username`),
+  ADD UNIQUE KEY `users_email_unique` (`email`);
+
+--
+-- AUTO_INCREMENT für exportierte Tabellen
+--
+
+--
+-- AUTO_INCREMENT für Tabelle `clubs`
+--
+ALTER TABLE `clubs`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT für Tabelle `club_events`
+--
+ALTER TABLE `club_events`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT für Tabelle `club_gallery`
+--
+ALTER TABLE `club_gallery`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT für Tabelle `club_memberships`
+--
+ALTER TABLE `club_memberships`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT für Tabelle `club_reviews`
+--
+ALTER TABLE `club_reviews`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT für Tabelle `event_gallery`
+--
+ALTER TABLE `event_gallery`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT für Tabelle `event_participants`
+--
+ALTER TABLE `event_participants`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT für Tabelle `event_prices`
+--
+ALTER TABLE `event_prices`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT für Tabelle `event_reviews`
+--
+ALTER TABLE `event_reviews`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT für Tabelle `event_schedule`
+--
+ALTER TABLE `event_schedule`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT für Tabelle `focus_items`
+--
+ALTER TABLE `focus_items`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT für Tabelle `landing_sections`
+--
+ALTER TABLE `landing_sections`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT für Tabelle `landing_testimonials`
+--
+ALTER TABLE `landing_testimonials`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT für Tabelle `media_assets`
+--
+ALTER TABLE `media_assets`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT für Tabelle `partners`
+--
+ALTER TABLE `partners`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT für Tabelle `section_blocks`
+--
+ALTER TABLE `section_blocks`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT für Tabelle `site_stats`
+--
+ALTER TABLE `site_stats`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT für Tabelle `team_members`
+--
+ALTER TABLE `team_members`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- Constraints der exportierten Tabellen
+--
+
+--
+-- Constraints der Tabelle `about_settings`
+--
+ALTER TABLE `about_settings`
+  ADD CONSTRAINT `about_settings_ibfk_1` FOREIGN KEY (`image_id`) REFERENCES `media_assets` (`id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `about_settings_ibfk_2` FOREIGN KEY (`background_image_id`) REFERENCES `media_assets` (`id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `about_settings_ibfk_3` FOREIGN KEY (`updated_by`) REFERENCES `users` (`id`) ON DELETE SET NULL;
+
+--
+-- Constraints der Tabelle `booking_events`
+--
+ALTER TABLE `booking_events`
+  ADD CONSTRAINT `booking_events_created_by_users_id_fk` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+--
+-- Constraints der Tabelle `clubs`
+--
+ALTER TABLE `clubs`
+  ADD CONSTRAINT `clubs_owner_id_users_id_fk` FOREIGN KEY (`owner_id`) REFERENCES `users` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+--
+-- Constraints der Tabelle `club_events`
+--
+ALTER TABLE `club_events`
+  ADD CONSTRAINT `club_events_club_id_clubs_id_fk` FOREIGN KEY (`club_id`) REFERENCES `clubs` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `club_events_created_by_users_id_fk` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+--
+-- Constraints der Tabelle `club_gallery`
+--
+ALTER TABLE `club_gallery`
+  ADD CONSTRAINT `club_gallery_club_id_clubs_id_fk` FOREIGN KEY (`club_id`) REFERENCES `clubs` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `club_gallery_uploaded_by_users_id_fk` FOREIGN KEY (`uploaded_by`) REFERENCES `users` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+--
+-- Constraints der Tabelle `club_memberships`
+--
+ALTER TABLE `club_memberships`
+  ADD CONSTRAINT `club_memberships_club_id_clubs_id_fk` FOREIGN KEY (`club_id`) REFERENCES `clubs` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `club_memberships_user_id_users_id_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+--
+-- Constraints der Tabelle `club_reviews`
+--
+ALTER TABLE `club_reviews`
+  ADD CONSTRAINT `club_reviews_club_id_clubs_id_fk` FOREIGN KEY (`club_id`) REFERENCES `clubs` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `club_reviews_user_id_users_id_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+--
+-- Constraints der Tabelle `contact_settings`
+--
+ALTER TABLE `contact_settings`
+  ADD CONSTRAINT `contact_settings_updated_by_users_id_fk` FOREIGN KEY (`updated_by`) REFERENCES `users` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+--
+-- Constraints der Tabelle `event_gallery`
+--
+ALTER TABLE `event_gallery`
+  ADD CONSTRAINT `event_gallery_ibfk_1` FOREIGN KEY (`event_id`) REFERENCES `club_events` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints der Tabelle `event_participants`
+--
+ALTER TABLE `event_participants`
+  ADD CONSTRAINT `event_participants_event_id_club_events_id_fk` FOREIGN KEY (`event_id`) REFERENCES `club_events` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `event_participants_user_id_users_id_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+--
+-- Constraints der Tabelle `event_prices`
+--
+ALTER TABLE `event_prices`
+  ADD CONSTRAINT `event_prices_ibfk_1` FOREIGN KEY (`event_id`) REFERENCES `club_events` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints der Tabelle `event_reviews`
+--
+ALTER TABLE `event_reviews`
+  ADD CONSTRAINT `event_reviews_ibfk_1` FOREIGN KEY (`event_id`) REFERENCES `club_events` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints der Tabelle `event_schedule`
+--
+ALTER TABLE `event_schedule`
+  ADD CONSTRAINT `event_schedule_ibfk_1` FOREIGN KEY (`event_id`) REFERENCES `club_events` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints der Tabelle `focus_items`
+--
+ALTER TABLE `focus_items`
+  ADD CONSTRAINT `focus_items_created_by_users_id_fk` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `focus_items_media_id_media_assets_id_fk` FOREIGN KEY (`media_id`) REFERENCES `media_assets` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+--
+-- Constraints der Tabelle `footer_settings`
+--
+ALTER TABLE `footer_settings`
+  ADD CONSTRAINT `footer_settings_updated_by_users_id_fk` FOREIGN KEY (`updated_by`) REFERENCES `users` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+--
+-- Constraints der Tabelle `hero_settings`
+--
+ALTER TABLE `hero_settings`
+  ADD CONSTRAINT `hero_settings_background_media_id_media_assets_id_fk` FOREIGN KEY (`background_media_id`) REFERENCES `media_assets` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `hero_settings_updated_by_users_id_fk` FOREIGN KEY (`updated_by`) REFERENCES `users` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+--
+-- Constraints der Tabelle `landing_sections`
+--
+ALTER TABLE `landing_sections`
+  ADD CONSTRAINT `landing_sections_background_media_id_media_assets_id_fk` FOREIGN KEY (`background_media_id`) REFERENCES `media_assets` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `landing_sections_updated_by_users_id_fk` FOREIGN KEY (`updated_by`) REFERENCES `users` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+--
+-- Constraints der Tabelle `landing_testimonials`
+--
+ALTER TABLE `landing_testimonials`
+  ADD CONSTRAINT `landing_testimonials_photo_id_media_assets_id_fk` FOREIGN KEY (`photo_id`) REFERENCES `media_assets` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `landing_testimonials_user_id_users_id_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+--
+-- Constraints der Tabelle `media_assets`
+--
+ALTER TABLE `media_assets`
+  ADD CONSTRAINT `media_assets_uploaded_by_users_id_fk` FOREIGN KEY (`uploaded_by`) REFERENCES `users` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+--
+-- Constraints der Tabelle `navbar_settings`
+--
+ALTER TABLE `navbar_settings`
+  ADD CONSTRAINT `navbar_settings_logo_image_id_media_assets_id_fk` FOREIGN KEY (`logo_image_id`) REFERENCES `media_assets` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `navbar_settings_updated_by_users_id_fk` FOREIGN KEY (`updated_by`) REFERENCES `users` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+--
+-- Constraints der Tabelle `partners`
+--
+ALTER TABLE `partners`
+  ADD CONSTRAINT `partners_ibfk_1` FOREIGN KEY (`logo_id`) REFERENCES `media_assets` (`id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `partners_ibfk_2` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE SET NULL;
+
+--
+-- Constraints der Tabelle `partner_settings`
+--
+ALTER TABLE `partner_settings`
+  ADD CONSTRAINT `partner_settings_ibfk_1` FOREIGN KEY (`updated_by`) REFERENCES `users` (`id`) ON DELETE SET NULL;
+
+--
+-- Constraints der Tabelle `president_message_settings`
+--
+ALTER TABLE `president_message_settings`
+  ADD CONSTRAINT `president_message_settings_ibfk_1` FOREIGN KEY (`photo_id`) REFERENCES `media_assets` (`id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `president_message_settings_ibfk_2` FOREIGN KEY (`signature_id`) REFERENCES `media_assets` (`id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `president_message_settings_ibfk_3` FOREIGN KEY (`background_image_id`) REFERENCES `media_assets` (`id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `president_message_settings_ibfk_4` FOREIGN KEY (`updated_by`) REFERENCES `users` (`id`) ON DELETE SET NULL;
+
+--
+-- Constraints der Tabelle `section_blocks`
+--
+ALTER TABLE `section_blocks`
+  ADD CONSTRAINT `section_blocks_section_id_landing_sections_id_fk` FOREIGN KEY (`section_id`) REFERENCES `landing_sections` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+--
+-- Constraints der Tabelle `seo_settings`
+--
+ALTER TABLE `seo_settings`
+  ADD CONSTRAINT `seo_settings_og_image_media_assets_id_fk` FOREIGN KEY (`og_image`) REFERENCES `media_assets` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `seo_settings_updated_by_users_id_fk` FOREIGN KEY (`updated_by`) REFERENCES `users` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+--
+-- Constraints der Tabelle `site_stats`
+--
+ALTER TABLE `site_stats`
+  ADD CONSTRAINT `site_stats_updated_by_users_id_fk` FOREIGN KEY (`updated_by`) REFERENCES `users` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+--
+-- Constraints der Tabelle `team_members`
+--
+ALTER TABLE `team_members`
+  ADD CONSTRAINT `team_members_created_by_users_id_fk` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `team_members_photo_id_media_assets_id_fk` FOREIGN KEY (`photo_id`) REFERENCES `media_assets` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+--
+-- Constraints der Tabelle `theme_settings`
+--
+ALTER TABLE `theme_settings`
+  ADD CONSTRAINT `theme_settings_updated_by_users_id_fk` FOREIGN KEY (`updated_by`) REFERENCES `users` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

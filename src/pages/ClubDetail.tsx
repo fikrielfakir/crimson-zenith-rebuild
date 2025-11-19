@@ -26,6 +26,91 @@ import {
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Breadcrumbs from "@/components/Breadcrumbs";
+import { format } from "date-fns";
+
+const ClubEventsSection = ({ clubId }: { clubId: number }) => {
+  const { data: eventsData, isLoading } = useQuery({
+    queryKey: ['club-events', clubId],
+    queryFn: async () => {
+      const response = await fetch(`/api/clubs/${clubId}/events`);
+      if (!response.ok) throw new Error('Failed to fetch events');
+      return response.json();
+    },
+  });
+
+  const events = eventsData?.events || [];
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Calendar className="w-5 h-5 text-primary" />
+          Upcoming Events
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        {isLoading ? (
+          <div className="text-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+            <p className="mt-2 text-sm text-muted-foreground">Loading events...</p>
+          </div>
+        ) : events.length === 0 ? (
+          <div className="text-center py-8 text-muted-foreground">
+            <Calendar className="w-12 h-12 mx-auto mb-2 opacity-50" />
+            <p>No upcoming events</p>
+            <p className="text-sm">Check back soon for new activities!</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {events.slice(0, 5).map((event: any) => (
+              <div key={event.id} className="p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                <div className="flex justify-between items-start gap-4">
+                  <div className="flex-1">
+                    <h4 className="font-semibold mb-1">{event.title}</h4>
+                    <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
+                      {event.description}
+                    </p>
+                    <div className="flex flex-wrap gap-3 text-sm">
+                      <div className="flex items-center gap-1">
+                        <Calendar className="w-4 h-4 text-primary" />
+                        <span>{event.eventDate && format(new Date(event.eventDate), 'MMM d, yyyy')}</span>
+                      </div>
+                      {event.location && (
+                        <div className="flex items-center gap-1">
+                          <MapPin className="w-4 h-4 text-primary" />
+                          <span>{event.location}</span>
+                        </div>
+                      )}
+                      {event.maxParticipants && (
+                        <div className="flex items-center gap-1">
+                          <Users className="w-4 h-4 text-primary" />
+                          <span>{event.currentParticipants || 0}/{event.maxParticipants}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end gap-2">
+                    {event.category && (
+                      <Badge variant="secondary">{event.category}</Badge>
+                    )}
+                    {event.price && (
+                      <span className="text-lg font-bold text-primary">${event.price}</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+            {events.length > 5 && (
+              <Button variant="outline" className="w-full">
+                View All {events.length} Events
+              </Button>
+            )}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
 
 const ClubDetail = () => {
   const { clubName } = useParams();
@@ -308,6 +393,8 @@ const ClubDetail = () => {
                 </div>
               </CardContent>
             </Card>
+
+            <ClubEventsSection clubId={club.id} />
           </div>
 
           <div className="space-y-6">
