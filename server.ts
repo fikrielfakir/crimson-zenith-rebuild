@@ -1494,7 +1494,7 @@ app.post('/api/admin/clubs', isAdmin, async (req: any, res) => {
     const [newClub] = await db.select().from(clubs).where(eq(clubs.id, insertedId));
     
     console.log(`✅ Club created: ${insertedId}`);
-    res.json({ club: newClub });
+    res.json(newClub);
   } catch (error) {
     console.error('❌ Error creating club:', error);
     res.status(500).json({ error: 'Failed to create club', details: error.message });
@@ -1507,6 +1507,12 @@ app.put('/api/admin/clubs/:id', isAdmin, async (req, res) => {
     const clubId = parseInt(req.params.id);
     console.log(`🔗 Updating club ${clubId}...`);
     const clubData = req.body;
+    
+    // Fetch existing club to preserve untouched fields
+    const [existingClub] = await db.select().from(clubs).where(eq(clubs.id, clubId));
+    if (!existingClub) {
+      return res.status(404).json({ error: 'Club not found' });
+    }
     
     // Build update object with only provided fields to preserve existing data
     const updateData: any = {
@@ -1521,11 +1527,19 @@ app.put('/api/admin/clubs/:id', isAdmin, async (req, res) => {
     if (clubData.contactPhone !== undefined) updateData.contactPhone = clubData.contactPhone;
     if (clubData.contactEmail !== undefined) updateData.contactEmail = clubData.contactEmail;
     if (clubData.website !== undefined) updateData.website = clubData.website;
-    if (clubData.socialMedia !== undefined) updateData.socialMedia = clubData.socialMedia;
     if (clubData.established !== undefined) updateData.established = clubData.established;
     if (clubData.isActive !== undefined) updateData.isActive = clubData.isActive;
     if (clubData.latitude !== undefined) updateData.latitude = clubData.latitude;
     if (clubData.longitude !== undefined) updateData.longitude = clubData.longitude;
+    
+    // Merge socialMedia instead of replacing it
+    if (clubData.socialMedia !== undefined) {
+      const existingSocialMedia = (existingClub.socialMedia as any) || {};
+      updateData.socialMedia = {
+        ...existingSocialMedia,
+        ...clubData.socialMedia
+      };
+    }
     
     await db.update(clubs)
       .set(updateData)
@@ -1534,7 +1548,7 @@ app.put('/api/admin/clubs/:id', isAdmin, async (req, res) => {
     const [updatedClub] = await db.select().from(clubs).where(eq(clubs.id, clubId));
     
     console.log(`✅ Club updated: ${clubId}`);
-    res.json({ club: updatedClub });
+    res.json(updatedClub);
   } catch (error) {
     console.error('❌ Error updating club:', error);
     res.status(500).json({ error: 'Failed to update club', details: error.message });
@@ -1554,6 +1568,47 @@ app.delete('/api/admin/clubs/:id', isAdmin, async (req, res) => {
   } catch (error) {
     console.error('❌ Error deleting club:', error);
     res.status(500).json({ error: 'Failed to delete club', details: error.message });
+  }
+});
+
+// Clubs Management - Approve club
+app.post('/api/admin/clubs/:id/approve', isAdmin, async (req, res) => {
+  try {
+    const clubId = parseInt(req.params.id);
+    console.log(`🔗 Approving club ${clubId}...`);
+    
+    await db.update(clubs)
+      .set({ isActive: true, updatedAt: new Date() })
+      .where(eq(clubs.id, clubId));
+    
+    const [approvedClub] = await db.select().from(clubs).where(eq(clubs.id, clubId));
+    
+    console.log(`✅ Club approved: ${clubId}`);
+    res.json(approvedClub);
+  } catch (error) {
+    console.error('❌ Error approving club:', error);
+    res.status(500).json({ error: 'Failed to approve club', details: error.message });
+  }
+});
+
+// Clubs Management - Toggle feature status
+app.patch('/api/admin/clubs/:id/feature', isAdmin, async (req, res) => {
+  try {
+    const clubId = parseInt(req.params.id);
+    const { featured } = req.body;
+    console.log(`🔗 Toggling feature status for club ${clubId}...`);
+    
+    await db.update(clubs)
+      .set({ featured, updatedAt: new Date() })
+      .where(eq(clubs.id, clubId));
+    
+    const [updatedClub] = await db.select().from(clubs).where(eq(clubs.id, clubId));
+    
+    console.log(`✅ Club feature status updated: ${clubId}`);
+    res.json(updatedClub);
+  } catch (error) {
+    console.error('❌ Error updating feature status:', error);
+    res.status(500).json({ error: 'Failed to update feature status', details: error.message });
   }
 });
 

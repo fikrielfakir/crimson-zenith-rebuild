@@ -331,7 +331,7 @@ export default function ClubsManagement() {
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem asChild>
-                            <Link to={`/clubs/${club.id}`}>
+                            <Link to={`/club/${encodeURIComponent(club.name)}`}>
                               <Eye className="mr-2 h-4 w-4" />
                               View Club Page
                             </Link>
@@ -340,18 +340,6 @@ export default function ClubsManagement() {
                             <Link to={`/admin/clubs/${club.id}/edit`}>
                               <Edit className="mr-2 h-4 w-4" />
                               Edit Club
-                            </Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem asChild>
-                            <Link to={`/admin/clubs/${club.id}/members`}>
-                              <Users className="mr-2 h-4 w-4" />
-                              View Members
-                            </Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem asChild>
-                            <Link to={`/admin/clubs/${club.id}/events`}>
-                              <Calendar className="mr-2 h-4 w-4" />
-                              View Events
                             </Link>
                           </DropdownMenuItem>
                           {club.isActive === null && (
