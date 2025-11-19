@@ -1443,6 +1443,64 @@ app.get('/api/admin/clubs', isAdmin, async (req, res) => {
   }
 });
 
+// Clubs Management - Get single club
+app.get('/api/admin/clubs/:id', isAdmin, async (req, res) => {
+  try {
+    const clubId = parseInt(req.params.id);
+    console.log(`🔗 Fetching club ${clubId}...`);
+    
+    const [club] = await db.select().from(clubs).where(eq(clubs.id, clubId));
+    
+    if (!club) {
+      return res.status(404).json({ error: 'Club not found' });
+    }
+    
+    console.log(`✅ Club retrieved: ${clubId}`);
+    res.json(club);
+  } catch (error) {
+    console.error('❌ Error fetching club:', error);
+    res.status(500).json({ error: 'Failed to fetch club', details: error.message });
+  }
+});
+
+// Clubs Management - Create club
+app.post('/api/admin/clubs', isAdmin, async (req: any, res) => {
+  try {
+    console.log('🔗 Creating new club...');
+    const clubData = req.body;
+    const userId = req.user?.id;
+    
+    const result: any = await db.insert(clubs).values({
+      name: clubData.name,
+      description: clubData.description,
+      longDescription: clubData.longDescription || null,
+      image: clubData.image || null,
+      location: clubData.location,
+      contactPhone: clubData.contactPhone || null,
+      contactEmail: clubData.contactEmail || null,
+      website: clubData.website || null,
+      socialMedia: clubData.socialMedia || {},
+      established: clubData.established || null,
+      isActive: clubData.isActive !== undefined ? clubData.isActive : true,
+      latitude: clubData.latitude || null,
+      longitude: clubData.longitude || null,
+      ownerId: userId,
+      memberCount: 0,
+      rating: 5,
+      features: []
+    });
+    
+    const insertedId = result[0]?.insertId || result.insertId;
+    const [newClub] = await db.select().from(clubs).where(eq(clubs.id, insertedId));
+    
+    console.log(`✅ Club created: ${insertedId}`);
+    res.json({ club: newClub });
+  } catch (error) {
+    console.error('❌ Error creating club:', error);
+    res.status(500).json({ error: 'Failed to create club', details: error.message });
+  }
+});
+
 // Clubs Management - Update club
 app.put('/api/admin/clubs/:id', isAdmin, async (req, res) => {
   try {
@@ -1450,11 +1508,27 @@ app.put('/api/admin/clubs/:id', isAdmin, async (req, res) => {
     console.log(`🔗 Updating club ${clubId}...`);
     const clubData = req.body;
     
+    // Build update object with only provided fields to preserve existing data
+    const updateData: any = {
+      updatedAt: new Date()
+    };
+    
+    if (clubData.name !== undefined) updateData.name = clubData.name;
+    if (clubData.description !== undefined) updateData.description = clubData.description;
+    if (clubData.longDescription !== undefined) updateData.longDescription = clubData.longDescription;
+    if (clubData.image !== undefined) updateData.image = clubData.image;
+    if (clubData.location !== undefined) updateData.location = clubData.location;
+    if (clubData.contactPhone !== undefined) updateData.contactPhone = clubData.contactPhone;
+    if (clubData.contactEmail !== undefined) updateData.contactEmail = clubData.contactEmail;
+    if (clubData.website !== undefined) updateData.website = clubData.website;
+    if (clubData.socialMedia !== undefined) updateData.socialMedia = clubData.socialMedia;
+    if (clubData.established !== undefined) updateData.established = clubData.established;
+    if (clubData.isActive !== undefined) updateData.isActive = clubData.isActive;
+    if (clubData.latitude !== undefined) updateData.latitude = clubData.latitude;
+    if (clubData.longitude !== undefined) updateData.longitude = clubData.longitude;
+    
     await db.update(clubs)
-      .set({
-        ...clubData,
-        updatedAt: new Date()
-      })
+      .set(updateData)
       .where(eq(clubs.id, clubId));
     
     const [updatedClub] = await db.select().from(clubs).where(eq(clubs.id, clubId));

@@ -23,6 +23,7 @@ import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import Analytics from "./pages/admin/Analytics";
 import ClubsManagement from "./pages/admin/ClubsManagement";
+import ClubForm from "./pages/admin/ClubForm";
 import ClubsPendingApproval from "./pages/admin/ClubsPendingApproval";
 import EventsManagement from "./pages/admin/EventsManagement";
 import NewsManagement from "./pages/admin/NewsManagement";
@@ -112,12 +113,12 @@ const App = () => (
           } />
           <Route path="/admin/clubs/new" element={
             <ProtectedRoute>
-              <ClubsManagement />
+              <ClubForm />
             </ProtectedRoute>
           } />
           <Route path="/admin/clubs/:id/edit" element={
             <ProtectedRoute>
-              <ClubProfileEdit />
+              <ClubForm />
             </ProtectedRoute>
           } />
           <Route path="/admin/events" element={
