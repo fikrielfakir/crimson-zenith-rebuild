@@ -7,12 +7,13 @@ import bcrypt from 'bcryptjs';
 import { storage } from './server/storage.js';
 import { setupAuth, isAuthenticated, isAdmin } from './server/replitAuth.js';
 import { db } from './server/db.js';
-import { eq, asc, desc } from 'drizzle-orm';
+import { eq, asc, desc, or, like, count, sql } from 'drizzle-orm';
 import { 
   users, 
   clubs, 
   clubEvents, 
-  bookingEvents, 
+  bookingEvents,
+  blogPosts,
   mediaAssets,
   seoSettings as seoSettingsTable,
   contactSettings as contactSettingsTable,
@@ -1563,6 +1564,174 @@ app.delete('/api/admin/events/:id', isAdmin, async (req, res) => {
   } catch (error) {
     console.error('❌ Error deleting event:', error);
     res.status(500).json({ error: 'Failed to delete event', details: error.message });
+  }
+});
+
+// Blog Posts / News Management - Get all posts
+app.get('/api/admin/news', isAdmin, async (req, res) => {
+  try {
+    console.log('🔗 Fetching blog posts for admin...');
+    
+    const { search, status, category, page = '1', perPage = '25' } = req.query;
+    const pageNum = parseInt(page as string);
+    const perPageNum = parseInt(perPage as string);
+    const offset = (pageNum - 1) * perPageNum;
+    
+    let query = db.select({
+      id: blogPosts.id,
+      title: blogPosts.title,
+      slug: blogPosts.slug,
+      excerpt: blogPosts.excerpt,
+      category: blogPosts.category,
+      status: blogPosts.status,
+      views: blogPosts.views,
+      featuredImage: blogPosts.featuredImage,
+      authorId: blogPosts.authorId,
+      publishedAt: blogPosts.publishedAt,
+      createdAt: blogPosts.createdAt,
+      authorName: sql<string>`CONCAT(${users.firstName}, ' ', ${users.lastName})`,
+      authorAvatar: users.profileImageUrl,
+    }).from(blogPosts)
+      .leftJoin(users, eq(blogPosts.authorId, users.id))
+      .$dynamic();
+    
+    const conditions: any[] = [];
+    
+    if (search) {
+      conditions.push(
+        or(
+          like(blogPosts.title, `%${search}%`),
+          like(blogPosts.content, `%${search}%`)
+        )
+      );
+    }
+    
+    if (status && status !== 'all') {
+      conditions.push(eq(blogPosts.status, status as string));
+    }
+    
+    if (category && category !== 'all') {
+      conditions.push(eq(blogPosts.category, category as string));
+    }
+    
+    if (conditions.length > 0) {
+      const combinedConditions = conditions.length === 1 ? conditions[0] : sql`${sql.join(conditions, sql` AND `)}`;
+      query = query.where(combinedConditions);
+    }
+    
+    let countQuery = db.select({ count: count() }).from(blogPosts).$dynamic();
+    
+    if (status && status !== 'all') {
+      countQuery = countQuery.where(eq(blogPosts.status, status as string));
+    }
+    
+    if (category && category !== 'all') {
+      countQuery = countQuery.where(eq(blogPosts.category, category as string));
+    }
+    
+    if (search) {
+      countQuery = countQuery.where(like(blogPosts.title, `%${search}%`));
+    }
+    
+    const [countResult] = await countQuery;
+    const total = countResult.count;
+    
+    const posts = await query.limit(perPageNum).offset(offset);
+    
+    console.log(`✅ Retrieved ${posts.length} blog posts`);
+    res.json({
+      posts,
+      total,
+      page: pageNum,
+      perPage: perPageNum,
+      totalPages: Math.ceil(total / perPageNum)
+    });
+  } catch (error) {
+    console.error('❌ Error fetching blog posts:', error);
+    res.status(500).json({ error: 'Failed to fetch blog posts', details: error.message });
+  }
+});
+
+// Blog Posts - Create post
+app.post('/api/admin/news', isAdmin, async (req: any, res) => {
+  try {
+    console.log('🔗 Creating new blog post...');
+    const postData = req.body;
+    
+    const slug = postData.title.toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+    
+    const [newPost] = await db.insert(blogPosts).values({
+      title: postData.title,
+      slug: `${slug}-${Date.now()}`,
+      content: postData.content,
+      excerpt: postData.excerpt,
+      category: postData.category,
+      featuredImage: postData.featuredImage,
+      status: postData.status || 'draft',
+      authorId: req.user.id,
+      publishedAt: postData.status === 'published' ? new Date() : null,
+    }).$returningId();
+    
+    const [post] = await db.select().from(blogPosts).where(eq(blogPosts.id, newPost.id));
+    
+    console.log(`✅ Blog post created: ${newPost.id}`);
+    res.json({ post });
+  } catch (error) {
+    console.error('❌ Error creating blog post:', error);
+    res.status(500).json({ error: 'Failed to create blog post', details: error.message });
+  }
+});
+
+// Blog Posts - Update post
+app.put('/api/admin/news/:id', isAdmin, async (req, res) => {
+  try {
+    const postId = parseInt(req.params.id);
+    console.log(`🔗 Updating blog post ${postId}...`);
+    const postData = req.body;
+    
+    const updateData: any = {
+      title: postData.title,
+      content: postData.content,
+      excerpt: postData.excerpt,
+      category: postData.category,
+      featuredImage: postData.featuredImage,
+      status: postData.status,
+      updatedAt: new Date(),
+    };
+    
+    if (postData.status === 'published' && !postData.publishedAt) {
+      updateData.publishedAt = new Date();
+    }
+    
+    await db.update(blogPosts)
+      .set(updateData)
+      .where(eq(blogPosts.id, postId));
+    
+    const [updatedPost] = await db.select().from(blogPosts).where(eq(blogPosts.id, postId));
+    
+    console.log(`✅ Blog post updated: ${postId}`);
+    res.json({ post: updatedPost });
+  } catch (error) {
+    console.error('❌ Error updating blog post:', error);
+    res.status(500).json({ error: 'Failed to update blog post', details: error.message });
+  }
+});
+
+// Blog Posts - Delete post
+app.delete('/api/admin/news/:id', isAdmin, async (req, res) => {
+  try {
+    const postId = parseInt(req.params.id);
+    console.log(`🔗 Deleting blog post ${postId}...`);
+    
+    await db.delete(blogPosts).where(eq(blogPosts.id, postId));
+    
+    console.log(`✅ Blog post deleted: ${postId}`);
+    res.json({ message: 'Blog post deleted successfully' });
+  } catch (error) {
+    console.error('❌ Error deleting blog post:', error);
+    res.status(500).json({ error: 'Failed to delete blog post', details: error.message });
   }
 });
 

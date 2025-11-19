@@ -152,6 +152,24 @@ export const bookingEvents = mysqlTable("booking_events", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Blog posts / News table
+export const blogPosts = mysqlTable("blog_posts", {
+  id: serial().primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  slug: varchar("slug", { length: 255 }).unique().notNull(),
+  content: text("content").notNull(),
+  excerpt: text("excerpt"),
+  category: varchar("category", { length: 100 }),
+  tags: json("tags").default(sql`'[]'`),
+  featuredImage: varchar("featured_image", { length: 500 }),
+  status: varchar("status", { length: 20 }).default("draft"),
+  views: int("views").default(0),
+  authorId: varchar("author_id", { length: 255 }).references(() => users.id).notNull(),
+  publishedAt: timestamp("published_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Booking page settings table
 export const bookingPageSettings = mysqlTable("booking_page_settings", {
   id: varchar("id", { length: 255 }).primaryKey(),
@@ -519,6 +537,13 @@ export const bookingEventsRelations = relations(bookingEvents, ({ one }) => ({
   }),
 }));
 
+export const blogPostsRelations = relations(blogPosts, ({ one }) => ({
+  author: one(users, {
+    fields: [blogPosts.authorId],
+    references: [users.id],
+  }),
+}));
+
 // Type exports
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -565,3 +590,5 @@ export type PartnerSettings = typeof partnerSettings.$inferSelect;
 export type InsertPartnerSettings = typeof partnerSettings.$inferInsert;
 export type Partner = typeof partners.$inferSelect;
 export type InsertPartner = typeof partners.$inferInsert;
+export type BlogPost = typeof blogPosts.$inferSelect;
+export type InsertBlogPost = typeof blogPosts.$inferInsert;
