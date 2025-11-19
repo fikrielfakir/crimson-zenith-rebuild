@@ -246,13 +246,46 @@ export class DatabaseStorage implements IStorage {
   }
 
   async upsertUser(userData: UpsertUser): Promise<User> {
-    // PostgreSQL uses ON CONFLICT DO UPDATE instead of MySQL's ON DUPLICATE KEY UPDATE
     const now = new Date();
-    const [result] = await db.insert(users)
-      .values({
+    
+    // Check if user exists
+    const existingUser = userData.id ? await this.getUser(userData.id) : null;
+    
+    if (existingUser) {
+      // Update existing user
+      const updateData: Partial<UpsertUser> = {
+        username: userData.username,
+        email: userData.email,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        profileImageUrl: userData.profileImageUrl,
+        bio: userData.bio,
+        phone: userData.phone,
+        location: userData.location,
+        interests: userData.interests,
+        isAdmin: userData.isAdmin,
+        updatedAt: now,
+      };
+      
+      // Only update password if provided
+      if (userData.password) {
+        updateData.password = userData.password;
+      }
+      
+      await db.update(users)
+        .set(updateData)
+        .where(eq(users.id, userData.id!));
+      
+      // Fetch and return updated user
+      const updated = await this.getUser(userData.id!);
+      if (!updated) throw new Error('User not found after update');
+      return updated;
+    } else {
+      // Insert new user
+      const insertData: UpsertUser = {
         id: userData.id,
         username: userData.username,
-        password: userData.password,
+        password: userData.password || '',
         email: userData.email,
         firstName: userData.firstName,
         lastName: userData.lastName,
@@ -264,27 +297,15 @@ export class DatabaseStorage implements IStorage {
         isAdmin: userData.isAdmin,
         createdAt: now,
         updatedAt: now,
-      })
-      .onConflictDoUpdate({
-        target: users.id,
-        set: {
-          username: userData.username,
-          password: userData.password,
-          email: userData.email,
-          firstName: userData.firstName,
-          lastName: userData.lastName,
-          profileImageUrl: userData.profileImageUrl,
-          bio: userData.bio,
-          phone: userData.phone,
-          location: userData.location,
-          interests: userData.interests,
-          isAdmin: userData.isAdmin,
-          updatedAt: now,
-        },
-      })
-      .returning();
-    
-    return result;
+      };
+      
+      const result = await db.insert(users).values(insertData);
+      const insertId = userData.id || (result as any).insertId;
+      
+      const newUser = await this.getUser(insertId);
+      if (!newUser) throw new Error('User not found after insert');
+      return newUser;
+    }
   }
 
   // Club operations
