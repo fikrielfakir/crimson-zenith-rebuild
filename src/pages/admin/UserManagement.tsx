@@ -188,12 +188,12 @@ export default function UserManagement() {
 
   const saveUserMutation = useMutation({
     mutationFn: async (data: UserFormData) => {
-      const url = editingUser 
+      const url = (editingUser && editingUser.id)
         ? `/api/admin/users/${editingUser.id}`
         : '/api/admin/users';
       
       const response = await fetch(url, {
-        method: editingUser ? 'PUT' : 'POST',
+        method: (editingUser && editingUser.id) ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
@@ -264,7 +264,7 @@ export default function UserManagement() {
             <Download className="mr-2 h-4 w-4" />
             Export
           </Button>
-          <Button onClick={() => setEditingUser({})}>
+          <Button onClick={() => setEditingUser(null)}>
             <Plus className="mr-2 h-4 w-4" />
             Add User
           </Button>
