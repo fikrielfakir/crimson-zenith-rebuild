@@ -264,7 +264,7 @@ export default function UserManagement() {
             <Download className="mr-2 h-4 w-4" />
             Export
           </Button>
-          <Button onClick={() => setEditingUser(null)}>
+          <Button onClick={() => setEditingUser({})}>
             <Plus className="mr-2 h-4 w-4" />
             Add User
           </Button>

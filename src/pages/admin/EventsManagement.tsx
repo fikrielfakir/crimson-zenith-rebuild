@@ -5,10 +5,19 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useToast } from '@/hooks/use-toast';
 
 export default function EventsManagement() {
   const [viewMode, setViewMode] = useState<'calendar' | 'table'>('calendar');
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const { toast } = useToast();
+
+  const handleCreateEvent = () => {
+    toast({ 
+      title: 'Event creation', 
+      description: 'Event creation interface will be available soon. Use the Events page to create events for now.' 
+    });
+  };
 
   return (
     <div className="space-y-6">
@@ -19,7 +28,7 @@ export default function EventsManagement() {
             <Download className="mr-2 h-4 w-4" />
             Export
           </Button>
-          <Button>
+          <Button onClick={handleCreateEvent}>
             <Plus className="mr-2 h-4 w-4" />
             Create Event
           </Button>

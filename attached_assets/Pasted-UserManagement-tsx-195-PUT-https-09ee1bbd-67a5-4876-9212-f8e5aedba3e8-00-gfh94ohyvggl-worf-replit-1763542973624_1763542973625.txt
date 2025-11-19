@@ -1,0 +1,55 @@
+UserManagement.tsx:195  PUT https://09ee1bbd-67a5-4876-9212-f8e5aedba3e8-00-gfh94ohyvggl.worf.replit.dev/api/admin/users/undefined 404 (Not Found)
+mutationFn @ UserManagement.tsx:195
+fn @ @tanstack_react-query.js?v=40ed49e9:1198
+run @ @tanstack_react-query.js?v=40ed49e9:495
+start @ @tanstack_react-query.js?v=40ed49e9:536
+execute @ @tanstack_react-query.js?v=40ed49e9:1233
+await in execute
+mutate @ @tanstack_react-query.js?v=40ed49e9:2638
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:3352
+onSubmit @ UserManagement.tsx:255
+(anonymous) @ chunk-VNSJQTHD.js?v=40ed49e9:1504
+await in (anonymous)
+callCallback2 @ chunk-7CVORMRW.js?v=40ed49e9:3680
+invokeGuardedCallbackDev @ chunk-7CVORMRW.js?v=40ed49e9:3705
+invokeGuardedCallback @ chunk-7CVORMRW.js?v=40ed49e9:3739
+invokeGuardedCallbackAndCatchFirstError @ chunk-7CVORMRW.js?v=40ed49e9:3742
+executeDispatch @ chunk-7CVORMRW.js?v=40ed49e9:7046
+processDispatchQueueItemsInOrder @ chunk-7CVORMRW.js?v=40ed49e9:7066
+processDispatchQueue @ chunk-7CVORMRW.js?v=40ed49e9:7075
+dispatchEventsForPlugins @ chunk-7CVORMRW.js?v=40ed49e9:7083
+(anonymous) @ chunk-7CVORMRW.js?v=40ed49e9:7206
+batchedUpdates$1 @ chunk-7CVORMRW.js?v=40ed49e9:18966
+batchedUpdates @ chunk-7CVORMRW.js?v=40ed49e9:3585
+dispatchEventForPluginEventSystem @ chunk-7CVORMRW.js?v=40ed49e9:7205
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-7CVORMRW.js?v=40ed49e9:5484
+dispatchEvent @ chunk-7CVORMRW.js?v=40ed49e9:5478
+dispatchDiscreteEvent @ chunk-7CVORMRW.js?v=40ed49e9:5455Understand this error
+UserManagement.tsx:195  PUT https://09ee1bbd-67a5-4876-9212-f8e5aedba3e8-00-gfh94ohyvggl.worf.replit.dev/api/admin/users/undefined 404 (Not Found)
+mutationFn @ UserManagement.tsx:195
+fn @ @tanstack_react-query.js?v=40ed49e9:1198
+run @ @tanstack_react-query.js?v=40ed49e9:495
+start @ @tanstack_react-query.js?v=40ed49e9:536
+execute @ @tanstack_react-query.js?v=40ed49e9:1233
+await in execute
+mutate @ @tanstack_react-query.js?v=40ed49e9:2638
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:3352
+onSubmit @ UserManagement.tsx:255
+(anonymous) @ chunk-VNSJQTHD.js?v=40ed49e9:1504
+await in (anonymous)
+callCallback2 @ chunk-7CVORMRW.js?v=40ed49e9:3680
+invokeGuardedCallbackDev @ chunk-7CVORMRW.js?v=40ed49e9:3705
+invokeGuardedCallback @ chunk-7CVORMRW.js?v=40ed49e9:3739
+invokeGuardedCallbackAndCatchFirstError @ chunk-7CVORMRW.js?v=40ed49e9:3742
+executeDispatch @ chunk-7CVORMRW.js?v=40ed49e9:7046
+processDispatchQueueItemsInOrder @ chunk-7CVORMRW.js?v=40ed49e9:7066
+processDispatchQueue @ chunk-7CVORMRW.js?v=40ed49e9:7075
+dispatchEventsForPlugins @ chunk-7CVORMRW.js?v=40ed49e9:7083
+(anonymous) @ chunk-7CVORMRW.js?v=40ed49e9:7206
+batchedUpdates$1 @ chunk-7CVORMRW.js?v=40ed49e9:18966
+batchedUpdates @ chunk-7CVORMRW.js?v=40ed49e9:3585
+dispatchEventForPluginEventSystem @ chunk-7CVORMRW.js?v=40ed49e9:7205
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-7CVORMRW.js?v=40ed49e9:5484
+dispatchEvent @ chunk-7CVORMRW.js?v=40ed49e9:5478
+dispatchDiscreteEvent @ chunk-7CVORMRW.js?v=40ed49e9:5455Understand this error
+UserManagement.tsx:195  PUT https://09ee1bbd-67a5-4876-9212-f8e5aedba3e8-00-gfh94ohyvggl.worf.replit.dev/api/admin/users/undefined 404 (Not Found)
