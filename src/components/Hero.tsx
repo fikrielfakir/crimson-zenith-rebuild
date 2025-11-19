@@ -232,22 +232,10 @@ const Hero = () => {
             animation: fadeInTitle 0.6s ease-out;
           }
           
-          /* Elegant Gradient Text Effect */
+          /* Pure White Text */
           .hero-line {
             display: inline;
-            background: linear-gradient(180deg, 
-              #ffffff 0%, 
-              #f8f8f8 50%, 
-              #eeeeee 100%
-            );
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-shadow: 
-              0 6px 25px rgba(0, 0, 0, 0.4),
-              0 3px 12px rgba(0, 0, 0, 0.3),
-              0 1px 4px rgba(0, 0, 0, 0.2);
-            filter: drop-shadow(0 4px 20px rgba(0, 0, 0, 0.25));
+            color: #ffffff;
           }
           
           /* Single Clean Cursor */
@@ -255,13 +243,12 @@ const Hero = () => {
             display: inline-block;
             width: 4px;
             height: 0.85em;
-            background: linear-gradient(180deg, #ffffff 0%, #f0f0f0 100%);
+            background: #ffffff;
             margin-left: 6px;
             animation: cursorBlink 1s infinite;
             vertical-align: baseline;
             position: relative;
             top: 0.08em;
-            box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
           }
           
           /* FIXED POSITION Subtitle Container */
