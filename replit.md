@@ -13,6 +13,9 @@ The application is a full-stack project utilizing a React + TypeScript + Vite fr
 -   **Frontend**: React, TypeScript, Vite, React Router DOM for routing, TanStack Query for state management, and Tailwind CSS for styling. UI components are built with shadcn/ui and Radix UI primitives. Map integration is handled by MapLibre GL JS with free Esri satellite imagery.
 -   **Backend**: Express.js server providing RESTful APIs.
 -   **Database**: MySQL (Hostinger) is the primary database, managed with Drizzle ORM and the mysql2 driver. The schema includes 23 tables for clubs, events, users, CMS content, and more. PostgreSQL environment variables exist in Replit but are not utilized.
+    -   **Dual Event System**: The database implements two separate event systems:
+        -   `club_events` table: Club-specific events managed by individual clubs and displayed on club detail pages
+        -   `booking_events` table: Journey-wide bookable events for the organization, managed through admin panel
 -   **UI/UX Decisions**: The application adopts a modern, responsive design with a consistent theme using primary color #112250 (navy blue) and secondary color #D8C18D (gold/beige). The Events & Activities Calendar section features a clean, modern design with yellow accents (#FBBF24) and orange pricing (#F97316), Inter/Poppins typography, and perfect vertical alignment between the calendar sidebar and event cards. The admin interface is comprehensive, featuring sidebar navigation, form validation, and error handling.
 -   **Key Features**:
     -   **Public Website**: Interactive map with club locations, event calendar, club listings, contact form, testimonials, and responsive design. The landing page features sections in the following order: Hero, "Message from the President", "Our Mission & Focus", "Our Clubs & Initiatives", "Events & Activities Calendar", "Our Impact", "Member Stories", "Our Partners & Supporters", and Contact form. This structure follows professional association website best practices for clarity and narrative flow.
@@ -22,8 +25,8 @@ The application is a full-stack project utilizing a React + TypeScript + Vite fr
         -   **Dashboard**: Comprehensive overview with metrics cards (users, clubs, events, revenue), charts (user growth, revenue), activity feed, and quick actions
         -   **Analytics**: Multi-tab analytics interface with traffic, users, events, revenue, and clubs metrics
         -   **User Management**: Full CRUD operations with search, filters, bulk actions (activate/deactivate/delete), and form dialogs with validation
-        -   **Clubs Management**: Table and map views with approval workflow, search, and filters
-        -   **Events Management**: Events calendar and management interface
+        -   **Clubs Management**: Table and map views with approval workflow, search, and filters. Individual club pages now display club-specific events from the `club_events` table.
+        -   **Journey Events Management**: Manages organization-wide bookable events from the `booking_events` table (Journey events)
         -   **Booking Management**: Booking administration and tracking
         -   **Content Management**: News management, landing page CMS, media library
         -   **Email Campaigns**: Campaign creation and tracking interface
