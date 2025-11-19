@@ -1,0 +1,263 @@
+form.tsx:36 Uncaught TypeError: Cannot destructure property 'getFieldState' of 'useFormContext(...)' as it is null.
+    at useFormField (form.tsx:36:11)
+    at form.tsx:79:33
+    at renderWithHooks (chunk-7CVORMRW.js?v=40ed49e9:11596:26)
+    at updateForwardRef (chunk-7CVORMRW.js?v=40ed49e9:14373:28)
+    at beginWork (chunk-7CVORMRW.js?v=40ed49e9:15994:22)
+    at HTMLUnknownElement.callCallback2 (chunk-7CVORMRW.js?v=40ed49e9:3680:22)
+    at Object.invokeGuardedCallbackDev (chunk-7CVORMRW.js?v=40ed49e9:3705:24)
+    at invokeGuardedCallback (chunk-7CVORMRW.js?v=40ed49e9:3739:39)
+    at beginWork$1 (chunk-7CVORMRW.js?v=40ed49e9:19818:15)
+    at performUnitOfWork (chunk-7CVORMRW.js?v=40ed49e9:19251:20)
+useFormField @ form.tsx:36
+(anonymous) @ form.tsx:79
+renderWithHooks @ chunk-7CVORMRW.js?v=40ed49e9:11596
+updateForwardRef @ chunk-7CVORMRW.js?v=40ed49e9:14373
+beginWork @ chunk-7CVORMRW.js?v=40ed49e9:15994
+callCallback2 @ chunk-7CVORMRW.js?v=40ed49e9:3680
+invokeGuardedCallbackDev @ chunk-7CVORMRW.js?v=40ed49e9:3705
+invokeGuardedCallback @ chunk-7CVORMRW.js?v=40ed49e9:3739
+beginWork$1 @ chunk-7CVORMRW.js?v=40ed49e9:19818
+performUnitOfWork @ chunk-7CVORMRW.js?v=40ed49e9:19251
+workLoopSync @ chunk-7CVORMRW.js?v=40ed49e9:19190
+renderRootSync @ chunk-7CVORMRW.js?v=40ed49e9:19169
+performSyncWorkOnRoot @ chunk-7CVORMRW.js?v=40ed49e9:18927
+flushSyncCallbacks @ chunk-7CVORMRW.js?v=40ed49e9:9166
+flushSync @ chunk-7CVORMRW.js?v=40ed49e9:19012
+flushSync$1 @ chunk-7CVORMRW.js?v=40ed49e9:21596
+dispatchDiscreteCustomEvent @ chunk-IYK7JAJA.js?v=40ed49e9:54
+handleSelect @ @radix-ui_react-dropdown-menu.js?v=40ed49e9:429
+handleEvent @ chunk-XLGNKDNN.js?v=40ed49e9:6
+callCallback2 @ chunk-7CVORMRW.js?v=40ed49e9:3680
+invokeGuardedCallbackDev @ chunk-7CVORMRW.js?v=40ed49e9:3705
+invokeGuardedCallback @ chunk-7CVORMRW.js?v=40ed49e9:3739
+invokeGuardedCallbackAndCatchFirstError @ chunk-7CVORMRW.js?v=40ed49e9:3742
+executeDispatch @ chunk-7CVORMRW.js?v=40ed49e9:7046
+processDispatchQueueItemsInOrder @ chunk-7CVORMRW.js?v=40ed49e9:7066
+processDispatchQueue @ chunk-7CVORMRW.js?v=40ed49e9:7075
+dispatchEventsForPlugins @ chunk-7CVORMRW.js?v=40ed49e9:7083
+(anonymous) @ chunk-7CVORMRW.js?v=40ed49e9:7206
+batchedUpdates$1 @ chunk-7CVORMRW.js?v=40ed49e9:18966
+batchedUpdates @ chunk-7CVORMRW.js?v=40ed49e9:3585
+dispatchEventForPluginEventSystem @ chunk-7CVORMRW.js?v=40ed49e9:7205
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-7CVORMRW.js?v=40ed49e9:5484
+dispatchEvent @ chunk-7CVORMRW.js?v=40ed49e9:5478
+dispatchDiscreteEvent @ chunk-7CVORMRW.js?v=40ed49e9:5455
+form.tsx:36 Uncaught TypeError: Cannot destructure property 'getFieldState' of 'useFormContext(...)' as it is null.
+    at useFormField (form.tsx:36:11)
+    at form.tsx:79:33
+    at renderWithHooks (chunk-7CVORMRW.js?v=40ed49e9:11596:26)
+    at updateForwardRef (chunk-7CVORMRW.js?v=40ed49e9:14373:28)
+    at beginWork (chunk-7CVORMRW.js?v=40ed49e9:15994:22)
+    at HTMLUnknownElement.callCallback2 (chunk-7CVORMRW.js?v=40ed49e9:3680:22)
+    at Object.invokeGuardedCallbackDev (chunk-7CVORMRW.js?v=40ed49e9:3705:24)
+    at invokeGuardedCallback (chunk-7CVORMRW.js?v=40ed49e9:3739:39)
+    at beginWork$1 (chunk-7CVORMRW.js?v=40ed49e9:19818:15)
+    at performUnitOfWork (chunk-7CVORMRW.js?v=40ed49e9:19251:20)
+useFormField @ form.tsx:36
+(anonymous) @ form.tsx:79
+renderWithHooks @ chunk-7CVORMRW.js?v=40ed49e9:11596
+updateForwardRef @ chunk-7CVORMRW.js?v=40ed49e9:14373
+beginWork @ chunk-7CVORMRW.js?v=40ed49e9:15994
+callCallback2 @ chunk-7CVORMRW.js?v=40ed49e9:3680
+invokeGuardedCallbackDev @ chunk-7CVORMRW.js?v=40ed49e9:3705
+invokeGuardedCallback @ chunk-7CVORMRW.js?v=40ed49e9:3739
+beginWork$1 @ chunk-7CVORMRW.js?v=40ed49e9:19818
+performUnitOfWork @ chunk-7CVORMRW.js?v=40ed49e9:19251
+workLoopSync @ chunk-7CVORMRW.js?v=40ed49e9:19190
+renderRootSync @ chunk-7CVORMRW.js?v=40ed49e9:19169
+recoverFromConcurrentError @ chunk-7CVORMRW.js?v=40ed49e9:18786
+performSyncWorkOnRoot @ chunk-7CVORMRW.js?v=40ed49e9:18932
+flushSyncCallbacks @ chunk-7CVORMRW.js?v=40ed49e9:9166
+flushSync @ chunk-7CVORMRW.js?v=40ed49e9:19012
+flushSync$1 @ chunk-7CVORMRW.js?v=40ed49e9:21596
+dispatchDiscreteCustomEvent @ chunk-IYK7JAJA.js?v=40ed49e9:54
+handleSelect @ @radix-ui_react-dropdown-menu.js?v=40ed49e9:429
+handleEvent @ chunk-XLGNKDNN.js?v=40ed49e9:6
+callCallback2 @ chunk-7CVORMRW.js?v=40ed49e9:3680
+invokeGuardedCallbackDev @ chunk-7CVORMRW.js?v=40ed49e9:3705
+invokeGuardedCallback @ chunk-7CVORMRW.js?v=40ed49e9:3739
+invokeGuardedCallbackAndCatchFirstError @ chunk-7CVORMRW.js?v=40ed49e9:3742
+executeDispatch @ chunk-7CVORMRW.js?v=40ed49e9:7046
+processDispatchQueueItemsInOrder @ chunk-7CVORMRW.js?v=40ed49e9:7066
+processDispatchQueue @ chunk-7CVORMRW.js?v=40ed49e9:7075
+dispatchEventsForPlugins @ chunk-7CVORMRW.js?v=40ed49e9:7083
+(anonymous) @ chunk-7CVORMRW.js?v=40ed49e9:7206
+batchedUpdates$1 @ chunk-7CVORMRW.js?v=40ed49e9:18966
+batchedUpdates @ chunk-7CVORMRW.js?v=40ed49e9:3585
+dispatchEventForPluginEventSystem @ chunk-7CVORMRW.js?v=40ed49e9:7205
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-7CVORMRW.js?v=40ed49e9:5484
+dispatchEvent @ chunk-7CVORMRW.js?v=40ed49e9:5478
+dispatchDiscreteEvent @ chunk-7CVORMRW.js?v=40ed49e9:5455
+chunk-7CVORMRW.js?v=40ed49e9:14080 The above error occurred in the <FormLabel> component:
+
+    at https://e2d2a5ae-ab49-4c5d-8254-83509955898f-00-27a33r6lu9aok.spock.replit.dev/src/components/ui/form.tsx:125:67
+    at div
+    at div
+    at div
+    at https://e2d2a5ae-ab49-4c5d-8254-83509955898f-00-27a33r6lu9aok.spock.replit.dev/node_modules/.vite/deps/chunk-IYK7JAJA.js?v=40ed49e9:43:13
+    at https://e2d2a5ae-ab49-4c5d-8254-83509955898f-00-27a33r6lu9aok.spock.replit.dev/node_modules/.vite/deps/chunk-PQFVHQWX.js?v=40ed49e9:63:7
+    at https://e2d2a5ae-ab49-4c5d-8254-83509955898f-00-27a33r6lu9aok.spock.replit.dev/node_modules/.vite/deps/chunk-MUSFMGBT.js?v=40ed49e9:79:13
+    at https://e2d2a5ae-ab49-4c5d-8254-83509955898f-00-27a33r6lu9aok.spock.replit.dev/node_modules/.vite/deps/chunk-MUSFMGBT.js?v=40ed49e9:56:13
+    at https://e2d2a5ae-ab49-4c5d-8254-83509955898f-00-27a33r6lu9aok.spock.replit.dev/node_modules/.vite/deps/chunk-IYK7JAJA.js?v=40ed49e9:43:13
+    at https://e2d2a5ae-ab49-4c5d-8254-83509955898f-00-27a33r6lu9aok.spock.replit.dev/node_modules/.vite/deps/chunk-4KAPDK7Y.js?v=40ed49e9:29:5
+    at https://e2d2a5ae-ab49-4c5d-8254-83509955898f-00-27a33r6lu9aok.spock.replit.dev/node_modules/.vite/deps/chunk-3OVY7YFP.js?v=40ed49e9:233:13
+    at https://e2d2a5ae-ab49-4c5d-8254-83509955898f-00-27a33r6lu9aok.spock.replit.dev/node_modules/.vite/deps/chunk-3OVY7YFP.js?v=40ed49e9:159:58
+    at Presence (https://e2d2a5ae-ab49-4c5d-8254-83509955898f-00-27a33r6lu9aok.spock.replit.dev/node_modules/.vite/deps/chunk-KXYSXQCJ.js?v=40ed49e9:24:11)
+    at https://e2d2a5ae-ab49-4c5d-8254-83509955898f-00-27a33r6lu9aok.spock.replit.dev/node_modules/.vite/deps/chunk-3OVY7YFP.js?v=40ed49e9:150:64
+    at https://e2d2a5ae-ab49-4c5d-8254-83509955898f-00-27a33r6lu9aok.spock.replit.dev/node_modules/.vite/deps/chunk-MUSFMGBT.js?v=40ed49e9:79:13
+    at https://e2d2a5ae-ab49-4c5d-8254-83509955898f-00-27a33r6lu9aok.spock.replit.dev/node_modules/.vite/deps/chunk-MUSFMGBT.js?v=40ed49e9:56:13
+    at https://e2d2a5ae-ab49-4c5d-8254-83509955898f-00-27a33r6lu9aok.spock.replit.dev/node_modules/.vite/deps/chunk-IYK7JAJA.js?v=40ed49e9:43:13
+    at https://e2d2a5ae-ab49-4c5d-8254-83509955898f-00-27a33r6lu9aok.spock.replit.dev/node_modules/.vite/deps/chunk-PQFVHQWX.js?v=40ed49e9:261:22
+    at Presence (https://e2d2a5ae-ab49-4c5d-8254-83509955898f-00-27a33r6lu9aok.spock.replit.dev/node_modules/.vite/deps/chunk-KXYSXQCJ.js?v=40ed49e9:24:11)
+    at Provider (https://e2d2a5ae-ab49-4c5d-8254-83509955898f-00-27a33r6lu9aok.spock.replit.dev/node_modules/.vite/deps/chunk-ONVFPFEJ.js?v=40ed49e9:37:15)
+    at DialogPortal (https://e2d2a5ae-ab49-4c5d-8254-83509955898f-00-27a33r6lu9aok.spock.replit.dev/node_modules/.vite/deps/chunk-3OVY7YFP.js?v=40ed49e9:112:11)
+    at _c1 (https://e2d2a5ae-ab49-4c5d-8254-83509955898f-00-27a33r6lu9aok.spock.replit.dev/src/components/ui/dialog.tsx:47:63)
+    at Provider (https://e2d2a5ae-ab49-4c5d-8254-83509955898f-00-27a33r6lu9aok.spock.replit.dev/node_modules/.vite/deps/chunk-ONVFPFEJ.js?v=40ed49e9:37:15)
+    at Dialog (https://e2d2a5ae-ab49-4c5d-8254-83509955898f-00-27a33r6lu9aok.spock.replit.dev/node_modules/.vite/deps/chunk-3OVY7YFP.js?v=40ed49e9:52:5)
+    at div
+    at UserManagement (https://e2d2a5ae-ab49-4c5d-8254-83509955898f-00-27a33r6lu9aok.spock.replit.dev/src/pages/admin/UserManagement.tsx:80:33)
+    at div
+    at div
+    at div
+    at https://e2d2a5ae-ab49-4c5d-8254-83509955898f-00-27a33r6lu9aok.spock.replit.dev/node_modules/.vite/deps/chunk-IYK7JAJA.js?v=40ed49e9:43:13
+    at https://e2d2a5ae-ab49-4c5d-8254-83509955898f-00-27a33r6lu9aok.spock.replit.dev/node_modules/.vite/deps/@radix-ui_react-scroll-area.js?v=40ed49e9:118:13
+    at div
+    at https://e2d2a5ae-ab49-4c5d-8254-83509955898f-00-27a33r6lu9aok.spock.replit.dev/node_modules/.vite/deps/chunk-IYK7JAJA.js?v=40ed49e9:43:13
+    at Provider (https://e2d2a5ae-ab49-4c5d-8254-83509955898f-00-27a33r6lu9aok.spock.replit.dev/node_modules/.vite/deps/chunk-ONVFPFEJ.js?v=40ed49e9:37:15)
+    at https://e2d2a5ae-ab49-4c5d-8254-83509955898f-00-27a33r6lu9aok.spock.replit.dev/node_modules/.vite/deps/@radix-ui_react-scroll-area.js?v=40ed49e9:56:7
+    at _c (https://e2d2a5ae-ab49-4c5d-8254-83509955898f-00-27a33r6lu9aok.spock.replit.dev/src/components/ui/scroll-area.tsx:24:59)
+    at main
+    at div
+    at div
+    at AdminLayout (https://e2d2a5ae-ab49-4c5d-8254-83509955898f-00-27a33r6lu9aok.spock.replit.dev/src/components/admin/AdminLayout.tsx:142:31)
+    at ProtectedRoute (https://e2d2a5ae-ab49-4c5d-8254-83509955898f-00-27a33r6lu9aok.spock.replit.dev/src/components/admin/ProtectedRoute.tsx:38:34)
+    at RenderedRoute (https://e2d2a5ae-ab49-4c5d-8254-83509955898f-00-27a33r6lu9aok.spock.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=40ed49e9:4088:5)
+    at Routes (https://e2d2a5ae-ab49-4c5d-8254-83509955898f-00-27a33r6lu9aok.spock.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=40ed49e9:4558:5)
+    at Router (https://e2d2a5ae-ab49-4c5d-8254-83509955898f-00-27a33r6lu9aok.spock.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=40ed49e9:4501:15)
+    at BrowserRouter (https://e2d2a5ae-ab49-4c5d-8254-83509955898f-00-27a33r6lu9aok.spock.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=40ed49e9:5247:5)
+    at Provider (https://e2d2a5ae-ab49-4c5d-8254-83509955898f-00-27a33r6lu9aok.spock.replit.dev/node_modules/.vite/deps/chunk-ONVFPFEJ.js?v=40ed49e9:37:15)
+    at TooltipProvider (https://e2d2a5ae-ab49-4c5d-8254-83509955898f-00-27a33r6lu9aok.spock.replit.dev/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=40ed49e9:65:5)
+    at QueryClientProvider (https://e2d2a5ae-ab49-4c5d-8254-83509955898f-00-27a33r6lu9aok.spock.replit.dev/node_modules/.vite/deps/@tanstack_react-query.js?v=40ed49e9:2874:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+logCapturedError @ chunk-7CVORMRW.js?v=40ed49e9:14080
+update.callback @ chunk-7CVORMRW.js?v=40ed49e9:14100
+callCallback @ chunk-7CVORMRW.js?v=40ed49e9:11296
+commitUpdateQueue @ chunk-7CVORMRW.js?v=40ed49e9:11313
+commitLayoutEffectOnFiber @ chunk-7CVORMRW.js?v=40ed49e9:17141
+commitLayoutMountEffects_complete @ chunk-7CVORMRW.js?v=40ed49e9:18030
+commitLayoutEffects_begin @ chunk-7CVORMRW.js?v=40ed49e9:18019
+commitLayoutEffects @ chunk-7CVORMRW.js?v=40ed49e9:17970
+commitRootImpl @ chunk-7CVORMRW.js?v=40ed49e9:19406
+commitRoot @ chunk-7CVORMRW.js?v=40ed49e9:19330
+performSyncWorkOnRoot @ chunk-7CVORMRW.js?v=40ed49e9:18948
+flushSyncCallbacks @ chunk-7CVORMRW.js?v=40ed49e9:9166
+flushSync @ chunk-7CVORMRW.js?v=40ed49e9:19012
+flushSync$1 @ chunk-7CVORMRW.js?v=40ed49e9:21596
+dispatchDiscreteCustomEvent @ chunk-IYK7JAJA.js?v=40ed49e9:54
+handleSelect @ @radix-ui_react-dropdown-menu.js?v=40ed49e9:429
+handleEvent @ chunk-XLGNKDNN.js?v=40ed49e9:6
+callCallback2 @ chunk-7CVORMRW.js?v=40ed49e9:3680
+invokeGuardedCallbackDev @ chunk-7CVORMRW.js?v=40ed49e9:3705
+invokeGuardedCallback @ chunk-7CVORMRW.js?v=40ed49e9:3739
+invokeGuardedCallbackAndCatchFirstError @ chunk-7CVORMRW.js?v=40ed49e9:3742
+executeDispatch @ chunk-7CVORMRW.js?v=40ed49e9:7046
+processDispatchQueueItemsInOrder @ chunk-7CVORMRW.js?v=40ed49e9:7066
+processDispatchQueue @ chunk-7CVORMRW.js?v=40ed49e9:7075
+dispatchEventsForPlugins @ chunk-7CVORMRW.js?v=40ed49e9:7083
+(anonymous) @ chunk-7CVORMRW.js?v=40ed49e9:7206
+batchedUpdates$1 @ chunk-7CVORMRW.js?v=40ed49e9:18966
+batchedUpdates @ chunk-7CVORMRW.js?v=40ed49e9:3585
+dispatchEventForPluginEventSystem @ chunk-7CVORMRW.js?v=40ed49e9:7205
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-7CVORMRW.js?v=40ed49e9:5484
+dispatchEvent @ chunk-7CVORMRW.js?v=40ed49e9:5478
+dispatchDiscreteEvent @ chunk-7CVORMRW.js?v=40ed49e9:5455
+chunk-7CVORMRW.js?v=40ed49e9:9176 Uncaught TypeError: Cannot destructure property 'getFieldState' of 'useFormContext(...)' as it is null.
+    at useFormField (form.tsx:36:11)
+    at form.tsx:79:33
+    at renderWithHooks (chunk-7CVORMRW.js?v=40ed49e9:11596:26)
+    at updateForwardRef (chunk-7CVORMRW.js?v=40ed49e9:14373:28)
+    at beginWork (chunk-7CVORMRW.js?v=40ed49e9:15994:22)
+    at beginWork$1 (chunk-7CVORMRW.js?v=40ed49e9:19806:22)
+    at performUnitOfWork (chunk-7CVORMRW.js?v=40ed49e9:19251:20)
+    at workLoopSync (chunk-7CVORMRW.js?v=40ed49e9:19190:13)
+    at renderRootSync (chunk-7CVORMRW.js?v=40ed49e9:19169:15)
+    at recoverFromConcurrentError (chunk-7CVORMRW.js?v=40ed49e9:18786:28)
+useFormField @ form.tsx:36
+(anonymous) @ form.tsx:79
+renderWithHooks @ chunk-7CVORMRW.js?v=40ed49e9:11596
+updateForwardRef @ chunk-7CVORMRW.js?v=40ed49e9:14373
+beginWork @ chunk-7CVORMRW.js?v=40ed49e9:15994
+beginWork$1 @ chunk-7CVORMRW.js?v=40ed49e9:19806
+performUnitOfWork @ chunk-7CVORMRW.js?v=40ed49e9:19251
+workLoopSync @ chunk-7CVORMRW.js?v=40ed49e9:19190
+renderRootSync @ chunk-7CVORMRW.js?v=40ed49e9:19169
+recoverFromConcurrentError @ chunk-7CVORMRW.js?v=40ed49e9:18786
+performSyncWorkOnRoot @ chunk-7CVORMRW.js?v=40ed49e9:18932
+flushSyncCallbacks @ chunk-7CVORMRW.js?v=40ed49e9:9166
+flushSync @ chunk-7CVORMRW.js?v=40ed49e9:19012
+flushSync$1 @ chunk-7CVORMRW.js?v=40ed49e9:21596
+dispatchDiscreteCustomEvent @ chunk-IYK7JAJA.js?v=40ed49e9:54
+handleSelect @ @radix-ui_react-dropdown-menu.js?v=40ed49e9:429
+handleEvent @ chunk-XLGNKDNN.js?v=40ed49e9:6
+callCallback2 @ chunk-7CVORMRW.js?v=40ed49e9:3680
+invokeGuardedCallbackDev @ chunk-7CVORMRW.js?v=40ed49e9:3705
+invokeGuardedCallback @ chunk-7CVORMRW.js?v=40ed49e9:3739
+invokeGuardedCallbackAndCatchFirstError @ chunk-7CVORMRW.js?v=40ed49e9:3742
+executeDispatch @ chunk-7CVORMRW.js?v=40ed49e9:7046
+processDispatchQueueItemsInOrder @ chunk-7CVORMRW.js?v=40ed49e9:7066
+processDispatchQueue @ chunk-7CVORMRW.js?v=40ed49e9:7075
+dispatchEventsForPlugins @ chunk-7CVORMRW.js?v=40ed49e9:7083
+(anonymous) @ chunk-7CVORMRW.js?v=40ed49e9:7206
+batchedUpdates$1 @ chunk-7CVORMRW.js?v=40ed49e9:18966
+batchedUpdates @ chunk-7CVORMRW.js?v=40ed49e9:3585
+dispatchEventForPluginEventSystem @ chunk-7CVORMRW.js?v=40ed49e9:7205
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-7CVORMRW.js?v=40ed49e9:5484
+dispatchEvent @ chunk-7CVORMRW.js?v=40ed49e9:5478
+dispatchDiscreteEvent @ chunk-7CVORMRW.js?v=40ed49e9:5455
+chunk-7CVORMRW.js?v=40ed49e9:3756 Uncaught TypeError: Cannot destructure property 'getFieldState' of 'useFormContext(...)' as it is null.
+    at useFormField (form.tsx:36:11)
+    at form.tsx:79:33
+    at renderWithHooks (chunk-7CVORMRW.js?v=40ed49e9:11596:26)
+    at updateForwardRef (chunk-7CVORMRW.js?v=40ed49e9:14373:28)
+    at beginWork (chunk-7CVORMRW.js?v=40ed49e9:15994:22)
+    at beginWork$1 (chunk-7CVORMRW.js?v=40ed49e9:19806:22)
+    at performUnitOfWork (chunk-7CVORMRW.js?v=40ed49e9:19251:20)
+    at workLoopSync (chunk-7CVORMRW.js?v=40ed49e9:19190:13)
+    at renderRootSync (chunk-7CVORMRW.js?v=40ed49e9:19169:15)
+    at recoverFromConcurrentError (chunk-7CVORMRW.js?v=40ed49e9:18786:28)
+useFormField @ form.tsx:36
+(anonymous) @ form.tsx:79
+renderWithHooks @ chunk-7CVORMRW.js?v=40ed49e9:11596
+updateForwardRef @ chunk-7CVORMRW.js?v=40ed49e9:14373
+beginWork @ chunk-7CVORMRW.js?v=40ed49e9:15994
+beginWork$1 @ chunk-7CVORMRW.js?v=40ed49e9:19806
+performUnitOfWork @ chunk-7CVORMRW.js?v=40ed49e9:19251
+workLoopSync @ chunk-7CVORMRW.js?v=40ed49e9:19190
+renderRootSync @ chunk-7CVORMRW.js?v=40ed49e9:19169
+recoverFromConcurrentError @ chunk-7CVORMRW.js?v=40ed49e9:18786
+performSyncWorkOnRoot @ chunk-7CVORMRW.js?v=40ed49e9:18932
+flushSyncCallbacks @ chunk-7CVORMRW.js?v=40ed49e9:9166
+flushSync @ chunk-7CVORMRW.js?v=40ed49e9:19012
+flushSync$1 @ chunk-7CVORMRW.js?v=40ed49e9:21596
+dispatchDiscreteCustomEvent @ chunk-IYK7JAJA.js?v=40ed49e9:54
+handleSelect @ @radix-ui_react-dropdown-menu.js?v=40ed49e9:429
+handleEvent @ chunk-XLGNKDNN.js?v=40ed49e9:6
+callCallback2 @ chunk-7CVORMRW.js?v=40ed49e9:3680
+invokeGuardedCallbackDev @ chunk-7CVORMRW.js?v=40ed49e9:3705
+invokeGuardedCallback @ chunk-7CVORMRW.js?v=40ed49e9:3739
+invokeGuardedCallbackAndCatchFirstError @ chunk-7CVORMRW.js?v=40ed49e9:3742
+executeDispatch @ chunk-7CVORMRW.js?v=40ed49e9:7046
+processDispatchQueueItemsInOrder @ chunk-7CVORMRW.js?v=40ed49e9:7066
+processDispatchQueue @ chunk-7CVORMRW.js?v=40ed49e9:7075
+dispatchEventsForPlugins @ chunk-7CVORMRW.js?v=40ed49e9:7083
+(anonymous) @ chunk-7CVORMRW.js?v=40ed49e9:7206
+batchedUpdates$1 @ chunk-7CVORMRW.js?v=40ed49e9:18966
+batchedUpdates @ chunk-7CVORMRW.js?v=40ed49e9:3585
+dispatchEventForPluginEventSystem @ chunk-7CVORMRW.js?v=40ed49e9:7205
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-7CVORMRW.js?v=40ed49e9:5484
+dispatchEvent @ chunk-7CVORMRW.js?v=40ed49e9:5478
+dispatchDiscreteEvent @ chunk-7CVORMRW.js?v=40ed49e9:5455

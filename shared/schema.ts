@@ -40,6 +40,7 @@ export const users = mysqlTable("users", {
   location: varchar("location", { length: 255 }),
   interests: json("interests").default(sql`'[]'`),
   isAdmin: boolean("is_admin").default(false),
+  isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

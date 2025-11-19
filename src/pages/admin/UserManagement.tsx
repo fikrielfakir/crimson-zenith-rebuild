@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -726,8 +727,8 @@ export default function UserManagement() {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            <div>
-              <FormLabel>New Password</FormLabel>
+            <div className="space-y-2">
+              <Label>New Password</Label>
               <Input
                 type="password"
                 placeholder="Enter new password (min 6 characters)"
