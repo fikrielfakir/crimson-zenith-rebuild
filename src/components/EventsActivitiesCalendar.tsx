@@ -284,7 +284,7 @@ const EventsActivitiesCalendar = () => {
               <div className="text-center py-12">
                 <p className="font-['Inter'] text-gray-500">Loading events...</p>
               </div>
-            ) : events.length === 0 ? (
+            ) : filteredEvents.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12">
                 <Player
                   autoplay
@@ -307,7 +307,7 @@ const EventsActivitiesCalendar = () => {
                   textAlign: 'center',
                   lineHeight: '1.6'
                 }}>
-                  There are no upcoming events at the moment. Check back soon for exciting new adventures and activities!
+                  There are no events scheduled for this date. Try selecting a different date to explore more adventures!
                 </p>
               </div>
             ) : (
