@@ -31,6 +31,7 @@ const EventCalendar = () => {
 
   const events = [
     {
+      id: 1,
       title: "Gnaoua World Music Festival",
       date: "June 21-23, 2024",
       time: "7:00 PM - 11:00 PM",
@@ -41,6 +42,7 @@ const EventCalendar = () => {
       featured: true
     },
     {
+      id: 2,
       title: "Timitar Festival",
       date: "July 15-20, 2024", 
       time: "6:00 PM - 12:00 AM",
@@ -51,6 +53,7 @@ const EventCalendar = () => {
       featured: false
     },
     {
+      id: 3,
       title: "Mawazine Festival",
       date: "May 24-June 1, 2024",
       time: "8:00 PM - 2:00 AM",
@@ -61,6 +64,7 @@ const EventCalendar = () => {
       featured: true
     },
     {
+      id: 4,
       title: "Rose Festival",
       date: "May 10-12, 2024",
       time: "9:00 AM - 6:00 PM",
@@ -71,6 +75,7 @@ const EventCalendar = () => {
       featured: false
     },
     {
+      id: 5,
       title: "Fez Festival of World Sacred Music",
       date: "September 14-22, 2024",
       time: "7:30 PM - 11:30 PM",
@@ -81,6 +86,7 @@ const EventCalendar = () => {
       featured: true
     },
     {
+      id: 6,
       title: "Marrakech International Film Festival",
       date: "November 29 - December 7, 2024",
       time: "6:00 PM - 12:00 AM",
@@ -179,7 +185,7 @@ const EventCalendar = () => {
             <div className="space-y-8 flex-grow">
               {events.slice(currentPage * eventsPerPage, (currentPage + 1) * eventsPerPage).map((event) => (
                 <Card 
-                  key={event.title} 
+                  key={event.id} 
                   className="border-none overflow-hidden transition-all duration-300 hover:-translate-y-1"
                   style={{ 
                     backgroundColor: '#FFFFFF',
@@ -246,7 +252,7 @@ const EventCalendar = () => {
                           backgroundColor: '#111827',
                           borderRadius: '8px'
                         }}
-                        onClick={() => navigate(`/book?event=${encodeURIComponent(event.title)}`)}
+                        onClick={() => navigate(`/book?event=${event.id}`)}
                       >
                         Book Now
                       </Button>

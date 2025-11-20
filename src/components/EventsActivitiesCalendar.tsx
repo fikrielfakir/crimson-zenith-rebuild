@@ -453,7 +453,7 @@ const EventsActivitiesCalendar = () => {
                             fontSize: '14px',
                             transition: 'background-color 0.25s ease-in-out'
                           }}
-                          onClick={() => navigate(`/book?event=${encodeURIComponent(event.title)}`)}
+                          onClick={() => navigate(`/book?event=${event.id}`)}
                           onMouseEnter={(e) => {
                             e.currentTarget.style.backgroundColor = '#C9A758';
                           }}
