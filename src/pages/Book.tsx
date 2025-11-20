@@ -330,8 +330,11 @@ const Book = () => {
   const included = parseJsonField(selectedEvent.included);
   const notIncluded = parseJsonField(selectedEvent.notIncluded);
   const languages = selectedEvent.languages?.split(',').map((l: string) => l.trim()) || ['English'];
+  const schedule: any[] = []; // Schedule will come from event_schedule table in future
+  const reviews: any[] = []; // Reviews will come from reviews table in future
 
   const totalPrice = selectedEvent.price * participants;
+  const savings = 0; // No savings calculation for now
 
   // Calculate available dates from eventDate and endDate
   const getAvailableDates = () => {
