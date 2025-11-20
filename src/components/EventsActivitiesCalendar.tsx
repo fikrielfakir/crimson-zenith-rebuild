@@ -42,9 +42,37 @@ const EventsActivitiesCalendar = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [currentPage, setCurrentPage] = useState(0);
   const [events, setEvents] = useState<Event[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const eventsPerPage = 2;
+
+  // Fetch events from booking_events table
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        setLoading(true);
+        
+        // Fetch all events from booking_events table
+        const response = await fetch('/api/booking/events');
+        const data = await response.json();
+        
+        // Map the events to match the component's expected format
+        const mappedEvents = (data.events || []).map((event: any) => ({
+          ...event,
+          // The booking_events table already has isAssociationEvent field
+          // clubName will be populated if it's a club event
+        }));
+        
+        setEvents(mappedEvents);
+      } catch (error) {
+        console.error('Failed to fetch events:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEvents();
+  }, []);
 
   const handleDateChange = (value: any) => {
     if (value instanceof Date) {

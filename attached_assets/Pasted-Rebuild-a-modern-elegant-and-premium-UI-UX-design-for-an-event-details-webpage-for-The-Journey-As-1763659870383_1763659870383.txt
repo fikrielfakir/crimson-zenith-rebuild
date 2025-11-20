@@ -1,0 +1,55 @@
+Rebuild a modern, elegant, and premium UI/UX design for an event details webpage for “The Journey Association,” a luxury travel and exploration brand. The design should reflect high-end aesthetics, adventure, and professionalism.
+
+General Style:
+– Clean, minimal, luxury look
+– Large white spaces, premium typography
+– Smooth card shadows and soft rounded shapes
+– Professional navy, gold, and white color palette
+– Balance between visual storytelling and booking usability
+
+Hero Section:
+– Full-width immersive mountain/landscape hero image
+– Elegant title “Event Name” overlaid or placed below with refined typography
+– Breadcrumb navigation redesigned with subtle icons
+
+Event Media Section:
+– Large responsive image slider with smooth transitions
+– Soft shadow, rounded corners, minimal controls
+
+Tabbed Content Section:
+– Tabs: Overview, Schedule, Reviews
+– Modern floating tabs with active highlight
+– Content cards for “What’s Included” and “What’s Not Included”
+– Icons in green/red, minimalist style
+
+Booking Sidebar:
+– Clean pricing box
+– Modern numeric stepper for participant selection
+– Beautiful date picker with a premium style
+– Clear price breakdown with emphasis on total
+– Bold “Book Now” button in gold with rounded corners
+– Small footnote for cancellation policy
+
+Important Information Section:
+– Light icons, soft layout, clear spacing
+– Accessible typography and contrast
+
+Footer Redesign:
+– Clean structured layout with 3–4 columns
+– Modern icons for social media
+– Subtle dividers and spacing
+– Luxury brand feel using navy background and soft gold accents
+
+UI/UX Principles to Apply:
+– Strong visual hierarchy
+– Consistent spacing system
+– Crystal clear readability
+– Balanced alignment
+– Mobile-first responsive layout
+– Smooth interactions and micro-animations (hover, tabs, buttons)
+
+Output should be:
+– Clean, elegant mockup
+– Modern, travel-oriented, luxury-brand aesthetic
+– Perfectly optimized for user conversion and user experience
+– Desktop + mobile-friendly layout presentation.

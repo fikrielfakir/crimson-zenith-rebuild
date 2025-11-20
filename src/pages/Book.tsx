@@ -19,20 +19,22 @@ import {
   Calendar as CalendarIcon,
   Share2,
   Heart,
-  Camera,
   Shield,
   MessageCircle,
-  Award,
   Globe,
   Home,
   ChevronRight,
-  ChevronLeft
+  ChevronLeft,
+  Plus,
+  Minus,
+  Award,
+  Info
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { addDays, differenceInDays, format, isSameDay } from "date-fns";
+import { addDays, format, isSameDay } from "date-fns";
 import useEmblaCarousel from 'embla-carousel-react';
 import AutoScroll from 'embla-carousel-auto-scroll';
 
@@ -43,12 +45,10 @@ const Book = () => {
   const [participants, setParticipants] = useState(2);
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
   const [isBookmarked, setIsBookmarked] = useState(false);
-  const [events, setEvents] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [galleryImages, setGalleryImages] = useState<any[]>([]);
   
-  // Booking form state
   const [showBookingDialog, setShowBookingDialog] = useState(false);
   const [customerName, setCustomerName] = useState('');
   const [customerEmail, setCustomerEmail] = useState('');
@@ -57,25 +57,21 @@ const Book = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
-  // Carousel setup
   const [emblaRef, emblaApi] = useEmblaCarousel(
     { loop: true, align: 'center' },
-    [AutoScroll({ playOnInit: true, speed: 1 })]
+    [AutoScroll({ playOnInit: false, speed: 1 })]
   );
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
-  // Map state
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
   const [mapStyleUrl, setMapStyleUrl] = useState<string | null>(null);
 
-  // Fetch satellite map style
   useEffect(() => {
     const initMapStyle = async () => {
       try {
         const response = await fetch("https://tiles.openfreemap.org/styles/liberty");
         if (response.ok) {
-          const styleJson = await response.json();
           setMapStyleUrl("https://tiles.openfreemap.org/styles/liberty");
         }
       } catch (error) {
@@ -83,29 +79,24 @@ const Book = () => {
         setMapStyleUrl("https://tiles.openfreemap.org/styles/liberty");
       }
     };
-
     initMapStyle();
   }, []);
 
-  // Fetch event from backend using club_events table
   useEffect(() => {
     const fetchEvent = async () => {
       try {
         setIsLoading(true);
         
-        // If no event param, fetch all booking events and use first one
         if (!eventParam) {
           const response = await fetch('/api/booking/events');
           const data = await response.json();
           
           if (response.ok && data.events && data.events.length > 0) {
-            // Use the first booking event
             setSelectedEvent(data.events[0]);
           } else {
             throw new Error('No events available');
           }
         } else {
-          // Fetch specific booking event by ID
           const response = await fetch(`/api/booking/events/${eventParam}`);
           const data = await response.json();
           
@@ -125,31 +116,26 @@ const Book = () => {
     fetchEvent();
   }, [eventParam]);
 
-  // Parse gallery images from event data
   useEffect(() => {
     if (!selectedEvent) return;
     
     try {
-      // Booking events have images as a JSON string
       if (selectedEvent.images) {
         const images = typeof selectedEvent.images === 'string' 
           ? JSON.parse(selectedEvent.images)
           : selectedEvent.images;
         setGalleryImages(images);
       } else if (selectedEvent.image) {
-        // Fallback to single image if gallery not available
         setGalleryImages([selectedEvent.image]);
       }
     } catch (err) {
       console.error('Failed to parse event images:', err);
-      // Fallback to single image if parsing fails
       if (selectedEvent.image) {
         setGalleryImages([selectedEvent.image]);
       }
     }
   }, [selectedEvent]);
 
-  // Handle carousel selection changes
   useEffect(() => {
     if (!emblaApi) return;
 
@@ -165,7 +151,6 @@ const Book = () => {
     };
   }, [emblaApi]);
 
-  // Initialize map when event is selected
   useEffect(() => {
     if (!selectedEvent || !mapContainer.current || !mapStyleUrl || map.current) return;
 
@@ -181,15 +166,13 @@ const Book = () => {
         attributionControl: false,
       });
 
-      // Add marker for event location
       const el = document.createElement('div');
-      el.className = 'custom-marker';
-      el.style.width = '30px';
-      el.style.height = '30px';
+      el.style.width = '36px';
+      el.style.height = '36px';
       el.style.borderRadius = '50%';
-      el.style.backgroundColor = '#D4A574';
-      el.style.border = '3px solid white';
-      el.style.boxShadow = '0 2px 10px rgba(0,0,0,0.3)';
+      el.style.backgroundColor = '#D4B26A';
+      el.style.border = '4px solid white';
+      el.style.boxShadow = '0 4px 16px rgba(212, 178, 106, 0.4)';
 
       new maplibregl.Marker({ element: el })
         .setLngLat([longitude, latitude])
@@ -207,7 +190,6 @@ const Book = () => {
     };
   }, [selectedEvent, mapStyleUrl]);
 
-  // Set default selected date to event start date
   useEffect(() => {
     if (!selectedDate && selectedEvent?.eventDate) {
       setSelectedDate(new Date(selectedEvent.eventDate));
@@ -322,11 +304,11 @@ const Book = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-white">
         <Header />
-        <div className="container mx-auto px-4 py-20 text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-muted-foreground">Loading booking events...</p>
+        <div className="container mx-auto px-6 py-32 text-center">
+          <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-[#D4B26A] border-t-transparent"></div>
+          <p className="mt-6 text-gray-600 font-['Inter'] text-lg">Loading your experience...</p>
         </div>
         <Footer />
       </div>
@@ -335,13 +317,13 @@ const Book = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-white">
         <Header />
-        <div className="container mx-auto px-4 py-20 text-center">
+        <div className="container mx-auto px-6 py-32 text-center">
           <div className="text-red-500 mb-4">
-            <X className="w-16 h-16 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold">Error Loading Events</h2>
-            <p className="mt-2">{error}</p>
+            <X className="w-20 h-20 mx-auto mb-6" />
+            <h2 className="text-3xl font-bold font-['Poppins'] text-[#1E3A5F] mb-3">Unable to Load Event</h2>
+            <p className="mt-3 text-gray-600 font-['Inter']">{error}</p>
           </div>
         </div>
         <Footer />
@@ -349,32 +331,28 @@ const Book = () => {
     );
   }
 
-
   if (!selectedEvent) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-white">
         <Header />
-        <div className="container mx-auto px-4 py-20 text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-muted-foreground">Loading event details...</p>
+        <div className="container mx-auto px-6 py-32 text-center">
+          <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-[#D4B26A] border-t-transparent"></div>
+          <p className="mt-6 text-gray-600 font-['Inter'] text-lg">Preparing your adventure...</p>
         </div>
         <Footer />
       </div>
     );
   }
 
-  // API now returns arrays directly, just ensure they're valid
   const highlights = Array.isArray(selectedEvent.highlights) ? selectedEvent.highlights : [];
   const included = Array.isArray(selectedEvent.included) ? selectedEvent.included : [];
   const notIncluded = Array.isArray(selectedEvent.notIncluded) ? selectedEvent.notIncluded : [];
   const languages = selectedEvent.languages?.split(',').map((l: string) => l.trim()) || ['English'];
-  const schedule: any[] = []; // Schedule will come from event_schedule table in future
-  const reviews: any[] = []; // Reviews will come from reviews table in future
+  const schedule: any[] = [];
+  const reviews: any[] = [];
 
   const totalPrice = (selectedEvent.price || 0) * participants;
-  const savings = 0; // No savings calculation for now
 
-  // Calculate available dates from eventDate and endDate
   const getAvailableDates = () => {
     if (!selectedEvent.eventDate) {
       return [];
@@ -398,148 +376,194 @@ const Book = () => {
   const scrollPrev = () => emblaApi && emblaApi.scrollPrev();
   const scrollNext = () => emblaApi && emblaApi.scrollNext();
 
-  // Use gallery images if available, otherwise fallback to single event image
-  // Normalize image format - handle both string URLs and objects with imageUrl property
   const displayImages = galleryImages.length > 0
     ? galleryImages.map(img => typeof img === 'string' ? img : (img.imageUrl || img.url || '/api/placeholder/1200/600'))
     : (selectedEvent.image ? [selectedEvent.image] : ['/api/placeholder/1200/600']);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-white">
       <Header />
 
-      {/* Hero Section with Primary Color Background */}
-      <section className="relative py-20 overflow-hidden" style={{ paddingTop: '15rem' }}>
-        {/* Primary Color Background */}
-        <div 
-          className="absolute inset-0"
-          style={{
-            backgroundColor: 'hsl(var(--primary))',
-          }}
-        />
+      {/* Premium Hero Section with Immersive Background */}
+      <section className="relative h-[70vh] min-h-[500px] overflow-hidden">
+        {/* Hero Image Background */}
+        <div className="absolute inset-0">
+          <img 
+            src={displayImages[0]} 
+            alt={selectedEvent.title}
+            className="w-full h-full object-cover"
+          />
+          {/* Elegant Gradient Overlays */}
+          <div className="absolute inset-0 bg-gradient-to-b from-[#1E3A5F]/60 via-[#1E3A5F]/40 to-[#1E3A5F]/70" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/20" />
+        </div>
 
-        {/* Gradient Overlays */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/10" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/5 via-transparent to-black/5" />
-
-        {/* Content */}
-        <div className="relative container mx-auto px-6">
-          {/* Breadcrumb Navigation */}
+        {/* Hero Content */}
+        <div className="relative h-full flex flex-col justify-between container mx-auto px-6 py-12">
+          {/* Elegant Breadcrumb Navigation */}
           <nav className="mb-8">
-            <ol className="flex items-center space-x-2 text-sm">
+            <ol className="flex items-center space-x-3">
               <li>
                 <Link 
                   to="/" 
-                  className="flex items-center text-white/90 hover:text-white transition-colors bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-full border border-white/20 hover:border-white/40"
+                  className="group flex items-center gap-2 text-white/90 hover:text-white transition-all duration-300 bg-white/10 backdrop-blur-md px-4 py-2.5 rounded-full border border-white/20 hover:border-white/40 hover:bg-white/15 font-['Inter'] text-sm shadow-lg"
                 >
-                  <Home className="w-4 h-4 mr-1.5" />
-                  Home
+                  <Home className="w-4 h-4" />
+                  <span className="hidden sm:inline">Home</span>
                 </Link>
               </li>
-              <li className="flex items-center">
-                <ChevronRight className="w-4 h-4 mx-2 text-white/50" />
-                <span className="text-white font-semibold bg-white/15 backdrop-blur-sm px-3 py-1.5 rounded-full border border-white/30 shadow-lg">
-                  {selectedEvent.title}
+              <ChevronRight className="w-4 h-4 text-white/60" />
+              <li>
+                <span className="flex items-center gap-2 text-white font-semibold bg-white/20 backdrop-blur-md px-4 py-2.5 rounded-full border border-white/30 shadow-xl font-['Inter'] text-sm">
+                  <CalendarIcon className="w-4 h-4" />
+                  Event Details
                 </span>
               </li>
             </ol>
           </nav>
 
-          {/* Main Heading */}
-          <div className="mb-8">
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-4 drop-shadow-2xl">
+          {/* Hero Title */}
+          <div className="pb-12">
+            <h1 className="font-['Poppins'] font-bold text-white mb-6 drop-shadow-2xl text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-tight">
               {selectedEvent.title}
             </h1>
+            
+            {/* Event Meta Information */}
+            <div className="flex flex-wrap gap-4 items-center">
+              <div className="flex items-center gap-2 bg-white/15 backdrop-blur-md px-4 py-2.5 rounded-full border border-white/25 shadow-lg">
+                <MapPin className="w-5 h-5 text-[#D4B26A]" />
+                <span className="text-white font-['Inter'] font-medium">{selectedEvent.location}</span>
+              </div>
+              <div className="flex items-center gap-2 bg-white/15 backdrop-blur-md px-4 py-2.5 rounded-full border border-white/25 shadow-lg">
+                <Clock className="w-5 h-5 text-[#D4B26A]" />
+                <span className="text-white font-['Inter'] font-medium">{selectedEvent.duration || '4 hours'}</span>
+              </div>
+              {selectedEvent.rating && (
+                <div className="flex items-center gap-2 bg-white/15 backdrop-blur-md px-4 py-2.5 rounded-full border border-white/25 shadow-lg">
+                  <Star className="w-5 h-5 text-[#D4B26A] fill-[#D4B26A]" />
+                  <span className="text-white font-['Inter'] font-semibold">{selectedEvent.rating}</span>
+                  <span className="text-white/80 font-['Inter'] text-sm">({selectedEvent.reviewCount} reviews)</span>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Image Carousel Section */}
-      <div className="container mx-auto px-4 -mt-8 mb-8">
-        <div className="relative max-w-6xl mx-auto">
-          <div className="overflow-hidden rounded-xl shadow-2xl" ref={emblaRef}>
-            <div className="flex">
-              {displayImages.map((image, index) => (
-                <div key={index} className="flex-[0_0_100%] min-w-0">
-                  <div className="relative aspect-[16/9]">
-                    <img 
-                      src={image}
-                      alt={`${selectedEvent.title} - Image ${index + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
+      {/* Premium Image Gallery Carousel */}
+      {displayImages.length > 1 && (
+        <div className="container mx-auto px-6 -mt-24 mb-16 relative z-10">
+          <div className="max-w-6xl mx-auto">
+            <div className="relative rounded-3xl overflow-hidden shadow-2xl" style={{ boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)' }}>
+              <div ref={emblaRef} className="overflow-hidden">
+                <div className="flex">
+                  {displayImages.map((image, index) => (
+                    <div key={index} className="flex-[0_0_100%] min-w-0">
+                      <div className="relative aspect-[21/9]">
+                        <img 
+                          src={image}
+                          alt={`${selectedEvent.title} - Gallery ${index + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </div>
+              </div>
 
-          {/* Carousel Navigation Buttons */}
-          {displayImages.length > 1 && (
-            <>
+              {/* Premium Navigation Buttons */}
               <button
                 onClick={scrollPrev}
-                className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-primary p-3 rounded-full shadow-lg transition-all duration-200 hover:scale-110 z-10"
+                className="absolute left-6 top-1/2 -translate-y-1/2 bg-white/95 hover:bg-white text-[#1E3A5F] p-4 rounded-full shadow-xl transition-all duration-300 hover:scale-110 hover:shadow-2xl z-10 backdrop-blur-sm"
                 aria-label="Previous image"
               >
                 <ChevronLeft className="w-6 h-6" />
               </button>
               <button
                 onClick={scrollNext}
-                className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-primary p-3 rounded-full shadow-lg transition-all duration-200 hover:scale-110 z-10"
+                className="absolute right-6 top-1/2 -translate-y-1/2 bg-white/95 hover:bg-white text-[#1E3A5F] p-4 rounded-full shadow-xl transition-all duration-300 hover:scale-110 hover:shadow-2xl z-10 backdrop-blur-sm"
                 aria-label="Next image"
               >
                 <ChevronRight className="w-6 h-6" />
               </button>
 
-              {/* Carousel Dots Indicator */}
-              <div className="flex justify-center gap-2 mt-4">
+              {/* Elegant Dots Indicator */}
+              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2.5 z-10">
                 {displayImages.map((_, index) => (
                   <button
                     key={index}
                     onClick={() => emblaApi && emblaApi.scrollTo(index)}
-                    className={`h-2 rounded-full transition-all duration-300 ${
+                    className={`h-2.5 rounded-full transition-all duration-300 ${
                       index === selectedImageIndex
-                        ? 'bg-primary w-8'
-                        : 'bg-gray-300 hover:bg-gray-400 w-2'
+                        ? 'bg-[#D4B26A] w-12 shadow-lg'
+                        : 'bg-white/60 hover:bg-white/80 w-2.5'
                     }`}
-                    aria-label={`Go to image ${index + 1}`}
+                    aria-label={`View image ${index + 1}`}
                   />
                 ))}
               </div>
-            </>
-          )}
+            </div>
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Main Content */}
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Left Column - Details */}
-          <div className="lg:col-span-2 space-y-6">
+      {/* Main Content Section */}
+      <div className="container mx-auto px-6 py-16">
+        <div className="grid lg:grid-cols-3 gap-12 max-w-7xl mx-auto">
+          
+          {/* Left Column - Event Details */}
+          <div className="lg:col-span-2 space-y-10">
             
-            {/* Tabs Section */}
+            {/* Modern Floating Tabs */}
             <Tabs defaultValue="overview" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="overview">Overview</TabsTrigger>
-                <TabsTrigger value="schedule">Schedule</TabsTrigger>
-                <TabsTrigger value="reviews">Reviews</TabsTrigger>
+              <TabsList className="w-full grid grid-cols-3 bg-gray-50 p-1.5 rounded-2xl border border-gray-100 shadow-sm h-auto">
+                <TabsTrigger 
+                  value="overview"
+                  className="font-['Inter'] font-semibold text-base data-[state=active]:bg-white data-[state=active]:text-[#1E3A5F] data-[state=active]:shadow-md rounded-xl py-3.5 transition-all duration-300"
+                >
+                  Overview
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="schedule"
+                  className="font-['Inter'] font-semibold text-base data-[state=active]:bg-white data-[state=active]:text-[#1E3A5F] data-[state=active]:shadow-md rounded-xl py-3.5 transition-all duration-300"
+                >
+                  Schedule
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="reviews"
+                  className="font-['Inter'] font-semibold text-base data-[state=active]:bg-white data-[state=active]:text-[#1E3A5F] data-[state=active]:shadow-md rounded-xl py-3.5 transition-all duration-300"
+                >
+                  Reviews
+                </TabsTrigger>
               </TabsList>
               
-              <TabsContent value="overview" className="space-y-6 mt-6">
+              {/* Overview Tab */}
+              <TabsContent value="overview" className="space-y-10 mt-10">
+                
+                {/* About Section */}
                 <div>
-                  <h3 className="text-2xl font-bold mb-4">About This Experience</h3>
-                  <p className="text-muted-foreground leading-relaxed mb-6">
+                  <h3 className="font-['Poppins'] text-3xl font-bold text-[#1E3A5F] mb-6">About This Experience</h3>
+                  <p className="font-['Inter'] text-gray-700 leading-relaxed text-lg mb-8">
                     {selectedEvent.description}
                   </p>
                   
+                  {/* Highlights */}
                   {highlights.length > 0 && (
                     <>
-                      <h4 className="text-xl font-semibold mb-4">Highlights</h4>
-                      <div className="grid md:grid-cols-2 gap-3 mb-6">
+                      <h4 className="font-['Poppins'] text-2xl font-semibold text-[#1E3A5F] mb-6 flex items-center gap-3">
+                        <Award className="w-6 h-6 text-[#D4B26A]" />
+                        Experience Highlights
+                      </h4>
+                      <div className="grid md:grid-cols-2 gap-4 mb-8">
                         {highlights.map((highlight, index) => (
-                          <div key={index} className="flex items-start gap-3">
-                            <Check className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                            <span>{highlight}</span>
+                          <div 
+                            key={index} 
+                            className="flex items-start gap-4 p-4 rounded-xl bg-gradient-to-br from-green-50 to-emerald-50 border border-green-100 transition-all duration-300 hover:shadow-md"
+                          >
+                            <div className="flex-shrink-0 w-6 h-6 rounded-full bg-green-500 flex items-center justify-center mt-0.5">
+                              <Check className="w-4 h-4 text-white" strokeWidth={3} />
+                            </div>
+                            <span className="font-['Inter'] text-gray-800 leading-relaxed">{highlight}</span>
                           </div>
                         ))}
                       </div>
@@ -547,116 +571,194 @@ const Book = () => {
                   )}
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div>
-                    <h4 className="text-lg font-semibold mb-4 text-green-700 flex items-center">
-                      <Check className="w-5 h-5 mr-2" />
-                      What's Included
-                    </h4>
-                    <ul className="space-y-2">
-                      {included.map((item, index) => (
-                        <li key={index} className="flex items-start gap-3 text-sm">
-                          <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+                {/* What's Included / Not Included Cards */}
+                <div className="grid md:grid-cols-2 gap-8">
                   
-                  <div>
-                    <h4 className="text-lg font-semibold mb-4 text-red-700 flex items-center">
-                      <X className="w-5 h-5 mr-2" />
-                      What's Not Included
-                    </h4>
-                    <ul className="space-y-2">
-                      {notIncluded.map((item, index) => (
-                        <li key={index} className="flex items-start gap-3 text-sm">
-                          <X className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+                  {/* Included Card */}
+                  <Card className="border-2 border-green-100 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
+                    <div className="bg-gradient-to-r from-green-500 to-emerald-600 p-5">
+                      <h4 className="font-['Poppins'] text-xl font-bold text-white flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                          <Check className="w-5 h-5 text-white" strokeWidth={3} />
+                        </div>
+                        What's Included
+                      </h4>
+                    </div>
+                    <CardContent className="p-6">
+                      <ul className="space-y-3">
+                        {included.map((item, index) => (
+                          <li key={index} className="flex items-start gap-3 font-['Inter'] text-gray-700">
+                            <Check className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" strokeWidth={2.5} />
+                            <span>{item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </CardContent>
+                  </Card>
+                  
+                  {/* Not Included Card */}
+                  <Card className="border-2 border-red-100 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
+                    <div className="bg-gradient-to-r from-red-500 to-rose-600 p-5">
+                      <h4 className="font-['Poppins'] text-xl font-bold text-white flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                          <X className="w-5 h-5 text-white" strokeWidth={3} />
+                        </div>
+                        What's Not Included
+                      </h4>
+                    </div>
+                    <CardContent className="p-6">
+                      <ul className="space-y-3">
+                        {notIncluded.map((item, index) => (
+                          <li key={index} className="flex items-start gap-3 font-['Inter'] text-gray-700">
+                            <X className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" strokeWidth={2.5} />
+                            <span>{item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </CardContent>
+                  </Card>
                 </div>
 
-                <div>
-                  <h4 className="text-lg font-semibold mb-4">Important Information</h4>
-                  <div className="space-y-3 text-sm text-muted-foreground">
-                    {selectedEvent.ageRange && (
-                      <div className="flex items-center gap-3">
-                        <Users className="w-4 h-4 text-primary" />
-                        <span><strong>Age Range:</strong> {selectedEvent.ageRange}</span>
+                {/* Important Information Section */}
+                <Card className="border border-gray-200 rounded-2xl shadow-md bg-gradient-to-br from-blue-50/50 to-indigo-50/30">
+                  <CardContent className="p-8">
+                    <h4 className="font-['Poppins'] text-2xl font-semibold text-[#1E3A5F] mb-6 flex items-center gap-3">
+                      <Info className="w-6 h-6 text-[#D4B26A]" />
+                      Important Information
+                    </h4>
+                    <div className="grid md:grid-cols-2 gap-6">
+                      {selectedEvent.ageRange && (
+                        <div className="flex items-start gap-4 p-4 rounded-xl bg-white border border-gray-100">
+                          <div className="w-10 h-10 rounded-full bg-[#D4B26A]/10 flex items-center justify-center flex-shrink-0">
+                            <Users className="w-5 h-5 text-[#D4B26A]" />
+                          </div>
+                          <div>
+                            <p className="font-['Inter'] font-semibold text-[#1E3A5F] mb-1">Age Range</p>
+                            <p className="font-['Inter'] text-gray-600">{selectedEvent.ageRange}</p>
+                          </div>
+                        </div>
+                      )}
+                      {selectedEvent.cancellationPolicy && (
+                        <div className="flex items-start gap-4 p-4 rounded-xl bg-white border border-gray-100">
+                          <div className="w-10 h-10 rounded-full bg-[#D4B26A]/10 flex items-center justify-center flex-shrink-0">
+                            <Shield className="w-5 h-5 text-[#D4B26A]" />
+                          </div>
+                          <div>
+                            <p className="font-['Inter'] font-semibold text-[#1E3A5F] mb-1">Cancellation Policy</p>
+                            <p className="font-['Inter'] text-gray-600">{selectedEvent.cancellationPolicy}</p>
+                          </div>
+                        </div>
+                      )}
+                      <div className="flex items-start gap-4 p-4 rounded-xl bg-white border border-gray-100">
+                        <div className="w-10 h-10 rounded-full bg-[#D4B26A]/10 flex items-center justify-center flex-shrink-0">
+                          <Globe className="w-5 h-5 text-[#D4B26A]" />
+                        </div>
+                        <div>
+                          <p className="font-['Inter'] font-semibold text-[#1E3A5F] mb-1">Languages</p>
+                          <p className="font-['Inter'] text-gray-600">Available in {languages.join(', ')}</p>
+                        </div>
                       </div>
-                    )}
-                    {selectedEvent.cancellationPolicy && (
-                      <div className="flex items-center gap-3">
-                        <Shield className="w-4 h-4 text-primary" />
-                        <span><strong>Cancellation:</strong> {selectedEvent.cancellationPolicy}</span>
+                      <div className="flex items-start gap-4 p-4 rounded-xl bg-white border border-gray-100">
+                        <div className="w-10 h-10 rounded-full bg-[#D4B26A]/10 flex items-center justify-center flex-shrink-0">
+                          <MessageCircle className="w-5 h-5 text-[#D4B26A]" />
+                        </div>
+                        <div>
+                          <p className="font-['Inter'] font-semibold text-[#1E3A5F] mb-1">Support</p>
+                          <p className="font-['Inter'] text-gray-600">24/7 customer service</p>
+                        </div>
                       </div>
-                    )}
-                    <div className="flex items-center gap-3">
-                      <MessageCircle className="w-4 h-4 text-primary" />
-                      <span><strong>Languages:</strong> Available in {languages.length > 0 ? languages.join(', ') : 'English'}</span>
                     </div>
-                  </div>
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="schedule" className="space-y-4 mt-6">
-                <h3 className="text-2xl font-bold mb-4">Daily Schedule</h3>
-                {schedule.length > 0 ? (
-                  <div className="space-y-4">
-                    {schedule.map((item, index) => (
-                      <div key={index} className="flex gap-4 p-4 border rounded-lg">
-                        <div className="font-semibold text-primary min-w-16">{item.time}</div>
-                        <div>{item.activity}</div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-muted-foreground">No schedule information available.</p>
+                  </CardContent>
+                </Card>
+
+                {/* Location Map */}
+                {selectedEvent.latitude && selectedEvent.longitude && (
+                  <Card className="border border-gray-200 rounded-2xl shadow-md overflow-hidden">
+                    <div className="bg-gradient-to-r from-[#1E3A5F] to-[#2A4A6F] p-5">
+                      <h4 className="font-['Poppins'] text-xl font-bold text-white flex items-center gap-3">
+                        <MapPin className="w-5 h-5 text-[#D4B26A]" />
+                        Meeting Location
+                      </h4>
+                    </div>
+                    <div ref={mapContainer} className="w-full h-80" />
+                  </Card>
                 )}
               </TabsContent>
               
-              <TabsContent value="reviews" className="space-y-6 mt-6">
+              {/* Schedule Tab */}
+              <TabsContent value="schedule" className="space-y-6 mt-10">
+                <div>
+                  <h3 className="font-['Poppins'] text-3xl font-bold text-[#1E3A5F] mb-6">Daily Schedule</h3>
+                  {schedule.length > 0 ? (
+                    <div className="space-y-4">
+                      {schedule.map((item, index) => (
+                        <Card key={index} className="border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-300">
+                          <CardContent className="p-6">
+                            <div className="flex gap-6 items-start">
+                              <div className="font-['Poppins'] font-bold text-[#D4B26A] text-lg min-w-[80px] bg-[#D4B26A]/10 px-4 py-2 rounded-lg text-center">
+                                {item.time}
+                              </div>
+                              <div className="font-['Inter'] text-gray-700 leading-relaxed text-lg flex-1">
+                                {item.activity}
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  ) : (
+                    <Card className="border border-gray-200 rounded-xl">
+                      <CardContent className="p-12 text-center">
+                        <Clock className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                        <p className="font-['Inter'] text-gray-500 text-lg">Detailed schedule coming soon</p>
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
+              </TabsContent>
+              
+              {/* Reviews Tab */}
+              <TabsContent value="reviews" className="space-y-8 mt-10">
                 <div className="flex justify-between items-center">
-                  <h3 className="text-2xl font-bold">Reviews</h3>
-                  <div className="flex items-center gap-2">
-                    <Star className="w-5 h-5 text-yellow-400 fill-current" />
-                    <span className="text-xl font-bold">{selectedEvent.rating}</span>
-                    <span className="text-muted-foreground">({selectedEvent.reviewCount} reviews)</span>
-                  </div>
+                  <h3 className="font-['Poppins'] text-3xl font-bold text-[#1E3A5F]">Guest Reviews</h3>
+                  {selectedEvent.rating && (
+                    <div className="flex items-center gap-3 bg-[#D4B26A]/10 px-6 py-3 rounded-xl border border-[#D4B26A]/20">
+                      <Star className="w-7 h-7 text-[#D4B26A] fill-[#D4B26A]" />
+                      <span className="font-['Poppins'] text-2xl font-bold text-[#1E3A5F]">{selectedEvent.rating}</span>
+                      <span className="font-['Inter'] text-gray-600">({selectedEvent.reviewCount} reviews)</span>
+                    </div>
+                  )}
                 </div>
                 
                 {reviews.length > 0 ? (
                   <div className="space-y-6">
                     {reviews.map((review, index) => (
-                      <Card key={index}>
-                        <CardContent className="p-6">
-                          <div className="flex items-start gap-4">
+                      <Card key={index} className="border border-gray-200 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
+                        <CardContent className="p-8">
+                          <div className="flex items-start gap-5">
                             <img 
                               src={review.avatar} 
                               alt={review.name}
-                              className="w-12 h-12 rounded-full object-cover"
+                              className="w-14 h-14 rounded-full object-cover shadow-md"
                             />
                             <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-2">
-                                <h5 className="font-semibold">{review.name}</h5>
-                                <div className="flex">
+                              <div className="flex items-center gap-3 mb-3">
+                                <h5 className="font-['Poppins'] font-semibold text-lg text-[#1E3A5F]">{review.name}</h5>
+                                <div className="flex gap-1">
                                   {[...Array(5)].map((_, i) => (
                                     <Star 
                                       key={i}
                                       className={`w-4 h-4 ${
                                         i < review.rating 
-                                          ? 'text-yellow-400 fill-current' 
+                                          ? 'text-[#D4B26A] fill-[#D4B26A]' 
                                           : 'text-gray-300'
                                       }`}
                                     />
                                   ))}
                                 </div>
-                                <span className="text-sm text-muted-foreground">{review.date}</span>
+                                <span className="font-['Inter'] text-sm text-gray-500">{review.date}</span>
                               </div>
-                              <p className="text-muted-foreground leading-relaxed">{review.comment}</p>
+                              <p className="font-['Inter'] text-gray-700 leading-relaxed">{review.comment}</p>
                             </div>
                           </div>
                         </CardContent>
@@ -664,135 +766,173 @@ const Book = () => {
                     ))}
                   </div>
                 ) : (
-                  <p className="text-muted-foreground">No reviews yet.</p>
+                  <Card className="border border-gray-200 rounded-xl">
+                    <CardContent className="p-12 text-center">
+                      <Star className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                      <p className="font-['Inter'] text-gray-500 text-lg">Be the first to review this experience</p>
+                    </CardContent>
+                  </Card>
                 )}
               </TabsContent>
             </Tabs>
           </div>
 
-          {/* Right Column - Booking Card */}
+          {/* Right Column - Premium Booking Sidebar */}
           <div className="lg:col-span-1">
-            <Card className="sticky top-4">
-              <CardContent className="p-6">
-                <div className="mb-6">
-                  <div className="flex items-baseline gap-2 mb-2">
-                    <span className="text-3xl font-bold">${selectedEvent.price}</span>
-                    <span className="text-muted-foreground">/ person</span>
+            <Card className="sticky top-24 border-2 border-gray-200 rounded-3xl shadow-2xl overflow-hidden" style={{ boxShadow: '0 20px 50px rgba(0, 0, 0, 0.12)' }}>
+              
+              {/* Pricing Header */}
+              <div className="bg-gradient-to-br from-[#1E3A5F] via-[#2A4A6F] to-[#1E3A5F] p-8">
+                <div className="flex items-baseline gap-3 mb-2">
+                  <span className="font-['Poppins'] text-5xl font-bold text-white">${selectedEvent.price}</span>
+                  <span className="font-['Inter'] text-white/80 text-lg">per person</span>
+                </div>
+                {selectedEvent.originalPrice && selectedEvent.originalPrice > selectedEvent.price && (
+                  <div className="flex items-center gap-3 mt-3">
+                    <span className="font-['Inter'] text-white/60 line-through text-lg">${selectedEvent.originalPrice}</span>
+                    <Badge className="bg-[#D4B26A] text-white border-0 font-['Inter'] font-semibold px-3 py-1 text-sm">
+                      Save ${selectedEvent.originalPrice - selectedEvent.price}
+                    </Badge>
                   </div>
-                  {selectedEvent.originalPrice && (
-                    <div className="flex items-center gap-2">
-                      <span className="text-muted-foreground line-through">${selectedEvent.originalPrice}</span>
-                      <Badge variant="secondary" className="bg-green-100 text-green-800">
-                        Save ${selectedEvent.originalPrice - selectedEvent.price}
-                      </Badge>
-                    </div>
-                  )}
+                )}
+              </div>
+
+              <CardContent className="p-8 space-y-8">
+                
+                {/* Participant Selector with Premium Stepper */}
+                <div>
+                  <Label className="font-['Inter'] font-semibold text-[#1E3A5F] mb-4 block text-lg">Number of Travelers</Label>
+                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border-2 border-gray-200">
+                    <button
+                      onClick={() => setParticipants(Math.max(1, participants - 1))}
+                      className="w-12 h-12 rounded-full bg-white border-2 border-gray-300 flex items-center justify-center text-[#1E3A5F] hover:bg-[#1E3A5F] hover:text-white hover:border-[#1E3A5F] transition-all duration-300 shadow-sm hover:shadow-md"
+                      disabled={participants <= 1}
+                    >
+                      <Minus className="w-5 h-5" strokeWidth={3} />
+                    </button>
+                    <span className="font-['Poppins'] text-3xl font-bold text-[#1E3A5F]">{participants}</span>
+                    <button
+                      onClick={() => setParticipants(Math.min(20, participants + 1))}
+                      className="w-12 h-12 rounded-full bg-white border-2 border-gray-300 flex items-center justify-center text-[#1E3A5F] hover:bg-[#D4B26A] hover:text-white hover:border-[#D4B26A] transition-all duration-300 shadow-sm hover:shadow-md"
+                      disabled={participants >= 20}
+                    >
+                      <Plus className="w-5 h-5" strokeWidth={3} />
+                    </button>
+                  </div>
                 </div>
 
-                <div className="space-y-4 mb-6">
-                  <div>
-                    <Label htmlFor="participants" className="mb-2 block">Number of Participants</Label>
-                    <Input
-                      id="participants"
-                      type="number"
-                      min="1"
-                      max="20"
-                      value={participants}
-                      onChange={(e) => setParticipants(parseInt(e.target.value) || 1)}
-                      className="w-full"
-                    />
-                  </div>
-
-                  <div>
-                    <Label className="mb-2 block">Select Date</Label>
-                    {availableDates.length > 0 ? (
-                      <div className="grid grid-cols-7 gap-1">
-                        {availableDates.map((date, index) => (
+                {/* Premium Date Picker */}
+                <div>
+                  <Label className="font-['Inter'] font-semibold text-[#1E3A5F] mb-4 block text-lg">Select Your Date</Label>
+                  {availableDates.length > 0 ? (
+                    <div>
+                      <div className="grid grid-cols-4 gap-2 mb-4">
+                        {availableDates.slice(0, 8).map((date, index) => (
                           <button
                             key={index}
                             onClick={() => setSelectedDate(date)}
-                            className={`p-2 text-sm rounded transition-colors ${
+                            className={`p-3 rounded-xl text-center transition-all duration-300 border-2 ${
                               selectedDate && isSameDay(selectedDate, date)
-                                ? 'bg-primary text-white'
-                                : 'bg-gray-100 hover:bg-gray-200'
+                                ? 'bg-[#D4B26A] text-white border-[#D4B26A] shadow-lg scale-105'
+                                : 'bg-white text-gray-700 border-gray-200 hover:border-[#D4B26A] hover:shadow-md'
                             }`}
                           >
-                            <div className="text-xs">{format(date, 'EEE')}</div>
-                            <div className="font-semibold">{format(date, 'd')}</div>
+                            <div className="font-['Inter'] text-xs font-medium mb-1">{format(date, 'EEE')}</div>
+                            <div className="font-['Poppins'] font-bold text-lg">{format(date, 'd')}</div>
                           </button>
                         ))}
                       </div>
-                    ) : (
-                      <p className="text-sm text-muted-foreground">Date range not set for this event</p>
-                    )}
-                    {selectedDate && (
-                      <p className="text-sm text-muted-foreground mt-2">
-                        Selected: {format(selectedDate, 'MMMM d, yyyy')}
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                <div className="border-t pt-4 mb-6">
-                  <div className="flex justify-between mb-2">
-                    <span>Price per person</span>
-                    <span>${selectedEvent.price}</span>
-                  </div>
-                  <div className="flex justify-between mb-2">
-                    <span>Participants</span>
-                    <span>{participants}</span>
-                  </div>
-                  {savings > 0 && (
-                    <div className="flex justify-between text-green-600 mb-2">
-                      <span>Savings</span>
-                      <span>-${savings}</span>
+                      {selectedDate && (
+                        <p className="font-['Inter'] text-sm text-gray-600 text-center bg-gray-50 px-4 py-3 rounded-lg">
+                          Selected: <span className="font-semibold text-[#1E3A5F]">{format(selectedDate, 'MMMM d, yyyy')}</span>
+                        </p>
+                      )}
                     </div>
+                  ) : (
+                    <p className="font-['Inter'] text-sm text-gray-500 bg-gray-50 px-4 py-4 rounded-lg text-center">
+                      Dates will be available soon
+                    </p>
                   )}
-                  <div className="flex justify-between font-bold text-lg border-t pt-2">
+                </div>
+
+                {/* Price Breakdown */}
+                <div className="border-t-2 border-gray-200 pt-6 space-y-3">
+                  <div className="flex justify-between items-center font-['Inter'] text-gray-700">
+                    <span>Price per person</span>
+                    <span className="font-semibold">${selectedEvent.price}</span>
+                  </div>
+                  <div className="flex justify-between items-center font-['Inter'] text-gray-700">
+                    <span>Number of travelers</span>
+                    <span className="font-semibold">{participants}</span>
+                  </div>
+                  <div className="flex justify-between items-center font-['Poppins'] text-2xl font-bold text-[#1E3A5F] border-t-2 border-gray-200 pt-4 mt-4">
                     <span>Total</span>
-                    <span>${totalPrice}</span>
+                    <span className="text-[#D4B26A]">${totalPrice}</span>
                   </div>
                 </div>
 
+                {/* Premium Book Now Button */}
                 <Button 
                   onClick={() => setShowBookingDialog(true)}
-                  className="w-full bg-secondary hover:bg-secondary/90"
                   disabled={!selectedDate && availableDates.length > 0}
+                  className="w-full bg-gradient-to-r from-[#D4B26A] to-[#C9A758] hover:from-[#C9A758] hover:to-[#B89647] text-white font-['Poppins'] font-bold text-lg py-7 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] border-0"
+                  style={{ letterSpacing: '0.5px' }}
                 >
-                  Book Now
+                  Book This Experience
                 </Button>
 
-                <p className="text-xs text-center text-muted-foreground mt-4">
-                  Free cancellation up to 24 hours before the experience
-                </p>
+                {/* Cancellation Policy Note */}
+                <div className="flex items-start gap-3 bg-green-50 border border-green-200 rounded-xl p-4">
+                  <Shield className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                  <p className="font-['Inter'] text-sm text-green-800 leading-relaxed">
+                    <span className="font-semibold">Free cancellation</span> up to 24 hours before the experience starts
+                  </p>
+                </div>
               </CardContent>
             </Card>
           </div>
         </div>
       </div>
 
-      {/* Booking Dialog */}
+      {/* Booking Dialog - Premium Design */}
       <Dialog open={showBookingDialog} onOpenChange={setShowBookingDialog}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Complete Your Booking</DialogTitle>
-            <DialogDescription>
-              Please provide your contact information to confirm this booking.
-            </DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleSubmitBooking} className="space-y-4">
+        <DialogContent className="sm:max-w-2xl rounded-3xl border-2 border-gray-200 p-0 overflow-hidden">
+          
+          {/* Dialog Header with Gradient */}
+          <div className="bg-gradient-to-r from-[#1E3A5F] to-[#2A4A6F] p-8">
+            <DialogHeader>
+              <DialogTitle className="font-['Poppins'] text-3xl font-bold text-white mb-2">
+                Complete Your Booking
+              </DialogTitle>
+              <DialogDescription className="font-['Inter'] text-white/80 text-base">
+                Just a few details and you're all set for an unforgettable experience
+              </DialogDescription>
+            </DialogHeader>
+          </div>
+
+          {/* Form Content */}
+          <form onSubmit={handleSubmitBooking} className="p-8 space-y-6">
+            
+            {/* Name Input */}
             <div>
-              <Label htmlFor="name">Full Name *</Label>
+              <Label htmlFor="name" className="font-['Inter'] font-semibold text-[#1E3A5F] mb-2 block">
+                Full Name <span className="text-red-500">*</span>
+              </Label>
               <Input
                 id="name"
                 value={customerName}
                 onChange={(e) => setCustomerName(e.target.value)}
                 placeholder="John Doe"
                 required
+                className="font-['Inter'] h-14 rounded-xl border-2 border-gray-200 focus:border-[#D4B26A] px-4 text-lg"
               />
             </div>
+
+            {/* Email Input */}
             <div>
-              <Label htmlFor="email">Email *</Label>
+              <Label htmlFor="email" className="font-['Inter'] font-semibold text-[#1E3A5F] mb-2 block">
+                Email Address <span className="text-red-500">*</span>
+              </Label>
               <Input
                 id="email"
                 type="email"
@@ -800,55 +940,81 @@ const Book = () => {
                 onChange={(e) => setCustomerEmail(e.target.value)}
                 placeholder="john@example.com"
                 required
+                className="font-['Inter'] h-14 rounded-xl border-2 border-gray-200 focus:border-[#D4B26A] px-4 text-lg"
               />
             </div>
+
+            {/* Phone Input */}
             <div>
-              <Label htmlFor="phone">Phone Number</Label>
+              <Label htmlFor="phone" className="font-['Inter'] font-semibold text-[#1E3A5F] mb-2 block">
+                Phone Number <span className="text-gray-400 font-normal">(Optional)</span>
+              </Label>
               <Input
                 id="phone"
                 type="tel"
                 value={customerPhone}
                 onChange={(e) => setCustomerPhone(e.target.value)}
                 placeholder="+1 234 567 8900"
+                className="font-['Inter'] h-14 rounded-xl border-2 border-gray-200 focus:border-[#D4B26A] px-4 text-lg"
               />
             </div>
+
+            {/* Special Requests */}
             <div>
-              <Label htmlFor="requests">Special Requests</Label>
+              <Label htmlFor="requests" className="font-['Inter'] font-semibold text-[#1E3A5F] mb-2 block">
+                Special Requests <span className="text-gray-400 font-normal">(Optional)</span>
+              </Label>
               <Textarea
                 id="requests"
                 value={specialRequests}
                 onChange={(e) => setSpecialRequests(e.target.value)}
-                placeholder="Any special requirements or requests?"
-                rows={3}
+                placeholder="Any dietary restrictions, accessibility needs, or special requests?"
+                rows={4}
+                className="font-['Inter'] rounded-xl border-2 border-gray-200 focus:border-[#D4B26A] px-4 py-3 text-base resize-none"
               />
             </div>
-            <div className="bg-muted p-4 rounded-lg">
-              <div className="flex justify-between mb-2">
-                <span className="font-semibold">Booking Summary:</span>
+
+            {/* Booking Summary Card */}
+            <Card className="bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-gray-200 rounded-2xl overflow-hidden">
+              <div className="bg-[#1E3A5F] px-6 py-3">
+                <h5 className="font-['Poppins'] font-bold text-white text-lg">Booking Summary</h5>
               </div>
-              <div className="text-sm space-y-1">
-                <div className="flex justify-between">
-                  <span>Event:</span>
-                  <span className="font-medium">{selectedEvent.title}</span>
+              <CardContent className="p-6 space-y-3">
+                <div className="flex justify-between items-center font-['Inter']">
+                  <span className="text-gray-600">Event</span>
+                  <span className="font-semibold text-[#1E3A5F] text-right max-w-[60%]">{selectedEvent.title}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span>Date:</span>
-                  <span className="font-medium">
+                <div className="flex justify-between items-center font-['Inter']">
+                  <span className="text-gray-600">Date</span>
+                  <span className="font-semibold text-[#1E3A5F]">
                     {selectedDate ? format(selectedDate, 'MMM d, yyyy') : 'Not selected'}
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span>Participants:</span>
-                  <span className="font-medium">{participants}</span>
+                <div className="flex justify-between items-center font-['Inter']">
+                  <span className="text-gray-600">Travelers</span>
+                  <span className="font-semibold text-[#1E3A5F]">{participants} {participants === 1 ? 'person' : 'people'}</span>
                 </div>
-                <div className="flex justify-between border-t pt-2 mt-2">
-                  <span className="font-semibold">Total:</span>
-                  <span className="font-semibold text-lg">${totalPrice}</span>
+                <div className="flex justify-between items-center font-['Poppins'] text-xl font-bold border-t-2 border-gray-300 pt-4 mt-4">
+                  <span className="text-[#1E3A5F]">Total</span>
+                  <span className="text-[#D4B26A]">${totalPrice}</span>
                 </div>
-              </div>
-            </div>
-            <Button type="submit" className="w-full" disabled={isSubmitting}>
-              {isSubmitting ? 'Processing...' : `Confirm Booking - $${totalPrice}`}
+              </CardContent>
+            </Card>
+
+            {/* Submit Button */}
+            <Button 
+              type="submit" 
+              disabled={isSubmitting}
+              className="w-full bg-gradient-to-r from-[#D4B26A] to-[#C9A758] hover:from-[#C9A758] hover:to-[#B89647] text-white font-['Poppins'] font-bold text-lg py-7 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] border-0"
+            >
+              {isSubmitting ? (
+                <span className="flex items-center gap-3">
+                  <div className="w-5 h-5 border-3 border-white border-t-transparent rounded-full animate-spin" />
+                  Processing Your Booking...
+                </span>
+              ) : (
+                `Confirm Booking - $${totalPrice}`
+              )}
             </Button>
           </form>
         </DialogContent>
