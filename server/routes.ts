@@ -188,7 +188,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Event routes
   app.get('/api/events/:id', async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = req.params.id;
       const event = await storage.getEvent(id);
       if (!event) {
         return res.status(404).json({ message: "Event not found" });
@@ -202,7 +202,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/events/:id/gallery', async (req, res) => {
     try {
-      const eventId = parseInt(req.params.id);
+      const eventId = req.params.id;
       const gallery = await storage.getEventGallery(eventId);
       res.json({ images: gallery });
     } catch (error) {
@@ -1041,7 +1041,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin: Update event
   app.put('/api/admin/club-events/:id', isAuthenticated, isAdmin, async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = req.params.id;
       const eventData = req.body;
       const event = await storage.updateClubEvent(id, eventData);
       res.json(event);
@@ -1054,7 +1054,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin: Delete event
   app.delete('/api/admin/club-events/:id', isAuthenticated, isAdmin, async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = req.params.id;
       await storage.deleteClubEvent(id);
       res.status(204).send();
     } catch (error) {

@@ -79,6 +79,7 @@ import {
 } from "../shared/schema.js";
 import { db } from "./db";
 import { eq, and, desc, asc, count, sql } from "drizzle-orm";
+import { generateEventId } from "./utils/id-generator";
 
 // Interface for storage operations
 export interface IStorage {
@@ -536,8 +537,8 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createClubEvent(eventData: InsertBookingEvent): Promise<BookingEvent> {
-    // Generate a unique ID for the event
-    const id = eventData.id || `event-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    // Generate a unique ID for the event if not provided
+    const id = eventData.id || generateEventId();
     return await this.insertAndFetch<BookingEvent>(bookingEvents, { ...eventData, id });
   }
 
