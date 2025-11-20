@@ -3,6 +3,11 @@
 ## Overview
 A React + Vite frontend application designed to showcase Morocco's sports clubs and activities. It features an interactive map, event calendar, club information, and a comprehensive content management system. The project aims to provide a modern, responsive platform for clubs and users, with advanced administrative capabilities for content and user management.
 
+## Recent Changes (November 20, 2025)
+- **Event Details Page Rebuild**: Completely redesigned Book.tsx with condensed hero section (h-64), three-column layout with satellite map on the right side, and date range selector that derives valid booking dates from each event's startDate/endDate fields.
+- **Database Schema Updates**: Added latitude, longitude, startDate, and endDate fields to booking_events table with idempotent migration and data backfill for existing events (Atlas Mountains, Sahara Desert, Atlantic Coast).
+- **Map Integration**: Implemented MapLibre GL satellite map integration on event details page showing event location with Esri World Imagery tiles.
+
 ## User Preferences
 - Follows modern React patterns with TypeScript
 - Uses shadcn/ui component library
