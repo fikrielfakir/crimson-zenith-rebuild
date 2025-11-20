@@ -6,7 +6,7 @@ import fs from 'fs';
 import bcrypt from 'bcryptjs';
 import { storage } from './server/storage.js';
 import { setupAuth, isAuthenticated, isAdmin } from './server/replitAuth.js';
-import { db } from './server/db.js';
+import { db, pool } from './server/db.js';
 import { eq, asc, desc, or, like, count, sql } from 'drizzle-orm';
 import { 
   users, 
@@ -63,6 +63,72 @@ async function seedAdminUser() {
     }
   } catch (error) {
     console.error('❌ Error seeding admin user:', error);
+  }
+}
+
+// Run database migrations
+async function runMigrations() {
+  try {
+    console.log('🔄 Running database migrations...');
+    
+    // Add columns to booking_events table if they don't exist
+    const migrations = [
+      `ALTER TABLE booking_events ADD COLUMN IF NOT EXISTS latitude DECIMAL(9,6)`,
+      `ALTER TABLE booking_events ADD COLUMN IF NOT EXISTS longitude DECIMAL(9,6)`,
+      `ALTER TABLE booking_events ADD COLUMN IF NOT EXISTS start_date DATE`,
+      `ALTER TABLE booking_events ADD COLUMN IF NOT EXISTS end_date DATE`
+    ];
+    
+    for (const migration of migrations) {
+      try {
+        await pool.execute(migration);
+      } catch (error: any) {
+        // Ignore errors if column already exists or MySQL doesn't support IF NOT EXISTS
+        if (!error.message.includes('Duplicate column name')) {
+          console.log(`⚠️ Migration note: ${error.message}`);
+        }
+      }
+    }
+    
+    // Backfill existing events with coordinates and dates
+    const dataUpdates = [
+      {
+        id: 'atlas-trek-3day',
+        latitude: 31.2578,
+        longitude: -7.9928,
+        startDate: '2024-12-15',
+        endDate: '2025-03-30'
+      },
+      {
+        id: 'sahara-desert-adventure',
+        latitude: 31.0801,
+        longitude: -4.0133,
+        startDate: '2024-12-01',
+        endDate: '2025-04-30'
+      },
+      {
+        id: 'coastal-surf-camp',
+        latitude: 31.5084,
+        longitude: -9.7595,
+        startDate: '2024-12-10',
+        endDate: '2025-05-31'
+      }
+    ];
+    
+    for (const update of dataUpdates) {
+      try {
+        await pool.execute(
+          `UPDATE booking_events SET latitude = ?, longitude = ?, start_date = ?, end_date = ? WHERE id = ?`,
+          [update.latitude, update.longitude, update.startDate, update.endDate, update.id]
+        );
+      } catch (error: any) {
+        console.log(`⚠️ Could not update event ${update.id}: ${error.message}`);
+      }
+    }
+    
+    console.log('✅ Migrations completed');
+  } catch (error) {
+    console.error('❌ Error running migrations:', error);
   }
 }
 
@@ -132,7 +198,11 @@ async function seedDatabase() {
           subtitle: 'Discover the majestic peaks and Berber villages',
           description: 'Embark on an unforgettable 3-day journey through the Atlas Mountains. Experience breathtaking landscapes, traditional Berber hospitality, and authentic mountain culture. This guided trek takes you through scenic valleys, over mountain passes, and into remote villages where time seems to stand still.',
           location: 'Atlas Mountains, Morocco',
+          latitude: 31.2578,
+          longitude: -7.9928,
           duration: '3 Days / 2 Nights',
+          startDate: '2024-12-15',
+          endDate: '2025-03-30',
           price: 299,
           originalPrice: 399,
           rating: 5,
@@ -178,7 +248,11 @@ async function seedDatabase() {
           subtitle: 'Sleep under the stars in the Moroccan Sahara',
           description: 'Experience the magic of the Sahara Desert on this 2-day adventure. Ride camels across golden dunes, watch spectacular sunsets, and spend the night in a traditional Berber camp under a blanket of stars. This tour includes traditional music, authentic cuisine, and unforgettable desert landscapes.',
           location: 'Merzouga, Sahara Desert',
+          latitude: 31.0801,
+          longitude: -4.0133,
           duration: '2 Days / 1 Night',
+          startDate: '2024-12-01',
+          endDate: '2025-04-30',
           price: 199,
           originalPrice: 279,
           rating: 5,
@@ -225,7 +299,11 @@ async function seedDatabase() {
           subtitle: 'Learn to surf in Morocco\'s best waves',
           description: 'Join our 5-day surf camp on Morocco\'s stunning Atlantic coast. Perfect for beginners and intermediate surfers, this package includes daily surf lessons, quality equipment, beachfront accommodation, and plenty of time to enjoy the sun, sea, and local culture.',
           location: 'Essaouira, Atlantic Coast',
+          latitude: 31.5084,
+          longitude: -9.7595,
           duration: '5 Days / 4 Nights',
+          startDate: '2024-12-10',
+          endDate: '2025-05-31',
           price: 449,
           originalPrice: 599,
           rating: 5,
@@ -507,6 +585,7 @@ async function seedDatabase() {
 }
 
 // Initialize database on startup
+await runMigrations();
 await seedAdminUser();
 await seedDatabase();
 
