@@ -9,6 +9,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Calendar } from "@/components/ui/calendar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
 import { 
   MapPin, 
   Clock, 
@@ -42,6 +45,15 @@ const Book = () => {
   const [events, setEvents] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Booking form state
+  const [showBookingDialog, setShowBookingDialog] = useState(false);
+  const [customerName, setCustomerName] = useState('');
+  const [customerEmail, setCustomerEmail] = useState('');
+  const [customerPhone, setCustomerPhone] = useState('');
+  const [specialRequests, setSpecialRequests] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
 
   // Fetch booking events from backend
   useEffect(() => {
@@ -97,6 +109,119 @@ const Book = () => {
       setCurrentImageIndex((prev) => 
         prev === 0 ? images.length - 1 : prev - 1
       );
+    }
+  };
+
+  const validateBookingForm = (): string | null => {
+    // Validate required fields
+    if (!selectedEvent || !selectedDate) {
+      return "Please select an event and date before booking.";
+    }
+    
+    if (!customerName.trim() || customerName.trim().length < 2) {
+      return "Please enter a valid name (at least 2 characters).";
+    }
+    
+    if (customerName.trim().length > 100) {
+      return "Name must be less than 100 characters.";
+    }
+    
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!customerEmail.trim() || !emailRegex.test(customerEmail.trim())) {
+      return "Please enter a valid email address.";
+    }
+    
+    if (customerEmail.trim().length > 255) {
+      return "Email must be less than 255 characters.";
+    }
+    
+    // Phone validation (if provided)
+    if (customerPhone.trim()) {
+      const phoneRegex = /^[\d\s\+\-\(\)]+$/;
+      if (!phoneRegex.test(customerPhone.trim()) || customerPhone.trim().length > 20) {
+        return "Please enter a valid phone number (max 20 characters).";
+      }
+    }
+    
+    // Special requests length
+    if (specialRequests.trim().length > 1000) {
+      return "Special requests must be less than 1000 characters.";
+    }
+    
+    return null;
+  };
+
+  const handleSubmitBooking = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Comprehensive validation
+    const validationError = validateBookingForm();
+    if (validationError) {
+      toast({
+        title: "Validation Error",
+        description: validationError,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const bookingData = {
+        eventId: selectedEvent!.id,
+        eventTitle: selectedEvent!.title,
+        eventDate: selectedDate!.toISOString(),
+        participants: participants,
+        customerName: customerName.trim(),
+        customerEmail: customerEmail.trim().toLowerCase(),
+        customerPhone: customerPhone.trim() || null,
+        specialRequests: specialRequests.trim() || null,
+        totalPrice: selectedEvent!.price * participants,
+        status: 'pending',
+        paymentStatus: 'pending',
+      };
+
+      const response = await fetch('/api/booking/tickets', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(bookingData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast({
+          title: "Booking Confirmed!",
+          description: `Your booking reference is: ${data.ticket.bookingReference}. Check your email for details.`,
+        });
+        
+        // Reset form
+        setShowBookingDialog(false);
+        setCustomerName('');
+        setCustomerEmail('');
+        setCustomerPhone('');
+        setSpecialRequests('');
+      } else {
+        // Show specific error from backend
+        const errorMessage = data.error || 'Failed to create booking';
+        toast({
+          title: "Booking Failed",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      }
+    } catch (err) {
+      toast({
+        title: "Network Error",
+        description: "Unable to connect to the server. Please check your internet connection and try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -584,6 +709,7 @@ const Book = () => {
                     className="w-full h-12 text-lg font-semibold"
                     style={{ backgroundColor: 'hsl(var(--primary))' }}
                     disabled={!selectedDate}
+                    onClick={() => setShowBookingDialog(true)}
                   >
                     {selectedDate ? `Reserve for ${selectedDate.toLocaleDateString()}` : 'Select Date to Book'}
                   </Button>
@@ -614,6 +740,130 @@ const Book = () => {
           </div>
         </div>
       </div>
+
+      {/* Booking Dialog */}
+      <Dialog open={showBookingDialog} onOpenChange={setShowBookingDialog}>
+        <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Complete Your Booking</DialogTitle>
+            <DialogDescription>
+              Fill in your details to confirm your reservation for {selectedEvent?.title}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <form onSubmit={handleSubmitBooking} className="space-y-6">
+            {/* Booking Summary */}
+            <div className="bg-muted p-4 rounded-lg space-y-2">
+              <div className="flex justify-between">
+                <span className="text-sm font-medium">Event:</span>
+                <span className="text-sm">{selectedEvent?.title}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm font-medium">Date:</span>
+                <span className="text-sm">{selectedDate?.toLocaleDateString()}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm font-medium">Travelers:</span>
+                <span className="text-sm">{participants} {participants === 1 ? 'person' : 'people'}</span>
+              </div>
+              <Separator className="my-2" />
+              <div className="flex justify-between">
+                <span className="font-bold">Total Price:</span>
+                <span className="font-bold text-primary">${selectedEvent?.price * participants}</span>
+              </div>
+            </div>
+
+            {/* Customer Information */}
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="customerName">Full Name *</Label>
+                <Input
+                  id="customerName"
+                  value={customerName}
+                  onChange={(e) => setCustomerName(e.target.value)}
+                  placeholder="Enter your full name"
+                  required
+                  minLength={2}
+                  maxLength={100}
+                  className="mt-1.5"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  {customerName.length}/100 characters
+                </p>
+              </div>
+
+              <div>
+                <Label htmlFor="customerEmail">Email Address *</Label>
+                <Input
+                  id="customerEmail"
+                  type="email"
+                  value={customerEmail}
+                  onChange={(e) => setCustomerEmail(e.target.value)}
+                  placeholder="your.email@example.com"
+                  required
+                  maxLength={255}
+                  className="mt-1.5"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  {customerEmail.length}/255 characters
+                </p>
+              </div>
+
+              <div>
+                <Label htmlFor="customerPhone">Phone Number</Label>
+                <Input
+                  id="customerPhone"
+                  type="tel"
+                  value={customerPhone}
+                  onChange={(e) => setCustomerPhone(e.target.value)}
+                  placeholder="+212 XXX XXX XXX"
+                  pattern="[\d\s\+\-\(\)]+"
+                  maxLength={20}
+                  className="mt-1.5"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Optional - {customerPhone.length}/20 characters
+                </p>
+              </div>
+
+              <div>
+                <Label htmlFor="specialRequests">Special Requests</Label>
+                <Textarea
+                  id="specialRequests"
+                  value={specialRequests}
+                  onChange={(e) => setSpecialRequests(e.target.value)}
+                  placeholder="Any dietary restrictions, accessibility needs, or special requests?"
+                  maxLength={1000}
+                  className="mt-1.5 min-h-[100px]"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Optional - {specialRequests.length}/1000 characters
+                </p>
+              </div>
+            </div>
+
+            {/* Submit Button */}
+            <div className="flex gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowBookingDialog(false)}
+                className="flex-1"
+                disabled={isSubmitting}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                className="flex-1"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? 'Processing...' : 'Confirm Booking'}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       <Footer />
     </div>
