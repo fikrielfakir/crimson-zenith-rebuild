@@ -322,7 +322,7 @@ const Book = () => {
         <div className="container mx-auto px-6 py-32 text-center">
           <div className="text-red-500 mb-4">
             <X className="w-20 h-20 mx-auto mb-6" />
-            <h2 className="text-3xl font-bold font-['Poppins'] text-[#1E3A5F] mb-3">Unable to Load Event</h2>
+            <h2 className="text-3xl font-bold font-['Poppins'] text-[#111f50] mb-3">Unable to Load Event</h2>
             <p className="mt-3 text-gray-600 font-['Inter']">{error}</p>
           </div>
         </div>
@@ -384,22 +384,9 @@ const Book = () => {
     <div className="min-h-screen bg-white">
       <Header />
 
-      {/* Premium Hero Section with Immersive Background */}
-      <section className="relative h-[70vh] min-h-[500px] overflow-hidden">
-        {/* Hero Image Background */}
-        <div className="absolute inset-0">
-          <img 
-            src={displayImages[0]} 
-            alt={selectedEvent.title}
-            className="w-full h-full object-cover"
-          />
-          {/* Elegant Gradient Overlays */}
-          <div className="absolute inset-0 bg-gradient-to-b from-[#1E3A5F]/60 via-[#1E3A5F]/40 to-[#1E3A5F]/70" />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/20" />
-        </div>
-
-        {/* Hero Content */}
-        <div className="relative h-full flex flex-col justify-between container mx-auto px-6 py-12">
+      {/* Premium Hero Section with Solid Background */}
+      <section className="relative overflow-hidden" style={{ backgroundColor: '#111f50' }}>
+        <div className="container mx-auto px-6 py-12">
           {/* Elegant Breadcrumb Navigation */}
           <nav className="mb-8">
             <ol className="flex items-center space-x-3">
@@ -423,13 +410,13 @@ const Book = () => {
           </nav>
 
           {/* Hero Title */}
-          <div className="pb-12">
+          <div className="py-8">
             <h1 className="font-['Poppins'] font-bold text-white mb-6 drop-shadow-2xl text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-tight">
               {selectedEvent.title}
             </h1>
             
             {/* Event Meta Information */}
-            <div className="flex flex-wrap gap-4 items-center">
+            <div className="flex flex-wrap gap-4 items-center mb-10">
               <div className="flex items-center gap-2 bg-white/15 backdrop-blur-md px-4 py-2.5 rounded-full border border-white/25 shadow-lg">
                 <MapPin className="w-5 h-5 text-[#D4B26A]" />
                 <span className="text-white font-['Inter'] font-medium">{selectedEvent.location}</span>
@@ -445,6 +432,29 @@ const Book = () => {
                   <span className="text-white/80 font-['Inter'] text-sm">({selectedEvent.reviewCount} reviews)</span>
                 </div>
               )}
+            </div>
+
+            {/* Small Image Slider */}
+            <div className="max-w-5xl">
+              <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                {displayImages.map((image, index) => (
+                  <button
+                    key={index}
+                    onClick={() => emblaApi && emblaApi.scrollTo(index)}
+                    className={`flex-shrink-0 w-32 h-20 rounded-xl overflow-hidden transition-all duration-300 border-3 ${
+                      index === selectedImageIndex
+                        ? 'border-[#D4B26A] shadow-xl scale-105'
+                        : 'border-white/30 hover:border-white/60 shadow-md'
+                    }`}
+                  >
+                    <img 
+                      src={image}
+                      alt={`Thumbnail ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -474,14 +484,14 @@ const Book = () => {
               {/* Premium Navigation Buttons */}
               <button
                 onClick={scrollPrev}
-                className="absolute left-6 top-1/2 -translate-y-1/2 bg-white/95 hover:bg-white text-[#1E3A5F] p-4 rounded-full shadow-xl transition-all duration-300 hover:scale-110 hover:shadow-2xl z-10 backdrop-blur-sm"
+                className="absolute left-6 top-1/2 -translate-y-1/2 bg-white/95 hover:bg-white text-[#111f50] p-4 rounded-full shadow-xl transition-all duration-300 hover:scale-110 hover:shadow-2xl z-10 backdrop-blur-sm"
                 aria-label="Previous image"
               >
                 <ChevronLeft className="w-6 h-6" />
               </button>
               <button
                 onClick={scrollNext}
-                className="absolute right-6 top-1/2 -translate-y-1/2 bg-white/95 hover:bg-white text-[#1E3A5F] p-4 rounded-full shadow-xl transition-all duration-300 hover:scale-110 hover:shadow-2xl z-10 backdrop-blur-sm"
+                className="absolute right-6 top-1/2 -translate-y-1/2 bg-white/95 hover:bg-white text-[#111f50] p-4 rounded-full shadow-xl transition-all duration-300 hover:scale-110 hover:shadow-2xl z-10 backdrop-blur-sm"
                 aria-label="Next image"
               >
                 <ChevronRight className="w-6 h-6" />
@@ -519,19 +529,19 @@ const Book = () => {
               <TabsList className="w-full grid grid-cols-3 bg-gray-50 p-1.5 rounded-2xl border border-gray-100 shadow-sm h-auto">
                 <TabsTrigger 
                   value="overview"
-                  className="font-['Inter'] font-semibold text-base data-[state=active]:bg-white data-[state=active]:text-[#1E3A5F] data-[state=active]:shadow-md rounded-xl py-3.5 transition-all duration-300"
+                  className="font-['Inter'] font-semibold text-base data-[state=active]:bg-white data-[state=active]:text-[#111f50] data-[state=active]:shadow-md rounded-xl py-3.5 transition-all duration-300"
                 >
                   Overview
                 </TabsTrigger>
                 <TabsTrigger 
                   value="schedule"
-                  className="font-['Inter'] font-semibold text-base data-[state=active]:bg-white data-[state=active]:text-[#1E3A5F] data-[state=active]:shadow-md rounded-xl py-3.5 transition-all duration-300"
+                  className="font-['Inter'] font-semibold text-base data-[state=active]:bg-white data-[state=active]:text-[#111f50] data-[state=active]:shadow-md rounded-xl py-3.5 transition-all duration-300"
                 >
                   Schedule
                 </TabsTrigger>
                 <TabsTrigger 
                   value="reviews"
-                  className="font-['Inter'] font-semibold text-base data-[state=active]:bg-white data-[state=active]:text-[#1E3A5F] data-[state=active]:shadow-md rounded-xl py-3.5 transition-all duration-300"
+                  className="font-['Inter'] font-semibold text-base data-[state=active]:bg-white data-[state=active]:text-[#111f50] data-[state=active]:shadow-md rounded-xl py-3.5 transition-all duration-300"
                 >
                   Reviews
                 </TabsTrigger>
@@ -542,7 +552,7 @@ const Book = () => {
                 
                 {/* About Section */}
                 <div>
-                  <h3 className="font-['Poppins'] text-3xl font-bold text-[#1E3A5F] mb-6">About This Experience</h3>
+                  <h3 className="font-['Poppins'] text-3xl font-bold text-[#111f50] mb-6">About This Experience</h3>
                   <p className="font-['Inter'] text-gray-700 leading-relaxed text-lg mb-8">
                     {selectedEvent.description}
                   </p>
@@ -550,7 +560,7 @@ const Book = () => {
                   {/* Highlights */}
                   {highlights.length > 0 && (
                     <>
-                      <h4 className="font-['Poppins'] text-2xl font-semibold text-[#1E3A5F] mb-6 flex items-center gap-3">
+                      <h4 className="font-['Poppins'] text-2xl font-semibold text-[#111f50] mb-6 flex items-center gap-3">
                         <Award className="w-6 h-6 text-[#D4B26A]" />
                         Experience Highlights
                       </h4>
@@ -622,7 +632,7 @@ const Book = () => {
                 {/* Important Information Section */}
                 <Card className="border border-gray-200 rounded-2xl shadow-md bg-gradient-to-br from-blue-50/50 to-indigo-50/30">
                   <CardContent className="p-8">
-                    <h4 className="font-['Poppins'] text-2xl font-semibold text-[#1E3A5F] mb-6 flex items-center gap-3">
+                    <h4 className="font-['Poppins'] text-2xl font-semibold text-[#111f50] mb-6 flex items-center gap-3">
                       <Info className="w-6 h-6 text-[#D4B26A]" />
                       Important Information
                     </h4>
@@ -633,7 +643,7 @@ const Book = () => {
                             <Users className="w-5 h-5 text-[#D4B26A]" />
                           </div>
                           <div>
-                            <p className="font-['Inter'] font-semibold text-[#1E3A5F] mb-1">Age Range</p>
+                            <p className="font-['Inter'] font-semibold text-[#111f50] mb-1">Age Range</p>
                             <p className="font-['Inter'] text-gray-600">{selectedEvent.ageRange}</p>
                           </div>
                         </div>
@@ -644,7 +654,7 @@ const Book = () => {
                             <Shield className="w-5 h-5 text-[#D4B26A]" />
                           </div>
                           <div>
-                            <p className="font-['Inter'] font-semibold text-[#1E3A5F] mb-1">Cancellation Policy</p>
+                            <p className="font-['Inter'] font-semibold text-[#111f50] mb-1">Cancellation Policy</p>
                             <p className="font-['Inter'] text-gray-600">{selectedEvent.cancellationPolicy}</p>
                           </div>
                         </div>
@@ -654,7 +664,7 @@ const Book = () => {
                           <Globe className="w-5 h-5 text-[#D4B26A]" />
                         </div>
                         <div>
-                          <p className="font-['Inter'] font-semibold text-[#1E3A5F] mb-1">Languages</p>
+                          <p className="font-['Inter'] font-semibold text-[#111f50] mb-1">Languages</p>
                           <p className="font-['Inter'] text-gray-600">Available in {languages.join(', ')}</p>
                         </div>
                       </div>
@@ -663,7 +673,7 @@ const Book = () => {
                           <MessageCircle className="w-5 h-5 text-[#D4B26A]" />
                         </div>
                         <div>
-                          <p className="font-['Inter'] font-semibold text-[#1E3A5F] mb-1">Support</p>
+                          <p className="font-['Inter'] font-semibold text-[#111f50] mb-1">Support</p>
                           <p className="font-['Inter'] text-gray-600">24/7 customer service</p>
                         </div>
                       </div>
@@ -674,7 +684,7 @@ const Book = () => {
                 {/* Location Map */}
                 {selectedEvent.latitude && selectedEvent.longitude && (
                   <Card className="border border-gray-200 rounded-2xl shadow-md overflow-hidden">
-                    <div className="bg-gradient-to-r from-[#1E3A5F] to-[#2A4A6F] p-5">
+                    <div className="bg-gradient-to-r from-[#111f50] to-[#1a2d5a] p-5">
                       <h4 className="font-['Poppins'] text-xl font-bold text-white flex items-center gap-3">
                         <MapPin className="w-5 h-5 text-[#D4B26A]" />
                         Meeting Location
@@ -688,7 +698,7 @@ const Book = () => {
               {/* Schedule Tab */}
               <TabsContent value="schedule" className="space-y-6 mt-10">
                 <div>
-                  <h3 className="font-['Poppins'] text-3xl font-bold text-[#1E3A5F] mb-6">Daily Schedule</h3>
+                  <h3 className="font-['Poppins'] text-3xl font-bold text-[#111f50] mb-6">Daily Schedule</h3>
                   {schedule.length > 0 ? (
                     <div className="space-y-4">
                       {schedule.map((item, index) => (
@@ -720,11 +730,11 @@ const Book = () => {
               {/* Reviews Tab */}
               <TabsContent value="reviews" className="space-y-8 mt-10">
                 <div className="flex justify-between items-center">
-                  <h3 className="font-['Poppins'] text-3xl font-bold text-[#1E3A5F]">Guest Reviews</h3>
+                  <h3 className="font-['Poppins'] text-3xl font-bold text-[#111f50]">Guest Reviews</h3>
                   {selectedEvent.rating && (
                     <div className="flex items-center gap-3 bg-[#D4B26A]/10 px-6 py-3 rounded-xl border border-[#D4B26A]/20">
                       <Star className="w-7 h-7 text-[#D4B26A] fill-[#D4B26A]" />
-                      <span className="font-['Poppins'] text-2xl font-bold text-[#1E3A5F]">{selectedEvent.rating}</span>
+                      <span className="font-['Poppins'] text-2xl font-bold text-[#111f50]">{selectedEvent.rating}</span>
                       <span className="font-['Inter'] text-gray-600">({selectedEvent.reviewCount} reviews)</span>
                     </div>
                   )}
@@ -743,7 +753,7 @@ const Book = () => {
                             />
                             <div className="flex-1">
                               <div className="flex items-center gap-3 mb-3">
-                                <h5 className="font-['Poppins'] font-semibold text-lg text-[#1E3A5F]">{review.name}</h5>
+                                <h5 className="font-['Poppins'] font-semibold text-lg text-[#111f50]">{review.name}</h5>
                                 <div className="flex gap-1">
                                   {[...Array(5)].map((_, i) => (
                                     <Star 
@@ -782,7 +792,7 @@ const Book = () => {
             <Card className="sticky top-24 border-2 border-gray-200 rounded-3xl shadow-2xl overflow-hidden" style={{ boxShadow: '0 20px 50px rgba(0, 0, 0, 0.12)' }}>
               
               {/* Pricing Header */}
-              <div className="bg-gradient-to-br from-[#1E3A5F] via-[#2A4A6F] to-[#1E3A5F] p-8">
+              <div className="bg-gradient-to-br from-[#111f50] via-[#1a2d5a] to-[#111f50] p-8">
                 <div className="flex items-baseline gap-3 mb-2">
                   <span className="font-['Poppins'] text-5xl font-bold text-white">${selectedEvent.price}</span>
                   <span className="font-['Inter'] text-white/80 text-lg">per person</span>
@@ -801,19 +811,19 @@ const Book = () => {
                 
                 {/* Participant Selector with Premium Stepper */}
                 <div>
-                  <Label className="font-['Inter'] font-semibold text-[#1E3A5F] mb-4 block text-lg">Number of Travelers</Label>
+                  <Label className="font-['Inter'] font-semibold text-[#111f50] mb-4 block text-lg">Number of Travelers</Label>
                   <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border-2 border-gray-200">
                     <button
                       onClick={() => setParticipants(Math.max(1, participants - 1))}
-                      className="w-12 h-12 rounded-full bg-white border-2 border-gray-300 flex items-center justify-center text-[#1E3A5F] hover:bg-[#1E3A5F] hover:text-white hover:border-[#1E3A5F] transition-all duration-300 shadow-sm hover:shadow-md"
+                      className="w-12 h-12 rounded-full bg-white border-2 border-gray-300 flex items-center justify-center text-[#111f50] hover:bg-[#111f50] hover:text-white hover:border-[#111f50] transition-all duration-300 shadow-sm hover:shadow-md"
                       disabled={participants <= 1}
                     >
                       <Minus className="w-5 h-5" strokeWidth={3} />
                     </button>
-                    <span className="font-['Poppins'] text-3xl font-bold text-[#1E3A5F]">{participants}</span>
+                    <span className="font-['Poppins'] text-3xl font-bold text-[#111f50]">{participants}</span>
                     <button
                       onClick={() => setParticipants(Math.min(20, participants + 1))}
-                      className="w-12 h-12 rounded-full bg-white border-2 border-gray-300 flex items-center justify-center text-[#1E3A5F] hover:bg-[#D4B26A] hover:text-white hover:border-[#D4B26A] transition-all duration-300 shadow-sm hover:shadow-md"
+                      className="w-12 h-12 rounded-full bg-white border-2 border-gray-300 flex items-center justify-center text-[#111f50] hover:bg-[#D4B26A] hover:text-white hover:border-[#D4B26A] transition-all duration-300 shadow-sm hover:shadow-md"
                       disabled={participants >= 20}
                     >
                       <Plus className="w-5 h-5" strokeWidth={3} />
@@ -823,7 +833,7 @@ const Book = () => {
 
                 {/* Premium Date Picker */}
                 <div>
-                  <Label className="font-['Inter'] font-semibold text-[#1E3A5F] mb-4 block text-lg">Select Your Date</Label>
+                  <Label className="font-['Inter'] font-semibold text-[#111f50] mb-4 block text-lg">Select Your Date</Label>
                   {availableDates.length > 0 ? (
                     <div>
                       <div className="grid grid-cols-4 gap-2 mb-4">
@@ -844,7 +854,7 @@ const Book = () => {
                       </div>
                       {selectedDate && (
                         <p className="font-['Inter'] text-sm text-gray-600 text-center bg-gray-50 px-4 py-3 rounded-lg">
-                          Selected: <span className="font-semibold text-[#1E3A5F]">{format(selectedDate, 'MMMM d, yyyy')}</span>
+                          Selected: <span className="font-semibold text-[#111f50]">{format(selectedDate, 'MMMM d, yyyy')}</span>
                         </p>
                       )}
                     </div>
@@ -865,7 +875,7 @@ const Book = () => {
                     <span>Number of travelers</span>
                     <span className="font-semibold">{participants}</span>
                   </div>
-                  <div className="flex justify-between items-center font-['Poppins'] text-2xl font-bold text-[#1E3A5F] border-t-2 border-gray-200 pt-4 mt-4">
+                  <div className="flex justify-between items-center font-['Poppins'] text-2xl font-bold text-[#111f50] border-t-2 border-gray-200 pt-4 mt-4">
                     <span>Total</span>
                     <span className="text-[#D4B26A]">${totalPrice}</span>
                   </div>
@@ -899,7 +909,7 @@ const Book = () => {
         <DialogContent className="sm:max-w-2xl rounded-3xl border-2 border-gray-200 p-0 overflow-hidden">
           
           {/* Dialog Header with Gradient */}
-          <div className="bg-gradient-to-r from-[#1E3A5F] to-[#2A4A6F] p-8">
+          <div className="bg-gradient-to-r from-[#111f50] to-[#1a2d5a] p-8">
             <DialogHeader>
               <DialogTitle className="font-['Poppins'] text-3xl font-bold text-white mb-2">
                 Complete Your Booking
@@ -915,7 +925,7 @@ const Book = () => {
             
             {/* Name Input */}
             <div>
-              <Label htmlFor="name" className="font-['Inter'] font-semibold text-[#1E3A5F] mb-2 block">
+              <Label htmlFor="name" className="font-['Inter'] font-semibold text-[#111f50] mb-2 block">
                 Full Name <span className="text-red-500">*</span>
               </Label>
               <Input
@@ -930,7 +940,7 @@ const Book = () => {
 
             {/* Email Input */}
             <div>
-              <Label htmlFor="email" className="font-['Inter'] font-semibold text-[#1E3A5F] mb-2 block">
+              <Label htmlFor="email" className="font-['Inter'] font-semibold text-[#111f50] mb-2 block">
                 Email Address <span className="text-red-500">*</span>
               </Label>
               <Input
@@ -946,7 +956,7 @@ const Book = () => {
 
             {/* Phone Input */}
             <div>
-              <Label htmlFor="phone" className="font-['Inter'] font-semibold text-[#1E3A5F] mb-2 block">
+              <Label htmlFor="phone" className="font-['Inter'] font-semibold text-[#111f50] mb-2 block">
                 Phone Number <span className="text-gray-400 font-normal">(Optional)</span>
               </Label>
               <Input
@@ -961,7 +971,7 @@ const Book = () => {
 
             {/* Special Requests */}
             <div>
-              <Label htmlFor="requests" className="font-['Inter'] font-semibold text-[#1E3A5F] mb-2 block">
+              <Label htmlFor="requests" className="font-['Inter'] font-semibold text-[#111f50] mb-2 block">
                 Special Requests <span className="text-gray-400 font-normal">(Optional)</span>
               </Label>
               <Textarea
@@ -976,26 +986,26 @@ const Book = () => {
 
             {/* Booking Summary Card */}
             <Card className="bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-gray-200 rounded-2xl overflow-hidden">
-              <div className="bg-[#1E3A5F] px-6 py-3">
+              <div className="bg-[#111f50] px-6 py-3">
                 <h5 className="font-['Poppins'] font-bold text-white text-lg">Booking Summary</h5>
               </div>
               <CardContent className="p-6 space-y-3">
                 <div className="flex justify-between items-center font-['Inter']">
                   <span className="text-gray-600">Event</span>
-                  <span className="font-semibold text-[#1E3A5F] text-right max-w-[60%]">{selectedEvent.title}</span>
+                  <span className="font-semibold text-[#111f50] text-right max-w-[60%]">{selectedEvent.title}</span>
                 </div>
                 <div className="flex justify-between items-center font-['Inter']">
                   <span className="text-gray-600">Date</span>
-                  <span className="font-semibold text-[#1E3A5F]">
+                  <span className="font-semibold text-[#111f50]">
                     {selectedDate ? format(selectedDate, 'MMM d, yyyy') : 'Not selected'}
                   </span>
                 </div>
                 <div className="flex justify-between items-center font-['Inter']">
                   <span className="text-gray-600">Travelers</span>
-                  <span className="font-semibold text-[#1E3A5F]">{participants} {participants === 1 ? 'person' : 'people'}</span>
+                  <span className="font-semibold text-[#111f50]">{participants} {participants === 1 ? 'person' : 'people'}</span>
                 </div>
                 <div className="flex justify-between items-center font-['Poppins'] text-xl font-bold border-t-2 border-gray-300 pt-4 mt-4">
-                  <span className="text-[#1E3A5F]">Total</span>
+                  <span className="text-[#111f50]">Total</span>
                   <span className="text-[#D4B26A]">${totalPrice}</span>
                 </div>
               </CardContent>
