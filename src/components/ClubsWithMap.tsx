@@ -52,6 +52,16 @@ const generateClubCoordinates = (cityName: string, clubIndex: number) => {
   };
 };
 
+// Generate URL-friendly slug from club name
+const generateSlug = (name: string): string => {
+  return name
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-');
+};
+
 const ClubsWithMap = () => {
   const [selectedCity, setSelectedCity] = useState("All Cities");
   const [selectedClubId, setSelectedClubId] = useState<number | null>(null);
@@ -932,7 +942,8 @@ const ClubsWithMap = () => {
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              navigate(`/club/${club.id}`);
+                              const slug = generateSlug(club.name);
+                              navigate(`/club/${slug}`);
                             }}
                             className="transition-all duration-300"
                             style={{

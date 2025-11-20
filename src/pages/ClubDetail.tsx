@@ -115,7 +115,7 @@ const ClubEventsSection = ({ clubId }: { clubId: number }) => {
 };
 
 const ClubDetail = () => {
-  const { id } = useParams();
+  const { slug } = useParams();
   const navigate = useNavigate();
   const [isJoined, setIsJoined] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
@@ -136,15 +136,15 @@ const ClubDetail = () => {
   }, []);
 
   const { data: club, isLoading, error } = useQuery({
-    queryKey: ['club', id],
+    queryKey: ['club', slug],
     queryFn: async () => {
-      const response = await fetch(`/api/clubs/${id}`);
+      const response = await fetch(`/api/clubs/slug/${slug}`);
       if (!response.ok) {
         throw new Error('Failed to fetch club');
       }
       return response.json();
     },
-    enabled: !!id,
+    enabled: !!slug,
   });
 
   useEffect(() => {

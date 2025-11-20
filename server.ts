@@ -620,6 +620,56 @@ app.get('/api/clubs', async (req, res) => {
   }
 });
 
+app.get('/api/clubs/slug/:slug', async (req, res) => {
+  try {
+    const { slug } = req.params;
+    console.log(`🔗 Fetching club with slug: ${slug}...`);
+    
+    const generateSlug = (name: string): string => {
+      return name
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-');
+    };
+    
+    const clubs = await storage.getClubs();
+    const club = clubs.find(c => generateSlug(c.name) === slug);
+    
+    if (!club) {
+      return res.status(404).json({ error: 'Club not found' });
+    }
+    
+    console.log(`✅ Found club: ${club.name}`);
+    res.json({
+      id: club.id,
+      name: club.name,
+      description: club.description,
+      longDescription: club.longDescription,
+      location: club.location,
+      memberCount: club.memberCount,
+      rating: club.rating,
+      image: club.image,
+      features: club.features,
+      contactPhone: club.contactPhone,
+      contactEmail: club.contactEmail,
+      website: club.website,
+      socialMedia: club.socialMedia,
+      established: club.established,
+      isActive: club.isActive,
+      latitude: club.latitude,
+      longitude: club.longitude,
+      ownerId: club.ownerId,
+      createdAt: club.createdAt?.toISOString(),
+      updatedAt: club.updatedAt?.toISOString()
+    });
+  } catch (error) {
+    console.error('❌ Error fetching club by slug:', error);
+    res.status(500).json({ error: 'Failed to fetch club', details: error.message });
+  }
+});
+
 app.get('/api/events', async (req, res) => {
   try {
     console.log('🔗 Fetching public events from MySQL database...');
