@@ -63,6 +63,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { format } from 'date-fns';
+import { ImageUpload } from '@/components/admin/ImageUpload';
 
 const eventSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -713,9 +714,12 @@ export default function EventsManagement() {
                     name="image"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Event Image URL (optional)</FormLabel>
+                        <FormLabel>Event Image (optional)</FormLabel>
                         <FormControl>
-                          <Input {...field} placeholder="https://example.com/image.jpg" />
+                          <ImageUpload
+                            value={field.value}
+                            onChange={field.onChange}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
