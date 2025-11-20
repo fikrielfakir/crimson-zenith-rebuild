@@ -1,0 +1,214 @@
+
+Vollständige Texte
+id
+club_id
+is_association_event
+title
+subtitle
+description
+location
+location_details
+duration
+price
+original_price
+rating
+review_count
+category
+languages
+age_range
+min_age
+group_size
+max_people
+max_participants
+current_participants
+cancellation_policy
+images
+image
+highlights
+included
+not_included
+schedule
+important_info
+status
+is_active
+created_by
+created_at
+updated_at
+latitude
+longitude
+start_date
+end_date
+event_date
+
+Bearbeiten Bearbeiten
+Kopieren Kopieren
+Löschen Löschen
+atlas-trek-3day
+NULL
+0
+3-Day Atlas Mountains Trek
+Discover the majestic peaks and Berber villages
+Embark on an unforgettable 3-day journey through t...
+Atlas Mountains, Morocco
+NULL
+3 Days / 2 Nights
+299
+399
+5
+127
+Mountain Trek
+["English","French","Arabic"]
+12-65 years
+NULL
+Max 12 people
+NULL
+NULL
+0
+Free cancellation up to 48 hours before departure
+["/api/placeholder/800/600","/api/placeholder/800/...
+NULL
+["Trek through stunning mountain valleys","Visit a...
+["Professional mountain guide","All meals during t...
+["Personal travel insurance","Drinks and snacks","...
+[{"time":"Day 1","activity":"Depart Marrakech at 8...
+NULL
+upcoming
+1
+NULL
+2025-11-02 16:23:29
+2025-11-02 16:23:29
+31.257800
+-7.992800
+2024-12-15
+2025-03-30
+NULL
+
+Bearbeiten Bearbeiten
+Kopieren Kopieren
+Löschen Löschen
+club-event-2
+1
+0
+Event 1
+NULL
+Lorem ipsum 
+Lorem ipsum 
+NULL
+NULL
+150
+NULL
+5
+0
+workshop
+["English"]
+NULL
+NULL
+NULL
+NULL
+150
+0
+NULL
+[]
+NULL
+[]
+[]
+[]
+[]
+NULL
+upcoming
+1
+NULL
+2025-11-20 10:34:07
+2025-11-20 10:34:07
+NULL
+NULL
+2025-11-20
+2025-11-28
+2025-11-20 10:33:00
+
+Bearbeiten Bearbeiten
+Kopieren Kopieren
+Löschen Löschen
+coastal-surf-camp
+NULL
+0
+Atlantic Coast Surf Camp
+Learn to surf in Morocco's best waves
+Join our 5-day surf camp on Morocco's stunning Atl...
+Essaouira, Atlantic Coast
+NULL
+5 Days / 4 Nights
+449
+599
+5
+89
+Water Sports
+["English","French"]
+14-50 years
+NULL
+Max 8 people
+NULL
+NULL
+0
+Free cancellation up to 7 days before start date
+["/api/placeholder/800/600","/api/placeholder/800/...
+NULL
+["Daily professional surf coaching","Beachfront ac...
+["4 nights beachfront accommodation","Daily surf l...
+["Lunch and dinner","Travel insurance","Personal e...
+[{"time":"7:00 AM","activity":"Beach yoga session"...
+NULL
+upcoming
+1
+NULL
+2025-11-02 16:23:29
+2025-11-02 16:23:29
+31.508400
+-9.759500
+2024-12-10
+2025-05-31
+NULL
+
+Bearbeiten Bearbeiten
+Kopieren Kopieren
+Löschen Löschen
+sahara-desert-adventure
+NULL
+0
+Sahara Desert Adventure
+Sleep under the stars in the Moroccan Sahara
+Experience the magic of the Sahara Desert on this ...
+Merzouga, Sahara Desert
+NULL
+2 Days / 1 Night
+199
+279
+5
+243
+Desert Experience
+["English","French","Spanish"]
+8-80 years
+NULL
+Max 15 people
+NULL
+NULL
+0
+Free cancellation up to 24 hours before departure
+["/api/placeholder/800/600","/api/placeholder/800/...
+NULL
+["Camel trek across sand dunes","Spectacular sunse...
+["Camel ride to and from camp","Dinner and breakfa...
+["Transport to Merzouga","Lunch","Personal expense...
+[{"time":"4:00 PM","activity":"Meet at Merzouga, c...
+NULL
+upcoming
+1
+NULL
+2025-11-02 16:23:29
+2025-11-02 16:23:29
+31.080100
+-4.013300
+2024-12-01
+2025-04-30
+NULL
+markierte:  Alle auswählen markierte:    

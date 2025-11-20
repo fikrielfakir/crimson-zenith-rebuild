@@ -11,10 +11,11 @@ import "react-calendar/dist/Calendar.css";
 import "./EventsActivitiesCalendar.css";
 
 interface Event {
-  id: number;
+  id: number | string;
   title: string;
   description: string;
-  eventDate: string;
+  eventDate?: string;
+  startDate?: string;
   endDate?: string;
   location: string;
   locationDetails?: string;
@@ -108,7 +109,11 @@ const EventsActivitiesCalendar = () => {
   const filteredEvents = events.filter((event) => {
     if (!selectedDate) return true;
     
-    const eventStart = new Date(event.eventDate);
+    // Use startDate if available, otherwise fall back to eventDate
+    const dateToUse = event.startDate || event.eventDate;
+    if (!dateToUse) return false;
+    
+    const eventStart = new Date(dateToUse);
     const eventEnd = event.endDate ? new Date(event.endDate) : eventStart;
     const selected = new Date(selectedDate);
     
@@ -284,7 +289,7 @@ const EventsActivitiesCalendar = () => {
               </div>
             ) : (
               <div className="grid grid-cols-2 gap-6" style={{ marginBottom: '24px' }}>
-                {displayedEvents.map((event) => (
+                {displayedEvents.map((event, index) => (
                   <Card 
                     key={event.id} 
                     className="border-none overflow-hidden"
@@ -307,7 +312,7 @@ const EventsActivitiesCalendar = () => {
                     {/* Image Section - Top */}
                     <div className="relative" style={{ width: '100%', height: '240px' }}>
                       <img 
-                        src={event.id % 2 === 0 ? timitar : gnaoua} 
+                        src={index % 2 === 0 ? timitar : gnaoua} 
                         alt={event.title}
                         className="w-full h-full object-cover"
                         style={{ 
@@ -382,15 +387,28 @@ const EventsActivitiesCalendar = () => {
                       
                       {/* Date & Time & Location Row */}
                       <div className="flex items-center gap-2 flex-wrap" style={{ marginBottom: '8px' }}>
-                        <div className="flex items-center gap-1">
-                          <Clock className="w-4 h-4" style={{ color: '#666A73' }} />
-                          <span className="font-['Inter']" style={{ 
-                            fontSize: '13px', 
-                            color: '#666A73' 
-                          }}>
-                            {formatEventTime(event.eventDate, event.endDate)}
-                          </span>
-                        </div>
+                        {event.eventDate && (
+                          <div className="flex items-center gap-1">
+                            <Clock className="w-4 h-4" style={{ color: '#666A73' }} />
+                            <span className="font-['Inter']" style={{ 
+                              fontSize: '13px', 
+                              color: '#666A73' 
+                            }}>
+                              {formatEventTime(event.eventDate, event.endDate)}
+                            </span>
+                          </div>
+                        )}
+                        {event.startDate && (
+                          <div className="flex items-center gap-1">
+                            <CalendarIcon className="w-4 h-4" style={{ color: '#666A73' }} />
+                            <span className="font-['Inter']" style={{ 
+                              fontSize: '13px', 
+                              color: '#666A73' 
+                            }}>
+                              {formatEventDate(event.startDate, event.endDate)}
+                            </span>
+                          </div>
+                        )}
                         <div className="flex items-center gap-1">
                           <MapPin className="w-4 h-4" style={{ color: '#666A73' }} />
                           <span className="font-['Inter']" style={{ 
