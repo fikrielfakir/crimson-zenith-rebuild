@@ -384,9 +384,19 @@ const Book = () => {
     <div className="min-h-screen bg-white">
       <Header />
 
-      {/* Premium Hero Section with Solid Background */}
-      <section className="relative overflow-hidden" style={{ backgroundColor: '#111f50' }}>
-        <div className="container mx-auto px-6 py-12">
+      {/* Premium Hero Section with Background Image */}
+      <section className="relative overflow-hidden">
+        {/* Background Image with Overlay */}
+        <div className="absolute inset-0">
+          <img 
+            src={displayImages[0]} 
+            alt={selectedEvent.title}
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#111f50]/70 via-[#111f50]/60 to-[#111f50]/80" />
+        </div>
+
+        <div className="relative container mx-auto px-6 py-12">
           {/* Elegant Breadcrumb Navigation */}
           <nav className="mb-8">
             <ol className="flex items-center space-x-3">
@@ -433,18 +443,91 @@ const Book = () => {
                 </div>
               )}
             </div>
+          </div>
+        </div>
 
-            {/* Small Image Slider */}
-            <div className="max-w-5xl">
+        {/* Premium Image Gallery Carousel at Bottom of Hero */}
+        {displayImages.length > 0 && (
+          <div className="relative pb-8">
+            <div className="container mx-auto px-6">
+              <div className="max-w-6xl mx-auto">
+                <div className="relative rounded-3xl overflow-hidden shadow-2xl" style={{ boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.4)' }}>
+                  <div ref={emblaRef} className="overflow-hidden">
+                    <div className="flex">
+                      {displayImages.map((image, index) => (
+                        <div key={index} className="flex-[0_0_100%] min-w-0">
+                          <div className="relative aspect-[21/9]">
+                            <img 
+                              src={image}
+                              alt={`${selectedEvent.title} - Gallery ${index + 1}`}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Premium Navigation Buttons */}
+                  {displayImages.length > 1 && (
+                    <>
+                      <button
+                        onClick={scrollPrev}
+                        className="absolute left-6 top-1/2 -translate-y-1/2 bg-white/95 hover:bg-white text-[#111f50] p-4 rounded-full shadow-xl transition-all duration-300 hover:scale-110 hover:shadow-2xl z-10 backdrop-blur-sm"
+                        aria-label="Previous image"
+                      >
+                        <ChevronLeft className="w-6 h-6" />
+                      </button>
+                      <button
+                        onClick={scrollNext}
+                        className="absolute right-6 top-1/2 -translate-y-1/2 bg-white/95 hover:bg-white text-[#111f50] p-4 rounded-full shadow-xl transition-all duration-300 hover:scale-110 hover:shadow-2xl z-10 backdrop-blur-sm"
+                        aria-label="Next image"
+                      >
+                        <ChevronRight className="w-6 h-6" />
+                      </button>
+
+                      {/* Elegant Dots Indicator */}
+                      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2.5 z-10">
+                        {displayImages.map((_, index) => (
+                          <button
+                            key={index}
+                            onClick={() => emblaApi && emblaApi.scrollTo(index)}
+                            className={`h-2.5 rounded-full transition-all duration-300 ${
+                              index === selectedImageIndex
+                                ? 'bg-[#D4B26A] w-12 shadow-lg'
+                                : 'bg-white/60 hover:bg-white/80 w-2.5'
+                            }`}
+                            aria-label={`View image ${index + 1}`}
+                          />
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </section>
+
+      {/* Main Content Section */}
+      <div className="container mx-auto px-6 py-16">
+        <div className="grid lg:grid-cols-3 gap-12 max-w-7xl mx-auto">
+          
+          {/* Left Column - Event Details */}
+          <div className="lg:col-span-2 space-y-10">
+            
+            {/* Thumbnail Slider - Same Width as TabsList */}
+            <div className="w-full">
               <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
                 {displayImages.map((image, index) => (
                   <button
                     key={index}
                     onClick={() => emblaApi && emblaApi.scrollTo(index)}
-                    className={`flex-shrink-0 w-32 h-20 rounded-xl overflow-hidden transition-all duration-300 border-3 ${
+                    className={`flex-shrink-0 w-32 h-20 rounded-xl overflow-hidden transition-all duration-300 border-2 ${
                       index === selectedImageIndex
                         ? 'border-[#D4B26A] shadow-xl scale-105'
-                        : 'border-white/30 hover:border-white/60 shadow-md'
+                        : 'border-gray-200 hover:border-[#D4B26A]/50 shadow-md'
                     }`}
                   >
                     <img 
@@ -456,74 +539,7 @@ const Book = () => {
                 ))}
               </div>
             </div>
-          </div>
-        </div>
-      </section>
 
-      {/* Premium Image Gallery Carousel */}
-      {displayImages.length > 1 && (
-        <div className="container mx-auto px-6 -mt-24 mb-16 relative z-10">
-          <div className="max-w-6xl mx-auto">
-            <div className="relative rounded-3xl overflow-hidden shadow-2xl" style={{ boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)' }}>
-              <div ref={emblaRef} className="overflow-hidden">
-                <div className="flex">
-                  {displayImages.map((image, index) => (
-                    <div key={index} className="flex-[0_0_100%] min-w-0">
-                      <div className="relative aspect-[21/9]">
-                        <img 
-                          src={image}
-                          alt={`${selectedEvent.title} - Gallery ${index + 1}`}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Premium Navigation Buttons */}
-              <button
-                onClick={scrollPrev}
-                className="absolute left-6 top-1/2 -translate-y-1/2 bg-white/95 hover:bg-white text-[#111f50] p-4 rounded-full shadow-xl transition-all duration-300 hover:scale-110 hover:shadow-2xl z-10 backdrop-blur-sm"
-                aria-label="Previous image"
-              >
-                <ChevronLeft className="w-6 h-6" />
-              </button>
-              <button
-                onClick={scrollNext}
-                className="absolute right-6 top-1/2 -translate-y-1/2 bg-white/95 hover:bg-white text-[#111f50] p-4 rounded-full shadow-xl transition-all duration-300 hover:scale-110 hover:shadow-2xl z-10 backdrop-blur-sm"
-                aria-label="Next image"
-              >
-                <ChevronRight className="w-6 h-6" />
-              </button>
-
-              {/* Elegant Dots Indicator */}
-              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2.5 z-10">
-                {displayImages.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => emblaApi && emblaApi.scrollTo(index)}
-                    className={`h-2.5 rounded-full transition-all duration-300 ${
-                      index === selectedImageIndex
-                        ? 'bg-[#D4B26A] w-12 shadow-lg'
-                        : 'bg-white/60 hover:bg-white/80 w-2.5'
-                    }`}
-                    aria-label={`View image ${index + 1}`}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Main Content Section */}
-      <div className="container mx-auto px-6 py-16">
-        <div className="grid lg:grid-cols-3 gap-12 max-w-7xl mx-auto">
-          
-          {/* Left Column - Event Details */}
-          <div className="lg:col-span-2 space-y-10">
-            
             {/* Modern Floating Tabs */}
             <Tabs defaultValue="overview" className="w-full">
               <TabsList className="w-full grid grid-cols-3 bg-gray-50 p-1.5 rounded-2xl border border-gray-100 shadow-sm h-auto">
