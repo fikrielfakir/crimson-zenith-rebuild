@@ -105,36 +105,36 @@ export interface IStorage {
   getClubMembers(clubId: number): Promise<ClubMembership[]>;
   isClubMember(userId: string, clubId: number): Promise<boolean>;
   
-  // Club event operations
-  getClubEvents(clubId: number): Promise<ClubEvent[]>;
-  getUpcomingClubEvents(clubId: number): Promise<ClubEvent[]>;
-  getAssociationEvents(): Promise<ClubEvent[]>; // Get Journey/Association events
-  getUpcomingAssociationEvents(): Promise<ClubEvent[]>; // Get upcoming Journey/Association events
-  getAllEvents(): Promise<ClubEvent[]>; // Get all events (for admin)
-  getEvent(id: number): Promise<ClubEvent | undefined>; // Get single event by ID
-  createClubEvent(event: InsertClubEvent): Promise<ClubEvent>;
-  updateClubEvent(id: number, event: Partial<InsertClubEvent>): Promise<ClubEvent>;
-  deleteClubEvent(id: number): Promise<void>;
+  // Event operations (unified - now uses booking_events for all events)
+  getClubEvents(clubId: number): Promise<BookingEvent[]>;
+  getUpcomingClubEvents(clubId: number): Promise<BookingEvent[]>;
+  getAssociationEvents(): Promise<BookingEvent[]>; // Get Journey/Association events
+  getUpcomingAssociationEvents(): Promise<BookingEvent[]>; // Get upcoming Journey/Association events
+  getAllEvents(): Promise<BookingEvent[]>; // Get all events (for admin)
+  getEvent(id: string): Promise<BookingEvent | undefined>; // Get single event by ID
+  createClubEvent(event: InsertBookingEvent): Promise<BookingEvent>;
+  updateClubEvent(id: string, event: Partial<InsertBookingEvent>): Promise<BookingEvent>;
+  deleteClubEvent(id: string): Promise<void>;
   
   // Event gallery operations
-  getEventGallery(eventId: number): Promise<any[]>;
-  addEventImage(eventId: number, imageUrl: string, sortOrder?: number): Promise<any>;
+  getEventGallery(eventId: string): Promise<any[]>;
+  addEventImage(eventId: string, imageUrl: string, sortOrder?: number): Promise<any>;
   deleteEventImage(id: number): Promise<void>;
   
   // Event schedule operations
-  getEventSchedule(eventId: number): Promise<any[]>;
-  addEventScheduleDay(eventId: number, dayNumber: number, title: string, description?: string): Promise<any>;
+  getEventSchedule(eventId: string): Promise<any[]>;
+  addEventScheduleDay(eventId: string, dayNumber: number, title: string, description?: string): Promise<any>;
   updateEventScheduleDay(id: number, data: any): Promise<any>;
   deleteEventScheduleDay(id: number): Promise<void>;
   
   // Event reviews operations
-  getEventReviews(eventId: number): Promise<any[]>;
-  addEventReview(eventId: number, userName: string, rating: number, review?: string): Promise<any>;
+  getEventReviews(eventId: string): Promise<any[]>;
+  addEventReview(eventId: string, userName: string, rating: number, review?: string): Promise<any>;
   deleteEventReview(id: number): Promise<void>;
   
   // Event prices operations
-  getEventPrices(eventId: number): Promise<any[]>;
-  addEventPrice(eventId: number, travelers: number, pricePerPerson: number): Promise<any>;
+  getEventPrices(eventId: string): Promise<any[]>;
+  addEventPrice(eventId: string, travelers: number, pricePerPerson: number): Promise<any>;
   updateEventPrice(id: number, data: any): Promise<any>;
   deleteEventPrice(id: number): Promise<void>;
   
@@ -142,7 +142,7 @@ export interface IStorage {
   getClubGallery(clubId: number): Promise<any[]>;
   addClubImage(clubId: number, imageUrl: string, caption?: string, uploadedBy?: string): Promise<any>;
   
-  // Booking event operations
+  // Booking event operations (now serves all event types)
   getBookingEvents(): Promise<BookingEvent[]>;
   getBookingEvent(id: string): Promise<BookingEvent | undefined>;
   createBookingEvent(event: InsertBookingEvent): Promise<BookingEvent>;

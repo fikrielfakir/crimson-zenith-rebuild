@@ -82,40 +82,57 @@ export const clubMemberships = mysqlTable("club_memberships", {
   isActive: boolean("is_active").default(true),
 });
 
-// Club events (includes both club-specific events and Journey Association events)
-export const clubEvents = mysqlTable("club_events", {
-  id: serial().primaryKey(),
-  clubId: int("club_id").references(() => clubs.id), // Nullable for association events
-  isAssociationEvent: boolean("is_association_event").default(false), // true for Journey/Association events, false for club events
+// Booking events table - unified events table (includes club events, association events, and booking events)
+export const bookingEvents = mysqlTable("booking_events", {
+  id: varchar("id", { length: 255 }).primaryKey(),
+  clubId: int("club_id").references(() => clubs.id), // Nullable - only for club-specific events
+  isAssociationEvent: boolean("is_association_event").default(false), // true for Journey/Association events
   title: varchar("title", { length: 255 }).notNull(),
-  description: text("description"),
-  image: varchar("image", { length: 500 }), // Featured event image
-  eventDate: timestamp("event_date").notNull(),
-  endDate: timestamp("end_date"),
+  subtitle: varchar("subtitle", { length: 255 }),
+  description: text("description").notNull(),
+  location: varchar("location", { length: 255 }).notNull(),
+  locationDetails: varchar("location_details", { length: 255 }), // Additional location context
+  latitude: decimal("latitude", { precision: 9, scale: 6 }),
+  longitude: decimal("longitude", { precision: 9, scale: 6 }),
+  duration: varchar("duration", { length: 100 }),
+  startDate: date("start_date"),
+  endDate: date("end_date"),
+  eventDate: timestamp("event_date"), // For club events compatibility
+  price: int("price").notNull(),
+  originalPrice: int("original_price"),
+  rating: int("rating").default(5),
+  reviewCount: int("review_count").default(0),
   category: varchar("category", { length: 100 }),
-  duration: varchar("duration", { length: 100 }), // e.g., "3 Days / 2 Nights"
-  price: decimal("price", { precision: 10, scale: 2 }),
-  location: varchar("location", { length: 255 }),
-  locationDetails: varchar("location_details", { length: 255 }), // e.g., "Atlas Mountains, Morocco"
-  languages: varchar("languages", { length: 255 }), // e.g., "English, French, Arabic"
-  minAge: int("min_age"), // minimum age requirement
-  maxPeople: int("max_people"), // maximum group size
-  highlights: text("highlights"), // JSON or text list
-  included: text("included"), // JSON or text list of what's included
-  notIncluded: text("not_included"), // JSON or text list of what's not included
-  importantInfo: text("important_info"), // important information block
+  languages: json("languages").default(sql`'["English"]'`),
+  ageRange: varchar("age_range", { length: 100 }),
+  minAge: int("min_age"), // Minimum age requirement
+  groupSize: varchar("group_size", { length: 100 }),
+  maxPeople: int("max_people"), // Maximum group size
   maxParticipants: int("max_participants"),
   currentParticipants: int("current_participants").default(0),
+  cancellationPolicy: text("cancellation_policy"),
+  images: json("images").default(sql`'[]'`),
+  image: varchar("image", { length: 500 }), // Featured image (for club events compatibility)
+  highlights: json("highlights").default(sql`'[]'`),
+  included: json("included").default(sql`'[]'`),
+  notIncluded: json("not_included").default(sql`'[]'`),
+  schedule: json("schedule").default(sql`'[]'`),
+  importantInfo: text("important_info"), // Important information/notes
   status: varchar("status", { length: 20 }).default("upcoming"), // upcoming, ongoing, completed, cancelled
+  isActive: boolean("is_active").default(true),
   createdBy: varchar("created_by", { length: 255 }).references(() => users.id),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// Club event participants
+// NOTE: club_events table has been merged into booking_events
+// Temporary alias for backward compatibility during migration
+export const clubEvents = bookingEvents;
+
+// Club event participants - now references booking_events
 export const eventParticipants = mysqlTable("event_participants", {
   id: serial().primaryKey(),
-  eventId: int("event_id").references(() => clubEvents.id).notNull(),
+  eventId: varchar("event_id", { length: 255 }).references(() => bookingEvents.id).notNull(),
   userId: varchar("user_id", { length: 255 }).references(() => users.id).notNull(),
   registeredAt: timestamp("registered_at").defaultNow(),
   attended: boolean("attended").default(false),
@@ -124,7 +141,7 @@ export const eventParticipants = mysqlTable("event_participants", {
 // Events-Clubs junction table - allows events to be associated with multiple clubs
 export const eventsClubs = mysqlTable("events_clubs", {
   id: serial().primaryKey(),
-  eventId: int("event_id").references(() => clubEvents.id).notNull(),
+  eventId: varchar("event_id", { length: 255 }).references(() => bookingEvents.id).notNull(),
   clubId: int("club_id").references(() => clubs.id).notNull(),
   isPrimaryClub: boolean("is_primary_club").default(false), // Marks the main organizing club
   createdAt: timestamp("created_at").defaultNow(),
@@ -133,7 +150,7 @@ export const eventsClubs = mysqlTable("events_clubs", {
 // Event gallery - stores multiple images for event carousel
 export const eventGallery = mysqlTable("event_gallery", {
   id: serial().primaryKey(),
-  eventId: int("event_id").references(() => clubEvents.id).notNull(),
+  eventId: varchar("event_id", { length: 255 }).references(() => bookingEvents.id).notNull(),
   imageUrl: varchar("image_url", { length: 500 }).notNull(),
   sortOrder: int("sort_order").default(0),
   createdAt: timestamp("created_at").defaultNow(),
@@ -142,7 +159,7 @@ export const eventGallery = mysqlTable("event_gallery", {
 // Event schedule - stores day-by-day itinerary for multi-day events
 export const eventSchedule = mysqlTable("event_schedule", {
   id: serial().primaryKey(),
-  eventId: int("event_id").references(() => clubEvents.id).notNull(),
+  eventId: varchar("event_id", { length: 255 }).references(() => bookingEvents.id).notNull(),
   dayNumber: int("day_number").notNull(),
   title: varchar("title", { length: 255 }),
   description: text("description"),
@@ -152,7 +169,7 @@ export const eventSchedule = mysqlTable("event_schedule", {
 // Event reviews - stores user reviews and ratings for events
 export const eventReviews = mysqlTable("event_reviews", {
   id: serial().primaryKey(),
-  eventId: int("event_id").references(() => clubEvents.id).notNull(),
+  eventId: varchar("event_id", { length: 255 }).references(() => bookingEvents.id).notNull(),
   userName: varchar("user_name", { length: 255 }),
   rating: int("rating").notNull(),
   review: text("review"),
@@ -162,7 +179,7 @@ export const eventReviews = mysqlTable("event_reviews", {
 // Event prices - stores dynamic pricing based on number of travelers
 export const eventPrices = mysqlTable("event_prices", {
   id: serial().primaryKey(),
-  eventId: int("event_id").references(() => clubEvents.id).notNull(),
+  eventId: varchar("event_id", { length: 255 }).references(() => bookingEvents.id).notNull(),
   travelers: int("travelers").notNull(),
   pricePerPerson: decimal("price_per_person", { precision: 10, scale: 2 }).notNull(),
 });
@@ -185,104 +202,6 @@ export const clubReviews = mysqlTable("club_reviews", {
   rating: int("rating").notNull(),
   comment: text("comment"),
   createdAt: timestamp("created_at").defaultNow(),
-});
-
-// Booking events table - for customizable bookable events
-export const bookingEvents = mysqlTable("booking_events", {
-  id: varchar("id", { length: 255 }).primaryKey(),
-  title: varchar("title", { length: 255 }).notNull(),
-  subtitle: varchar("subtitle", { length: 255 }),
-  description: text("description").notNull(),
-  location: varchar("location", { length: 255 }).notNull(),
-  latitude: decimal("latitude", { precision: 9, scale: 6 }),
-  longitude: decimal("longitude", { precision: 9, scale: 6 }),
-  duration: varchar("duration", { length: 100 }),
-  startDate: date("start_date"),
-  endDate: date("end_date"),
-  price: int("price").notNull(),
-  originalPrice: int("original_price"),
-  rating: int("rating").default(5),
-  reviewCount: int("review_count").default(0),
-  category: varchar("category", { length: 100 }),
-  languages: json("languages").default(sql`'["English"]'`),
-  ageRange: varchar("age_range", { length: 100 }),
-  groupSize: varchar("group_size", { length: 100 }),
-  cancellationPolicy: text("cancellation_policy"),
-  images: json("images").default(sql`'[]'`),
-  highlights: json("highlights").default(sql`'[]'`),
-  included: json("included").default(sql`'[]'`),
-  notIncluded: json("not_included").default(sql`'[]'`),
-  schedule: json("schedule").default(sql`'[]'`),
-  isActive: boolean("is_active").default(true),
-  createdBy: varchar("created_by", { length: 255 }).references(() => users.id),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-// Unified Events table - merges club_events and booking_events into one table
-export const events = mysqlTable("events", {
-  // Identifiers
-  id: serial().primaryKey(),
-  eventType: varchar("event_type", { length: 20 }).notNull(), // "club", "association", "booking"
-  clubId: int("club_id").references(() => clubs.id), // Nullable for association and booking events
-  legacyClubEventId: int("legacy_club_event_id"), // For migration reference
-  legacyBookingEventId: varchar("legacy_booking_event_id", { length: 255 }), // For migration reference
-  
-  // Core metadata
-  title: varchar("title", { length: 255 }).notNull(),
-  subtitle: varchar("subtitle", { length: 255 }),
-  description: text("description").notNull(),
-  featuredImage: varchar("featured_image", { length: 500 }), // Primary featured image
-  images: json("images").default(sql`'[]'`), // Additional images gallery (JSON array of URLs)
-  
-  // Status and visibility
-  eventStatus: varchar("event_status", { length: 20 }).default("upcoming"), // upcoming, ongoing, completed, cancelled
-  isActive: boolean("is_active").default(true),
-  
-  // Scheduling
-  startAt: timestamp("start_at").notNull(), // Event start date/time
-  endAt: timestamp("end_at"), // Event end date/time (nullable for single-day events)
-  duration: varchar("duration", { length: 100 }), // Human-readable duration (e.g., "3 Days / 2 Nights")
-  schedule: json("schedule").default(sql`'[]'`), // Day-by-day itinerary (JSON array)
-  
-  // Location
-  location: varchar("location", { length: 255 }).notNull(),
-  locationDetails: varchar("location_details", { length: 255 }), // Additional location info
-  latitude: decimal("latitude", { precision: 9, scale: 6 }),
-  longitude: decimal("longitude", { precision: 9, scale: 6 }),
-  
-  // Participation constraints
-  minAge: int("min_age"), // Minimum age requirement
-  ageRange: varchar("age_range", { length: 100 }), // Human-readable age range (e.g., "12-65 years")
-  groupSize: varchar("group_size", { length: 100 }), // Human-readable group size (e.g., "Max 12 people")
-  maxPeople: int("max_people"), // Maximum group size (numeric)
-  maxParticipants: int("max_participants"), // Maximum total participants
-  currentParticipants: int("current_participants").default(0),
-  
-  // Categorization
-  category: varchar("category", { length: 100 }),
-  
-  // Pricing
-  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
-  originalPrice: decimal("original_price", { precision: 10, scale: 2 }), // For showing discounts
-  currency: varchar("currency", { length: 10 }).default("USD"),
-  cancellationPolicy: text("cancellation_policy"),
-  
-  // Content arrays (all JSON for flexibility)
-  highlights: json("highlights").default(sql`'[]'`), // Event highlights/features
-  included: json("included").default(sql`'[]'`), // What's included in the price
-  notIncluded: json("not_included").default(sql`'[]'`), // What's not included
-  languages: json("languages").default(sql`'["English"]'`), // Supported languages
-  importantInfo: text("important_info"), // Important information/notes
-  
-  // Quality metrics
-  rating: int("rating").default(5),
-  reviewCount: int("review_count").default(0),
-  
-  // Audit metadata
-  createdBy: varchar("created_by", { length: 255 }).references(() => users.id),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 // Booking tickets table - stores customer bookings for booking events
