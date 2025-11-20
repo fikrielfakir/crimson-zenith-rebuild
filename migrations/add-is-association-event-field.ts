@@ -5,12 +5,16 @@ import mysql from 'mysql2/promise';
  * This allows events to be either club-specific or Journey Association events
  */
 
+if (!process.env.MYSQL_HOST || !process.env.MYSQL_PASSWORD) {
+  throw new Error('Missing required environment variables: MYSQL_HOST, MYSQL_PASSWORD');
+}
+
 const config = {
-  host: process.env.MYSQL_HOST || 'srv2058.hstgr.io',
+  host: process.env.MYSQL_HOST,
   port: parseInt(process.env.MYSQL_PORT || '3306'),
   database: process.env.MYSQL_DATABASE || 'u613266227_test',
   user: process.env.MYSQL_USER || 'u613266227_test',
-  password: process.env.MYSQL_PASSWORD || 'u?9fV8A&UA',
+  password: process.env.MYSQL_PASSWORD,
 };
 
 async function runMigration() {

@@ -82,6 +82,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get club-specific events (upcoming club events only)
+  app.get('/api/clubs/:id/events', async (req, res) => {
+    try {
+      const clubId = parseInt(req.params.id);
+      const events = await storage.getUpcomingClubEvents(clubId);
+      res.json({ events });
+    } catch (error) {
+      console.error("Error fetching club events:", error);
+      res.status(500).json({ message: "Failed to fetch club events" });
+    }
+  });
+
   app.post('/api/clubs', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.id;
