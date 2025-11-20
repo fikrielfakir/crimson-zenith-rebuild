@@ -219,6 +219,72 @@ export const bookingEvents = mysqlTable("booking_events", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Unified Events table - merges club_events and booking_events into one table
+export const events = mysqlTable("events", {
+  // Identifiers
+  id: serial().primaryKey(),
+  eventType: varchar("event_type", { length: 20 }).notNull(), // "club", "association", "booking"
+  clubId: int("club_id").references(() => clubs.id), // Nullable for association and booking events
+  legacyClubEventId: int("legacy_club_event_id"), // For migration reference
+  legacyBookingEventId: varchar("legacy_booking_event_id", { length: 255 }), // For migration reference
+  
+  // Core metadata
+  title: varchar("title", { length: 255 }).notNull(),
+  subtitle: varchar("subtitle", { length: 255 }),
+  description: text("description").notNull(),
+  featuredImage: varchar("featured_image", { length: 500 }), // Primary featured image
+  images: json("images").default(sql`'[]'`), // Additional images gallery (JSON array of URLs)
+  
+  // Status and visibility
+  eventStatus: varchar("event_status", { length: 20 }).default("upcoming"), // upcoming, ongoing, completed, cancelled
+  isActive: boolean("is_active").default(true),
+  
+  // Scheduling
+  startAt: timestamp("start_at").notNull(), // Event start date/time
+  endAt: timestamp("end_at"), // Event end date/time (nullable for single-day events)
+  duration: varchar("duration", { length: 100 }), // Human-readable duration (e.g., "3 Days / 2 Nights")
+  schedule: json("schedule").default(sql`'[]'`), // Day-by-day itinerary (JSON array)
+  
+  // Location
+  location: varchar("location", { length: 255 }).notNull(),
+  locationDetails: varchar("location_details", { length: 255 }), // Additional location info
+  latitude: decimal("latitude", { precision: 9, scale: 6 }),
+  longitude: decimal("longitude", { precision: 9, scale: 6 }),
+  
+  // Participation constraints
+  minAge: int("min_age"), // Minimum age requirement
+  ageRange: varchar("age_range", { length: 100 }), // Human-readable age range (e.g., "12-65 years")
+  groupSize: varchar("group_size", { length: 100 }), // Human-readable group size (e.g., "Max 12 people")
+  maxPeople: int("max_people"), // Maximum group size (numeric)
+  maxParticipants: int("max_participants"), // Maximum total participants
+  currentParticipants: int("current_participants").default(0),
+  
+  // Categorization
+  category: varchar("category", { length: 100 }),
+  
+  // Pricing
+  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  originalPrice: decimal("original_price", { precision: 10, scale: 2 }), // For showing discounts
+  currency: varchar("currency", { length: 10 }).default("USD"),
+  cancellationPolicy: text("cancellation_policy"),
+  
+  // Content arrays (all JSON for flexibility)
+  highlights: json("highlights").default(sql`'[]'`), // Event highlights/features
+  included: json("included").default(sql`'[]'`), // What's included in the price
+  notIncluded: json("not_included").default(sql`'[]'`), // What's not included
+  languages: json("languages").default(sql`'["English"]'`), // Supported languages
+  importantInfo: text("important_info"), // Important information/notes
+  
+  // Quality metrics
+  rating: int("rating").default(5),
+  reviewCount: int("review_count").default(0),
+  
+  // Audit metadata
+  createdBy: varchar("created_by", { length: 255 }).references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Booking tickets table - stores customer bookings for booking events
 export const bookingTickets = mysqlTable("booking_tickets", {
   id: serial().primaryKey(),
