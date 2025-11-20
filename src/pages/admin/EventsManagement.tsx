@@ -71,6 +71,8 @@ import { format } from 'date-fns';
 const eventSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   description: z.string().min(10, 'Description must be at least 10 characters'),
+  isAssociationEvent: z.boolean().default(false),
+  clubId: z.string().optional(),
   location: z.string().min(1, 'Location is required'),
   locationDetails: z.string().optional(),
   startDate: z.string().min(1, 'Start date is required'),
@@ -82,35 +84,33 @@ const eventSchema = z.object({
   maxPeople: z.string().optional(),
   maxAttendees: z.string().optional(),
   price: z.string().optional(),
+  image: z.string().optional(),
   highlights: z.string().optional(),
   included: z.string().optional(),
   notIncluded: z.string().optional(),
   importantInfo: z.string().optional(),
-  status: z.enum(['draft', 'published', 'cancelled']).default('draft'),
+  status: z.enum(['upcoming', 'ongoing', 'completed', 'cancelled']).default('upcoming'),
 });
 
 type EventFormData = z.infer<typeof eventSchema>;
 
-async function fetchEvents(params: { search?: string; status?: string; category?: string; page: number; perPage: number }) {
-  const queryParams = new URLSearchParams({
-    page: params.page.toString(),
-    perPage: params.perPage.toString(),
-    ...(params.search && { search: params.search }),
-    ...(params.status && params.status !== 'all' && { status: params.status }),
-    ...(params.category && params.category !== 'all' && { category: params.category }),
-  });
-  
-  const response = await fetch(`/api/admin/events?${queryParams}`);
+async function fetchEvents() {
+  const response = await fetch(`/api/admin/club-events`);
   if (!response.ok) throw new Error('Failed to fetch events');
+  return response.json();
+}
+
+async function fetchClubs() {
+  const response = await fetch('/api/clubs');
+  if (!response.ok) throw new Error('Failed to fetch clubs');
   return response.json();
 }
 
 export default function EventsManagement() {
   const [search, setSearch] = useState('');
+  const [eventTypeFilter, setEventTypeFilter] = useState('all'); // all, club, association
   const [statusFilter, setStatusFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
-  const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(25);
   const [selectedEvents, setSelectedEvents] = useState<number[]>([]);
   const [editingEvent, setEditingEvent] = useState<any>(null);
   const [deletingEventId, setDeletingEventId] = useState<number | null>(null);
@@ -120,14 +120,13 @@ export default function EventsManagement() {
   const { toast } = useToast();
 
   const { data, isLoading } = useQuery({
-    queryKey: ['admin-events', { search, statusFilter, categoryFilter, page, perPage }],
-    queryFn: () => fetchEvents({
-      search,
-      status: statusFilter,
-      category: categoryFilter,
-      page,
-      perPage,
-    }),
+    queryKey: ['admin-club-events'],
+    queryFn: fetchEvents,
+  });
+
+  const { data: clubsData } = useQuery({
+    queryKey: ['clubs'],
+    queryFn: fetchClubs,
   });
 
   const form = useForm<EventFormData>({
@@ -135,6 +134,8 @@ export default function EventsManagement() {
     defaultValues: {
       title: '',
       description: '',
+      isAssociationEvent: false,
+      clubId: '',
       location: '',
       locationDetails: '',
       startDate: '',
@@ -146,11 +147,12 @@ export default function EventsManagement() {
       maxPeople: '',
       maxAttendees: '',
       price: '',
+      image: '',
       highlights: '',
       included: '',
       notIncluded: '',
       importantInfo: '',
-      status: 'draft',
+      status: 'upcoming',
     },
   });
 
@@ -159,27 +161,32 @@ export default function EventsManagement() {
       form.reset({
         title: editingEvent.title || '',
         description: editingEvent.description || '',
+        isAssociationEvent: !!editingEvent.isAssociationEvent,
+        clubId: editingEvent.clubId?.toString() || '',
         location: editingEvent.location || '',
         locationDetails: editingEvent.locationDetails || '',
-        startDate: editingEvent.startDate ? new Date(editingEvent.startDate).toISOString().slice(0, 16) : '',
+        startDate: editingEvent.eventDate ? new Date(editingEvent.eventDate).toISOString().slice(0, 16) : '',
         endDate: editingEvent.endDate ? new Date(editingEvent.endDate).toISOString().slice(0, 16) : '',
         duration: editingEvent.duration || '',
         category: editingEvent.category || '',
         languages: editingEvent.languages || '',
         minAge: editingEvent.minAge?.toString() || '',
         maxPeople: editingEvent.maxPeople?.toString() || '',
-        maxAttendees: editingEvent.maxAttendees?.toString() || '',
+        maxAttendees: editingEvent.maxParticipants?.toString() || '',
         price: editingEvent.price?.toString() || '',
+        image: editingEvent.image || '',
         highlights: editingEvent.highlights || '',
         included: editingEvent.included || '',
         notIncluded: editingEvent.notIncluded || '',
         importantInfo: editingEvent.importantInfo || '',
-        status: editingEvent.status || 'draft',
+        status: editingEvent.status || 'upcoming',
       });
     } else {
       form.reset({
         title: '',
         description: '',
+        isAssociationEvent: false,
+        clubId: '',
         location: '',
         locationDetails: '',
         startDate: '',
@@ -191,24 +198,25 @@ export default function EventsManagement() {
         maxPeople: '',
         maxAttendees: '',
         price: '',
+        image: '',
         highlights: '',
         included: '',
         notIncluded: '',
         importantInfo: '',
-        status: 'draft',
+        status: 'upcoming',
       });
     }
   }, [editingEvent, form]);
 
   const deleteEventMutation = useMutation({
     mutationFn: async (eventId: number) => {
-      const response = await fetch(`/api/admin/events/${eventId}`, {
+      const response = await fetch(`/api/admin/club-events/${eventId}`, {
         method: 'DELETE',
       });
       if (!response.ok) throw new Error('Failed to delete event');
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-events'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-club-events'] });
       toast({ title: 'Event deleted successfully' });
       setDeletingEventId(null);
     },
@@ -220,15 +228,31 @@ export default function EventsManagement() {
   const saveEventMutation = useMutation({
     mutationFn: async (data: EventFormData) => {
       const url = (editingEvent && editingEvent.id)
-        ? `/api/admin/events/${editingEvent.id}`
-        : '/api/admin/events';
+        ? `/api/admin/club-events/${editingEvent.id}`
+        : '/api/admin/club-events';
       
       const payload = {
-        ...data,
-        maxAttendees: data.maxAttendees ? parseInt(data.maxAttendees) : null,
-        price: data.price ? parseFloat(data.price) : null,
+        title: data.title,
+        description: data.description,
+        isAssociationEvent: data.isAssociationEvent,
+        clubId: data.clubId && !data.isAssociationEvent ? parseInt(data.clubId) : null,
+        location: data.location,
+        locationDetails: data.locationDetails,
+        eventDate: new Date(data.startDate).toISOString(),
+        endDate: data.endDate ? new Date(data.endDate).toISOString() : null,
+        duration: data.duration || null,
+        category: data.category,
+        languages: data.languages || null,
         minAge: data.minAge ? parseInt(data.minAge) : null,
         maxPeople: data.maxPeople ? parseInt(data.maxPeople) : null,
+        maxParticipants: data.maxAttendees ? parseInt(data.maxAttendees) : null,
+        price: data.price ? parseFloat(data.price) : null,
+        image: data.image || null,
+        highlights: data.highlights || null,
+        included: data.included || null,
+        notIncluded: data.notIncluded || null,
+        importantInfo: data.importantInfo || null,
+        status: data.status,
       };
       
       const response = await fetch(url, {
@@ -240,7 +264,7 @@ export default function EventsManagement() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-events'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-club-events'] });
       toast({ title: `Event ${editingEvent ? 'updated' : 'created'} successfully` });
       setEditingEvent(null);
       form.reset();

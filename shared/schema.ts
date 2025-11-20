@@ -79,10 +79,11 @@ export const clubMemberships = mysqlTable("club_memberships", {
   isActive: boolean("is_active").default(true),
 });
 
-// Club events
+// Club events (includes both club-specific events and Journey Association events)
 export const clubEvents = mysqlTable("club_events", {
   id: serial().primaryKey(),
-  clubId: int("club_id").references(() => clubs.id).notNull(),
+  clubId: int("club_id").references(() => clubs.id), // Nullable for association events
+  isAssociationEvent: boolean("is_association_event").default(false), // true for Journey/Association events, false for club events
   title: varchar("title", { length: 255 }).notNull(),
   description: text("description"),
   image: varchar("image", { length: 500 }), // Featured event image

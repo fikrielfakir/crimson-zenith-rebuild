@@ -104,8 +104,13 @@ export interface IStorage {
   // Club event operations
   getClubEvents(clubId: number): Promise<ClubEvent[]>;
   getUpcomingClubEvents(clubId: number): Promise<ClubEvent[]>;
+  getAssociationEvents(): Promise<ClubEvent[]>; // Get Journey/Association events
+  getUpcomingAssociationEvents(): Promise<ClubEvent[]>; // Get upcoming Journey/Association events
+  getAllEvents(): Promise<ClubEvent[]>; // Get all events (for admin)
+  getEvent(id: number): Promise<ClubEvent | undefined>; // Get single event by ID
   createClubEvent(event: InsertClubEvent): Promise<ClubEvent>;
   updateClubEvent(id: number, event: Partial<InsertClubEvent>): Promise<ClubEvent>;
+  deleteClubEvent(id: number): Promise<void>;
   
   // Event gallery operations
   getEventGallery(eventId: number): Promise<any[]>;
@@ -459,7 +464,10 @@ export class DatabaseStorage implements IStorage {
     return await db
       .select()
       .from(clubEvents)
-      .where(eq(clubEvents.clubId, clubId))
+      .where(and(
+        eq(clubEvents.clubId, clubId),
+        eq(clubEvents.isAssociationEvent, false)
+      ))
       .orderBy(desc(clubEvents.eventDate));
   }
 
@@ -467,8 +475,47 @@ export class DatabaseStorage implements IStorage {
     return await db
       .select()
       .from(clubEvents)
-      .where(and(eq(clubEvents.clubId, clubId), eq(clubEvents.status, 'upcoming')))
+      .where(and(
+        eq(clubEvents.clubId, clubId),
+        eq(clubEvents.isAssociationEvent, false),
+        eq(clubEvents.status, 'upcoming')
+      ))
       .orderBy(asc(clubEvents.eventDate));
+  }
+
+  async getAssociationEvents(): Promise<ClubEvent[]> {
+    return await db
+      .select()
+      .from(clubEvents)
+      .where(eq(clubEvents.isAssociationEvent, true))
+      .orderBy(desc(clubEvents.eventDate));
+  }
+
+  async getUpcomingAssociationEvents(): Promise<ClubEvent[]> {
+    return await db
+      .select()
+      .from(clubEvents)
+      .where(and(
+        eq(clubEvents.isAssociationEvent, true),
+        eq(clubEvents.status, 'upcoming')
+      ))
+      .orderBy(asc(clubEvents.eventDate));
+  }
+
+  async getAllEvents(): Promise<ClubEvent[]> {
+    return await db
+      .select()
+      .from(clubEvents)
+      .orderBy(desc(clubEvents.eventDate));
+  }
+
+  async getEvent(id: number): Promise<ClubEvent | undefined> {
+    const [event] = await db
+      .select()
+      .from(clubEvents)
+      .where(eq(clubEvents.id, id))
+      .limit(1);
+    return event;
   }
 
   async createClubEvent(eventData: InsertClubEvent): Promise<ClubEvent> {
@@ -477,6 +524,10 @@ export class DatabaseStorage implements IStorage {
 
   async updateClubEvent(id: number, eventData: Partial<InsertClubEvent>): Promise<ClubEvent> {
     return await this.updateAndFetch<ClubEvent>(clubEvents, id, { ...eventData, updatedAt: new Date() });
+  }
+
+  async deleteClubEvent(id: number): Promise<void> {
+    await db.delete(clubEvents).where(eq(clubEvents.id, id));
   }
 
   // Event gallery operations

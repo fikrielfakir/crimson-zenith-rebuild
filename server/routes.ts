@@ -966,15 +966,62 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Public events endpoint
+  // Public events endpoint - for Journey/Association events (landing page)
   app.get('/api/events', async (req, res) => {
     try {
-      const events = await storage.getBookingEvents();
-      const filteredEvents = events.filter((e: any) => e.status === 'published' || req.query.status === 'all');
-      res.json({ events: filteredEvents });
+      const events = await storage.getUpcomingAssociationEvents();
+      res.json({ events });
     } catch (error) {
-      console.error("Error fetching events:", error);
+      console.error("Error fetching association events:", error);
       res.status(500).json({ message: "Failed to fetch events" });
+    }
+  });
+
+  // Admin: Get all events (both club and association)
+  app.get('/api/admin/club-events', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const events = await storage.getAllEvents();
+      res.json({ events });
+    } catch (error) {
+      console.error("Error fetching all events:", error);
+      res.status(500).json({ message: "Failed to fetch events" });
+    }
+  });
+
+  // Admin: Create new event
+  app.post('/api/admin/club-events', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const eventData = req.body;
+      const event = await storage.createClubEvent(eventData);
+      res.status(201).json(event);
+    } catch (error) {
+      console.error("Error creating event:", error);
+      res.status(500).json({ message: "Failed to create event" });
+    }
+  });
+
+  // Admin: Update event
+  app.put('/api/admin/club-events/:id', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const eventData = req.body;
+      const event = await storage.updateClubEvent(id, eventData);
+      res.json(event);
+    } catch (error) {
+      console.error("Error updating event:", error);
+      res.status(500).json({ message: "Failed to update event" });
+    }
+  });
+
+  // Admin: Delete event
+  app.delete('/api/admin/club-events/:id', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deleteClubEvent(id);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting event:", error);
+      res.status(500).json({ message: "Failed to delete event" });
     }
   });
 
