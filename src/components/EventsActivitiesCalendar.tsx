@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar as CalendarIcon, MapPin, Clock, Heart, Share2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Calendar as CalendarIcon, MapPin, Clock, Heart, Share2, Building2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import CalendarComponent from "react-calendar";
 import gnaoua from "@/assets/gnaoua-festival.jpg";
@@ -32,6 +33,7 @@ interface Event {
   status: string;
   image?: string;
   isAssociationEvent?: boolean;
+  clubName?: string;
 }
 
 const EventsActivitiesCalendar = () => {
@@ -42,16 +44,47 @@ const EventsActivitiesCalendar = () => {
   const navigate = useNavigate();
   const eventsPerPage = 2;
 
-  // Fetch association events from the database
+  // Fetch both association and club events from the database
   useEffect(() => {
     const fetchEvents = async () => {
       try {
         setLoading(true);
-        const response = await fetch('/api/events'); // Fetches Journey Association events
-        const data = await response.json();
-        if (data.events) {
-          setEvents(data.events);
-        }
+        
+        // Fetch association events and club events in parallel
+        const [associationRes, clubsRes] = await Promise.all([
+          fetch('/api/events'),
+          fetch('/api/clubs')
+        ]);
+        
+        const associationData = await associationRes.json();
+        const clubsData = await clubsRes.json();
+        
+        // Get all club events
+        const clubEventsPromises = (clubsData.clubs || []).map(async (club: any) => {
+          try {
+            const eventsRes = await fetch(`/api/clubs/${club.id}/events`);
+            const eventsData = await eventsRes.json();
+            return (eventsData.events || []).map((event: any) => ({
+              ...event,
+              clubName: club.name,
+              isAssociationEvent: false
+            }));
+          } catch {
+            return [];
+          }
+        });
+        
+        const clubEventsArrays = await Promise.all(clubEventsPromises);
+        const clubEvents = clubEventsArrays.flat();
+        
+        // Combine association and club events
+        const associationEvents = (associationData.events || []).map((event: any) => ({
+          ...event,
+          isAssociationEvent: true
+        }));
+        
+        const allEvents = [...associationEvents, ...clubEvents];
+        setEvents(allEvents);
       } catch (error) {
         console.error('Failed to fetch events:', error);
       } finally {
@@ -312,6 +345,32 @@ const EventsActivitiesCalendar = () => {
                     
                     {/* Content Section - Bottom */}
                     <div style={{ padding: '20px 24px' }}>
+                      {/* Organization Badge */}
+                      <div style={{ marginBottom: '8px' }}>
+                        <Badge 
+                          variant={event.isAssociationEvent ? "default" : "secondary"}
+                          className="font-['Inter'] text-xs flex items-center gap-1 w-fit"
+                          style={{
+                            backgroundColor: event.isAssociationEvent ? '#D4B26A' : '#F3F4F6',
+                            color: event.isAssociationEvent ? '#FFFFFF' : '#374151',
+                            padding: '4px 10px',
+                            borderRadius: '6px'
+                          }}
+                        >
+                          {event.isAssociationEvent ? (
+                            <>
+                              <CalendarIcon className="w-3 h-3" />
+                              Journey Association
+                            </>
+                          ) : (
+                            <>
+                              <Building2 className="w-3 h-3" />
+                              {event.clubName}
+                            </>
+                          )}
+                        </Badge>
+                      </div>
+                      
                       {/* Event Title */}
                       <h3 className="font-['Poppins'] font-bold" style={{ 
                         fontSize: '20px', 

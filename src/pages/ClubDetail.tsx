@@ -21,11 +21,13 @@ import {
   Award,
   TrendingUp,
   Clock,
-  CheckCircle2
+  CheckCircle2,
+  Home,
+  ChevronRight,
+  UserPlus
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import Breadcrumbs from "@/components/Breadcrumbs";
 import { format } from "date-fns";
 
 const ClubEventsSection = ({ clubId }: { clubId: number }) => {
@@ -113,27 +115,37 @@ const ClubEventsSection = ({ clubId }: { clubId: number }) => {
 };
 
 const ClubDetail = () => {
-  const { clubName } = useParams();
+  const { id } = useParams();
   const navigate = useNavigate();
   const [isJoined, setIsJoined] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+  const [scrollY, setScrollY] = useState(0);
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
 
-  const { data: clubsResponse, isLoading, error } = useQuery({
-    queryKey: ['clubs'],
+  useEffect(() => {
+    setIsVisible(true);
+    
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
+    
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const { data: club, isLoading, error } = useQuery({
+    queryKey: ['club', id],
     queryFn: async () => {
-      const response = await fetch('/api/clubs');
+      const response = await fetch(`/api/clubs/${id}`);
       if (!response.ok) {
-        throw new Error('Failed to fetch clubs');
+        throw new Error('Failed to fetch club');
       }
       return response.json();
     },
+    enabled: !!id,
   });
-
-  const club = clubsResponse?.clubs?.find((c: any) => 
-    c.name === decodeURIComponent(clubName || '')
-  );
 
   useEffect(() => {
     if (!club || !mapContainer.current || map.current) return;
@@ -210,77 +222,146 @@ const ClubDetail = () => {
     <div className="min-h-screen bg-background">
       <Header />
       
-      <Breadcrumbs items={[
-        { label: 'Clubs', href: '/clubs' },
-        { label: club.name }
-      ]} />
+      {/* Hero Section with Background Image */}
+      <section className="relative py-20 overflow-hidden" style={{ paddingTop: '15rem' }}>
+        {/* Background Image with Parallax */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{
+            backgroundImage: `url('${club.image || '/api/placeholder/1920/1080'}')`,
+            transform: `translateY(${scrollY * 0.3}px)`,
+            filter: 'brightness(0.6) contrast(1.1) saturate(1.2)',
+          }}
+        />
 
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-8">
-            <Card className="overflow-hidden">
-              <div className="relative h-[400px]">
-                <img 
-                  src={club.image || '/api/placeholder/800/400'} 
-                  alt={club.name}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute top-4 right-4 flex gap-2">
-                  <Button 
-                    variant="outline" 
-                    size="icon"
-                    className="bg-white/90 hover:bg-white"
-                    onClick={() => setIsFavorite(!isFavorite)}
-                  >
-                    <Heart className={`w-4 h-4 ${isFavorite ? 'fill-current text-red-500' : ''}`} />
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="icon"
-                    className="bg-white/90 hover:bg-white"
-                  >
-                    <Share2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-              <CardContent className="p-8">
-                <div className="flex items-start justify-between mb-6">
-                  <div>
-                    <h1 className="text-4xl font-bold mb-3">{club.name}</h1>
-                    <p className="text-xl text-muted-foreground mb-4">{club.description}</p>
-                    
-                    <div className="flex items-center gap-6 text-sm">
-                      <div className="flex items-center gap-2">
-                        <MapPin className="w-4 h-4 text-primary" />
-                        <span>{club.location}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Users className="w-4 h-4 text-primary" />
-                        <span>{club.member_count || club.memberCount || 0} Members</span>
-                      </div>
-                      {club.rating && (
-                        <div className="flex items-center gap-2">
-                          <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                          <span>{club.rating}/5</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  
+        {/* Gradient Overlay for Better Text Readability */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/50" />
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-transparent to-primary/20" />
+
+        {/* Content */}
+        <div className="relative container mx-auto px-6">
+          {/* Breadcrumb Navigation */}
+          <nav className={`mb-8 transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
+            <ol className="flex items-center space-x-2 text-sm">
+              <li>
+                <Link 
+                  to="/" 
+                  className="flex items-center text-white/90 hover:text-white transition-colors bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-full border border-white/20 hover:border-white/40"
+                >
+                  <Home className="w-4 h-4 mr-1.5" />
+                  Home
+                </Link>
+              </li>
+              <li className="flex items-center">
+                <ChevronRight className="w-4 h-4 mx-2 text-white/50" />
+                <Link 
+                  to="/clubs" 
+                  className="text-white/90 hover:text-white transition-colors bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-full border border-white/20 hover:border-white/40"
+                >
+                  Clubs
+                </Link>
+              </li>
+              <li className="flex items-center">
+                <ChevronRight className="w-4 h-4 mx-2 text-white/50" />
+                <span className="text-white font-semibold bg-white/15 backdrop-blur-sm px-3 py-1.5 rounded-full border border-white/30 shadow-lg">
+                  {club.name}
+                </span>
+              </li>
+            </ol>
+          </nav>
+
+          {/* Club Info */}
+          <div className={`transition-all duration-700 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'} mb-8`}>
+            <div className="flex items-start justify-between mb-6">
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-4">
                   {club.is_active && (
-                    <Badge className="bg-green-500">Active</Badge>
+                    <Badge className="bg-green-500/90 backdrop-blur-sm text-white border-white/20">Active</Badge>
+                  )}
+                  {club.rating && (
+                    <div className="flex items-center gap-1 bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-full border border-white/20">
+                      <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                      <span className="text-white font-semibold">{club.rating}/5</span>
+                    </div>
                   )}
                 </div>
+                <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-4 drop-shadow-2xl">
+                  {club.name}
+                </h1>
+                <p className="text-lg md:text-xl text-white/95 max-w-3xl leading-relaxed drop-shadow-lg mb-6">
+                  {club.description}
+                </p>
+                <div className="flex items-center gap-6 text-white/90 mb-8">
+                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full border border-white/20">
+                    <MapPin className="w-5 h-5" />
+                    <span className="font-medium">{club.location}</span>
+                  </div>
+                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full border border-white/20">
+                    <Users className="w-5 h-5" />
+                    <span className="font-medium">{club.member_count || club.memberCount || 0} Members</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-wrap items-center gap-4">
+              <Button 
+                size="lg"
+                className="bg-primary hover:bg-primary/90 text-white shadow-xl hover:shadow-2xl transition-all duration-300"
+                onClick={() => setIsJoined(!isJoined)}
+              >
+                <UserPlus className="w-5 h-5 mr-2" />
+                {isJoined ? 'Leave Club' : 'Join Club'}
+              </Button>
+              <Button 
+                size="lg"
+                variant="outline"
+                className="bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20 hover:border-white/40"
+                onClick={() => setIsFavorite(!isFavorite)}
+              >
+                <Heart className={`w-5 h-5 mr-2 ${isFavorite ? 'fill-current text-red-400' : ''}`} />
+                {isFavorite ? 'Saved' : 'Save'}
+              </Button>
+              <Button 
+                size="lg"
+                variant="outline"
+                className="bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20 hover:border-white/40"
+              >
+                <Share2 className="w-5 h-5 mr-2" />
+                Share
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Main Content */}
+      <div className="container mx-auto px-6 py-12">
+        <div className="grid lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-8">
+            {/* About Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-2xl">
+                  <Award className="w-6 h-6 text-primary" />
+                  About This Club
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <p className="text-muted-foreground leading-relaxed text-lg">
+                  {club.long_description || club.description || 'Join our community and discover amazing experiences in Morocco. Connect with fellow travelers and locals who share your passion for adventure and culture.'}
+                </p>
 
                 {features.length > 0 && (
-                  <div className="mb-6">
+                  <div>
                     <h3 className="font-semibold mb-3 flex items-center gap-2">
-                      <Award className="w-5 h-5 text-primary" />
+                      <CheckCircle2 className="w-5 h-5 text-primary" />
                       Club Features
                     </h3>
                     <div className="flex flex-wrap gap-2">
                       {features.map((feature: string, index: number) => (
-                        <Badge key={index} variant="secondary">
+                        <Badge key={index} variant="secondary" className="px-3 py-1">
                           {feature}
                         </Badge>
                       ))}
@@ -288,14 +369,7 @@ const ClubDetail = () => {
                   </div>
                 )}
 
-                <div className="pt-6 border-t">
-                  <h3 className="font-semibold mb-4 text-lg">About This Club</h3>
-                  <p className="text-muted-foreground leading-relaxed">
-                    {club.long_description || club.description || 'Join our community and discover amazing experiences in Morocco. Connect with fellow travelers and locals who share your passion for adventure and culture.'}
-                  </p>
-                </div>
-
-                <div className="pt-6 grid md:grid-cols-2 gap-4">
+                <div className="grid md:grid-cols-2 gap-4 pt-4">
                   {club.contact_phone && (
                     <div className="flex items-center gap-3 p-4 bg-muted rounded-lg">
                       <Phone className="w-5 h-5 text-primary" />

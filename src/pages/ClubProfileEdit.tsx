@@ -122,7 +122,7 @@ const ClubProfileEdit = () => {
           title: "Success",
           description: "Club profile updated successfully!",
         });
-        navigate(`/club/${encodeURIComponent(formData.name)}`);
+        navigate(`/club/${clubId}`);
       } else {
         throw new Error('Failed to update club');
       }
@@ -186,7 +186,7 @@ const ClubProfileEdit = () => {
         <div className="flex items-center gap-4 mb-8">
           <Button 
             variant="ghost" 
-            onClick={() => navigate(`/club/${encodeURIComponent(club?.name || '')}`)}
+            onClick={() => navigate(`/club/${clubId}`)}
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Club

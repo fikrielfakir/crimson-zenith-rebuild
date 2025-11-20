@@ -1,62 +1,17 @@
 import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 
 const Clubs = () => {
-  const clubs = [
-    {
-      name: "Atlas Hikers Club",
-      location: "Atlas Mountains",
-      city: "Al Hoceima",
-      address: "62 Via A, Bokjdadan"
+  const { data: clubsData, isLoading } = useQuery({
+    queryKey: ['clubs'],
+    queryFn: async () => {
+      const response = await fetch('/api/clubs');
+      if (!response.ok) throw new Error('Failed to fetch clubs');
+      return response.json();
     },
-    {
-      name: "Coastal Adventures", 
-      location: "Atlantic Coast",
-      city: "Essaouira",
-      address: "15 Port Road, Medina"
-    },
-    {
-      name: "Desert Explorers",
-      location: "Sahara Desert",
-      city: "Merzouga",
-      address: "Desert Gateway, Erg Chebbi"
-    },
-    {
-      name: "Marrakech Club",
-      location: "Red City",
-      city: "Marrakech",
-      address: "Jemaa el-Fnaa Square"
-    },
-    {
-      name: "Fez Heritage", 
-      location: "Old Medina",
-      city: "Fez",
-      address: "Bab Boujloud Gate"
-    },
-    {
-      name: "Casablanca Club",
-      location: "Modern Coast",
-      city: "Casablanca",
-      address: "Hassan II Boulevard"
-    },
-    {
-      name: "Blue Pearl Club",
-      location: "Rif Mountains",
-      city: "Chefchaouen",
-      address: "Outa el Hammam Square"
-    },
-    {
-      name: "Tangier Gateway",
-      location: "Mediterranean",
-      city: "Tangier",
-      address: "Grand Socco, Medina"
-    },
-    {
-      name: "Rabat Royale",
-      location: "Capital City",
-      city: "Rabat",
-      address: "Kasbah des Oudayas"
-    },
-  ];
+  });
+
+  const clubs = clubsData?.clubs || [];
 
   return (
     <section id="clubs" className="py-20 bg-black">
@@ -70,11 +25,17 @@ const Clubs = () => {
           </p>
         </div>
         
+        {isLoading ? (
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-gray-400">Loading clubs...</p>
+          </div>
+        ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {clubs.map((club, index) => (
+          {clubs.map((club: any, index: number) => (
             <Link
               key={club.name}
-              to={`/club/${encodeURIComponent(club.name.toLowerCase().replace(/\s+/g, '-'))}`}
+              to={`/club/${club.id}`}
               className="group block animate-scale-in"
               style={{ animationDelay: `${index * 0.1}s` }}
             >
@@ -90,10 +51,10 @@ const Clubs = () => {
                       {club.name}
                     </h3>
                     <p className="text-sm text-gray-400 mb-0.5">
-                      {club.address}
+                      {club.location}
                     </p>
                     <p className="text-sm text-gray-500">
-                      {club.city}
+                      {club.member_count || club.memberCount || 0} Members
                     </p>
                   </div>
                 </div>
@@ -101,6 +62,7 @@ const Clubs = () => {
             </Link>
           ))}
         </div>
+        )}
       </div>
     </section>
   );

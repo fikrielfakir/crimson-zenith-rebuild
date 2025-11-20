@@ -932,7 +932,7 @@ const ClubsWithMap = () => {
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              navigate(`/clubs/${club.id}`);
+                              navigate(`/club/${club.id}`);
                             }}
                             className="transition-all duration-300"
                             style={{
