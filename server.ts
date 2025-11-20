@@ -878,33 +878,44 @@ app.get('/api/events/:id', async (req, res) => {
     const eventId = parseInt(req.params.id);
     console.log(`🔗 Fetching event ${eventId}...`);
     
-    // Get all clubs and find the event
-    const clubs = await storage.getClubs();
-    let foundEvent: any = null;
+    // Fetch event directly from the database
+    const events = await db.select().from(clubEvents).where(eq(clubEvents.id, eventId));
     
-    for (const club of clubs) {
-      const events = await storage.getClubEvents(club.id);
-      foundEvent = events.find(event => event.id === eventId);
-      if (foundEvent) break;
-    }
-    
-    if (!foundEvent) {
+    if (!events || events.length === 0) {
       return res.status(404).json({ error: 'Event not found' });
     }
+    
+    const foundEvent = events[0];
     
     console.log(`✅ Retrieved event: ${foundEvent.title}`);
     res.json({
       event: {
         id: foundEvent.id,
-        club_id: foundEvent.clubId,
+        clubId: foundEvent.clubId,
+        isAssociationEvent: foundEvent.isAssociationEvent,
         title: foundEvent.title,
         description: foundEvent.description,
-        event_date: foundEvent.eventDate?.toISOString(),
+        image: foundEvent.image,
+        eventDate: foundEvent.eventDate?.toISOString(),
+        endDate: foundEvent.endDate?.toISOString(),
+        category: foundEvent.category,
+        duration: foundEvent.duration,
+        price: foundEvent.price ? parseFloat(foundEvent.price as string) : null,
         location: foundEvent.location,
-        max_participants: foundEvent.maxParticipants,
-        current_participants: foundEvent.currentParticipants,
+        locationDetails: foundEvent.locationDetails,
+        languages: foundEvent.languages,
+        minAge: foundEvent.minAge,
+        maxPeople: foundEvent.maxPeople,
+        highlights: foundEvent.highlights,
+        included: foundEvent.included,
+        notIncluded: foundEvent.notIncluded,
+        importantInfo: foundEvent.importantInfo,
+        maxParticipants: foundEvent.maxParticipants,
+        currentParticipants: foundEvent.currentParticipants,
         status: foundEvent.status,
-        created_at: foundEvent.createdAt?.toISOString()
+        createdBy: foundEvent.createdBy,
+        createdAt: foundEvent.createdAt?.toISOString(),
+        updatedAt: foundEvent.updatedAt?.toISOString()
       },
       source: 'MySQL database via Drizzle ORM'
     });

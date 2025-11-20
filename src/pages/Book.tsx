@@ -75,45 +75,51 @@ const Book = () => {
     initMapStyle();
   }, []);
 
-  // Fetch booking events from backend
+  // Fetch event from backend using club_events table
   useEffect(() => {
-    const fetchEvents = async () => {
+    const fetchEvent = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch('/api/booking/events');
-        const data = await response.json();
         
-        if (response.ok) {
-          setEvents(data.events || []);
+        // If no event param, fetch all events and use first one
+        if (!eventParam) {
+          const response = await fetch('/api/events');
+          const data = await response.json();
+          
+          if (response.ok && data.events && data.events.length > 0) {
+            // Fetch the first event's full details
+            const firstEventId = data.events[0].id;
+            const detailResponse = await fetch(`/api/events/${firstEventId}`);
+            const detailData = await detailResponse.json();
+            
+            if (detailResponse.ok) {
+              setSelectedEvent(detailData.event);
+            } else {
+              throw new Error(detailData.error || 'Failed to fetch event details');
+            }
+          } else {
+            throw new Error('No events available');
+          }
         } else {
-          throw new Error(data.error || 'Failed to fetch events');
+          // Fetch specific event by ID or title
+          const response = await fetch(`/api/events/${eventParam}`);
+          const data = await response.json();
+          
+          if (response.ok) {
+            setSelectedEvent(data.event);
+          } else {
+            throw new Error(data.error || 'Failed to fetch event');
+          }
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load events');
+        setError(err instanceof Error ? err.message : 'Failed to load event');
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchEvents();
-  }, []);
-
-  useEffect(() => {
-    if (events.length > 0) {
-      if (eventParam) {
-        const matchingEvent = events.find(event => 
-          event.id === eventParam || event.title === decodeURIComponent(eventParam)
-        );
-        if (matchingEvent) {
-          setSelectedEvent(matchingEvent);
-        } else {
-          setSelectedEvent(events[0]);
-        }
-      } else {
-        setSelectedEvent(events[0]);
-      }
-    }
-  }, [eventParam, events]);
+    fetchEvent();
+  }, [eventParam]);
 
   // Initialize map when event is selected
   useEffect(() => {
@@ -292,21 +298,6 @@ const Book = () => {
     );
   }
 
-  if (events.length === 0) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <div className="container mx-auto px-4 py-20 text-center">
-          <div className="text-muted-foreground mb-4">
-            <CalendarIcon className="w-16 h-16 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold">No Events Available</h2>
-            <p className="mt-2">There are currently no booking events available.</p>
-          </div>
-        </div>
-        <Footer />
-      </div>
-    );
-  }
 
   if (!selectedEvent) {
     return (
@@ -328,35 +319,31 @@ const Book = () => {
         const parsed = JSON.parse(field);
         return Array.isArray(parsed) ? parsed : [];
       } catch {
-        return [];
+        // Try to split by newlines or commas for simple strings
+        return field.split(/\n|,/).map((s: string) => s.trim()).filter((s: string) => s);
       }
     }
     return [];
   };
 
-  const images = parseJsonField(selectedEvent.images);
-  const schedule = parseJsonField(selectedEvent.schedule);
-  const reviews = parseJsonField(selectedEvent.reviews);
   const highlights = parseJsonField(selectedEvent.highlights);
   const included = parseJsonField(selectedEvent.included);
   const notIncluded = parseJsonField(selectedEvent.notIncluded);
-  const languages = parseJsonField(selectedEvent.languages);
+  const languages = selectedEvent.languages?.split(',').map((l: string) => l.trim()) || ['English'];
 
   const totalPrice = selectedEvent.price * participants;
-  const savings = selectedEvent.originalPrice ? 
-    (selectedEvent.originalPrice - selectedEvent.price) * participants : 0;
 
-  // Calculate available dates from start and end date
+  // Calculate available dates from eventDate and endDate
   const getAvailableDates = () => {
-    if (!selectedEvent.startDate || !selectedEvent.endDate) {
+    if (!selectedEvent.eventDate) {
       return [];
     }
     
-    const start = new Date(selectedEvent.startDate);
-    const end = new Date(selectedEvent.endDate);
+    const start = new Date(selectedEvent.eventDate);
+    const end = selectedEvent.endDate ? new Date(selectedEvent.endDate) : start;
     const dates: Date[] = [];
     
-    let currentDate = start;
+    let currentDate = new Date(start);
     while (currentDate <= end) {
       dates.push(new Date(currentDate));
       currentDate = addDays(currentDate, 1);
@@ -366,6 +353,11 @@ const Book = () => {
   };
 
   const availableDates = getAvailableDates();
+  
+  // Set default selected date to event start date
+  if (!selectedDate && selectedEvent.eventDate) {
+    setSelectedDate(new Date(selectedEvent.eventDate));
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -376,98 +368,77 @@ const Book = () => {
         { label: selectedEvent.title }
       ]} />
 
-      {/* Short Hero Section with Map on Right */}
-      <section className="relative bg-primary/5">
-        <div className="container mx-auto px-4 py-6">
-          <div className="grid lg:grid-cols-3 gap-6">
-            {/* Left: Event Image and Title */}
-            <div className="lg:col-span-2">
-              <div className="relative h-64 overflow-hidden rounded-lg mb-4">
-                {images.length > 0 ? (
-                  <img 
-                    src={images[0] || '/api/placeholder/800/400'} 
-                    alt={selectedEvent.title}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                    <Camera className="w-16 h-16 text-gray-400" />
-                  </div>
-                )}
-                
-                {/* Action Buttons */}
-                <div className="absolute top-4 right-4 flex gap-2">
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    className="bg-white/80 hover:bg-white"
-                    onClick={() => setIsBookmarked(!isBookmarked)}
-                  >
-                    <Heart className={`w-4 h-4 ${isBookmarked ? 'fill-current text-red-500' : ''}`} />
-                  </Button>
-                  <Button variant="outline" size="sm" className="bg-white/80 hover:bg-white">
-                    <Share2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
+      {/* Hero Section - BlogPost Style */}
+      <section className="relative h-[60vh] overflow-hidden">
+        <img 
+          src={selectedEvent.image || '/api/placeholder/1200/600'} 
+          alt={selectedEvent.title}
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+        
+        {/* Action Buttons */}
+        <div className="absolute top-4 right-4 flex gap-2 z-10">
+          <Button 
+            variant="outline" 
+            size="sm"
+            className="bg-white/80 hover:bg-white backdrop-blur-sm"
+            onClick={() => setIsBookmarked(!isBookmarked)}
+          >
+            <Heart className={`w-4 h-4 ${isBookmarked ? 'fill-current text-red-500' : ''}`} />
+          </Button>
+          <Button variant="outline" size="sm" className="bg-white/80 hover:bg-white backdrop-blur-sm">
+            <Share2 className="w-4 h-4" />
+          </Button>
+        </div>
 
-              {/* Title and Info */}
-              <div>
-                <div className="flex items-start justify-between gap-4 mb-2">
-                  <div className="flex-1">
-                    <h1 className="text-2xl md:text-3xl font-bold mb-2">{selectedEvent.title}</h1>
-                    <p className="text-lg text-muted-foreground mb-3">{selectedEvent.subtitle}</p>
-                  </div>
-                  <div className="text-right">
-                    <div className="flex items-center gap-2 mb-1">
-                      <div className="flex items-center">
-                        {[...Array(5)].map((_, i) => (
-                          <Star 
-                            key={i}
-                            className={`w-4 h-4 ${
-                              i < Math.floor(selectedEvent.rating) 
-                                ? 'text-yellow-400 fill-current' 
-                                : 'text-gray-300'
-                            }`}
-                          />
-                        ))}
-                      </div>
-                      <span className="font-semibold">{selectedEvent.rating}</span>
-                    </div>
-                    <Badge variant="outline">{selectedEvent.category}</Badge>
-                  </div>
+        <div className="absolute bottom-0 left-0 right-0 p-8">
+          <div className="container mx-auto max-w-6xl">
+            {selectedEvent.category && (
+              <Badge className="bg-primary text-white mb-4">
+                {selectedEvent.category}
+              </Badge>
+            )}
+            <h1 className="text-3xl md:text-5xl font-bold text-white mb-4 leading-tight">
+              {selectedEvent.title}
+            </h1>
+            <div className="flex flex-wrap items-center gap-4 md:gap-6 text-white/90">
+              {selectedEvent.eventDate && (
+                <div className="flex items-center gap-2">
+                  <CalendarIcon className="w-4 h-4" />
+                  <span>{format(new Date(selectedEvent.eventDate), 'MMM dd, yyyy')}</span>
                 </div>
-                
-                <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-2">
-                    <MapPin className="w-4 h-4" />
-                    {selectedEvent.location}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Clock className="w-4 h-4" />
-                    {selectedEvent.duration}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Users className="w-4 h-4" />
-                    {selectedEvent.groupSize}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Globe className="w-4 h-4" />
-                    {languages.length > 0 ? languages.join(', ') : 'English'}
-                  </div>
+              )}
+              {selectedEvent.duration && (
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4" />
+                  <span>{selectedEvent.duration}</span>
                 </div>
-              </div>
-            </div>
-
-            {/* Right: Small Map */}
-            <div className="lg:col-span-1">
-              <Card className="overflow-hidden h-full">
-                <div 
-                  ref={mapContainer} 
-                  className="w-full h-full min-h-[300px] lg:min-h-full"
-                  style={{ background: '#f0f0f0' }}
-                />
-              </Card>
+              )}
+              {(selectedEvent.location || selectedEvent.locationDetails) && (
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-4 h-4" />
+                  <span>{selectedEvent.locationDetails || selectedEvent.location}</span>
+                </div>
+              )}
+              {selectedEvent.maxPeople && (
+                <div className="flex items-center gap-2">
+                  <Users className="w-4 h-4" />
+                  <span>Max {selectedEvent.maxPeople} people</span>
+                </div>
+              )}
+              {languages.length > 0 && (
+                <div className="flex items-center gap-2">
+                  <Globe className="w-4 h-4" />
+                  <span>{languages.join(', ')}</span>
+                </div>
+              )}
+              {selectedEvent.price && (
+                <div className="flex items-center gap-2">
+                  <Award className="w-4 h-4" />
+                  <span className="text-xl font-bold">${selectedEvent.price}</span>
+                </div>
+              )}
             </div>
           </div>
         </div>
