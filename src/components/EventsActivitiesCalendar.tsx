@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar as CalendarIcon, MapPin, Clock, Heart, Share2, Building2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import CalendarComponent from "react-calendar";
+import { Player } from '@lottiefiles/react-lottie-player';
 import gnaoua from "@/assets/gnaoua-festival.jpg";
 import timitar from "@/assets/timitar-festival.jpg";
 import "react-calendar/dist/Calendar.css";
@@ -284,8 +285,30 @@ const EventsActivitiesCalendar = () => {
                 <p className="font-['Inter'] text-gray-500">Loading events...</p>
               </div>
             ) : events.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="font-['Inter'] text-gray-500">No events found. Please check back later!</p>
+              <div className="flex flex-col items-center justify-center py-12">
+                <Player
+                  autoplay
+                  loop
+                  src="https://lottie.host/d7b5c3e0-2e8f-4c8e-8e5a-3b2e9f1a4c5d/rK9jXkYqOk.json"
+                  style={{ height: '300px', width: '300px' }}
+                />
+                <h3 className="font-['Poppins'] font-semibold" style={{
+                  fontSize: '24px',
+                  color: '#0A0A0A',
+                  marginTop: '16px',
+                  marginBottom: '8px'
+                }}>
+                  No Events Available
+                </h3>
+                <p className="font-['Inter']" style={{
+                  fontSize: '16px',
+                  color: '#666A73',
+                  maxWidth: '400px',
+                  textAlign: 'center',
+                  lineHeight: '1.6'
+                }}>
+                  There are no upcoming events at the moment. Check back soon for exciting new adventures and activities!
+                </p>
               </div>
             ) : (
               <div className="grid grid-cols-2 gap-6" style={{ marginBottom: '24px' }}>
