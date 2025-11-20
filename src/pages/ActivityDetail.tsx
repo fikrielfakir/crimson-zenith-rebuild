@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,11 +14,15 @@ import {
   Shield,
   Camera,
   Heart,
-  Share2
+  Share2,
+  Home,
+  ChevronRight,
+  ChevronLeft
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import Breadcrumbs from "@/components/Breadcrumbs";
+import useEmblaCarousel from 'embla-carousel-react';
+import AutoScroll from 'embla-carousel-auto-scroll';
 
 const ActivityDetail = () => {
   const { activityName } = useParams();
@@ -158,27 +162,168 @@ const ActivityDetail = () => {
     }
   };
 
+  const [isVisible, setIsVisible] = useState(false);
+  const [scrollY, setScrollY] = useState(0);
+  const [emblaRef, emblaApi] = useEmblaCarousel(
+    { loop: true, align: 'center' },
+    [AutoScroll({ playOnInit: true, speed: 1 })]
+  );
+  const [selectedIndex, setSelectedIndex] = useState(0);
+
+  useEffect(() => {
+    setIsVisible(true);
+    
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
+    
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+
+    const onSelect = () => {
+      setSelectedIndex(emblaApi.selectedScrollSnap());
+    };
+
+    emblaApi.on('select', onSelect);
+    onSelect();
+
+    return () => {
+      emblaApi.off('select', onSelect);
+    };
+  }, [emblaApi]);
+
+  const scrollPrev = () => emblaApi && emblaApi.scrollPrev();
+  const scrollNext = () => emblaApi && emblaApi.scrollNext();
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
-      {/* Breadcrumbs */}
-      <Breadcrumbs items={[
-        { label: 'Activities', href: '/discover' },
-        { label: activity.title }
-      ]} />
 
-      {/* Hero Section */}
-      <section className="relative">
-        <div className="h-96 bg-gradient-to-r from-primary to-secondary"></div>
-        <div className="absolute inset-0 bg-black/20"></div>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-center text-white">
-            <h1 className="text-5xl font-bold mb-4">{activity.title}</h1>
-            <p className="text-xl max-w-2xl mx-auto">{activity.description}</p>
+      {/* Hero Section with Primary Color Background - Similar to Contact Page */}
+      <main className="relative">
+        <section className="relative py-20 overflow-hidden" style={{ paddingTop: '15rem' }}>
+          {/* Primary Color Background with Parallax Effect */}
+          <div 
+            className="absolute inset-0"
+            style={{
+              backgroundColor: 'hsl(var(--primary))',
+              transform: `translateY(${scrollY * 0.3}px)`,
+            }}
+          />
+
+          {/* Decorative Gradient Overlays for Visual Depth */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/50" />
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-transparent to-primary/20" />
+          
+          {/* Animated Pattern Overlay */}
+          <div className="absolute inset-0 opacity-10" 
+            style={{
+              backgroundImage: 'radial-gradient(circle at 20% 50%, white 1px, transparent 1px), radial-gradient(circle at 80% 80%, white 1px, transparent 1px)',
+              backgroundSize: '50px 50px, 80px 80px',
+              transform: `translateY(${scrollY * 0.1}px)`,
+            }}
+          />
+
+          {/* Content */}
+          <div className="relative container mx-auto px-6">
+            {/* Breadcrumb Navigation */}
+            <nav className={`mb-8 transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
+              <ol className="flex items-center space-x-2 text-sm">
+                <li>
+                  <Link 
+                    to="/" 
+                    className="flex items-center text-white/90 hover:text-white transition-colors bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-full border border-white/20 hover:border-white/40"
+                  >
+                    <Home className="w-4 h-4 mr-1.5" />
+                    Home
+                  </Link>
+                </li>
+                <li className="flex items-center">
+                  <ChevronRight className="w-4 h-4 mx-2 text-white/50" />
+                  <Link 
+                    to="/discover" 
+                    className="text-white/90 hover:text-white transition-colors bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-full border border-white/20 hover:border-white/40"
+                  >
+                    Activities
+                  </Link>
+                </li>
+                <li className="flex items-center">
+                  <ChevronRight className="w-4 h-4 mx-2 text-white/50" />
+                  <span className="text-white font-semibold bg-white/15 backdrop-blur-sm px-3 py-1.5 rounded-full border border-white/30 shadow-lg">
+                    {activity.title}
+                  </span>
+                </li>
+              </ol>
+            </nav>
+
+            {/* Main Heading */}
+            <div className={`transition-all duration-700 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'} mb-8`}>
+              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-4 drop-shadow-2xl">
+                {activity.title}
+              </h1>
+              <p className="text-lg md:text-xl text-white/95 max-w-2xl leading-relaxed drop-shadow-lg">
+                {activity.description}
+              </p>
+            </div>
+
+            {/* Image Carousel Section */}
+            <div className={`transition-all duration-700 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+              <div className="relative max-w-5xl mx-auto">
+                <div className="overflow-hidden rounded-xl shadow-2xl" ref={emblaRef}>
+                  <div className="flex">
+                    {activity.images.map((image, index) => (
+                      <div key={index} className="flex-[0_0_100%] min-w-0">
+                        <div className="relative aspect-[16/9]">
+                          <img 
+                            src={image} 
+                            alt={`${activity.title} - Image ${index + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Carousel Navigation Buttons */}
+                <button
+                  onClick={scrollPrev}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-primary p-3 rounded-full shadow-lg transition-all duration-200 hover:scale-110"
+                  aria-label="Previous image"
+                >
+                  <ChevronLeft className="w-6 h-6" />
+                </button>
+                <button
+                  onClick={scrollNext}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-primary p-3 rounded-full shadow-lg transition-all duration-200 hover:scale-110"
+                  aria-label="Next image"
+                >
+                  <ChevronRight className="w-6 h-6" />
+                </button>
+
+                {/* Carousel Dots Indicator */}
+                <div className="flex justify-center gap-2 mt-4">
+                  {activity.images.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => emblaApi && emblaApi.scrollTo(index)}
+                      className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                        index === selectedIndex
+                          ? 'bg-white w-8'
+                          : 'bg-white/50 hover:bg-white/75'
+                      }`}
+                      aria-label={`Go to image ${index + 1}`}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-12">
@@ -372,6 +517,7 @@ const ActivityDetail = () => {
           </Button>
         </div>
       </div>
+      </main>
 
       <Footer />
     </div>

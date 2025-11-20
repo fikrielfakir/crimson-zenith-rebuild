@@ -185,6 +185,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Event routes
+  app.get('/api/events/:id', async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const event = await storage.getEvent(id);
+      if (!event) {
+        return res.status(404).json({ message: "Event not found" });
+      }
+      res.json(event);
+    } catch (error) {
+      console.error("Error fetching event:", error);
+      res.status(500).json({ message: "Failed to fetch event" });
+    }
+  });
+
+  app.get('/api/events/:id/gallery', async (req, res) => {
+    try {
+      const eventId = parseInt(req.params.id);
+      const gallery = await storage.getEventGallery(eventId);
+      res.json({ images: gallery });
+    } catch (error) {
+      console.error("Error fetching event gallery:", error);
+      res.status(500).json({ message: "Failed to fetch event gallery" });
+    }
+  });
+
   // Admin CMS Routes
   
   // Hero Settings
