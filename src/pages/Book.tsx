@@ -312,28 +312,15 @@ const Book = () => {
     );
   }
 
-  const parseJsonField = (field: any): any[] => {
-    if (Array.isArray(field)) return field;
-    if (typeof field === 'string') {
-      try {
-        const parsed = JSON.parse(field);
-        return Array.isArray(parsed) ? parsed : [];
-      } catch {
-        // Try to split by newlines or commas for simple strings
-        return field.split(/\n|,/).map((s: string) => s.trim()).filter((s: string) => s);
-      }
-    }
-    return [];
-  };
-
-  const highlights = parseJsonField(selectedEvent.highlights);
-  const included = parseJsonField(selectedEvent.included);
-  const notIncluded = parseJsonField(selectedEvent.notIncluded);
+  // API now returns arrays directly, just ensure they're valid
+  const highlights = Array.isArray(selectedEvent.highlights) ? selectedEvent.highlights : [];
+  const included = Array.isArray(selectedEvent.included) ? selectedEvent.included : [];
+  const notIncluded = Array.isArray(selectedEvent.notIncluded) ? selectedEvent.notIncluded : [];
   const languages = selectedEvent.languages?.split(',').map((l: string) => l.trim()) || ['English'];
   const schedule: any[] = []; // Schedule will come from event_schedule table in future
   const reviews: any[] = []; // Reviews will come from reviews table in future
 
-  const totalPrice = selectedEvent.price * participants;
+  const totalPrice = (selectedEvent.price || 0) * participants;
   const savings = 0; // No savings calculation for now
 
   // Calculate available dates from eventDate and endDate

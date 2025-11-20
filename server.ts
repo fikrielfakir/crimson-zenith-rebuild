@@ -887,6 +887,22 @@ app.get('/api/events/:id', async (req, res) => {
     
     const foundEvent = events[0];
     
+    // Helper function to parse JSON or text fields into arrays
+    const parseToArray = (field: any): any[] => {
+      if (!field) return [];
+      if (Array.isArray(field)) return field;
+      if (typeof field === 'string') {
+        try {
+          const parsed = JSON.parse(field);
+          return Array.isArray(parsed) ? parsed : [parsed];
+        } catch {
+          // Try to split by newlines or commas
+          return field.split(/\n|,/).map((s: string) => s.trim()).filter((s: string) => s);
+        }
+      }
+      return [];
+    };
+    
     console.log(`✅ Retrieved event: ${foundEvent.title}`);
     res.json({
       event: {
@@ -906,9 +922,9 @@ app.get('/api/events/:id', async (req, res) => {
         languages: foundEvent.languages,
         minAge: foundEvent.minAge,
         maxPeople: foundEvent.maxPeople,
-        highlights: foundEvent.highlights,
-        included: foundEvent.included,
-        notIncluded: foundEvent.notIncluded,
+        highlights: parseToArray(foundEvent.highlights),
+        included: parseToArray(foundEvent.included),
+        notIncluded: parseToArray(foundEvent.notIncluded),
         importantInfo: foundEvent.importantInfo,
         maxParticipants: foundEvent.maxParticipants,
         currentParticipants: foundEvent.currentParticipants,
