@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -23,14 +23,18 @@ import {
   Shield,
   MessageCircle,
   Award,
-  Globe
+  Globe,
+  Home,
+  ChevronRight,
+  ChevronLeft
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import Breadcrumbs from "@/components/Breadcrumbs";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { addDays, differenceInDays, format, isSameDay } from "date-fns";
+import useEmblaCarousel from 'embla-carousel-react';
+import AutoScroll from 'embla-carousel-auto-scroll';
 
 const Book = () => {
   const [searchParams] = useSearchParams();
@@ -42,6 +46,7 @@ const Book = () => {
   const [events, setEvents] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [galleryImages, setGalleryImages] = useState<any[]>([]);
   
   // Booking form state
   const [showBookingDialog, setShowBookingDialog] = useState(false);
@@ -51,6 +56,13 @@ const Book = () => {
   const [specialRequests, setSpecialRequests] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+
+  // Carousel setup
+  const [emblaRef, emblaApi] = useEmblaCarousel(
+    { loop: true, align: 'center' },
+    [AutoScroll({ playOnInit: true, speed: 1 })]
+  );
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   // Map state
   const mapContainer = useRef<HTMLDivElement>(null);
@@ -81,31 +93,23 @@ const Book = () => {
       try {
         setIsLoading(true);
         
-        // If no event param, fetch all events and use first one
+        // If no event param, fetch all booking events and use first one
         if (!eventParam) {
-          const response = await fetch('/api/events');
+          const response = await fetch('/api/booking/events');
           const data = await response.json();
           
           if (response.ok && data.events && data.events.length > 0) {
-            // Fetch the first event's full details
-            const firstEventId = data.events[0].id;
-            const detailResponse = await fetch(`/api/events/${firstEventId}`);
-            const detailData = await detailResponse.json();
-            
-            if (detailResponse.ok) {
-              setSelectedEvent(detailData.event);
-            } else {
-              throw new Error(detailData.error || 'Failed to fetch event details');
-            }
+            // Use the first booking event
+            setSelectedEvent(data.events[0]);
           } else {
             throw new Error('No events available');
           }
         } else {
-          // Fetch specific event by ID or title
-          const response = await fetch(`/api/events/${eventParam}`);
+          // Fetch specific booking event by ID
+          const response = await fetch(`/api/booking/events/${eventParam}`);
           const data = await response.json();
           
-          if (response.ok) {
+          if (response.ok && data.event) {
             setSelectedEvent(data.event);
           } else {
             throw new Error(data.error || 'Failed to fetch event');
@@ -120,6 +124,46 @@ const Book = () => {
 
     fetchEvent();
   }, [eventParam]);
+
+  // Parse gallery images from event data
+  useEffect(() => {
+    if (!selectedEvent) return;
+    
+    try {
+      // Booking events have images as a JSON string
+      if (selectedEvent.images) {
+        const images = typeof selectedEvent.images === 'string' 
+          ? JSON.parse(selectedEvent.images)
+          : selectedEvent.images;
+        setGalleryImages(images);
+      } else if (selectedEvent.image) {
+        // Fallback to single image if gallery not available
+        setGalleryImages([selectedEvent.image]);
+      }
+    } catch (err) {
+      console.error('Failed to parse event images:', err);
+      // Fallback to single image if parsing fails
+      if (selectedEvent.image) {
+        setGalleryImages([selectedEvent.image]);
+      }
+    }
+  }, [selectedEvent]);
+
+  // Handle carousel selection changes
+  useEffect(() => {
+    if (!emblaApi) return;
+
+    const onSelect = () => {
+      setSelectedImageIndex(emblaApi.selectedScrollSnap());
+    };
+
+    emblaApi.on('select', onSelect);
+    onSelect();
+
+    return () => {
+      emblaApi.off('select', onSelect);
+    };
+  }, [emblaApi]);
 
   // Initialize map when event is selected
   useEffect(() => {
@@ -162,6 +206,13 @@ const Book = () => {
       }
     };
   }, [selectedEvent, mapStyleUrl]);
+
+  // Set default selected date to event start date
+  useEffect(() => {
+    if (!selectedDate && selectedEvent?.eventDate) {
+      setSelectedDate(new Date(selectedEvent.eventDate));
+    }
+  }, [selectedEvent?.eventDate, selectedDate]);
 
   const validateBookingForm = (): string | null => {
     if (!selectedEvent || !selectedDate) {
@@ -343,96 +394,122 @@ const Book = () => {
   };
 
   const availableDates = getAvailableDates();
-  
-  // Set default selected date to event start date
-  if (!selectedDate && selectedEvent.eventDate) {
-    setSelectedDate(new Date(selectedEvent.eventDate));
-  }
+
+  const scrollPrev = () => emblaApi && emblaApi.scrollPrev();
+  const scrollNext = () => emblaApi && emblaApi.scrollNext();
+
+  // Use gallery images if available, otherwise fallback to single event image
+  // Normalize image format - handle both string URLs and objects with imageUrl property
+  const displayImages = galleryImages.length > 0
+    ? galleryImages.map(img => typeof img === 'string' ? img : (img.imageUrl || img.url || '/api/placeholder/1200/600'))
+    : (selectedEvent.image ? [selectedEvent.image] : ['/api/placeholder/1200/600']);
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
-      <Breadcrumbs items={[
-        { label: 'Events', href: '/events' },
-        { label: selectedEvent.title }
-      ]} />
 
-      {/* Hero Section - BlogPost Style */}
-      <section className="relative h-[60vh] overflow-hidden">
-        <img 
-          src={selectedEvent.image || '/api/placeholder/1200/600'} 
-          alt={selectedEvent.title}
-          className="w-full h-full object-cover"
+      {/* Hero Section with Primary Color Background */}
+      <section className="relative py-20 overflow-hidden" style={{ paddingTop: '15rem' }}>
+        {/* Primary Color Background */}
+        <div 
+          className="absolute inset-0"
+          style={{
+            backgroundColor: 'hsl(var(--primary))',
+          }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
-        
-        {/* Action Buttons */}
-        <div className="absolute top-4 right-4 flex gap-2 z-10">
-          <Button 
-            variant="outline" 
-            size="sm"
-            className="bg-white/80 hover:bg-white backdrop-blur-sm"
-            onClick={() => setIsBookmarked(!isBookmarked)}
-          >
-            <Heart className={`w-4 h-4 ${isBookmarked ? 'fill-current text-red-500' : ''}`} />
-          </Button>
-          <Button variant="outline" size="sm" className="bg-white/80 hover:bg-white backdrop-blur-sm">
-            <Share2 className="w-4 h-4" />
-          </Button>
-        </div>
 
-        <div className="absolute bottom-0 left-0 right-0 p-8">
-          <div className="container mx-auto max-w-6xl">
-            {selectedEvent.category && (
-              <Badge className="bg-primary text-white mb-4">
-                {selectedEvent.category}
-              </Badge>
-            )}
-            <h1 className="text-3xl md:text-5xl font-bold text-white mb-4 leading-tight">
+        {/* Gradient Overlays */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/10" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/5 via-transparent to-black/5" />
+
+        {/* Content */}
+        <div className="relative container mx-auto px-6">
+          {/* Breadcrumb Navigation */}
+          <nav className="mb-8">
+            <ol className="flex items-center space-x-2 text-sm">
+              <li>
+                <Link 
+                  to="/" 
+                  className="flex items-center text-white/90 hover:text-white transition-colors bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-full border border-white/20 hover:border-white/40"
+                >
+                  <Home className="w-4 h-4 mr-1.5" />
+                  Home
+                </Link>
+              </li>
+              <li className="flex items-center">
+                <ChevronRight className="w-4 h-4 mx-2 text-white/50" />
+                <span className="text-white font-semibold bg-white/15 backdrop-blur-sm px-3 py-1.5 rounded-full border border-white/30 shadow-lg">
+                  {selectedEvent.title}
+                </span>
+              </li>
+            </ol>
+          </nav>
+
+          {/* Main Heading */}
+          <div className="mb-8">
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-4 drop-shadow-2xl">
               {selectedEvent.title}
             </h1>
-            <div className="flex flex-wrap items-center gap-4 md:gap-6 text-white/90">
-              {selectedEvent.eventDate && (
-                <div className="flex items-center gap-2">
-                  <CalendarIcon className="w-4 h-4" />
-                  <span>{format(new Date(selectedEvent.eventDate), 'MMM dd, yyyy')}</span>
-                </div>
-              )}
-              {selectedEvent.duration && (
-                <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4" />
-                  <span>{selectedEvent.duration}</span>
-                </div>
-              )}
-              {(selectedEvent.location || selectedEvent.locationDetails) && (
-                <div className="flex items-center gap-2">
-                  <MapPin className="w-4 h-4" />
-                  <span>{selectedEvent.locationDetails || selectedEvent.location}</span>
-                </div>
-              )}
-              {selectedEvent.maxPeople && (
-                <div className="flex items-center gap-2">
-                  <Users className="w-4 h-4" />
-                  <span>Max {selectedEvent.maxPeople} people</span>
-                </div>
-              )}
-              {languages.length > 0 && (
-                <div className="flex items-center gap-2">
-                  <Globe className="w-4 h-4" />
-                  <span>{languages.join(', ')}</span>
-                </div>
-              )}
-              {selectedEvent.price && (
-                <div className="flex items-center gap-2">
-                  <Award className="w-4 h-4" />
-                  <span className="text-xl font-bold">${selectedEvent.price}</span>
-                </div>
-              )}
-            </div>
           </div>
         </div>
       </section>
+
+      {/* Image Carousel Section */}
+      <div className="container mx-auto px-4 -mt-8 mb-8">
+        <div className="relative max-w-6xl mx-auto">
+          <div className="overflow-hidden rounded-xl shadow-2xl" ref={emblaRef}>
+            <div className="flex">
+              {displayImages.map((image, index) => (
+                <div key={index} className="flex-[0_0_100%] min-w-0">
+                  <div className="relative aspect-[16/9]">
+                    <img 
+                      src={image}
+                      alt={`${selectedEvent.title} - Image ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Carousel Navigation Buttons */}
+          {displayImages.length > 1 && (
+            <>
+              <button
+                onClick={scrollPrev}
+                className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-primary p-3 rounded-full shadow-lg transition-all duration-200 hover:scale-110 z-10"
+                aria-label="Previous image"
+              >
+                <ChevronLeft className="w-6 h-6" />
+              </button>
+              <button
+                onClick={scrollNext}
+                className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-primary p-3 rounded-full shadow-lg transition-all duration-200 hover:scale-110 z-10"
+                aria-label="Next image"
+              >
+                <ChevronRight className="w-6 h-6" />
+              </button>
+
+              {/* Carousel Dots Indicator */}
+              <div className="flex justify-center gap-2 mt-4">
+                {displayImages.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => emblaApi && emblaApi.scrollTo(index)}
+                    className={`h-2 rounded-full transition-all duration-300 ${
+                      index === selectedImageIndex
+                        ? 'bg-primary w-8'
+                        : 'bg-gray-300 hover:bg-gray-400 w-2'
+                    }`}
+                    aria-label={`Go to image ${index + 1}`}
+                  />
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      </div>
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
