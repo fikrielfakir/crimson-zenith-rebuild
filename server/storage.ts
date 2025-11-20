@@ -641,10 +641,20 @@ export class DatabaseStorage implements IStorage {
 
   // Booking event operations
   async getBookingEvents(): Promise<BookingEvent[]> {
-    return await db
-      .select()
+    const results = await db
+      .select({
+        event: bookingEvents,
+        club: clubs,
+      })
       .from(bookingEvents)
+      .leftJoin(clubs, eq(bookingEvents.clubId, clubs.id))
       .orderBy(desc(bookingEvents.createdAt));
+    
+    // Map results to include clubName in the event object
+    return results.map(({ event, club }) => ({
+      ...event,
+      clubName: club?.name || undefined,
+    }));
   }
 
   async getBookingEvent(id: string): Promise<BookingEvent | undefined> {

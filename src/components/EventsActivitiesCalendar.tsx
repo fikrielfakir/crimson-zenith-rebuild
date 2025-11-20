@@ -44,47 +44,24 @@ const EventsActivitiesCalendar = () => {
   const navigate = useNavigate();
   const eventsPerPage = 2;
 
-  // Fetch both association and club events from the database
+  // Fetch events from booking_events table
   useEffect(() => {
     const fetchEvents = async () => {
       try {
         setLoading(true);
         
-        // Fetch association events and club events in parallel
-        const [associationRes, clubsRes] = await Promise.all([
-          fetch('/api/events'),
-          fetch('/api/clubs')
-        ]);
+        // Fetch all events from booking_events table
+        const response = await fetch('/api/booking/events');
+        const data = await response.json();
         
-        const associationData = await associationRes.json();
-        const clubsData = await clubsRes.json();
-        
-        // Get all club events
-        const clubEventsPromises = (clubsData.clubs || []).map(async (club: any) => {
-          try {
-            const eventsRes = await fetch(`/api/clubs/${club.id}/events`);
-            const eventsData = await eventsRes.json();
-            return (eventsData.events || []).map((event: any) => ({
-              ...event,
-              clubName: club.name,
-              isAssociationEvent: false
-            }));
-          } catch {
-            return [];
-          }
-        });
-        
-        const clubEventsArrays = await Promise.all(clubEventsPromises);
-        const clubEvents = clubEventsArrays.flat();
-        
-        // Combine association and club events
-        const associationEvents = (associationData.events || []).map((event: any) => ({
+        // Map the events to match the component's expected format
+        const mappedEvents = (data.events || []).map((event: any) => ({
           ...event,
-          isAssociationEvent: true
+          // The booking_events table already has isAssociationEvent field
+          // clubName will be populated if it's a club event
         }));
         
-        const allEvents = [...associationEvents, ...clubEvents];
-        setEvents(allEvents);
+        setEvents(mappedEvents);
       } catch (error) {
         console.error('Failed to fetch events:', error);
       } finally {
