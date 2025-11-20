@@ -95,7 +95,7 @@ const eventSchema = z.object({
 type EventFormData = z.infer<typeof eventSchema>;
 
 async function fetchEvents() {
-  const response = await fetch(`/api/admin/club-events`);
+  const response = await fetch(`/api/admin/events`);
   if (!response.ok) throw new Error('Failed to fetch events');
   return response.json();
 }
@@ -210,7 +210,7 @@ export default function EventsManagement() {
 
   const deleteEventMutation = useMutation({
     mutationFn: async (eventId: number) => {
-      const response = await fetch(`/api/admin/club-events/${eventId}`, {
+      const response = await fetch(`/api/admin/events/${eventId}`, {
         method: 'DELETE',
       });
       if (!response.ok) throw new Error('Failed to delete event');
@@ -228,8 +228,8 @@ export default function EventsManagement() {
   const saveEventMutation = useMutation({
     mutationFn: async (data: EventFormData) => {
       const url = (editingEvent && editingEvent.id)
-        ? `/api/admin/club-events/${editingEvent.id}`
-        : '/api/admin/club-events';
+        ? `/api/admin/events/${editingEvent.id}`
+        : '/api/admin/events';
       
       const payload = {
         title: data.title,
