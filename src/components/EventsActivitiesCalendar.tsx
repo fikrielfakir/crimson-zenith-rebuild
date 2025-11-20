@@ -127,10 +127,32 @@ const EventsActivitiesCalendar = () => {
     return `${start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })} - ${end.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}`;
   };
 
-  const totalEvents = events.length;
-  const cities = new Set(events.map(e => e.location)).size;
+  // Filter events by selected date
+  const filteredEvents = events.filter((event) => {
+    if (!selectedDate) return true;
+    
+    const eventStart = new Date(event.eventDate);
+    const eventEnd = event.endDate ? new Date(event.endDate) : eventStart;
+    const selected = new Date(selectedDate);
+    
+    // Set all dates to midnight for comparison
+    eventStart.setHours(0, 0, 0, 0);
+    eventEnd.setHours(0, 0, 0, 0);
+    selected.setHours(0, 0, 0, 0);
+    
+    // Check if selected date falls within the event date range
+    return selected >= eventStart && selected <= eventEnd;
+  });
 
-  const displayedEvents = events.slice(currentPage * eventsPerPage, (currentPage + 1) * eventsPerPage);
+  const totalEvents = filteredEvents.length;
+  const cities = new Set(filteredEvents.map(e => e.location)).size;
+
+  const displayedEvents = filteredEvents.slice(currentPage * eventsPerPage, (currentPage + 1) * eventsPerPage);
+  
+  // Reset to first page when date changes
+  useEffect(() => {
+    setCurrentPage(0);
+  }, [selectedDate]);
 
   return (
     <section className="bg-white">
@@ -450,7 +472,7 @@ const EventsActivitiesCalendar = () => {
             
             {/* Pagination Controls */}
             <div className="flex items-center justify-center gap-2 mt-4">
-              {Array.from({ length: Math.ceil(events.length / eventsPerPage) }).map((_, index) => (
+              {Array.from({ length: Math.ceil(filteredEvents.length / eventsPerPage) }).map((_, index) => (
                 <button
                   key={index}
                   onClick={() => setCurrentPage(index)}

@@ -673,7 +673,35 @@ app.get('/api/clubs/:id/events', async (req, res) => {
     const events = await storage.getUpcomingClubEvents(clubId);
     console.log(`✅ Found ${events.length} upcoming events for club ${clubId}`);
     
-    res.json({ events });
+    const formattedEvents = events.map(event => ({
+      id: event.id,
+      clubId: event.clubId,
+      title: event.title,
+      description: event.description,
+      eventDate: event.eventDate,
+      endDate: event.endDate,
+      location: event.location,
+      locationDetails: event.locationDetails,
+      duration: event.duration,
+      category: event.category,
+      languages: event.languages,
+      minAge: event.minAge,
+      maxPeople: event.maxPeople,
+      price: event.price,
+      maxParticipants: event.maxParticipants,
+      currentParticipants: event.currentParticipants,
+      highlights: event.highlights,
+      included: event.included,
+      notIncluded: event.notIncluded,
+      importantInfo: event.importantInfo,
+      status: event.status,
+      image: event.image,
+      createdBy: event.createdBy,
+      createdAt: event.createdAt,
+      updatedAt: event.updatedAt
+    }));
+    
+    res.json({ events: formattedEvents });
   } catch (error) {
     console.error('❌ Error fetching club events:', error);
     res.status(500).json({ error: 'Failed to fetch club events', details: error.message });
