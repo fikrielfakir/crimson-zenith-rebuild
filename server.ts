@@ -689,8 +689,8 @@ app.get('/api/events', async (req, res) => {
     const pageNum = parseInt(page as string);
     const offset = (pageNum - 1) * perPageNum;
     
-    // Fetch all events from the database
-    let allEvents = await db.select().from(clubEvents);
+    // Fetch only association events (not club events) from the database
+    let allEvents = await db.select().from(clubEvents).where(eq(clubEvents.isAssociationEvent, true));
     
     // Filter by status (default to showing only 'upcoming' events which maps to 'published' in frontend)
     if (status && status !== 'all') {
