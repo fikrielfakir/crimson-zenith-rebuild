@@ -53,7 +53,7 @@ export const clubs = mysqlTable("clubs", {
   description: text("description").notNull(),
   longDescription: text("long_description"),
   image: varchar("image", { length: 500 }),
-  logo: varchar("logo", { length: 500 }),
+  // logo: varchar("logo", { length: 500 }), // TODO: Uncomment after adding logo column to production MySQL database
   location: varchar("location", { length: 255 }).notNull(),
   memberCount: int("member_count").default(0),
   features: json("features").default(sql`'[]'`),
