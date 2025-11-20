@@ -1,14 +1,11 @@
-import { useState, useEffect } from "react";
-import { useSearchParams, Link } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar } from "@/components/ui/calendar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
@@ -25,14 +22,15 @@ import {
   Camera,
   Shield,
   MessageCircle,
-  ChevronLeft,
-  ChevronRight,
   Award,
   Globe
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Breadcrumbs from "@/components/Breadcrumbs";
+import maplibregl from "maplibre-gl";
+import "maplibre-gl/dist/maplibre-gl.css";
+import { addDays, differenceInDays, format, isSameDay } from "date-fns";
 
 const Book = () => {
   const [searchParams] = useSearchParams();
@@ -40,7 +38,6 @@ const Book = () => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [participants, setParticipants] = useState(2);
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [events, setEvents] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -54,6 +51,29 @@ const Book = () => {
   const [specialRequests, setSpecialRequests] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+
+  // Map state
+  const mapContainer = useRef<HTMLDivElement>(null);
+  const map = useRef<maplibregl.Map | null>(null);
+  const [mapStyleUrl, setMapStyleUrl] = useState<string | null>(null);
+
+  // Fetch satellite map style
+  useEffect(() => {
+    const initMapStyle = async () => {
+      try {
+        const response = await fetch("https://tiles.openfreemap.org/styles/liberty");
+        if (response.ok) {
+          const styleJson = await response.json();
+          setMapStyleUrl("https://tiles.openfreemap.org/styles/liberty");
+        }
+      } catch (error) {
+        console.error("Failed to fetch map style:", error);
+        setMapStyleUrl("https://tiles.openfreemap.org/styles/liberty");
+      }
+    };
+
+    initMapStyle();
+  }, []);
 
   // Fetch booking events from backend
   useEffect(() => {
@@ -87,7 +107,6 @@ const Book = () => {
         if (matchingEvent) {
           setSelectedEvent(matchingEvent);
         } else {
-          // Default to first event if parameter doesn't match
           setSelectedEvent(events[0]);
         }
       } else {
@@ -96,24 +115,49 @@ const Book = () => {
     }
   }, [eventParam, events]);
 
-  const nextImage = () => {
-    if (selectedEvent && images.length > 0) {
-      setCurrentImageIndex((prev) => 
-        prev === images.length - 1 ? 0 : prev + 1
-      );
-    }
-  };
+  // Initialize map when event is selected
+  useEffect(() => {
+    if (!selectedEvent || !mapContainer.current || !mapStyleUrl || map.current) return;
 
-  const prevImage = () => {
-    if (selectedEvent && images.length > 0) {
-      setCurrentImageIndex((prev) => 
-        prev === 0 ? images.length - 1 : prev - 1
-      );
+    const latitude = parseFloat(selectedEvent.latitude) || 31.7917;
+    const longitude = parseFloat(selectedEvent.longitude) || -7.0926;
+
+    try {
+      map.current = new maplibregl.Map({
+        container: mapContainer.current,
+        style: mapStyleUrl,
+        center: [longitude, latitude],
+        zoom: 12,
+        attributionControl: false,
+      });
+
+      // Add marker for event location
+      const el = document.createElement('div');
+      el.className = 'custom-marker';
+      el.style.width = '30px';
+      el.style.height = '30px';
+      el.style.borderRadius = '50%';
+      el.style.backgroundColor = '#D4A574';
+      el.style.border = '3px solid white';
+      el.style.boxShadow = '0 2px 10px rgba(0,0,0,0.3)';
+
+      new maplibregl.Marker({ element: el })
+        .setLngLat([longitude, latitude])
+        .addTo(map.current);
+
+    } catch (error) {
+      console.error('Failed to initialize map:', error);
     }
-  };
+
+    return () => {
+      if (map.current) {
+        map.current.remove();
+        map.current = null;
+      }
+    };
+  }, [selectedEvent, mapStyleUrl]);
 
   const validateBookingForm = (): string | null => {
-    // Validate required fields
     if (!selectedEvent || !selectedDate) {
       return "Please select an event and date before booking.";
     }
@@ -126,7 +170,6 @@ const Book = () => {
       return "Name must be less than 100 characters.";
     }
     
-    // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!customerEmail.trim() || !emailRegex.test(customerEmail.trim())) {
       return "Please enter a valid email address.";
@@ -136,7 +179,6 @@ const Book = () => {
       return "Email must be less than 255 characters.";
     }
     
-    // Phone validation (if provided)
     if (customerPhone.trim()) {
       const phoneRegex = /^[\d\s\+\-\(\)]+$/;
       if (!phoneRegex.test(customerPhone.trim()) || customerPhone.trim().length > 20) {
@@ -144,7 +186,6 @@ const Book = () => {
       }
     }
     
-    // Special requests length
     if (specialRequests.trim().length > 1000) {
       return "Special requests must be less than 1000 characters.";
     }
@@ -155,7 +196,6 @@ const Book = () => {
   const handleSubmitBooking = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Comprehensive validation
     const validationError = validateBookingForm();
     if (validationError) {
       toast({
@@ -199,14 +239,12 @@ const Book = () => {
           description: `Your booking reference is: ${data.ticket.bookingReference}. Check your email for details.`,
         });
         
-        // Reset form
         setShowBookingDialog(false);
         setCustomerName('');
         setCustomerEmail('');
         setCustomerPhone('');
         setSpecialRequests('');
       } else {
-        // Show specific error from backend
         const errorMessage = data.error || 'Failed to create booking';
         toast({
           title: "Booking Failed",
@@ -260,7 +298,7 @@ const Book = () => {
         <Header />
         <div className="container mx-auto px-4 py-20 text-center">
           <div className="text-muted-foreground mb-4">
-            <Calendar className="w-16 h-16 mx-auto mb-4" />
+            <CalendarIcon className="w-16 h-16 mx-auto mb-4" />
             <h2 className="text-2xl font-bold">No Events Available</h2>
             <p className="mt-2">There are currently no booking events available.</p>
           </div>
@@ -283,8 +321,6 @@ const Book = () => {
     );
   }
 
-  // Safe array defaults to prevent crashes when properties are undefined
-  // Parse JSON fields if they come as strings from the database
   const parseJsonField = (field: any): any[] => {
     if (Array.isArray(field)) return field;
     if (typeof field === 'string') {
@@ -301,7 +337,6 @@ const Book = () => {
   const images = parseJsonField(selectedEvent.images);
   const schedule = parseJsonField(selectedEvent.schedule);
   const reviews = parseJsonField(selectedEvent.reviews);
-  const similarEvents = parseJsonField(selectedEvent.similarEvents);
   const highlights = parseJsonField(selectedEvent.highlights);
   const included = parseJsonField(selectedEvent.included);
   const notIncluded = parseJsonField(selectedEvent.notIncluded);
@@ -311,58 +346,55 @@ const Book = () => {
   const savings = selectedEvent.originalPrice ? 
     (selectedEvent.originalPrice - selectedEvent.price) * participants : 0;
 
+  // Calculate available dates from start and end date
+  const getAvailableDates = () => {
+    if (!selectedEvent.startDate || !selectedEvent.endDate) {
+      return [];
+    }
+    
+    const start = new Date(selectedEvent.startDate);
+    const end = new Date(selectedEvent.endDate);
+    const dates: Date[] = [];
+    
+    let currentDate = start;
+    while (currentDate <= end) {
+      dates.push(new Date(currentDate));
+      currentDate = addDays(currentDate, 1);
+    }
+    
+    return dates;
+  };
+
+  const availableDates = getAvailableDates();
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
       
-      {/* Breadcrumbs */}
-      {selectedEvent && (
-        <Breadcrumbs items={[
-          { label: 'Events', href: '/events' },
-          { label: selectedEvent.title }
-        ]} />
-      )}
+      <Breadcrumbs items={[
+        { label: 'Events', href: '/events' },
+        { label: selectedEvent.title }
+      ]} />
 
-      <div className="container mx-auto px-4 py-6">
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Main Content - Left Column */}
-          <div className="lg:col-span-2 space-y-8">
-            
-            {/* Hero Section with Image Gallery */}
-            <div className="relative">
-              <div className="relative h-96 md:h-[500px] overflow-hidden rounded-lg">
+      {/* Short Hero Section with Map on Right */}
+      <section className="relative bg-primary/5">
+        <div className="container mx-auto px-4 py-6">
+          <div className="grid lg:grid-cols-3 gap-6">
+            {/* Left: Event Image and Title */}
+            <div className="lg:col-span-2">
+              <div className="relative h-64 overflow-hidden rounded-lg mb-4">
                 {images.length > 0 ? (
                   <img 
-                    src={images[currentImageIndex] || '/api/placeholder/800/600'} 
+                    src={images[0] || '/api/placeholder/800/400'} 
                     alt={selectedEvent.title}
                     className="w-full h-full object-cover"
                   />
                 ) : (
                   <div className="w-full h-full bg-gray-200 flex items-center justify-center">
                     <Camera className="w-16 h-16 text-gray-400" />
-                    <span className="ml-2 text-gray-500">No images available</span>
                   </div>
                 )}
                 
-                {/* Navigation Arrows */}
-                <button 
-                  onClick={prevImage}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-2 rounded-full shadow-lg transition-all"
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                </button>
-                <button 
-                  onClick={nextImage}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-2 rounded-full shadow-lg transition-all"
-                >
-                  <ChevronRight className="w-5 h-5" />
-                </button>
-
-                {/* Image Counter */}
-                <div className="absolute bottom-4 right-4 bg-black/60 text-white px-3 py-1 rounded-full text-sm">
-                  {images.length > 0 ? `${currentImageIndex + 1} / ${images.length}` : '0 / 0'}
-                </div>
-
                 {/* Action Buttons */}
                 <div className="absolute top-4 right-4 flex gap-2">
                   <Button 
@@ -379,88 +411,80 @@ const Book = () => {
                 </div>
               </div>
 
-              {/* Thumbnail Gallery */}
-              <div className="flex gap-2 mt-4 overflow-x-auto pb-2">
-                {images.map((image, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setCurrentImageIndex(index)}
-                    className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
-                      index === currentImageIndex 
-                        ? 'border-primary shadow-md' 
-                        : 'border-transparent hover:border-gray-300'
-                    }`}
-                  >
-                    <img 
-                      src={image} 
-                      alt={`View ${index + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Title and Basic Info */}
-            <div>
-              <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
-                <div>
-                  <h1 className="text-3xl md:text-4xl font-bold mb-2">{selectedEvent.title}</h1>
-                  <p className="text-xl text-muted-foreground mb-4">{selectedEvent.subtitle}</p>
-                  
-                  <div className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground">
-                    <div className="flex items-center gap-2">
-                      <MapPin className="w-4 h-4" />
-                      {selectedEvent.location}
+              {/* Title and Info */}
+              <div>
+                <div className="flex items-start justify-between gap-4 mb-2">
+                  <div className="flex-1">
+                    <h1 className="text-2xl md:text-3xl font-bold mb-2">{selectedEvent.title}</h1>
+                    <p className="text-lg text-muted-foreground mb-3">{selectedEvent.subtitle}</p>
+                  </div>
+                  <div className="text-right">
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="flex items-center">
+                        {[...Array(5)].map((_, i) => (
+                          <Star 
+                            key={i}
+                            className={`w-4 h-4 ${
+                              i < Math.floor(selectedEvent.rating) 
+                                ? 'text-yellow-400 fill-current' 
+                                : 'text-gray-300'
+                            }`}
+                          />
+                        ))}
+                      </div>
+                      <span className="font-semibold">{selectedEvent.rating}</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Clock className="w-4 h-4" />
-                      {selectedEvent.duration}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Users className="w-4 h-4" />
-                      {selectedEvent.groupSize}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Globe className="w-4 h-4" />
-                      {languages.length > 0 ? languages.join(', ') : 'English'}
-                    </div>
+                    <Badge variant="outline">{selectedEvent.category}</Badge>
                   </div>
                 </div>
                 
-                <div className="text-right">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="flex items-center">
-                      {[...Array(5)].map((_, i) => (
-                        <Star 
-                          key={i}
-                          className={`w-4 h-4 ${
-                            i < Math.floor(selectedEvent.rating) 
-                              ? 'text-yellow-400 fill-current' 
-                              : 'text-gray-300'
-                          }`}
-                        />
-                      ))}
-                    </div>
-                    <span className="font-semibold">{selectedEvent.rating}</span>
-                    <span className="text-muted-foreground">({selectedEvent.reviewCount} reviews)</span>
-                  </div>
-                  <Badge variant="outline" className="mb-2">{selectedEvent.category}</Badge>
+                <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
                   <div className="flex items-center gap-2">
-                    <Award className="w-4 h-4 text-primary" />
-                    <span className="text-sm text-primary font-medium">Bestseller</span>
+                    <MapPin className="w-4 h-4" />
+                    {selectedEvent.location}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-4 h-4" />
+                    {selectedEvent.duration}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Users className="w-4 h-4" />
+                    {selectedEvent.groupSize}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Globe className="w-4 h-4" />
+                    {languages.length > 0 ? languages.join(', ') : 'English'}
                   </div>
                 </div>
               </div>
             </div>
 
+            {/* Right: Small Map */}
+            <div className="lg:col-span-1">
+              <Card className="overflow-hidden h-full">
+                <div 
+                  ref={mapContainer} 
+                  className="w-full h-full min-h-[300px] lg:min-h-full"
+                  style={{ background: '#f0f0f0' }}
+                />
+              </Card>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Main Content */}
+      <div className="container mx-auto px-4 py-8">
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Left Column - Details */}
+          <div className="lg:col-span-2 space-y-6">
+            
             {/* Tabs Section */}
             <Tabs defaultValue="overview" className="w-full">
-              <TabsList className="grid w-full grid-cols-4">
+              <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="overview">Overview</TabsTrigger>
                 <TabsTrigger value="schedule">Schedule</TabsTrigger>
                 <TabsTrigger value="reviews">Reviews</TabsTrigger>
-                <TabsTrigger value="photos">Photos</TabsTrigger>
               </TabsList>
               
               <TabsContent value="overview" className="space-y-6 mt-6">
@@ -470,15 +494,19 @@ const Book = () => {
                     {selectedEvent.description}
                   </p>
                   
-                  <h4 className="text-xl font-semibold mb-4">Highlights</h4>
-                  <div className="grid md:grid-cols-2 gap-3">
-                    {highlights.map((highlight, index) => (
-                      <div key={index} className="flex items-start gap-3">
-                        <Check className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                        <span>{highlight}</span>
+                  {highlights.length > 0 && (
+                    <>
+                      <h4 className="text-xl font-semibold mb-4">Highlights</h4>
+                      <div className="grid md:grid-cols-2 gap-3 mb-6">
+                        {highlights.map((highlight, index) => (
+                          <div key={index} className="flex items-start gap-3">
+                            <Check className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                            <span>{highlight}</span>
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
+                    </>
+                  )}
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-6">
@@ -516,14 +544,18 @@ const Book = () => {
                 <div>
                   <h4 className="text-lg font-semibold mb-4">Important Information</h4>
                   <div className="space-y-3 text-sm text-muted-foreground">
-                    <div className="flex items-center gap-3">
-                      <Users className="w-4 h-4 text-primary" />
-                      <span><strong>Age Range:</strong> {selectedEvent.ageRange}</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Shield className="w-4 h-4 text-primary" />
-                      <span><strong>Cancellation:</strong> {selectedEvent.cancellationPolicy}</span>
-                    </div>
+                    {selectedEvent.ageRange && (
+                      <div className="flex items-center gap-3">
+                        <Users className="w-4 h-4 text-primary" />
+                        <span><strong>Age Range:</strong> {selectedEvent.ageRange}</span>
+                      </div>
+                    )}
+                    {selectedEvent.cancellationPolicy && (
+                      <div className="flex items-center gap-3">
+                        <Shield className="w-4 h-4 text-primary" />
+                        <span><strong>Cancellation:</strong> {selectedEvent.cancellationPolicy}</span>
+                      </div>
+                    )}
                     <div className="flex items-center gap-3">
                       <MessageCircle className="w-4 h-4 text-primary" />
                       <span><strong>Languages:</strong> Available in {languages.length > 0 ? languages.join(', ') : 'English'}</span>
@@ -534,14 +566,18 @@ const Book = () => {
               
               <TabsContent value="schedule" className="space-y-4 mt-6">
                 <h3 className="text-2xl font-bold mb-4">Daily Schedule</h3>
-                <div className="space-y-4">
-                  {schedule.map((item, index) => (
-                    <div key={index} className="flex gap-4 p-4 border rounded-lg">
-                      <div className="font-semibold text-primary min-w-16">{item.time}</div>
-                      <div>{item.activity}</div>
-                    </div>
-                  ))}
-                </div>
+                {schedule.length > 0 ? (
+                  <div className="space-y-4">
+                    {schedule.map((item, index) => (
+                      <div key={index} className="flex gap-4 p-4 border rounded-lg">
+                        <div className="font-semibold text-primary min-w-16">{item.time}</div>
+                        <div>{item.activity}</div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-muted-foreground">No schedule information available.</p>
+                )}
               </TabsContent>
               
               <TabsContent value="reviews" className="space-y-6 mt-6">
@@ -554,187 +590,143 @@ const Book = () => {
                   </div>
                 </div>
                 
-                <div className="space-y-6">
-                  {reviews.map((review, index) => (
-                    <Card key={index}>
-                      <CardContent className="p-6">
-                        <div className="flex items-start gap-4">
-                          <img 
-                            src={review.avatar} 
-                            alt={review.name}
-                            className="w-12 h-12 rounded-full object-cover"
-                          />
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-2">
-                              <h5 className="font-semibold">{review.name}</h5>
-                              <div className="flex">
-                                {[...Array(5)].map((_, i) => (
-                                  <Star 
-                                    key={i}
-                                    className={`w-4 h-4 ${
-                                      i < review.rating 
-                                        ? 'text-yellow-400 fill-current' 
-                                        : 'text-gray-300'
-                                    }`}
-                                  />
-                                ))}
+                {reviews.length > 0 ? (
+                  <div className="space-y-6">
+                    {reviews.map((review, index) => (
+                      <Card key={index}>
+                        <CardContent className="p-6">
+                          <div className="flex items-start gap-4">
+                            <img 
+                              src={review.avatar} 
+                              alt={review.name}
+                              className="w-12 h-12 rounded-full object-cover"
+                            />
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-2">
+                                <h5 className="font-semibold">{review.name}</h5>
+                                <div className="flex">
+                                  {[...Array(5)].map((_, i) => (
+                                    <Star 
+                                      key={i}
+                                      className={`w-4 h-4 ${
+                                        i < review.rating 
+                                          ? 'text-yellow-400 fill-current' 
+                                          : 'text-gray-300'
+                                      }`}
+                                    />
+                                  ))}
+                                </div>
+                                <span className="text-sm text-muted-foreground">{review.date}</span>
                               </div>
-                              <span className="text-sm text-muted-foreground">{review.date}</span>
-                            </div>
-                            <p className="text-muted-foreground mb-3 leading-relaxed">{review.comment}</p>
-                            <div className="flex items-center gap-2">
-                              <Button variant="ghost" size="sm" className="text-xs">
-                                👍 Helpful ({review.helpful})
-                              </Button>
+                              <p className="text-muted-foreground leading-relaxed">{review.comment}</p>
                             </div>
                           </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-                
-                <div className="text-center">
-                  <Button variant="outline">Load More Reviews</Button>
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="photos" className="space-y-6 mt-6">
-                <h3 className="text-2xl font-bold">Photos</h3>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {images.map((image, index) => (
-                    <div 
-                      key={index} 
-                      className="aspect-square rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
-                      onClick={() => setCurrentImageIndex(index)}
-                    >
-                      <img src={image} alt={`Photo ${index + 1}`} className="w-full h-full object-cover" />
-                    </div>
-                  ))}
-                </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-muted-foreground">No reviews yet.</p>
+                )}
               </TabsContent>
             </Tabs>
-
-            {/* Similar Events */}
-            <div>
-              <h3 className="text-2xl font-bold mb-6">Similar Experiences</h3>
-              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {similarEvents.map((event, index) => (
-                  <Card key={index} className="cursor-pointer hover:shadow-md transition-shadow">
-                    <div className="aspect-video relative overflow-hidden rounded-t-lg">
-                      <img src={event.image} alt={event.title} className="w-full h-full object-cover" />
-                    </div>
-                    <CardContent className="p-4">
-                      <h5 className="font-semibold mb-2 line-clamp-2">{event.title}</h5>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-1">
-                          <Star className="w-3 h-3 text-yellow-400 fill-current" />
-                          <span className="text-sm">{event.rating}</span>
-                        </div>
-                        <span className="font-bold text-primary">${event.price}</span>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
           </div>
 
-          {/* Booking Sidebar - Right Column */}
+          {/* Right Column - Booking Card */}
           <div className="lg:col-span-1">
-            <Card className="sticky top-6">
+            <Card className="sticky top-4">
               <CardContent className="p-6">
-                <div className="space-y-6">
-                  {/* Pricing */}
-                  <div>
-                    <div className="flex items-baseline gap-2 mb-2">
-                      <span className="text-3xl font-bold text-primary">${selectedEvent.price}</span>
-                      <span className="text-lg text-muted-foreground line-through">${selectedEvent.originalPrice}</span>
+                <div className="mb-6">
+                  <div className="flex items-baseline gap-2 mb-2">
+                    <span className="text-3xl font-bold">${selectedEvent.price}</span>
+                    <span className="text-muted-foreground">/ person</span>
+                  </div>
+                  {selectedEvent.originalPrice && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-muted-foreground line-through">${selectedEvent.originalPrice}</span>
+                      <Badge variant="secondary" className="bg-green-100 text-green-800">
+                        Save ${selectedEvent.originalPrice - selectedEvent.price}
+                      </Badge>
                     </div>
-                    <p className="text-sm text-muted-foreground">per person</p>
-                    {savings > 0 && (
-                      <p className="text-green-600 text-sm font-medium">Save ${savings} total!</p>
+                  )}
+                </div>
+
+                <div className="space-y-4 mb-6">
+                  <div>
+                    <Label htmlFor="participants" className="mb-2 block">Number of Participants</Label>
+                    <Input
+                      id="participants"
+                      type="number"
+                      min="1"
+                      max="20"
+                      value={participants}
+                      onChange={(e) => setParticipants(parseInt(e.target.value) || 1)}
+                      className="w-full"
+                    />
+                  </div>
+
+                  <div>
+                    <Label className="mb-2 block">Select Date</Label>
+                    {availableDates.length > 0 ? (
+                      <div className="grid grid-cols-7 gap-1">
+                        {availableDates.map((date, index) => (
+                          <button
+                            key={index}
+                            onClick={() => setSelectedDate(date)}
+                            className={`p-2 text-sm rounded transition-colors ${
+                              selectedDate && isSameDay(selectedDate, date)
+                                ? 'bg-primary text-white'
+                                : 'bg-gray-100 hover:bg-gray-200'
+                            }`}
+                          >
+                            <div className="text-xs">{format(date, 'EEE')}</div>
+                            <div className="font-semibold">{format(date, 'd')}</div>
+                          </button>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">Date range not set for this event</p>
+                    )}
+                    {selectedDate && (
+                      <p className="text-sm text-muted-foreground mt-2">
+                        Selected: {format(selectedDate, 'MMMM d, yyyy')}
+                      </p>
                     )}
                   </div>
+                </div>
 
-                  <Separator />
-
-                  {/* Date Selection */}
-                  <div>
-                    <Label className="text-base font-semibold mb-3 block">Select Date</Label>
-                    <div className="border rounded-lg p-1">
-                      <Calendar
-                        mode="single"
-                        selected={selectedDate}
-                        onSelect={setSelectedDate}
-                        className="w-full"
-                        disabled={(date) => date < new Date()}
-                      />
-                    </div>
+                <div className="border-t pt-4 mb-6">
+                  <div className="flex justify-between mb-2">
+                    <span>Price per person</span>
+                    <span>${selectedEvent.price}</span>
                   </div>
-
-                  {/* Participants */}
-                  <div>
-                    <Label className="text-base font-semibold mb-3 block">Travelers</Label>
-                    <Select value={participants.toString()} onValueChange={(value) => setParticipants(parseInt(value))}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {[1,2,3,4,5,6,7,8,9,10].map(num => (
-                          <SelectItem key={num} value={num.toString()}>
-                            {num} {num === 1 ? 'person' : 'people'}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                  <div className="flex justify-between mb-2">
+                    <span>Participants</span>
+                    <span>{participants}</span>
                   </div>
-
-                  <Separator />
-
-                  {/* Total Calculation */}
-                  <div className="space-y-3">
-                    <div className="flex justify-between">
-                      <span>${selectedEvent.price} x {participants} person{participants !== 1 ? 's' : ''}</span>
-                      <span>${totalPrice}</span>
+                  {savings > 0 && (
+                    <div className="flex justify-between text-green-600 mb-2">
+                      <span>Savings</span>
+                      <span>-${savings}</span>
                     </div>
-                    <div className="flex justify-between font-bold text-lg">
-                      <span>Total</span>
-                      <span className="text-primary">${totalPrice}</span>
-                    </div>
-                  </div>
-
-                  {/* Book Button */}
-                  <Button 
-                    className="w-full h-12 text-lg font-semibold"
-                    style={{ backgroundColor: 'hsl(var(--primary))' }}
-                    disabled={!selectedDate}
-                    onClick={() => setShowBookingDialog(true)}
-                  >
-                    {selectedDate ? `Reserve for ${selectedDate.toLocaleDateString()}` : 'Select Date to Book'}
-                  </Button>
-
-                  <p className="text-center text-sm text-muted-foreground">
-                    You won't be charged yet
-                  </p>
-
-                  <Separator />
-
-                  {/* Contact Options */}
-                  <div className="space-y-3">
-                    <Link to="/contact">
-                      <Button variant="outline" className="w-full">
-                        <MessageCircle className="w-4 h-4 mr-2" />
-                        Ask a Question
-                      </Button>
-                    </Link>
-                    
-                    <Button variant="outline" className="w-full">
-                      <Camera className="w-4 h-4 mr-2" />
-                      View All Photos
-                    </Button>
+                  )}
+                  <div className="flex justify-between font-bold text-lg border-t pt-2">
+                    <span>Total</span>
+                    <span>${totalPrice}</span>
                   </div>
                 </div>
+
+                <Button 
+                  onClick={() => setShowBookingDialog(true)}
+                  className="w-full bg-secondary hover:bg-secondary/90"
+                  disabled={!selectedDate && availableDates.length > 0}
+                >
+                  Book Now
+                </Button>
+
+                <p className="text-xs text-center text-muted-foreground mt-4">
+                  Free cancellation up to 24 hours before the experience
+                </p>
               </CardContent>
             </Card>
           </div>
@@ -743,124 +735,83 @@ const Book = () => {
 
       {/* Booking Dialog */}
       <Dialog open={showBookingDialog} onOpenChange={setShowBookingDialog}>
-        <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Complete Your Booking</DialogTitle>
             <DialogDescription>
-              Fill in your details to confirm your reservation for {selectedEvent?.title}
+              Please provide your contact information to confirm this booking.
             </DialogDescription>
           </DialogHeader>
-          
-          <form onSubmit={handleSubmitBooking} className="space-y-6">
-            {/* Booking Summary */}
-            <div className="bg-muted p-4 rounded-lg space-y-2">
-              <div className="flex justify-between">
-                <span className="text-sm font-medium">Event:</span>
-                <span className="text-sm">{selectedEvent?.title}</span>
+          <form onSubmit={handleSubmitBooking} className="space-y-4">
+            <div>
+              <Label htmlFor="name">Full Name *</Label>
+              <Input
+                id="name"
+                value={customerName}
+                onChange={(e) => setCustomerName(e.target.value)}
+                placeholder="John Doe"
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="email">Email *</Label>
+              <Input
+                id="email"
+                type="email"
+                value={customerEmail}
+                onChange={(e) => setCustomerEmail(e.target.value)}
+                placeholder="john@example.com"
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="phone">Phone Number</Label>
+              <Input
+                id="phone"
+                type="tel"
+                value={customerPhone}
+                onChange={(e) => setCustomerPhone(e.target.value)}
+                placeholder="+1 234 567 8900"
+              />
+            </div>
+            <div>
+              <Label htmlFor="requests">Special Requests</Label>
+              <Textarea
+                id="requests"
+                value={specialRequests}
+                onChange={(e) => setSpecialRequests(e.target.value)}
+                placeholder="Any special requirements or requests?"
+                rows={3}
+              />
+            </div>
+            <div className="bg-muted p-4 rounded-lg">
+              <div className="flex justify-between mb-2">
+                <span className="font-semibold">Booking Summary:</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-sm font-medium">Date:</span>
-                <span className="text-sm">{selectedDate?.toLocaleDateString()}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm font-medium">Travelers:</span>
-                <span className="text-sm">{participants} {participants === 1 ? 'person' : 'people'}</span>
-              </div>
-              <Separator className="my-2" />
-              <div className="flex justify-between">
-                <span className="font-bold">Total Price:</span>
-                <span className="font-bold text-primary">${selectedEvent?.price * participants}</span>
+              <div className="text-sm space-y-1">
+                <div className="flex justify-between">
+                  <span>Event:</span>
+                  <span className="font-medium">{selectedEvent.title}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Date:</span>
+                  <span className="font-medium">
+                    {selectedDate ? format(selectedDate, 'MMM d, yyyy') : 'Not selected'}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Participants:</span>
+                  <span className="font-medium">{participants}</span>
+                </div>
+                <div className="flex justify-between border-t pt-2 mt-2">
+                  <span className="font-semibold">Total:</span>
+                  <span className="font-semibold text-lg">${totalPrice}</span>
+                </div>
               </div>
             </div>
-
-            {/* Customer Information */}
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="customerName">Full Name *</Label>
-                <Input
-                  id="customerName"
-                  value={customerName}
-                  onChange={(e) => setCustomerName(e.target.value)}
-                  placeholder="Enter your full name"
-                  required
-                  minLength={2}
-                  maxLength={100}
-                  className="mt-1.5"
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  {customerName.length}/100 characters
-                </p>
-              </div>
-
-              <div>
-                <Label htmlFor="customerEmail">Email Address *</Label>
-                <Input
-                  id="customerEmail"
-                  type="email"
-                  value={customerEmail}
-                  onChange={(e) => setCustomerEmail(e.target.value)}
-                  placeholder="your.email@example.com"
-                  required
-                  maxLength={255}
-                  className="mt-1.5"
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  {customerEmail.length}/255 characters
-                </p>
-              </div>
-
-              <div>
-                <Label htmlFor="customerPhone">Phone Number</Label>
-                <Input
-                  id="customerPhone"
-                  type="tel"
-                  value={customerPhone}
-                  onChange={(e) => setCustomerPhone(e.target.value)}
-                  placeholder="+212 XXX XXX XXX"
-                  pattern="[\d\s\+\-\(\)]+"
-                  maxLength={20}
-                  className="mt-1.5"
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Optional - {customerPhone.length}/20 characters
-                </p>
-              </div>
-
-              <div>
-                <Label htmlFor="specialRequests">Special Requests</Label>
-                <Textarea
-                  id="specialRequests"
-                  value={specialRequests}
-                  onChange={(e) => setSpecialRequests(e.target.value)}
-                  placeholder="Any dietary restrictions, accessibility needs, or special requests?"
-                  maxLength={1000}
-                  className="mt-1.5 min-h-[100px]"
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Optional - {specialRequests.length}/1000 characters
-                </p>
-              </div>
-            </div>
-
-            {/* Submit Button */}
-            <div className="flex gap-3">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setShowBookingDialog(false)}
-                className="flex-1"
-                disabled={isSubmitting}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                className="flex-1"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? 'Processing...' : 'Confirm Booking'}
-              </Button>
-            </div>
+            <Button type="submit" className="w-full" disabled={isSubmitting}>
+              {isSubmitting ? 'Processing...' : `Confirm Booking - $${totalPrice}`}
+            </Button>
           </form>
         </DialogContent>
       </Dialog>

@@ -10,6 +10,7 @@ import {
   boolean,
   decimal,
   serial,
+  date,
 } from "drizzle-orm/mysql-core";
 import { relations } from "drizzle-orm";
 
@@ -193,7 +194,11 @@ export const bookingEvents = mysqlTable("booking_events", {
   subtitle: varchar("subtitle", { length: 255 }),
   description: text("description").notNull(),
   location: varchar("location", { length: 255 }).notNull(),
+  latitude: decimal("latitude", { precision: 9, scale: 6 }),
+  longitude: decimal("longitude", { precision: 9, scale: 6 }),
   duration: varchar("duration", { length: 100 }),
+  startDate: date("start_date"),
+  endDate: date("end_date"),
   price: int("price").notNull(),
   originalPrice: int("original_price"),
   rating: int("rating").default(5),
