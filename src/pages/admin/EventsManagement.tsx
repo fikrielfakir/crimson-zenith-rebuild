@@ -303,7 +303,30 @@ export default function EventsManagement() {
     saveEventMutation.mutate(data);
   };
 
-  const events = data?.events || [];
+  // Filter events based on filters
+  const filteredEvents = (data?.events || []).filter((event: any) => {
+    // Search filter
+    if (search && !event.title?.toLowerCase().includes(search.toLowerCase()) && 
+        !event.location?.toLowerCase().includes(search.toLowerCase())) {
+      return false;
+    }
+    
+    // Event type filter
+    if (eventTypeFilter !== 'all') {
+      if (eventTypeFilter === 'association' && !event.isAssociationEvent) return false;
+      if (eventTypeFilter === 'club' && event.isAssociationEvent) return false;
+    }
+    
+    // Category filter
+    if (categoryFilter !== 'all' && event.category !== categoryFilter) return false;
+    
+    // Status filter
+    if (statusFilter !== 'all' && event.status !== statusFilter) return false;
+    
+    return true;
+  });
+
+  const events = filteredEvents;
 
   return (
     <div className="space-y-6">
@@ -328,6 +351,16 @@ export default function EventsManagement() {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
+        <Select value={eventTypeFilter} onValueChange={setEventTypeFilter}>
+          <SelectTrigger className="w-40">
+            <SelectValue placeholder="Event Type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Events</SelectItem>
+            <SelectItem value="club">Club Events</SelectItem>
+            <SelectItem value="association">Association Events</SelectItem>
+          </SelectContent>
+        </Select>
         <Select value={categoryFilter} onValueChange={setCategoryFilter}>
           <SelectTrigger className="w-40">
             <SelectValue placeholder="Category" />
@@ -346,8 +379,9 @@ export default function EventsManagement() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="draft">Draft</SelectItem>
-            <SelectItem value="published">Published</SelectItem>
+            <SelectItem value="upcoming">Upcoming</SelectItem>
+            <SelectItem value="ongoing">Ongoing</SelectItem>
+            <SelectItem value="completed">Completed</SelectItem>
             <SelectItem value="cancelled">Cancelled</SelectItem>
           </SelectContent>
         </Select>
@@ -362,6 +396,7 @@ export default function EventsManagement() {
               <TableHead>Date</TableHead>
               <TableHead>Location</TableHead>
               <TableHead>Category</TableHead>
+              <TableHead>Type</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Attendees</TableHead>
               <TableHead className="w-12"></TableHead>
@@ -392,7 +427,7 @@ export default function EventsManagement() {
                   <TableCell>
                     <div className="flex items-center text-sm">
                       <Calendar className="h-4 w-4 mr-1 text-muted-foreground" />
-                      {event.startDate && format(new Date(event.startDate), 'MMM d, yyyy')}
+                      {event.eventDate && format(new Date(event.eventDate), 'MMM d, yyyy')}
                     </div>
                   </TableCell>
                   <TableCell>
@@ -405,9 +440,15 @@ export default function EventsManagement() {
                     <Badge variant="outline">{event.category}</Badge>
                   </TableCell>
                   <TableCell>
+                    <Badge variant={event.isAssociationEvent ? 'default' : 'secondary'}>
+                      {event.isAssociationEvent ? 'Association' : 'Club'}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
                     <Badge variant={
-                      event.status === 'published' ? 'default' :
-                      event.status === 'draft' ? 'secondary' :
+                      event.status === 'upcoming' ? 'default' :
+                      event.status === 'ongoing' ? 'secondary' :
+                      event.status === 'completed' ? 'outline' :
                       'destructive'
                     }>
                       {event.status}
@@ -533,6 +574,61 @@ export default function EventsManagement() {
                   </FormItem>
                 )}
               />
+              
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="isAssociationEvent"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Event Type</FormLabel>
+                      <Select 
+                        onValueChange={(value) => field.onChange(value === 'association')} 
+                        value={field.value ? 'association' : 'club'}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select event type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="club">Club Event</SelectItem>
+                          <SelectItem value="association">Journey Association Event</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                {!form.watch('isAssociationEvent') && (
+                  <FormField
+                    control={form.control}
+                    name="clubId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Club</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a club" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {clubsData?.clubs?.map((club: any) => (
+                              <SelectItem key={club.id} value={club.id.toString()}>
+                                {club.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+              </div>
+              
               <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -750,6 +846,19 @@ export default function EventsManagement() {
               />
               <FormField
                 control={form.control}
+                name="image"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Event Image URL (optional)</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="https://example.com/image.jpg" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
                 name="status"
                 render={({ field }) => (
                   <FormItem>
@@ -761,8 +870,9 @@ export default function EventsManagement() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="draft">Draft</SelectItem>
-                        <SelectItem value="published">Published</SelectItem>
+                        <SelectItem value="upcoming">Upcoming</SelectItem>
+                        <SelectItem value="ongoing">Ongoing</SelectItem>
+                        <SelectItem value="completed">Completed</SelectItem>
                         <SelectItem value="cancelled">Cancelled</SelectItem>
                       </SelectContent>
                     </Select>

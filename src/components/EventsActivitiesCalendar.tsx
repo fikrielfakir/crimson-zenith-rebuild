@@ -13,8 +13,8 @@ interface Event {
   id: number;
   title: string;
   description: string;
-  startDate: string;
-  endDate: string;
+  eventDate: string;
+  endDate?: string;
   location: string;
   locationDetails?: string;
   duration?: string;
@@ -22,14 +22,16 @@ interface Event {
   languages?: string;
   minAge?: number;
   maxPeople?: number;
-  price: string;
-  maxParticipants: number;
-  currentParticipants: number;
+  price?: number;
+  maxParticipants?: number;
+  currentParticipants?: number;
   highlights?: string;
   included?: string;
   notIncluded?: string;
   importantInfo?: string;
   status: string;
+  image?: string;
+  isAssociationEvent?: boolean;
 }
 
 const EventsActivitiesCalendar = () => {
@@ -40,12 +42,12 @@ const EventsActivitiesCalendar = () => {
   const navigate = useNavigate();
   const eventsPerPage = 2;
 
-  // Fetch events from the database
+  // Fetch association events from the database
   useEffect(() => {
     const fetchEvents = async () => {
       try {
         setLoading(true);
-        const response = await fetch('/api/events?status=published&perPage=100');
+        const response = await fetch('/api/events'); // Fetches Journey Association events
         const data = await response.json();
         if (data.events) {
           setEvents(data.events);
@@ -67,8 +69,11 @@ const EventsActivitiesCalendar = () => {
   };
 
   // Helper function to format date
-  const formatEventDate = (startDate: string, endDate: string) => {
-    const start = new Date(startDate);
+  const formatEventDate = (eventDate: string, endDate?: string) => {
+    const start = new Date(eventDate);
+    if (!endDate) {
+      return start.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
     const end = new Date(endDate);
     
     if (start.toDateString() === end.toDateString()) {
@@ -79,8 +84,11 @@ const EventsActivitiesCalendar = () => {
   };
 
   // Helper function to format time
-  const formatEventTime = (startDate: string, endDate: string) => {
-    const start = new Date(startDate);
+  const formatEventTime = (eventDate: string, endDate?: string) => {
+    const start = new Date(eventDate);
+    if (!endDate) {
+      return start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    }
     const end = new Date(endDate);
     
     return `${start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })} - ${end.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}`;
@@ -322,7 +330,7 @@ const EventsActivitiesCalendar = () => {
                             fontSize: '13px', 
                             color: '#666A73' 
                           }}>
-                            {formatEventTime(event.startDate, event.endDate)}
+                            {formatEventTime(event.eventDate, event.endDate)}
                           </span>
                         </div>
                         <div className="flex items-center gap-1">
