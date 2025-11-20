@@ -665,6 +665,21 @@ app.get('/api/clubs/slug/:slug', async (req, res) => {
   }
 });
 
+app.get('/api/clubs/:id/events', async (req, res) => {
+  try {
+    const clubId = parseInt(req.params.id);
+    console.log(`🔗 Fetching events for club ${clubId}...`);
+    
+    const events = await storage.getUpcomingClubEvents(clubId);
+    console.log(`✅ Found ${events.length} upcoming events for club ${clubId}`);
+    
+    res.json({ events });
+  } catch (error) {
+    console.error('❌ Error fetching club events:', error);
+    res.status(500).json({ error: 'Failed to fetch club events', details: error.message });
+  }
+});
+
 app.get('/api/events', async (req, res) => {
   try {
     console.log('🔗 Fetching public events from MySQL database...');
