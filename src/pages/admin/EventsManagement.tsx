@@ -13,12 +13,16 @@ import {
   Users,
   Loader2,
   Clock,
+  ArrowLeft,
+  Building2,
+  Globe,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Table,
   TableBody,
@@ -42,14 +46,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -108,13 +104,15 @@ async function fetchClubs() {
 
 export default function EventsManagement() {
   const [search, setSearch] = useState('');
-  const [eventTypeFilter, setEventTypeFilter] = useState('all'); // all, club, association
+  const [eventTypeFilter, setEventTypeFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [selectedEvents, setSelectedEvents] = useState<number[]>([]);
   const [editingEvent, setEditingEvent] = useState<any>(null);
   const [deletingEventId, setDeletingEventId] = useState<number | null>(null);
   const [viewingEvent, setViewingEvent] = useState<any>(null);
+  const [showForm, setShowForm] = useState(false);
+  const [selectedEventType, setSelectedEventType] = useState<'club' | 'association' | null>(null);
   
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -158,6 +156,8 @@ export default function EventsManagement() {
 
   useEffect(() => {
     if (editingEvent && editingEvent.id) {
+      setShowForm(true);
+      setSelectedEventType(editingEvent.isAssociationEvent ? 'association' : 'club');
       form.reset({
         title: editingEvent.title || '',
         description: editingEvent.description || '',
@@ -181,7 +181,9 @@ export default function EventsManagement() {
         importantInfo: editingEvent.importantInfo || '',
         status: editingEvent.status || 'upcoming',
       });
-    } else {
+    } else if (editingEvent && !editingEvent.id) {
+      setShowForm(true);
+      setSelectedEventType(null);
       form.reset({
         title: '',
         description: '',
@@ -267,6 +269,8 @@ export default function EventsManagement() {
       queryClient.invalidateQueries({ queryKey: ['admin-club-events'] });
       toast({ title: `Event ${editingEvent ? 'updated' : 'created'} successfully` });
       setEditingEvent(null);
+      setShowForm(false);
+      setSelectedEventType(null);
       form.reset();
     },
     onError: (error: Error) => {
@@ -299,34 +303,472 @@ export default function EventsManagement() {
     toast({ title: `Deleting ${selectedEvents.length} events...` });
   };
 
+  const handleCancelForm = () => {
+    setShowForm(false);
+    setEditingEvent(null);
+    setSelectedEventType(null);
+    form.reset();
+  };
+
+  const handleEventTypeSelection = (type: 'club' | 'association') => {
+    setSelectedEventType(type);
+    form.setValue('isAssociationEvent', type === 'association');
+  };
+
   const onSubmit = (data: EventFormData) => {
     saveEventMutation.mutate(data);
   };
 
-  // Filter events based on filters
   const filteredEvents = (data?.events || []).filter((event: any) => {
-    // Search filter
     if (search && !event.title?.toLowerCase().includes(search.toLowerCase()) && 
         !event.location?.toLowerCase().includes(search.toLowerCase())) {
       return false;
     }
     
-    // Event type filter
     if (eventTypeFilter !== 'all') {
       if (eventTypeFilter === 'association' && !event.isAssociationEvent) return false;
       if (eventTypeFilter === 'club' && event.isAssociationEvent) return false;
     }
     
-    // Category filter
     if (categoryFilter !== 'all' && event.category !== categoryFilter) return false;
-    
-    // Status filter
     if (statusFilter !== 'all' && event.status !== statusFilter) return false;
     
     return true;
   });
 
   const events = filteredEvents;
+
+  if (showForm) {
+    return (
+      <div className="space-y-6 max-w-4xl mx-auto pb-12">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" onClick={handleCancelForm}>
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold">{editingEvent?.id ? 'Edit Event' : 'Create New Event'}</h1>
+            <p className="text-muted-foreground mt-1">
+              {editingEvent?.id ? 'Update event information' : 'Add a new event to your community'}
+            </p>
+          </div>
+        </div>
+
+        {!editingEvent?.id && !selectedEventType && (
+          <div className="space-y-4">
+            <div>
+              <h2 className="text-xl font-semibold mb-2">Select Event Type</h2>
+              <p className="text-sm text-muted-foreground mb-4">
+                Choose whether this is a club event or an association event
+              </p>
+            </div>
+            <div className="grid md:grid-cols-2 gap-6">
+              <Card 
+                className="cursor-pointer hover:border-primary hover:shadow-md transition-all"
+                onClick={() => handleEventTypeSelection('club')}
+              >
+                <CardHeader>
+                  <div className="flex items-center gap-3">
+                    <div className="p-3 bg-blue-100 rounded-lg">
+                      <Building2 className="h-6 w-6 text-blue-600" />
+                    </div>
+                    <div>
+                      <CardTitle>Club Event</CardTitle>
+                      <CardDescription>Event organized by a specific club</CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">
+                    Create an event for a specific club in your community. The event will be associated with the club you select.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card 
+                className="cursor-pointer hover:border-primary hover:shadow-md transition-all"
+                onClick={() => handleEventTypeSelection('association')}
+              >
+                <CardHeader>
+                  <div className="flex items-center gap-3">
+                    <div className="p-3 bg-purple-100 rounded-lg">
+                      <Globe className="h-6 w-6 text-purple-600" />
+                    </div>
+                    <div>
+                      <CardTitle>Journey Association Event</CardTitle>
+                      <CardDescription>Event organized by the main association</CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">
+                    Create an event organized by The Journey Association. This event will be visible to all members.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        )}
+
+        {(selectedEventType || editingEvent?.id) && (
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                {form.watch('isAssociationEvent') ? (
+                  <Badge className="bg-purple-100 text-purple-700 hover:bg-purple-200">
+                    <Globe className="h-3 w-3 mr-1" />
+                    Journey Association Event
+                  </Badge>
+                ) : (
+                  <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200">
+                    <Building2 className="h-3 w-3 mr-1" />
+                    Club Event
+                  </Badge>
+                )}
+              </div>
+            </CardHeader>
+            <CardContent>
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                  <FormField
+                    control={form.control}
+                    name="title"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Event Title</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="Enter event title" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Description</FormLabel>
+                        <FormControl>
+                          <Textarea {...field} placeholder="Describe your event" rows={4} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {!form.watch('isAssociationEvent') && (
+                    <FormField
+                      control={form.control}
+                      name="clubId"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Select Club</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Choose a club" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {clubsData?.clubs?.map((club: any) => (
+                                <SelectItem key={club.id} value={club.id.toString()}>
+                                  {club.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
+                  
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="location"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Location</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="Event location" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="locationDetails"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Location Details (optional)</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="e.g., Atlas Mountains, Morocco" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="category"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Category</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select category" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="workshop">Workshop</SelectItem>
+                              <SelectItem value="conference">Conference</SelectItem>
+                              <SelectItem value="meetup">Meetup</SelectItem>
+                              <SelectItem value="webinar">Webinar</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="duration"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Duration (optional)</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="e.g., 3 Days / 2 Nights" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="startDate"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Start Date & Time</FormLabel>
+                          <FormControl>
+                            <Input type="datetime-local" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="endDate"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>End Date & Time</FormLabel>
+                          <FormControl>
+                            <Input type="datetime-local" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="maxAttendees"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Max Attendees (optional)</FormLabel>
+                          <FormControl>
+                            <Input type="number" {...field} placeholder="Unlimited" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="price"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Price (optional)</FormLabel>
+                          <FormControl>
+                            <Input type="number" step="0.01" {...field} placeholder="Free" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="grid md:grid-cols-3 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="languages"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Languages (optional)</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="e.g., English, French" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="minAge"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Min Age (optional)</FormLabel>
+                          <FormControl>
+                            <Input type="number" {...field} placeholder="12+" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="maxPeople"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Max People (optional)</FormLabel>
+                          <FormControl>
+                            <Input type="number" {...field} placeholder="12" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <FormField
+                    control={form.control}
+                    name="highlights"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Highlights (optional)</FormLabel>
+                        <FormControl>
+                          <Textarea {...field} placeholder="Enter each highlight on a new line" rows={3} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="included"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>What's Included (optional)</FormLabel>
+                        <FormControl>
+                          <Textarea {...field} placeholder="Enter each item on a new line" rows={3} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="notIncluded"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>What's Not Included (optional)</FormLabel>
+                        <FormControl>
+                          <Textarea {...field} placeholder="Enter each item on a new line" rows={3} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="importantInfo"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Important Information (optional)</FormLabel>
+                        <FormControl>
+                          <Textarea {...field} placeholder="Any important information for participants" rows={4} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="image"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Event Image URL (optional)</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="https://example.com/image.jpg" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="status"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Status</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="upcoming">Upcoming</SelectItem>
+                            <SelectItem value="ongoing">Ongoing</SelectItem>
+                            <SelectItem value="completed">Completed</SelectItem>
+                            <SelectItem value="cancelled">Cancelled</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <div className="flex gap-3 justify-end pt-4">
+                    <Button type="button" variant="outline" onClick={handleCancelForm}>
+                      Cancel
+                    </Button>
+                    <Button type="submit" disabled={saveEventMutation.isPending}>
+                      {saveEventMutation.isPending ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Saving...
+                        </>
+                      ) : (
+                        editingEvent?.id ? 'Update Event' : 'Create Event'
+                      )}
+                    </Button>
+                  </div>
+                </form>
+              </Form>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -335,7 +777,7 @@ export default function EventsManagement() {
           <h1 className="text-3xl font-bold">Journey Events Management</h1>
           <p className="text-muted-foreground mt-1">Manage bookable events for The Journey Association</p>
         </div>
-        <Button onClick={() => setEditingEvent({})}>
+        <Button onClick={() => { setEditingEvent({}); setShowForm(true); }}>
           <Plus className="mr-2 h-4 w-4" />
           Create Event
         </Button>
@@ -386,7 +828,6 @@ export default function EventsManagement() {
           </SelectContent>
         </Select>
       </div>
-
 
       <div className="border rounded-lg">
         <Table>
@@ -474,7 +915,7 @@ export default function EventsManagement() {
                           <Eye className="mr-2 h-4 w-4" />
                           View Details
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => setEditingEvent(event)}>
+                        <DropdownMenuItem onClick={() => { setEditingEvent(event); setShowForm(true); }}>
                           <Edit className="mr-2 h-4 w-4" />
                           Edit Event
                         </DropdownMenuItem>
@@ -496,523 +937,25 @@ export default function EventsManagement() {
         </Table>
       </div>
 
-      {data?.totalPages > 1 && (
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <span className="text-sm text-muted-foreground">
-              Showing {((page - 1) * perPage) + 1} to {Math.min(page * perPage, data?.total || 0)} of {data?.total || 0} events
-            </span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setPage(p => Math.max(1, p - 1))}
-              disabled={page === 1}
-            >
-              Previous
-            </Button>
-            {Array.from({ length: Math.min(data?.totalPages || 0, 5) }, (_, i) => {
-              const pageNum = page <= 3 ? i + 1 : page - 2 + i;
-              if (pageNum > (data?.totalPages || 0)) return null;
-              return (
-                <Button
-                  key={pageNum}
-                  variant={page === pageNum ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setPage(pageNum)}
-                >
-                  {pageNum}
-                </Button>
-              );
-            })}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setPage(p => Math.min(data?.totalPages || 1, p + 1))}
-              disabled={page === data?.totalPages}
-            >
-              Next
-            </Button>
-          </div>
-        </div>
-      )}
-
-      <Dialog open={editingEvent !== null} onOpenChange={(open) => !open && setEditingEvent(null)}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>{editingEvent?.id ? 'Edit Event' : 'Create New Event'}</DialogTitle>
-            <DialogDescription>
-              {editingEvent?.id ? 'Update event information' : 'Create a new event for your community'}
-            </DialogDescription>
-          </DialogHeader>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="title"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Title</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="Event title" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description</FormLabel>
-                    <FormControl>
-                      <Textarea {...field} placeholder="Event description" rows={4} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="isAssociationEvent"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Event Type</FormLabel>
-                      <Select 
-                        onValueChange={(value) => field.onChange(value === 'association')} 
-                        value={field.value ? 'association' : 'club'}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select event type" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="club">Club Event</SelectItem>
-                          <SelectItem value="association">Journey Association Event</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                {!form.watch('isAssociationEvent') && (
-                  <FormField
-                    control={form.control}
-                    name="clubId"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Club</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select a club" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {clubsData?.clubs?.map((club: any) => (
-                              <SelectItem key={club.id} value={club.id.toString()}>
-                                {club.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                )}
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="location"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Location</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="Event location" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="locationDetails"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Location Details (optional)</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="e.g., Atlas Mountains, Morocco" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="category"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Category</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select category" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="workshop">Workshop</SelectItem>
-                          <SelectItem value="conference">Conference</SelectItem>
-                          <SelectItem value="meetup">Meetup</SelectItem>
-                          <SelectItem value="webinar">Webinar</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="duration"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Duration (optional)</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="e.g., 3 Days / 2 Nights" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="startDate"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Start Date</FormLabel>
-                      <FormControl>
-                        <Input type="datetime-local" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="endDate"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>End Date</FormLabel>
-                      <FormControl>
-                        <Input type="datetime-local" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="maxAttendees"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Max Attendees (optional)</FormLabel>
-                      <FormControl>
-                        <Input type="number" {...field} placeholder="Unlimited" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="price"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Price (optional)</FormLabel>
-                      <FormControl>
-                        <Input type="number" step="0.01" {...field} placeholder="Free" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <div className="grid grid-cols-3 gap-4">
-                <FormField
-                  control={form.control}
-                  name="languages"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Languages (optional)</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="e.g., English, French, Arabic" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="minAge"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Min Age (optional)</FormLabel>
-                      <FormControl>
-                        <Input type="number" {...field} placeholder="12+" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="maxPeople"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Max People (optional)</FormLabel>
-                      <FormControl>
-                        <Input type="number" {...field} placeholder="12" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <FormField
-                control={form.control}
-                name="highlights"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Highlights (optional)</FormLabel>
-                    <FormControl>
-                      <Textarea {...field} placeholder="Enter each highlight on a new line" rows={3} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="included"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>What's Included (optional)</FormLabel>
-                    <FormControl>
-                      <Textarea {...field} placeholder="Enter each item on a new line" rows={3} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="notIncluded"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>What's Not Included (optional)</FormLabel>
-                    <FormControl>
-                      <Textarea {...field} placeholder="Enter each item on a new line" rows={3} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="importantInfo"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Important Information (optional)</FormLabel>
-                    <FormControl>
-                      <Textarea {...field} placeholder="Any important information for participants" rows={4} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="image"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Event Image URL (optional)</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="https://example.com/image.jpg" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="status"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Status</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="upcoming">Upcoming</SelectItem>
-                        <SelectItem value="ongoing">Ongoing</SelectItem>
-                        <SelectItem value="completed">Completed</SelectItem>
-                        <SelectItem value="cancelled">Cancelled</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setEditingEvent(null)}>
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={saveEventMutation.isPending}>
-                  {saveEventMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  {editingEvent?.id ? 'Update Event' : 'Create Event'}
-                </Button>
-              </DialogFooter>
-            </form>
-          </Form>
-        </DialogContent>
-      </Dialog>
-
       <AlertDialog open={deletingEventId !== null} onOpenChange={(open) => !open && setDeletingEventId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Event</AlertDialogTitle>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this event? This action cannot be undone.
+              This will permanently delete this event. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={() => deletingEventId && deleteEventMutation.mutate(deletingEventId)}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      <Dialog open={viewingEvent !== null} onOpenChange={(open) => !open && setViewingEvent(null)}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Event Details</DialogTitle>
-            <DialogDescription>
-              View complete information about this event
-            </DialogDescription>
-          </DialogHeader>
-          {viewingEvent && (
-            <div className="space-y-4">
-              <div>
-                <h3 className="font-semibold text-lg">{viewingEvent.title}</h3>
-                <p className="text-sm text-muted-foreground mt-1">{viewingEvent.description}</p>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-xs text-muted-foreground">Location</Label>
-                  <div className="flex items-center mt-1">
-                    <MapPin className="h-4 w-4 mr-1 text-muted-foreground" />
-                    <p className="text-sm">{viewingEvent.location}</p>
-                  </div>
-                </div>
-                <div>
-                  <Label className="text-xs text-muted-foreground">Category</Label>
-                  <p className="text-sm mt-1">
-                    <Badge variant="outline">{viewingEvent.category}</Badge>
-                  </p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-xs text-muted-foreground">Start Date</Label>
-                  <div className="flex items-center mt-1">
-                    <Calendar className="h-4 w-4 mr-1 text-muted-foreground" />
-                    <p className="text-sm">
-                      {viewingEvent.startDate && format(new Date(viewingEvent.startDate), 'PPP p')}
-                    </p>
-                  </div>
-                </div>
-                <div>
-                  <Label className="text-xs text-muted-foreground">End Date</Label>
-                  <div className="flex items-center mt-1">
-                    <Clock className="h-4 w-4 mr-1 text-muted-foreground" />
-                    <p className="text-sm">
-                      {viewingEvent.endDate && format(new Date(viewingEvent.endDate), 'PPP p')}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-xs text-muted-foreground">Attendees</Label>
-                  <div className="flex items-center mt-1">
-                    <Users className="h-4 w-4 mr-1 text-muted-foreground" />
-                    <p className="text-sm">
-                      {viewingEvent.attendees || 0} / {viewingEvent.maxAttendees || '∞'}
-                    </p>
-                  </div>
-                </div>
-                <div>
-                  <Label className="text-xs text-muted-foreground">Price</Label>
-                  <p className="text-sm mt-1">
-                    {viewingEvent.price ? `$${viewingEvent.price}` : 'Free'}
-                  </p>
-                </div>
-              </div>
-
-              <div>
-                <Label className="text-xs text-muted-foreground">Status</Label>
-                <p className="text-sm mt-1">
-                  <Badge variant={
-                    viewingEvent.status === 'published' ? 'default' :
-                    viewingEvent.status === 'draft' ? 'secondary' :
-                    viewingEvent.status === 'upcoming' ? 'default' :
-                    'destructive'
-                  }>
-                    {viewingEvent.status}
-                  </Badge>
-                </p>
-              </div>
-            </div>
-          )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setViewingEvent(null)}>
-              Close
-            </Button>
-            <Button onClick={() => {
-              setEditingEvent(viewingEvent);
-              setViewingEvent(null);
-            }}>
-              <Edit className="mr-2 h-4 w-4" />
-              Edit Event
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
