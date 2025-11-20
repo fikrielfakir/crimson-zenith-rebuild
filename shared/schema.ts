@@ -49,6 +49,7 @@ export const users = mysqlTable("users", {
 export const clubs = mysqlTable("clubs", {
   id: serial().primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
+  slug: varchar("slug", { length: 255 }).notNull().unique(),
   description: text("description").notNull(),
   longDescription: text("long_description"),
   image: varchar("image", { length: 500 }),

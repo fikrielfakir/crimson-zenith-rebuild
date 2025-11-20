@@ -13,6 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 
 const clubFormSchema = z.object({
   name: z.string().min(1, 'Name is required').max(255),
+  slug: z.string().min(1, 'Slug is required').max(255).regex(/^[a-z0-9-]+$/, 'Slug must contain only lowercase letters, numbers, and hyphens'),
   description: z.string().min(1, 'Description is required'),
   longDescription: z.string().optional(),
   image: z.string().url('Must be a valid URL').or(z.literal('')).optional(),
@@ -52,6 +53,24 @@ export default function ClubForm() {
   });
 
   const isActive = watch('isActive');
+  const clubName = watch('name');
+
+  // Auto-generate slug from name
+  const generateSlug = (name: string): string => {
+    return name
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-');
+  };
+
+  // Auto-generate slug when name changes (only for new clubs)
+  useEffect(() => {
+    if (!id && clubName) {
+      setValue('slug', generateSlug(clubName));
+    }
+  }, [clubName, id, setValue]);
 
   useEffect(() => {
     if (id) {
@@ -62,6 +81,7 @@ export default function ClubForm() {
           const data = await res.json();
           
           setValue('name', data.name);
+          setValue('slug', data.slug || generateSlug(data.name));
           setValue('description', data.description);
           setValue('longDescription', data.longDescription || '');
           setValue('image', data.image || '');
@@ -103,6 +123,7 @@ export default function ClubForm() {
 
       const payload = {
         name: data.name,
+        slug: data.slug,
         description: data.description,
         longDescription: data.longDescription || null,
         image: data.image || null,
@@ -184,6 +205,21 @@ export default function ClubForm() {
             />
             {errors.name && (
               <p className="text-sm text-destructive">{errors.name.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="slug">Slug (URL) *</Label>
+            <Input
+              id="slug"
+              {...register('slug')}
+              placeholder="club-slug"
+            />
+            <p className="text-xs text-muted-foreground">
+              Auto-generated from name. Edit if needed (lowercase, hyphens only).
+            </p>
+            {errors.slug && (
+              <p className="text-sm text-destructive">{errors.slug.message}</p>
             )}
           </div>
 

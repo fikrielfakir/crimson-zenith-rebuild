@@ -77,7 +77,8 @@ async function seedDatabase() {
       
       const seedClubs = [
         {
-          name: 'Atlas Hikers Club',
+          name: 'Ensah',
+          slug: 'ensah',
           description: 'Mountain trekking and hiking adventures',
           location: 'Atlas Mountains',
           memberCount: 250,
@@ -88,6 +89,7 @@ async function seedDatabase() {
         },
         {
           name: 'Desert Explorers',
+          slug: 'desert-explorers',
           description: 'Sahara expeditions and desert camping',
           location: 'Sahara Desert',
           memberCount: 180,
@@ -98,6 +100,7 @@ async function seedDatabase() {
         },
         {
           name: 'Coastal Adventures',
+          slug: 'coastal-adventures',
           description: 'Beach activities and water sports',
           location: 'Atlantic Coast',
           memberCount: 320,
@@ -599,6 +602,7 @@ app.get('/api/clubs', async (req, res) => {
       clubs: clubs.map(club => ({
         id: club.id,
         name: club.name,
+        slug: club.slug,
         description: club.description,
         location: club.location,
         member_count: club.memberCount,
@@ -625,17 +629,7 @@ app.get('/api/clubs/slug/:slug', async (req, res) => {
     const { slug } = req.params;
     console.log(`🔗 Fetching club with slug: ${slug}...`);
     
-    const generateSlug = (name: string): string => {
-      return name
-        .toLowerCase()
-        .trim()
-        .replace(/[^a-z0-9\s-]/g, '')
-        .replace(/\s+/g, '-')
-        .replace(/-+/g, '-');
-    };
-    
-    const clubs = await storage.getClubs();
-    const club = clubs.find(c => generateSlug(c.name) === slug);
+    const [club] = await db.select().from(clubs).where(eq(clubs.slug, slug));
     
     if (!club) {
       return res.status(404).json({ error: 'Club not found' });
@@ -645,6 +639,7 @@ app.get('/api/clubs/slug/:slug', async (req, res) => {
     res.json({
       id: club.id,
       name: club.name,
+      slug: club.slug,
       description: club.description,
       longDescription: club.longDescription,
       location: club.location,
@@ -1543,8 +1538,17 @@ app.post('/api/admin/clubs', isAdmin, async (req: any, res) => {
     const clubData = req.body;
     const userId = req.user?.id;
     
+    // Check if slug already exists
+    if (clubData.slug) {
+      const [existingSlug] = await db.select().from(clubs).where(eq(clubs.slug, clubData.slug));
+      if (existingSlug) {
+        return res.status(400).json({ error: 'Slug already exists. Please choose a different slug.' });
+      }
+    }
+    
     const result: any = await db.insert(clubs).values({
       name: clubData.name,
+      slug: clubData.slug,
       description: clubData.description,
       longDescription: clubData.longDescription || null,
       image: clubData.image || null,
@@ -1587,12 +1591,21 @@ app.put('/api/admin/clubs/:id', isAdmin, async (req, res) => {
       return res.status(404).json({ error: 'Club not found' });
     }
     
+    // Check if slug is being changed and if new slug already exists
+    if (clubData.slug !== undefined && clubData.slug !== existingClub.slug) {
+      const [existingSlug] = await db.select().from(clubs).where(eq(clubs.slug, clubData.slug));
+      if (existingSlug) {
+        return res.status(400).json({ error: 'Slug already exists. Please choose a different slug.' });
+      }
+    }
+    
     // Build update object with only provided fields to preserve existing data
     const updateData: any = {
       updatedAt: new Date()
     };
     
     if (clubData.name !== undefined) updateData.name = clubData.name;
+    if (clubData.slug !== undefined) updateData.slug = clubData.slug;
     if (clubData.description !== undefined) updateData.description = clubData.description;
     if (clubData.longDescription !== undefined) updateData.longDescription = clubData.longDescription;
     if (clubData.image !== undefined) updateData.image = clubData.image;

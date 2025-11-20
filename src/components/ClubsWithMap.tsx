@@ -110,6 +110,7 @@ const ClubsWithMap = () => {
       return {
         id: club.id,
         name: club.name,
+        slug: club.slug || generateSlug(club.name), // Use slug from database or generate fallback
         description: club.description,
         location: club.location,
         memberCount: club.member_count,
@@ -942,8 +943,7 @@ const ClubsWithMap = () => {
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              const slug = generateSlug(club.name);
-                              navigate(`/club/${slug}`);
+                              navigate(`/club/${club.slug || generateSlug(club.name)}`);
                             }}
                             className="transition-all duration-300"
                             style={{
