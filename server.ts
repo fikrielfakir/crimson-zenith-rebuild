@@ -2735,6 +2735,122 @@ app.put('/api/booking/settings', async (req, res) => {
   }
 });
 
+// Booking Tickets API
+app.post('/api/booking/tickets', async (req, res) => {
+  try {
+    console.log('🎫 Creating new booking ticket...');
+    const ticketData = req.body;
+    
+    // Validate required fields
+    if (!ticketData.eventId || !ticketData.customerName || !ticketData.customerEmail || !ticketData.eventDate || !ticketData.totalPrice) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+    
+    const ticket = await storage.createBookingTicket({
+      ...ticketData,
+      userId: (req.user as any)?.id || null,
+    });
+    
+    console.log(`✅ Created booking ticket: ${ticket.bookingReference}`);
+    
+    res.status(201).json({
+      ticket: ticket,
+      message: 'Booking created successfully',
+      source: 'PostgreSQL database via Drizzle ORM'
+    });
+  } catch (error) {
+    console.error('❌ Error creating booking ticket:', error);
+    res.status(500).json({ error: 'Failed to create booking ticket', details: error.message });
+  }
+});
+
+app.get('/api/booking/tickets/:reference', async (req, res) => {
+  try {
+    const reference = req.params.reference;
+    console.log(`🔍 Fetching booking ticket: ${reference}`);
+    
+    const ticket = await storage.getBookingTicket(reference);
+    if (!ticket) {
+      return res.status(404).json({ error: 'Booking not found' });
+    }
+    
+    console.log(`✅ Retrieved booking ticket: ${reference}`);
+    res.json({
+      ticket: ticket,
+      source: 'PostgreSQL database via Drizzle ORM'
+    });
+  } catch (error) {
+    console.error('❌ Error fetching booking ticket:', error);
+    res.status(500).json({ error: 'Failed to fetch booking ticket', details: error.message });
+  }
+});
+
+app.get('/api/booking/tickets', isAdmin, async (req, res) => {
+  try {
+    console.log('📋 Fetching booking tickets (admin only)...');
+    
+    const tickets = await storage.getBookingTickets();
+    console.log(`✅ Retrieved ${tickets.length} booking tickets`);
+    
+    res.json({
+      tickets: tickets,
+      total: tickets.length,
+      source: 'PostgreSQL database via Drizzle ORM'
+    });
+  } catch (error) {
+    console.error('❌ Error fetching booking tickets:', error);
+    res.status(500).json({ error: 'Failed to fetch booking tickets', details: error.message });
+  }
+});
+
+app.get('/api/booking/my-tickets', async (req, res) => {
+  try {
+    const userId = (req.user as any)?.id;
+    if (!userId) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+    
+    console.log(`📋 Fetching tickets for user: ${userId}`);
+    
+    const tickets = await storage.getUserBookingTickets(userId);
+    console.log(`✅ Retrieved ${tickets.length} tickets for user`);
+    
+    res.json({
+      tickets: tickets,
+      total: tickets.length,
+      source: 'PostgreSQL database via Drizzle ORM'
+    });
+  } catch (error) {
+    console.error('❌ Error fetching user booking tickets:', error);
+    res.status(500).json({ error: 'Failed to fetch user booking tickets', details: error.message });
+  }
+});
+
+app.put('/api/booking/tickets/:reference/status', async (req, res) => {
+  try {
+    const reference = req.params.reference;
+    const { status, ...additionalData } = req.body;
+    
+    if (!status) {
+      return res.status(400).json({ error: 'Status is required' });
+    }
+    
+    console.log(`🔄 Updating booking ticket ${reference} status to: ${status}`);
+    
+    const ticket = await storage.updateBookingTicketStatus(reference, status, additionalData);
+    console.log(`✅ Updated booking ticket status: ${reference}`);
+    
+    res.json({
+      ticket: ticket,
+      message: 'Booking status updated successfully',
+      source: 'PostgreSQL database via Drizzle ORM'
+    });
+  } catch (error) {
+    console.error('❌ Error updating booking ticket status:', error);
+    res.status(500).json({ error: 'Failed to update booking ticket status', details: error.message });
+  }
+});
+
 // CMS API Routes
 
 // Hero Settings

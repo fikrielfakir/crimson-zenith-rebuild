@@ -10,6 +10,7 @@ import {
   clubGallery,
   clubReviews,
   bookingEvents,
+  bookingTickets,
   bookingPageSettings,
   themeSettings,
   navbarSettings,
@@ -37,6 +38,8 @@ import {
   type InsertClubEvent,
   type BookingEvent,
   type InsertBookingEvent,
+  type BookingTicket,
+  type InsertBookingTicket,
   type BookingPageSettings,
   type InsertBookingPageSettings,
   type ThemeSettings,
@@ -145,6 +148,14 @@ export interface IStorage {
   createBookingEvent(event: InsertBookingEvent): Promise<BookingEvent>;
   updateBookingEvent(id: string, event: Partial<InsertBookingEvent>): Promise<BookingEvent>;
   deleteBookingEvent(id: string): Promise<void>;
+  
+  // Booking ticket operations
+  createBookingTicket(ticket: InsertBookingTicket): Promise<BookingTicket>;
+  getBookingTicket(bookingReference: string): Promise<BookingTicket | undefined>;
+  getBookingTickets(): Promise<BookingTicket[]>;
+  getUserBookingTickets(userId: string): Promise<BookingTicket[]>;
+  getEventBookingTickets(eventId: string): Promise<BookingTicket[]>;
+  updateBookingTicketStatus(bookingReference: string, status: string, additionalData?: any): Promise<BookingTicket>;
   
   // Booking page settings operations
   getBookingPageSettings(): Promise<BookingPageSettings | undefined>;
@@ -651,6 +662,80 @@ export class DatabaseStorage implements IStorage {
 
   async deleteBookingEvent(id: string): Promise<void> {
     await db.delete(bookingEvents).where(eq(bookingEvents.id, id));
+  }
+
+  // Booking ticket operations
+  async createBookingTicket(ticketData: InsertBookingTicket): Promise<BookingTicket> {
+    const bookingReference = `BKG-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+    return await this.insertAndFetch<BookingTicket>(bookingTickets, {
+      ...ticketData,
+      bookingReference,
+    });
+  }
+
+  async getBookingTicket(bookingReference: string): Promise<BookingTicket | undefined> {
+    const [ticket] = await db
+      .select()
+      .from(bookingTickets)
+      .where(eq(bookingTickets.bookingReference, bookingReference));
+    return ticket;
+  }
+
+  async getBookingTickets(): Promise<BookingTicket[]> {
+    return await db
+      .select()
+      .from(bookingTickets)
+      .orderBy(desc(bookingTickets.createdAt));
+  }
+
+  async getUserBookingTickets(userId: string): Promise<BookingTicket[]> {
+    return await db
+      .select()
+      .from(bookingTickets)
+      .where(eq(bookingTickets.userId, userId))
+      .orderBy(desc(bookingTickets.createdAt));
+  }
+
+  async getEventBookingTickets(eventId: string): Promise<BookingTicket[]> {
+    return await db
+      .select()
+      .from(bookingTickets)
+      .where(eq(bookingTickets.eventId, eventId))
+      .orderBy(desc(bookingTickets.createdAt));
+  }
+
+  async updateBookingTicketStatus(bookingReference: string, status: string, additionalData?: any): Promise<BookingTicket> {
+    const updateData: any = { status, updatedAt: new Date() };
+    
+    if (status === 'confirmed') {
+      updateData.confirmedAt = new Date();
+      updateData.paymentStatus = 'completed';
+    } else if (status === 'cancelled') {
+      updateData.cancelledAt = new Date();
+      if (additionalData?.cancellationReason) {
+        updateData.cancellationReason = additionalData.cancellationReason;
+      }
+    }
+    
+    if (additionalData?.paymentMethod) {
+      updateData.paymentMethod = additionalData.paymentMethod;
+    }
+    if (additionalData?.transactionId) {
+      updateData.transactionId = additionalData.transactionId;
+    }
+    
+    // Update the ticket using bookingReference
+    const updated = await db
+      .update(bookingTickets)
+      .set(updateData)
+      .where(eq(bookingTickets.bookingReference, bookingReference))
+      .returning();
+    
+    if (!updated || updated.length === 0) {
+      throw new Error(`Booking ticket not found: ${bookingReference}`);
+    }
+    
+    return updated[0];
   }
 
   // Booking page settings operations

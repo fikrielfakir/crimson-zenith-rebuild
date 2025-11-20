@@ -214,6 +214,30 @@ export const bookingEvents = mysqlTable("booking_events", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Booking tickets table - stores customer bookings for booking events
+export const bookingTickets = mysqlTable("booking_tickets", {
+  id: serial().primaryKey(),
+  bookingReference: varchar("booking_reference", { length: 50 }).unique().notNull(),
+  eventId: varchar("event_id", { length: 255 }).references(() => bookingEvents.id).notNull(),
+  userId: varchar("user_id", { length: 255 }).references(() => users.id),
+  customerName: varchar("customer_name", { length: 255 }).notNull(),
+  customerEmail: varchar("customer_email", { length: 255 }).notNull(),
+  customerPhone: varchar("customer_phone", { length: 50 }),
+  numberOfParticipants: int("number_of_participants").notNull().default(1),
+  eventDate: timestamp("event_date").notNull(),
+  totalPrice: decimal("total_price", { precision: 10, scale: 2 }).notNull(),
+  paymentStatus: varchar("payment_status", { length: 20 }).default("pending"),
+  paymentMethod: varchar("payment_method", { length: 50 }),
+  transactionId: varchar("transaction_id", { length: 255 }),
+  specialRequests: text("special_requests"),
+  status: varchar("status", { length: 20 }).default("pending"),
+  confirmedAt: timestamp("confirmed_at"),
+  cancelledAt: timestamp("cancelled_at"),
+  cancellationReason: text("cancellation_reason"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Blog posts / News table
 export const blogPosts = mysqlTable("blog_posts", {
   id: serial().primaryKey(),
@@ -624,9 +648,21 @@ export const clubReviewsRelations = relations(clubReviews, ({ one }) => ({
   }),
 }));
 
-export const bookingEventsRelations = relations(bookingEvents, ({ one }) => ({
+export const bookingEventsRelations = relations(bookingEvents, ({ one, many }) => ({
   creator: one(users, {
     fields: [bookingEvents.createdBy],
+    references: [users.id],
+  }),
+  tickets: many(bookingTickets),
+}));
+
+export const bookingTicketsRelations = relations(bookingTickets, ({ one }) => ({
+  event: one(bookingEvents, {
+    fields: [bookingTickets.eventId],
+    references: [bookingEvents.id],
+  }),
+  user: one(users, {
+    fields: [bookingTickets.userId],
     references: [users.id],
   }),
 }));
@@ -688,3 +724,5 @@ export type Partner = typeof partners.$inferSelect;
 export type InsertPartner = typeof partners.$inferInsert;
 export type BlogPost = typeof blogPosts.$inferSelect;
 export type InsertBlogPost = typeof blogPosts.$inferInsert;
+export type BookingTicket = typeof bookingTickets.$inferSelect;
+export type InsertBookingTicket = typeof bookingTickets.$inferInsert;
