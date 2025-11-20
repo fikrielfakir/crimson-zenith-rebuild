@@ -5,9 +5,9 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar as CalendarIcon, MapPin, Clock, Heart, Share2, Building2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import CalendarComponent from "react-calendar";
-import { Player } from '@lottiefiles/react-lottie-player';
 import gnaoua from "@/assets/gnaoua-festival.jpg";
 import timitar from "@/assets/timitar-festival.jpg";
+import noEventsImage from "@/assets/no-events.png";
 import "react-calendar/dist/Calendar.css";
 import "./EventsActivitiesCalendar.css";
 
@@ -42,37 +42,9 @@ const EventsActivitiesCalendar = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [currentPage, setCurrentPage] = useState(0);
   const [events, setEvents] = useState<Event[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const eventsPerPage = 2;
-
-  // Fetch events from booking_events table
-  useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        setLoading(true);
-        
-        // Fetch all events from booking_events table
-        const response = await fetch('/api/booking/events');
-        const data = await response.json();
-        
-        // Map the events to match the component's expected format
-        const mappedEvents = (data.events || []).map((event: any) => ({
-          ...event,
-          // The booking_events table already has isAssociationEvent field
-          // clubName will be populated if it's a club event
-        }));
-        
-        setEvents(mappedEvents);
-      } catch (error) {
-        console.error('Failed to fetch events:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchEvents();
-  }, []);
 
   const handleDateChange = (value: any) => {
     if (value instanceof Date) {
@@ -286,11 +258,10 @@ const EventsActivitiesCalendar = () => {
               </div>
             ) : filteredEvents.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12">
-                <Player
-                  autoplay
-                  loop
-                  src="https://lottie.host/d7b5c3e0-2e8f-4c8e-8e5a-3b2e9f1a4c5d/rK9jXkYqOk.json"
-                  style={{ height: '300px', width: '300px' }}
+                <img 
+                  src={noEventsImage} 
+                  alt="No events available"
+                  style={{ height: '300px', width: 'auto', maxWidth: '100%' }}
                 />
                 <h3 className="font-['Poppins'] font-semibold" style={{
                   fontSize: '24px',
