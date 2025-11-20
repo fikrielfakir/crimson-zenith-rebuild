@@ -1065,6 +1065,7 @@ app.get('/api/admin/stats', isAdmin, async (req, res) => {
       userGrowth: 12,
       activeClubs: clubList.filter(c => c.isActive).length,
       newClubsThisMonth: clubList.filter(c => {
+        if (!c.createdAt) return false;
         const created = new Date(c.createdAt);
         const monthAgo = new Date();
         monthAgo.setMonth(monthAgo.getMonth() - 1);
@@ -1072,6 +1073,7 @@ app.get('/api/admin/stats', isAdmin, async (req, res) => {
       }).length,
       upcomingEvents: eventList.length,
       eventsThisWeek: eventList.filter(e => {
+        if (!e.eventDate) return false;
         const eventDate = new Date(e.eventDate);
         const weekFromNow = new Date();
         weekFromNow.setDate(weekFromNow.getDate() + 7);
@@ -1122,7 +1124,11 @@ app.get('/api/admin/activity', isAdmin, async (req, res) => {
         description: `${e.title} is now available`,
         timestamp: e.createdAt
       }))
-    ].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()).slice(0, 10);
+    ].sort((a, b) => {
+      const timeA = a.timestamp ? new Date(a.timestamp).getTime() : 0;
+      const timeB = b.timestamp ? new Date(b.timestamp).getTime() : 0;
+      return timeB - timeA;
+    }).slice(0, 10);
     
     console.log(`✅ Retrieved ${activities.length} recent activities`);
     res.json(activities);
@@ -1251,6 +1257,7 @@ app.get('/api/admin/dashboard/stats', isAdmin, async (req, res) => {
       userGrowth: 12,
       activeClubs: clubList.filter(c => c.isActive).length,
       newClubsThisMonth: clubList.filter(c => {
+        if (!c.createdAt) return false;
         const created = new Date(c.createdAt);
         const monthAgo = new Date();
         monthAgo.setMonth(monthAgo.getMonth() - 1);
@@ -1258,6 +1265,7 @@ app.get('/api/admin/dashboard/stats', isAdmin, async (req, res) => {
       }).length,
       upcomingEvents: eventList.length,
       eventsThisWeek: eventList.filter(e => {
+        if (!e.eventDate) return false;
         const eventDate = new Date(e.eventDate);
         const weekFromNow = new Date();
         weekFromNow.setDate(weekFromNow.getDate() + 7);
@@ -1693,25 +1701,26 @@ app.post('/api/admin/clubs/:id/approve', isAdmin, async (req, res) => {
 });
 
 // Clubs Management - Toggle feature status
-app.patch('/api/admin/clubs/:id/feature', isAdmin, async (req, res) => {
-  try {
-    const clubId = parseInt(req.params.id);
-    const { featured } = req.body;
-    console.log(`🔗 Toggling feature status for club ${clubId}...`);
-    
-    await db.update(clubs)
-      .set({ featured, updatedAt: new Date() })
-      .where(eq(clubs.id, clubId));
-    
-    const [updatedClub] = await db.select().from(clubs).where(eq(clubs.id, clubId));
-    
-    console.log(`✅ Club feature status updated: ${clubId}`);
-    res.json(updatedClub);
-  } catch (error) {
-    console.error('❌ Error updating feature status:', error);
-    res.status(500).json({ error: 'Failed to update feature status', details: error.message });
-  }
-});
+// Note: This endpoint is currently disabled as 'featured' field needs to be added to schema
+// app.patch('/api/admin/clubs/:id/feature', isAdmin, async (req, res) => {
+//   try {
+//     const clubId = parseInt(req.params.id);
+//     const { featured } = req.body;
+//     console.log(`🔗 Toggling feature status for club ${clubId}...`);
+//     
+//     await db.update(clubs)
+//       .set({ featured, updatedAt: new Date() })
+//       .where(eq(clubs.id, clubId));
+//     
+//     const [updatedClub] = await db.select().from(clubs).where(eq(clubs.id, clubId));
+//     
+//     console.log(`✅ Club feature status updated: ${clubId}`);
+//     res.json(updatedClub);
+//   } catch (error) {
+//     console.error('❌ Error updating feature status:', error);
+//     res.status(500).json({ error: 'Failed to update feature status', details: error.message });
+//   }
+// });
 
 // Events Management - Get all events
 app.get('/api/admin/events', isAdmin, async (req, res) => {
@@ -2184,6 +2193,7 @@ app.get('/api/admin/analytics', isAdmin, async (req, res) => {
       users: {
         total: users.length,
         new: users.filter(u => {
+          if (!u.createdAt) return false;
           const created = new Date(u.createdAt);
           const monthAgo = new Date();
           monthAgo.setMonth(monthAgo.getMonth() - 1);
@@ -2194,7 +2204,7 @@ app.get('/api/admin/analytics', isAdmin, async (req, res) => {
       },
       events: {
         total: events.length,
-        upcoming: events.filter(e => new Date(e.eventDate) > new Date()).length,
+        upcoming: events.filter(e => e.eventDate && new Date(e.eventDate) > new Date()).length,
         completed: events.filter(e => e.status === 'completed').length,
         avgParticipants: Math.round(events.reduce((sum, e) => sum + (e.currentParticipants || 0), 0) / events.length || 0)
       },
