@@ -3,6 +3,50 @@ import { storage } from '../storage.js';
 
 const router = Router();
 
+// Navbar Settings
+router.get('/navbar', async (req, res) => {
+  try {
+    const settings = await storage.getNavbarSettings();
+    res.json(settings || {});
+  } catch (error) {
+    console.error('Error fetching navbar settings:', error);
+    res.status(500).json({ error: 'Failed to fetch navbar settings' });
+  }
+});
+
+router.put('/navbar', async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    const settings = await storage.updateNavbarSettings(req.body, userId);
+    res.json(settings);
+  } catch (error) {
+    console.error('Error updating navbar settings:', error);
+    res.status(500).json({ error: 'Failed to update navbar settings' });
+  }
+});
+
+// Theme Settings
+router.get('/theme', async (req, res) => {
+  try {
+    const settings = await storage.getThemeSettings();
+    res.json(settings || {});
+  } catch (error) {
+    console.error('Error fetching theme settings:', error);
+    res.status(500).json({ error: 'Failed to fetch theme settings' });
+  }
+});
+
+router.put('/theme', async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    const settings = await storage.updateThemeSettings(req.body, userId);
+    res.json(settings);
+  } catch (error) {
+    console.error('Error updating theme settings:', error);
+    res.status(500).json({ error: 'Failed to update theme settings' });
+  }
+});
+
 // Hero Settings
 router.get('/hero', async (req, res) => {
   try {
