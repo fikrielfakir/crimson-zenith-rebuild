@@ -849,10 +849,10 @@ const Book = () => {
 
       {/* Booking Dialog - Premium Design */}
       <Dialog open={showBookingDialog} onOpenChange={setShowBookingDialog}>
-        <DialogContent className="sm:max-w-2xl rounded-3xl border-2 border-gray-200 p-0 overflow-hidden">
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] rounded-3xl border-2 border-gray-200 p-0 overflow-hidden flex flex-col">
           
           {/* Dialog Header with Gradient */}
-          <div className="bg-gradient-to-r from-[#111f50] to-[#1a2d5a] p-8">
+          <div className="bg-gradient-to-r from-[#111f50] to-[#1a2d5a] p-8 flex-shrink-0">
             <DialogHeader>
               <DialogTitle className="font-['Poppins'] text-3xl font-bold text-white mb-2">
                 Complete Your Booking
@@ -863,8 +863,9 @@ const Book = () => {
             </DialogHeader>
           </div>
 
-          {/* Form Content */}
-          <form onSubmit={handleSubmitBooking} className="p-8 space-y-6">
+          {/* Form Content - Scrollable */}
+          <div className="overflow-y-auto flex-1">
+            <form onSubmit={handleSubmitBooking} className="p-8 space-y-6">
             
             {/* Name Input */}
             <div>
@@ -970,6 +971,7 @@ const Book = () => {
               )}
             </Button>
           </form>
+          </div>
         </DialogContent>
       </Dialog>
 
