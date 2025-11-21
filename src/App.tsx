@@ -229,14 +229,49 @@ const App = () => (
               <ThemeSettings />
             </ProtectedRoute>
           } />
-          <Route path="/admin/navbar" element={
+          <Route path="/admin/customization/navbar" element={
             <ProtectedRoute>
               <NavbarSettings />
             </ProtectedRoute>
           } />
-          <Route path="/admin/hero" element={
+          <Route path="/admin/customization/hero" element={
             <ProtectedRoute>
               <HeroSettings />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/customization/about-president" element={
+            <ProtectedRoute>
+              <div className="p-6"><h1 className="text-3xl font-bold">About President Section - Coming Soon</h1></div>
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/customization/focus-areas" element={
+            <ProtectedRoute>
+              <div className="p-6"><h1 className="text-3xl font-bold">Focus Areas Section - Coming Soon</h1></div>
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/customization/clubs" element={
+            <ProtectedRoute>
+              <div className="p-6"><h1 className="text-3xl font-bold">Clubs Section - Coming Soon</h1></div>
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/customization/events" element={
+            <ProtectedRoute>
+              <div className="p-6"><h1 className="text-3xl font-bold">Events Section - Coming Soon</h1></div>
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/customization/impact" element={
+            <ProtectedRoute>
+              <div className="p-6"><h1 className="text-3xl font-bold">Impact Section - Coming Soon</h1></div>
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/customization/testimonials" element={
+            <ProtectedRoute>
+              <div className="p-6"><h1 className="text-3xl font-bold">Testimonials Section - Coming Soon</h1></div>
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/customization/partners" element={
+            <ProtectedRoute>
+              <div className="p-6"><h1 className="text-3xl font-bold">Partners Section - Coming Soon</h1></div>
             </ProtectedRoute>
           } />
           

@@ -20,7 +20,8 @@ import {
   Moon,
   Sun,
   LogOut,
-  User
+  User,
+  Palette
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -73,8 +74,22 @@ const navigationItems: NavigationItem[] = [
     icon: FileEdit,
     children: [
       { label: 'News/Blog', href: '/admin/news' },
-      { label: 'Landing Page', href: '/admin/landing' },
       { label: 'Media Library', href: '/admin/media' }
+    ]
+  },
+  {
+    label: 'Customization',
+    icon: Palette,
+    children: [
+      { label: 'Navbar Settings', href: '/admin/customization/navbar' },
+      { label: 'Hero Section', href: '/admin/customization/hero' },
+      { label: 'About President', href: '/admin/customization/about-president' },
+      { label: 'Focus Areas', href: '/admin/customization/focus-areas' },
+      { label: 'Clubs Section', href: '/admin/customization/clubs' },
+      { label: 'Events Section', href: '/admin/customization/events' },
+      { label: 'Impact Section', href: '/admin/customization/impact' },
+      { label: 'Testimonials', href: '/admin/customization/testimonials' },
+      { label: 'Partners', href: '/admin/customization/partners' }
     ]
   },
   { label: 'Analytics', icon: BarChart3, href: '/admin/analytics' },
