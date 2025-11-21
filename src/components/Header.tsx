@@ -189,7 +189,9 @@ const TopNavbar = ({
   joinButtonText,
   joinButtonLink,
   joinButtonStyle,
-  onDonateClick
+  onDonateClick,
+  textColor,
+  hoverColor
 }: {
   isDarkMode: boolean;
   toggleDarkMode: () => void;
@@ -206,6 +208,8 @@ const TopNavbar = ({
   joinButtonLink: string;
   joinButtonStyle: string;
   onDonateClick: () => void;
+  textColor: string;
+  hoverColor: string;
 }) => {
   const [heartAnimate, setHeartAnimate] = useState(false);
 
@@ -224,7 +228,8 @@ const TopNavbar = ({
               variant="ghost" 
               size="sm"
               onClick={toggleLanguage}
-              className="text-white hover:bg-white/10 px-3 py-2 text-xs flex items-center gap-1 rounded-button font-body"
+              className="px-3 py-2 text-xs flex items-center gap-1 rounded-button font-body"
+              style={{ color: textColor }}
             >
               <Globe className="h-4 w-4" />
               {currentLanguage}
@@ -237,7 +242,8 @@ const TopNavbar = ({
               variant="ghost" 
               size="sm"
               onClick={toggleDarkMode}
-              className="text-white hover:bg-white/10 px-2 py-2 rounded-button"
+              className="px-2 py-2 rounded-button"
+              style={{ color: textColor }}
             >
               {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </Button>
@@ -249,7 +255,8 @@ const TopNavbar = ({
               asChild
               variant="ghost" 
               size="sm"
-              className="text-white hover:bg-white/10 px-3 py-2 text-xs flex items-center gap-1 rounded-button font-body"
+              className="px-3 py-2 text-xs flex items-center gap-1 rounded-button font-body"
+              style={{ color: textColor }}
             >
               <Link to={loginButtonLink}>
                 <User className="h-4 w-4" />
@@ -340,11 +347,25 @@ const TopNavbar = ({
 const BottomNavbar = ({ 
   isScrolled,
   navigationLinks,
-  logoUrl
+  logoUrl,
+  logoSize,
+  logoLink,
+  logoType,
+  logoText,
+  textColor,
+  hoverColor,
+  navHeight
 }: { 
   isScrolled: boolean;
   navigationLinks: NavLink[];
   logoUrl: string;
+  logoSize: number;
+  logoLink: string;
+  logoType: 'image' | 'text';
+  logoText: string;
+  textColor: string;
+  hoverColor: string;
+  navHeight: number;
 }) => {
   const midpoint = Math.ceil(navigationLinks.length / 2);
   const leftLinks = navigationLinks.slice(0, midpoint);
@@ -371,7 +392,10 @@ const BottomNavbar = ({
                   return (
                     <div key={index} className="relative group">
                       <span 
-                        className="text-white hover:text-secondary transition-all duration-300 font-normal text-sm tracking-wide font-body flex items-center gap-1 cursor-pointer"
+                        className="transition-all duration-300 font-normal text-sm tracking-wide font-body flex items-center gap-1 cursor-pointer group"
+                        style={{ color: textColor }}
+                        onMouseEnter={(e) => e.currentTarget.style.color = hoverColor}
+                        onMouseLeave={(e) => e.currentTarget.style.color = textColor}
                       >
                         {link.label}
                         <ChevronDown className="w-3 h-3 transition-transform group-hover:rotate-180 duration-300" />
@@ -385,7 +409,10 @@ const BottomNavbar = ({
                   return (
                     <div key={index} className="relative group">
                       <span 
-                        className="text-white hover:text-secondary transition-all duration-300 font-normal text-sm tracking-wide font-body flex items-center gap-1 cursor-pointer"
+                        className="transition-all duration-300 font-normal text-sm tracking-wide font-body flex items-center gap-1 cursor-pointer group"
+                        style={{ color: textColor }}
+                        onMouseEnter={(e) => e.currentTarget.style.color = hoverColor}
+                        onMouseLeave={(e) => e.currentTarget.style.color = textColor}
                       >
                         {link.label}
                         <ChevronDown className="w-3 h-3 transition-transform group-hover:rotate-180 duration-300" />
@@ -401,7 +428,10 @@ const BottomNavbar = ({
                     href={link.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-white hover:text-secondary transition-all duration-300 font-normal text-sm tracking-wide font-body"
+                    className="transition-all duration-300 font-normal text-sm tracking-wide font-body"
+                    style={{ color: textColor }}
+                    onMouseEnter={(e) => e.currentTarget.style.color = hoverColor}
+                    onMouseLeave={(e) => e.currentTarget.style.color = textColor}
                   >
                     {link.label}
                   </a>
@@ -409,7 +439,10 @@ const BottomNavbar = ({
                   <Link 
                     key={index}
                     to={link.url} 
-                    className="text-white hover:text-secondary transition-all duration-300 font-normal text-sm tracking-wide font-body"
+                    className="transition-all duration-300 font-normal text-sm tracking-wide font-body"
+                    style={{ color: textColor }}
+                    onMouseEnter={(e) => e.currentTarget.style.color = hoverColor}
+                    onMouseLeave={(e) => e.currentTarget.style.color = textColor}
                   >
                     {link.label}
                   </Link>
@@ -418,15 +451,24 @@ const BottomNavbar = ({
             </nav>
           </div>
           
-          {/* Center Section - Logo (135px height) */}
+          {/* Center Section - Logo */}
           <div className="col-start-2 justify-self-center flex items-center justify-center">
-            <Link to="/" className="flex flex-col items-center" style={{position: 'relative', bottom: '100px', height: '0'}}>
-              <img 
-                src={logoUrl} 
-                alt="The Journey Association" 
-                className="w-auto object-contain transition-all duration-300 cursor-pointer hover:opacity-90"
-                style={isScrolled ? {height: '90px', margin: '20px 10px'} : {height: '135px'}}
-              />
+            <Link to={logoLink} className="flex flex-col items-center" style={{position: 'relative', bottom: `${logoSize * 0.7}px`, height: '0'}}>
+              {logoType === 'image' ? (
+                <img 
+                  src={logoUrl} 
+                  alt="Logo" 
+                  className="w-auto object-contain transition-all duration-300 cursor-pointer hover:opacity-90"
+                  style={isScrolled ? {height: `${logoSize * 0.67}px`, margin: '20px 10px'} : {height: `${logoSize}px`}}
+                />
+              ) : (
+                <span 
+                  className="font-bold transition-all duration-300 cursor-pointer hover:opacity-90"
+                  style={isScrolled ? {fontSize: `${logoSize * 0.15}px`, margin: '20px 10px', color: textColor} : {fontSize: `${logoSize * 0.2}px`, color: textColor}}
+                >
+                  {logoText}
+                </span>
+              )}
             </Link>
           </div>
           
@@ -438,7 +480,10 @@ const BottomNavbar = ({
                   return (
                     <div key={index} className="relative group">
                       <span 
-                        className="text-white hover:text-secondary transition-all duration-300 font-normal text-sm tracking-wide font-body flex items-center gap-1 cursor-pointer"
+                        className="transition-all duration-300 font-normal text-sm tracking-wide font-body flex items-center gap-1 cursor-pointer group"
+                        style={{ color: textColor }}
+                        onMouseEnter={(e) => e.currentTarget.style.color = hoverColor}
+                        onMouseLeave={(e) => e.currentTarget.style.color = textColor}
                       >
                         {link.label}
                         <ChevronDown className="w-3 h-3 transition-transform group-hover:rotate-180 duration-300" />
@@ -452,7 +497,10 @@ const BottomNavbar = ({
                   return (
                     <div key={index} className="relative group">
                       <span 
-                        className="text-white hover:text-secondary transition-all duration-300 font-normal text-sm tracking-wide font-body flex items-center gap-1 cursor-pointer"
+                        className="transition-all duration-300 font-normal text-sm tracking-wide font-body flex items-center gap-1 cursor-pointer group"
+                        style={{ color: textColor }}
+                        onMouseEnter={(e) => e.currentTarget.style.color = hoverColor}
+                        onMouseLeave={(e) => e.currentTarget.style.color = textColor}
                       >
                         {link.label}
                         <ChevronDown className="w-3 h-3 transition-transform group-hover:rotate-180 duration-300" />
@@ -468,7 +516,10 @@ const BottomNavbar = ({
                     href={link.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-white hover:text-secondary transition-all duration-300 font-normal text-sm tracking-wide font-body"
+                    className="transition-all duration-300 font-normal text-sm tracking-wide font-body"
+                    style={{ color: textColor }}
+                    onMouseEnter={(e) => e.currentTarget.style.color = hoverColor}
+                    onMouseLeave={(e) => e.currentTarget.style.color = textColor}
                   >
                     {link.label}
                   </a>
@@ -476,7 +527,10 @@ const BottomNavbar = ({
                   <Link 
                     key={index}
                     to={link.url} 
-                    className="text-white hover:text-secondary transition-all duration-300 font-normal text-sm tracking-wide font-body"
+                    className="transition-all duration-300 font-normal text-sm tracking-wide font-body"
+                    style={{ color: textColor }}
+                    onMouseEnter={(e) => e.currentTarget.style.color = hoverColor}
+                    onMouseLeave={(e) => e.currentTarget.style.color = textColor}
                   >
                     {link.label}
                   </Link>
@@ -556,11 +610,42 @@ const Header = () => {
     ? `/api/cms/media/${navbarSettings.logoImageId}`
     : logoAtj;
 
+  // Extract styling settings with defaults
+  const bgColor = navbarSettings?.backgroundColor || '#112250';
+  const textColor = navbarSettings?.textColor || '#ffffff';
+  const hoverColor = navbarSettings?.hoverColor || '#D8C18D';
+  const fontFamily = navbarSettings?.fontFamily || 'Inter';
+  const fontSize = navbarSettings?.fontSize || '14px';
+  const navHeight = navbarSettings?.height || 80;
+  const isSticky = navbarSettings?.isSticky ?? true;
+  const isTransparent = navbarSettings?.isTransparent ?? false;
+  const transparentBg = navbarSettings?.transparentBg || 'rgba(0,0,0,0.3)';
+  const scrolledBg = navbarSettings?.scrolledBg || bgColor;
+  const logoSize = navbarSettings?.logoSize || 135;
+  const logoLink = navbarSettings?.logoLink || '/';
+
+  // Compute navbar background color based on scroll state and settings
+  const getNavbarBg = () => {
+    if (isTransparent) {
+      return isScrolled ? scrolledBg : transparentBg;
+    }
+    return bgColor;
+  };
+
   return (
     <>
-      <header className={`fixed top-0 w-full z-50 transition-all duration-300 ${
-        isScrolled ? 'backdrop-blur-sm' : 'bg-transparent'
-      }`} style={isScrolled ? { backgroundColor: 'hsl(var(--primary))', marginTop: '0' } : { marginTop: '2.5rem' }}>
+      <header 
+        className={`${isSticky ? 'fixed' : 'absolute'} top-0 w-full z-50 transition-all duration-300 ${
+          isScrolled ? 'backdrop-blur-sm' : ''
+        }`} 
+        style={{ 
+          backgroundColor: getNavbarBg(),
+          marginTop: isScrolled ? '0' : '2.5rem',
+          fontFamily: fontFamily,
+          fontSize: fontSize,
+          color: textColor,
+        }}
+      >
         {/* Top Navbar - Utility Bar (Language, Theme, Login, Join) */}
         <TopNavbar 
           isDarkMode={isDarkMode}
@@ -578,13 +663,22 @@ const Header = () => {
           joinButtonLink={navbarSettings?.joinButtonLink || "/join"}
           joinButtonStyle={navbarSettings?.joinButtonStyle || "secondary"}
           onDonateClick={() => setIsDonateDrawerOpen(true)}
+          textColor={textColor}
+          hoverColor={hoverColor}
         />
         
-        {/* Bottom Navbar - Main Navigation with 135px Logo */}
+        {/* Bottom Navbar - Main Navigation */}
         <BottomNavbar 
           isScrolled={isScrolled} 
           navigationLinks={navigationLinks}
           logoUrl={logoUrl}
+          logoSize={logoSize}
+          logoLink={logoLink}
+          logoType={navbarSettings?.logoType || 'image'}
+          logoText={navbarSettings?.logoText || ''}
+          textColor={textColor}
+          hoverColor={hoverColor}
+          navHeight={navHeight}
         />
       </header>
       

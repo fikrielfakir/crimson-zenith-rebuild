@@ -2,10 +2,12 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 export interface NavbarSettings {
   id: string;
-  logoType: string;
+  logoType: 'image' | 'text';
   logoImageId: number | null;
   logoSvg: string | null;
   logoText: string | null;
+  logoSize?: number;
+  logoLink?: string;
   navigationLinks: any;
   showLanguageSwitcher: boolean;
   availableLanguages: any;
@@ -17,6 +19,16 @@ export interface NavbarSettings {
   joinButtonLink: string;
   joinButtonStyle: string;
   showJoinButton: boolean;
+  backgroundColor?: string;
+  textColor?: string;
+  hoverColor?: string;
+  fontFamily?: string;
+  fontSize?: string;
+  isSticky?: boolean;
+  isTransparent?: boolean;
+  transparentBg?: string;
+  scrolledBg?: string;
+  height?: number;
   updatedAt: Date;
 }
 
