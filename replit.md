@@ -3,6 +3,15 @@
 ## Overview
 A React + Vite frontend application designed to showcase Morocco's sports clubs and activities. It features an interactive map, event calendar, club information, and a comprehensive content management system. The project aims to provide a modern, responsive platform for clubs and users, with advanced administrative capabilities for content and user management.
 
+## Recent Changes (November 21, 2025)
+- **Enhanced Navbar Dropdown System**: Added flexible dropdown display types to navbar customization system while preserving original "Discover" and "Talents" dropdown designs. The admin panel (`/admin/customization/navbar`) now supports three dropdown display modes:
+  - **Simple List**: Clean text-only links (default)
+  - **List with Images**: Vertical list with thumbnail images beside each item
+  - **Carousel/Slide**: Horizontal scrollable carousel with image cards, navigation arrows, and dot indicators
+  - Admins can upload images from media library, add descriptions, and configure dropdown types per navigation item
+  - Original hardcoded dropdowns for "Discover" (cities carousel) and "Talents" (nested menu) are preserved for backward compatibility
+  - New `DropdownRenderer` component dynamically handles all three display types with graceful fallbacks
+
 ## Recent Changes (November 20, 2025)
 - **Events & Activities Calendar Data Source Update**: Modified EventsActivitiesCalendar component to fetch data from the unified `booking_events` table instead of multiple endpoints. Updated backend `getBookingEvents()` method to include club information via LEFT JOIN with clubs table. The component now supports flexible date handling (both eventDate and startDate/endDate formats) and displays all events (association and club events) from a single source of truth.
 - **Event Details Page Rebuild**: Completely redesigned Book.tsx with condensed hero section (h-64), three-column layout with satellite map on the right side, and date range selector that derives valid booking dates from each event's startDate/endDate fields.
