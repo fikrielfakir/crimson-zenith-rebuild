@@ -4,7 +4,7 @@ import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import About from "@/components/About";
 import OurPartners from "@/components/OurPartners";
-import PresidentMessage from "@/components/PresidentMessage";
+import PresidentMessageDynamic from "@/components/PresidentMessageDynamic";
 import EventsActivitiesCalendar from "@/components/EventsActivitiesCalendar";
 import ClubsWithMap from "@/components/ClubsWithMap";
 import Stats from "@/components/Stats";
@@ -36,7 +36,7 @@ const Index = () => {
     <div className="min-h-screen">
       <Header />
       <Hero />
-      <PresidentMessage />
+      <PresidentMessageDynamic />
       <About />
       <ClubsWithMap />
       <EventsActivitiesCalendar />
