@@ -591,405 +591,388 @@ export default function NavbarSettings() {
           <h1 className="text-3xl font-bold">Navbar Settings</h1>
           <p className="text-muted-foreground mt-1">Customize your website's navigation bar</p>
         </div>
-        {!isLoading && !error && navbarData ? (
-          <div className="flex space-x-2">
-            <Button variant="outline" onClick(() => window.open('/', '_blank')}>
-              <Eye className="mr-2 h-4 w-4" />
-              Preview
-            </Button>
-            <Button onClick={handleSave} disabled={updateNavbar.isPending}>
-              <Save className="mr-2 h-4 w-4" />
-              {updateNavbar.isPending ? 'Saving...' : 'Save Changes'}
-            </Button>
-          </div>
-        ) : null}
+        <div className="flex space-x-2">
+          <Button variant="outline" onClick(() => window.open('/', '_blank')}>
+            <Eye className="mr-2 h-4 w-4" />
+            Preview
+          </Button>
+          <Button onClick={handleSave} disabled={updateNavbar.isPending}>
+            <Save className="mr-2 h-4 w-4" />
+            {updateNavbar.isPending ? 'Saving...' : 'Save Changes'}
+          </Button>
+        </div>
       </div>
 
-      {isLoading && <LoadingSpinner message="Loading navbar settings..." size="lg" className="h-64" />}
-      
-      {error && !isLoading ? (
-        <ErrorState 
-          message={(error as Error).message} 
-          onRetry={() => refetch()} 
-        />
-      ) : null}
-      
-      {!navbarData && !isLoading && !error ? (
-        <ErrorState message="No navbar settings found" onRetry={() => refetch()} />
-      ) : null}
+      <Tabs defaultValue="logo" className="w-full">
+        <TabsList className="grid w-full grid-cols-5">
+          <TabsTrigger value="logo">Logo</TabsTrigger>
+          <TabsTrigger value="navigation">Navigation</TabsTrigger>
+          <TabsTrigger value="buttons">Buttons</TabsTrigger>
+          <TabsTrigger value="features">Features</TabsTrigger>
+          <TabsTrigger value="styling">Styling</TabsTrigger>
+        </TabsList>
 
-      {navbarData && !isLoading && !error ? (
-        <Tabs defaultValue="logo" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="logo">Logo</TabsTrigger>
-            <TabsTrigger value="navigation">Navigation</TabsTrigger>
-            <TabsTrigger value="buttons">Buttons</TabsTrigger>
-            <TabsTrigger value="features">Features</TabsTrigger>
-            <TabsTrigger value="styling">Styling</TabsTrigger>
-          </TabsList>
+        {/* Logo Tab */}
+        <TabsContent value="logo" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Logo Configuration</CardTitle>
+              <CardDescription>Choose between text or image logo and customize appearance</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-2">
+                <Label>Logo Type</Label>
+                <Select value={logoType} onValueChange={(value: 'image' | 'text') => setLogoType(value)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="image">Image Logo</SelectItem>
+                    <SelectItem value="text">Text Logo</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-          {/* Logo Tab */}
-          <TabsContent value="logo" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Logo Configuration</CardTitle>
-                <CardDescription>Choose between text or image logo and customize appearance</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-2">
-                  <Label>Logo Type</Label>
-                  <Select value={logoType} onValueChange={(value: 'image' | 'text') => setLogoType(value)}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="image">Image Logo</SelectItem>
-                      <SelectItem value="text">Text Logo</SelectItem>
-                    </SelectContent>
-                  </Select>
+              {logoType === 'image' ? (
+                <div className="space-y-4">
+                  <Label>Logo Image</Label>
+                  {logoImageUrl && (
+                    <div className="border rounded-lg p-4 bg-muted/30 flex items-center justify-center">
+                      <img src={logoImageUrl} alt="Logo preview" className="h-20 object-contain" />
+                    </div>
+                  )}
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" className="w-full">
+                        <Upload className="mr-2 h-4 w-4" />
+                        Select from Media Library
+                      </Button>
+                    </DialogTrigger>
+                    <MediaLibraryDialog onSelectMedia={handleSelectMedia} />
+                  </Dialog>
+                  <p className="text-sm text-muted-foreground">
+                    Recommended: PNG or SVG format, transparent background, 200x80px
+                  </p>
                 </div>
+              ) : (
+                <div className="space-y-2">
+                  <Label htmlFor="logo-text">Logo Text</Label>
+                  <Input
+                    id="logo-text"
+                    value={logoText}
+                    onChange={(e) => setLogoText(e.target.value)}
+                    placeholder="Your Brand Name"
+                  />
+                </div>
+              )}
 
-                {logoType === 'image' ? (
-                  <div className="space-y-4">
-                    <Label>Logo Image</Label>
-                    {logoImageUrl && (
-                      <div className="border rounded-lg p-4 bg-muted/30 flex items-center justify-center">
-                        <img src={logoImageUrl} alt="Logo preview" className="h-20 object-contain" />
-                      </div>
-                    )}
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button variant="outline" className="w-full">
-                          <Upload className="mr-2 h-4 w-4" />
-                          Select from Media Library
-                        </Button>
-                      </DialogTrigger>
-                      <MediaLibraryDialog onSelectMedia={handleSelectMedia} />
-                    </Dialog>
-                    <p className="text-sm text-muted-foreground">
-                      Recommended: PNG or SVG format, transparent background, 200x80px
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    <Label htmlFor="logo-text">Logo Text</Label>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="logo-size">Logo Size (px)</Label>
+                  <Input
+                    id="logo-size"
+                    type="number"
+                    value={logoSize}
+                    onChange={(e) => setLogoSize(parseInt(e.target.value) || 135)}
+                    min="50"
+                    max="300"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="logo-link">Logo Link</Label>
+                  <div className="flex gap-2">
+                    <LinkIcon className="w-4 h-4 mt-2.5 text-muted-foreground" />
                     <Input
-                      id="logo-text"
-                      value={logoText}
-                      onChange={(e) => setLogoText(e.target.value)}
-                      placeholder="Your Brand Name"
+                      id="logo-link"
+                      value={logoLink}
+                      onChange={(e) => setLogoLink(e.target.value)}
+                      placeholder="/"
+                    />
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Navigation Links Tab */}
+        <TabsContent value="navigation" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Navigation Menu</CardTitle>
+              <CardDescription>Drag to reorder, add, remove, or edit navigation links</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <DndContext 
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+              >
+                <SortableContext 
+                  items={navLinks.map((_, i) => `nav-link-${i}`)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  {navLinks.map((link, index) => (
+                    <SortableNavLink
+                      key={`nav-link-${index}`}
+                      link={link}
+                      index={index}
+                      onUpdate={updateNavLink}
+                      onRemove={removeNavLink}
+                    />
+                  ))}
+                </SortableContext>
+              </DndContext>
+              <Button onClick={addNavLink} variant="outline" className="w-full">
+                <Plus className="mr-2 h-4 w-4" />
+                Add Navigation Link
+              </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Buttons Tab */}
+        <TabsContent value="buttons" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>CTA Buttons</CardTitle>
+              <CardDescription>Configure login and join/donate buttons</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-4 border-b pb-6">
+                <div className="flex items-center space-x-2">
+                  <Switch checked={showLoginButton} onCheckedChange={setShowLoginButton} />
+                  <Label>Show Login Button</Label>
+                </div>
+                {showLoginButton && (
+                  <div className="grid grid-cols-2 gap-4 pl-6">
+                    <div className="space-y-2">
+                      <Label>Button Text</Label>
+                      <Input value={loginButtonText} onChange={(e) => setLoginButtonText(e.target.value)} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Button Link</Label>
+                      <Input value={loginButtonLink} onChange={(e) => setLoginButtonLink(e.target.value)} />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-4">
+                <div className="flex items-center space-x-2">
+                  <Switch checked={showJoinButton} onCheckedChange={setShowJoinButton} />
+                  <Label>Show Join/Donate Button</Label>
+                </div>
+                {showJoinButton && (
+                  <div className="grid grid-cols-2 gap-4 pl-6">
+                    <div className="space-y-2">
+                      <Label>Button Text</Label>
+                      <Input value={joinButtonText} onChange={(e) => setJoinButtonText(e.target.value)} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Button Link</Label>
+                      <Input value={joinButtonLink} onChange={(e) => setJoinButtonLink(e.target.value)} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Button Style</Label>
+                      <Select value={joinButtonStyle} onValueChange={setJoinButtonStyle}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="primary">Primary</SelectItem>
+                          <SelectItem value="secondary">Secondary</SelectItem>
+                          <SelectItem value="outline">Outline</SelectItem>
+                          <SelectItem value="destructive">Destructive</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Features Tab */}
+        <TabsContent value="features" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Navbar Features</CardTitle>
+              <CardDescription>Toggle additional navbar functionality</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-4">
+                <div className="flex items-center space-x-2">
+                  <Switch checked={showLanguageSwitcher} onCheckedChange={setShowLanguageSwitcher} />
+                  <Label>Show Language Switcher</Label>
+                </div>
+                {showLanguageSwitcher && (
+                  <div className="space-y-2 pl-6">
+                    <Label>Available Languages (comma-separated)</Label>
+                    <Input
+                      value={availableLanguages.join(', ')}
+                      onChange={(e) => setAvailableLanguages(e.target.value.split(',').map(l => l.trim()))}
+                      placeholder="EN, FR, AR"
                     />
                   </div>
                 )}
+              </div>
 
+              <div className="flex items-center space-x-2">
+                <Switch checked={showDarkModeToggle} onCheckedChange={setShowDarkModeToggle} />
+                <Label>Show Dark Mode Toggle</Label>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Styling Tab */}
+        <TabsContent value="styling" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Navbar Styling</CardTitle>
+              <CardDescription>Customize colors, typography, and behavior</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-4">
+                <h3 className="font-semibold">Colors</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="logo-size">Logo Size (px)</Label>
-                    <Input
-                      id="logo-size"
-                      type="number"
-                      value={logoSize}
-                      onChange={(e) => setLogoSize(parseInt(e.target.value) || 135)}
-                      min="50"
-                      max="300"
-                    />
+                    <Label htmlFor="bg-color">Background Color</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="bg-color"
+                        type="color"
+                        value={backgroundColor}
+                        onChange={(e) => setBackgroundColor(e.target.value)}
+                        className="w-20 h-10"
+                      />
+                      <Input
+                        value={backgroundColor}
+                        onChange={(e) => setBackgroundColor(e.target.value)}
+                        placeholder="#112250"
+                      />
+                    </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="logo-link">Logo Link</Label>
+                    <Label htmlFor="text-color">Text Color</Label>
                     <div className="flex gap-2">
-                      <LinkIcon className="w-4 h-4 mt-2.5 text-muted-foreground" />
                       <Input
-                        id="logo-link"
-                        value={logoLink}
-                        onChange={(e) => setLogoLink(e.target.value)}
-                        placeholder="/"
+                        id="text-color"
+                        type="color"
+                        value={textColor}
+                        onChange={(e) => setTextColor(e.target.value)}
+                        className="w-20 h-10"
+                      />
+                      <Input
+                        value={textColor}
+                        onChange={(e) => setTextColor(e.target.value)}
+                        placeholder="#ffffff"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="hover-color">Hover Color</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="hover-color"
+                        type="color"
+                        value={hoverColor}
+                        onChange={(e) => setHoverColor(e.target.value)}
+                        className="w-20 h-10"
+                      />
+                      <Input
+                        value={hoverColor}
+                        onChange={(e) => setHoverColor(e.target.value)}
+                        placeholder="#D8C18D"
                       />
                     </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+              </div>
 
-          {/* Navigation Links Tab */}
-          <TabsContent value="navigation" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Navigation Menu</CardTitle>
-                <CardDescription>Drag to reorder, add, remove, or edit navigation links</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <DndContext 
-                  sensors={sensors}
-                  collisionDetection={closestCenter}
-                  onDragEnd={handleDragEnd}
-                >
-                  <SortableContext 
-                    items={navLinks.map((_, i) => `nav-link-${i}`)}
-                    strategy={verticalListSortingStrategy}
-                  >
-                    {navLinks.map((link, index) => (
-                      <SortableNavLink
-                        key={`nav-link-${index}`}
-                        link={link}
-                        index={index}
-                        onUpdate={updateNavLink}
-                        onRemove={removeNavLink}
-                      />
-                    ))}
-                  </SortableContext>
-                </DndContext>
-                <Button onClick={addNavLink} variant="outline" className="w-full">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add Navigation Link
-                </Button>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Buttons Tab */}
-          <TabsContent value="buttons" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>CTA Buttons</CardTitle>
-                <CardDescription>Configure login and join/donate buttons</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-4 border-b pb-6">
-                  <div className="flex items-center space-x-2">
-                    <Switch checked={showLoginButton} onCheckedChange={setShowLoginButton} />
-                    <Label>Show Login Button</Label>
+              <div className="space-y-4">
+                <h3 className="font-semibold">Typography</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Font Family</Label>
+                    <Select value={fontFamily} onValueChange={setFontFamily}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {FONT_FAMILIES.map((font) => (
+                          <SelectItem key={font} value={font}>{font}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
-                  {showLoginButton && (
+                  <div className="space-y-2">
+                    <Label>Font Size</Label>
+                    <Select value={fontSize} onValueChange={setFontSize}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="12px">12px</SelectItem>
+                        <SelectItem value="14px">14px</SelectItem>
+                        <SelectItem value="16px">16px</SelectItem>
+                        <SelectItem value="18px">18px</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="font-semibold">Behavior & Appearance</h3>
+                <div className="grid gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="height">Height (px)</Label>
+                    <Input
+                      id="height"
+                      type="number"
+                      value={height}
+                      onChange={(e) => setHeight(parseInt(e.target.value) || 80)}
+                      min="60"
+                      max="150"
+                    />
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Switch checked={isSticky} onCheckedChange={setIsSticky} />
+                    <Label>Sticky Navbar (stays at top when scrolling)</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Switch checked={isTransparent} onCheckedChange={setIsTransparent} />
+                    <Label>Transparent Background (before scroll)</Label>
+                  </div>
+                  {isTransparent && (
                     <div className="grid grid-cols-2 gap-4 pl-6">
                       <div className="space-y-2">
-                        <Label>Button Text</Label>
-                        <Input value={loginButtonText} onChange={(e) => setLoginButtonText(e.target.value)} />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Button Link</Label>
-                        <Input value={loginButtonLink} onChange={(e) => setLoginButtonLink(e.target.value)} />
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                <div className="space-y-4">
-                  <div className="flex items-center space-x-2">
-                    <Switch checked={showJoinButton} onCheckedChange={setShowJoinButton} />
-                    <Label>Show Join/Donate Button</Label>
-                  </div>
-                  {showJoinButton && (
-                    <div className="grid grid-cols-2 gap-4 pl-6">
-                      <div className="space-y-2">
-                        <Label>Button Text</Label>
-                        <Input value={joinButtonText} onChange={(e) => setJoinButtonText(e.target.value)} />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Button Link</Label>
-                        <Input value={joinButtonLink} onChange={(e) => setJoinButtonLink(e.target.value)} />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Button Style</Label>
-                        <Select value={joinButtonStyle} onValueChange={setJoinButtonStyle}>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="primary">Primary</SelectItem>
-                            <SelectItem value="secondary">Secondary</SelectItem>
-                            <SelectItem value="outline">Outline</SelectItem>
-                            <SelectItem value="destructive">Destructive</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Features Tab */}
-          <TabsContent value="features" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Navbar Features</CardTitle>
-                <CardDescription>Toggle additional navbar functionality</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-4">
-                  <div className="flex items-center space-x-2">
-                    <Switch checked={showLanguageSwitcher} onCheckedChange={setShowLanguageSwitcher} />
-                    <Label>Show Language Switcher</Label>
-                  </div>
-                  {showLanguageSwitcher && (
-                    <div className="space-y-2 pl-6">
-                      <Label>Available Languages (comma-separated)</Label>
-                      <Input
-                        value={availableLanguages.join(', ')}
-                        onChange={(e) => setAvailableLanguages(e.target.value.split(',').map(l => l.trim()))}
-                        placeholder="EN, FR, AR"
-                      />
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <Switch checked={showDarkModeToggle} onCheckedChange={setShowDarkModeToggle} />
-                  <Label>Show Dark Mode Toggle</Label>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Styling Tab */}
-          <TabsContent value="styling" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Navbar Styling</CardTitle>
-                <CardDescription>Customize colors, typography, and behavior</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-4">
-                  <h3 className="font-semibold">Colors</h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="bg-color">Background Color</Label>
-                      <div className="flex gap-2">
+                        <Label>Transparent Background</Label>
                         <Input
-                          id="bg-color"
-                          type="color"
-                          value={backgroundColor}
-                          onChange={(e) => setBackgroundColor(e.target.value)}
-                          className="w-20 h-10"
+                          value={transparentBg}
+                          onChange={(e) => setTransparentBg(e.target.value)}
+                          placeholder="rgba(0,0,0,0.3)"
                         />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Scrolled Background</Label>
                         <Input
-                          value={backgroundColor}
-                          onChange={(e) => setBackgroundColor(e.target.value)}
+                          value={scrolledBg}
+                          onChange={(e) => setScrolledBg(e.target.value)}
                           placeholder="#112250"
                         />
                       </div>
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="text-color">Text Color</Label>
-                      <div className="flex gap-2">
-                        <Input
-                          id="text-color"
-                          type="color"
-                          value={textColor}
-                          onChange={(e) => setTextColor(e.target.value)}
-                          className="w-20 h-10"
-                        />
-                        <Input
-                          value={textColor}
-                          onChange={(e) => setTextColor(e.target.value)}
-                          placeholder="#ffffff"
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="hover-color">Hover Color</Label>
-                      <div className="flex gap-2">
-                        <Input
-                          id="hover-color"
-                          type="color"
-                          value={hoverColor}
-                          onChange={(e) => setHoverColor(e.target.value)}
-                          className="w-20 h-10"
-                        />
-                        <Input
-                          value={hoverColor}
-                          onChange={(e) => setHoverColor(e.target.value)}
-                          placeholder="#D8C18D"
-                        />
-                      </div>
-                    </div>
-                  </div>
+                  )}
                 </div>
-
-                <div className="space-y-4">
-                  <h3 className="font-semibold">Typography</h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Font Family</Label>
-                      <Select value={fontFamily} onValueChange={setFontFamily}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {FONT_FAMILIES.map((font) => (
-                            <SelectItem key={font} value={font}>{font}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Font Size</Label>
-                      <Select value={fontSize} onValueChange={setFontSize}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="12px">12px</SelectItem>
-                          <SelectItem value="14px">14px</SelectItem>
-                          <SelectItem value="16px">16px</SelectItem>
-                          <SelectItem value="18px">18px</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <h3 className="font-semibold">Behavior & Appearance</h3>
-                  <div className="grid gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="height">Height (px)</Label>
-                      <Input
-                        id="height"
-                        type="number"
-                        value={height}
-                        onChange={(e) => setHeight(parseInt(e.target.value) || 80)}
-                        min="60"
-                        max="150"
-                      />
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Switch checked={isSticky} onCheckedChange={setIsSticky} />
-                      <Label>Sticky Navbar (stays at top when scrolling)</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Switch checked={isTransparent} onCheckedChange={setIsTransparent} />
-                      <Label>Transparent Background (before scroll)</Label>
-                    </div>
-                    {isTransparent && (
-                      <div className="grid grid-cols-2 gap-4 pl-6">
-                        <div className="space-y-2">
-                          <Label>Transparent Background</Label>
-                          <Input
-                            value={transparentBg}
-                            onChange={(e) => setTransparentBg(e.target.value)}
-                            placeholder="rgba(0,0,0,0.3)"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label>Scrolled Background</Label>
-                          <Input
-                            value={scrolledBg}
-                            onChange={(e) => setScrolledBg(e.target.value)}
-                            placeholder="#112250"
-                          />
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-      )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
