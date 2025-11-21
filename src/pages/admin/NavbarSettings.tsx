@@ -32,13 +32,19 @@ interface DropdownItem {
   label: string;
   url: string;
   isExternal?: boolean;
+  imageId?: number | null;
+  imageUrl?: string;
+  description?: string;
 }
+
+type DropdownDisplayType = 'simple-list' | 'list-with-images' | 'carousel';
 
 interface NavigationLink {
   label: string;
   url: string;
   isExternal?: boolean;
   hasDropdown?: boolean;
+  dropdownType?: DropdownDisplayType;
   dropdownItems?: DropdownItem[];
 }
 
@@ -78,6 +84,8 @@ function SortableNavLink({
     transition,
   };
 
+  const [selectedDropdownIndex, setSelectedDropdownIndex] = useState<number | null>(null);
+
   const addDropdownItem = () => {
     const dropdownItems = link.dropdownItems || [];
     onUpdate(index, 'dropdownItems', [...dropdownItems, { label: 'New Item', url: '/', isExternal: false }]);
@@ -87,6 +95,12 @@ function SortableNavLink({
     const dropdownItems = [...(link.dropdownItems || [])];
     dropdownItems[dropdownIndex] = { ...dropdownItems[dropdownIndex], [field]: value };
     onUpdate(index, 'dropdownItems', dropdownItems);
+  };
+
+  const handleSelectDropdownImage = (dropdownIndex: number, mediaId: number, url: string) => {
+    updateDropdownItem(dropdownIndex, 'imageId', mediaId);
+    updateDropdownItem(dropdownIndex, 'imageUrl', url);
+    setSelectedDropdownIndex(null);
   };
 
   const removeDropdownItem = (dropdownIndex: number) => {
@@ -148,7 +162,33 @@ function SortableNavLink({
         {/* Dropdown Items Section */}
         {link.hasDropdown && (
           <div className="mt-4 p-4 bg-muted/30 rounded-lg border border-dashed space-y-3">
-            <div className="flex items-center justify-between">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-semibold">Dropdown Display Type</Label>
+              </div>
+              <Select
+                value={link.dropdownType || 'simple-list'}
+                onValueChange={(value: DropdownDisplayType) => onUpdate(index, 'dropdownType', value)}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select dropdown display type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="simple-list">Simple List</SelectItem>
+                  <SelectItem value="list-with-images">List with Images</SelectItem>
+                  <SelectItem value="carousel">Carousel / Slide</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                {link.dropdownType === 'carousel' 
+                  ? 'Horizontal scrollable carousel with images (min 3 items recommended)'
+                  : link.dropdownType === 'list-with-images'
+                  ? 'Vertical list with thumbnail images next to each item'
+                  : 'Simple text links dropdown (default)'}
+              </p>
+            </div>
+            
+            <div className="flex items-center justify-between pt-2">
               <Label className="text-sm font-semibold">Dropdown Items</Label>
               <Button 
                 variant="outline" 
@@ -162,45 +202,88 @@ function SortableNavLink({
             
             {link.dropdownItems && link.dropdownItems.length > 0 ? (
               <div className="space-y-2">
-                {link.dropdownItems.map((item, dropdownIndex) => (
-                  <div key={dropdownIndex} className="flex items-start gap-2 p-3 bg-background rounded border">
-                    <div className="flex-1 grid grid-cols-2 gap-2">
-                      <div className="space-y-1">
-                        <Label className="text-xs">Label</Label>
-                        <Input
-                          value={item.label}
-                          onChange={(e) => updateDropdownItem(dropdownIndex, 'label', e.target.value)}
-                          placeholder="Item Label"
-                          className="h-8 text-sm"
-                        />
+                {link.dropdownItems.map((item, dropdownIndex) => {
+                  const showImageField = link.dropdownType === 'list-with-images' || link.dropdownType === 'carousel';
+                  return (
+                    <div key={dropdownIndex} className="flex items-start gap-2 p-3 bg-background rounded border">
+                      <div className="flex-1 space-y-3">
+                        <div className="grid grid-cols-2 gap-2">
+                          <div className="space-y-1">
+                            <Label className="text-xs">Label</Label>
+                            <Input
+                              value={item.label}
+                              onChange={(e) => updateDropdownItem(dropdownIndex, 'label', e.target.value)}
+                              placeholder="Item Label"
+                              className="h-8 text-sm"
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <Label className="text-xs">URL</Label>
+                            <Input
+                              value={item.url}
+                              onChange={(e) => updateDropdownItem(dropdownIndex, 'url', e.target.value)}
+                              placeholder="/page"
+                              className="h-8 text-sm"
+                            />
+                          </div>
+                        </div>
+
+                        {showImageField && (
+                          <div className="space-y-2">
+                            <Label className="text-xs">Image {link.dropdownType === 'carousel' && <span className="text-red-500">*</span>}</Label>
+                            {item.imageUrl && (
+                              <div className="border rounded p-2 bg-muted/20">
+                                <img src={item.imageUrl} alt={item.label} className="h-16 w-full object-cover rounded" />
+                              </div>
+                            )}
+                            <Dialog open={selectedDropdownIndex === dropdownIndex} onOpenChange={(open) => !open && setSelectedDropdownIndex(null)}>
+                              <DialogTrigger asChild>
+                                <Button 
+                                  variant="outline" 
+                                  size="sm" 
+                                  className="w-full h-8 text-xs"
+                                  onClick={() => setSelectedDropdownIndex(dropdownIndex)}
+                                >
+                                  <Upload className="h-3 w-3 mr-1" />
+                                  {item.imageUrl ? 'Change Image' : 'Select Image'}
+                                </Button>
+                              </DialogTrigger>
+                              <MediaLibraryDialog onSelectMedia={(mediaId, url) => handleSelectDropdownImage(dropdownIndex, mediaId, url)} />
+                            </Dialog>
+                          </div>
+                        )}
+
+                        {showImageField && (
+                          <div className="space-y-1">
+                            <Label className="text-xs">Description (optional)</Label>
+                            <Input
+                              value={item.description || ''}
+                              onChange={(e) => updateDropdownItem(dropdownIndex, 'description', e.target.value)}
+                              placeholder="Brief description"
+                              className="h-8 text-sm"
+                            />
+                          </div>
+                        )}
+
+                        <div className="flex items-center space-x-2">
+                          <Switch
+                            checked={item.isExternal || false}
+                            onCheckedChange={(checked) => updateDropdownItem(dropdownIndex, 'isExternal', checked)}
+                          />
+                          <Label className="text-xs">External Link</Label>
+                        </div>
                       </div>
-                      <div className="space-y-1">
-                        <Label className="text-xs">URL</Label>
-                        <Input
-                          value={item.url}
-                          onChange={(e) => updateDropdownItem(dropdownIndex, 'url', e.target.value)}
-                          placeholder="/page"
-                          className="h-8 text-sm"
-                        />
-                      </div>
-                      <div className="flex items-center space-x-2 col-span-2">
-                        <Switch
-                          checked={item.isExternal || false}
-                          onCheckedChange={(checked) => updateDropdownItem(dropdownIndex, 'isExternal', checked)}
-                        />
-                        <Label className="text-xs">External Link</Label>
-                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeDropdownItem(dropdownIndex)}
+                        className="text-red-500 hover:text-red-700 h-8 w-8 p-0"
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeDropdownItem(dropdownIndex)}
-                      className="text-red-500 hover:text-red-700 h-8 w-8 p-0"
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               <p className="text-sm text-muted-foreground text-center py-4">
