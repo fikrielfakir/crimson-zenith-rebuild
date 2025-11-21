@@ -66,7 +66,7 @@ export default function NavbarSettings() {
 
   const loadSettings = async () => {
     try {
-      const response = await fetch('/api/cms/navbar-settings');
+      const response = await fetch('/api/admin/cms/navbar-settings');
       if (response.ok) {
         const data = await response.json();
         if (data) {
@@ -123,8 +123,8 @@ export default function NavbarSettings() {
       formData.append('navbarHeight', navbarHeight);
       formData.append('navbarTransparency', navbarTransparency);
 
-      const response = await fetch('/api/cms/navbar-settings', {
-        method: 'POST',
+      const response = await fetch('/api/admin/cms/navbar-settings', {
+        method: 'PUT',
         body: formData,
       });
 

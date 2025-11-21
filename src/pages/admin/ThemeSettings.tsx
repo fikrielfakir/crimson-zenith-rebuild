@@ -67,7 +67,7 @@ export default function ThemeSettings() {
 
   const loadSettings = async () => {
     try {
-      const response = await fetch('/api/cms/theme-settings');
+      const response = await fetch('/api/admin/cms/theme-settings');
       if (response.ok) {
         const data = await response.json();
         if (data) {
@@ -99,8 +99,8 @@ export default function ThemeSettings() {
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      const response = await fetch('/api/cms/theme-settings', {
-        method: 'POST',
+      const response = await fetch('/api/admin/cms/theme-settings', {
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           primaryColor,
