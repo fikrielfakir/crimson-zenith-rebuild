@@ -585,7 +585,15 @@ export default function NavbarSettings() {
   };
 
   if (isLoading) {
-    return <LoadingSpinner message="Loading navbar settings..." size="lg" className="h-64" />;
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold">Navbar Settings</h1>
+          <p className="text-muted-foreground mt-1">Customize your website's navigation bar</p>
+        </div>
+        <LoadingSpinner message="Loading navbar settings..." size="lg" className="h-64" />
+      </div>
+    );
   }
 
   if (error) {
@@ -603,6 +611,18 @@ export default function NavbarSettings() {
     );
   }
 
+  if (!navbarData) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold">Navbar Settings</h1>
+          <p className="text-muted-foreground mt-1">Customize your website's navigation bar</p>
+        </div>
+        <ErrorState message="No navbar settings found" onRetry={() => refetch()} />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -611,7 +631,7 @@ export default function NavbarSettings() {
           <p className="text-muted-foreground mt-1">Customize your website's navigation bar</p>
         </div>
         <div className="flex space-x-2">
-          <Button variant="outline" onClick={() => window.open('/', '_blank')}>
+          <Button variant="outline" onClick(() => window.open('/', '_blank')}>
             <Eye className="mr-2 h-4 w-4" />
             Preview
           </Button>
