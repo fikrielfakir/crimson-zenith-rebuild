@@ -28,11 +28,18 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
+interface DropdownItem {
+  label: string;
+  url: string;
+  isExternal?: boolean;
+}
+
 interface NavigationLink {
   label: string;
   url: string;
   isExternal?: boolean;
   hasDropdown?: boolean;
+  dropdownItems?: DropdownItem[];
 }
 
 const FONT_FAMILIES = [
@@ -71,6 +78,28 @@ function SortableNavLink({
     transition,
   };
 
+  const addDropdownItem = () => {
+    const dropdownItems = link.dropdownItems || [];
+    onUpdate(index, 'dropdownItems', [...dropdownItems, { label: 'New Item', url: '/', isExternal: false }]);
+  };
+
+  const updateDropdownItem = (dropdownIndex: number, field: keyof DropdownItem, value: any) => {
+    const dropdownItems = [...(link.dropdownItems || [])];
+    dropdownItems[dropdownIndex] = { ...dropdownItems[dropdownIndex], [field]: value };
+    onUpdate(index, 'dropdownItems', dropdownItems);
+  };
+
+  const removeDropdownItem = (dropdownIndex: number) => {
+    const dropdownItem = link.dropdownItems?.[dropdownIndex];
+    const confirmed = window.confirm(
+      `Are you sure you want to delete the dropdown item "${dropdownItem?.label}"?`
+    );
+    if (confirmed) {
+      const dropdownItems = (link.dropdownItems || []).filter((_, i) => i !== dropdownIndex);
+      onUpdate(index, 'dropdownItems', dropdownItems);
+    }
+  };
+
   return (
     <div ref={setNodeRef} style={style} className="flex items-start gap-2 p-4 border rounded-lg bg-card">
       <Button 
@@ -82,37 +111,104 @@ function SortableNavLink({
       >
         <GripVertical className="h-4 w-4" />
       </Button>
-      <div className="flex-1 grid grid-cols-2 gap-3">
-        <div className="space-y-2">
-          <Label>Label</Label>
-          <Input
-            value={link.label}
-            onChange={(e) => onUpdate(index, 'label', e.target.value)}
-            placeholder="Link Label"
-          />
+      <div className="flex-1 space-y-3">
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-2">
+            <Label>Label</Label>
+            <Input
+              value={link.label}
+              onChange={(e) => onUpdate(index, 'label', e.target.value)}
+              placeholder="Link Label"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>URL</Label>
+            <Input
+              value={link.url}
+              onChange={(e) => onUpdate(index, 'url', e.target.value)}
+              placeholder="/page or https://example.com"
+            />
+          </div>
+          <div className="flex items-center space-x-2">
+            <Switch
+              checked={link.isExternal || false}
+              onCheckedChange={(checked) => onUpdate(index, 'isExternal', checked)}
+            />
+            <Label>External Link</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Switch
+              checked={link.hasDropdown || false}
+              onCheckedChange={(checked) => onUpdate(index, 'hasDropdown', checked)}
+            />
+            <Label>Has Dropdown</Label>
+          </div>
         </div>
-        <div className="space-y-2">
-          <Label>URL</Label>
-          <Input
-            value={link.url}
-            onChange={(e) => onUpdate(index, 'url', e.target.value)}
-            placeholder="/page or https://example.com"
-          />
-        </div>
-        <div className="flex items-center space-x-2">
-          <Switch
-            checked={link.isExternal || false}
-            onCheckedChange={(checked) => onUpdate(index, 'isExternal', checked)}
-          />
-          <Label>External Link</Label>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Switch
-            checked={link.hasDropdown || false}
-            onCheckedChange={(checked) => onUpdate(index, 'hasDropdown', checked)}
-          />
-          <Label>Has Dropdown</Label>
-        </div>
+
+        {/* Dropdown Items Section */}
+        {link.hasDropdown && (
+          <div className="mt-4 p-4 bg-muted/30 rounded-lg border border-dashed space-y-3">
+            <div className="flex items-center justify-between">
+              <Label className="text-sm font-semibold">Dropdown Items</Label>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={addDropdownItem}
+              >
+                <Plus className="h-3 w-3 mr-1" />
+                Add Item
+              </Button>
+            </div>
+            
+            {link.dropdownItems && link.dropdownItems.length > 0 ? (
+              <div className="space-y-2">
+                {link.dropdownItems.map((item, dropdownIndex) => (
+                  <div key={dropdownIndex} className="flex items-start gap-2 p-3 bg-background rounded border">
+                    <div className="flex-1 grid grid-cols-2 gap-2">
+                      <div className="space-y-1">
+                        <Label className="text-xs">Label</Label>
+                        <Input
+                          value={item.label}
+                          onChange={(e) => updateDropdownItem(dropdownIndex, 'label', e.target.value)}
+                          placeholder="Item Label"
+                          className="h-8 text-sm"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs">URL</Label>
+                        <Input
+                          value={item.url}
+                          onChange={(e) => updateDropdownItem(dropdownIndex, 'url', e.target.value)}
+                          placeholder="/page"
+                          className="h-8 text-sm"
+                        />
+                      </div>
+                      <div className="flex items-center space-x-2 col-span-2">
+                        <Switch
+                          checked={item.isExternal || false}
+                          onCheckedChange={(checked) => updateDropdownItem(dropdownIndex, 'isExternal', checked)}
+                        />
+                        <Label className="text-xs">External Link</Label>
+                      </div>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeDropdownItem(dropdownIndex)}
+                      className="text-red-500 hover:text-red-700 h-8 w-8 p-0"
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground text-center py-4">
+                No dropdown items yet. Click "Add Item" to create one.
+              </p>
+            )}
+          </div>
+        )}
       </div>
       <Button
         variant="ghost"
@@ -188,13 +284,34 @@ export default function NavbarSettings() {
   
   // Navigation Links
   const [navLinks, setNavLinks] = useState<NavigationLink[]>([
-    { label: 'Discover', url: '/discover', isExternal: false, hasDropdown: true },
+    { 
+      label: 'Discover', 
+      url: '/discover', 
+      isExternal: false, 
+      hasDropdown: true,
+      dropdownItems: [
+        { label: 'Cities', url: '/discover/cities', isExternal: false },
+        { label: 'Culture', url: '/discover/culture', isExternal: false },
+        { label: 'Nature', url: '/discover/nature', isExternal: false },
+      ]
+    },
     { label: 'Activities', url: '/activities', isExternal: false },
     { label: 'Projects', url: '/projects', isExternal: false },
     { label: 'Clubs', url: '/clubs', isExternal: false },
     { label: 'Gallery', url: '/gallery', isExternal: false },
     { label: 'Blog', url: '/blog', isExternal: false },
-    { label: 'Talents', url: '/talents', isExternal: false, hasDropdown: true },
+    { 
+      label: 'Talents', 
+      url: '/talents', 
+      isExternal: false, 
+      hasDropdown: true,
+      dropdownItems: [
+        { label: 'Volunteers (Spontaneous)', url: '/talents/volunteers/spontaneous', isExternal: false },
+        { label: 'Volunteers (Posts)', url: '/talents/volunteers/posts', isExternal: false },
+        { label: 'Experts', url: '/talents/experts', isExternal: false },
+        { label: 'Work Offers', url: '/talents/work-offers', isExternal: false },
+      ]
+    },
     { label: 'Contact', url: '/contact', isExternal: false },
   ]);
   
@@ -266,15 +383,39 @@ export default function NavbarSettings() {
     }
   }, [navbarData]);
 
+  const sanitizeNavLinks = (links: NavigationLink[]) => {
+    return links.map(link => {
+      const sanitized = { ...link };
+      
+      if (sanitized.hasDropdown && sanitized.dropdownItems) {
+        sanitized.dropdownItems = sanitized.dropdownItems.filter(item => {
+          const label = String(item.label || '').trim();
+          const url = String(item.url || '').trim();
+          return label !== '' && url !== '';
+        });
+        
+        if (sanitized.dropdownItems.length === 0) {
+          delete sanitized.dropdownItems;
+        }
+      } else if (!sanitized.hasDropdown) {
+        delete sanitized.dropdownItems;
+      }
+      
+      return sanitized;
+    });
+  };
+
   const handleSave = async () => {
     try {
+      const sanitizedNavLinks = sanitizeNavLinks(navLinks);
+      
       await updateNavbar.mutateAsync({
         logoType,
         logoText,
         logoImageId,
         logoSize,
         logoLink,
-        navigationLinks: navLinks,
+        navigationLinks: sanitizedNavLinks,
         showLanguageSwitcher,
         availableLanguages,
         showDarkModeToggle,
@@ -314,6 +455,15 @@ export default function NavbarSettings() {
   const updateNavLink = (index: number, field: keyof NavigationLink, value: any) => {
     const updated = [...navLinks];
     updated[index] = { ...updated[index], [field]: value };
+    
+    if (field === 'hasDropdown') {
+      if (value && !updated[index].dropdownItems) {
+        updated[index].dropdownItems = [];
+      } else if (!value) {
+        delete updated[index].dropdownItems;
+      }
+    }
+    
     setNavLinks(updated);
   };
 
