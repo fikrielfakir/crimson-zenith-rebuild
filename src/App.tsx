@@ -18,6 +18,18 @@ import CookiePolicy from "./pages/CookiePolicy";
 import NotFound from "./pages/NotFound";
 import Projects from "./pages/Projects";
 
+// Error pages
+import Error400 from "./pages/Error400";
+import Error401 from "./pages/Error401";
+import Error403 from "./pages/Error403";
+import Error408 from "./pages/Error408";
+import Error429 from "./pages/Error429";
+import Error500 from "./pages/Error500";
+import Error501 from "./pages/Error501";
+import Error502 from "./pages/Error502";
+import Error503 from "./pages/Error503";
+import Error504 from "./pages/Error504";
+
 // Admin imports
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -275,6 +287,18 @@ const App = () => (
               <div className="p-6"><h1 className="text-3xl font-bold">Partners Section - Coming Soon</h1></div>
             </ProtectedRoute>
           } />
+          
+          {/* Error Pages */}
+          <Route path="/error/400" element={<Error400 />} />
+          <Route path="/error/401" element={<Error401 />} />
+          <Route path="/error/403" element={<Error403 />} />
+          <Route path="/error/408" element={<Error408 />} />
+          <Route path="/error/429" element={<Error429 />} />
+          <Route path="/error/500" element={<Error500 />} />
+          <Route path="/error/501" element={<Error501 />} />
+          <Route path="/error/502" element={<Error502 />} />
+          <Route path="/error/503" element={<Error503 />} />
+          <Route path="/error/504" element={<Error504 />} />
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
