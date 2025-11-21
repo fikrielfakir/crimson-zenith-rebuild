@@ -593,7 +593,7 @@ export default function NavbarSettings() {
         </div>
         {!isLoading && !error && navbarData ? (
           <div className="flex space-x-2">
-            <Button variant="outline" onClick(() => window.open('/', '_blank')}>
+            <Button variant="outline" onClick={() => window.open('/', '_blank')}>
               <Eye className="mr-2 h-4 w-4" />
               Preview
             </Button>
@@ -989,7 +989,7 @@ export default function NavbarSettings() {
             </Card>
           </TabsContent>
         </Tabs>
-      )}
+      ) : null}
     </div>
   );
 }
