@@ -384,34 +384,24 @@ const Book = () => {
     <div className="min-h-screen bg-white">
       <Header />
 
-      {/* Premium Hero Section with Background Image */}
-      <section className="relative overflow-hidden">
-        {/* Background Image with Overlay */}
-        <div className="absolute inset-0">
-          <img 
-            src={displayImages[0]} 
-            alt={selectedEvent.title}
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#111f50]/70 via-[#111f50]/60 to-[#111f50]/80" />
-        </div>
-
-        <div className="relative container mx-auto px-6 py-12">
-          {/* Elegant Breadcrumb Navigation */}
+      {/* Hero Section */}
+      <section className="bg-[#5b6b8f] relative overflow-hidden">
+        <div className="container mx-auto px-6 py-12">
+          {/* Breadcrumb Navigation */}
           <nav className="mb-8">
             <ol className="flex items-center space-x-3">
               <li>
                 <Link 
                   to="/" 
-                  className="group flex items-center gap-2 text-white/90 hover:text-white transition-all duration-300 bg-white/10 backdrop-blur-md px-4 py-2.5 rounded-full border border-white/20 hover:border-white/40 hover:bg-white/15 font-['Inter'] text-sm shadow-lg"
+                  className="flex items-center gap-2 text-white/90 hover:text-white transition-all duration-300 bg-white/10 backdrop-blur-md px-4 py-2.5 rounded-full border border-white/20 hover:border-white/30 font-['Inter'] text-sm"
                 >
                   <Home className="w-4 h-4" />
-                  <span className="hidden sm:inline">Home</span>
+                  Home
                 </Link>
               </li>
               <ChevronRight className="w-4 h-4 text-white/60" />
               <li>
-                <span className="flex items-center gap-2 text-white font-semibold bg-white/20 backdrop-blur-md px-4 py-2.5 rounded-full border border-white/30 shadow-xl font-['Inter'] text-sm">
+                <span className="flex items-center gap-2 text-white font-semibold bg-white/20 backdrop-blur-md px-4 py-2.5 rounded-full border border-white/30 font-['Inter'] text-sm">
                   <CalendarIcon className="w-4 h-4" />
                   Event Details
                 </span>
@@ -420,32 +410,31 @@ const Book = () => {
           </nav>
 
           {/* Hero Title */}
-          <div className="py-8">
-            <h1 className="font-['Poppins'] font-bold text-white mb-6 drop-shadow-2xl text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-tight">
+          <div className="py-4">
+            <h1 className="font-['Poppins'] font-bold text-white mb-6 text-5xl leading-tight">
               {selectedEvent.title}
             </h1>
             
             {/* Event Meta Information */}
-            <div className="flex flex-wrap gap-4 items-center mb-10">
-              <div className="flex items-center gap-2 bg-white/15 backdrop-blur-md px-4 py-2.5 rounded-full border border-white/25 shadow-lg">
-                <MapPin className="w-5 h-5 text-[#D4B26A]" />
-                <span className="text-white font-['Inter'] font-medium">{selectedEvent.location}</span>
+            <div className="flex flex-wrap gap-3 items-center">
+              <div className="flex items-center gap-2 bg-white/15 backdrop-blur-md px-4 py-2 rounded-full border border-white/25">
+                <MapPin className="w-4 h-4 text-[#D4B26A]" />
+                <span className="text-white font-['Inter'] text-sm">{selectedEvent.location}</span>
               </div>
-              <div className="flex items-center gap-2 bg-white/15 backdrop-blur-md px-4 py-2.5 rounded-full border border-white/25 shadow-lg">
-                <Clock className="w-5 h-5 text-[#D4B26A]" />
-                <span className="text-white font-['Inter'] font-medium">{selectedEvent.duration || '4 hours'}</span>
+              <div className="flex items-center gap-2 bg-white/15 backdrop-blur-md px-4 py-2 rounded-full border border-white/25">
+                <Clock className="w-4 h-4 text-[#D4B26A]" />
+                <span className="text-white font-['Inter'] text-sm">{selectedEvent.duration || '4 hours'}</span>
               </div>
               {selectedEvent.rating && (
-                <div className="flex items-center gap-2 bg-white/15 backdrop-blur-md px-4 py-2.5 rounded-full border border-white/25 shadow-lg">
-                  <Star className="w-5 h-5 text-[#D4B26A] fill-[#D4B26A]" />
-                  <span className="text-white font-['Inter'] font-semibold">{selectedEvent.rating}</span>
+                <div className="flex items-center gap-2 bg-white/15 backdrop-blur-md px-4 py-2 rounded-full border border-white/25">
+                  <Star className="w-4 h-4 text-[#D4B26A] fill-[#D4B26A]" />
+                  <span className="text-white font-['Inter'] text-sm font-semibold">{selectedEvent.rating}</span>
                   <span className="text-white/80 font-['Inter'] text-sm">({selectedEvent.reviewCount} reviews)</span>
                 </div>
               )}
             </div>
           </div>
         </div>
-
       </section>
 
       {/* Main Content Section */}
