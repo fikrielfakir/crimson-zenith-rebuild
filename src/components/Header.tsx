@@ -1,6 +1,15 @@
 import { Button } from "@/components/ui/button";
 import { useState, useEffect, useCallback } from "react";
-import { Globe, Moon, Sun, User, Menu, ChevronDown, ChevronRight, Heart } from "lucide-react";
+import {
+  Globe,
+  Moon,
+  Sun,
+  User,
+  Menu,
+  ChevronDown,
+  ChevronRight,
+  Heart,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import logoAtj from "@/assets/logo-atj.png";
 import { useNavbarSettings } from "@/hooks/useCMS";
@@ -15,10 +24,10 @@ interface NavLink {
 }
 
 const CitiesDropdown = () => {
-  const [emblaRef, emblaApi] = useEmblaCarousel({ 
+  const [emblaRef, emblaApi] = useEmblaCarousel({
     loop: true,
-    align: 'start',
-    slidesToScroll: 1
+    align: "start",
+    slidesToScroll: 1,
   });
   const [selectedIndex, setSelectedIndex] = useState(0);
 
@@ -38,9 +47,9 @@ const CitiesDropdown = () => {
   useEffect(() => {
     if (!emblaApi) return;
     onSelect();
-    emblaApi.on('select', onSelect);
+    emblaApi.on("select", onSelect);
     return () => {
-      emblaApi.off('select', onSelect);
+      emblaApi.off("select", onSelect);
     };
   }, [emblaApi, onSelect]);
 
@@ -50,14 +59,17 @@ const CitiesDropdown = () => {
         <div className="text-sm font-bold text-foreground mb-4 uppercase tracking-wider">
           TOP CITIES MOROCCO
         </div>
-        
+
         <div className="relative">
           <div className="overflow-hidden" ref={emblaRef}>
             <div className="flex gap-4">
               {moroccoCities.map((city) => (
                 <div key={city.id} className="flex-[0_0_32%] min-w-0">
                   <Link
-                    to={{ pathname: '/discover/cities', search: `?city=${city.slug}` }}
+                    to={{
+                      pathname: "/discover/cities",
+                      search: `?city=${city.slug}`,
+                    }}
                     className="block group/card"
                   >
                     <div className="relative h-32 rounded-lg overflow-hidden transition-all duration-300 ease-in-out group-hover/card:scale-105 group-hover/card:shadow-xl">
@@ -86,7 +98,7 @@ const CitiesDropdown = () => {
           >
             <ChevronRight className="w-5 h-5 rotate-180" />
           </button>
-          
+
           <button
             onClick={scrollNext}
             aria-label="Next cities"
@@ -96,7 +108,11 @@ const CitiesDropdown = () => {
           </button>
         </div>
 
-        <div className="flex justify-center gap-2 mt-4" role="tablist" aria-label="City carousel navigation">
+        <div
+          className="flex justify-center gap-2 mt-4"
+          role="tablist"
+          aria-label="City carousel navigation"
+        >
           {Array.from({ length: moroccoCities.length }).map((_, index) => (
             <button
               key={index}
@@ -105,7 +121,7 @@ const CitiesDropdown = () => {
               aria-label={`Go to slide ${index + 1}`}
               aria-selected={index === selectedIndex}
               className={`w-2 h-2 rounded-full transition-all duration-200 ${
-                index === selectedIndex ? 'bg-primary w-6' : 'bg-gray-300'
+                index === selectedIndex ? "bg-primary w-6" : "bg-gray-300"
               }`}
             />
           ))}
@@ -124,7 +140,7 @@ const TalentsDropdown = () => {
       <div className="p-4">
         <div className="flex flex-col gap-1">
           {/* Volunteers with sub-menu */}
-          <div 
+          <div
             className="relative group/volunteers"
             onMouseEnter={() => setVolunteersOpen(true)}
             onMouseLeave={() => setVolunteersOpen(false)}
@@ -134,7 +150,9 @@ const TalentsDropdown = () => {
               <ChevronRight className="w-4 h-4" />
             </div>
             {/* Volunteers submenu */}
-            <div className={`absolute left-full top-0 ml-2 w-48 bg-white/95 dark:bg-card/95 backdrop-blur-sm rounded-xl shadow-2xl border border-border/20 transition-all duration-300 ${volunteersOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}`}>
+            <div
+              className={`absolute left-full top-0 ml-2 w-48 bg-white/95 dark:bg-card/95 backdrop-blur-sm rounded-xl shadow-2xl border border-border/20 transition-all duration-300 ${volunteersOpen ? "opacity-100 visible" : "opacity-0 invisible"}`}
+            >
               <div className="p-2">
                 <Link
                   to="/talents/volunteers/spontaneous"
@@ -174,11 +192,11 @@ const TalentsDropdown = () => {
 };
 
 // Top Navbar (Utility Bar - Only utilities, no navigation)
-const TopNavbar = ({ 
-  isDarkMode, 
-  toggleDarkMode, 
-  currentLanguage, 
-  toggleLanguage, 
+const TopNavbar = ({
+  isDarkMode,
+  toggleDarkMode,
+  currentLanguage,
+  toggleLanguage,
   isScrolled,
   showLanguageSwitcher,
   showDarkModeToggle,
@@ -191,7 +209,7 @@ const TopNavbar = ({
   joinButtonStyle,
   onDonateClick,
   textColor,
-  hoverColor
+  hoverColor,
 }: {
   isDarkMode: boolean;
   toggleDarkMode: () => void;
@@ -219,13 +237,22 @@ const TopNavbar = ({
   };
 
   return (
-    <div className="w-full bg-transparent transition-all duration-300 overflow-hidden" style={isScrolled ? { maxHeight: '65px', opacity: '0', height: '65px' } : { maxHeight: '80px', opacity: '1' }}>
-      <div className={`container mx-auto px-6 transition-all duration-300 ${isScrolled ? 'py-0' : 'py-3'}`}>
+    <div
+      className="w-full bg-transparent transition-all duration-300 overflow-hidden"
+      style={
+        isScrolled
+          ? { maxHeight: "65px", opacity: "0", height: "65px" }
+          : { maxHeight: "80px", opacity: "1" }
+      }
+    >
+      <div
+        className={`container mx-auto px-6 transition-all duration-300 ${isScrolled ? "py-0" : "py-3"}`}
+      >
         <div className="flex items-center justify-end gap-4">
           {/* Language Switcher */}
           {showLanguageSwitcher && (
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               size="sm"
               onClick={toggleLanguage}
               className="px-3 py-2 text-xs flex items-center gap-1 rounded-button font-body"
@@ -238,22 +265,26 @@ const TopNavbar = ({
 
           {/* Dark Mode Toggle */}
           {showDarkModeToggle && (
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               size="sm"
               onClick={toggleDarkMode}
               className="px-2 py-2 rounded-button"
               style={{ color: textColor }}
             >
-              {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              {isDarkMode ? (
+                <Sun className="h-4 w-4" />
+              ) : (
+                <Moon className="h-4 w-4" />
+              )}
             </Button>
           )}
 
           {/* Login Button */}
           {showLoginButton && (
-            <Button 
+            <Button
               asChild
-              variant="ghost" 
+              variant="ghost"
               size="sm"
               className="px-3 py-2 text-xs flex items-center gap-1 rounded-button font-body"
               style={{ color: textColor }}
@@ -267,36 +298,40 @@ const TopNavbar = ({
 
           {/* Donate Button */}
           {showJoinButton && (
-            <Button 
+            <Button
               onClick={onDonateClick}
               className="text-white font-medium flex items-center gap-2 border-0 cursor-pointer transition-all duration-300 ease-in-out hover:scale-[1.03]"
               style={{
-                background: 'linear-gradient(90deg, #d45151 0%, #c04040 100%)',
-                fontSize: '16px',
-                fontWeight: '500',
-                borderRadius: '30px',
-                padding: '12px 28px',
-                height: '44px',
-                boxShadow: '0 2px 6px rgba(0, 0, 0, 0.15)',
+                background: "linear-gradient(90deg, #d45151 0%, #c04040 100%)",
+                fontSize: "16px",
+                fontWeight: "500",
+                borderRadius: "30px",
+                padding: "12px 28px",
+                height: "44px",
+                boxShadow: "0 2px 6px rgba(0, 0, 0, 0.15)",
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#b03a3a';
+                e.currentTarget.style.background = "#b03a3a";
                 handleDonateHover();
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'linear-gradient(90deg, #d45151 0%, #c04040 100%)';
+                e.currentTarget.style.background =
+                  "linear-gradient(90deg, #d45151 0%, #c04040 100%)";
               }}
             >
-              <Heart 
+              <Heart
                 className="h-[18px] w-[18px] transition-transform origin-center"
                 fill="white"
                 style={{
-                  animation: heartAnimate ? 'heartBeatWarp 0.8s ease-in-out' : 'none',
-                  transformOrigin: 'center center',
+                  animation: heartAnimate
+                    ? "heartBeatWarp 0.8s ease-in-out"
+                    : "none",
+                  transformOrigin: "center center",
                 }}
               />
-              <style dangerouslySetInnerHTML={{
-                __html: `
+              <style
+                dangerouslySetInnerHTML={{
+                  __html: `
                   @keyframes heartBeatWarp {
                     0% {
                       transform: scale(1) skew(0deg, 0deg);
@@ -332,8 +367,9 @@ const TopNavbar = ({
                       transform: scale(1) skew(0deg, 0deg) rotate(0deg);
                     }
                   }
-                `
-              }} />
+                `,
+                }}
+              />
               {joinButtonText}
             </Button>
           )}
@@ -344,7 +380,7 @@ const TopNavbar = ({
 };
 
 // Bottom Navbar (Main Navigation with Logo)
-const BottomNavbar = ({ 
+const BottomNavbar = ({
   isScrolled,
   navigationLinks,
   logoUrl,
@@ -354,14 +390,14 @@ const BottomNavbar = ({
   logoText,
   textColor,
   hoverColor,
-  navHeight
-}: { 
+  navHeight,
+}: {
   isScrolled: boolean;
   navigationLinks: NavLink[];
   logoUrl: string;
   logoSize: number;
   logoLink: string;
-  logoType: 'image' | 'text';
+  logoType: "image" | "text";
   logoText: string;
   textColor: string;
   hoverColor: string;
@@ -374,28 +410,40 @@ const BottomNavbar = ({
   return (
     <div className="w-full bg-transparent relative">
       {/* Top Border - breaks around logo */}
-      <div className={`relative h-px w-full transition-opacity duration-300 ${isScrolled ? 'opacity-0' : 'opacity-100'}`}>
+      <div
+        className={`relative h-px w-full transition-opacity duration-300 ${isScrolled ? "opacity-0" : "opacity-100"}`}
+      >
         <div className="container mx-auto px-6 flex items-center">
           <div className="flex-1 h-px bg-white/25"></div>
           <div className="w-48"></div>
           <div className="flex-1 h-px bg-white/25"></div>
         </div>
       </div>
-      
-      <div className="container mx-auto px-6" style={{paddingTop: '1.5rem', paddingBottom: '1.5rem'}}>
+
+      <div
+        className="container mx-auto px-6"
+        style={{ paddingTop: "1.5rem", paddingBottom: "1.5rem" }}
+      >
         <div className="grid grid-cols-3 md:grid-cols-[1fr_auto_1fr] items-center gap-12">
           {/* Left Section - Navigation */}
           <div className="hidden md:flex items-center justify-end">
-            <nav className={`flex items-center gap-10 transition-all duration-300 ${isScrolled ? 'relative' : ''}`} style={isScrolled ? {bottom: '1rem'} : {}}>
+            <nav
+              className={`flex items-center gap-10 transition-all duration-300 ${isScrolled ? "relative" : ""}`}
+              style={isScrolled ? { bottom: "1rem" } : {}}
+            >
               {leftLinks.map((link, index) => {
                 if (link.label === "Discover" && !link.isExternal) {
                   return (
                     <div key={index} className="relative group">
-                      <span 
+                      <span
                         className="transition-all duration-300 font-normal text-sm tracking-wide font-body flex items-center gap-1 cursor-pointer group"
                         style={{ color: textColor }}
-                        onMouseEnter={(e) => e.currentTarget.style.color = hoverColor}
-                        onMouseLeave={(e) => e.currentTarget.style.color = textColor}
+                        onMouseEnter={(e) =>
+                          (e.currentTarget.style.color = hoverColor)
+                        }
+                        onMouseLeave={(e) =>
+                          (e.currentTarget.style.color = textColor)
+                        }
                       >
                         {link.label}
                         <ChevronDown className="w-3 h-3 transition-transform group-hover:rotate-180 duration-300" />
@@ -404,15 +452,19 @@ const BottomNavbar = ({
                     </div>
                   );
                 }
-                
+
                 if (link.label === "Talents" && !link.isExternal) {
                   return (
                     <div key={index} className="relative group">
-                      <span 
+                      <span
                         className="transition-all duration-300 font-normal text-sm tracking-wide font-body flex items-center gap-1 cursor-pointer group"
                         style={{ color: textColor }}
-                        onMouseEnter={(e) => e.currentTarget.style.color = hoverColor}
-                        onMouseLeave={(e) => e.currentTarget.style.color = textColor}
+                        onMouseEnter={(e) =>
+                          (e.currentTarget.style.color = hoverColor)
+                        }
+                        onMouseLeave={(e) =>
+                          (e.currentTarget.style.color = textColor)
+                        }
                       >
                         {link.label}
                         <ChevronDown className="w-3 h-3 transition-transform group-hover:rotate-180 duration-300" />
@@ -421,7 +473,7 @@ const BottomNavbar = ({
                     </div>
                   );
                 }
-                
+
                 return link.isExternal ? (
                   <a
                     key={index}
@@ -430,19 +482,27 @@ const BottomNavbar = ({
                     rel="noopener noreferrer"
                     className="transition-all duration-300 font-normal text-sm tracking-wide font-body"
                     style={{ color: textColor }}
-                    onMouseEnter={(e) => e.currentTarget.style.color = hoverColor}
-                    onMouseLeave={(e) => e.currentTarget.style.color = textColor}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.color = hoverColor)
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.color = textColor)
+                    }
                   >
                     {link.label}
                   </a>
                 ) : (
-                  <Link 
+                  <Link
                     key={index}
-                    to={link.url} 
+                    to={link.url}
                     className="transition-all duration-300 font-normal text-sm tracking-wide font-body"
                     style={{ color: textColor }}
-                    onMouseEnter={(e) => e.currentTarget.style.color = hoverColor}
-                    onMouseLeave={(e) => e.currentTarget.style.color = textColor}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.color = hoverColor)
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.color = textColor)
+                    }
                   >
                     {link.label}
                   </Link>
@@ -450,40 +510,67 @@ const BottomNavbar = ({
               })}
             </nav>
           </div>
-          
+
           {/* Center Section - Logo */}
           <div className="col-start-2 justify-self-center flex items-center justify-center">
-            <Link to={logoLink} className="flex flex-col items-center" style={{position: 'relative', bottom: `${logoSize * 0.7}px`, height: '0'}}>
-              {logoType === 'image' ? (
-                <img 
-                  src={logoUrl} 
-                  alt="Logo" 
+            <Link
+              to={logoLink}
+              className="flex flex-col items-center"
+              style={{
+                position: "relative",
+                bottom: `${logoSize * 0.7}px`,
+                height: "0",
+              }}
+            >
+              {logoType === "image" ? (
+                <img
+                  src={logoUrl}
+                  alt="Logo"
                   className="w-auto object-contain transition-all duration-300 cursor-pointer hover:opacity-90"
-                  style={isScrolled ? {height: `${logoSize * 0.67}px`, margin: '20px 10px'} : {height: `${logoSize}px`}}
+                  style={
+                    isScrolled
+                      ? { height: `${logoSize * 0.67}px`, margin: "20px 10px" }
+                      : { height: `${logoSize}px` }
+                  }
                 />
               ) : (
-                <span 
+                <span
                   className="font-bold transition-all duration-300 cursor-pointer hover:opacity-90"
-                  style={isScrolled ? {fontSize: `${logoSize * 0.15}px`, margin: '20px 10px', color: textColor} : {fontSize: `${logoSize * 0.2}px`, color: textColor}}
+                  style={
+                    isScrolled
+                      ? {
+                          fontSize: `${logoSize * 0.15}px`,
+                          margin: "20px 10px",
+                          color: textColor,
+                        }
+                      : { fontSize: `${logoSize * 0.2}px`, color: textColor }
+                  }
                 >
                   {logoText}
                 </span>
               )}
             </Link>
           </div>
-          
+
           {/* Right Section - Navigation */}
           <div className="hidden md:flex items-center justify-start">
-            <nav className={`flex items-center gap-10 transition-all duration-300 ${isScrolled ? 'relative' : ''}`} style={isScrolled ? {bottom: '1rem'} : {}}>
+            <nav
+              className={`flex items-center gap-10 transition-all duration-300 ${isScrolled ? "relative" : ""}`}
+              style={isScrolled ? { bottom: "1rem" } : {}}
+            >
               {rightLinks.map((link, index) => {
                 if (link.label === "Discover" && !link.isExternal) {
                   return (
                     <div key={index} className="relative group">
-                      <span 
+                      <span
                         className="transition-all duration-300 font-normal text-sm tracking-wide font-body flex items-center gap-1 cursor-pointer group"
                         style={{ color: textColor }}
-                        onMouseEnter={(e) => e.currentTarget.style.color = hoverColor}
-                        onMouseLeave={(e) => e.currentTarget.style.color = textColor}
+                        onMouseEnter={(e) =>
+                          (e.currentTarget.style.color = hoverColor)
+                        }
+                        onMouseLeave={(e) =>
+                          (e.currentTarget.style.color = textColor)
+                        }
                       >
                         {link.label}
                         <ChevronDown className="w-3 h-3 transition-transform group-hover:rotate-180 duration-300" />
@@ -492,15 +579,19 @@ const BottomNavbar = ({
                     </div>
                   );
                 }
-                
+
                 if (link.label === "Talents" && !link.isExternal) {
                   return (
                     <div key={index} className="relative group">
-                      <span 
+                      <span
                         className="transition-all duration-300 font-normal text-sm tracking-wide font-body flex items-center gap-1 cursor-pointer group"
                         style={{ color: textColor }}
-                        onMouseEnter={(e) => e.currentTarget.style.color = hoverColor}
-                        onMouseLeave={(e) => e.currentTarget.style.color = textColor}
+                        onMouseEnter={(e) =>
+                          (e.currentTarget.style.color = hoverColor)
+                        }
+                        onMouseLeave={(e) =>
+                          (e.currentTarget.style.color = textColor)
+                        }
                       >
                         {link.label}
                         <ChevronDown className="w-3 h-3 transition-transform group-hover:rotate-180 duration-300" />
@@ -509,7 +600,7 @@ const BottomNavbar = ({
                     </div>
                   );
                 }
-                
+
                 return link.isExternal ? (
                   <a
                     key={index}
@@ -518,19 +609,27 @@ const BottomNavbar = ({
                     rel="noopener noreferrer"
                     className="transition-all duration-300 font-normal text-sm tracking-wide font-body"
                     style={{ color: textColor }}
-                    onMouseEnter={(e) => e.currentTarget.style.color = hoverColor}
-                    onMouseLeave={(e) => e.currentTarget.style.color = textColor}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.color = hoverColor)
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.color = textColor)
+                    }
                   >
                     {link.label}
                   </a>
                 ) : (
-                  <Link 
+                  <Link
                     key={index}
-                    to={link.url} 
+                    to={link.url}
                     className="transition-all duration-300 font-normal text-sm tracking-wide font-body"
                     style={{ color: textColor }}
-                    onMouseEnter={(e) => e.currentTarget.style.color = hoverColor}
-                    onMouseLeave={(e) => e.currentTarget.style.color = textColor}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.color = hoverColor)
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.color = textColor)
+                    }
                   >
                     {link.label}
                   </Link>
@@ -538,16 +637,21 @@ const BottomNavbar = ({
               })}
             </nav>
           </div>
-          
+
           {/* Mobile menu button */}
-          <Button variant="ghost" className="col-start-3 justify-self-end md:hidden text-white p-2">
+          <Button
+            variant="ghost"
+            className="col-start-3 justify-self-end md:hidden text-white p-2"
+          >
             <Menu className="w-6 h-6" />
           </Button>
         </div>
       </div>
-      
+
       {/* Bottom Border - breaks around logo */}
-      <div className={`relative h-px w-full transition-opacity duration-300 ${isScrolled ? 'opacity-0' : 'opacity-100'}`}>
+      <div
+        className={`relative h-px w-full transition-opacity duration-300 ${isScrolled ? "opacity-0" : "opacity-100"}`}
+      >
         <div className="container mx-auto px-6 flex items-center">
           <div className="flex-1 h-px bg-white/25"></div>
           <div className="w-48"></div>
@@ -563,7 +667,7 @@ const Header = () => {
   const { data: navbarSettings } = useNavbarSettings();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [currentLanguage, setCurrentLanguage] = useState('EN');
+  const [currentLanguage, setCurrentLanguage] = useState("EN");
   const [isDonateDrawerOpen, setIsDonateDrawerOpen] = useState(false);
 
   const defaultNavigationLinks: NavLink[] = [
@@ -577,13 +681,19 @@ const Header = () => {
     { label: "Contact", url: "/contact" },
   ];
 
-  const navigationLinks = navbarSettings?.navigationLinks && Array.isArray(navbarSettings.navigationLinks) && navbarSettings.navigationLinks.length > 0
-    ? navbarSettings.navigationLinks as NavLink[]
-    : defaultNavigationLinks;
+  const navigationLinks =
+    navbarSettings?.navigationLinks &&
+    Array.isArray(navbarSettings.navigationLinks) &&
+    navbarSettings.navigationLinks.length > 0
+      ? (navbarSettings.navigationLinks as NavLink[])
+      : defaultNavigationLinks;
 
-  const availableLanguages = navbarSettings?.availableLanguages && Array.isArray(navbarSettings.availableLanguages) && navbarSettings.availableLanguages.length > 0
-    ? navbarSettings.availableLanguages as string[]
-    : ['EN', 'FR', 'AR'];
+  const availableLanguages =
+    navbarSettings?.availableLanguages &&
+    Array.isArray(navbarSettings.availableLanguages) &&
+    navbarSettings.availableLanguages.length > 0
+      ? (navbarSettings.availableLanguages as string[])
+      : ["EN", "FR", "AR"];
 
   useEffect(() => {
     const handleScroll = () => {
@@ -591,13 +701,13 @@ const Header = () => {
     };
 
     handleScroll();
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode);
-    document.documentElement.classList.toggle('dark');
+    document.documentElement.classList.toggle("dark");
   };
 
   const toggleLanguage = () => {
@@ -606,48 +716,53 @@ const Header = () => {
     setCurrentLanguage(availableLanguages[nextIndex]);
   };
 
-  const logoUrl = navbarSettings?.logoType === 'image' && navbarSettings?.logoImageId
-    ? `/api/cms/media/${navbarSettings.logoImageId}`
-    : logoAtj;
+  const logoUrl =
+    navbarSettings?.logoType === "image" && navbarSettings?.logoImageId
+      ? `/api/cms/media/${navbarSettings.logoImageId}`
+      : logoAtj;
 
   // Extract styling settings with defaults
-  const bgColor = navbarSettings?.backgroundColor || '#112250';
-  const textColor = navbarSettings?.textColor || '#ffffff';
-  const hoverColor = navbarSettings?.hoverColor || '#D8C18D';
-  const fontFamily = navbarSettings?.fontFamily || 'Inter';
-  const fontSize = navbarSettings?.fontSize || '14px';
+  const bgColor = navbarSettings?.backgroundColor || "#112250";
+  const textColor = navbarSettings?.textColor || "#ffffff";
+  const hoverColor = navbarSettings?.hoverColor || "#D8C18D";
+  const fontFamily = navbarSettings?.fontFamily || "Inter";
+  const fontSize = navbarSettings?.fontSize || "14px";
   const navHeight = navbarSettings?.height || 80;
   const isSticky = navbarSettings?.isSticky ?? true;
-  const isTransparent = navbarSettings?.isTransparent ?? false;
-  const transparentBg = navbarSettings?.transparentBg || 'rgba(0,0,0,0.3)';
+  const isTransparent = navbarSettings?.isTransparent ?? true;
+
+  const transparentBg = navbarSettings?.transparentBg || "rgb(0 0 0 / 0%)";
   const scrolledBg = navbarSettings?.scrolledBg || bgColor;
   const logoSize = navbarSettings?.logoSize || 135;
-  const logoLink = navbarSettings?.logoLink || '/';
+  const logoLink = navbarSettings?.logoLink || "/";
 
   // Compute navbar background color based on scroll state and settings
   const getNavbarBg = () => {
-    if (isTransparent) {
-      return isScrolled ? scrolledBg : transparentBg;
+    if (isScrolled) {
+      return scrolledBg;
     }
-    return bgColor;
+    // When not scrolled
+    if (isTransparent) {
+      return transparentBg; // e.g., "rgba(0,0,0,0.3)" or "transparent"
+    }
+    return transparentBg;
   };
-
   return (
     <>
-      <header 
-        className={`${isSticky ? 'fixed' : 'absolute'} top-0 w-full z-50 transition-all duration-300 ${
-          isScrolled ? 'backdrop-blur-sm' : ''
-        }`} 
-        style={{ 
+      <header
+        className={`${isSticky ? "fixed" : "absolute"} top-0 w-full z-50 transition-all duration-300 ${
+          isScrolled ? "backdrop-blur-sm" : ""
+        }`}
+        style={{
           backgroundColor: getNavbarBg(),
-          marginTop: isScrolled ? '0' : '2.5rem',
+          marginTop: isScrolled ? "0" : "2.5rem",
           fontFamily: fontFamily,
           fontSize: fontSize,
           color: textColor,
         }}
       >
         {/* Top Navbar - Utility Bar (Language, Theme, Login, Join) */}
-        <TopNavbar 
+        <TopNavbar
           isDarkMode={isDarkMode}
           toggleDarkMode={toggleDarkMode}
           currentLanguage={currentLanguage}
@@ -666,23 +781,23 @@ const Header = () => {
           textColor={textColor}
           hoverColor={hoverColor}
         />
-        
+
         {/* Bottom Navbar - Main Navigation */}
-        <BottomNavbar 
-          isScrolled={isScrolled} 
+        <BottomNavbar
+          isScrolled={isScrolled}
           navigationLinks={navigationLinks}
           logoUrl={logoUrl}
           logoSize={logoSize}
           logoLink={logoLink}
-          logoType={navbarSettings?.logoType || 'image'}
-          logoText={navbarSettings?.logoText || ''}
+          logoType={navbarSettings?.logoType || "image"}
+          logoText={navbarSettings?.logoText || ""}
           textColor={textColor}
           hoverColor={hoverColor}
           navHeight={navHeight}
         />
       </header>
-      
-      <DonateDrawer 
+
+      <DonateDrawer
         open={isDonateDrawerOpen}
         onOpenChange={setIsDonateDrawerOpen}
       />
