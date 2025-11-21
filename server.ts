@@ -383,6 +383,25 @@ async function seedDatabase() {
       console.log(`✅ Database already has ${bookingEvents.length} booking events`);
     }
 
+    // Seed navbar settings with default navigation links
+    const navbarSettings = await storage.getNavbarSettings();
+    if (!navbarSettings || !navbarSettings.navigationLinks || navbarSettings.navigationLinks.length === 0) {
+      console.log('📝 Adding navbar settings seed data...');
+      await storage.updateNavbarSettings({
+        navigationLinks: [
+          { label: 'Discover', url: '/discover', isExternal: false, hasDropdown: true },
+          { label: 'Activities', url: '/activities', isExternal: false },
+          { label: 'Projects', url: '/projects', isExternal: false },
+          { label: 'Clubs', url: '/clubs', isExternal: false },
+          { label: 'Gallery', url: '/gallery', isExternal: false },
+          { label: 'Blog', url: '/blog', isExternal: false },
+          { label: 'Talents', url: '/talents', isExternal: false, hasDropdown: true },
+          { label: 'Contact', url: '/contact', isExternal: false }
+        ]
+      });
+      console.log('✅ Database seeded with navbar settings!');
+    }
+
     // Seed focus items
     const focusItems = await storage.getFocusItems();
     if (focusItems.length === 0) {

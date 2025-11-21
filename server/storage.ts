@@ -792,6 +792,15 @@ export class DatabaseStorage implements IStorage {
   // CMS operations
   async getNavbarSettings(): Promise<NavbarSettings | undefined> {
     const [settings] = await db.select().from(navbarSettings).where(eq(navbarSettings.id, 'default'));
+    if (settings) {
+      // Parse JSON fields if they're strings (MySQL returns JSON as strings)
+      if (typeof settings.navigationLinks === 'string') {
+        settings.navigationLinks = JSON.parse(settings.navigationLinks);
+      }
+      if (typeof settings.availableLanguages === 'string') {
+        settings.availableLanguages = JSON.parse(settings.availableLanguages);
+      }
+    }
     return settings;
   }
 
