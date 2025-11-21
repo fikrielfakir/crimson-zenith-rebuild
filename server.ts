@@ -76,7 +76,35 @@ async function runMigrations() {
       `ALTER TABLE booking_events ADD COLUMN IF NOT EXISTS latitude DECIMAL(9,6)`,
       `ALTER TABLE booking_events ADD COLUMN IF NOT EXISTS longitude DECIMAL(9,6)`,
       `ALTER TABLE booking_events ADD COLUMN IF NOT EXISTS start_date DATE`,
-      `ALTER TABLE booking_events ADD COLUMN IF NOT EXISTS end_date DATE`
+      `ALTER TABLE booking_events ADD COLUMN IF NOT EXISTS end_date DATE`,
+      // Add missing columns to president_message_settings table
+      `ALTER TABLE president_message_settings ADD COLUMN IF NOT EXISTS quote TEXT`,
+      `ALTER TABLE president_message_settings ADD COLUMN IF NOT EXISTS photo_id INT`,
+      `ALTER TABLE president_message_settings ADD COLUMN IF NOT EXISTS signature_id INT`,
+      `ALTER TABLE president_message_settings ADD COLUMN IF NOT EXISTS background_image_id INT`,
+      `ALTER TABLE president_message_settings ADD COLUMN IF NOT EXISTS background_gradient VARCHAR(255) DEFAULT 'linear-gradient(180deg, #112250 0%, #1a3366 100%)'`,
+      `ALTER TABLE president_message_settings ADD COLUMN IF NOT EXISTS title_font_family VARCHAR(100) DEFAULT 'Poppins'`,
+      `ALTER TABLE president_message_settings ADD COLUMN IF NOT EXISTS title_font_size VARCHAR(50) DEFAULT '48px'`,
+      `ALTER TABLE president_message_settings ADD COLUMN IF NOT EXISTS title_color VARCHAR(50) DEFAULT '#ffffff'`,
+      `ALTER TABLE president_message_settings ADD COLUMN IF NOT EXISTS title_alignment VARCHAR(20) DEFAULT 'left'`,
+      `ALTER TABLE president_message_settings ADD COLUMN IF NOT EXISTS name_font_family VARCHAR(100) DEFAULT 'Poppins'`,
+      `ALTER TABLE president_message_settings ADD COLUMN IF NOT EXISTS name_font_size VARCHAR(50) DEFAULT '28px'`,
+      `ALTER TABLE president_message_settings ADD COLUMN IF NOT EXISTS name_color VARCHAR(50) DEFAULT '#ffffff'`,
+      `ALTER TABLE president_message_settings ADD COLUMN IF NOT EXISTS role_font_family VARCHAR(100) DEFAULT 'Poppins'`,
+      `ALTER TABLE president_message_settings ADD COLUMN IF NOT EXISTS role_font_size VARCHAR(50) DEFAULT '18px'`,
+      `ALTER TABLE president_message_settings ADD COLUMN IF NOT EXISTS role_color VARCHAR(50) DEFAULT '#D8C18D'`,
+      `ALTER TABLE president_message_settings ADD COLUMN IF NOT EXISTS message_font_family VARCHAR(100) DEFAULT 'Poppins'`,
+      `ALTER TABLE president_message_settings ADD COLUMN IF NOT EXISTS message_font_size VARCHAR(50) DEFAULT '16px'`,
+      `ALTER TABLE president_message_settings ADD COLUMN IF NOT EXISTS message_color VARCHAR(50) DEFAULT '#ffffff'`,
+      `ALTER TABLE president_message_settings ADD COLUMN IF NOT EXISTS quote_color VARCHAR(50) DEFAULT '#D8C18D'`,
+      `ALTER TABLE president_message_settings ADD COLUMN IF NOT EXISTS quote_font_size VARCHAR(50) DEFAULT '18px'`,
+      `ALTER TABLE president_message_settings ADD COLUMN IF NOT EXISTS image_position VARCHAR(20) DEFAULT 'left'`,
+      `ALTER TABLE president_message_settings ADD COLUMN IF NOT EXISTS image_alignment VARCHAR(20) DEFAULT 'center'`,
+      `ALTER TABLE president_message_settings ADD COLUMN IF NOT EXISTS image_width VARCHAR(50) DEFAULT '42%'`,
+      `ALTER TABLE president_message_settings ADD COLUMN IF NOT EXISTS section_padding VARCHAR(50) DEFAULT '80px 0'`,
+      `ALTER TABLE president_message_settings ADD COLUMN IF NOT EXISTS content_gap VARCHAR(50) DEFAULT '48px'`,
+      `ALTER TABLE president_message_settings ADD COLUMN IF NOT EXISTS updated_by VARCHAR(255)`,
+      `ALTER TABLE president_message_settings ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP`
     ];
     
     for (const migration of migrations) {
@@ -3142,6 +3170,17 @@ app.put('/api/admin/cms/about', isAdmin, async (req, res) => {
   } catch (error) {
     console.error('❌ Error updating about settings:', error);
     res.status(500).json({ error: 'Failed to update about settings' });
+  }
+});
+
+// President Message Settings - Public endpoint
+app.get('/api/cms/president-message', async (req, res) => {
+  try {
+    const settings = await storage.getPresidentMessageSettings();
+    res.json(settings);
+  } catch (error) {
+    console.error('❌ Error fetching president message settings:', error);
+    res.status(500).json({ error: 'Failed to fetch president message settings' });
   }
 });
 
