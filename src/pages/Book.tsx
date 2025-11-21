@@ -386,7 +386,7 @@ const Book = () => {
 
       {/* Hero Section */}
       <section className="bg-[#5b6b8f] relative overflow-hidden">
-        <div className="container mx-auto px-6 py-12">
+        <div className="container mx-auto px-6 pt-24 pb-12">
           {/* Breadcrumb Navigation */}
           <nav className="mb-8">
             <ol className="flex items-center space-x-3">
