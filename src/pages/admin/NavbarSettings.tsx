@@ -242,9 +242,9 @@ export default function NavbarSettings() {
       }
       setLogoSize(navbarData.logoSize || 135);
       setLogoLink(navbarData.logoLink || '/');
-      setNavLinks(navbarData.navigationLinks || []);
+      setNavLinks(Array.isArray(navbarData.navigationLinks) ? navbarData.navigationLinks : []);
       setShowLanguageSwitcher(navbarData.showLanguageSwitcher ?? true);
-      setAvailableLanguages(navbarData.availableLanguages || ['EN', 'FR', 'AR']);
+      setAvailableLanguages(Array.isArray(navbarData.availableLanguages) ? navbarData.availableLanguages : ['EN', 'FR', 'AR']);
       setShowDarkModeToggle(navbarData.showDarkModeToggle ?? true);
       setShowLoginButton(navbarData.showLoginButton ?? true);
       setShowJoinButton(navbarData.showJoinButton ?? true);
