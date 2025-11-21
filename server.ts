@@ -3123,6 +3123,261 @@ app.get('/api/admin/cms/media', isAdmin, async (req, res) => {
   }
 });
 
+// About Settings - Admin endpoints
+app.get('/api/admin/cms/about', isAdmin, async (req, res) => {
+  try {
+    const settings = await storage.getAboutSettings();
+    res.json(settings);
+  } catch (error) {
+    console.error('❌ Error fetching about settings:', error);
+    res.status(500).json({ error: 'Failed to fetch about settings' });
+  }
+});
+
+app.put('/api/admin/cms/about', isAdmin, async (req, res) => {
+  try {
+    const userId = (req.user as any)?.id;
+    const settings = await storage.updateAboutSettings(req.body, userId);
+    res.json(settings);
+  } catch (error) {
+    console.error('❌ Error updating about settings:', error);
+    res.status(500).json({ error: 'Failed to update about settings' });
+  }
+});
+
+// President Message Settings - Admin endpoints
+app.get('/api/admin/cms/president-message', isAdmin, async (req, res) => {
+  try {
+    const settings = await storage.getPresidentMessageSettings();
+    res.json(settings);
+  } catch (error) {
+    console.error('❌ Error fetching president message settings:', error);
+    res.status(500).json({ error: 'Failed to fetch president message settings' });
+  }
+});
+
+app.put('/api/admin/cms/president-message', isAdmin, async (req, res) => {
+  try {
+    const userId = (req.user as any)?.id;
+    const settings = await storage.updatePresidentMessageSettings(req.body, userId);
+    res.json(settings);
+  } catch (error) {
+    console.error('❌ Error updating president message settings:', error);
+    res.status(500).json({ error: 'Failed to update president message settings' });
+  }
+});
+
+// Footer Settings - Admin endpoints
+app.put('/api/admin/cms/footer', isAdmin, async (req, res) => {
+  try {
+    const userId = (req.user as any)?.id;
+    const settings = await storage.updateFooterSettings(req.body, userId);
+    res.json(settings);
+  } catch (error) {
+    console.error('❌ Error updating footer settings:', error);
+    res.status(500).json({ error: 'Failed to update footer settings' });
+  }
+});
+
+// Partner Settings - Admin endpoints
+app.get('/api/admin/cms/partner-settings', isAdmin, async (req, res) => {
+  try {
+    const settings = await storage.getPartnerSettings();
+    res.json(settings);
+  } catch (error) {
+    console.error('❌ Error fetching partner settings:', error);
+    res.status(500).json({ error: 'Failed to fetch partner settings' });
+  }
+});
+
+app.put('/api/admin/cms/partner-settings', isAdmin, async (req, res) => {
+  try {
+    const userId = (req.user as any)?.id;
+    const settings = await storage.updatePartnerSettings(req.body, userId);
+    res.json(settings);
+  } catch (error) {
+    console.error('❌ Error updating partner settings:', error);
+    res.status(500).json({ error: 'Failed to update partner settings' });
+  }
+});
+
+// Partners CRUD - Admin endpoints
+app.get('/api/admin/cms/partners', isAdmin, async (req, res) => {
+  try {
+    const partners = await storage.getPartners();
+    res.json(partners);
+  } catch (error) {
+    console.error('❌ Error fetching partners:', error);
+    res.status(500).json({ error: 'Failed to fetch partners' });
+  }
+});
+
+app.post('/api/admin/cms/partners', isAdmin, async (req, res) => {
+  try {
+    const userId = (req.user as any)?.id;
+    const partner = await storage.createPartner({ ...req.body, createdBy: userId });
+    res.status(201).json(partner);
+  } catch (error) {
+    console.error('❌ Error creating partner:', error);
+    res.status(500).json({ error: 'Failed to create partner' });
+  }
+});
+
+app.put('/api/admin/cms/partners/:id', isAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const partner = await storage.updatePartner(id, req.body);
+    res.json(partner);
+  } catch (error) {
+    console.error('❌ Error updating partner:', error);
+    res.status(500).json({ error: 'Failed to update partner' });
+  }
+});
+
+app.delete('/api/admin/cms/partners/:id', isAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    await storage.deletePartner(id);
+    res.status(204).send();
+  } catch (error) {
+    console.error('❌ Error deleting partner:', error);
+    res.status(500).json({ error: 'Failed to delete partner' });
+  }
+});
+
+// Focus Items CRUD - Admin endpoints
+app.get('/api/admin/cms/focus-items', isAdmin, async (req, res) => {
+  try {
+    const items = await storage.getFocusItems();
+    res.json(items);
+  } catch (error) {
+    console.error('❌ Error fetching focus items:', error);
+    res.status(500).json({ error: 'Failed to fetch focus items' });
+  }
+});
+
+app.post('/api/admin/cms/focus-items', isAdmin, async (req, res) => {
+  try {
+    const userId = (req.user as any)?.id;
+    const item = await storage.createFocusItem({ ...req.body, createdBy: userId });
+    res.status(201).json(item);
+  } catch (error) {
+    console.error('❌ Error creating focus item:', error);
+    res.status(500).json({ error: 'Failed to create focus item' });
+  }
+});
+
+app.put('/api/admin/cms/focus-items/:id', isAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const item = await storage.updateFocusItem(id, req.body);
+    res.json(item);
+  } catch (error) {
+    console.error('❌ Error updating focus item:', error);
+    res.status(500).json({ error: 'Failed to update focus item' });
+  }
+});
+
+app.delete('/api/admin/cms/focus-items/:id', isAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    await storage.deleteFocusItem(id);
+    res.status(204).send();
+  } catch (error) {
+    console.error('❌ Error deleting focus item:', error);
+    res.status(500).json({ error: 'Failed to delete focus item' });
+  }
+});
+
+// Testimonials CRUD - Admin endpoints
+app.get('/api/admin/cms/testimonials', isAdmin, async (req, res) => {
+  try {
+    const testimonials = await storage.getLandingTestimonials();
+    res.json(testimonials);
+  } catch (error) {
+    console.error('❌ Error fetching testimonials:', error);
+    res.status(500).json({ error: 'Failed to fetch testimonials' });
+  }
+});
+
+app.post('/api/admin/cms/testimonials', isAdmin, async (req, res) => {
+  try {
+    const userId = (req.user as any)?.id;
+    const testimonial = await storage.createLandingTestimonial({ ...req.body, userId });
+    res.status(201).json(testimonial);
+  } catch (error) {
+    console.error('❌ Error creating testimonial:', error);
+    res.status(500).json({ error: 'Failed to create testimonial' });
+  }
+});
+
+app.put('/api/admin/cms/testimonials/:id', isAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const testimonial = await storage.updateLandingTestimonial(id, req.body);
+    res.json(testimonial);
+  } catch (error) {
+    console.error('❌ Error updating testimonial:', error);
+    res.status(500).json({ error: 'Failed to update testimonial' });
+  }
+});
+
+app.delete('/api/admin/cms/testimonials/:id', isAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    await storage.deleteLandingTestimonial(id);
+    res.status(204).send();
+  } catch (error) {
+    console.error('❌ Error deleting testimonial:', error);
+    res.status(500).json({ error: 'Failed to delete testimonial' });
+  }
+});
+
+// Site Stats CRUD - Admin endpoints
+app.get('/api/admin/cms/stats', isAdmin, async (req, res) => {
+  try {
+    const stats = await storage.getSiteStats();
+    res.json(stats);
+  } catch (error) {
+    console.error('❌ Error fetching site stats:', error);
+    res.status(500).json({ error: 'Failed to fetch site stats' });
+  }
+});
+
+app.post('/api/admin/cms/stats', isAdmin, async (req, res) => {
+  try {
+    const userId = (req.user as any)?.id;
+    const stat = await storage.createSiteStat({ ...req.body, updatedBy: userId });
+    res.status(201).json(stat);
+  } catch (error) {
+    console.error('❌ Error creating site stat:', error);
+    res.status(500).json({ error: 'Failed to create site stat' });
+  }
+});
+
+app.put('/api/admin/cms/stats/:id', isAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const userId = (req.user as any)?.id;
+    const stat = await storage.updateSiteStat(id, { ...req.body, updatedBy: userId });
+    res.json(stat);
+  } catch (error) {
+    console.error('❌ Error updating site stat:', error);
+    res.status(500).json({ error: 'Failed to update site stat' });
+  }
+});
+
+app.delete('/api/admin/cms/stats/:id', isAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    await storage.deleteSiteStat(id);
+    res.status(204).send();
+  } catch (error) {
+    console.error('❌ Error deleting site stat:', error);
+    res.status(500).json({ error: 'Failed to delete site stat' });
+  }
+});
+
 // In production, handle client-side routing
 if (process.env.NODE_ENV === 'production') {
   app.get('*', (req, res) => {
