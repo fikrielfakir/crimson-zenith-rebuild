@@ -1,0 +1,118 @@
+Rebuild this landing page with a full customization system through the admin panel.
+I want the entire page to be editable without touching code.
+The admin must be able to visually customize every section, including text, icons, fonts, sizes, colors, images, buttons, spacing, and the site logo.”
+
+🔥 Requirements
+1. Global Customization
+
+Ability to change the logo (upload + replace)
+
+Ability to edit global font family, font sizes, and text colors
+
+Ability to edit primary, secondary, and accent colors
+
+Ability to edit icons (upload SVG or choose from icon library)
+
+Ability to customize background images, gradients, and patterns
+
+2. Navbar Customization
+
+Change navbar links, titles, order, and icons
+
+Enable/disable CTA button and edit its style
+
+Change navbar background color, height, and transparency
+
+Upload a different logo for dark/light modes
+
+3. Hero Section
+
+Edit H1 title, subtitle, paragraphs
+
+Change font family, font size, line-height, text alignment
+
+Replace hero background image
+
+Customize buttons (text, colors, hover animations)
+
+Replace or remove decorative shapes/overlays
+
+4. “Word From the President” Section
+
+Edit title, paragraphs, and signature
+
+Replace president image
+
+Customize the card shadow, padding, and background
+
+5. Focus Section
+
+Replace icons or images for each focus item
+
+Edit each focus title and description
+
+Change section background, spacing, and layout
+
+6. Clubs Section
+
+Ability to add/remove/edit clubs
+
+Change club titles, icons, background image
+
+Customize the map background
+
+Change the layout (grid / slider)
+
+7. Events & Activities Calendar
+
+Customize calendar colors, cell size, and hover effects
+
+Add/remove events from the admin panel
+
+Edit event card (image, title, date, link)
+
+Change section background
+
+8. Impact Section
+
+Add/edit impact statistics, icons, and descriptions
+
+Customize card design (colors, borders, shadows)
+
+9. Member Stories
+
+Add/remove testimonials
+
+Edit testimonial text, name, rating, photo
+
+Customize layout (slider/grid)
+
+10. Footer
+
+Change footer text, links, icons
+
+Customize background color, logo, and section spacing
+
+🎨 Technical Requirements
+
+All fields editable from Admin Panel (Laravel Nova, Voyager, Filament, or custom CMS)
+
+Support for:
+
+Text inputs
+
+Rich text editor
+
+Image uploader
+
+Color picker
+
+Icon picker
+
+Font selection dropdown
+
+Section-level toggles (show/hide components)
+
+Output Expected
+
+A fully dynamic landing page where every section can be updated visually from the admin without code changes.

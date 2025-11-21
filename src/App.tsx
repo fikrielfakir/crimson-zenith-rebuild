@@ -41,6 +41,9 @@ import AuthSettings from "./pages/admin/AuthSettings";
 import PaymentSettings from "./pages/admin/PaymentSettings";
 import BookingManagement from "./pages/admin/BookingManagement";
 import ThemeCustomization from "./pages/admin/ThemeCustomization";
+import ThemeSettings from "./pages/admin/ThemeSettings";
+import NavbarSettings from "./pages/admin/NavbarSettings";
+import HeroSettings from "./pages/admin/HeroSettings";
 import JoinUs from "./pages/JoinUs";
 import ClubDetail from "./pages/ClubDetail";
 import ActivityDetail from "./pages/ActivityDetail";
@@ -216,9 +219,24 @@ const App = () => (
               <BookingManagement />
             </ProtectedRoute>
           } />
-          <Route path="/admin/theme" element={
+          <Route path="/admin/theme-old" element={
             <ProtectedRoute>
               <ThemeCustomization />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/theme" element={
+            <ProtectedRoute>
+              <ThemeSettings />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/navbar" element={
+            <ProtectedRoute>
+              <NavbarSettings />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/hero" element={
+            <ProtectedRoute>
+              <HeroSettings />
             </ProtectedRoute>
           } />
           
