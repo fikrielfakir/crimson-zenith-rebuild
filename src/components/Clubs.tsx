@@ -1,14 +1,24 @@
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { ErrorState } from "@/components/ui/error-state";
 
 const Clubs = () => {
-  const { data: clubsData, isLoading } = useQuery({
+  const { data: clubsData, isLoading, error, refetch } = useQuery({
     queryKey: ['clubs'],
     queryFn: async () => {
       const response = await fetch('/api/clubs');
-      if (!response.ok) throw new Error('Failed to fetch clubs');
+      if (!response.ok) {
+        const errorMessage = response.status >= 500 
+          ? 'Server error. Please try again later.' 
+          : 'Failed to fetch clubs';
+        throw new Error(errorMessage);
+      }
       return response.json();
     },
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    staleTime: 2 * 60 * 1000,
   });
 
   const clubs = clubsData?.clubs || [];
@@ -26,10 +36,13 @@ const Clubs = () => {
         </div>
         
         {isLoading ? (
-          <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-gray-400">Loading clubs...</p>
-          </div>
+          <LoadingSpinner message="Loading clubs..." size="lg" className="py-12" />
+        ) : error ? (
+          <ErrorState 
+            message={(error as Error).message} 
+            onRetry={() => refetch()} 
+            className="py-12"
+          />
         ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {clubs.map((club: any, index: number) => (

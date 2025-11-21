@@ -78,9 +78,19 @@ export function useNavbarSettings() {
     queryKey: ["cms", "navbar"],
     queryFn: async () => {
       const res = await fetch("/api/cms/navbar");
-      if (!res.ok) throw new Error("Failed to fetch navbar settings");
+      if (!res.ok) {
+        const errorMessage = res.status === 404 
+          ? "Navbar settings not found" 
+          : res.status >= 500 
+          ? "Server error. Please try again later." 
+          : "Failed to fetch navbar settings";
+        throw new Error(errorMessage);
+      }
       return res.json() as Promise<NavbarSettings>;
     },
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    staleTime: 5 * 60 * 1000,
   });
 }
 
@@ -89,9 +99,19 @@ export function useHeroSettings() {
     queryKey: ["cms", "hero"],
     queryFn: async () => {
       const res = await fetch("/api/cms/hero");
-      if (!res.ok) throw new Error("Failed to fetch hero settings");
+      if (!res.ok) {
+        const errorMessage = res.status === 404 
+          ? "Hero settings not found" 
+          : res.status >= 500 
+          ? "Server error. Please try again later." 
+          : "Failed to fetch hero settings";
+        throw new Error(errorMessage);
+      }
       return res.json() as Promise<HeroSettings>;
     },
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    staleTime: 5 * 60 * 1000,
   });
 }
 
@@ -100,9 +120,19 @@ export function useThemeSettings() {
     queryKey: ["cms", "theme"],
     queryFn: async () => {
       const res = await fetch("/api/cms/theme");
-      if (!res.ok) throw new Error("Failed to fetch theme settings");
+      if (!res.ok) {
+        const errorMessage = res.status === 404 
+          ? "Theme settings not found" 
+          : res.status >= 500 
+          ? "Server error. Please try again later." 
+          : "Failed to fetch theme settings";
+        throw new Error(errorMessage);
+      }
       return res.json() as Promise<ThemeSettings>;
     },
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    staleTime: 5 * 60 * 1000,
   });
 }
 
@@ -173,9 +203,19 @@ export function useMediaAssets() {
       const res = await fetch("/api/admin/cms/media", {
         credentials: "include",
       });
-      if (!res.ok) throw new Error("Failed to fetch media assets");
+      if (!res.ok) {
+        const errorMessage = res.status === 401 
+          ? "Unauthorized. Please log in." 
+          : res.status >= 500 
+          ? "Server error. Please try again later." 
+          : "Failed to fetch media assets";
+        throw new Error(errorMessage);
+      }
       return res.json() as Promise<MediaAsset[]>;
     },
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    staleTime: 2 * 60 * 1000,
   });
 }
 

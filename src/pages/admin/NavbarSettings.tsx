@@ -9,6 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { useNavbarSettings, useUpdateNavbarSettings } from '@/hooks/useCMS';
 import { Save, Plus, Trash2, GripVertical, Eye, Upload, Link as LinkIcon } from 'lucide-react';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { ErrorState } from '@/components/ui/error-state';
 import {
   DndContext,
   closestCenter,
@@ -308,18 +310,31 @@ function SortableNavLink({
 function MediaLibraryDialog({ onSelectMedia }: { onSelectMedia: (mediaId: number, url: string) => void }) {
   const [media, setMedia] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const loadMedia = () => {
+    setIsLoading(true);
+    setError(null);
     fetch('/api/admin/cms/media')
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(res.status >= 500 ? 'Server error. Please try again.' : 'Failed to load media');
+        }
+        return res.json();
+      })
       .then(data => {
         setMedia(data);
         setIsLoading(false);
       })
       .catch(err => {
         console.error('Failed to load media:', err);
+        setError(err.message);
         setIsLoading(false);
       });
+  };
+
+  useEffect(() => {
+    loadMedia();
   }, []);
 
   return (
@@ -329,7 +344,9 @@ function MediaLibraryDialog({ onSelectMedia }: { onSelectMedia: (mediaId: number
         <DialogDescription>Choose an image from your media library to use as the logo</DialogDescription>
       </DialogHeader>
       {isLoading ? (
-        <div className="flex items-center justify-center p-8">Loading...</div>
+        <LoadingSpinner message="Loading media library..." className="p-8" />
+      ) : error ? (
+        <ErrorState message={error} onRetry={loadMedia} className="p-8" />
       ) : (
         <div className="grid grid-cols-4 gap-4">
           {media.filter(m => m.fileType.startsWith('image/')).map((item) => (
@@ -354,7 +371,7 @@ function MediaLibraryDialog({ onSelectMedia }: { onSelectMedia: (mediaId: number
 
 export default function NavbarSettings() {
   const { toast } = useToast();
-  const { data: navbarData, isLoading } = useNavbarSettings();
+  const { data: navbarData, isLoading, error, refetch } = useNavbarSettings();
   const updateNavbar = useUpdateNavbarSettings();
   
   // Logo Settings
@@ -568,7 +585,22 @@ export default function NavbarSettings() {
   };
 
   if (isLoading) {
-    return <div className="flex items-center justify-center h-64">Loading...</div>;
+    return <LoadingSpinner message="Loading navbar settings..." size="lg" className="h-64" />;
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold">Navbar Settings</h1>
+          <p className="text-muted-foreground mt-1">Customize your website's navigation bar</p>
+        </div>
+        <ErrorState 
+          message={(error as Error).message} 
+          onRetry={() => refetch()} 
+        />
+      </div>
+    );
   }
 
   return (
