@@ -249,7 +249,7 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
-  // Helper functions for PostgreSQL (uses .returning() support)
+  // Helper functions for MySQL (does not support .returning())
   
   // Insert and fetch - handles both auto-increment IDs and user-provided IDs (including strings)
   private async insertAndFetch<T extends { id: number | string }>(
@@ -257,9 +257,16 @@ export class DatabaseStorage implements IStorage {
     values: any,
     dbOrTx: any = db
   ): Promise<T> {
-    // PostgreSQL supports RETURNING clause
-    const [result] = await dbOrTx.insert(table).values(values).returning();
-    return result as T;
+    // MySQL does not support RETURNING clause
+    // Insert and then fetch the record
+    const result = await dbOrTx.insert(table).values(values);
+    
+    // If the ID was provided in values, use it; otherwise use the inserted ID
+    const insertedId = values.id || result.insertId;
+    
+    // Fetch the inserted record
+    const [record] = await dbOrTx.select().from(table).where(eq(table.id, insertedId));
+    return record as T;
   }
   
   // Update and fetch using primary key
@@ -737,18 +744,23 @@ export class DatabaseStorage implements IStorage {
       updateData.transactionId = additionalData.transactionId;
     }
     
-    // Update the ticket using bookingReference
-    const updated = await db
+    // Update the ticket using bookingReference (MySQL does not support .returning())
+    await db
       .update(bookingTickets)
       .set(updateData)
-      .where(eq(bookingTickets.bookingReference, bookingReference))
-      .returning();
+      .where(eq(bookingTickets.bookingReference, bookingReference));
     
-    if (!updated || updated.length === 0) {
+    // Fetch the updated ticket
+    const [updated] = await db
+      .select()
+      .from(bookingTickets)
+      .where(eq(bookingTickets.bookingReference, bookingReference));
+    
+    if (!updated) {
       throw new Error(`Booking ticket not found: ${bookingReference}`);
     }
     
-    return updated[0];
+    return updated;
   }
 
   // Booking page settings operations
