@@ -446,68 +446,6 @@ const Book = () => {
           </div>
         </div>
 
-        {/* Premium Image Gallery Carousel at Bottom of Hero */}
-        {displayImages.length > 0 && (
-          <div className="relative pb-8">
-            <div className="container mx-auto px-6">
-              <div className="max-w-6xl mx-auto">
-                <div className="relative rounded-3xl overflow-hidden shadow-2xl" style={{ boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.4)' }}>
-                  <div ref={emblaRef} className="overflow-hidden">
-                    <div className="flex">
-                      {displayImages.map((image, index) => (
-                        <div key={index} className="flex-[0_0_100%] min-w-0">
-                          <div className="relative aspect-[21/9]">
-                            <img 
-                              src={image}
-                              alt={`${selectedEvent.title} - Gallery ${index + 1}`}
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Premium Navigation Buttons */}
-                  {displayImages.length > 1 && (
-                    <>
-                      <button
-                        onClick={scrollPrev}
-                        className="absolute left-6 top-1/2 -translate-y-1/2 bg-white/95 hover:bg-white text-[#111f50] p-4 rounded-full shadow-xl transition-all duration-300 hover:scale-110 hover:shadow-2xl z-10 backdrop-blur-sm"
-                        aria-label="Previous image"
-                      >
-                        <ChevronLeft className="w-6 h-6" />
-                      </button>
-                      <button
-                        onClick={scrollNext}
-                        className="absolute right-6 top-1/2 -translate-y-1/2 bg-white/95 hover:bg-white text-[#111f50] p-4 rounded-full shadow-xl transition-all duration-300 hover:scale-110 hover:shadow-2xl z-10 backdrop-blur-sm"
-                        aria-label="Next image"
-                      >
-                        <ChevronRight className="w-6 h-6" />
-                      </button>
-
-                      {/* Elegant Dots Indicator */}
-                      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2.5 z-10">
-                        {displayImages.map((_, index) => (
-                          <button
-                            key={index}
-                            onClick={() => emblaApi && emblaApi.scrollTo(index)}
-                            className={`h-2.5 rounded-full transition-all duration-300 ${
-                              index === selectedImageIndex
-                                ? 'bg-[#D4B26A] w-12 shadow-lg'
-                                : 'bg-white/60 hover:bg-white/80 w-2.5'
-                            }`}
-                            aria-label={`View image ${index + 1}`}
-                          />
-                        ))}
-                      </div>
-                    </>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
       </section>
 
       {/* Main Content Section */}
