@@ -979,6 +979,53 @@ export class DatabaseStorage implements IStorage {
     await db.update(focusItems).set({ isActive: false }).where(eq(focusItems.id, id));
   }
 
+  async bulkReorderFocusItems(items: Array<{ id: number; ordering: number }>): Promise<void> {
+    const existingItems = await db.select({ id: focusItems.id }).from(focusItems).where(eq(focusItems.isActive, true));
+    const existingIds = new Set(existingItems.map(i => i.id));
+    const requestIds = items.map(i => i.id);
+    const uniqueRequestIds = new Set(requestIds);
+    
+    if (requestIds.length !== uniqueRequestIds.size) {
+      throw new Error('Duplicate IDs detected in request');
+    }
+    
+    if (existingIds.size !== requestIds.length) {
+      throw new Error(`Expected ${existingIds.size} items, received ${requestIds.length}`);
+    }
+    
+    const sortedExistingIds = Array.from(existingIds).sort((a, b) => a - b);
+    const sortedRequestIds = Array.from(uniqueRequestIds).sort((a, b) => a - b);
+    
+    for (let i = 0; i < sortedExistingIds.length; i++) {
+      if (sortedExistingIds[i] !== sortedRequestIds[i]) {
+        throw new Error(`ID mismatch: request does not contain all active focus items`);
+      }
+    }
+    
+    const orderingValues = items.map(i => i.ordering);
+    const uniqueOrderings = new Set(orderingValues);
+    
+    if (orderingValues.length !== uniqueOrderings.size) {
+      throw new Error('Duplicate ordering values detected');
+    }
+    
+    const sortedOrderings = [...orderingValues].sort((a, b) => a - b);
+    for (let i = 0; i < sortedOrderings.length; i++) {
+      if (sortedOrderings[i] !== i) {
+        throw new Error('Ordering values must be contiguous starting from 0');
+      }
+    }
+    
+    await db.transaction(async (tx) => {
+      for (const item of items) {
+        await tx
+          .update(focusItems)
+          .set({ ordering: item.ordering, updatedAt: new Date() })
+          .where(eq(focusItems.id, item.id));
+      }
+    });
+  }
+
   // Team members operations
   async getTeamMembers(): Promise<TeamMember[]> {
     return await db.select().from(teamMembers).where(eq(teamMembers.isActive, true)).orderBy(asc(teamMembers.ordering));

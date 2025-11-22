@@ -57,6 +57,7 @@ import ThemeSettings from "./pages/admin/ThemeSettings";
 import NavbarSettings from "./pages/admin/NavbarSettings";
 import HeroSettings from "./pages/admin/HeroSettings";
 import PresidentMessageSettings from "./pages/admin/PresidentMessageSettings";
+import FocusAreasManagement from "./pages/admin/FocusAreasManagement";
 import JoinUs from "./pages/JoinUs";
 import ClubDetail from "./pages/ClubDetail";
 import ActivityDetail from "./pages/ActivityDetail";
@@ -259,7 +260,7 @@ const App = () => (
           } />
           <Route path="/admin/customization/focus-areas" element={
             <ProtectedRoute>
-              <div className="p-6"><h1 className="text-3xl font-bold">Focus Areas Section - Coming Soon</h1></div>
+              <FocusAreasManagement />
             </ProtectedRoute>
           } />
           <Route path="/admin/customization/clubs" element={

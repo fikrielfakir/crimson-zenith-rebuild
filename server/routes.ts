@@ -472,6 +472,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post('/api/admin/cms/focus-items/bulk-reorder', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const { items } = req.body;
+      await storage.bulkReorderFocusItems(items);
+      res.json({ success: true });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to bulk reorder focus items";
+      console.error("Error bulk reordering focus items:", error);
+      res.status(400).json({ message: errorMessage });
+    }
+  });
+
   // Team Members
   app.get('/api/cms/team-members', async (req, res) => {
     try {
