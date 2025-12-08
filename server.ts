@@ -1970,35 +1970,48 @@ app.post('/api/admin/events', isAdmin, async (req, res) => {
       return res.status(400).json({ error: 'Invalid start date' });
     }
     
-    // Get first club as default
-    const [firstClub] = await db.select().from(clubs).limit(1);
-    const defaultClubId = firstClub?.id || eventData.clubId || 1;
-    
-    // Map status: draft → upcoming, published → upcoming, cancelled → cancelled
-    let backendStatus = 'upcoming';
-    if (eventData.status === 'cancelled') backendStatus = 'cancelled';
-    
     // Generate unique string ID from title (slug format) with timestamp
-    const slugBase = eventData.title
+    const slugBase = (eventData.title || 'event')
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-|-$/g, '')
       .substring(0, 50);
     const uniqueId = `${slugBase}-${Date.now()}`;
     
+    // Determine clubId - null for association events
+    let clubId = null;
+    if (!eventData.isAssociationEvent && eventData.clubId) {
+      clubId = parseInt(eventData.clubId);
+    } else if (!eventData.isAssociationEvent) {
+      // Get first club as default for club events
+      const [firstClub] = await db.select().from(clubs).limit(1);
+      clubId = firstClub?.id || null;
+    }
+    
     await db.insert(bookingEvents).values({
       id: uniqueId,
-      clubId: defaultClubId,
+      clubId: clubId,
+      isAssociationEvent: !!eventData.isAssociationEvent,
       title: eventData.title,
       description: eventData.description,
+      location: eventData.location || 'Morocco',
+      locationDetails: eventData.locationDetails || null,
       eventDate: eventDate,
       endDate: endDate,
+      duration: eventData.duration || null,
       category: eventData.category || 'workshop',
-      price: eventData.price ? parseInt(eventData.price) : 0,
-      location: eventData.location || 'Morocco',
+      languages: eventData.languages ? JSON.stringify([eventData.languages]) : null,
+      minAge: eventData.minAge ? parseInt(eventData.minAge) : null,
+      maxPeople: eventData.maxPeople ? parseInt(eventData.maxPeople) : null,
       maxParticipants: eventData.maxAttendees ? parseInt(eventData.maxAttendees) : null,
+      price: eventData.price ? parseInt(eventData.price) : 0,
+      image: eventData.image || null,
+      highlights: eventData.highlights ? JSON.stringify([eventData.highlights]) : null,
+      included: eventData.included ? JSON.stringify([eventData.included]) : null,
+      notIncluded: eventData.notIncluded ? JSON.stringify([eventData.notIncluded]) : null,
+      importantInfo: eventData.importantInfo || null,
       currentParticipants: 0,
-      status: backendStatus,
+      status: eventData.status || 'upcoming',
       createdBy: eventData.createdBy || null,
       isActive: true
     });
@@ -2007,14 +2020,7 @@ app.post('/api/admin/events', isAdmin, async (req, res) => {
     
     console.log(`✅ Event created with ID: ${uniqueId}`);
     res.json({ 
-      event: {
-        ...newEvent,
-        startDate: newEvent.eventDate,
-        endDate: newEvent.endDate || newEvent.eventDate,
-        maxAttendees: newEvent.maxParticipants,
-        attendees: newEvent.currentParticipants || 0,
-        status: eventData.status || 'published'
-      }
+      event: newEvent
     });
   } catch (error) {
     console.error('❌ Error creating event:', error);
@@ -2025,7 +2031,7 @@ app.post('/api/admin/events', isAdmin, async (req, res) => {
 // Events Management - Update event
 app.put('/api/admin/events/:id', isAdmin, async (req, res) => {
   try {
-    const eventId = req.params.id; // String ID, not parseInt
+    const eventId = req.params.id;
     console.log(`🔗 Updating event ${eventId}...`);
     const eventData = req.body;
     
@@ -2037,24 +2043,39 @@ app.put('/api/admin/events/:id', isAdmin, async (req, res) => {
       return res.status(400).json({ error: 'Invalid start date' });
     }
     
-    // Map status: draft → upcoming, published → upcoming, cancelled → cancelled
-    let backendStatus = 'upcoming';
-    if (eventData.status === 'cancelled') backendStatus = 'cancelled';
+    // Determine clubId
+    let clubId = undefined;
+    if (eventData.isAssociationEvent) {
+      clubId = null;
+    } else if (eventData.clubId) {
+      clubId = parseInt(eventData.clubId);
+    }
     
     const updateData: any = {
       title: eventData.title,
       description: eventData.description,
       location: eventData.location,
-      status: backendStatus,
+      locationDetails: eventData.locationDetails || null,
+      status: eventData.status || 'upcoming',
       category: eventData.category || 'workshop',
+      duration: eventData.duration || null,
+      languages: eventData.languages ? JSON.stringify([eventData.languages]) : null,
+      minAge: eventData.minAge ? parseInt(eventData.minAge) : null,
+      maxPeople: eventData.maxPeople ? parseInt(eventData.maxPeople) : null,
+      maxParticipants: eventData.maxAttendees ? parseInt(eventData.maxAttendees) : null,
       price: eventData.price ? parseInt(eventData.price) : 0,
+      image: eventData.image || null,
+      highlights: eventData.highlights ? JSON.stringify([eventData.highlights]) : null,
+      included: eventData.included ? JSON.stringify([eventData.included]) : null,
+      notIncluded: eventData.notIncluded ? JSON.stringify([eventData.notIncluded]) : null,
+      importantInfo: eventData.importantInfo || null,
+      isAssociationEvent: !!eventData.isAssociationEvent,
       updatedAt: new Date()
     };
     
     if (eventDate) updateData.eventDate = eventDate;
     if (endDate) updateData.endDate = endDate;
-    if (eventData.maxAttendees) updateData.maxParticipants = parseInt(eventData.maxAttendees);
-    if (eventData.clubId) updateData.clubId = eventData.clubId;
+    if (clubId !== undefined) updateData.clubId = clubId;
     
     await db.update(bookingEvents)
       .set(updateData)
@@ -2063,16 +2084,7 @@ app.put('/api/admin/events/:id', isAdmin, async (req, res) => {
     const [updatedEvent] = await db.select().from(bookingEvents).where(eq(bookingEvents.id, eventId));
     
     console.log(`✅ Event updated: ${eventId}`);
-    res.json({ 
-      event: {
-        ...updatedEvent,
-        startDate: updatedEvent.eventDate,
-        endDate: updatedEvent.endDate || updatedEvent.eventDate,
-        maxAttendees: updatedEvent.maxParticipants,
-        attendees: updatedEvent.currentParticipants || 0,
-        status: eventData.status || 'published'
-      }
-    });
+    res.json({ event: updatedEvent });
   } catch (error) {
     console.error('❌ Error updating event:', error);
     res.status(500).json({ error: 'Failed to update event', details: error.message });
@@ -2082,7 +2094,7 @@ app.put('/api/admin/events/:id', isAdmin, async (req, res) => {
 // Events Management - Delete event
 app.delete('/api/admin/events/:id', isAdmin, async (req, res) => {
   try {
-    const eventId = req.params.id; // String ID, not parseInt
+    const eventId = req.params.id;
     console.log(`🔗 Deleting event ${eventId}...`);
     
     await db.delete(bookingEvents).where(eq(bookingEvents.id, eventId));
@@ -2092,6 +2104,113 @@ app.delete('/api/admin/events/:id', isAdmin, async (req, res) => {
   } catch (error) {
     console.error('❌ Error deleting event:', error);
     res.status(500).json({ error: 'Failed to delete event', details: error.message });
+  }
+});
+
+// Bookings Management - Get all booking tickets
+app.get('/api/admin/bookings', isAdmin, async (req, res) => {
+  try {
+    console.log('🔗 Fetching bookings for admin...');
+    
+    const { search, status, page = '1', perPage = '25' } = req.query;
+    const pageNum = parseInt(page as string);
+    const perPageNum = parseInt(perPage as string);
+    const offset = (pageNum - 1) * perPageNum;
+    
+    // Fetch booking tickets with event info joined
+    const allBookings = await db.select({
+      id: bookingTickets.id,
+      bookingReference: bookingTickets.bookingReference,
+      eventId: bookingTickets.eventId,
+      eventTitle: bookingEvents.title,
+      userId: bookingTickets.userId,
+      customerName: bookingTickets.customerName,
+      customerEmail: bookingTickets.customerEmail,
+      customerPhone: bookingTickets.customerPhone,
+      numberOfParticipants: bookingTickets.numberOfParticipants,
+      eventDate: bookingTickets.eventDate,
+      totalPrice: bookingTickets.totalPrice,
+      paymentStatus: bookingTickets.paymentStatus,
+      paymentMethod: bookingTickets.paymentMethod,
+      status: bookingTickets.status,
+      specialRequests: bookingTickets.specialRequests,
+      createdAt: bookingTickets.createdAt,
+    })
+    .from(bookingTickets)
+    .leftJoin(bookingEvents, eq(bookingTickets.eventId, bookingEvents.id));
+    
+    let filteredBookings = allBookings;
+    
+    // Apply filters
+    if (search) {
+      const searchLower = (search as string).toLowerCase();
+      filteredBookings = filteredBookings.filter(b => 
+        b.customerName?.toLowerCase().includes(searchLower) || 
+        b.customerEmail?.toLowerCase().includes(searchLower) ||
+        b.bookingReference?.toLowerCase().includes(searchLower) ||
+        b.eventTitle?.toLowerCase().includes(searchLower)
+      );
+    }
+    
+    if (status && status !== 'all') {
+      filteredBookings = filteredBookings.filter(b => b.status === status);
+    }
+    
+    // Map to frontend format
+    const bookings = filteredBookings
+      .slice(offset, offset + perPageNum)
+      .map(booking => ({
+        id: booking.id,
+        bookingReference: booking.bookingReference,
+        eventId: booking.eventId,
+        eventTitle: booking.eventTitle || 'Unknown Event',
+        userName: booking.customerName,
+        email: booking.customerEmail,
+        phone: booking.customerPhone,
+        eventDate: booking.eventDate,
+        attendees: booking.numberOfParticipants,
+        totalAmount: parseFloat(booking.totalPrice?.toString() || '0'),
+        paymentStatus: booking.paymentStatus,
+        paymentMethod: booking.paymentMethod,
+        status: booking.status,
+        specialRequests: booking.specialRequests,
+        createdAt: booking.createdAt,
+      }));
+    
+    console.log(`✅ Retrieved ${bookings.length} bookings`);
+    res.json({ 
+      bookings,
+      total: filteredBookings.length,
+      totalPages: Math.ceil(filteredBookings.length / perPageNum)
+    });
+  } catch (error) {
+    console.error('❌ Error fetching bookings:', error);
+    res.status(500).json({ error: 'Failed to fetch bookings', details: error.message });
+  }
+});
+
+// Bookings Management - Update booking status
+app.patch('/api/admin/bookings/:id/status', isAdmin, async (req, res) => {
+  try {
+    const bookingId = parseInt(req.params.id);
+    const { status } = req.body;
+    console.log(`🔗 Updating booking ${bookingId} status to ${status}...`);
+    
+    const updateData: any = { status, updatedAt: new Date() };
+    if (status === 'confirmed') updateData.confirmedAt = new Date();
+    if (status === 'cancelled') updateData.cancelledAt = new Date();
+    
+    await db.update(bookingTickets)
+      .set(updateData)
+      .where(eq(bookingTickets.id, bookingId));
+    
+    const [updatedBooking] = await db.select().from(bookingTickets).where(eq(bookingTickets.id, bookingId));
+    
+    console.log(`✅ Booking status updated: ${bookingId}`);
+    res.json(updatedBooking);
+  } catch (error) {
+    console.error('❌ Error updating booking status:', error);
+    res.status(500).json({ error: 'Failed to update booking status', details: error.message });
   }
 });
 
