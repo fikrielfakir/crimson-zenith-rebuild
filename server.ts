@@ -1977,27 +1977,35 @@ app.post('/api/admin/events', isAdmin, async (req, res) => {
     // Map status: draft → upcoming, published → upcoming, cancelled → cancelled
     let backendStatus = 'upcoming';
     if (eventData.status === 'cancelled') backendStatus = 'cancelled';
-    // Both draft and published map to upcoming in database
     
-    const result: any = await db.insert(clubEvents).values({
+    // Generate unique string ID from title (slug format) with timestamp
+    const slugBase = eventData.title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '')
+      .substring(0, 50);
+    const uniqueId = `${slugBase}-${Date.now()}`;
+    
+    await db.insert(bookingEvents).values({
+      id: uniqueId,
       clubId: defaultClubId,
       title: eventData.title,
       description: eventData.description,
       eventDate: eventDate,
       endDate: endDate,
       category: eventData.category || 'workshop',
-      price: eventData.price ? eventData.price.toString() : null,
-      location: eventData.location,
+      price: eventData.price ? parseInt(eventData.price) : 0,
+      location: eventData.location || 'Morocco',
       maxParticipants: eventData.maxAttendees ? parseInt(eventData.maxAttendees) : null,
       currentParticipants: 0,
       status: backendStatus,
-      createdBy: eventData.createdBy || null
+      createdBy: eventData.createdBy || null,
+      isActive: true
     });
     
-    const insertedId = result[0]?.insertId || result.insertId;
-    const [newEvent] = await db.select().from(clubEvents).where(eq(clubEvents.id, insertedId));
+    const [newEvent] = await db.select().from(bookingEvents).where(eq(bookingEvents.id, uniqueId));
     
-    console.log(`✅ Event created with ID: ${insertedId}`);
+    console.log(`✅ Event created with ID: ${uniqueId}`);
     res.json({ 
       event: {
         ...newEvent,
@@ -2005,7 +2013,7 @@ app.post('/api/admin/events', isAdmin, async (req, res) => {
         endDate: newEvent.endDate || newEvent.eventDate,
         maxAttendees: newEvent.maxParticipants,
         attendees: newEvent.currentParticipants || 0,
-        status: eventData.status || 'published' // Return original frontend status
+        status: eventData.status || 'published'
       }
     });
   } catch (error) {
@@ -2017,7 +2025,7 @@ app.post('/api/admin/events', isAdmin, async (req, res) => {
 // Events Management - Update event
 app.put('/api/admin/events/:id', isAdmin, async (req, res) => {
   try {
-    const eventId = parseInt(req.params.id);
+    const eventId = req.params.id; // String ID, not parseInt
     console.log(`🔗 Updating event ${eventId}...`);
     const eventData = req.body;
     
@@ -2039,7 +2047,7 @@ app.put('/api/admin/events/:id', isAdmin, async (req, res) => {
       location: eventData.location,
       status: backendStatus,
       category: eventData.category || 'workshop',
-      price: eventData.price ? eventData.price.toString() : null,
+      price: eventData.price ? parseInt(eventData.price) : 0,
       updatedAt: new Date()
     };
     
@@ -2048,11 +2056,11 @@ app.put('/api/admin/events/:id', isAdmin, async (req, res) => {
     if (eventData.maxAttendees) updateData.maxParticipants = parseInt(eventData.maxAttendees);
     if (eventData.clubId) updateData.clubId = eventData.clubId;
     
-    await db.update(clubEvents)
+    await db.update(bookingEvents)
       .set(updateData)
-      .where(eq(clubEvents.id, eventId));
+      .where(eq(bookingEvents.id, eventId));
     
-    const [updatedEvent] = await db.select().from(clubEvents).where(eq(clubEvents.id, eventId));
+    const [updatedEvent] = await db.select().from(bookingEvents).where(eq(bookingEvents.id, eventId));
     
     console.log(`✅ Event updated: ${eventId}`);
     res.json({ 
@@ -2062,7 +2070,7 @@ app.put('/api/admin/events/:id', isAdmin, async (req, res) => {
         endDate: updatedEvent.endDate || updatedEvent.eventDate,
         maxAttendees: updatedEvent.maxParticipants,
         attendees: updatedEvent.currentParticipants || 0,
-        status: eventData.status || 'published' // Return original frontend status
+        status: eventData.status || 'published'
       }
     });
   } catch (error) {
@@ -2074,10 +2082,10 @@ app.put('/api/admin/events/:id', isAdmin, async (req, res) => {
 // Events Management - Delete event
 app.delete('/api/admin/events/:id', isAdmin, async (req, res) => {
   try {
-    const eventId = parseInt(req.params.id);
+    const eventId = req.params.id; // String ID, not parseInt
     console.log(`🔗 Deleting event ${eventId}...`);
     
-    await db.delete(clubEvents).where(eq(clubEvents.id, eventId));
+    await db.delete(bookingEvents).where(eq(bookingEvents.id, eventId));
     
     console.log(`✅ Event deleted: ${eventId}`);
     res.json({ message: 'Event deleted successfully' });
