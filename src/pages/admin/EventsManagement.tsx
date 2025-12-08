@@ -960,6 +960,113 @@ export default function EventsManagement() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {viewingEvent && (
+        <AlertDialog open={viewingEvent !== null} onOpenChange={(open) => !open && setViewingEvent(null)}>
+          <AlertDialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+            <AlertDialogHeader>
+              <AlertDialogTitle className="text-xl">{viewingEvent.title}</AlertDialogTitle>
+              <AlertDialogDescription asChild>
+                <div className="space-y-4 text-left">
+                  <div className="flex flex-wrap gap-2">
+                    <Badge variant={viewingEvent.isAssociationEvent ? 'default' : 'secondary'}>
+                      {viewingEvent.isAssociationEvent ? 'Association Event' : 'Club Event'}
+                    </Badge>
+                    <Badge variant="outline">{viewingEvent.category}</Badge>
+                    <Badge variant={
+                      viewingEvent.status === 'upcoming' ? 'default' :
+                      viewingEvent.status === 'ongoing' ? 'secondary' :
+                      viewingEvent.status === 'completed' ? 'outline' :
+                      'destructive'
+                    }>
+                      {viewingEvent.status}
+                    </Badge>
+                  </div>
+                  
+                  <div>
+                    <h4 className="font-semibold text-foreground mb-1">Description</h4>
+                    <p className="text-sm">{viewingEvent.description || 'No description'}</p>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <h4 className="font-semibold text-foreground mb-1 flex items-center gap-1">
+                        <MapPin className="h-4 w-4" /> Location
+                      </h4>
+                      <p className="text-sm">{viewingEvent.location || 'Not specified'}</p>
+                      {viewingEvent.locationDetails && (
+                        <p className="text-sm text-muted-foreground">{viewingEvent.locationDetails}</p>
+                      )}
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-foreground mb-1 flex items-center gap-1">
+                        <Calendar className="h-4 w-4" /> Date
+                      </h4>
+                      <p className="text-sm">
+                        {viewingEvent.eventDate ? format(new Date(viewingEvent.eventDate), 'PPP') : 'Not specified'}
+                      </p>
+                      {viewingEvent.duration && (
+                        <p className="text-sm text-muted-foreground">Duration: {viewingEvent.duration}</p>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <h4 className="font-semibold text-foreground mb-1 flex items-center gap-1">
+                        <Users className="h-4 w-4" /> Capacity
+                      </h4>
+                      <p className="text-sm">
+                        {viewingEvent.attendees || 0} / {viewingEvent.maxAttendees || '∞'} attendees
+                      </p>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-foreground mb-1">Price</h4>
+                      <p className="text-sm">
+                        {viewingEvent.price ? `$${viewingEvent.price}` : 'Free'}
+                      </p>
+                    </div>
+                  </div>
+
+                  {viewingEvent.highlights && (
+                    <div>
+                      <h4 className="font-semibold text-foreground mb-1">Highlights</h4>
+                      <p className="text-sm whitespace-pre-line">{viewingEvent.highlights}</p>
+                    </div>
+                  )}
+
+                  {viewingEvent.included && (
+                    <div>
+                      <h4 className="font-semibold text-foreground mb-1">What's Included</h4>
+                      <p className="text-sm whitespace-pre-line">{viewingEvent.included}</p>
+                    </div>
+                  )}
+
+                  {viewingEvent.notIncluded && (
+                    <div>
+                      <h4 className="font-semibold text-foreground mb-1">What's Not Included</h4>
+                      <p className="text-sm whitespace-pre-line">{viewingEvent.notIncluded}</p>
+                    </div>
+                  )}
+
+                  {viewingEvent.importantInfo && (
+                    <div>
+                      <h4 className="font-semibold text-foreground mb-1">Important Information</h4>
+                      <p className="text-sm whitespace-pre-line">{viewingEvent.importantInfo}</p>
+                    </div>
+                  )}
+                </div>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Close</AlertDialogCancel>
+              <AlertDialogAction onClick={() => { setViewingEvent(null); setEditingEvent(viewingEvent); setShowForm(true); }}>
+                Edit Event
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
     </div>
   );
 }
