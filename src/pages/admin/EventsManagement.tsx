@@ -155,8 +155,10 @@ export default function EventsManagement() {
     },
   });
 
+  const isEditingExistingEvent = editingEvent && editingEvent.id && editingEvent.id !== '';
+
   useEffect(() => {
-    if (editingEvent && editingEvent.id) {
+    if (editingEvent && editingEvent.id && editingEvent.id !== '') {
       setShowForm(true);
       setSelectedEventType(editingEvent.isAssociationEvent ? 'association' : 'club');
       form.reset({
@@ -182,7 +184,7 @@ export default function EventsManagement() {
         importantInfo: editingEvent.importantInfo || '',
         status: editingEvent.status || 'upcoming',
       });
-    } else if (editingEvent && !editingEvent.id) {
+    } else if (editingEvent && (!editingEvent.id || editingEvent.id === '')) {
       setShowForm(true);
       setSelectedEventType(null);
       form.reset({
@@ -347,14 +349,14 @@ export default function EventsManagement() {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold">{editingEvent?.id ? 'Edit Event' : 'Create New Event'}</h1>
+            <h1 className="text-3xl font-bold">{isEditingExistingEvent ? 'Edit Event' : 'Create New Event'}</h1>
             <p className="text-muted-foreground mt-1">
-              {editingEvent?.id ? 'Update event information' : 'Add a new event to your community'}
+              {isEditingExistingEvent ? 'Update event information' : 'Add a new event to your community'}
             </p>
           </div>
         </div>
 
-        {!editingEvent?.id && !selectedEventType && (
+        {!isEditingExistingEvent && !selectedEventType && (
           <div className="space-y-4">
             <div>
               <h2 className="text-xl font-semibold mb-2">Select Event Type</h2>
@@ -410,7 +412,7 @@ export default function EventsManagement() {
           </div>
         )}
 
-        {(selectedEventType || editingEvent?.id) && (
+        {(selectedEventType || isEditingExistingEvent) && (
           <Card>
             <CardHeader>
               <div className="flex items-center gap-2">
@@ -761,7 +763,7 @@ export default function EventsManagement() {
                           Saving...
                         </>
                       ) : (
-                        editingEvent?.id ? 'Update Event' : 'Create Event'
+                        isEditingExistingEvent ? 'Update Event' : 'Create Event'
                       )}
                     </Button>
                   </div>
