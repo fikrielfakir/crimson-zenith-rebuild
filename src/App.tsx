@@ -8,6 +8,7 @@ import Discover from "./pages/Discover";
 import EventsActivities from "./pages/EventsActivities";
 import Clubs from "./pages/Clubs";
 import Book from "./pages/Book";
+import BookingForm from "./pages/BookingForm";
 import Gallery from "./pages/Gallery";
 import News from "./pages/News";
 import Contact from "./pages/Contact";
@@ -94,6 +95,7 @@ const App = () => (
           <Route path="/activities/:activityName" element={<ActivityDetail />} />
           <Route path="/smart-events" element={<SmartEvents />} />
           <Route path="/book" element={<Book />} />
+          <Route path="/book/form" element={<BookingForm />} />
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/news" element={<News />} />
           <Route path="/contact" element={<Contact />} />

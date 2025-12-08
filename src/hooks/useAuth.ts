@@ -6,9 +6,15 @@ export function useAuth() {
     retry: false,
   });
 
+  const demoAuth = typeof window !== 'undefined' && localStorage.getItem('userAuth') === 'authenticated';
+  const demoEmail = typeof window !== 'undefined' ? localStorage.getItem('userEmail') : null;
+
+  const isAuthenticated = !!user || demoAuth;
+  const effectiveUser = user || (demoAuth ? { email: demoEmail, firstName: 'Demo', lastName: 'User' } : null);
+
   return {
-    user,
+    user: effectiveUser,
     isLoading,
-    isAuthenticated: !!user,
+    isAuthenticated,
   };
 }
