@@ -1075,6 +1075,273 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ==========================================
+  // Admin Clubs Management Routes
+  // ==========================================
+  
+  // GET /api/admin/clubs - List all clubs with pagination and filters
+  app.get('/api/admin/clubs', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const page = parseInt(req.query.page as string) || 1;
+      const perPage = parseInt(req.query.perPage as string) || 25;
+      const search = req.query.search as string || '';
+      const status = req.query.status as string;
+      
+      let clubs = await storage.getClubs();
+      
+      // Apply search filter
+      if (search) {
+        clubs = clubs.filter((c: any) => 
+          c.name?.toLowerCase().includes(search.toLowerCase()) ||
+          c.location?.toLowerCase().includes(search.toLowerCase()) ||
+          c.description?.toLowerCase().includes(search.toLowerCase())
+        );
+      }
+      
+      // Apply status filter
+      if (status && status !== 'all') {
+        if (status === 'active') {
+          clubs = clubs.filter((c: any) => c.isActive === true);
+        } else if (status === 'inactive') {
+          clubs = clubs.filter((c: any) => c.isActive === false);
+        } else if (status === 'featured') {
+          clubs = clubs.filter((c: any) => c.rating === 10);
+        }
+      }
+      
+      const total = clubs.length;
+      const totalPages = Math.ceil(total / perPage);
+      const paginatedClubs = clubs.slice((page - 1) * perPage, page * perPage);
+      
+      res.json({ 
+        clubs: paginatedClubs, 
+        totalPages, 
+        currentPage: page,
+        total 
+      });
+    } catch (error) {
+      console.error("Error fetching clubs:", error);
+      res.status(500).json({ message: "Failed to fetch clubs" });
+    }
+  });
+
+  // GET /api/admin/clubs/pending - List pending (inactive) clubs
+  app.get('/api/admin/clubs/pending', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const clubs = await storage.getClubs();
+      const pendingClubs = clubs.filter((c: any) => c.isActive === false);
+      res.json({ clubs: pendingClubs });
+    } catch (error) {
+      console.error("Error fetching pending clubs:", error);
+      res.status(500).json({ message: "Failed to fetch pending clubs" });
+    }
+  });
+
+  // GET /api/admin/clubs/:id - Get a single club
+  app.get('/api/admin/clubs/:id', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const club = await storage.getClub(id);
+      if (!club) {
+        return res.status(404).json({ message: "Club not found" });
+      }
+      res.json(club);
+    } catch (error) {
+      console.error("Error fetching club:", error);
+      res.status(500).json({ message: "Failed to fetch club" });
+    }
+  });
+
+  // POST /api/admin/clubs - Create a new club
+  app.post('/api/admin/clubs', isAuthenticated, isAdmin, async (req: any, res) => {
+    try {
+      const clubData = { 
+        ...req.body, 
+        ownerId: req.user.id,
+        isActive: true
+      };
+      const club = await storage.createClub(clubData);
+      res.status(201).json(club);
+    } catch (error) {
+      console.error("Error creating club:", error);
+      res.status(500).json({ message: "Failed to create club" });
+    }
+  });
+
+  // PUT /api/admin/clubs/:id - Update a club
+  app.put('/api/admin/clubs/:id', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const club = await storage.updateClub(id, req.body);
+      res.json(club);
+    } catch (error) {
+      console.error("Error updating club:", error);
+      res.status(500).json({ message: "Failed to update club" });
+    }
+  });
+
+  // DELETE /api/admin/clubs/:id - Delete a club
+  app.delete('/api/admin/clubs/:id', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deleteClub(id);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting club:", error);
+      res.status(500).json({ message: "Failed to delete club" });
+    }
+  });
+
+  // POST /api/admin/clubs/:id/approve - Approve a club
+  app.post('/api/admin/clubs/:id/approve', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const club = await storage.updateClub(id, { 
+        isActive: true 
+      });
+      res.json(club);
+    } catch (error) {
+      console.error("Error approving club:", error);
+      res.status(500).json({ message: "Failed to approve club" });
+    }
+  });
+
+  // POST /api/admin/clubs/:id/reject - Reject a club
+  app.post('/api/admin/clubs/:id/reject', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const club = await storage.updateClub(id, { 
+        isActive: false 
+      });
+      res.json(club);
+    } catch (error) {
+      console.error("Error rejecting club:", error);
+      res.status(500).json({ message: "Failed to reject club" });
+    }
+  });
+
+  // PATCH /api/admin/clubs/:id/feature - Toggle featured status (uses rating as workaround)
+  app.patch('/api/admin/clubs/:id/feature', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { featured } = req.body;
+      // Use rating field as a workaround - 10 = featured, 5 = normal
+      const club = await storage.updateClub(id, { rating: featured ? 10 : 5 });
+      res.json({ ...club, isFeatured: featured });
+    } catch (error) {
+      console.error("Error updating feature status:", error);
+      res.status(500).json({ message: "Failed to update feature status" });
+    }
+  });
+
+  // ==========================================
+  // Admin Bookings Management Routes
+  // ==========================================
+  
+  // GET /api/admin/bookings - List all bookings
+  app.get('/api/admin/bookings', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const bookings = await storage.getBookingTickets();
+      
+      // Transform bookings to match expected frontend format
+      const transformedBookings = bookings.map((b: any) => ({
+        id: b.id,
+        bookingReference: b.bookingReference,
+        eventId: b.eventId,
+        eventTitle: b.eventId || 'Unknown Event',
+        userName: b.fullName || 'Unknown User',
+        userEmail: b.email,
+        eventDate: b.selectedDate,
+        attendees: b.numberOfTickets || 1,
+        totalAmount: b.totalAmount || 0,
+        status: b.status || 'pending',
+        createdAt: b.createdAt,
+        paymentStatus: b.paymentStatus,
+        paymentMethod: b.paymentMethod,
+      }));
+      
+      res.json({ bookings: transformedBookings });
+    } catch (error) {
+      console.error("Error fetching bookings:", error);
+      res.status(500).json({ message: "Failed to fetch bookings" });
+    }
+  });
+
+  // GET /api/admin/bookings/:id - Get a single booking
+  app.get('/api/admin/bookings/:id', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const bookingReference = req.params.id;
+      const booking = await storage.getBookingTicket(bookingReference);
+      if (!booking) {
+        return res.status(404).json({ message: "Booking not found" });
+      }
+      res.json(booking);
+    } catch (error) {
+      console.error("Error fetching booking:", error);
+      res.status(500).json({ message: "Failed to fetch booking" });
+    }
+  });
+
+  // PATCH /api/admin/bookings/:id/status - Update booking status
+  app.patch('/api/admin/bookings/:id/status', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const bookingReference = req.params.id;
+      const { status } = req.body;
+      const booking = await storage.updateBookingTicketStatus(bookingReference, status);
+      res.json(booking);
+    } catch (error) {
+      console.error("Error updating booking status:", error);
+      res.status(500).json({ message: "Failed to update booking status" });
+    }
+  });
+
+  // ==========================================
+  // Admin Dashboard Stats Routes
+  // ==========================================
+  
+  // GET /api/admin/stats - Dashboard statistics
+  app.get('/api/admin/stats', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const clubs = await storage.getClubs();
+      const events = await storage.getBookingEvents();
+      const bookings = await storage.getBookingTickets();
+      
+      const activeClubs = clubs.filter((c: any) => c.isActive).length;
+      const pendingClubs = clubs.filter((c: any) => !c.isActive).length;
+      const totalEvents = events.length;
+      const activeBookings = bookings.filter((b: any) => b.status === 'confirmed').length;
+      const totalRevenue = bookings.reduce((sum: number, b: any) => sum + (b.totalAmount || 0), 0);
+      
+      res.json({
+        clubs: {
+          total: clubs.length,
+          active: activeClubs,
+          pending: pendingClubs,
+          change: 12 // mock change percentage
+        },
+        events: {
+          total: totalEvents,
+          upcoming: events.filter((e: any) => e.status === 'upcoming').length,
+          change: 8
+        },
+        bookings: {
+          total: bookings.length,
+          active: activeBookings,
+          pending: bookings.filter((b: any) => b.status === 'pending').length,
+          change: 15
+        },
+        revenue: {
+          total: totalRevenue,
+          thisMonth: totalRevenue * 0.3, // mock calculation
+          change: 22
+        }
+      });
+    } catch (error) {
+      console.error("Error fetching admin stats:", error);
+      res.status(500).json({ message: "Failed to fetch stats" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
