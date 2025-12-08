@@ -13,6 +13,7 @@ import {
   clubs, 
   clubEvents, 
   bookingEvents,
+  bookingTickets,
   blogPosts,
   mediaAssets,
   seoSettings as seoSettingsTable,
@@ -1903,7 +1904,7 @@ app.post('/api/admin/clubs/:id/approve', isAdmin, async (req, res) => {
 //   }
 // });
 
-// Events Management - Get all events
+// Events Management - Get all events (uses booking_events table)
 app.get('/api/admin/events', isAdmin, async (req, res) => {
   try {
     console.log('🔗 Fetching events for admin...');
@@ -1913,7 +1914,8 @@ app.get('/api/admin/events', isAdmin, async (req, res) => {
     const perPageNum = parseInt(perPage as string);
     const offset = (pageNum - 1) * perPageNum;
     
-    let query = db.select().from(clubEvents);
+    // Query from bookingEvents table (same table used by POST/PUT/DELETE)
+    let query = db.select().from(bookingEvents);
     
     const allEvents = await query;
     let filteredEvents = allEvents;
