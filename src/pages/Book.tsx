@@ -28,8 +28,15 @@ import {
   Plus,
   Minus,
   Award,
-  Info
+  Info,
+  CreditCard,
+  Banknote,
+  Download,
+  User,
+  MapPinIcon,
+  FileText
 } from "lucide-react";
+import { jsPDF } from "jspdf";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import maplibregl from "maplibre-gl";
@@ -56,6 +63,15 @@ const Book = () => {
   const [specialRequests, setSpecialRequests] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+
+  const [bookingStep, setBookingStep] = useState(1);
+  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card'>('card');
+  const [cin, setCin] = useState('');
+  const [cne, setCne] = useState('');
+  const [dateOfBirth, setDateOfBirth] = useState('');
+  const [address, setAddress] = useState('');
+  const [bookingComplete, setBookingComplete] = useState(false);
+  const [bookingReference, setBookingReference] = useState('');
 
   const [emblaRef, emblaApi] = useEmblaCarousel(
     { loop: true, align: 'center' },
@@ -217,6 +233,25 @@ const Book = () => {
     if (customerEmail.trim().length > 255) {
       return "Email must be less than 255 characters.";
     }
+
+    if (selectedEvent.isAssociationEvent) {
+      if (!dateOfBirth) {
+        return "Please enter your date of birth.";
+      }
+      if (!address.trim() || address.trim().length < 5) {
+        return "Please enter a valid address (at least 5 characters).";
+      }
+    } else {
+      if (!cin.trim() || cin.trim().length < 5) {
+        return "Please enter a valid CIN (at least 5 characters).";
+      }
+      if (!cne.trim() || cne.trim().length < 5) {
+        return "Please enter a valid CNE (at least 5 characters).";
+      }
+      if (!customerPhone.trim()) {
+        return "Please enter your phone number.";
+      }
+    }
     
     if (customerPhone.trim()) {
       const phoneRegex = /^[\d\s\+\-\(\)]+$/;
@@ -230,6 +265,105 @@ const Book = () => {
     }
     
     return null;
+  };
+
+  const generatePDFTicket = (booking: any) => {
+    const doc = new jsPDF();
+    
+    doc.setFillColor(17, 31, 80);
+    doc.rect(0, 0, 210, 50, 'F');
+    
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(24);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Event Ticket', 105, 25, { align: 'center' });
+    
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Booking Reference: ${booking.bookingReference}`, 105, 40, { align: 'center' });
+    
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(18);
+    doc.setFont('helvetica', 'bold');
+    doc.text(selectedEvent.title, 20, 70);
+    
+    doc.setDrawColor(212, 178, 106);
+    doc.setLineWidth(2);
+    doc.line(20, 75, 190, 75);
+    
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'normal');
+    let yPos = 90;
+    
+    doc.setFont('helvetica', 'bold');
+    doc.text('Event Details:', 20, yPos);
+    yPos += 10;
+    
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Date: ${selectedDate ? format(selectedDate, 'MMMM d, yyyy') : 'N/A'}`, 20, yPos);
+    yPos += 8;
+    doc.text(`Location: ${selectedEvent.location}`, 20, yPos);
+    yPos += 8;
+    doc.text(`Duration: ${selectedEvent.duration || '4 hours'}`, 20, yPos);
+    yPos += 15;
+    
+    doc.setFont('helvetica', 'bold');
+    doc.text('Attendee Information:', 20, yPos);
+    yPos += 10;
+    
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Name: ${customerName}`, 20, yPos);
+    yPos += 8;
+    doc.text(`Email: ${customerEmail}`, 20, yPos);
+    yPos += 8;
+    if (customerPhone) {
+      doc.text(`Phone: ${customerPhone}`, 20, yPos);
+      yPos += 8;
+    }
+    yPos += 7;
+    
+    doc.setFont('helvetica', 'bold');
+    doc.text('Booking Summary:', 20, yPos);
+    yPos += 10;
+    
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Number of Travelers: ${participants}`, 20, yPos);
+    yPos += 8;
+    doc.text(`Price per Person: $${selectedEvent.price}`, 20, yPos);
+    yPos += 8;
+    
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(14);
+    doc.text(`Total Amount: $${totalPrice}`, 20, yPos);
+    yPos += 15;
+    
+    doc.setFillColor(212, 178, 106);
+    doc.roundedRect(20, yPos, 170, 25, 3, 3, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(12);
+    doc.text('Status: CONFIRMED - Payment Verified', 105, yPos + 15, { align: 'center' });
+    
+    doc.setTextColor(128, 128, 128);
+    doc.setFontSize(10);
+    doc.text('Please present this ticket at the event entrance.', 105, 270, { align: 'center' });
+    doc.text('Thank you for booking with us!', 105, 278, { align: 'center' });
+    
+    doc.save(`ticket-${booking.bookingReference}.pdf`);
+  };
+
+  const resetBookingForm = () => {
+    setCustomerName('');
+    setCustomerEmail('');
+    setCustomerPhone('');
+    setSpecialRequests('');
+    setCin('');
+    setCne('');
+    setDateOfBirth('');
+    setAddress('');
+    setPaymentMethod('card');
+    setBookingStep(1);
+    setBookingComplete(false);
+    setBookingReference('');
   };
 
   const handleSubmitBooking = async (e: React.FormEvent) => {
@@ -248,6 +382,9 @@ const Book = () => {
     setIsSubmitting(true);
 
     try {
+      const isAssociation = selectedEvent.isAssociationEvent;
+      const isCashPayment = !isAssociation && paymentMethod === 'cash';
+      
       const bookingData = {
         eventId: selectedEvent!.id,
         eventTitle: selectedEvent!.title,
@@ -258,8 +395,14 @@ const Book = () => {
         customerPhone: customerPhone.trim() || null,
         specialRequests: specialRequests.trim() || null,
         totalPrice: selectedEvent!.price * participants,
-        status: 'pending',
-        paymentStatus: 'pending',
+        status: isCashPayment ? 'pending' : 'accepted',
+        paymentStatus: isCashPayment ? 'pending' : 'completed',
+        paymentMethod: isAssociation ? 'card' : paymentMethod,
+        cin: !isAssociation ? cin.trim() : null,
+        cne: !isAssociation ? cne.trim() : null,
+        dateOfBirth: isAssociation ? dateOfBirth : null,
+        address: isAssociation ? address.trim() : null,
+        isAssociationEvent: isAssociation,
       };
 
       const response = await fetch('/api/booking/tickets', {
@@ -273,16 +416,20 @@ const Book = () => {
       const data = await response.json();
 
       if (response.ok) {
-        toast({
-          title: "Booking Confirmed!",
-          description: `Your booking reference is: ${data.ticket.bookingReference}. Check your email for details.`,
-        });
+        setBookingReference(data.ticket.bookingReference);
+        setBookingComplete(true);
+        setBookingStep(3);
         
-        setShowBookingDialog(false);
-        setCustomerName('');
-        setCustomerEmail('');
-        setCustomerPhone('');
-        setSpecialRequests('');
+        if (!isCashPayment) {
+          generatePDFTicket(data.ticket);
+        }
+        
+        toast({
+          title: isCashPayment ? "Booking Submitted!" : "Booking Confirmed!",
+          description: isCashPayment 
+            ? `Your booking reference is: ${data.ticket.bookingReference}. Payment pending admin approval.`
+            : `Your booking reference is: ${data.ticket.bookingReference}. Your ticket has been downloaded.`,
+        });
       } else {
         const errorMessage = data.error || 'Failed to create booking';
         toast({
@@ -300,6 +447,82 @@ const Book = () => {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleNextStep = () => {
+    if (bookingStep === 1) {
+      if (!customerName.trim() || customerName.trim().length < 2) {
+        toast({
+          title: "Validation Error",
+          description: "Please enter a valid name (at least 2 characters).",
+          variant: "destructive",
+        });
+        return;
+      }
+      if (!customerEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail.trim())) {
+        toast({
+          title: "Validation Error",
+          description: "Please enter a valid email address.",
+          variant: "destructive",
+        });
+        return;
+      }
+      if (selectedEvent.isAssociationEvent) {
+        if (!dateOfBirth) {
+          toast({
+            title: "Validation Error",
+            description: "Please enter your date of birth.",
+            variant: "destructive",
+          });
+          return;
+        }
+        if (!address.trim() || address.trim().length < 5) {
+          toast({
+            title: "Validation Error",
+            description: "Please enter a valid address.",
+            variant: "destructive",
+          });
+          return;
+        }
+      } else {
+        if (!cin.trim() || cin.trim().length < 5) {
+          toast({
+            title: "Validation Error",
+            description: "Please enter a valid CIN.",
+            variant: "destructive",
+          });
+          return;
+        }
+        if (!cne.trim() || cne.trim().length < 5) {
+          toast({
+            title: "Validation Error",
+            description: "Please enter a valid CNE.",
+            variant: "destructive",
+          });
+          return;
+        }
+        if (!customerPhone.trim()) {
+          toast({
+            title: "Validation Error",
+            description: "Please enter your phone number.",
+            variant: "destructive",
+          });
+          return;
+        }
+      }
+      setBookingStep(2);
+    }
+  };
+
+  const handlePrevStep = () => {
+    if (bookingStep > 1) {
+      setBookingStep(bookingStep - 1);
+    }
+  };
+
+  const handleCloseDialog = () => {
+    setShowBookingDialog(false);
+    resetBookingForm();
   };
 
   if (isLoading) {
@@ -847,130 +1070,429 @@ const Book = () => {
         </div>
       </div>
 
-      {/* Booking Dialog - Premium Design */}
-      <Dialog open={showBookingDialog} onOpenChange={setShowBookingDialog}>
-        <DialogContent className="sm:max-w-2xl max-h-[90vh] rounded-3xl border-2 border-gray-200 p-0 overflow-hidden flex flex-col">
+      {/* Booking Dialog - Multi-Step Premium Design */}
+      <Dialog open={showBookingDialog} onOpenChange={handleCloseDialog}>
+        <DialogContent className="sm:max-w-3xl max-h-[90vh] rounded-3xl border-2 border-gray-200 p-0 overflow-hidden flex flex-col">
           
           {/* Dialog Header with Gradient */}
-          <div className="bg-gradient-to-r from-[#111f50] to-[#1a2d5a] p-8 flex-shrink-0">
+          <div className="bg-gradient-to-r from-[#111f50] to-[#1a2d5a] p-6 flex-shrink-0">
             <DialogHeader>
-              <DialogTitle className="font-['Poppins'] text-3xl font-bold text-white mb-2">
-                Complete Your Booking
+              <DialogTitle className="font-['Poppins'] text-2xl font-bold text-white mb-2">
+                {bookingStep === 3 ? 'Booking Complete!' : 'Complete Your Booking'}
               </DialogTitle>
-              <DialogDescription className="font-['Inter'] text-white/80 text-base">
-                Just a few details and you're all set for an unforgettable experience
+              <DialogDescription className="font-['Inter'] text-white/80 text-sm">
+                {bookingStep === 3 
+                  ? 'Your booking has been processed successfully' 
+                  : `Step ${bookingStep} of 2 - ${bookingStep === 1 ? 'Your Information' : 'Payment'}`}
               </DialogDescription>
             </DialogHeader>
+            
+            {/* Step Progress Indicator */}
+            {bookingStep < 3 && (
+              <div className="flex items-center justify-center gap-2 mt-4">
+                {[1, 2].map((step) => (
+                  <div key={step} className="flex items-center">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-['Poppins'] font-bold text-sm transition-all duration-300 ${
+                      step < bookingStep 
+                        ? 'bg-[#D4B26A] text-white' 
+                        : step === bookingStep 
+                          ? 'bg-white text-[#111f50] shadow-lg' 
+                          : 'bg-white/20 text-white/60'
+                    }`}>
+                      {step < bookingStep ? <Check className="w-5 h-5" /> : step}
+                    </div>
+                    {step < 2 && (
+                      <div className={`w-16 h-1 mx-2 rounded-full transition-all duration-300 ${
+                        step < bookingStep ? 'bg-[#D4B26A]' : 'bg-white/20'
+                      }`} />
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Form Content - Scrollable */}
           <div className="overflow-y-auto flex-1">
-            <form onSubmit={handleSubmitBooking} className="p-8 space-y-6">
-            
-            {/* Name Input */}
-            <div>
-              <Label htmlFor="name" className="font-['Inter'] font-semibold text-[#111f50] mb-2 block">
-                Full Name <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                id="name"
-                value={customerName}
-                onChange={(e) => setCustomerName(e.target.value)}
-                placeholder="John Doe"
-                required
-                className="font-['Inter'] h-14 rounded-xl border-2 border-gray-200 focus:border-[#D4B26A] px-4 text-lg"
-              />
-            </div>
+            <div className="grid md:grid-cols-5 gap-0">
+              
+              {/* Main Form Area */}
+              <div className="md:col-span-3 p-6">
+                
+                {/* Step 1: Personal Information */}
+                {bookingStep === 1 && (
+                  <div className="space-y-5">
+                    <h3 className="font-['Poppins'] text-xl font-bold text-[#111f50] mb-4 flex items-center gap-2">
+                      <User className="w-5 h-5 text-[#D4B26A]" />
+                      {selectedEvent.isAssociationEvent ? 'Association Event Registration' : 'Club Event Registration'}
+                    </h3>
+                    
+                    {/* Full Name */}
+                    <div>
+                      <Label htmlFor="name" className="font-['Inter'] font-semibold text-[#111f50] mb-2 block text-sm">
+                        Full Name <span className="text-red-500">*</span>
+                      </Label>
+                      <Input
+                        id="name"
+                        value={customerName}
+                        onChange={(e) => setCustomerName(e.target.value)}
+                        placeholder="Enter your full name"
+                        className="font-['Inter'] h-12 rounded-xl border-2 border-gray-200 focus:border-[#D4B26A] px-4"
+                      />
+                    </div>
 
-            {/* Email Input */}
-            <div>
-              <Label htmlFor="email" className="font-['Inter'] font-semibold text-[#111f50] mb-2 block">
-                Email Address <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                id="email"
-                type="email"
-                value={customerEmail}
-                onChange={(e) => setCustomerEmail(e.target.value)}
-                placeholder="john@example.com"
-                required
-                className="font-['Inter'] h-14 rounded-xl border-2 border-gray-200 focus:border-[#D4B26A] px-4 text-lg"
-              />
-            </div>
+                    {/* Email */}
+                    <div>
+                      <Label htmlFor="email" className="font-['Inter'] font-semibold text-[#111f50] mb-2 block text-sm">
+                        Email Address <span className="text-red-500">*</span>
+                      </Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={customerEmail}
+                        onChange={(e) => setCustomerEmail(e.target.value)}
+                        placeholder="your@email.com"
+                        className="font-['Inter'] h-12 rounded-xl border-2 border-gray-200 focus:border-[#D4B26A] px-4"
+                      />
+                    </div>
 
-            {/* Phone Input */}
-            <div>
-              <Label htmlFor="phone" className="font-['Inter'] font-semibold text-[#111f50] mb-2 block">
-                Phone Number <span className="text-gray-400 font-normal">(Optional)</span>
-              </Label>
-              <Input
-                id="phone"
-                type="tel"
-                value={customerPhone}
-                onChange={(e) => setCustomerPhone(e.target.value)}
-                placeholder="+1 234 567 8900"
-                className="font-['Inter'] h-14 rounded-xl border-2 border-gray-200 focus:border-[#D4B26A] px-4 text-lg"
-              />
-            </div>
+                    {/* Club Event Fields */}
+                    {!selectedEvent.isAssociationEvent && (
+                      <>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor="cin" className="font-['Inter'] font-semibold text-[#111f50] mb-2 block text-sm">
+                              CIN <span className="text-red-500">*</span>
+                            </Label>
+                            <Input
+                              id="cin"
+                              value={cin}
+                              onChange={(e) => setCin(e.target.value)}
+                              placeholder="National ID Number"
+                              className="font-['Inter'] h-12 rounded-xl border-2 border-gray-200 focus:border-[#D4B26A] px-4"
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="cne" className="font-['Inter'] font-semibold text-[#111f50] mb-2 block text-sm">
+                              CNE <span className="text-red-500">*</span>
+                            </Label>
+                            <Input
+                              id="cne"
+                              value={cne}
+                              onChange={(e) => setCne(e.target.value)}
+                              placeholder="Student ID Number"
+                              className="font-['Inter'] h-12 rounded-xl border-2 border-gray-200 focus:border-[#D4B26A] px-4"
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <Label htmlFor="phone" className="font-['Inter'] font-semibold text-[#111f50] mb-2 block text-sm">
+                            Phone Number <span className="text-red-500">*</span>
+                          </Label>
+                          <Input
+                            id="phone"
+                            type="tel"
+                            value={customerPhone}
+                            onChange={(e) => setCustomerPhone(e.target.value)}
+                            placeholder="+212 6XX XXX XXX"
+                            className="font-['Inter'] h-12 rounded-xl border-2 border-gray-200 focus:border-[#D4B26A] px-4"
+                          />
+                        </div>
+                      </>
+                    )}
 
-            {/* Special Requests */}
-            <div>
-              <Label htmlFor="requests" className="font-['Inter'] font-semibold text-[#111f50] mb-2 block">
-                Special Requests <span className="text-gray-400 font-normal">(Optional)</span>
-              </Label>
-              <Textarea
-                id="requests"
-                value={specialRequests}
-                onChange={(e) => setSpecialRequests(e.target.value)}
-                placeholder="Any dietary restrictions, accessibility needs, or special requests?"
-                rows={4}
-                className="font-['Inter'] rounded-xl border-2 border-gray-200 focus:border-[#D4B26A] px-4 py-3 text-base resize-none"
-              />
-            </div>
+                    {/* Association Event Fields */}
+                    {selectedEvent.isAssociationEvent && (
+                      <>
+                        <div>
+                          <Label htmlFor="dob" className="font-['Inter'] font-semibold text-[#111f50] mb-2 block text-sm">
+                            Date of Birth <span className="text-red-500">*</span>
+                          </Label>
+                          <Input
+                            id="dob"
+                            type="date"
+                            value={dateOfBirth}
+                            onChange={(e) => setDateOfBirth(e.target.value)}
+                            className="font-['Inter'] h-12 rounded-xl border-2 border-gray-200 focus:border-[#D4B26A] px-4"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="address" className="font-['Inter'] font-semibold text-[#111f50] mb-2 block text-sm">
+                            Address <span className="text-red-500">*</span>
+                          </Label>
+                          <Textarea
+                            id="address"
+                            value={address}
+                            onChange={(e) => setAddress(e.target.value)}
+                            placeholder="Enter your full address"
+                            rows={2}
+                            className="font-['Inter'] rounded-xl border-2 border-gray-200 focus:border-[#D4B26A] px-4 py-3 resize-none"
+                          />
+                        </div>
+                      </>
+                    )}
 
-            {/* Booking Summary Card */}
-            <Card className="bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-gray-200 rounded-2xl overflow-hidden">
-              <div className="bg-[#111f50] px-6 py-3">
-                <h5 className="font-['Poppins'] font-bold text-white text-lg">Booking Summary</h5>
+                    {/* Special Requests */}
+                    <div>
+                      <Label htmlFor="requests" className="font-['Inter'] font-semibold text-[#111f50] mb-2 block text-sm">
+                        Special Requests <span className="text-gray-400 font-normal">(Optional)</span>
+                      </Label>
+                      <Textarea
+                        id="requests"
+                        value={specialRequests}
+                        onChange={(e) => setSpecialRequests(e.target.value)}
+                        placeholder="Any special requirements or notes?"
+                        rows={2}
+                        className="font-['Inter'] rounded-xl border-2 border-gray-200 focus:border-[#D4B26A] px-4 py-3 resize-none"
+                      />
+                    </div>
+
+                    <Button 
+                      type="button"
+                      onClick={handleNextStep}
+                      className="w-full bg-gradient-to-r from-[#D4B26A] to-[#C9A758] hover:from-[#C9A758] hover:to-[#B89647] text-white font-['Poppins'] font-bold text-base py-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                    >
+                      Continue to Payment
+                      <ChevronRight className="w-5 h-5 ml-2" />
+                    </Button>
+                  </div>
+                )}
+
+                {/* Step 2: Payment Method */}
+                {bookingStep === 2 && (
+                  <form onSubmit={handleSubmitBooking} className="space-y-5">
+                    <h3 className="font-['Poppins'] text-xl font-bold text-[#111f50] mb-4 flex items-center gap-2">
+                      <CreditCard className="w-5 h-5 text-[#D4B26A]" />
+                      Payment Method
+                    </h3>
+
+                    {/* Payment Method Selection */}
+                    {!selectedEvent.isAssociationEvent ? (
+                      <div className="space-y-3">
+                        <Label className="font-['Inter'] font-semibold text-[#111f50] block text-sm">
+                          Choose your payment method
+                        </Label>
+                        
+                        {/* Card Payment Option */}
+                        <button
+                          type="button"
+                          onClick={() => setPaymentMethod('card')}
+                          className={`w-full p-4 rounded-xl border-2 transition-all duration-300 flex items-center gap-4 ${
+                            paymentMethod === 'card'
+                              ? 'border-[#D4B26A] bg-[#D4B26A]/10 shadow-md'
+                              : 'border-gray-200 hover:border-[#D4B26A]/50'
+                          }`}
+                        >
+                          <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                            paymentMethod === 'card' ? 'bg-[#D4B26A] text-white' : 'bg-gray-100 text-gray-500'
+                          }`}>
+                            <CreditCard className="w-6 h-6" />
+                          </div>
+                          <div className="text-left flex-1">
+                            <p className="font-['Poppins'] font-semibold text-[#111f50]">Card Payment</p>
+                            <p className="font-['Inter'] text-sm text-gray-500">Instant confirmation & ticket</p>
+                          </div>
+                          {paymentMethod === 'card' && (
+                            <div className="w-6 h-6 rounded-full bg-[#D4B26A] flex items-center justify-center">
+                              <Check className="w-4 h-4 text-white" />
+                            </div>
+                          )}
+                        </button>
+
+                        {/* Cash Payment Option */}
+                        <button
+                          type="button"
+                          onClick={() => setPaymentMethod('cash')}
+                          className={`w-full p-4 rounded-xl border-2 transition-all duration-300 flex items-center gap-4 ${
+                            paymentMethod === 'cash'
+                              ? 'border-[#D4B26A] bg-[#D4B26A]/10 shadow-md'
+                              : 'border-gray-200 hover:border-[#D4B26A]/50'
+                          }`}
+                        >
+                          <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                            paymentMethod === 'cash' ? 'bg-[#D4B26A] text-white' : 'bg-gray-100 text-gray-500'
+                          }`}>
+                            <Banknote className="w-6 h-6" />
+                          </div>
+                          <div className="text-left flex-1">
+                            <p className="font-['Poppins'] font-semibold text-[#111f50]">Cash Payment</p>
+                            <p className="font-['Inter'] text-sm text-gray-500">Pay on-site, pending admin approval</p>
+                          </div>
+                          {paymentMethod === 'cash' && (
+                            <div className="w-6 h-6 rounded-full bg-[#D4B26A] flex items-center justify-center">
+                              <Check className="w-4 h-4 text-white" />
+                            </div>
+                          )}
+                        </button>
+
+                        {paymentMethod === 'cash' && (
+                          <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl p-4 mt-4">
+                            <Info className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                            <p className="font-['Inter'] text-sm text-amber-800">
+                              Cash payments require admin approval. Your booking will be pending until confirmed.
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        <div className="w-full p-4 rounded-xl border-2 border-[#D4B26A] bg-[#D4B26A]/10 flex items-center gap-4">
+                          <div className="w-12 h-12 rounded-full bg-[#D4B26A] text-white flex items-center justify-center">
+                            <CreditCard className="w-6 h-6" />
+                          </div>
+                          <div className="text-left flex-1">
+                            <p className="font-['Poppins'] font-semibold text-[#111f50]">Card Payment Only</p>
+                            <p className="font-['Inter'] text-sm text-gray-500">Association events require card payment</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Navigation Buttons */}
+                    <div className="flex gap-3 pt-4">
+                      <Button 
+                        type="button"
+                        onClick={handlePrevStep}
+                        variant="outline"
+                        className="flex-1 font-['Poppins'] font-semibold py-6 rounded-xl border-2"
+                      >
+                        <ChevronLeft className="w-5 h-5 mr-2" />
+                        Back
+                      </Button>
+                      <Button 
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="flex-[2] bg-gradient-to-r from-[#D4B26A] to-[#C9A758] hover:from-[#C9A758] hover:to-[#B89647] text-white font-['Poppins'] font-bold py-6 rounded-xl shadow-lg"
+                      >
+                        {isSubmitting ? (
+                          <span className="flex items-center gap-2">
+                            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                            Processing...
+                          </span>
+                        ) : (
+                          <>Confirm Booking - ${totalPrice}</>
+                        )}
+                      </Button>
+                    </div>
+                  </form>
+                )}
+
+                {/* Step 3: Confirmation */}
+                {bookingStep === 3 && (
+                  <div className="text-center py-6 space-y-6">
+                    <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto">
+                      <Check className="w-10 h-10 text-green-600" />
+                    </div>
+                    
+                    <div>
+                      <h3 className="font-['Poppins'] text-2xl font-bold text-[#111f50] mb-2">
+                        {paymentMethod === 'cash' && !selectedEvent.isAssociationEvent 
+                          ? 'Booking Submitted!' 
+                          : 'Booking Confirmed!'}
+                      </h3>
+                      <p className="font-['Inter'] text-gray-600">
+                        {paymentMethod === 'cash' && !selectedEvent.isAssociationEvent
+                          ? 'Your booking is pending admin approval'
+                          : 'Your ticket has been downloaded'}
+                      </p>
+                    </div>
+
+                    <Card className="bg-gray-50 border-2 border-gray-200 rounded-xl p-4 text-left">
+                      <div className="flex items-center gap-3 mb-3">
+                        <FileText className="w-5 h-5 text-[#D4B26A]" />
+                        <span className="font-['Poppins'] font-semibold text-[#111f50]">Booking Reference</span>
+                      </div>
+                      <p className="font-['Inter'] text-2xl font-bold text-[#D4B26A] tracking-wider">
+                        {bookingReference}
+                      </p>
+                    </Card>
+
+                    <div className="flex items-start gap-3 bg-blue-50 border border-blue-200 rounded-xl p-4 text-left">
+                      <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                      <p className="font-['Inter'] text-sm text-blue-800">
+                        A confirmation email has been sent to <strong>{customerEmail}</strong>
+                      </p>
+                    </div>
+
+                    {(paymentMethod === 'card' || selectedEvent.isAssociationEvent) && (
+                      <Button 
+                        type="button"
+                        onClick={() => generatePDFTicket({ bookingReference })}
+                        className="w-full bg-[#111f50] hover:bg-[#1a2d5a] text-white font-['Poppins'] font-semibold py-5 rounded-xl"
+                      >
+                        <Download className="w-5 h-5 mr-2" />
+                        Download Ticket Again
+                      </Button>
+                    )}
+
+                    <Button 
+                      type="button"
+                      onClick={handleCloseDialog}
+                      variant="outline"
+                      className="w-full font-['Poppins'] font-semibold py-5 rounded-xl border-2"
+                    >
+                      Close
+                    </Button>
+                  </div>
+                )}
               </div>
-              <CardContent className="p-6 space-y-3">
-                <div className="flex justify-between items-center font-['Inter']">
-                  <span className="text-gray-600">Event</span>
-                  <span className="font-semibold text-[#111f50] text-right max-w-[60%]">{selectedEvent.title}</span>
-                </div>
-                <div className="flex justify-between items-center font-['Inter']">
-                  <span className="text-gray-600">Date</span>
-                  <span className="font-semibold text-[#111f50]">
-                    {selectedDate ? format(selectedDate, 'MMM d, yyyy') : 'Not selected'}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center font-['Inter']">
-                  <span className="text-gray-600">Travelers</span>
-                  <span className="font-semibold text-[#111f50]">{participants} {participants === 1 ? 'person' : 'people'}</span>
-                </div>
-                <div className="flex justify-between items-center font-['Poppins'] text-xl font-bold border-t-2 border-gray-300 pt-4 mt-4">
-                  <span className="text-[#111f50]">Total</span>
-                  <span className="text-[#D4B26A]">${totalPrice}</span>
-                </div>
-              </CardContent>
-            </Card>
 
-            {/* Submit Button */}
-            <Button 
-              type="submit" 
-              disabled={isSubmitting}
-              className="w-full bg-gradient-to-r from-[#D4B26A] to-[#C9A758] hover:from-[#C9A758] hover:to-[#B89647] text-white font-['Poppins'] font-bold text-lg py-7 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] border-0"
-            >
-              {isSubmitting ? (
-                <span className="flex items-center gap-3">
-                  <div className="w-5 h-5 border-3 border-white border-t-transparent rounded-full animate-spin" />
-                  Processing Your Booking...
-                </span>
-              ) : (
-                `Confirm Booking - $${totalPrice}`
-              )}
-            </Button>
-          </form>
+              {/* Booking Summary Sidebar */}
+              <div className="md:col-span-2 bg-gradient-to-br from-gray-50 to-gray-100 border-l border-gray-200 p-6">
+                <Card className="border-2 border-gray-200 rounded-xl overflow-hidden shadow-md">
+                  <div className="bg-[#111f50] px-4 py-3">
+                    <h5 className="font-['Poppins'] font-bold text-white text-sm">Booking Summary</h5>
+                  </div>
+                  <CardContent className="p-4 space-y-3">
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between font-['Inter']">
+                        <span className="text-gray-500">Event</span>
+                        <span className="font-semibold text-[#111f50] text-right max-w-[120px] truncate">{selectedEvent.title}</span>
+                      </div>
+                      <div className="flex justify-between font-['Inter']">
+                        <span className="text-gray-500">Date</span>
+                        <span className="font-semibold text-[#111f50]">
+                          {selectedDate ? format(selectedDate, 'MMM d, yyyy') : 'N/A'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between font-['Inter']">
+                        <span className="text-gray-500">Travelers</span>
+                        <span className="font-semibold text-[#111f50]">{participants}</span>
+                      </div>
+                      <div className="flex justify-between font-['Inter']">
+                        <span className="text-gray-500">Per person</span>
+                        <span className="font-semibold text-[#111f50]">${selectedEvent.price}</span>
+                      </div>
+                    </div>
+                    <div className="border-t border-gray-200 pt-3 mt-3">
+                      <div className="flex justify-between font-['Poppins'] font-bold">
+                        <span className="text-[#111f50]">Total</span>
+                        <span className="text-[#D4B26A] text-lg">${totalPrice}</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Event Type Badge */}
+                <div className="mt-4">
+                  <Badge className={`font-['Inter'] text-xs px-3 py-1 ${
+                    selectedEvent.isAssociationEvent 
+                      ? 'bg-purple-100 text-purple-800 border-purple-200' 
+                      : 'bg-blue-100 text-blue-800 border-blue-200'
+                  }`}>
+                    {selectedEvent.isAssociationEvent ? 'Association Event' : 'Club Event'}
+                  </Badge>
+                </div>
+
+                {/* Security Note */}
+                <div className="mt-4 flex items-start gap-2 text-xs">
+                  <Shield className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
+                  <p className="font-['Inter'] text-gray-500">
+                    Secure booking with encrypted data
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
