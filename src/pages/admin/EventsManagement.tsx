@@ -108,9 +108,9 @@ export default function EventsManagement() {
   const [eventTypeFilter, setEventTypeFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
-  const [selectedEvents, setSelectedEvents] = useState<number[]>([]);
+  const [selectedEvents, setSelectedEvents] = useState<string[]>([]);
   const [editingEvent, setEditingEvent] = useState<any>(null);
-  const [deletingEventId, setDeletingEventId] = useState<number | null>(null);
+  const [deletingEventId, setDeletingEventId] = useState<string | null>(null);
   const [viewingEvent, setViewingEvent] = useState<any>(null);
   const [showForm, setShowForm] = useState(false);
   const [selectedEventType, setSelectedEventType] = useState<'club' | 'association' | null>(null);
@@ -212,7 +212,7 @@ export default function EventsManagement() {
   }, [editingEvent, form]);
 
   const deleteEventMutation = useMutation({
-    mutationFn: async (eventId: number) => {
+    mutationFn: async (eventId: string) => {
       const response = await fetch(`/api/admin/events/${eventId}`, {
         method: 'DELETE',
       });
@@ -287,7 +287,7 @@ export default function EventsManagement() {
     }
   };
 
-  const handleSelectEvent = (eventId: number, checked: boolean) => {
+  const handleSelectEvent = (eventId: string, checked: boolean) => {
     if (checked) {
       setSelectedEvents([...selectedEvents, eventId]);
     } else {
