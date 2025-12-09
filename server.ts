@@ -72,6 +72,41 @@ async function runMigrations() {
   try {
     console.log('🔄 Running database migrations...');
     
+    // Create booking_tickets table if it doesn't exist
+    try {
+      await pool.execute(`
+        CREATE TABLE IF NOT EXISTS booking_tickets (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          booking_reference VARCHAR(50) UNIQUE NOT NULL,
+          event_id VARCHAR(255) NOT NULL,
+          user_id VARCHAR(255),
+          customer_name VARCHAR(255) NOT NULL,
+          customer_email VARCHAR(255) NOT NULL,
+          customer_phone VARCHAR(50),
+          number_of_participants INT NOT NULL DEFAULT 1,
+          event_date TIMESTAMP NOT NULL,
+          total_price DECIMAL(10,2) NOT NULL,
+          payment_status VARCHAR(20) DEFAULT 'pending',
+          payment_method VARCHAR(50),
+          transaction_id VARCHAR(255),
+          special_requests TEXT,
+          status VARCHAR(20) DEFAULT 'pending',
+          confirmed_at TIMESTAMP NULL,
+          cancelled_at TIMESTAMP NULL,
+          cancellation_reason TEXT,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+          FOREIGN KEY (event_id) REFERENCES booking_events(id),
+          FOREIGN KEY (user_id) REFERENCES users(id)
+        )
+      `);
+      console.log('✅ booking_tickets table ready');
+    } catch (error: any) {
+      if (!error.message.includes('already exists')) {
+        console.log(`⚠️ booking_tickets table note: ${error.message}`);
+      }
+    }
+    
     // Add columns to booking_events table if they don't exist
     const migrations = [
       `ALTER TABLE booking_events ADD COLUMN IF NOT EXISTS latitude DECIMAL(9,6)`,
