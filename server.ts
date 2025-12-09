@@ -3155,12 +3155,37 @@ app.get('/api/booking/my-tickets', async (req, res) => {
     
     console.log(`📋 Fetching tickets for user: ${userId}`);
     
-    const tickets = await storage.getUserBookingTickets(userId);
-    console.log(`✅ Retrieved ${tickets.length} tickets for user`);
+    // Get tickets with event titles using JOIN
+    const ticketsWithEvents = await db
+      .select({
+        id: bookingTickets.id,
+        bookingReference: bookingTickets.bookingReference,
+        eventId: bookingTickets.eventId,
+        userId: bookingTickets.userId,
+        customerName: bookingTickets.customerName,
+        customerEmail: bookingTickets.customerEmail,
+        customerPhone: bookingTickets.customerPhone,
+        numberOfParticipants: bookingTickets.numberOfParticipants,
+        eventDate: bookingTickets.eventDate,
+        totalPrice: bookingTickets.totalPrice,
+        paymentStatus: bookingTickets.paymentStatus,
+        paymentMethod: bookingTickets.paymentMethod,
+        specialRequests: bookingTickets.specialRequests,
+        status: bookingTickets.status,
+        createdAt: bookingTickets.createdAt,
+        updatedAt: bookingTickets.updatedAt,
+        eventTitle: bookingEvents.title,
+      })
+      .from(bookingTickets)
+      .leftJoin(bookingEvents, eq(bookingTickets.eventId, bookingEvents.id))
+      .where(eq(bookingTickets.userId, userId))
+      .orderBy(desc(bookingTickets.createdAt));
+    
+    console.log(`✅ Retrieved ${ticketsWithEvents.length} tickets for user`);
     
     res.json({
-      tickets: tickets,
-      total: tickets.length,
+      tickets: ticketsWithEvents,
+      total: ticketsWithEvents.length,
       source: 'PostgreSQL database via Drizzle ORM'
     });
   } catch (error) {
@@ -3212,6 +3237,113 @@ app.put('/api/booking/tickets/:reference/status', async (req, res) => {
   } catch (error) {
     console.error('❌ Error updating booking ticket status:', error);
     res.status(500).json({ error: 'Failed to update booking ticket status', details: error.message });
+  }
+});
+
+// User cancel their own pending booking
+app.put('/api/booking/my-tickets/:reference/cancel', async (req, res) => {
+  try {
+    const userId = (req.user as any)?.id;
+    if (!userId) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+    
+    const reference = req.params.reference;
+    const { reason } = req.body;
+    
+    // Get the booking first to verify ownership and status
+    const ticket = await storage.getBookingTicket(reference);
+    if (!ticket) {
+      return res.status(404).json({ error: 'Booking not found' });
+    }
+    
+    // Verify user owns this booking
+    if (ticket.userId !== userId) {
+      return res.status(403).json({ error: 'You can only cancel your own bookings' });
+    }
+    
+    // Only allow cancellation of pending bookings
+    if (ticket.status !== 'pending') {
+      return res.status(400).json({ error: 'Only pending bookings can be cancelled' });
+    }
+    
+    console.log(`🚫 User ${userId} cancelling booking: ${reference}`);
+    
+    const updatedTicket = await storage.updateBookingTicketStatus(reference, 'cancelled', {
+      cancellationReason: reason || 'Cancelled by user'
+    });
+    
+    console.log(`✅ Booking cancelled: ${reference}`);
+    
+    res.json({
+      ticket: updatedTicket,
+      message: 'Booking cancelled successfully'
+    });
+  } catch (error) {
+    console.error('❌ Error cancelling booking:', error);
+    res.status(500).json({ error: 'Failed to cancel booking', details: error.message });
+  }
+});
+
+// User update their own pending booking
+app.put('/api/booking/my-tickets/:reference/update', async (req, res) => {
+  try {
+    const userId = (req.user as any)?.id;
+    if (!userId) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+    
+    const reference = req.params.reference;
+    const { numberOfParticipants, eventDate, specialRequests } = req.body;
+    
+    // Get the booking first to verify ownership and status
+    const ticket = await storage.getBookingTicket(reference);
+    if (!ticket) {
+      return res.status(404).json({ error: 'Booking not found' });
+    }
+    
+    // Verify user owns this booking
+    if (ticket.userId !== userId) {
+      return res.status(403).json({ error: 'You can only edit your own bookings' });
+    }
+    
+    // Only allow editing of pending bookings
+    if (ticket.status !== 'pending') {
+      return res.status(400).json({ error: 'Only pending bookings can be edited' });
+    }
+    
+    console.log(`✏️ User ${userId} updating booking: ${reference}`);
+    
+    // Get event for price calculation
+    const event = await storage.getBookingEvent(ticket.eventId);
+    const pricePerPerson = event?.price ? parseFloat(event.price.toString()) : 0;
+    const newParticipants = numberOfParticipants || ticket.numberOfParticipants;
+    const newTotalPrice = pricePerPerson * newParticipants;
+    
+    // Update the booking
+    await db
+      .update(bookingTickets)
+      .set({
+        numberOfParticipants: newParticipants,
+        eventDate: eventDate ? new Date(eventDate) : ticket.eventDate,
+        specialRequests: specialRequests !== undefined ? specialRequests : ticket.specialRequests,
+        totalPrice: newTotalPrice.toString(),
+        updatedAt: new Date()
+      })
+      .where(eq(bookingTickets.bookingReference, reference));
+    
+    // Fetch updated ticket
+    const updatedTicket = await storage.getBookingTicket(reference);
+    
+    console.log(`✅ Booking updated: ${reference}`);
+    
+    res.json({
+      ticket: updatedTicket,
+      message: 'Booking updated successfully'
+    });
+  } catch (error) {
+    console.error('❌ Error updating booking:', error);
+    res.status(500).json({ error: 'Failed to update booking', details: error.message });
   }
 });
 
