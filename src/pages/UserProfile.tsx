@@ -428,7 +428,7 @@ const UserProfile = () => {
                           </div>
                         )}
                         
-                        {profileData.interests.length > 0 && (
+                        {Array.isArray(profileData.interests) && profileData.interests.length > 0 && (
                           <div className="pt-4 border-t border-slate-100">
                             <p className="text-sm text-slate-500 mb-2">Interests</p>
                             <div className="flex flex-wrap gap-2">
