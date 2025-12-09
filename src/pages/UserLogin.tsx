@@ -3,8 +3,9 @@ import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { AlertCircle, Mail, Lock, Eye, EyeOff, Sparkles } from "lucide-react";
+import { AlertCircle, Mail, Lock, Eye, EyeOff, Sparkles, ArrowLeft } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import logoAtj from "@/assets/logo-atj.png";
 
 const UserLogin = () => {
   const [credentials, setCredentials] = useState({ email: '', password: '' });
@@ -74,11 +75,13 @@ const UserLogin = () => {
         <div className="relative z-10 flex flex-col justify-between p-12 text-white w-full">
           {/* Logo */}
           <div>
-            <Link to="/" className="flex items-center gap-3 group">
-              <div className="w-12 h-12 rounded-xl bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20 group-hover:bg-white/20 transition-all duration-300">
-                <Sparkles className="w-6 h-6 text-[hsl(42,49%,70%)]" />
-              </div>
-              <span className="text-2xl font-bold tracking-tight">Morocco Clubs</span>
+            <Link to="/" className="inline-block group">
+              <img 
+                src={logoAtj} 
+                alt="Logo" 
+                className="w-auto object-contain transition-all duration-300 cursor-pointer hover:opacity-90" 
+                style={{ height: '90px', margin: '20px 10px' }}
+              />
             </Link>
           </div>
 
@@ -125,13 +128,28 @@ const UserLogin = () => {
       {/* Right Side - Login Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 bg-gradient-to-br from-slate-50 via-white to-slate-100">
         <div className={`w-full max-w-md transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+          {/* Back to Home Arrow */}
+          <div className="mb-6">
+            <Link 
+              to="/" 
+              className="inline-flex items-center gap-2 text-[hsl(227,65%,19%)] hover:text-[hsl(227,65%,30%)] transition-all duration-300 group"
+            >
+              <div className="w-10 h-10 rounded-full bg-[hsl(227,65%,19%,0.1)] flex items-center justify-center group-hover:bg-[hsl(227,65%,19%,0.15)] transition-all duration-300">
+                <ArrowLeft className="w-5 h-5" />
+              </div>
+              <span className="font-medium">Back to Home</span>
+            </Link>
+          </div>
+
           {/* Mobile Logo */}
           <div className="lg:hidden mb-8 text-center">
-            <Link to="/" className="inline-flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[hsl(227,65%,19%)] flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-[hsl(42,49%,70%)]" />
-              </div>
-              <span className="text-xl font-bold text-[hsl(227,65%,19%)]">Morocco Clubs</span>
+            <Link to="/" className="inline-block">
+              <img 
+                src={logoAtj} 
+                alt="Logo" 
+                className="w-auto object-contain transition-all duration-300 cursor-pointer hover:opacity-90 mx-auto" 
+                style={{ height: '70px' }}
+              />
             </Link>
           </div>
 
