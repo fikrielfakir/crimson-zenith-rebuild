@@ -73,16 +73,26 @@ const UserLogin = () => {
 
         {/* Content */}
         <div className="relative z-10 flex flex-col justify-between p-12 text-white w-full">
-          {/* Logo */}
-          <div>
-            <Link to="/" className="inline-block group">
-              <img 
-                src={logoAtj} 
-                alt="Logo" 
-                className="w-auto object-contain transition-all duration-300 cursor-pointer hover:opacity-90" 
-                style={{ height: '90px', margin: '20px 10px' }}
-              />
+          {/* Top row: Back arrow left, Logo centered */}
+          <div className="flex items-center justify-between">
+            <Link 
+              to="/" 
+              className="flex items-center gap-2 text-white hover:text-white/80 transition-all duration-300 group"
+            >
+              <ArrowLeft className="w-5 h-5" />
+              <span className="font-medium">Back to Home</span>
             </Link>
+            <div className="flex-1 flex justify-center">
+              <Link to="/" className="inline-block group">
+                <img 
+                  src={logoAtj} 
+                  alt="Logo" 
+                  className="w-auto object-contain transition-all duration-300 cursor-pointer hover:opacity-90" 
+                  style={{ height: '90px' }}
+                />
+              </Link>
+            </div>
+            <div className="w-[120px]"></div>
           </div>
 
           {/* Main Content */}
@@ -128,35 +138,32 @@ const UserLogin = () => {
       {/* Right Side - Login Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 bg-gradient-to-br from-slate-50 via-white to-slate-100">
         <div className={`w-full max-w-md transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-          {/* Back to Home Arrow */}
-          <div className="mb-6">
-            <Link 
-              to="/" 
-              className="inline-flex items-center gap-2 text-[hsl(227,65%,19%)] hover:text-[hsl(227,65%,30%)] transition-all duration-300 group"
-            >
-              <div className="w-10 h-10 rounded-full bg-[hsl(227,65%,19%,0.1)] flex items-center justify-center group-hover:bg-[hsl(227,65%,19%,0.15)] transition-all duration-300">
+          {/* Mobile Header with back arrow and logo */}
+          <div className="lg:hidden mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <Link 
+                to="/" 
+                className="flex items-center gap-2 text-[hsl(227,65%,19%)] hover:text-[hsl(227,65%,30%)] transition-all duration-300"
+              >
                 <ArrowLeft className="w-5 h-5" />
-              </div>
-              <span className="font-medium">Back to Home</span>
-            </Link>
-          </div>
-
-          {/* Mobile Logo */}
-          <div className="lg:hidden mb-8 text-center">
-            <Link to="/" className="inline-block">
-              <img 
-                src={logoAtj} 
-                alt="Logo" 
-                className="w-auto object-contain transition-all duration-300 cursor-pointer hover:opacity-90 mx-auto" 
-                style={{ height: '70px' }}
-              />
-            </Link>
+                <span className="font-medium text-sm">Back to Home</span>
+              </Link>
+            </div>
+            <div className="text-center">
+              <Link to="/" className="inline-block">
+                <img 
+                  src={logoAtj} 
+                  alt="Logo" 
+                  className="w-auto object-contain transition-all duration-300 cursor-pointer hover:opacity-90 mx-auto" 
+                  style={{ height: '70px' }}
+                />
+              </Link>
+            </div>
           </div>
 
           {/* Form Header */}
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-[hsl(227,65%,19%)] mb-2">Sign In</h2>
-            <p className="text-slate-600">Welcome back! Please enter your details.</p>
+            <p className="text-slate-600 text-lg">Welcome back! Please enter your details.</p>
           </div>
 
           {/* Login Form */}
