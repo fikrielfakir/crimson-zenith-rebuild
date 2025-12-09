@@ -27,7 +27,7 @@ export function getSession() {
         data: 'data'
       }
     }
-  }, pool);
+  }, pool as any);
   
   return session({
     secret: process.env.SESSION_SECRET || 'default-secret-change-in-production',
