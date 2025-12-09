@@ -20,6 +20,7 @@ import {
   contactSettings as contactSettingsTable,
   themeSettings as themeSettingsTable
 } from './shared/schema.js';
+import { sendBookingConfirmationEmail, sendBookingApprovedEmail } from './server/emailService.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -3063,13 +3064,37 @@ app.post('/api/booking/tickets', async (req, res) => {
       return res.status(400).json({ error: 'Missing required fields' });
     }
     
+    const paymentMethod = ticketData.paymentMethod || 'cash';
+    const status = paymentMethod === 'card' ? 'accepted' : 'pending';
+    
     const ticket = await storage.createBookingTicket({
       ...ticketData,
       eventDate: new Date(ticketData.eventDate),
       userId: (req.user as any)?.id || null,
+      status: status,
+      paymentStatus: status,
     });
     
     console.log(`✅ Created booking ticket: ${ticket.bookingReference}`);
+    
+    // Send email confirmation
+    const event = await storage.getBookingEvent(ticketData.eventId);
+    const emailData = {
+      customerName: ticket.customerName,
+      customerEmail: ticket.customerEmail,
+      bookingReference: ticket.bookingReference,
+      eventTitle: event?.title || 'Event Booking',
+      eventDate: new Date(ticket.eventDate),
+      numberOfParticipants: ticket.numberOfParticipants,
+      totalPrice: parseFloat(ticket.totalPrice?.toString() || '0'),
+      paymentMethod: paymentMethod,
+      status: status,
+      eventLocation: event?.location,
+    };
+    
+    sendBookingConfirmationEmail(emailData).catch(err => {
+      console.error('Failed to send booking email:', err);
+    });
     
     res.status(201).json({
       ticket: ticket,
@@ -3157,6 +3182,27 @@ app.put('/api/booking/tickets/:reference/status', async (req, res) => {
     
     const ticket = await storage.updateBookingTicketStatus(reference, status, additionalData);
     console.log(`✅ Updated booking ticket status: ${reference}`);
+    
+    // Send confirmation email when booking is approved (cash payment approved by admin)
+    if (status === 'accepted' || status === 'confirmed') {
+      const event = await storage.getBookingEvent(ticket.eventId);
+      const emailData = {
+        customerName: ticket.customerName,
+        customerEmail: ticket.customerEmail,
+        bookingReference: ticket.bookingReference,
+        eventTitle: event?.title || 'Event Booking',
+        eventDate: new Date(ticket.eventDate),
+        numberOfParticipants: ticket.numberOfParticipants,
+        totalPrice: parseFloat(ticket.totalPrice?.toString() || '0'),
+        paymentMethod: ticket.paymentMethod || 'cash',
+        status: status,
+        eventLocation: event?.location,
+      };
+      
+      sendBookingApprovedEmail(emailData).catch(err => {
+        console.error('Failed to send approval email:', err);
+      });
+    }
     
     res.json({
       ticket: ticket,
