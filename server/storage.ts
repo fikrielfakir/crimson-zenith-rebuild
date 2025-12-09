@@ -157,6 +157,7 @@ export interface IStorage {
   getUserBookingTickets(userId: string): Promise<BookingTicket[]>;
   getEventBookingTickets(eventId: string): Promise<BookingTicket[]>;
   updateBookingTicketStatus(bookingReference: string, status: string, additionalData?: any): Promise<BookingTicket>;
+  deleteBookingTicket(bookingReference: string): Promise<void>;
   
   // Booking page settings operations
   getBookingPageSettings(): Promise<BookingPageSettings | undefined>;
@@ -773,6 +774,10 @@ export class DatabaseStorage implements IStorage {
     }
     
     return updated;
+  }
+
+  async deleteBookingTicket(bookingReference: string): Promise<void> {
+    await db.delete(bookingTickets).where(eq(bookingTickets.bookingReference, bookingReference));
   }
 
   // Booking page settings operations

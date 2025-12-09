@@ -1295,6 +1295,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // DELETE /api/admin/bookings/:id - Delete a booking
+  app.delete('/api/admin/bookings/:id', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const bookingReference = req.params.id;
+      await storage.deleteBookingTicket(bookingReference);
+      res.json({ message: "Booking deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting booking:", error);
+      res.status(500).json({ message: "Failed to delete booking" });
+    }
+  });
+
   // ==========================================
   // Admin Dashboard Stats Routes
   // ==========================================
