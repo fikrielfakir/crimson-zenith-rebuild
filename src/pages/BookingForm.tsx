@@ -538,36 +538,49 @@ const BookingForm = () => {
                 
                 {bookingStep === 1 && (
                   <div className="space-y-6">
-                    <h3 className="font-['Poppins'] text-2xl font-bold text-[#111f50] mb-6 flex items-center gap-3">
-                      <User className="w-6 h-6 text-[#D4B26A]" />
-                      {selectedEvent.isAssociationEvent ? 'Association Event Registration' : 'Club Event Registration'}
-                    </h3>
+                    <div className="flex items-center gap-4 pb-4 border-b border-gray-100">
+                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#D4B26A] to-[#C9A758] flex items-center justify-center shadow-md">
+                        <User className="w-6 h-6 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="font-['Poppins'] text-xl font-bold text-[#111f50]">
+                          {selectedEvent.isAssociationEvent ? 'Association Event Registration' : 'Club Event Registration'}
+                        </h3>
+                        <p className="text-sm text-gray-500 font-['Inter']">Please fill in your details below</p>
+                      </div>
+                    </div>
                     
-                    <div>
+                    <div className="relative">
                       <Label htmlFor="name" className="font-['Inter'] font-semibold text-[#111f50] mb-2 block text-sm">
                         Full Name <span className="text-red-500">*</span>
                       </Label>
-                      <Input
-                        id="name"
-                        value={customerName}
-                        onChange={(e) => setCustomerName(e.target.value)}
-                        placeholder="Enter your full name"
-                        className="font-['Inter'] h-14 rounded-xl border-2 border-gray-200 focus:border-[#D4B26A] px-4 text-base"
-                      />
+                      <div className="relative">
+                        <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <Input
+                          id="name"
+                          value={customerName}
+                          onChange={(e) => setCustomerName(e.target.value)}
+                          placeholder="Enter your full name"
+                          className="font-['Inter'] h-14 rounded-xl border-2 border-gray-200 focus:border-[#D4B26A] pl-12 pr-4 text-base transition-all duration-200 hover:border-gray-300"
+                        />
+                      </div>
                     </div>
 
-                    <div>
+                    <div className="relative">
                       <Label htmlFor="email" className="font-['Inter'] font-semibold text-[#111f50] mb-2 block text-sm">
                         Email Address <span className="text-red-500">*</span>
                       </Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        value={customerEmail}
-                        onChange={(e) => setCustomerEmail(e.target.value)}
-                        placeholder="your@email.com"
-                        className="font-['Inter'] h-14 rounded-xl border-2 border-gray-200 focus:border-[#D4B26A] px-4 text-base"
-                      />
+                      <div className="relative">
+                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <Input
+                          id="email"
+                          type="email"
+                          value={customerEmail}
+                          onChange={(e) => setCustomerEmail(e.target.value)}
+                          placeholder="your@email.com"
+                          className="font-['Inter'] h-14 rounded-xl border-2 border-gray-200 focus:border-[#D4B26A] pl-12 pr-4 text-base transition-all duration-200 hover:border-gray-300"
+                        />
+                      </div>
                     </div>
 
                     {!selectedEvent.isAssociationEvent && (

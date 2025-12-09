@@ -259,6 +259,71 @@ export async function setupAuth(app: Express) {
       res.status(500).json({ message: "Failed to fetch user" });
     }
   });
+
+  // Update user profile endpoint
+  app.put("/api/auth/user", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const { firstName, lastName, phone, location, bio, interests, profileImageUrl } = req.body;
+      
+      const updateData: any = {};
+      if (firstName !== undefined) updateData.firstName = firstName;
+      if (lastName !== undefined) updateData.lastName = lastName;
+      if (phone !== undefined) updateData.phone = phone;
+      if (location !== undefined) updateData.location = location;
+      if (bio !== undefined) updateData.bio = bio;
+      if (interests !== undefined) updateData.interests = interests;
+      if (profileImageUrl !== undefined) updateData.profileImageUrl = profileImageUrl;
+      updateData.updatedAt = new Date();
+
+      await db.update(users).set(updateData).where(eq(users.id, userId));
+      
+      const updatedUser = await storage.getUser(userId);
+      
+      res.json({
+        message: "Profile updated successfully",
+        user: updatedUser
+      });
+    } catch (error) {
+      console.error("Error updating user:", error);
+      res.status(500).json({ message: "Failed to update profile" });
+    }
+  });
+
+  // Upload profile image endpoint
+  app.post("/api/auth/upload-profile-image", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const { imageData } = req.body;
+      
+      if (!imageData) {
+        return res.status(400).json({ message: "No image data provided" });
+      }
+
+      // Validate base64 image format
+      const matches = imageData.match(/^data:image\/(png|jpeg|jpg|gif|webp);base64,(.+)$/);
+      if (!matches) {
+        return res.status(400).json({ message: "Invalid image format" });
+      }
+
+      // Store as data URL directly in the database
+      await db.update(users).set({ 
+        profileImageUrl: imageData,
+        updatedAt: new Date()
+      }).where(eq(users.id, userId));
+      
+      const updatedUser = await storage.getUser(userId);
+      
+      res.json({
+        message: "Profile image updated successfully",
+        profileImageUrl: imageData,
+        user: updatedUser
+      });
+    } catch (error) {
+      console.error("Error uploading profile image:", error);
+      res.status(500).json({ message: "Failed to upload profile image" });
+    }
+  });
 }
 
 export const isAuthenticated: RequestHandler = async (req, res, next) => {

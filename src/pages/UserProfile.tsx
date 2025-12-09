@@ -68,7 +68,7 @@ interface Booking {
 }
 
 const UserProfile = () => {
-  const { user, isAuthenticated, isLoading } = useAuth();
+  const { user, isAuthenticated, isLoading, refetch } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   
@@ -82,6 +82,7 @@ const UserProfile = () => {
   const [editFormData, setEditFormData] = useState({ numberOfParticipants: 1, specialRequests: '' });
   const [cancelReason, setCancelReason] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
+  const [imageUploading, setImageUploading] = useState(false);
   const [profileData, setProfileData] = useState({
     firstName: '',
     lastName: '',
@@ -89,7 +90,8 @@ const UserProfile = () => {
     phone: '',
     location: '',
     bio: '',
-    interests: [] as string[]
+    interests: [] as string[],
+    profileImageUrl: ''
   });
 
   useEffect(() => {
@@ -113,7 +115,8 @@ const UserProfile = () => {
         phone: user.phone || '',
         location: user.location || '',
         bio: user.bio || '',
-        interests: user.interests || []
+        interests: user.interests || [],
+        profileImageUrl: user.profileImageUrl || ''
       });
       
       fetchUserClubs();
@@ -306,6 +309,74 @@ const UserProfile = () => {
     }
   };
 
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Invalid file type",
+        description: "Please select an image file (JPG, PNG, GIF, or WebP)",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "File too large",
+        description: "Please select an image smaller than 5MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setImageUploading(true);
+    
+    try {
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const imageData = e.target?.result as string;
+        
+        const response = await fetch('/api/auth/upload-profile-image', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ imageData }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setProfileData(prev => ({ ...prev, profileImageUrl: data.profileImageUrl }));
+          if (refetch) refetch();
+          toast({
+            title: "Success",
+            description: "Profile image updated successfully!",
+          });
+        } else {
+          throw new Error('Failed to upload image');
+        }
+        setImageUploading(false);
+      };
+      reader.onerror = () => {
+        setImageUploading(false);
+        toast({
+          title: "Error",
+          description: "Failed to read image file",
+          variant: "destructive",
+        });
+      };
+      reader.readAsDataURL(file);
+    } catch (error) {
+      setImageUploading(false);
+      toast({
+        title: "Error",
+        description: "Failed to upload profile image. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleRemoveInterest = (index: number) => {
     setProfileData(prev => ({
       ...prev,
@@ -360,14 +431,28 @@ const UserProfile = () => {
               {/* Avatar Section */}
               <div className="relative group">
                 <Avatar className="w-28 h-28 md:w-32 md:h-32 border-4 border-white shadow-lg">
-                  <AvatarImage src={user.profileImageUrl || ""} />
+                  <AvatarImage src={profileData.profileImageUrl || user.profileImageUrl || ""} />
                   <AvatarFallback className="text-3xl bg-gradient-to-br from-[hsl(227,65%,19%)] to-[hsl(227,65%,30%)] text-white">
                     {profileData.firstName?.[0] || 'U'}{profileData.lastName?.[0] || ''}
                   </AvatarFallback>
                 </Avatar>
-                <button className="absolute bottom-1 right-1 w-9 h-9 bg-[hsl(227,65%,19%)] rounded-full flex items-center justify-center text-white shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Camera className="w-4 h-4" />
-                </button>
+                <input
+                  type="file"
+                  id="profile-image-upload"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="hidden"
+                />
+                <label 
+                  htmlFor="profile-image-upload"
+                  className="absolute bottom-1 right-1 w-9 h-9 bg-[hsl(227,65%,19%)] rounded-full flex items-center justify-center text-white shadow-lg opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer hover:bg-[hsl(227,65%,25%)]"
+                >
+                  {imageUploading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Camera className="w-4 h-4" />
+                  )}
+                </label>
               </div>
 
               {/* User Info */}
