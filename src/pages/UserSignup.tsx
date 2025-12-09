@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AlertCircle, Mail, Lock, Eye, EyeOff, User, ArrowLeft, CheckCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useAuth } from "@/hooks/useAuth";
 import logoAtj from "@/assets/logo-atj.png";
 
 const UserSignup = () => {
@@ -22,6 +23,13 @@ const UserSignup = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
+
+  useEffect(() => {
+    if (!authLoading && isAuthenticated) {
+      navigate('/profile');
+    }
+  }, [isAuthenticated, authLoading, navigate]);
 
   useEffect(() => {
     setIsVisible(true);

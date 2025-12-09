@@ -3194,6 +3194,41 @@ app.get('/api/booking/my-tickets', async (req, res) => {
   }
 });
 
+app.get('/api/booking/check-event/:eventId', async (req, res) => {
+  try {
+    const userId = (req.user as any)?.id;
+    if (!userId) {
+      return res.json({ hasBooked: false, booking: null });
+    }
+    
+    const eventId = req.params.eventId;
+    console.log(`🔍 Checking booking for user ${userId} on event ${eventId}`);
+    
+    const [existingBooking] = await db
+      .select({
+        id: bookingTickets.id,
+        bookingReference: bookingTickets.bookingReference,
+        status: bookingTickets.status,
+        eventDate: bookingTickets.eventDate,
+        numberOfParticipants: bookingTickets.numberOfParticipants,
+        createdAt: bookingTickets.createdAt,
+      })
+      .from(bookingTickets)
+      .where(sql`${bookingTickets.userId} = ${userId} AND ${bookingTickets.eventId} = ${eventId} AND ${bookingTickets.status} != 'cancelled'`)
+      .limit(1);
+    
+    if (existingBooking) {
+      console.log(`✅ User has existing booking: ${existingBooking.bookingReference}`);
+      return res.json({ hasBooked: true, booking: existingBooking });
+    }
+    
+    res.json({ hasBooked: false, booking: null });
+  } catch (error) {
+    console.error('❌ Error checking user booking:', error);
+    res.status(500).json({ error: 'Failed to check booking status', details: error.message });
+  }
+});
+
 app.put('/api/booking/tickets/:reference/status', async (req, res) => {
   try {
     const reference = req.params.reference;

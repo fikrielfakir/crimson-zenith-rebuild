@@ -38,7 +38,7 @@ import AutoScroll from 'embla-carousel-auto-scroll';
 const Book = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user, isLoading: authLoading } = useAuth();
   const eventParam = searchParams.get('event');
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [participants, setParticipants] = useState(2);
@@ -47,6 +47,8 @@ const Book = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [galleryImages, setGalleryImages] = useState<any[]>([]);
+  const [existingBooking, setExistingBooking] = useState<any>(null);
+  const [hasBookedEvent, setHasBookedEvent] = useState(false);
   
   const { toast } = useToast();
 
@@ -188,6 +190,36 @@ const Book = () => {
       setSelectedDate(new Date(selectedEvent.eventDate));
     }
   }, [selectedEvent?.eventDate, selectedDate]);
+
+  useEffect(() => {
+    const checkExistingBooking = async () => {
+      if (authLoading) {
+        return;
+      }
+      
+      if (!selectedEvent?.id || !isAuthenticated) {
+        setHasBookedEvent(false);
+        setExistingBooking(null);
+        return;
+      }
+      
+      try {
+        const response = await fetch(`/api/booking/check-event/${selectedEvent.id}`, {
+          credentials: 'include',
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          setHasBookedEvent(data.hasBooked);
+          setExistingBooking(data.booking);
+        }
+      } catch (err) {
+        console.error('Failed to check existing booking:', err);
+      }
+    };
+
+    checkExistingBooking();
+  }, [selectedEvent?.id, isAuthenticated, authLoading]);
 
   if (isLoading) {
     return (
@@ -639,6 +671,19 @@ const Book = () => {
 
               <CardContent className="p-8 space-y-8">
                 
+                {/* Existing Booking Notice */}
+                {hasBookedEvent && existingBooking && (
+                  <div className="flex items-start gap-3 bg-blue-50 border border-blue-200 rounded-xl p-4">
+                    <Check className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-['Inter'] text-sm text-blue-800 font-semibold">You've already booked this event!</p>
+                      <p className="font-['Inter'] text-xs text-blue-600 mt-1">
+                        Booking ref: {existingBooking.bookingReference}
+                      </p>
+                    </div>
+                  </div>
+                )}
+                
                 {/* Participant Selector with Premium Stepper */}
                 <div>
                   <Label className="font-['Inter'] font-semibold text-[#111f50] mb-4 block text-lg">Number of Travelers</Label>
@@ -711,34 +756,44 @@ const Book = () => {
                   </div>
                 </div>
 
-                {/* Premium Book Now Button */}
-                <Button 
-                  onClick={() => {
-                    const params = new URLSearchParams();
-                    params.set('event', selectedEvent.id.toString());
-                    if (selectedDate) {
-                      params.set('date', selectedDate.toISOString());
-                    }
-                    params.set('participants', participants.toString());
-                    const bookingUrl = `/book/form?${params.toString()}`;
-                    
-                    if (!isAuthenticated) {
-                      toast({
-                        title: "Login Required",
-                        description: "Please log in to book this experience.",
-                      });
-                      navigate(`/login?redirect=${encodeURIComponent(bookingUrl)}`);
-                      return;
-                    }
-                    
-                    navigate(bookingUrl);
-                  }}
-                  disabled={!selectedDate && availableDates.length > 0}
-                  className="w-full bg-gradient-to-r from-[#D4B26A] to-[#C9A758] hover:from-[#C9A758] hover:to-[#B89647] text-white font-['Poppins'] font-bold text-lg py-7 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] border-0"
-                  style={{ letterSpacing: '0.5px' }}
-                >
-                  Book This Experience
-                </Button>
+                {/* Premium Book Now / View Booking Button */}
+                {hasBookedEvent && existingBooking ? (
+                  <Button 
+                    onClick={() => navigate(`/profile?tab=bookings`)}
+                    className="w-full bg-gradient-to-r from-[#111f50] to-[#1a3366] hover:from-[#1a3366] hover:to-[#2a4376] text-white font-['Poppins'] font-bold text-lg py-7 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] border-0"
+                    style={{ letterSpacing: '0.5px' }}
+                  >
+                    View Your Booking
+                  </Button>
+                ) : (
+                  <Button 
+                    onClick={() => {
+                      const params = new URLSearchParams();
+                      params.set('event', selectedEvent.id.toString());
+                      if (selectedDate) {
+                        params.set('date', selectedDate.toISOString());
+                      }
+                      params.set('participants', participants.toString());
+                      const bookingUrl = `/book/form?${params.toString()}`;
+                      
+                      if (!isAuthenticated) {
+                        toast({
+                          title: "Login Required",
+                          description: "Please log in to book this experience.",
+                        });
+                        navigate(`/login?redirect=${encodeURIComponent(bookingUrl)}`);
+                        return;
+                      }
+                      
+                      navigate(bookingUrl);
+                    }}
+                    disabled={!selectedDate && availableDates.length > 0}
+                    className="w-full bg-gradient-to-r from-[#D4B26A] to-[#C9A758] hover:from-[#C9A758] hover:to-[#B89647] text-white font-['Poppins'] font-bold text-lg py-7 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] border-0"
+                    style={{ letterSpacing: '0.5px' }}
+                  >
+                    Book This Experience
+                  </Button>
+                )}
 
                 {/* Cancellation Policy Note */}
                 <div className="flex items-start gap-3 bg-green-50 border border-green-200 rounded-xl p-4">

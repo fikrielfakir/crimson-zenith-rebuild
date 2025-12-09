@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AlertCircle, Mail, Lock, Eye, EyeOff, Sparkles, ArrowLeft } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useAuth } from "@/hooks/useAuth";
 import logoAtj from "@/assets/logo-atj.png";
 
 const UserLogin = () => {
@@ -16,6 +17,13 @@ const UserLogin = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const redirectUrl = searchParams.get('redirect') || '/profile';
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
+
+  useEffect(() => {
+    if (!authLoading && isAuthenticated) {
+      navigate('/profile');
+    }
+  }, [isAuthenticated, authLoading, navigate]);
 
   useEffect(() => {
     setIsVisible(true);
