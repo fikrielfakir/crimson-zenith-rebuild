@@ -262,10 +262,22 @@ export class DatabaseStorage implements IStorage {
     const result = await dbOrTx.insert(table).values(values);
     
     // If the ID was provided in values, use it; otherwise use the inserted ID
-    const insertedId = values.id || result.insertId;
+    // mysql2 returns [ResultSetHeader, FieldPacket[]] so we need result[0].insertId
+    const insertedId = values.id || (result[0]?.insertId ?? result.insertId);
     
-    // Fetch the inserted record
-    const [record] = await dbOrTx.select().from(table).where(eq(table.id, insertedId));
+    // For tables without auto-increment IDs (like booking_tickets with serial), 
+    // we need to fetch by a unique field if no ID
+    if (insertedId) {
+      const [record] = await dbOrTx.select().from(table).where(eq(table.id, insertedId));
+      return record as T;
+    } else if (values.bookingReference) {
+      // For booking_tickets, fetch by booking_reference
+      const [record] = await dbOrTx.select().from(table).where(eq(table.bookingReference, values.bookingReference));
+      return record as T;
+    }
+    
+    // Fallback: fetch the last inserted record
+    const [record] = await dbOrTx.select().from(table).orderBy(desc(table.id)).limit(1);
     return record as T;
   }
   
