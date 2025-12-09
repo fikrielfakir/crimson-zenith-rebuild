@@ -312,7 +312,7 @@ const UserLogin = () => {
           {/* Sign up link */}
           <p className="mt-8 text-center text-slate-600">
             Don't have an account?{' '}
-            <Link to="/join" className="font-semibold text-[hsl(227,65%,19%)] hover:text-[hsl(227,65%,30%)] transition-colors">
+            <Link to="/signup" className="font-semibold text-[hsl(227,65%,19%)] hover:text-[hsl(227,65%,30%)] transition-colors">
               Sign up for free
             </Link>
           </p>

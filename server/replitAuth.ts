@@ -108,6 +108,71 @@ export async function setupAuth(app: Express) {
     }
   });
 
+  // Registration endpoint
+  app.post("/api/register", async (req, res) => {
+    try {
+      const { firstName, lastName, email, password, confirmPassword } = req.body;
+
+      if (!firstName || !lastName || !email || !password) {
+        return res.status(400).json({ message: "All fields are required" });
+      }
+
+      // Email format validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        return res.status(400).json({ message: "Please enter a valid email address" });
+      }
+
+      if (password.length < 6) {
+        return res.status(400).json({ message: "Password must be at least 6 characters" });
+      }
+
+      // Server-side confirmation password validation
+      if (confirmPassword && password !== confirmPassword) {
+        return res.status(400).json({ message: "Passwords do not match" });
+      }
+
+      // Check if user already exists
+      const existingUser = await db
+        .select()
+        .from(users)
+        .where(eq(users.username, email))
+        .limit(1);
+
+      if (existingUser.length > 0) {
+        return res.status(400).json({ message: "An account with this email already exists" });
+      }
+
+      // Hash password
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // Generate unique ID
+      const id = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+      // Create user with 'user' role (basic user)
+      await db.insert(users).values({
+        id,
+        username: email,
+        email,
+        firstName,
+        lastName,
+        password: hashedPassword,
+        role: 'user',
+        isAdmin: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+
+      return res.status(201).json({ 
+        message: "Account created successfully",
+        user: { id, email, firstName, lastName, role: 'user' }
+      });
+    } catch (error) {
+      console.error("Registration error:", error);
+      return res.status(500).json({ message: "Failed to create account" });
+    }
+  });
+
   // Login endpoint
   app.post("/api/login", (req, res, next) => {
     passport.authenticate("local", (err: any, user: any, info: any) => {
@@ -129,7 +194,8 @@ export async function setupAuth(app: Express) {
             email: user.email,
             firstName: user.firstName,
             lastName: user.lastName,
-            isAdmin: user.isAdmin
+            isAdmin: user.isAdmin,
+            role: user.role || 'user'
           }
         });
       });
@@ -157,6 +223,7 @@ export async function setupAuth(app: Express) {
         firstName: user.firstName,
         lastName: user.lastName,
         isAdmin: user.isAdmin,
+        role: user.role || 'user',
         profileImageUrl: user.profileImageUrl,
         bio: user.bio,
         phone: user.phone,
@@ -180,6 +247,7 @@ export async function setupAuth(app: Express) {
         firstName: user.firstName,
         lastName: user.lastName,
         isAdmin: user.isAdmin,
+        role: user.role || 'user',
         profileImageUrl: user.profileImageUrl,
         bio: user.bio,
         phone: user.phone,
