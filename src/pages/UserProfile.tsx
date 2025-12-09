@@ -417,7 +417,7 @@ const UserProfile = () => {
       <Header />
       
       {/* Profile Hero Section */}
-      <div className="relative pt-32 pb-8">
+      <div className="relative pt-40 pb-12">
         {/* Background Pattern */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-0 left-0 right-0 h-64 bg-gradient-to-br from-[hsl(227,65%,19%)] via-[hsl(227,65%,25%)] to-[hsl(227,65%,19%)]" />
@@ -426,7 +426,7 @@ const UserProfile = () => {
         
         <div className="container mx-auto px-4 relative z-10">
           {/* Profile Card */}
-          <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 -mt-8">
+          <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 mt-4">
             <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
               {/* Avatar Section */}
               <div className="relative group">

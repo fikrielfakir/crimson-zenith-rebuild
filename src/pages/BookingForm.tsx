@@ -23,7 +23,8 @@ import {
   CalendarIcon,
   MapPin,
   Clock,
-  Users
+  Users,
+  Mail
 } from "lucide-react";
 import { jsPDF } from "jspdf";
 import Header from "@/components/Header";
