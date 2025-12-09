@@ -3030,6 +3030,7 @@ app.post('/api/booking/tickets', async (req, res) => {
     
     const ticket = await storage.createBookingTicket({
       ...ticketData,
+      eventDate: new Date(ticketData.eventDate),
       userId: (req.user as any)?.id || null,
     });
     

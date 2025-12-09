@@ -1,0 +1,48 @@
+UserProfile.tsx:435 Uncaught TypeError: profileData.interests.map is not a function
+    at UserProfile (UserProfile.tsx:435:54)
+    at renderWithHooks (chunk-7CVORMRW.js?v=2c4fb1ba:11596:26)
+    at updateFunctionComponent (chunk-7CVORMRW.js?v=2c4fb1ba:14630:28)
+    at beginWork (chunk-7CVORMRW.js?v=2c4fb1ba:15972:22)
+    at HTMLUnknownElement.callCallback2 (chunk-7CVORMRW.js?v=2c4fb1ba:3680:22)
+    at Object.invokeGuardedCallbackDev (chunk-7CVORMRW.js?v=2c4fb1ba:3705:24)
+    at invokeGuardedCallback (chunk-7CVORMRW.js?v=2c4fb1ba:3739:39)
+    at beginWork$1 (chunk-7CVORMRW.js?v=2c4fb1ba:19818:15)
+    at performUnitOfWork (chunk-7CVORMRW.js?v=2c4fb1ba:19251:20)
+    at workLoopSync (chunk-7CVORMRW.js?v=2c4fb1ba:19190:13)
+UserProfile.tsx:435 Uncaught TypeError: profileData.interests.map is not a function
+    at UserProfile (UserProfile.tsx:435:54)
+    at renderWithHooks (chunk-7CVORMRW.js?v=2c4fb1ba:11596:26)
+    at updateFunctionComponent (chunk-7CVORMRW.js?v=2c4fb1ba:14630:28)
+    at beginWork (chunk-7CVORMRW.js?v=2c4fb1ba:15972:22)
+    at HTMLUnknownElement.callCallback2 (chunk-7CVORMRW.js?v=2c4fb1ba:3680:22)
+    at Object.invokeGuardedCallbackDev (chunk-7CVORMRW.js?v=2c4fb1ba:3705:24)
+    at invokeGuardedCallback (chunk-7CVORMRW.js?v=2c4fb1ba:3739:39)
+    at beginWork$1 (chunk-7CVORMRW.js?v=2c4fb1ba:19818:15)
+    at performUnitOfWork (chunk-7CVORMRW.js?v=2c4fb1ba:19251:20)
+    at workLoopSync (chunk-7CVORMRW.js?v=2c4fb1ba:19190:13)
+chunk-7CVORMRW.js?v=2c4fb1ba:14080 The above error occurred in the <UserProfile> component:
+
+    at UserProfile (https://b801d003-0db7-4aa7-b6cb-611198549ee9-00-969ddosbreoc.picard.replit.dev/src/pages/UserProfile.tsx:39:50)
+    at RenderedRoute (https://b801d003-0db7-4aa7-b6cb-611198549ee9-00-969ddosbreoc.picard.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=2c4fb1ba:4088:5)
+    at Routes (https://b801d003-0db7-4aa7-b6cb-611198549ee9-00-969ddosbreoc.picard.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=2c4fb1ba:4558:5)
+    at Router (https://b801d003-0db7-4aa7-b6cb-611198549ee9-00-969ddosbreoc.picard.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=2c4fb1ba:4501:15)
+    at BrowserRouter (https://b801d003-0db7-4aa7-b6cb-611198549ee9-00-969ddosbreoc.picard.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=2c4fb1ba:5247:5)
+    at Provider (https://b801d003-0db7-4aa7-b6cb-611198549ee9-00-969ddosbreoc.picard.replit.dev/node_modules/.vite/deps/chunk-ONVFPFEJ.js?v=2c4fb1ba:37:15)
+    at TooltipProvider (https://b801d003-0db7-4aa7-b6cb-611198549ee9-00-969ddosbreoc.picard.replit.dev/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=2c4fb1ba:65:5)
+    at QueryClientProvider (https://b801d003-0db7-4aa7-b6cb-611198549ee9-00-969ddosbreoc.picard.replit.dev/node_modules/.vite/deps/@tanstack_react-query.js?v=2c4fb1ba:2874:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+logCapturedError @ chunk-7CVORMRW.js?v=2c4fb1ba:14080
+chunk-7CVORMRW.js?v=2c4fb1ba:19466 Uncaught TypeError: profileData.interests.map is not a function
+    at UserProfile (UserProfile.tsx:435:54)
+    at renderWithHooks (chunk-7CVORMRW.js?v=2c4fb1ba:11596:26)
+    at updateFunctionComponent (chunk-7CVORMRW.js?v=2c4fb1ba:14630:28)
+    at beginWork (chunk-7CVORMRW.js?v=2c4fb1ba:15972:22)
+    at beginWork$1 (chunk-7CVORMRW.js?v=2c4fb1ba:19806:22)
+    at performUnitOfWork (chunk-7CVORMRW.js?v=2c4fb1ba:19251:20)
+    at workLoopSync (chunk-7CVORMRW.js?v=2c4fb1ba:19190:13)
+    at renderRootSync (chunk-7CVORMRW.js?v=2c4fb1ba:19169:15)
+    at recoverFromConcurrentError (chunk-7CVORMRW.js?v=2c4fb1ba:18786:28)
+    at performConcurrentWorkOnRoot (chunk-7CVORMRW.js?v=2c4fb1ba:18734:30)
