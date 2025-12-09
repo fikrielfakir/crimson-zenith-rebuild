@@ -196,7 +196,6 @@ function TicketModal({ booking, isOpen, onClose }: { booking: Booking | null; is
                   <p className="ticket-value text-lg font-semibold mt-1">{booking.eventTitle}</p>
                 </div>
                 <span className={`status-badge text-white px-3 py-1 rounded-full text-xs font-semibold uppercase ${
-                  booking.status === 'accepted' ? 'bg-green-500' :
                   booking.status === 'confirmed' ? 'bg-blue-500' :
                   booking.status === 'pending' ? 'bg-yellow-500' : 'bg-red-500'
                 }`}>
@@ -345,7 +344,6 @@ function EditBookingModal({ booking, isOpen, onClose, onSave }: { booking: Booki
               <SelectContent>
                 <SelectItem value="pending">"pending"</SelectItem>
                 <SelectItem value="confirmed">"confirmed"</SelectItem>
-                <SelectItem value="accepted">"accepted"</SelectItem>
                 <SelectItem value="cancelled">"cancelled"</SelectItem>
               </SelectContent>
             </Select>
@@ -413,7 +411,6 @@ export default function BookingManagement() {
   const getStatusBadge = (status: string) => {
     const statusConfig: Record<string, { variant: 'default' | 'secondary' | 'destructive' | 'outline'; className: string }> = {
       confirmed: { variant: 'default', className: 'bg-blue-500 hover:bg-blue-600' },
-      accepted: { variant: 'default', className: 'bg-green-500 hover:bg-green-600' },
       pending: { variant: 'secondary', className: 'bg-yellow-500/20 text-yellow-700 hover:bg-yellow-500/30' },
       cancelled: { variant: 'destructive', className: '' },
     };
@@ -478,7 +475,7 @@ export default function BookingManagement() {
 
   const stats = {
     total: bookings.length,
-    active: bookings.filter((b: Booking) => b.status === 'confirmed' || b.status === 'accepted').length,
+    active: bookings.filter((b: Booking) => b.status === 'confirmed').length,
     pending: bookings.filter((b: Booking) => b.status === 'pending').length,
     revenue: bookings.reduce((sum: number, b: Booking) => sum + (b.totalAmount || 0), 0),
   };
@@ -520,7 +517,7 @@ export default function BookingManagement() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.active}</div>
-            <p className="text-xs text-muted-foreground">Confirmed & accepted</p>
+            <p className="text-xs text-muted-foreground">Confirmed bookings</p>
           </CardContent>
         </Card>
         <Card>
@@ -568,7 +565,6 @@ export default function BookingManagement() {
               <SelectContent>
                 <SelectItem value="all">All Status</SelectItem>
                 <SelectItem value="confirmed">"confirmed"</SelectItem>
-                <SelectItem value="accepted">"accepted"</SelectItem>
                 <SelectItem value="pending">"pending"</SelectItem>
                 <SelectItem value="cancelled">"cancelled"</SelectItem>
               </SelectContent>
@@ -609,7 +605,7 @@ export default function BookingManagement() {
                     <TableCell>{getStatusBadge(booking.status)}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">
-                        {(booking.status === 'accepted' || booking.status === 'confirmed') && (
+                        {booking.status === 'confirmed' && (
                           <Button 
                             variant="outline" 
                             size="sm" 
