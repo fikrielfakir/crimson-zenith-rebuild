@@ -26,15 +26,31 @@ const UserLogin = () => {
     setIsLoading(true);
     setError('');
 
-    if (credentials.email === 'user@morocclubs.com' && credentials.password === 'user123') {
-      localStorage.setItem('userAuth', 'authenticated');
-      localStorage.setItem('userEmail', credentials.email);
-      navigate(redirectUrl);
-    } else {
-      setError('Invalid email or password. Please check your credentials.');
+    try {
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          username: credentials.email,
+          password: credentials.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        navigate(redirectUrl);
+      } else {
+        setError(data.message || 'Invalid email or password. Please check your credentials.');
+      }
+    } catch (err) {
+      setError('An error occurred. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
-    
-    setIsLoading(false);
   };
 
   const handleGoogleLogin = () => {

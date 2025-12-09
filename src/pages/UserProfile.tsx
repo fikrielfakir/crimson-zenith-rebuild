@@ -42,6 +42,7 @@ const UserProfile = () => {
   
   const [isEditing, setIsEditing] = useState(false);
   const [userClubs, setUserClubs] = useState<any[]>([]);
+  const [clubsLoading, setClubsLoading] = useState(true);
   const [profileData, setProfileData] = useState({
     firstName: '',
     lastName: '',
@@ -82,13 +83,21 @@ const UserProfile = () => {
 
   const fetchUserClubs = async () => {
     try {
-      const response = await fetch('/api/user/clubs');
+      setClubsLoading(true);
+      const response = await fetch('/api/user/clubs', {
+        credentials: 'include',
+      });
       if (response.ok) {
         const clubs = await response.json();
-        setUserClubs(clubs);
+        setUserClubs(Array.isArray(clubs) ? clubs : []);
+      } else {
+        setUserClubs([]);
       }
     } catch (error) {
       console.error('Error fetching user clubs:', error);
+      setUserClubs([]);
+    } finally {
+      setClubsLoading(false);
     }
   };
 

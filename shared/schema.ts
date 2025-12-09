@@ -40,8 +40,28 @@ export const users = mysqlTable("users", {
   phone: varchar("phone", { length: 50 }),
   location: varchar("location", { length: 255 }),
   interests: json("interests").default(sql`'[]'`),
+  role: varchar("role", { length: 20 }).default("user"), // user, member, admin
   isAdmin: boolean("is_admin").default(false),
   isActive: boolean("is_active").default(true),
+  emailVerified: boolean("email_verified").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Membership applications table
+export const membershipApplications = mysqlTable("membership_applications", {
+  id: serial().primaryKey(),
+  userId: varchar("user_id", { length: 255 }).references(() => users.id).notNull(),
+  applicantName: varchar("applicant_name", { length: 255 }).notNull(),
+  email: varchar("email", { length: 255 }).notNull(),
+  phone: varchar("phone", { length: 50 }),
+  motivation: text("motivation"),
+  interests: json("interests").default(sql`'[]'`),
+  preferredClub: varchar("preferred_club", { length: 255 }),
+  status: varchar("status", { length: 20 }).default("pending"), // pending, approved, rejected
+  reviewedBy: varchar("reviewed_by", { length: 255 }).references(() => users.id),
+  reviewedAt: timestamp("reviewed_at"),
+  reviewNotes: text("review_notes"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

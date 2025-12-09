@@ -1,0 +1,52 @@
+@tanstack_react-query.js?v=0bc13350:3064 [["/api/auth/user"]]: No queryFn was passed as an option, and no default queryFn was found. The queryFn parameter is only optional when using a default queryFn. More info here: https://tanstack.com/query/latest/docs/framework/react/guides/default-query-function
+useBaseQuery @ @tanstack_react-query.js?v=0bc13350:3064Understand this error
+UserProfile.tsx:512 Uncaught TypeError: userClubs.map is not a function
+    at UserProfile (UserProfile.tsx:512:32)
+    at renderWithHooks (chunk-7CVORMRW.js?v=90de8127:11596:26)
+    at updateFunctionComponent (chunk-7CVORMRW.js?v=90de8127:14630:28)
+    at beginWork (chunk-7CVORMRW.js?v=90de8127:15972:22)
+    at HTMLUnknownElement.callCallback2 (chunk-7CVORMRW.js?v=90de8127:3680:22)
+    at Object.invokeGuardedCallbackDev (chunk-7CVORMRW.js?v=90de8127:3705:24)
+    at invokeGuardedCallback (chunk-7CVORMRW.js?v=90de8127:3739:39)
+    at beginWork$1 (chunk-7CVORMRW.js?v=90de8127:19818:15)
+    at performUnitOfWork (chunk-7CVORMRW.js?v=90de8127:19251:20)
+    at workLoopSync (chunk-7CVORMRW.js?v=90de8127:19190:13)Understand this error
+2@tanstack_react-query.js?v=0bc13350:3064 [["/api/auth/user"]]: No queryFn was passed as an option, and no default queryFn was found. The queryFn parameter is only optional when using a default queryFn. More info here: https://tanstack.com/query/latest/docs/framework/react/guides/default-query-function
+useBaseQuery @ @tanstack_react-query.js?v=0bc13350:3064Understand this error
+UserProfile.tsx:512 Uncaught TypeError: userClubs.map is not a function
+    at UserProfile (UserProfile.tsx:512:32)
+    at renderWithHooks (chunk-7CVORMRW.js?v=90de8127:11596:26)
+    at updateFunctionComponent (chunk-7CVORMRW.js?v=90de8127:14630:28)
+    at beginWork (chunk-7CVORMRW.js?v=90de8127:15972:22)
+    at HTMLUnknownElement.callCallback2 (chunk-7CVORMRW.js?v=90de8127:3680:22)
+    at Object.invokeGuardedCallbackDev (chunk-7CVORMRW.js?v=90de8127:3705:24)
+    at invokeGuardedCallback (chunk-7CVORMRW.js?v=90de8127:3739:39)
+    at beginWork$1 (chunk-7CVORMRW.js?v=90de8127:19818:15)
+    at performUnitOfWork (chunk-7CVORMRW.js?v=90de8127:19251:20)
+    at workLoopSync (chunk-7CVORMRW.js?v=90de8127:19190:13)Understand this error
+chunk-7CVORMRW.js?v=90de8127:14080 The above error occurred in the <UserProfile> component:
+
+    at UserProfile (https://c1ec715a-06eb-4dd2-8aa2-ea3263243b8a-00-14xc8bmgk90gx.kirk.replit.dev/src/pages/UserProfile.tsx:39:50)
+    at RenderedRoute (https://c1ec715a-06eb-4dd2-8aa2-ea3263243b8a-00-14xc8bmgk90gx.kirk.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=548290b3:4088:5)
+    at Routes (https://c1ec715a-06eb-4dd2-8aa2-ea3263243b8a-00-14xc8bmgk90gx.kirk.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=548290b3:4558:5)
+    at Router (https://c1ec715a-06eb-4dd2-8aa2-ea3263243b8a-00-14xc8bmgk90gx.kirk.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=548290b3:4501:15)
+    at BrowserRouter (https://c1ec715a-06eb-4dd2-8aa2-ea3263243b8a-00-14xc8bmgk90gx.kirk.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=548290b3:5247:5)
+    at Provider (https://c1ec715a-06eb-4dd2-8aa2-ea3263243b8a-00-14xc8bmgk90gx.kirk.replit.dev/node_modules/.vite/deps/chunk-ONVFPFEJ.js?v=90de8127:37:15)
+    at TooltipProvider (https://c1ec715a-06eb-4dd2-8aa2-ea3263243b8a-00-14xc8bmgk90gx.kirk.replit.dev/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=18e31f7f:65:5)
+    at QueryClientProvider (https://c1ec715a-06eb-4dd2-8aa2-ea3263243b8a-00-14xc8bmgk90gx.kirk.replit.dev/node_modules/.vite/deps/@tanstack_react-query.js?v=0bc13350:2874:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+logCapturedError @ chunk-7CVORMRW.js?v=90de8127:14080Understand this error
+chunk-7CVORMRW.js?v=90de8127:19466 Uncaught TypeError: userClubs.map is not a function
+    at UserProfile (UserProfile.tsx:512:32)
+    at renderWithHooks (chunk-7CVORMRW.js?v=90de8127:11596:26)
+    at updateFunctionComponent (chunk-7CVORMRW.js?v=90de8127:14630:28)
+    at beginWork (chunk-7CVORMRW.js?v=90de8127:15972:22)
+    at beginWork$1 (chunk-7CVORMRW.js?v=90de8127:19806:22)
+    at performUnitOfWork (chunk-7CVORMRW.js?v=90de8127:19251:20)
+    at workLoopSync (chunk-7CVORMRW.js?v=90de8127:19190:13)
+    at renderRootSync (chunk-7CVORMRW.js?v=90de8127:19169:15)
+    at recoverFromConcurrentError (chunk-7CVORMRW.js?v=90de8127:18786:28)
+    at performConcurrentWorkOnRoot (chunk-7CVORMRW.js?v=90de8127:18734:30)Understand this error
