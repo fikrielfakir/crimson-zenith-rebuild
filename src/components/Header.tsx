@@ -16,6 +16,8 @@ import { useNavbarSettings } from "@/hooks/useCMS";
 import { moroccoCities } from "@/lib/citiesData";
 import useEmblaCarousel from "embla-carousel-react";
 import DonateDrawer from "./DonateDrawer";
+import { useAuth } from "@/hooks/useAuth";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface DropdownItem {
   label: string;
@@ -465,6 +467,7 @@ const TopNavbar = ({
   hoverColor: string;
 }) => {
   const [heartAnimate, setHeartAnimate] = useState(false);
+  const { user, isAuthenticated } = useAuth();
 
   const handleDonateHover = () => {
     setHeartAnimate(true);
@@ -515,20 +518,36 @@ const TopNavbar = ({
             </Button>
           )}
 
-          {/* Login Button */}
+          {/* Login Button / Profile Avatar */}
           {showLoginButton && (
-            <Button
-              asChild
-              variant="ghost"
-              size="sm"
-              className="px-3 py-2 text-xs flex items-center gap-1 rounded-button font-body"
-              style={{ color: textColor }}
-            >
-              <Link to={loginButtonLink}>
-                <User className="h-4 w-4" />
-                {loginButtonText}
+            isAuthenticated && user ? (
+              <Link 
+                to="/profile" 
+                className="flex items-center gap-2 px-3 py-2 text-xs rounded-button font-body hover:opacity-80 transition-opacity"
+                style={{ color: textColor }}
+              >
+                <Avatar className="h-8 w-8 border-2 border-white/30">
+                  <AvatarImage src={user.profileImageUrl || ""} />
+                  <AvatarFallback className="bg-[hsl(227,65%,19%)] text-white text-xs">
+                    {user.firstName?.[0] || user.email?.[0]?.toUpperCase() || 'U'}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="hidden sm:inline">Profile</span>
               </Link>
-            </Button>
+            ) : (
+              <Button
+                asChild
+                variant="ghost"
+                size="sm"
+                className="px-3 py-2 text-xs flex items-center gap-1 rounded-button font-body"
+                style={{ color: textColor }}
+              >
+                <Link to="/login">
+                  <User className="h-4 w-4" />
+                  {loginButtonText}
+                </Link>
+              </Button>
+            )
           )}
 
           {/* Donate Button */}
@@ -1063,7 +1082,7 @@ const Header = () => {
           showDarkModeToggle={navbarSettings?.showDarkModeToggle !== false}
           showLoginButton={navbarSettings?.showLoginButton !== false}
           loginButtonText={navbarSettings?.loginButtonText || "Login"}
-          loginButtonLink={navbarSettings?.loginButtonLink || "/admin/login"}
+          loginButtonLink={navbarSettings?.loginButtonLink || "/login"}
           showJoinButton={navbarSettings?.showJoinButton !== false}
           joinButtonText={navbarSettings?.joinButtonText || "Donate"}
           joinButtonLink={navbarSettings?.joinButtonLink || "/join"}

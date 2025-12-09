@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,7 +21,16 @@ import {
   Users,
   Calendar,
   Settings,
-  LogOut
+  LogOut,
+  Camera,
+  Shield,
+  Bell,
+  Eye,
+  CreditCard,
+  Clock,
+  ChevronRight,
+  Star,
+  Activity
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -32,7 +41,7 @@ const UserProfile = () => {
   const navigate = useNavigate();
   
   const [isEditing, setIsEditing] = useState(false);
-  const [userClubs, setUserClubs] = useState([]);
+  const [userClubs, setUserClubs] = useState<any[]>([]);
   const [profileData, setProfileData] = useState({
     firstName: '',
     lastName: '',
@@ -40,7 +49,7 @@ const UserProfile = () => {
     phone: '',
     location: '',
     bio: '',
-    interests: []
+    interests: [] as string[]
   });
 
   useEffect(() => {
@@ -51,7 +60,7 @@ const UserProfile = () => {
         variant: "destructive",
       });
       setTimeout(() => {
-        window.location.href = "/api/login";
+        navigate('/login');
       }, 500);
       return;
     }
@@ -67,10 +76,9 @@ const UserProfile = () => {
         interests: user.interests || []
       });
       
-      // Fetch user clubs
       fetchUserClubs();
     }
-  }, [user, isAuthenticated, isLoading, toast]);
+  }, [user, isAuthenticated, isLoading, toast, navigate]);
 
   const fetchUserClubs = async () => {
     try {
@@ -130,15 +138,17 @@ const UserProfile = () => {
   };
 
   const handleLogout = () => {
+    localStorage.removeItem('userAuth');
+    localStorage.removeItem('userEmail');
     window.location.href = "/api/logout";
   };
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading profile...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[hsl(227,65%,19%)] mx-auto mb-4"></div>
+          <p className="text-slate-600">Loading profile...</p>
         </div>
       </div>
     );
@@ -148,226 +158,373 @@ const UserProfile = () => {
     return null;
   }
 
+  const isMember = userClubs.length > 0;
+  const stats = {
+    clubsJoined: userClubs.length,
+    eventsAttended: 0,
+    reviewsWritten: 0
+  };
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
       <Header />
       
-      <div className="container mx-auto px-4 py-8">
-        {/* Profile Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-4">
-            <Avatar className="w-20 h-20">
-              <AvatarImage src={user.profileImageUrl || ""} />
-              <AvatarFallback className="text-2xl">
-                {profileData.firstName?.[0] || 'U'}{profileData.lastName?.[0] || ''}
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <h1 className="text-3xl font-bold">
-                {profileData.firstName} {profileData.lastName}
-              </h1>
-              <p className="text-muted-foreground">{profileData.email}</p>
-              {profileData.location && (
-                <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                  <MapPin className="w-4 h-4" />
-                  {profileData.location}
-                </div>
-              )}
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <Button 
-              variant="outline" 
-              onClick={() => setIsEditing(!isEditing)}
-            >
-              {isEditing ? <X className="w-4 h-4 mr-2" /> : <Edit3 className="w-4 h-4 mr-2" />}
-              {isEditing ? 'Cancel' : 'Edit Profile'}
-            </Button>
-            <Button variant="destructive" onClick={handleLogout}>
-              <LogOut className="w-4 h-4 mr-2" />
-              Logout
-            </Button>
-          </div>
+      {/* Profile Hero Section */}
+      <div className="relative pt-32 pb-8">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 h-64 bg-gradient-to-br from-[hsl(227,65%,19%)] via-[hsl(227,65%,25%)] to-[hsl(227,65%,19%)]" />
+          <div className="absolute top-0 left-0 right-0 h-64 opacity-50" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")" }} />
         </div>
+        
+        <div className="container mx-auto px-4 relative z-10">
+          {/* Profile Card */}
+          <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 -mt-8">
+            <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
+              {/* Avatar Section */}
+              <div className="relative group">
+                <Avatar className="w-28 h-28 md:w-32 md:h-32 border-4 border-white shadow-lg">
+                  <AvatarImage src={user.profileImageUrl || ""} />
+                  <AvatarFallback className="text-3xl bg-gradient-to-br from-[hsl(227,65%,19%)] to-[hsl(227,65%,30%)] text-white">
+                    {profileData.firstName?.[0] || 'U'}{profileData.lastName?.[0] || ''}
+                  </AvatarFallback>
+                </Avatar>
+                <button className="absolute bottom-1 right-1 w-9 h-9 bg-[hsl(227,65%,19%)] rounded-full flex items-center justify-center text-white shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Camera className="w-4 h-4" />
+                </button>
+              </div>
 
-        <Tabs defaultValue="profile" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="profile">Profile</TabsTrigger>
-            <TabsTrigger value="clubs">My Clubs</TabsTrigger>
-            <TabsTrigger value="events">Events</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="profile" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <User className="w-5 h-5" />
-                  Personal Information
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {isEditing ? (
-                  <>
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="firstName">First Name</Label>
-                        <Input
-                          id="firstName"
-                          value={profileData.firstName}
-                          onChange={(e) => setProfileData(prev => ({...prev, firstName: e.target.value}))}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="lastName">Last Name</Label>
-                        <Input
-                          id="lastName"
-                          value={profileData.lastName}
-                          onChange={(e) => setProfileData(prev => ({...prev, lastName: e.target.value}))}
-                        />
-                      </div>
+              {/* User Info */}
+              <div className="flex-1">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                  <div>
+                    <div className="flex items-center gap-3 mb-2">
+                      <h1 className="text-2xl md:text-3xl font-bold text-[hsl(227,65%,19%)]">
+                        {profileData.firstName || 'User'} {profileData.lastName}
+                      </h1>
+                      <Badge className={`${isMember ? 'bg-[hsl(42,49%,70%)] text-[hsl(227,65%,19%)]' : 'bg-slate-200 text-slate-700'}`}>
+                        {isMember ? 'Member' : 'User'}
+                      </Badge>
                     </div>
-                    
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="phone">Phone</Label>
-                        <Input
-                          id="phone"
-                          value={profileData.phone}
-                          onChange={(e) => setProfileData(prev => ({...prev, phone: e.target.value}))}
-                          placeholder="+212 xxx xxx xxx"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="location">Location</Label>
-                        <Input
-                          id="location"
-                          value={profileData.location}
-                          onChange={(e) => setProfileData(prev => ({...prev, location: e.target.value}))}
-                          placeholder="City, Morocco"
-                        />
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="bio">Bio</Label>
-                      <Textarea
-                        id="bio"
-                        value={profileData.bio}
-                        onChange={(e) => setProfileData(prev => ({...prev, bio: e.target.value}))}
-                        placeholder="Tell us about yourself..."
-                        rows={3}
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label>Interests</Label>
-                      <div className="flex flex-wrap gap-2 mb-2">
-                        {profileData.interests.map((interest, index) => (
-                          <Badge key={index} variant="secondary" className="cursor-pointer">
-                            {interest}
-                            <button
-                              onClick={() => handleRemoveInterest(index)}
-                              className="ml-2 text-red-500 hover:text-red-700"
-                            >
-                              ×
-                            </button>
-                          </Badge>
-                        ))}
-                      </div>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={handleAddInterest}
-                      >
-                        Add Interest
-                      </Button>
-                    </div>
-                    
-                    <Button onClick={handleSaveProfile} className="w-full">
-                      <Save className="w-4 h-4 mr-2" />
-                      Save Changes
-                    </Button>
-                  </>
-                ) : (
-                  <div className="space-y-4">
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                        <h4 className="font-semibold flex items-center gap-2">
-                          <Mail className="w-4 h-4" />
-                          Email
-                        </h4>
-                        <p className="text-muted-foreground">{profileData.email || 'Not provided'}</p>
-                      </div>
-                      <div className="space-y-2">
-                        <h4 className="font-semibold flex items-center gap-2">
-                          <Phone className="w-4 h-4" />
-                          Phone
-                        </h4>
-                        <p className="text-muted-foreground">{profileData.phone || 'Not provided'}</p>
-                      </div>
-                    </div>
-                    
-                    {profileData.bio && (
-                      <div className="space-y-2">
-                        <h4 className="font-semibold">Bio</h4>
-                        <p className="text-muted-foreground">{profileData.bio}</p>
-                      </div>
-                    )}
-                    
-                    {profileData.interests.length > 0 && (
-                      <div className="space-y-2">
-                        <h4 className="font-semibold">Interests</h4>
-                        <div className="flex flex-wrap gap-2">
-                          {profileData.interests.map((interest, index) => (
-                            <Badge key={index} variant="secondary">{interest}</Badge>
-                          ))}
-                        </div>
+                    <p className="text-slate-600 mb-2">{profileData.email}</p>
+                    {profileData.location && (
+                      <div className="flex items-center gap-1 text-sm text-slate-500">
+                        <MapPin className="w-4 h-4" />
+                        {profileData.location}
                       </div>
                     )}
                   </div>
-                )}
-              </CardContent>
-            </Card>
+                  
+                  {/* Action Buttons */}
+                  <div className="flex gap-3">
+                    <Button 
+                      variant="outline" 
+                      onClick={() => setIsEditing(!isEditing)}
+                      className="border-[hsl(227,65%,19%)] text-[hsl(227,65%,19%)] hover:bg-[hsl(227,65%,19%)] hover:text-white transition-all"
+                    >
+                      {isEditing ? <X className="w-4 h-4 mr-2" /> : <Edit3 className="w-4 h-4 mr-2" />}
+                      {isEditing ? 'Cancel' : 'Edit Profile'}
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      onClick={handleLogout}
+                      className="border-red-300 text-red-600 hover:bg-red-50"
+                    >
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Logout
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Stats */}
+                <div className="flex flex-wrap gap-6 mt-6 pt-6 border-t border-slate-100">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-[hsl(227,65%,19%)]">{stats.clubsJoined}</div>
+                    <div className="text-sm text-slate-500">Clubs Joined</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-[hsl(227,65%,19%)]">{stats.eventsAttended}</div>
+                    <div className="text-sm text-slate-500">Events Attended</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-[hsl(227,65%,19%)]">{stats.reviewsWritten}</div>
+                    <div className="text-sm text-slate-500">Reviews Written</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="container mx-auto px-4 py-8">
+        <Tabs defaultValue="overview" className="w-full">
+          <TabsList className="bg-white shadow-sm rounded-xl p-1 mb-6 flex-wrap h-auto gap-1">
+            <TabsTrigger value="overview" className="data-[state=active]:bg-[hsl(227,65%,19%)] data-[state=active]:text-white rounded-lg px-4 py-2">
+              <User className="w-4 h-4 mr-2" />
+              Overview
+            </TabsTrigger>
+            <TabsTrigger value="clubs" className="data-[state=active]:bg-[hsl(227,65%,19%)] data-[state=active]:text-white rounded-lg px-4 py-2">
+              <Users className="w-4 h-4 mr-2" />
+              My Clubs
+            </TabsTrigger>
+            <TabsTrigger value="events" className="data-[state=active]:bg-[hsl(227,65%,19%)] data-[state=active]:text-white rounded-lg px-4 py-2">
+              <Calendar className="w-4 h-4 mr-2" />
+              Events
+            </TabsTrigger>
+            <TabsTrigger value="bookings" className="data-[state=active]:bg-[hsl(227,65%,19%)] data-[state=active]:text-white rounded-lg px-4 py-2">
+              <CreditCard className="w-4 h-4 mr-2" />
+              Bookings
+            </TabsTrigger>
+            <TabsTrigger value="activity" className="data-[state=active]:bg-[hsl(227,65%,19%)] data-[state=active]:text-white rounded-lg px-4 py-2">
+              <Activity className="w-4 h-4 mr-2" />
+              Activity
+            </TabsTrigger>
+            <TabsTrigger value="settings" className="data-[state=active]:bg-[hsl(227,65%,19%)] data-[state=active]:text-white rounded-lg px-4 py-2">
+              <Settings className="w-4 h-4 mr-2" />
+              Settings
+            </TabsTrigger>
+          </TabsList>
+          
+          {/* Overview Tab */}
+          <TabsContent value="overview" className="space-y-6">
+            <div className="grid md:grid-cols-3 gap-6">
+              {/* Personal Information */}
+              <div className="md:col-span-2">
+                <Card className="shadow-sm border-0 bg-white">
+                  <CardHeader className="border-b border-slate-100">
+                    <CardTitle className="flex items-center gap-2 text-[hsl(227,65%,19%)]">
+                      <User className="w-5 h-5" />
+                      Personal Information
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    {isEditing ? (
+                      <div className="space-y-4">
+                        <div className="grid md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="firstName">First Name</Label>
+                            <Input
+                              id="firstName"
+                              value={profileData.firstName}
+                              onChange={(e) => setProfileData(prev => ({...prev, firstName: e.target.value}))}
+                              className="border-slate-200 focus:border-[hsl(227,65%,19%)]"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="lastName">Last Name</Label>
+                            <Input
+                              id="lastName"
+                              value={profileData.lastName}
+                              onChange={(e) => setProfileData(prev => ({...prev, lastName: e.target.value}))}
+                              className="border-slate-200 focus:border-[hsl(227,65%,19%)]"
+                            />
+                          </div>
+                        </div>
+                        
+                        <div className="grid md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="phone">Phone</Label>
+                            <Input
+                              id="phone"
+                              value={profileData.phone}
+                              onChange={(e) => setProfileData(prev => ({...prev, phone: e.target.value}))}
+                              placeholder="+212 xxx xxx xxx"
+                              className="border-slate-200 focus:border-[hsl(227,65%,19%)]"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="location">Location</Label>
+                            <Input
+                              id="location"
+                              value={profileData.location}
+                              onChange={(e) => setProfileData(prev => ({...prev, location: e.target.value}))}
+                              placeholder="City, Morocco"
+                              className="border-slate-200 focus:border-[hsl(227,65%,19%)]"
+                            />
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label htmlFor="bio">Bio</Label>
+                          <Textarea
+                            id="bio"
+                            value={profileData.bio}
+                            onChange={(e) => setProfileData(prev => ({...prev, bio: e.target.value}))}
+                            placeholder="Tell us about yourself..."
+                            rows={4}
+                            className="border-slate-200 focus:border-[hsl(227,65%,19%)]"
+                          />
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label>Interests</Label>
+                          <div className="flex flex-wrap gap-2 mb-2">
+                            {profileData.interests.map((interest, index) => (
+                              <Badge key={index} variant="secondary" className="bg-slate-100 text-slate-700 cursor-pointer">
+                                {interest}
+                                <button
+                                  onClick={() => handleRemoveInterest(index)}
+                                  className="ml-2 text-red-500 hover:text-red-700"
+                                >
+                                  ×
+                                </button>
+                              </Badge>
+                            ))}
+                          </div>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={handleAddInterest}
+                            className="border-dashed"
+                          >
+                            + Add Interest
+                          </Button>
+                        </div>
+                        
+                        <Button onClick={handleSaveProfile} className="w-full bg-[hsl(227,65%,19%)] hover:bg-[hsl(227,65%,25%)]">
+                          <Save className="w-4 h-4 mr-2" />
+                          Save Changes
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="space-y-6">
+                        <div className="grid md:grid-cols-2 gap-6">
+                          <div className="flex items-start gap-3">
+                            <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center">
+                              <Mail className="w-5 h-5 text-slate-600" />
+                            </div>
+                            <div>
+                              <p className="text-sm text-slate-500">Email</p>
+                              <p className="font-medium text-slate-900">{profileData.email || 'Not provided'}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-start gap-3">
+                            <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center">
+                              <Phone className="w-5 h-5 text-slate-600" />
+                            </div>
+                            <div>
+                              <p className="text-sm text-slate-500">Phone</p>
+                              <p className="font-medium text-slate-900">{profileData.phone || 'Not provided'}</p>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {profileData.bio && (
+                          <div className="pt-4 border-t border-slate-100">
+                            <p className="text-sm text-slate-500 mb-2">About</p>
+                            <p className="text-slate-700">{profileData.bio}</p>
+                          </div>
+                        )}
+                        
+                        {profileData.interests.length > 0 && (
+                          <div className="pt-4 border-t border-slate-100">
+                            <p className="text-sm text-slate-500 mb-2">Interests</p>
+                            <div className="flex flex-wrap gap-2">
+                              {profileData.interests.map((interest, index) => (
+                                <Badge key={index} className="bg-[hsl(42,49%,70%,0.3)] text-[hsl(227,65%,19%)] border-0">
+                                  {interest}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Quick Actions Sidebar */}
+              <div className="space-y-6">
+                <Card className="shadow-sm border-0 bg-white">
+                  <CardHeader className="border-b border-slate-100">
+                    <CardTitle className="text-lg text-[hsl(227,65%,19%)]">Quick Actions</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-4">
+                    <div className="space-y-2">
+                      <Link to="/clubs" className="flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 transition-colors group">
+                        <div className="flex items-center gap-3">
+                          <Users className="w-5 h-5 text-[hsl(227,65%,19%)]" />
+                          <span className="text-sm font-medium text-slate-700">Browse Clubs</span>
+                        </div>
+                        <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[hsl(227,65%,19%)] transition-colors" />
+                      </Link>
+                      <Link to="/events" className="flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 transition-colors group">
+                        <div className="flex items-center gap-3">
+                          <Calendar className="w-5 h-5 text-[hsl(227,65%,19%)]" />
+                          <span className="text-sm font-medium text-slate-700">Find Events</span>
+                        </div>
+                        <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[hsl(227,65%,19%)] transition-colors" />
+                      </Link>
+                      <Link to="/book" className="flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 transition-colors group">
+                        <div className="flex items-center gap-3">
+                          <CreditCard className="w-5 h-5 text-[hsl(227,65%,19%)]" />
+                          <span className="text-sm font-medium text-slate-700">Book Activity</span>
+                        </div>
+                        <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[hsl(227,65%,19%)] transition-colors" />
+                      </Link>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Member Since Card */}
+                <Card className="shadow-sm border-0 bg-gradient-to-br from-[hsl(227,65%,19%)] to-[hsl(227,65%,25%)] text-white">
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-3 mb-3">
+                      <Clock className="w-5 h-5 opacity-80" />
+                      <span className="text-sm opacity-80">Member Since</span>
+                    </div>
+                    <p className="text-xl font-bold">December 2024</p>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
           </TabsContent>
           
-          <TabsContent value="clubs" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+          {/* My Clubs Tab */}
+          <TabsContent value="clubs" className="space-y-6">
+            <Card className="shadow-sm border-0 bg-white">
+              <CardHeader className="border-b border-slate-100">
+                <CardTitle className="flex items-center gap-2 text-[hsl(227,65%,19%)]">
                   <Users className="w-5 h-5" />
                   My Clubs ({userClubs.length})
                 </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-6">
                 {userClubs.length === 0 ? (
-                  <div className="text-center py-8">
-                    <Users className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold mb-2">No clubs yet</h3>
-                    <p className="text-muted-foreground mb-4">Join a club to get started!</p>
-                    <Button onClick={() => navigate('/clubs')}>
-                      Browse Clubs
+                  <div className="text-center py-12">
+                    <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-slate-100 flex items-center justify-center">
+                      <Users className="w-10 h-10 text-slate-400" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-slate-800 mb-2">Join Your First Club!</h3>
+                    <p className="text-slate-500 mb-6 max-w-md mx-auto">
+                      Discover amazing clubs and start your adventure with The Journey Association.
+                    </p>
+                    <Button onClick={() => navigate('/clubs')} className="bg-[hsl(227,65%,19%)] hover:bg-[hsl(227,65%,25%)]">
+                      Explore Clubs
                     </Button>
                   </div>
                 ) : (
-                  <div className="space-y-4">
+                  <div className="grid md:grid-cols-2 gap-4">
                     {userClubs.map((membership: any) => (
-                      <div key={membership.id} className="flex items-center justify-between p-4 border rounded-lg">
-                        <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                            <Users className="w-6 h-6 text-primary" />
+                      <div key={membership.id} className="flex items-center justify-between p-4 border border-slate-100 rounded-xl hover:shadow-md transition-shadow">
+                        <div className="flex items-center gap-4">
+                          <div className="w-14 h-14 bg-gradient-to-br from-[hsl(227,65%,19%)] to-[hsl(227,65%,30%)] rounded-xl flex items-center justify-center">
+                            <Users className="w-7 h-7 text-white" />
                           </div>
                           <div>
-                            <h4 className="font-semibold">Club #{membership.clubId}</h4>
-                            <p className="text-sm text-muted-foreground">
+                            <h4 className="font-semibold text-slate-800">Club #{membership.clubId}</h4>
+                            <p className="text-sm text-slate-500">
                               Joined {new Date(membership.joinedAt).toLocaleDateString()}
                             </p>
-                            <Badge variant="secondary">{membership.role}</Badge>
+                            <Badge variant="secondary" className="mt-1 bg-green-100 text-green-700">{membership.role || 'Member'}</Badge>
                           </div>
                         </div>
-                        <Button variant="outline" onClick={() => navigate(`/club/${membership.clubId}`)}>
-                          View Club
+                        <Button variant="outline" size="sm" onClick={() => navigate(`/club/${membership.clubId}`)}>
+                          View
                         </Button>
                       </div>
                     ))}
@@ -377,40 +534,164 @@ const UserProfile = () => {
             </Card>
           </TabsContent>
           
-          <TabsContent value="events" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+          {/* Events Tab */}
+          <TabsContent value="events" className="space-y-6">
+            <Card className="shadow-sm border-0 bg-white">
+              <CardHeader className="border-b border-slate-100">
+                <CardTitle className="flex items-center gap-2 text-[hsl(227,65%,19%)]">
                   <Calendar className="w-5 h-5" />
                   My Events
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="text-center py-8">
-                  <Calendar className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">No events yet</h3>
-                  <p className="text-muted-foreground">Join clubs to participate in events!</p>
+              <CardContent className="p-6">
+                <div className="text-center py-12">
+                  <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-slate-100 flex items-center justify-center">
+                    <Calendar className="w-10 h-10 text-slate-400" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-slate-800 mb-2">No Events Yet</h3>
+                  <p className="text-slate-500 mb-6">Join clubs to participate in exciting events!</p>
+                  <Button onClick={() => navigate('/events')} className="bg-[hsl(227,65%,19%)] hover:bg-[hsl(227,65%,25%)]">
+                    Browse Events
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Bookings Tab */}
+          <TabsContent value="bookings" className="space-y-6">
+            <Card className="shadow-sm border-0 bg-white">
+              <CardHeader className="border-b border-slate-100">
+                <CardTitle className="flex items-center gap-2 text-[hsl(227,65%,19%)]">
+                  <CreditCard className="w-5 h-5" />
+                  My Bookings
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="text-center py-12">
+                  <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-slate-100 flex items-center justify-center">
+                    <CreditCard className="w-10 h-10 text-slate-400" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-slate-800 mb-2">No Bookings Yet</h3>
+                  <p className="text-slate-500 mb-6">Book your first activity or event!</p>
+                  <Button onClick={() => navigate('/book')} className="bg-[hsl(227,65%,19%)] hover:bg-[hsl(227,65%,25%)]">
+                    Explore Activities
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Activity Tab */}
+          <TabsContent value="activity" className="space-y-6">
+            <Card className="shadow-sm border-0 bg-white">
+              <CardHeader className="border-b border-slate-100">
+                <CardTitle className="flex items-center gap-2 text-[hsl(227,65%,19%)]">
+                  <Activity className="w-5 h-5" />
+                  Recent Activity
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="text-center py-12">
+                  <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-slate-100 flex items-center justify-center">
+                    <Activity className="w-10 h-10 text-slate-400" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-slate-800 mb-2">No Activity Yet</h3>
+                  <p className="text-slate-500">Your activity timeline will appear here.</p>
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
           
-          <TabsContent value="settings" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Settings className="w-5 h-5" />
-                  Account Settings
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="text-center py-8">
-                  <Settings className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">Settings</h3>
-                  <p className="text-muted-foreground">Account settings will be available soon.</p>
-                </div>
-              </CardContent>
-            </Card>
+          {/* Settings Tab */}
+          <TabsContent value="settings" className="space-y-6">
+            <div className="grid md:grid-cols-2 gap-6">
+              <Card className="shadow-sm border-0 bg-white">
+                <CardHeader className="border-b border-slate-100">
+                  <CardTitle className="flex items-center gap-2 text-[hsl(227,65%,19%)]">
+                    <Shield className="w-5 h-5" />
+                    Account Security
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-6 space-y-4">
+                  <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <Mail className="w-5 h-5 text-slate-600" />
+                      <div>
+                        <p className="font-medium text-slate-800">Email</p>
+                        <p className="text-sm text-slate-500">{profileData.email}</p>
+                      </div>
+                    </div>
+                    <Badge className="bg-green-100 text-green-700">Verified</Badge>
+                  </div>
+                  <Button variant="outline" className="w-full">Change Password</Button>
+                </CardContent>
+              </Card>
+
+              <Card className="shadow-sm border-0 bg-white">
+                <CardHeader className="border-b border-slate-100">
+                  <CardTitle className="flex items-center gap-2 text-[hsl(227,65%,19%)]">
+                    <Bell className="w-5 h-5" />
+                    Notifications
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-6 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium text-slate-800">Email Notifications</p>
+                      <p className="text-sm text-slate-500">Receive updates via email</p>
+                    </div>
+                    <input type="checkbox" defaultChecked className="w-5 h-5 rounded text-[hsl(227,65%,19%)]" />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium text-slate-800">Event Reminders</p>
+                      <p className="text-sm text-slate-500">Get notified before events</p>
+                    </div>
+                    <input type="checkbox" defaultChecked className="w-5 h-5 rounded text-[hsl(227,65%,19%)]" />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="shadow-sm border-0 bg-white">
+                <CardHeader className="border-b border-slate-100">
+                  <CardTitle className="flex items-center gap-2 text-[hsl(227,65%,19%)]">
+                    <Eye className="w-5 h-5" />
+                    Privacy
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-6 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium text-slate-800">Profile Visibility</p>
+                      <p className="text-sm text-slate-500">Who can see your profile</p>
+                    </div>
+                    <select className="border rounded-lg px-3 py-1.5 text-sm">
+                      <option>Public</option>
+                      <option>Members Only</option>
+                      <option>Private</option>
+                    </select>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="shadow-sm border-0 bg-white border-red-100">
+                <CardHeader className="border-b border-slate-100">
+                  <CardTitle className="flex items-center gap-2 text-red-600">
+                    <X className="w-5 h-5" />
+                    Danger Zone
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-6">
+                  <p className="text-sm text-slate-500 mb-4">
+                    Once you delete your account, there is no going back. Please be certain.
+                  </p>
+                  <Button variant="outline" className="border-red-300 text-red-600 hover:bg-red-50 w-full">
+                    Delete Account
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
         </Tabs>
       </div>

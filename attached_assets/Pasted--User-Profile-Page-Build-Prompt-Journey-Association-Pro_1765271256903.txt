@@ -1,0 +1,456 @@
+# User Profile Page Build Prompt - Journey Association
+
+## Project Context
+Build a comprehensive User Profile page for The Journey Association platform that handles two user roles: **User** (basic authenticated user) and **Member** (user who has joined clubs). The profile should be fully functional, responsive, and integrate with the existing tech stack.
+
+## Tech Stack Requirements
+- **Frontend**: React 18 + TypeScript + Vite 7
+- **UI Framework**: shadcn/ui + Radix UI + Tailwind CSS
+- **Backend**: Express.js API endpoints
+- **Database**: MySQL with Drizzle ORM
+- **Authentication**: Passport.js session-based auth
+- **State Management**: TanStack Query for server state
+
+## Page Route
+`/profile` - Protected route requiring authentication
+
+## User Roles & Permissions
+
+### Role 1: User (Basic Authenticated)
+**Definition**: Anyone who has registered/logged in but hasn't joined any clubs yet
+
+**Capabilities**:
+- View and edit basic profile information
+- Upload profile photo
+- Change password
+- View available clubs (with "Join Club" CTAs)
+- View public events
+- See suggestions to join clubs
+- Manage account settings
+- Delete account
+
+**Limitations**:
+- Cannot see "My Clubs" section (show empty state instead)
+- Cannot see club-specific content
+- Limited event access (only public events)
+- No reviews/ratings capabilities
+
+### Role 2: Member (Club Member)
+**Definition**: User who has joined at least one club
+
+**Capabilities**:
+- All User role capabilities PLUS:
+- View "My Clubs" section with all joined clubs
+- View club-specific events
+- RSVP to club events
+- Access club galleries
+- Leave reviews and ratings for clubs
+- View membership history and timeline
+- See achievements/badges earned
+- Access member-only content
+- View event participation history
+
+## Database Schema Requirements
+
+### Existing Tables to Use:
+```sql
+-- users table (already exists)
+id, username, email, password, phone, bio, location, avatar, role, created_at, updated_at
+
+-- club_memberships table (already exists)
+id, user_id, club_id, joined_at, status
+
+-- clubs table (already exists)
+id, name, description, location, image, rating, member_count
+
+-- club_events table (already exists)
+id, club_id, title, date, location, status
+
+-- event_participants table (already exists)
+id, event_id, user_id, rsvp_status
+
+-- club_reviews table (already exists)
+id, club_id, user_id, rating, comment, created_at
+```
+
+## Page Sections & Features
+
+### 1. Profile Header Section
+**Visual Design**:
+- Cover photo area (optional, default gradient)
+- Large circular avatar (150x150px) with upload functionality
+- User name (editable)
+- Role badge (User/Member)
+- Location with MapPin icon
+- Member since date
+- Quick stats: Clubs Joined, Events Attended, Reviews Written
+
+**Components Needed**:
+- Avatar upload with preview
+- Edit mode toggle
+- Stats cards
+
+### 2. Navigation Tabs
+Create a tabbed interface with the following sections:
+
+**Tabs**:
+1. **Overview** - Profile summary and recent activity
+2. **My Clubs** - Clubs the user has joined (Member only, show empty state for User)
+3. **Events** - Upcoming and past events
+4. **Bookings** - Paid event bookings history
+5. **Activity** - Timeline of user actions
+6. **Settings** - Account and privacy settings
+
+### 3. Tab Content Details
+
+#### Tab 1: Overview
+**For All Users**:
+- About Me section (editable bio)
+- Contact Information (email, phone)
+- Location
+- Interests (tags/chips)
+- Recent Activity feed (last 5 activities)
+
+**For Members Only (Additional Content)**:
+- Achievements/Badges section
+- Favorite clubs showcase (top 3)
+- Upcoming events preview
+- Activity heatmap/calendar
+
+#### Tab 2: My Clubs
+**For Users (Empty State)**:
+```
+Icon: Users
+Heading: "Join Your First Club!"
+Message: "Discover amazing clubs and start your adventure"
+CTA Button: "Explore Clubs" → links to /clubs
+Show: 3-4 featured club suggestions with "Join" buttons
+```
+
+**For Members**:
+- Grid/list of joined clubs
+- Each club card shows:
+  - Club logo
+  - Club name
+  - Join date
+  - Member number (e.g., "Member #127")
+  - Quick actions: View Club, Leave Club
+  - Membership status badge (Active)
+- Filter by: All, Active, Recently Joined
+- Search functionality
+
+#### Tab 3: Events
+**Two Sections**:
+
+**Upcoming Events**:
+- Events user has RSVP'd to
+- Date, time, location
+- Club organizer
+- Status (Confirmed/Pending)
+- Actions: View Details, Cancel RSVP
+
+**Past Events**:
+- Previously attended events
+- Attendance status
+- Option to leave review (if not already done)
+- Photo uploads from event
+
+**Empty State** (if no events):
+- "No upcoming events"
+- "Browse Events" CTA button
+
+#### Tab 4: Bookings
+- List of all paid bookings
+- Show: Event name, date, amount paid, status
+- Booking reference number
+- Download receipt button
+- Cancel booking (if policy allows)
+- Filter by: All, Upcoming, Completed, Cancelled
+
+**Empty State**:
+- "No bookings yet"
+- "Explore Paid Events" CTA → links to /book
+
+#### Tab 5: Activity
+- Timeline view of all user actions
+- Activity types:
+  - Joined club
+  - RSVP'd to event
+  - Left review
+  - Made booking
+  - Updated profile
+  - Uploaded photos
+- Each activity shows: Icon, description, timestamp, related link
+- Load more pagination
+- Filter by activity type
+- Date range selector
+
+#### Tab 6: Settings
+**Sub-sections**:
+
+**Account Settings**:
+- Change password form
+- Email preferences
+- Phone number
+- Two-factor authentication toggle (if available)
+
+**Privacy Settings**:
+- Profile visibility (Public/Private/Members Only)
+- Show email publicly (toggle)
+- Show phone publicly (toggle)
+- Activity visibility settings
+
+**Notification Preferences**:
+- Email notifications (toggle)
+- Event reminders (toggle)
+- Club updates (toggle)
+- Newsletter subscription (toggle)
+
+**Danger Zone**:
+- Deactivate account button
+- Delete account button (with confirmation modal)
+
+### 4. Edit Profile Modal/Mode
+**Editable Fields**:
+- Profile photo upload
+- Display name
+- Bio (max 500 characters)
+- Phone number
+- Location (city/country)
+- Interests (multi-select tags)
+- Social media links (optional): Instagram, Facebook, Twitter
+
+**Validation**:
+- Required: Display name
+- Phone: Valid format
+- Bio: Max 500 chars
+- Email: Valid format (cannot be changed once set)
+
+**Actions**:
+- Save Changes button
+- Cancel button
+- Show success toast on save
+- Show validation errors inline
+
+## API Endpoints to Create
+
+### GET `/api/user/profile`
+Returns current user's profile data including role determination
+
+**Response**:
+```json
+{
+  "user": {
+    "id": 1,
+    "username": "john_doe",
+    "email": "john@example.com",
+    "phone": "+212 6XX XXX XXX",
+    "bio": "Adventure enthusiast...",
+    "location": "Marrakech, Morocco",
+    "avatar": "/uploads/avatars/user1.jpg",
+    "role": "member",
+    "created_at": "2024-01-15T10:00:00Z"
+  },
+  "stats": {
+    "clubs_joined": 3,
+    "events_attended": 12,
+    "reviews_written": 5
+  },
+  "is_member": true
+}
+```
+
+### GET `/api/user/clubs`
+Returns clubs the user has joined (only for members)
+
+**Response**:
+```json
+{
+  "clubs": [
+    {
+      "id": 1,
+      "name": "Atlas Hikers Club",
+      "image": "/clubs/atlas.jpg",
+      "joined_at": "2024-03-01T10:00:00Z",
+      "member_number": 127,
+      "status": "active"
+    }
+  ]
+}
+```
+
+### GET `/api/user/events`
+Returns user's events (RSVP'd and attended)
+
+**Query Params**: `?type=upcoming|past`
+
+### GET `/api/user/bookings`
+Returns user's paid bookings
+
+### GET `/api/user/activity`
+Returns user's activity timeline
+
+**Query Params**: `?limit=20&offset=0&type=all|club|event|review`
+
+### PUT `/api/user/profile`
+Updates user profile
+
+**Request Body**:
+```json
+{
+  "bio": "Updated bio",
+  "phone": "+212 6XX XXX XXX",
+  "location": "Casablanca, Morocco",
+  "interests": ["hiking", "photography"]
+}
+```
+
+### POST `/api/user/avatar`
+Uploads profile avatar
+
+**Form Data**: `avatar` file (multipart/form-data)
+
+### PUT `/api/user/settings`
+Updates user settings (privacy, notifications)
+
+### DELETE `/api/user/account`
+Deletes user account (requires password confirmation)
+
+## Role Detection Logic
+
+**Backend Logic**:
+```javascript
+// Determine if user is a member
+const clubMemberships = await db
+  .select()
+  .from(clubMemberships)
+  .where(eq(clubMemberships.userId, userId))
+  .and(eq(clubMemberships.status, 'active'));
+
+const isMember = clubMemberships.length > 0;
+const role = isMember ? 'member' : 'user';
+```
+
+**Frontend Logic**:
+```typescript
+// Use this to conditionally render components
+const { data: profile } = useQuery(['user-profile']);
+const isMember = profile?.is_member || false;
+
+// Conditional rendering
+{isMember ? (
+  <MyClubsSection clubs={profile.clubs} />
+) : (
+  <EmptyStateJoinClubs />
+)}
+```
+
+## UI/UX Requirements
+
+### Responsive Design
+- **Mobile**: Single column, stacked tabs (accordion on mobile)
+- **Tablet**: Two column for stats, tabs remain horizontal
+- **Desktop**: Full width with sidebar navigation (optional)
+
+### Loading States
+- Skeleton loaders for profile data
+- Shimmer effect for images
+- Loading spinner for actions
+
+### Empty States
+- Friendly illustrations
+- Clear messaging
+- Actionable CTAs
+- Suggestions for next steps
+
+### Accessibility
+- Proper ARIA labels
+- Keyboard navigation support
+- Focus management
+- Screen reader friendly
+- Alt text for images
+
+### Animations
+- Smooth tab transitions (fade in/out)
+- Hover effects on cards
+- Button press animations
+- Success checkmarks for saves
+
+## Security Requirements
+
+1. **Authentication Check**: Redirect to `/login` if not authenticated
+2. **Authorization**: Only allow users to view/edit their own profile
+3. **Input Validation**: Sanitize all user inputs (especially bio)
+4. **File Upload Security**: 
+   - Max file size: 5MB
+   - Allowed formats: JPG, PNG, WEBP
+   - Virus scanning (optional)
+5. **Rate Limiting**: Limit profile updates to prevent abuse
+6. **CSRF Protection**: Use CSRF tokens for all mutations
+
+## Component Structure
+
+```
+/profile
+├── ProfilePage.tsx (main page)
+├── components/
+│   ├── ProfileHeader.tsx
+│   ├── ProfileStats.tsx
+│   ├── ProfileTabs.tsx
+│   ├── tabs/
+│   │   ├── OverviewTab.tsx
+│   │   ├── MyClubsTab.tsx
+│   │   ├── EventsTab.tsx
+│   │   ├── BookingsTab.tsx
+│   │   ├── ActivityTab.tsx
+│   │   └── SettingsTab.tsx
+│   ├── EditProfileModal.tsx
+│   ├── AvatarUpload.tsx
+│   ├── EmptyStates/
+│   │   ├── NoClubsEmpty.tsx
+│   │   ├── NoEventsEmpty.tsx
+│   │   └── NoBookingsEmpty.tsx
+│   └── ClubCard.tsx
+└── hooks/
+    ├── useUserProfile.ts
+    ├── useUserClubs.ts
+    ├── useUserEvents.ts
+    └── useProfileUpdate.ts
+```
+
+## Success Criteria
+
+✅ Profile page loads within 1.5 seconds
+✅ Clear visual distinction between User and Member roles
+✅ All tabs functional with proper data display
+✅ Empty states are helpful and actionable
+✅ Edit profile works smoothly with validation
+✅ Responsive on all device sizes
+✅ Accessible (WCAG 2.1 AA compliant)
+✅ Proper error handling with user-friendly messages
+✅ All API endpoints return correct data
+✅ Role-based content shows/hides appropriately
+
+## Testing Checklist
+
+- [ ] User can view their profile
+- [ ] User can edit profile information
+- [ ] User can upload avatar
+- [ ] Member sees "My Clubs" section
+- [ ] User sees empty state for "My Clubs"
+- [ ] Events tab shows correct upcoming/past events
+- [ ] Bookings tab displays payment history
+- [ ] Activity tab shows timeline
+- [ ] Settings save correctly
+- [ ] Password change works
+- [ ] Account deletion requires confirmation
+- [ ] Mobile responsive design works
+- [ ] All loading states display properly
+- [ ] Error messages are clear and helpful
+
+## Design Reference
+
+Use the existing design system:
+- **Primary Color**: #112250 (Navy Blue)
+- **Secondary Color**: #D8C18D (Gold/Beige)
+- **Components**: shadcn/ui Button, Card, Tabs, Dialog, Input,
