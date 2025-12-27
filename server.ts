@@ -3816,7 +3816,7 @@ app.delete('/api/admin/cms/stats/:id', isAdmin, async (req, res) => {
 
 // In production, handle client-side routing
 if (process.env.NODE_ENV === 'production') {
-  app.get('*', (req, res) => {
+  app.get('(.*)', (req, res) => {
     res.sendFile(join(__dirname, 'dist', 'index.html'));
   });
 }
