@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
+import { setUserToken } from '@/lib/tokenStore';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -52,6 +53,10 @@ const UserLogin = () => {
       const data = await response.json();
 
       if (response.ok) {
+        // Store HMAC token for subsequent authenticated requests
+        if (data.access_token) {
+          setUserToken(data.access_token);
+        }
         await queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
         navigate(redirectUrl);
       } else {

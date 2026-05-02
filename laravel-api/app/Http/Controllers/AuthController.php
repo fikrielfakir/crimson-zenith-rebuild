@@ -74,11 +74,14 @@ class AuthController extends Controller
             return response()->json(['message' => 'Invalid username or password'], 401);
         }
 
-        Auth::login($user);
+        // HMAC-signed stateless token — no session DB write, no UUID truncation.
+        $token = AdminTokenService::generate((string) $user->id);
 
         return response()->json([
-            'message' => 'Login successful',
-            'user'    => $this->formatUser($user),
+            'message'      => 'Login successful',
+            'access_token' => $token,
+            'token_type'   => 'Bearer',
+            'user'         => $this->formatUser($user),
         ]);
     }
 
@@ -93,24 +96,26 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        Auth::guard('web')->logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+        try {
+            Auth::guard('web')->logout();
+            if ($request->hasSession()) {
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+            }
+        } catch (\Throwable $e) {
+            // Session save may fail on production if session driver is database
+            // with an incompatible schema — log and continue gracefully.
+            \Log::warning('Session logout error (non-fatal): ' . $e->getMessage());
+        }
 
         return response()->json(['message' => 'Logout successful']);
     }
 
     public function user(Request $request)
     {
-        // HMAC admin token takes priority
-        $bearer = $request->bearerToken();
-        if ($bearer) {
-            $user = AdminTokenService::verify($bearer);
-            if ($user) return response()->json($this->formatUser($user));
-            return response()->json(['message' => 'Unauthorized'], 401);
-        }
-
-        $user = auth('sanctum')->user() ?? auth('web')->user();
+        // Middleware (Authenticate) already resolved the user via HMAC token
+        // or session guard and bound it via auth()->setUser().
+        $user = $request->user();
         if (!$user) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
@@ -119,7 +124,10 @@ class AuthController extends Controller
 
     public function updateProfile(Request $request)
     {
-        $user = auth('sanctum')->user() ?? auth('web')->user();
+        $user = $request->user();
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
 
         $data = $request->validate([
             'firstName'       => 'nullable|string|max:255',
@@ -157,7 +165,11 @@ class AuthController extends Controller
             return response()->json(['message' => 'Invalid image format'], 400);
         }
 
-        $user = auth('sanctum')->user() ?? auth('web')->user();
+        $user = $request->user();
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
         $user->update(['profile_image_url' => $imageData]);
 
         return response()->json([

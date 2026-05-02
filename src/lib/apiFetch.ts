@@ -7,7 +7,7 @@
  *  3. XSRF-TOKEN cookie forwarded as X-XSRF-TOKEN for non-GET requests
  */
 
-import { getAdminToken } from './tokenStore';
+import { getActiveToken } from './tokenStore';
 
 function getXsrfToken(): string | null {
   const match = document.cookie
@@ -29,8 +29,8 @@ export async function apiFetch(
 
   const headers = new Headers(options.headers ?? {});
 
-  // 1. Bearer token auth (takes priority — stateless, works without sessions)
-  const token = getAdminToken();
+  // 1. Bearer token — admin token takes priority, falls back to user token
+  const token = getActiveToken();
   if (token) {
     headers.set('Authorization', `Bearer ${token}`);
   }

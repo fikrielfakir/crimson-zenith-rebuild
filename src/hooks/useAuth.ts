@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { getUserToken, clearUserToken } from "@/lib/tokenStore";
 
 interface User {
   id: string;
@@ -17,17 +18,26 @@ interface User {
 
 async function fetchUser(): Promise<User | null> {
   try {
+    const headers: Record<string, string> = {};
+    const token = getUserToken();
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
     const response = await fetch('/api/auth/user', {
       credentials: 'include',
+      headers,
     });
-    
+
     if (!response.ok) {
       if (response.status === 401) {
+        // Token is invalid or expired — clear it
+        clearUserToken();
         return null;
       }
       throw new Error('Failed to fetch user');
     }
-    
+
     return response.json();
   } catch (error) {
     console.error('Auth fetch error:', error);

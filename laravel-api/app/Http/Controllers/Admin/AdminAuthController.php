@@ -30,9 +30,6 @@ class AdminAuthController extends Controller
             return response()->json(['message' => 'Admin access required'], 403);
         }
 
-        // Session-based auth (works when StartSession is in API middleware)
-        Auth::login($user);
-
         // HMAC-signed stateless token — no database table required.
         // Works on production regardless of session middleware configuration.
         $token = AdminTokenService::generate((string) $user->id);

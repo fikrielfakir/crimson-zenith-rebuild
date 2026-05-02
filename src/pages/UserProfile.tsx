@@ -395,6 +395,9 @@ const UserProfile = () => {
         credentials: 'include',
       });
     } catch (_) {}
+    // Clear HMAC user token so subsequent auth checks return unauthenticated
+    const { clearUserToken } = await import('@/lib/tokenStore');
+    clearUserToken();
     localStorage.removeItem('userAuth');
     localStorage.removeItem('userEmail');
     await queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
