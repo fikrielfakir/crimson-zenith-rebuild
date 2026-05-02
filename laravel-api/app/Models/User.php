@@ -2,48 +2,44 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Database\Factories\UserFactory;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasApiTokens, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
+    public $incrementing = false;
+    protected $keyType = 'string';
+
     protected $fillable = [
-        'name',
-        'email',
-        'password',
+        'id', 'username', 'password', 'email', 'first_name', 'last_name',
+        'profile_image_url', 'bio', 'phone', 'location', 'interests',
+        'role', 'is_admin', 'is_active', 'email_verified',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
-    protected $hidden = [
-        'password',
-        'remember_token',
+    protected $hidden = ['password', 'remember_token'];
+
+    protected $casts = [
+        'interests'      => 'array',
+        'is_admin'       => 'boolean',
+        'is_active'      => 'boolean',
+        'email_verified' => 'boolean',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
+    public function clubs()
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        return $this->hasMany(Club::class, 'owner_id');
+    }
+
+    public function memberships()
+    {
+        return $this->hasMany(ClubMembership::class, 'user_id');
+    }
+
+    public function bookingTickets()
+    {
+        return $this->hasMany(BookingTicket::class, 'user_id');
     }
 }
