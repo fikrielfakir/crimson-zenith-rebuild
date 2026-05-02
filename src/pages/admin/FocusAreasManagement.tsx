@@ -65,6 +65,7 @@ export default function FocusAreasManagement() {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
+        credentials: 'include',
       });
       
       if (!response.ok) throw new Error('Failed to save focus item');
@@ -84,6 +85,7 @@ export default function FocusAreasManagement() {
     mutationFn: async (id: number) => {
       const response = await fetch(`/api/admin/cms/focus-items/${id}`, {
         method: 'DELETE',
+        credentials: 'include',
       });
       if (!response.ok) throw new Error('Failed to delete focus item');
     },
@@ -103,6 +105,7 @@ export default function FocusAreasManagement() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ items }),
+        credentials: 'include',
       });
       if (!response.ok) throw new Error('Failed to bulk reorder items');
     },

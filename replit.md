@@ -24,6 +24,18 @@ A full-stack web application for "The Journey Association" — Morocco's network
 ### Proxy Setup (Vite → Laravel)
 All `/api/*` and `/sanctum/*` requests from port 5000 are proxied to port 8000.
 
+## Audit Phases
+- **Phase 1** (complete): 12 bug fixes — URL mismatches, HTTP methods, bulk-reorder, BookingController
+- **Phase 2** (complete): Events, News, BlogPost, JoinUs, Contact, Gallery wired to live API
+- **Phase 3** (complete): Auth flows — login cache invalidation, UserProfile, ForgotPassword, UserProtectedRoute
+- **Phase 4** (complete): Admin panel wired to live API — `credentials:'include'` on all 30+ admin fetch calls, URL fixes for HeroSettings/ThemeSettings GET routes, MediaLibrary fully implemented, LandingManagement replaced with functional overview page
+
+## Admin Panel Notes
+- All admin fetch calls must include `credentials: 'include'` for Sanctum session cookies
+- CMS read routes are PUBLIC (`/api/cms/*`) — no auth needed for GET
+- CMS write routes are ADMIN-PROTECTED (`/api/admin/cms/*`) — require session + isAdmin
+- Media API: GET/POST/DELETE `/api/admin/media` (MediaController); upload via CMS: POST `/api/admin/cms/media`
+
 ## Key Files
 - `laravel-api/routes/api.php` — all 110+ API route definitions
 - `laravel-api/app/Http/Controllers/` — all controllers

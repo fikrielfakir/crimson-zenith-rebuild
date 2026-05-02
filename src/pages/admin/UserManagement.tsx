@@ -95,7 +95,7 @@ async function fetchUsers(params: { search?: string; role?: string; status?: str
     ...(params.status && params.status !== 'all' && { status: params.status }),
   });
   
-  const response = await fetch(`/api/admin/users?${queryParams}`);
+  const response = await fetch(`/api/admin/users?${queryParams}`, { credentials: 'include' });
   if (!response.ok) throw new Error('Failed to fetch users');
   return response.json();
 }
@@ -180,6 +180,7 @@ export default function UserManagement() {
     mutationFn: async (userId: number) => {
       const response = await fetch(`/api/admin/users/${userId}`, {
         method: 'DELETE',
+        credentials: 'include',
       });
       if (!response.ok) throw new Error('Failed to delete user');
     },
@@ -203,6 +204,7 @@ export default function UserManagement() {
         method: (editingUser && editingUser.id) ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
+        credentials: 'include',
       });
       if (!response.ok) throw new Error('Failed to save user');
       return response.json();
@@ -224,6 +226,7 @@ export default function UserManagement() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ isAdmin: !isAdmin }),
+        credentials: 'include',
       });
       if (!response.ok) throw new Error('Failed to toggle admin status');
     },
@@ -237,6 +240,7 @@ export default function UserManagement() {
     mutationFn: async (userId: string) => {
       const response = await fetch(`/api/admin/users/${userId}/toggle-active`, {
         method: 'POST',
+        credentials: 'include',
       });
       if (!response.ok) throw new Error('Failed to toggle active status');
       return response.json();
@@ -256,6 +260,7 @@ export default function UserManagement() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ newPassword }),
+        credentials: 'include',
       });
       if (!response.ok) {
         const error = await response.json();

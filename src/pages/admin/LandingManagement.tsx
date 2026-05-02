@@ -1,201 +1,105 @@
-import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { Save, Upload, Eye } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { Badge } from '@/components/ui/badge';
+import { useNavigate } from 'react-router-dom';
+import { ExternalLink, Image, Layout, Navigation, Star, Users, Mail } from 'lucide-react';
+
+interface SectionInfo {
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+  href: string;
+  badge?: string;
+}
+
+const SECTIONS: SectionInfo[] = [
+  {
+    title: 'Hero Section',
+    description: 'Edit the main banner: title, subtitle, buttons, background image, and typewriter texts.',
+    icon: <Image className="h-5 w-5" />,
+    href: '/admin/hero-settings',
+    badge: 'CMS',
+  },
+  {
+    title: 'Navbar',
+    description: 'Manage navigation links, logo, language switcher, and header buttons.',
+    icon: <Navigation className="h-5 w-5" />,
+    href: '/admin/navbar-settings',
+    badge: 'CMS',
+  },
+  {
+    title: 'Focus Areas',
+    description: 'Add and reorder the mission/focus-area cards shown on the landing page.',
+    icon: <Star className="h-5 w-5" />,
+    href: '/admin/focus-areas',
+    badge: 'CMS',
+  },
+  {
+    title: "President's Message",
+    description: "Manage the president's photo, message text, and section styling.",
+    icon: <Users className="h-5 w-5" />,
+    href: '/admin/president-message',
+    badge: 'CMS',
+  },
+  {
+    title: 'Theme & Colors',
+    description: 'Adjust global color palette, typography, spacing, and custom CSS.',
+    icon: <Layout className="h-5 w-5" />,
+    href: '/admin/theme-settings',
+    badge: 'Design',
+  },
+  {
+    title: 'Contact Settings',
+    description: 'Update address, phone, email, social links, and map coordinates.',
+    icon: <Mail className="h-5 w-5" />,
+    href: '/admin/contact-settings',
+    badge: 'Settings',
+  },
+];
 
 export default function LandingManagement() {
-  const { toast } = useToast();
-  const [heroTitle, setHeroTitle] = useState('WHERE');
-  const [heroSubtitle, setHeroSubtitle] = useState("Experience Morocco's soul through sustainable journeys. Discover culture, embrace adventure, and create lasting connections with local communities.");
-
-  const handleSave = () => {
-    toast({ title: 'Landing page updated successfully' });
-  };
+  const navigate = useNavigate();
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Landing Page Management</h1>
-          <p className="text-muted-foreground mt-1">Customize your website's landing page content</p>
-        </div>
-        <div className="flex space-x-2">
-          <Button variant="outline">
-            <Eye className="mr-2 h-4 w-4" />
-            Preview
-          </Button>
-          <Button onClick={handleSave}>
-            <Save className="mr-2 h-4 w-4" />
-            Save Changes
-          </Button>
-        </div>
+      <div>
+        <h1 className="text-3xl font-bold">Landing Page Overview</h1>
+        <p className="text-muted-foreground mt-1">
+          Each section of the landing page is managed through its own dedicated settings page.
+        </p>
       </div>
 
-      <Tabs defaultValue="hero">
-        <TabsList>
-          <TabsTrigger value="hero">Hero Section</TabsTrigger>
-          <TabsTrigger value="sections">Page Sections</TabsTrigger>
-          <TabsTrigger value="footer">Footer</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="hero" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Hero Section</CardTitle>
-              <CardDescription>Customize the main hero section of your landing page</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="hero-title">Hero Title</Label>
-                <Input
-                  id="hero-title"
-                  value={heroTitle}
-                  onChange={(e) => setHeroTitle(e.target.value)}
-                  placeholder="Main headline"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="hero-subtitle">Hero Subtitle</Label>
-                <Textarea
-                  id="hero-subtitle"
-                  value={heroSubtitle}
-                  onChange={(e) => setHeroSubtitle(e.target.value)}
-                  placeholder="Supporting text"
-                  rows={3}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Background Image</Label>
-                <div className="flex items-center space-x-2">
-                  <Input type="file" accept="image/*" />
-                  <Button variant="outline">
-                    <Upload className="mr-2 h-4 w-4" />
-                    Upload
-                  </Button>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {SECTIONS.map((section) => (
+          <Card key={section.title} className="hover:shadow-md transition-shadow">
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  {section.icon}
+                  <CardTitle className="text-base">{section.title}</CardTitle>
                 </div>
+                {section.badge && (
+                  <Badge variant="secondary" className="text-xs">
+                    {section.badge}
+                  </Badge>
+                )}
               </div>
-
-              <div className="flex items-center space-x-2">
-                <Switch id="show-hero" defaultChecked />
-                <Label htmlFor="show-hero">Show hero section</Label>
-              </div>
+              <CardDescription className="text-sm">{section.description}</CardDescription>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full"
+                onClick={() => navigate(section.href)}
+              >
+                <ExternalLink className="mr-2 h-4 w-4" />
+                Go to {section.title}
+              </Button>
             </CardContent>
           </Card>
-        </TabsContent>
-
-        <TabsContent value="sections" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Page Sections</CardTitle>
-              <CardDescription>Manage different sections of the landing page</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-4 border-b pb-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="font-medium">About Section</h4>
-                    <p className="text-sm text-muted-foreground">Introduction to The Journey Association</p>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Switch defaultChecked />
-                    <Button variant="outline" size="sm">Edit</Button>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-4 border-b pb-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="font-medium">Features Section</h4>
-                    <p className="text-sm text-muted-foreground">Highlight key features and benefits</p>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Switch defaultChecked />
-                    <Button variant="outline" size="sm">Edit</Button>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-4 border-b pb-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="font-medium">Testimonials</h4>
-                    <p className="text-sm text-muted-foreground">User reviews and success stories</p>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Switch defaultChecked />
-                    <Button variant="outline" size="sm">Edit</Button>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="font-medium">Call to Action</h4>
-                    <p className="text-sm text-muted-foreground">Encourage visitors to take action</p>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Switch defaultChecked />
-                    <Button variant="outline" size="sm">Edit</Button>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="footer" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Footer</CardTitle>
-              <CardDescription>Customize footer content and links</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="footer-text">Footer Text</Label>
-                <Textarea
-                  id="footer-text"
-                  placeholder="Copyright notice and additional information"
-                  rows={2}
-                  defaultValue="© 2025 The Journey Association. All rights reserved."
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Social Media Links</Label>
-                <div className="grid gap-2">
-                  <div className="flex items-center space-x-2">
-                    <Label className="w-20">Facebook</Label>
-                    <Input placeholder="Facebook URL" />
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Label className="w-20">Instagram</Label>
-                    <Input placeholder="Instagram URL" />
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Label className="w-20">Twitter</Label>
-                    <Input placeholder="Twitter URL" />
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <Switch id="show-footer" defaultChecked />
-                <Label htmlFor="show-footer">Show footer</Label>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+        ))}
+      </div>
     </div>
   );
 }

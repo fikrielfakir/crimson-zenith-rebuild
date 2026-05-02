@@ -57,7 +57,7 @@ async function fetchClubs(params: any) {
     ...(params.status && params.status !== 'all' && { status: params.status }),
   });
   
-  const response = await fetch(`/api/admin/clubs?${queryParams}`);
+  const response = await fetch(`/api/admin/clubs?${queryParams}`, { credentials: 'include' });
   if (!response.ok) throw new Error('Failed to fetch clubs');
   return response.json();
 }
@@ -87,6 +87,7 @@ export default function ClubsManagement() {
     mutationFn: async (clubId: number) => {
       const response = await fetch(`/api/admin/clubs/${clubId}/approve`, {
         method: 'POST',
+        credentials: 'include',
       });
       if (!response.ok) throw new Error('Failed to approve club');
     },
@@ -100,6 +101,7 @@ export default function ClubsManagement() {
     mutationFn: async (clubId: number) => {
       const response = await fetch(`/api/admin/clubs/${clubId}`, {
         method: 'DELETE',
+        credentials: 'include',
       });
       if (!response.ok) throw new Error('Failed to delete club');
     },
@@ -115,6 +117,7 @@ export default function ClubsManagement() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ featured: !featured }),
+        credentials: 'include',
       });
       if (!response.ok) throw new Error('Failed to update feature status');
     },

@@ -67,7 +67,7 @@ export default function ThemeSettings() {
 
   const loadSettings = async () => {
     try {
-      const response = await fetch('/api/admin/cms/theme');
+      const response = await fetch('/api/cms/theme', { credentials: 'include' });
       if (response.ok) {
         const data = await response.json();
         if (data) {
@@ -102,6 +102,7 @@ export default function ThemeSettings() {
       const response = await fetch('/api/admin/cms/theme', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           primaryColor,
           secondaryColor,

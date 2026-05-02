@@ -16,7 +16,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 
 async function fetchApplications() {
-  const response = await fetch('/api/admin/applications');
+  const response = await fetch('/api/admin/applications', { credentials: 'include' });
   if (!response.ok) throw new Error('Failed to fetch applications');
   return response.json();
 }
@@ -34,6 +34,7 @@ export default function ApplicationsManagement() {
     mutationFn: async (appId: number) => {
       const response = await fetch(`/api/admin/applications/${appId}/approve`, {
         method: 'POST',
+        credentials: 'include',
       });
       if (!response.ok) throw new Error('Failed to approve application');
     },
@@ -47,6 +48,7 @@ export default function ApplicationsManagement() {
     mutationFn: async (appId: number) => {
       const response = await fetch(`/api/admin/applications/${appId}/reject`, {
         method: 'POST',
+        credentials: 'include',
       });
       if (!response.ok) throw new Error('Failed to reject application');
     },

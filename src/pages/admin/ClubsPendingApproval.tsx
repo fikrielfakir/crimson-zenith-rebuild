@@ -16,7 +16,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 
 async function fetchPendingClubs() {
-  const response = await fetch('/api/admin/clubs?status=pending');
+  const response = await fetch('/api/admin/clubs?status=pending', { credentials: 'include' });
   if (!response.ok) throw new Error('Failed to fetch pending clubs');
   return response.json();
 }
@@ -34,6 +34,7 @@ export default function ClubsPendingApproval() {
     mutationFn: async (clubId: number) => {
       const response = await fetch(`/api/admin/clubs/${clubId}/approve`, {
         method: 'POST',
+        credentials: 'include',
       });
       if (!response.ok) throw new Error('Failed to approve club');
     },
@@ -50,6 +51,7 @@ export default function ClubsPendingApproval() {
     mutationFn: async (clubId: number) => {
       const response = await fetch(`/api/admin/clubs/${clubId}/reject`, {
         method: 'POST',
+        credentials: 'include',
       });
       if (!response.ok) throw new Error('Failed to reject club');
     },

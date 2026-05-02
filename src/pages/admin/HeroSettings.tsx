@@ -57,7 +57,7 @@ export default function HeroSettings() {
 
   const loadSettings = async () => {
     try {
-      const response = await fetch('/api/admin/cms/hero');
+      const response = await fetch('/api/cms/hero', { credentials: 'include' });
       if (response.ok) {
         const data = await response.json();
         if (data) {
@@ -124,6 +124,7 @@ export default function HeroSettings() {
       const response = await fetch('/api/admin/cms/hero', {
         method: 'PUT',
         body: formData,
+        credentials: 'include',
       });
 
       if (response.ok) {

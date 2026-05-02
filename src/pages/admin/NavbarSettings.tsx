@@ -315,7 +315,7 @@ function MediaLibraryDialog({ onSelectMedia }: { onSelectMedia: (mediaId: number
   const loadMedia = () => {
     setIsLoading(true);
     setError(null);
-    fetch('/api/admin/cms/media')
+    fetch('/api/admin/cms/media', { credentials: 'include' })
       .then(res => {
         if (!res.ok) {
           throw new Error(res.status >= 500 ? 'Server error. Please try again.' : 'Failed to load media');

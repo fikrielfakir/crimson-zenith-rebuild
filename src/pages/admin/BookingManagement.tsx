@@ -64,7 +64,7 @@ interface Booking {
 }
 
 async function fetchBookings() {
-  const response = await fetch('/api/admin/bookings');
+  const response = await fetch('/api/admin/bookings', { credentials: 'include' });
   if (!response.ok) throw new Error('Failed to fetch bookings');
   return response.json();
 }
@@ -74,6 +74,7 @@ async function updateBookingStatus(bookingReference: string, status: string) {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ status }),
+    credentials: 'include',
   });
   if (!response.ok) throw new Error('Failed to update booking status');
   return response.json();
@@ -82,6 +83,7 @@ async function updateBookingStatus(bookingReference: string, status: string) {
 async function deleteBooking(bookingReference: string) {
   const response = await fetch(`/api/admin/bookings/${bookingReference}`, {
     method: 'DELETE',
+    credentials: 'include',
   });
   if (!response.ok) throw new Error('Failed to delete booking');
   return response.json();

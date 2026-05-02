@@ -92,7 +92,7 @@ const eventSchema = z.object({
 type EventFormData = z.infer<typeof eventSchema>;
 
 async function fetchEvents() {
-  const response = await fetch(`/api/admin/events`);
+  const response = await fetch(`/api/admin/events`, { credentials: 'include' });
   if (!response.ok) throw new Error('Failed to fetch events');
   return response.json();
 }
@@ -217,6 +217,7 @@ export default function EventsManagement() {
     mutationFn: async (eventId: string) => {
       const response = await fetch(`/api/admin/events/${eventId}`, {
         method: 'DELETE',
+        credentials: 'include',
       });
       if (!response.ok) throw new Error('Failed to delete event');
     },
@@ -264,6 +265,7 @@ export default function EventsManagement() {
         method: (editingEvent && editingEvent.id) ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
+        credentials: 'include',
       });
       if (!response.ok) throw new Error('Failed to save event');
       return response.json();

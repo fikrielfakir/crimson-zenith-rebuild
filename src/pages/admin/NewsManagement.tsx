@@ -85,7 +85,7 @@ async function fetchPosts(params: { search?: string; status?: string; category?:
     ...(params.category && params.category !== 'all' && { category: params.category }),
   });
   
-  const response = await fetch(`/api/admin/news?${queryParams}`);
+  const response = await fetch(`/api/admin/news?${queryParams}`, { credentials: 'include' });
   if (!response.ok) throw new Error('Failed to fetch posts');
   return response.json();
 }
@@ -152,6 +152,7 @@ export default function NewsManagement() {
     mutationFn: async (postId: number) => {
       const response = await fetch(`/api/admin/news/${postId}`, {
         method: 'DELETE',
+        credentials: 'include',
       });
       if (!response.ok) throw new Error('Failed to delete post');
     },
@@ -175,6 +176,7 @@ export default function NewsManagement() {
         method: (editingPost && editingPost.id) ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
+        credentials: 'include',
       });
       if (!response.ok) throw new Error('Failed to save post');
       return response.json();

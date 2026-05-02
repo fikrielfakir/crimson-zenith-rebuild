@@ -75,7 +75,7 @@ export default function ClubForm() {
   useEffect(() => {
     if (id) {
       setIsFetching(true);
-      fetch(`/api/admin/clubs/${id}`)
+      fetch(`/api/admin/clubs/${id}`, { credentials: 'include' })
         .then(async (res) => {
           if (!res.ok) throw new Error('Failed to fetch club');
           const data = await res.json();
@@ -146,6 +146,7 @@ export default function ClubForm() {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(payload),
+          credentials: 'include',
         }
       );
 

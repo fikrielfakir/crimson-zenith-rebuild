@@ -38,7 +38,7 @@ function MediaLibraryDialog({
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/admin/cms/media')
+    fetch('/api/admin/cms/media', { credentials: 'include' })
       .then(res => res.json())
       .then(data => {
         setMedia(data);
@@ -202,6 +202,7 @@ export default function PresidentMessageSettings() {
       const response = await fetch('/api/admin/cms/president-message', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           isActive,
           title,
