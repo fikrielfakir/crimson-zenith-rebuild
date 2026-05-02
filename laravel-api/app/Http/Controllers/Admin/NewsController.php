@@ -12,24 +12,37 @@ class NewsController extends Controller
     public function index(Request $request)
     {
         $query = BlogPost::with('author');
-        if ($request->has('status')) $query->where('status', $request->status);
-        if ($request->has('search')) $query->where('title', 'like', '%'.$request->search.'%');
-        $page  = max(1, (int)($request->page ?? 1));
-        $limit = max(1, min(100, (int)($request->limit ?? 20)));
-        $total = $query->count();
-        $posts = $query->orderBy('created_at', 'desc')->skip(($page-1)*$limit)->take($limit)->get();
-        return response()->json(['posts' => $posts, 'total' => $total, 'page' => $page, 'limit' => $limit]);
+
+        if ($request->filled('status'))   $query->where('status', $request->status);
+        if ($request->filled('category')) $query->where('category', $request->category);
+        if ($request->filled('search'))   $query->where('title', 'like', '%'.$request->search.'%');
+
+        $page    = max(1, (int) ($request->page ?? 1));
+        $perPage = max(1, min(100, (int) ($request->perPage ?? $request->limit ?? 25)));
+        $total   = $query->count();
+        $posts   = $query->orderBy('created_at', 'desc')
+                         ->skip(($page - 1) * $perPage)
+                         ->take($perPage)
+                         ->get();
+
+        return response()->json([
+            'posts'   => $posts,
+            'total'   => $total,
+            'page'    => $page,
+            'perPage' => $perPage,
+        ]);
     }
 
     public function store(Request $request)
     {
         $data = $request->validate([
-            'title'    => 'required|string',
-            'content'  => 'required|string',
-            'excerpt'  => 'nullable|string',
-            'category' => 'nullable|string',
-            'status'   => 'nullable|in:draft,published',
-            'tags'     => 'nullable|array',
+            'title'         => 'required|string',
+            'content'       => 'required|string',
+            'excerpt'       => 'nullable|string',
+            'category'      => 'nullable|string',
+            'featuredImage' => 'nullable|string',
+            'status'        => 'nullable|in:draft,published',
+            'tags'          => 'nullable|array',
         ]);
         $data['slug']        = Str::slug($data['title']).'-'.Str::random(5);
         $data['author_id']   = $request->user()->id;

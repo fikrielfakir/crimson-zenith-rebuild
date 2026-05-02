@@ -31,7 +31,8 @@ interface MediaFile {
 async function fetchMedia(): Promise<MediaFile[]> {
   const response = await fetch('/api/admin/media', { credentials: 'include' });
   if (!response.ok) throw new Error('Failed to fetch media files');
-  return response.json();
+  const data = await response.json();
+  return Array.isArray(data) ? data : (data.media ?? []);
 }
 
 async function deleteMedia(id: number): Promise<void> {

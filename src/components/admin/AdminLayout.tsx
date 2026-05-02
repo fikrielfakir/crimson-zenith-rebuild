@@ -88,6 +88,7 @@ const navigationItems: NavigationItem[] = [
       { label: 'Clubs Section', href: '/admin/customization/clubs' },
       { label: 'Events Section', href: '/admin/customization/events' },
       { label: 'Impact Section', href: '/admin/customization/impact' },
+      { label: 'Team Members', href: '/admin/customization/team' },
       { label: 'Testimonials', href: '/admin/customization/testimonials' },
       { label: 'Partners', href: '/admin/customization/partners' }
     ]
