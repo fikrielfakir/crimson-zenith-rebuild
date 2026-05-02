@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\ContactMessage;
+use App\Models\ContactSettings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
-use App\Models\ContactSettings;
 
 class ContactController extends Controller
 {
@@ -19,14 +20,16 @@ class ContactController extends Controller
 
         try {
             $settings = ContactSettings::find('default');
-            $to = $settings?->email ?? config('mail.from.address');
+            $to = $settings?->email ?? config('mail.from.address', 'admin@thejourney-ma.org');
 
-            Mail::raw(
-                "Name: {$data['name']}\nEmail: {$data['email']}\n\nMessage:\n{$data['message']}",
-                fn($msg) => $msg->to($to)->subject($data['subject'] ?? 'Contact Form Submission')
-            );
+            Mail::to($to)->send(new ContactMessage(
+                senderName:  $data['name'],
+                senderEmail: $data['email'],
+                subject:     $data['subject'] ?? 'Contact Form Submission',
+                body:        $data['message'],
+            ));
         } catch (\Throwable $e) {
-            \Log::warning('Contact email failed: '.$e->getMessage());
+            \Log::warning('Contact email failed: ' . $e->getMessage());
         }
 
         return response()->json(['message' => 'Message sent successfully']);

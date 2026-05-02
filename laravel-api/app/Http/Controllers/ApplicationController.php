@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\ApplicationReceived;
 use App\Models\MembershipApplication;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class ApplicationController extends Controller
 {
@@ -28,6 +30,14 @@ class ApplicationController extends Controller
             'preferred_club' => $data['preferredClub'] ?? null,
             'status'         => 'pending',
         ]);
+
+        // Notify admin of new application (non-fatal)
+        try {
+            $adminEmail = config('mail.from.address', 'admin@thejourney-ma.org');
+            Mail::to($adminEmail)->send(new ApplicationReceived($application));
+        } catch (\Throwable $e) {
+            \Log::warning('Application notification email failed: ' . $e->getMessage());
+        }
 
         return response()->json(['message' => 'Application submitted successfully', 'application' => $application], 201);
     }

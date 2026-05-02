@@ -2,8 +2,10 @@
 
 namespace App\Services;
 
+use App\Mail\BookingConfirmed;
 use App\Models\BookingTicket;
 use App\Models\BookingEvent;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class BookingService
@@ -33,6 +35,15 @@ class BookingService
         // Increment participant count on the event
         BookingEvent::where('id', $data['eventId'])->increment('current_participants', $data['numberOfParticipants']);
 
-        return $ticket->load('event');
+        $ticket->load('event');
+
+        // Send booking confirmation email (non-fatal)
+        try {
+            Mail::to($ticket->customer_email)->send(new BookingConfirmed($ticket));
+        } catch (\Throwable $e) {
+            \Log::warning('Booking confirmation email failed: ' . $e->getMessage());
+        }
+
+        return $ticket;
     }
 }
