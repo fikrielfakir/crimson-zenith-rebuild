@@ -12,11 +12,7 @@ export default defineConfig(({ mode }: { mode: string }) => ({
     allowedHosts: true as const,
     proxy: {
       '/api': {
-        target: 'http://localhost:8000',
-        changeOrigin: true,
-      },
-      '/sanctum': {
-        target: 'http://localhost:8000',
+        target: 'http://localhost:3001',
         changeOrigin: true,
       },
     },
