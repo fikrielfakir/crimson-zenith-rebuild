@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,6 +16,7 @@ const UserLogin = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
   const redirectUrl = searchParams.get('redirect') || '/profile';
   const { isAuthenticated, isLoading: authLoading } = useAuth();
@@ -50,6 +52,7 @@ const UserLogin = () => {
       const data = await response.json();
 
       if (response.ok) {
+        await queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
         navigate(redirectUrl);
       } else {
         setError(data.message || 'Invalid email or password. Please check your credentials.');
@@ -61,18 +64,8 @@ const UserLogin = () => {
     }
   };
 
-  const handleGoogleLogin = () => {
-    if (redirectUrl !== '/profile') {
-      sessionStorage.setItem('loginRedirect', redirectUrl);
-    }
-    window.location.href = '/api/login';
-  };
-
-  const handleReplitLogin = () => {
-    if (redirectUrl !== '/profile') {
-      sessionStorage.setItem('loginRedirect', redirectUrl);
-    }
-    window.location.href = '/api/login';
+  const handleSocialLogin = () => {
+    setError('Social login is not available yet. Please use email and password.');
   };
 
   return (
@@ -281,7 +274,7 @@ const UserLogin = () => {
               type="button" 
               variant="outline" 
               className="h-12 border-slate-200 hover:bg-slate-50 hover:border-slate-300 rounded-xl transition-all duration-300"
-              onClick={handleGoogleLogin}
+              onClick={handleSocialLogin}
             >
               <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -296,7 +289,7 @@ const UserLogin = () => {
               type="button" 
               variant="outline" 
               className="h-12 border-slate-200 hover:bg-slate-50 hover:border-slate-300 rounded-xl transition-all duration-300"
-              onClick={handleReplitLogin}
+              onClick={handleSocialLogin}
             >
               <svg className="w-5 h-5 mr-2" viewBox="0 0 32 32" fill="none">
                 <path d="M7 5.5C7 4.67157 7.67157 4 8.5 4H15.5C16.3284 4 17 4.67157 17 5.5V12H8.5C7.67157 12 7 11.3284 7 10.5V5.5Z" fill="#F26207"/>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -71,6 +72,7 @@ const UserProfile = () => {
   const { user, isAuthenticated, isLoading, refetch } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   
   const [isEditing, setIsEditing] = useState(false);
   const [userClubs, setUserClubs] = useState<any[]>([]);
@@ -170,7 +172,7 @@ const UserProfile = () => {
     try {
       setActionLoading(true);
       const response = await fetch(`/api/booking/my-tickets/${cancellingBooking.bookingReference}/cancel`, {
-        method: 'PUT',
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({ reason: cancelReason }),
@@ -278,6 +280,7 @@ const UserProfile = () => {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify(profileData),
       });
 
@@ -287,6 +290,7 @@ const UserProfile = () => {
           description: "Profile updated successfully!",
         });
         setIsEditing(false);
+        if (refetch) refetch();
       } else {
         throw new Error('Failed to update profile');
       }
@@ -384,10 +388,17 @@ const UserProfile = () => {
     }));
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/logout', {
+        method: 'POST',
+        credentials: 'include',
+      });
+    } catch (_) {}
     localStorage.removeItem('userAuth');
     localStorage.removeItem('userEmail');
-    window.location.href = "/api/logout";
+    await queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+    navigate('/');
   };
 
   if (isLoading) {

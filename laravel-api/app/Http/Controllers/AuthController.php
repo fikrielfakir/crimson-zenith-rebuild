@@ -72,6 +72,15 @@ class AuthController extends Controller
         ]);
     }
 
+    public function forgotPassword(Request $request)
+    {
+        $request->validate(['email' => 'required|email']);
+        // Always return the same response to avoid email enumeration
+        return response()->json([
+            'message' => 'If an account with that email exists, you will receive password reset instructions shortly.',
+        ]);
+    }
+
     public function logout(Request $request)
     {
         Auth::guard('web')->logout();

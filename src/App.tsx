@@ -65,6 +65,8 @@ import ClubDetail from "./pages/ClubDetail";
 import ActivityDetail from "./pages/ActivityDetail";
 import CityDetail from "./pages/CityDetail";
 import UserProfile from "./pages/UserProfile";
+import ForgotPassword from "./pages/ForgotPassword";
+import { UserProtectedRoute } from "./components/UserProtectedRoute";
 import ClubProfileEdit from "./pages/ClubProfileEdit";
 import UserLogin from "./pages/UserLogin";
 import UserSignup from "./pages/UserSignup";
@@ -108,7 +110,8 @@ const App = () => (
           <Route path="/join" element={<JoinUs />} />
           <Route path="/login" element={<UserLogin />} />
           <Route path="/signup" element={<UserSignup />} />
-          <Route path="/profile" element={<UserProfile />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/profile" element={<UserProtectedRoute><UserProfile /></UserProtectedRoute>} />
           <Route path="/club/:clubId/edit" element={<ClubProfileEdit />} />
           
           {/* Talents Routes */}
