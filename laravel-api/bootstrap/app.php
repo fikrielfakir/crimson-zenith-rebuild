@@ -21,8 +21,15 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\Http\Middleware\HandleCors::class,
         ]);
 
-        // Sanctum stateful domains for session-based auth
-        $middleware->statefulApi();
+        // Add session middleware unconditionally to all API routes so that
+        // Auth::login() persists the session regardless of Referer domain.
+        // This is needed in Replit's proxied environment where the Origin
+        // header never matches SANCTUM_STATEFUL_DOMAINS.
+        $middleware->api(append: [
+            \Illuminate\Cookie\Middleware\EncryptCookies::class,
+            \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+            \Illuminate\Session\Middleware\StartSession::class,
+        ]);
 
         // Middleware aliases
         $middleware->alias([

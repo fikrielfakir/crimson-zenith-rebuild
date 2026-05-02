@@ -64,7 +64,11 @@ export default function AdminLogin() {
         return;
       }
 
-      queryClient.invalidateQueries({ queryKey: ['currentUser'] });
+      // Populate the cache immediately so ProtectedRoute sees the user
+      // before the navigate() call re-renders it. Without this the stale
+      // null value triggers a redirect back to /admin/login.
+      queryClient.setQueryData(['currentUser'], data.user);
+
       toast({
         title: 'Login successful',
         description: 'Welcome back to the admin dashboard!',

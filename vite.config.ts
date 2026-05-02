@@ -12,14 +12,14 @@ export default defineConfig(({ mode }: { mode: string }) => ({
     allowedHosts: true as const,
     proxy: {
       '/api': {
-        target: 'https://api.thejourney-ma.org',
+        target: 'http://localhost:8000',
         changeOrigin: true,
-        secure: true,
+        secure: false,
       },
       '/sanctum': {
-        target: 'https://api.thejourney-ma.org',
+        target: 'http://localhost:8000',
         changeOrigin: true,
-        secure: true,
+        secure: false,
       },
     },
     watch: {
