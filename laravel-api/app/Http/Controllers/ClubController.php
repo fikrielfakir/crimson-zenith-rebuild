@@ -11,15 +11,20 @@ class ClubController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Club::query();
+        $query = Club::query()->where('is_active', true);
+
         if ($request->has('search')) {
             $search = $request->search;
             $query->where(fn($q) => $q->where('name', 'like', "%$search%")->orWhere('location', 'like', "%$search%"));
         }
-        if ($request->has('active')) {
-            $query->where('is_active', true);
-        }
-        return response()->json($query->orderBy('name')->get());
+
+        $clubs = $query->orderBy('name')->get();
+
+        // Return wrapped response so both ClubsWithMap and Clubs page work correctly
+        return response()->json([
+            'clubs' => $clubs,
+            'total' => $clubs->count(),
+        ]);
     }
 
     public function show($id)
