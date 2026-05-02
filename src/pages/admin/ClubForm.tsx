@@ -1,9 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { ArrowLeft, Loader2, Upload, X, ImageIcon } from 'lucide-react';
+import { ArrowLeft, Loader2, Upload, X, ImageIcon, MapPin, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -11,10 +11,17 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { apiFetch } from '@/lib/apiFetch';
+import maplibregl from 'maplibre-gl';
+import 'maplibre-gl/dist/maplibre-gl.css';
 
+// ─── Zod schema ──────────────────────────────────────────────────────────────
 const clubFormSchema = z.object({
   name: z.string().min(1, 'Name is required').max(255),
-  slug: z.string().min(1, 'Slug is required').max(255).regex(/^[a-z0-9-]+$/, 'Slug must contain only lowercase letters, numbers, and hyphens'),
+  slug: z
+    .string()
+    .min(1, 'Slug is required')
+    .max(255)
+    .regex(/^[a-z0-9-]+$/, 'Slug must contain only lowercase letters, numbers, and hyphens'),
   description: z.string().min(1, 'Description is required'),
   longDescription: z.string().optional(),
   image: z.string().optional(),
@@ -24,8 +31,8 @@ const clubFormSchema = z.object({
   website: z.string().url('Must be a valid URL').or(z.literal('')).optional(),
   established: z.string().max(100).optional(),
   isActive: z.boolean().default(true),
-  latitude: z.string().optional(),
-  longitude: z.string().optional(),
+  latitude: z.number().nullable().optional(),
+  longitude: z.number().nullable().optional(),
   facebook: z.string().optional(),
   instagram: z.string().optional(),
   twitter: z.string().optional(),
@@ -33,21 +40,14 @@ const clubFormSchema = z.object({
 
 type ClubFormValues = z.infer<typeof clubFormSchema>;
 
-function ImageUpload({
-  value,
-  onChange,
-}: {
-  value?: string;
-  onChange: (url: string) => void;
-}) {
+// ─── Image Upload ─────────────────────────────────────────────────────────────
+function ImageUpload({ value, onChange }: { value?: string; onChange: (url: string) => void }) {
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState<string>(value || '');
   const inputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
-  useEffect(() => {
-    setPreview(value || '');
-  }, [value]);
+  useEffect(() => { setPreview(value || ''); }, [value]);
 
   const handleFile = async (file: File) => {
     if (!file.type.startsWith('image/')) {
@@ -58,25 +58,13 @@ function ImageUpload({
       toast({ title: 'File too large', description: 'Image must be under 5 MB.', variant: 'destructive' });
       return;
     }
-
-    const localPreview = URL.createObjectURL(file);
-    setPreview(localPreview);
+    setPreview(URL.createObjectURL(file));
     setUploading(true);
-
     try {
-      const formData = new FormData();
-      formData.append('image', file);
-
-      const res = await apiFetch('/api/admin/clubs/upload-image', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.message || 'Upload failed');
-      }
-
+      const fd = new FormData();
+      fd.append('image', file);
+      const res = await apiFetch('/api/admin/clubs/upload-image', { method: 'POST', body: fd });
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).message || 'Upload failed');
       const { url } = await res.json();
       setPreview(url);
       onChange(url);
@@ -89,18 +77,6 @@ function ImageUpload({
     }
   };
 
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    const file = e.dataTransfer.files[0];
-    if (file) handleFile(file);
-  };
-
-  const handleRemove = () => {
-    setPreview('');
-    onChange('');
-    if (inputRef.current) inputRef.current.value = '';
-  };
-
   return (
     <div className="space-y-2">
       <input
@@ -108,37 +84,17 @@ function ImageUpload({
         type="file"
         accept="image/jpeg,image/png,image/jpg,image/webp"
         className="hidden"
-        onChange={(e) => {
-          const file = e.target.files?.[0];
-          if (file) handleFile(file);
-        }}
+        onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }}
       />
-
       {preview ? (
         <div className="relative group w-full max-w-sm">
-          <img
-            src={preview}
-            alt="Club image"
-            className="w-full h-48 object-cover rounded-lg border"
-          />
+          <img src={preview} alt="Club" className="w-full h-48 object-cover rounded-lg border" />
           <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
-            <Button
-              type="button"
-              size="sm"
-              variant="secondary"
-              onClick={() => inputRef.current?.click()}
-              disabled={uploading}
-            >
+            <Button type="button" size="sm" variant="secondary" onClick={() => inputRef.current?.click()} disabled={uploading}>
               {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4 mr-1" />}
               Replace
             </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant="destructive"
-              onClick={handleRemove}
-              disabled={uploading}
-            >
+            <Button type="button" size="sm" variant="destructive" onClick={() => { setPreview(''); onChange(''); if (inputRef.current) inputRef.current.value = ''; }} disabled={uploading}>
               <X className="h-4 w-4" />
             </Button>
           </div>
@@ -152,7 +108,7 @@ function ImageUpload({
         <div
           className="w-full max-w-sm h-48 border-2 border-dashed border-muted-foreground/30 rounded-lg flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-primary/50 hover:bg-muted/30 transition-colors"
           onClick={() => inputRef.current?.click()}
-          onDrop={handleDrop}
+          onDrop={(e) => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) handleFile(f); }}
           onDragOver={(e) => e.preventDefault()}
         >
           {uploading ? (
@@ -170,6 +126,176 @@ function ImageUpload({
   );
 }
 
+// ─── Map Location Picker ──────────────────────────────────────────────────────
+const MOROCCO_CENTER: [number, number] = [-7.0926, 31.7917];
+
+function MapLocationPicker({
+  lat,
+  lng,
+  onChange,
+}: {
+  lat?: number | null;
+  lng?: number | null;
+  onChange: (lat: number, lng: number) => void;
+}) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<maplibregl.Map | null>(null);
+  const markerRef = useRef<maplibregl.Marker | null>(null);
+  const [search, setSearch] = useState('');
+  const [searching, setSearching] = useState(false);
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(
+    lat != null && lng != null ? { lat, lng } : null
+  );
+  const { toast } = useToast();
+
+  // Sync external lat/lng into local state when form data loads
+  useEffect(() => {
+    if (lat != null && lng != null) setCoords({ lat, lng });
+  }, [lat, lng]);
+
+  const placeMarker = useCallback(
+    (lngLat: { lng: number; lat: number }) => {
+      if (!mapRef.current) return;
+      const rounded = { lat: +lngLat.lat.toFixed(6), lng: +lngLat.lng.toFixed(6) };
+      setCoords(rounded);
+      onChange(rounded.lat, rounded.lng);
+
+      if (markerRef.current) {
+        markerRef.current.setLngLat([rounded.lng, rounded.lat]);
+      } else {
+        markerRef.current = new maplibregl.Marker({ color: '#2563eb', draggable: true })
+          .setLngLat([rounded.lng, rounded.lat])
+          .addTo(mapRef.current);
+
+        markerRef.current.on('dragend', () => {
+          const pos = markerRef.current!.getLngLat();
+          const r = { lat: +pos.lat.toFixed(6), lng: +pos.lng.toFixed(6) };
+          setCoords(r);
+          onChange(r.lat, r.lng);
+        });
+      }
+    },
+    [onChange]
+  );
+
+  // Init map
+  useEffect(() => {
+    if (!containerRef.current || mapRef.current) return;
+
+    const center: [number, number] =
+      lng != null && lat != null ? [lng, lat] : MOROCCO_CENTER;
+    const zoom = lng != null && lat != null ? 12 : 5;
+
+    mapRef.current = new maplibregl.Map({
+      container: containerRef.current,
+      style: 'https://demotiles.maplibre.org/style.json',
+      center,
+      zoom,
+      attributionControl: false,
+    });
+
+    mapRef.current.addControl(new maplibregl.NavigationControl(), 'top-right');
+
+    mapRef.current.on('click', (e) => placeMarker(e.lngLat));
+
+    // Place initial marker if coords exist
+    if (lat != null && lng != null) {
+      mapRef.current.on('load', () => placeMarker({ lat: lat!, lng: lng! }));
+    }
+
+    return () => {
+      mapRef.current?.remove();
+      mapRef.current = null;
+      markerRef.current = null;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Fly to + place marker when external coords change after map init
+  useEffect(() => {
+    if (!mapRef.current || lat == null || lng == null) return;
+    mapRef.current.flyTo({ center: [lng, lat], zoom: 12, duration: 800 });
+    placeMarker({ lat, lng });
+  }, [lat, lng, placeMarker]);
+
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!search.trim()) return;
+    setSearching(true);
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(search)}&format=json&limit=1`,
+        { headers: { 'Accept-Language': 'en' } }
+      );
+      const results = await res.json();
+      if (!results.length) {
+        toast({ title: 'No results', description: 'Try a different search term.', variant: 'destructive' });
+        return;
+      }
+      const { lat: rlat, lon: rlon } = results[0];
+      placeMarker({ lat: parseFloat(rlat), lng: parseFloat(rlon) });
+      mapRef.current?.flyTo({ center: [parseFloat(rlon), parseFloat(rlat)], zoom: 13, duration: 800 });
+    } catch {
+      toast({ title: 'Search failed', description: 'Could not reach geocoding service.', variant: 'destructive' });
+    } finally {
+      setSearching(false);
+    }
+  };
+
+  const handleClear = () => {
+    markerRef.current?.remove();
+    markerRef.current = null;
+    setCoords(null);
+    onChange(0, 0);
+  };
+
+  return (
+    <div className="space-y-2">
+      {/* Search bar */}
+      <form onSubmit={handleSearch} className="flex gap-2">
+        <div className="relative flex-1">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search city or address…"
+            className="pl-8"
+          />
+        </div>
+        <Button type="submit" variant="secondary" disabled={searching} size="sm" className="shrink-0">
+          {searching ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Search'}
+        </Button>
+      </form>
+
+      {/* Map container */}
+      <div className="relative rounded-lg overflow-hidden border" style={{ height: 320 }}>
+        <div ref={containerRef} className="w-full h-full" />
+        <div className="absolute bottom-2 left-2 bg-background/80 backdrop-blur-sm text-xs text-muted-foreground px-2 py-1 rounded pointer-events-none">
+          Click on the map to set location
+        </div>
+      </div>
+
+      {/* Coordinates pill + clear */}
+      {coords && coords.lat !== 0 && coords.lng !== 0 ? (
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 bg-muted px-3 py-1.5 rounded-full text-sm">
+            <MapPin className="h-3.5 w-3.5 text-primary" />
+            <span className="font-mono">
+              {coords.lat.toFixed(6)}, {coords.lng.toFixed(6)}
+            </span>
+          </div>
+          <Button type="button" variant="ghost" size="sm" onClick={handleClear} className="text-muted-foreground h-7 px-2">
+            <X className="h-3.5 w-3.5 mr-1" /> Clear
+          </Button>
+        </div>
+      ) : (
+        <p className="text-xs text-muted-foreground">No location set — click the map or search above.</p>
+      )}
+    </div>
+  );
+}
+
+// ─── Main Form ────────────────────────────────────────────────────────────────
 export default function ClubForm() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -185,14 +311,16 @@ export default function ClubForm() {
     watch,
   } = useForm<ClubFormValues>({
     resolver: zodResolver(clubFormSchema),
-    defaultValues: { isActive: true },
+    defaultValues: { isActive: true, latitude: null, longitude: null },
   });
 
-  const isActive = watch('isActive');
-  const clubName = watch('name');
+  const isActive   = watch('isActive');
+  const clubName   = watch('name');
   const imageValue = watch('image');
+  const latValue   = watch('latitude');
+  const lngValue   = watch('longitude');
 
-  const generateSlug = (name: string): string =>
+  const generateSlug = (name: string) =>
     name.toLowerCase().trim()
       .replace(/[^a-z0-9\s-]/g, '')
       .replace(/\s+/g, '-')
@@ -206,32 +334,29 @@ export default function ClubForm() {
     if (!id) return;
     setIsFetching(true);
     apiFetch(`/api/admin/clubs/${id}`)
-      .then(async (res) => {
-        if (!res.ok) throw new Error('Failed to fetch club');
-        return res.json();
-      })
+      .then((r) => { if (!r.ok) throw new Error('Failed to fetch club'); return r.json(); })
       .then((data) => {
-        setValue('name', data.name ?? '');
-        setValue('slug', data.slug || generateSlug(data.name ?? ''));
-        setValue('description', data.description ?? '');
+        setValue('name',            data.name            ?? '');
+        setValue('slug',            data.slug            || generateSlug(data.name ?? ''));
+        setValue('description',     data.description     ?? '');
         setValue('longDescription', data.longDescription ?? '');
-        setValue('image', data.image ?? '');
-        setValue('location', data.location ?? '');
-        setValue('contactPhone', data.contactPhone ?? '');
-        setValue('contactEmail', data.contactEmail ?? '');
-        setValue('website', data.website ?? '');
-        setValue('established', data.established ?? '');
-        setValue('isActive', data.isActive ?? true);
-        setValue('latitude', data.latitude?.toString() ?? '');
-        setValue('longitude', data.longitude?.toString() ?? '');
+        setValue('image',           data.image           ?? '');
+        setValue('location',        data.location        ?? '');
+        setValue('contactPhone',    data.contactPhone    ?? '');
+        setValue('contactEmail',    data.contactEmail    ?? '');
+        setValue('website',         data.website         ?? '');
+        setValue('established',     data.established     ?? '');
+        setValue('isActive',        data.isActive        ?? true);
+        setValue('latitude',        data.latitude        != null ? +data.latitude  : null);
+        setValue('longitude',       data.longitude       != null ? +data.longitude : null);
         if (data.socialMedia) {
-          setValue('facebook', data.socialMedia.facebook ?? '');
+          setValue('facebook',  data.socialMedia.facebook  ?? '');
           setValue('instagram', data.socialMedia.instagram ?? '');
-          setValue('twitter', data.socialMedia.twitter ?? '');
+          setValue('twitter',   data.socialMedia.twitter   ?? '');
         }
       })
-      .catch((error) => {
-        toast({ title: 'Error', description: error.message || 'Failed to load club', variant: 'destructive' });
+      .catch((err) => {
+        toast({ title: 'Error', description: err.message || 'Failed to load club', variant: 'destructive' });
         navigate('/admin/clubs');
       })
       .finally(() => setIsFetching(false));
@@ -257,17 +382,14 @@ export default function ClubForm() {
         website:         data.website          || null,
         established:     data.established      || null,
         isActive:        data.isActive,
-        latitude:        data.latitude  ? parseFloat(data.latitude)  : null,
-        longitude:       data.longitude ? parseFloat(data.longitude) : null,
+        latitude:        data.latitude  || null,
+        longitude:       data.longitude || null,
         socialMedia:     Object.keys(socialMedia).length > 0 ? socialMedia : null,
       };
 
       const res = await apiFetch(
         id ? `/api/admin/clubs/${id}` : '/api/admin/clubs',
-        {
-          method:  id ? 'PUT' : 'POST',
-          body:    JSON.stringify(payload),
-        }
+        { method: id ? 'PUT' : 'POST', body: JSON.stringify(payload) }
       );
 
       if (!res.ok) {
@@ -304,50 +426,67 @@ export default function ClubForm() {
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <div className="grid gap-6 md:grid-cols-2">
 
+          {/* Name */}
           <div className="space-y-2">
             <Label htmlFor="name">Club Name *</Label>
             <Input id="name" {...register('name')} placeholder="Enter club name" />
             {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
           </div>
 
+          {/* Slug */}
           <div className="space-y-2">
             <Label htmlFor="slug">Slug (URL) *</Label>
             <Input id="slug" {...register('slug')} placeholder="club-slug" />
-            <p className="text-xs text-muted-foreground">Auto-generated from name. Edit if needed (lowercase, hyphens only).</p>
+            <p className="text-xs text-muted-foreground">Auto-generated from name (lowercase, hyphens only).</p>
             {errors.slug && <p className="text-sm text-destructive">{errors.slug.message}</p>}
           </div>
 
+          {/* Location */}
           <div className="space-y-2">
             <Label htmlFor="location">Location *</Label>
-            <Input id="location" {...register('location')} placeholder="Enter location" />
+            <Input id="location" {...register('location')} placeholder="e.g. Casablanca, Morocco" />
             {errors.location && <p className="text-sm text-destructive">{errors.location.message}</p>}
           </div>
 
+          {/* Established */}
+          <div className="space-y-2">
+            <Label htmlFor="established">Established</Label>
+            <Input id="established" {...register('established')} placeholder="e.g., 2020 or January 2020" />
+          </div>
+
+          {/* Short description */}
           <div className="space-y-2 md:col-span-2">
             <Label htmlFor="description">Short Description *</Label>
             <Textarea id="description" {...register('description')} placeholder="Enter a brief description" rows={3} />
             {errors.description && <p className="text-sm text-destructive">{errors.description.message}</p>}
           </div>
 
+          {/* Long description */}
           <div className="space-y-2 md:col-span-2">
             <Label htmlFor="longDescription">Long Description</Label>
             <Textarea id="longDescription" {...register('longDescription')} placeholder="Enter detailed description" rows={6} />
           </div>
 
-          {/* Image Upload */}
+          {/* Featured image */}
           <div className="space-y-2 md:col-span-2">
             <Label>Featured Image</Label>
-            <ImageUpload
-              value={imageValue}
-              onChange={(url) => setValue('image', url)}
+            <ImageUpload value={imageValue} onChange={(url) => setValue('image', url)} />
+          </div>
+
+          {/* ── Map location picker ── */}
+          <div className="space-y-2 md:col-span-2">
+            <Label>Location on Map</Label>
+            <MapLocationPicker
+              lat={latValue}
+              lng={lngValue}
+              onChange={(lat, lng) => {
+                setValue('latitude',  lat  || null);
+                setValue('longitude', lng || null);
+              }}
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="established">Established</Label>
-            <Input id="established" {...register('established')} placeholder="e.g., 2020 or January 2020" />
-          </div>
-
+          {/* Contact */}
           <div className="space-y-2">
             <Label htmlFor="contactPhone">Contact Phone</Label>
             <Input id="contactPhone" {...register('contactPhone')} placeholder="+212 600 000000" />
@@ -365,42 +504,27 @@ export default function ClubForm() {
             {errors.website && <p className="text-sm text-destructive">{errors.website.message}</p>}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="latitude">Latitude</Label>
-            <Input id="latitude" {...register('latitude')} placeholder="31.791702" />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="longitude">Longitude</Label>
-            <Input id="longitude" {...register('longitude')} placeholder="-7.092620" />
-          </div>
-
+          {/* Social media */}
           <div className="space-y-2 md:col-span-2">
-            <Label className="text-lg font-semibold">Social Media</Label>
+            <Label className="text-base font-semibold">Social Media</Label>
           </div>
-
           <div className="space-y-2">
             <Label htmlFor="facebook">Facebook</Label>
             <Input id="facebook" {...register('facebook')} placeholder="https://facebook.com/club" />
           </div>
-
           <div className="space-y-2">
             <Label htmlFor="instagram">Instagram</Label>
             <Input id="instagram" {...register('instagram')} placeholder="https://instagram.com/club" />
           </div>
-
           <div className="space-y-2">
             <Label htmlFor="twitter">Twitter / X</Label>
             <Input id="twitter" {...register('twitter')} placeholder="https://twitter.com/club" />
           </div>
 
+          {/* Active toggle */}
           <div className="space-y-2 md:col-span-2">
             <div className="flex items-center space-x-2">
-              <Switch
-                id="isActive"
-                checked={isActive}
-                onCheckedChange={(checked) => setValue('isActive', checked)}
-              />
+              <Switch id="isActive" checked={isActive} onCheckedChange={(v) => setValue('isActive', v)} />
               <Label htmlFor="isActive" className="cursor-pointer">Active Club</Label>
             </div>
             <p className="text-sm text-muted-foreground">Inactive clubs won't appear in public listings</p>
