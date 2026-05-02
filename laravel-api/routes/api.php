@@ -167,6 +167,7 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
 
     // Clubs
     Route::get('/clubs',                       [\App\Http\Controllers\Admin\ClubController::class, 'index']);
+    Route::post('/clubs/upload-image',         [\App\Http\Controllers\Admin\ClubController::class, 'uploadImage']);
     Route::get('/clubs/{id}',                  [\App\Http\Controllers\Admin\ClubController::class, 'show']);
     Route::post('/clubs',                      [\App\Http\Controllers\Admin\ClubController::class, 'store']);
     Route::put('/clubs/{id}',                  [\App\Http\Controllers\Admin\ClubController::class, 'update']);
