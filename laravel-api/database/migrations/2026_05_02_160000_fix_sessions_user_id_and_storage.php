@@ -1,9 +1,7 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -14,13 +12,15 @@ return new class extends Migration
      * UUID primary keys (varchar 36). This migration alters the column to
      * varchar(255) so HMAC-authenticated requests no longer throw a
      * "Data truncated for column 'user_id'" 500 error.
+     *
+     * Also creates the public/storage symlink using PHP's native symlink()
+     * instead of Artisan storage:link — Hostinger disables exec() so the
+     * Artisan command fails with "Call to undefined function exec()".
      */
     public function up(): void
     {
-        $driver = DB::getDriverName();
-
-        if ($driver === 'mysql') {
-            // Alter the column only if it is currently an integer type.
+        // 1. Fix sessions.user_id column type
+        if (DB::getDriverName() === 'mysql') {
             $columns = DB::select("SHOW COLUMNS FROM sessions WHERE Field = 'user_id'");
             if (!empty($columns)) {
                 $type = strtolower($columns[0]->Type ?? '');
@@ -30,14 +30,18 @@ return new class extends Migration
             }
         }
 
-        // Ensure the storage symlink exists (safe to run multiple times).
-        if (!file_exists(public_path('storage'))) {
-            \Artisan::call('storage:link');
+        // 2. Create storage symlink without exec().
+        //    symlink() is a native PHP function — no shell access needed.
+        $target = storage_path('app/public');
+        $link   = public_path('storage');
+
+        if (!file_exists($link) && !is_link($link)) {
+            symlink($target, $link);
         }
     }
 
     public function down(): void
     {
-        // No destructive rollback — leave the varchar column in place.
+        // No destructive rollback.
     }
 };

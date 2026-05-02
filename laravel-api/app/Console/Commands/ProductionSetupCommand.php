@@ -17,8 +17,7 @@ class ProductionSetupCommand extends Command
         // 1. Fix sessions.user_id column type
         $this->info('1. Checking sessions.user_id column type...');
         try {
-            $driver = DB::getDriverName();
-            if ($driver === 'mysql') {
+            if (DB::getDriverName() === 'mysql') {
                 $columns = DB::select("SHOW COLUMNS FROM sessions WHERE Field = 'user_id'");
                 if (!empty($columns)) {
                     $type = strtolower($columns[0]->Type ?? '');
@@ -32,19 +31,26 @@ class ProductionSetupCommand extends Command
                     $this->warn('   ! sessions table not found — run migrations first');
                 }
             } else {
-                $this->info("   ✓ Non-MySQL driver ({$driver}) — no fix needed");
+                $this->info('   ✓ Non-MySQL driver — no fix needed');
             }
         } catch (\Throwable $e) {
             $this->error('   ✗ sessions fix failed: ' . $e->getMessage());
         }
 
-        // 2. Storage symlink
+        // 2. Storage symlink — use PHP native symlink() instead of
+        //    Artisan storage:link which calls exec() (disabled on Hostinger).
         $this->info('2. Creating storage symlink...');
-        if (file_exists(public_path('storage'))) {
+        $target = storage_path('app/public');
+        $link   = public_path('storage');
+
+        if (file_exists($link) || is_link($link)) {
             $this->info('   ✓ public/storage already exists');
         } else {
-            $this->call('storage:link');
-            $this->info('   ✓ storage:link created');
+            if (symlink($target, $link)) {
+                $this->info('   ✓ Symlink created: public/storage → storage/app/public');
+            } else {
+                $this->error('   ✗ symlink() failed — check directory permissions');
+            }
         }
 
         // 3. Clear all caches
