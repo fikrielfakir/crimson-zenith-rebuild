@@ -11,6 +11,7 @@ import Book from "./pages/Book";
 import BookingForm from "./pages/BookingForm";
 import Gallery from "./pages/Gallery";
 import News from "./pages/News";
+import BlogPost from "./pages/BlogPost";
 import Contact from "./pages/Contact";
 import SmartEvents from "./pages/SmartEvents";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
@@ -99,6 +100,7 @@ const App = () => (
           <Route path="/book/form" element={<BookingForm />} />
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/news" element={<News />} />
+          <Route path="/news/:slug" element={<BlogPost />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-of-service" element={<TermsOfService />} />

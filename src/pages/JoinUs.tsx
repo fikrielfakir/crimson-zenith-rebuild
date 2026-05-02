@@ -143,16 +143,22 @@ const JoinUs = () => {
     setIsLoading(true);
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // In a real app, this would be: await fetch('/api/applications', { method: 'POST', body: JSON.stringify(data) })
-      console.log('Application submitted:', data);
-      
+      const res = await fetch('/api/applications', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body?.message ?? `Server error: ${res.status}`);
+      }
+
       setIsSubmitted(true);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error submitting application:', error);
-      alert('Error submitting application. Please try again.');
+      alert(error?.message ?? 'Error submitting application. Please try again.');
     } finally {
       setIsLoading(false);
     }

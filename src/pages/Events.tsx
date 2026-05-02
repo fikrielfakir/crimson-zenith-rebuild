@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -8,104 +8,58 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Breadcrumbs from "@/components/Breadcrumbs";
 
+interface BookingEvent {
+  id: number;
+  title: string;
+  date?: string;
+  start_date?: string;
+  time?: string;
+  start_time?: string;
+  location?: string;
+  category?: string;
+  difficulty?: string;
+  rsvp_count?: number;
+  attending_count?: number;
+  max_capacity?: number;
+  capacity?: number;
+  weather?: string;
+  image?: string;
+  image_url?: string;
+  cover_image?: string;
+  organizer?: string;
+  description?: string;
+  slug?: string;
+}
+
 const Events = () => {
   const [viewMode, setViewMode] = useState<"calendar" | "list" | "map">("list");
+  const [events, setEvents] = useState<BookingEvent[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Mock data for events
-  const events = [
-    {
-      id: 1,
-      title: "Atlas Mountains Winter Trek",
-      date: "2024-12-15",
-      time: "08:00",
-      location: "Imlil, High Atlas",
-      category: "Trekking",
-      difficulty: "Moderate",
-      rsvpCount: 12,
-      maxCapacity: 15,
-      weather: "Sunny, 15°C",
-      image: "/api/placeholder/400/200",
-      organizer: "Atlas Hikers Club",
-      description: "Join us for a spectacular winter trek through snow-capped peaks"
-    },
-    {
-      id: 2,
-      title: "Sahara Desert Photography Workshop",
-      date: "2024-12-20",
-      time: "06:00",
-      location: "Merzouga Dunes",
-      category: "Photography",
-      difficulty: "Easy",
-      rsvpCount: 8,
-      maxCapacity: 10,
-      weather: "Clear, 22°C",
-      image: "/api/placeholder/400/200",
-      organizer: "Photography Collective",
-      description: "Capture the beauty of sunrise over the Sahara with expert guidance"
-    },
-    {
-      id: 3,
-      title: "Coastal Surfing Session",
-      date: "2024-12-18",
-      time: "09:00",
-      location: "Taghazout Beach",
-      category: "Water Sports",
-      difficulty: "Beginner",
-      rsvpCount: 6,
-      maxCapacity: 12,
-      weather: "Cloudy, 20°C",
-      image: "/api/placeholder/400/200",
-      organizer: "Coastal Riders",
-      description: "Perfect waves for beginners and intermediate surfers"
-    },
-    {
-      id: 4,
-      title: "Marrakech Medina Cultural Walk",
-      date: "2024-12-22",
-      time: "16:00",
-      location: "Marrakech Medina",
-      category: "Cultural",
-      difficulty: "Easy",
-      rsvpCount: 20,
-      maxCapacity: 25,
-      weather: "Sunny, 25°C",
-      image: "/api/placeholder/400/200",
-      organizer: "Culture Seekers",
-      description: "Explore the historic heart of Marrakech with local guides"
-    },
-    {
-      id: 5,
-      title: "Rock Climbing at Todra Gorge",
-      date: "2024-12-25",
-      time: "08:30",
-      location: "Todra Gorge",
-      category: "Climbing",
-      difficulty: "Hard",
-      rsvpCount: 4,
-      maxCapacity: 8,
-      weather: "Sunny, 18°C",
-      image: "/api/placeholder/400/200",
-      organizer: "Rock Climbers Morocco",
-      description: "Challenge yourself on world-class limestone cliffs"
-    },
-    {
-      id: 6,
-      title: "Chefchaouen Blue City Photo Tour",
-      date: "2024-12-28",
-      time: "10:00",
-      location: "Chefchaouen",
-      category: "Photography",
-      difficulty: "Easy",
-      rsvpCount: 15,
-      maxCapacity: 18,
-      weather: "Partly Cloudy, 16°C",
-      image: "/api/placeholder/400/200",
-      organizer: "Photography Collective",
-      description: "Capture the iconic blue streets and mountain views"
-    }
-  ];
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const res = await fetch('/api/booking/events', { credentials: 'include' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        setEvents(Array.isArray(data) ? data : (data.data ?? []));
+      } catch (err: any) {
+        setError(err.message ?? 'Failed to load events');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchEvents();
+  }, []);
 
-  const getDifficultyColor = (difficulty: string) => {
+  const getEventDate = (e: BookingEvent) => e.start_date ?? e.date ?? '';
+  const getEventTime = (e: BookingEvent) => e.start_time ?? e.time ?? '';
+  const getRsvpCount = (e: BookingEvent) => e.attending_count ?? e.rsvp_count ?? 0;
+  const getMaxCapacity = (e: BookingEvent) => e.max_capacity ?? e.capacity ?? 0;
+  const getImage = (e: BookingEvent) => e.image_url ?? e.cover_image ?? e.image ?? '/api/placeholder/400/200';
+
+  const getDifficultyColor = (difficulty?: string) => {
     switch (difficulty) {
       case "Easy": return "bg-success";
       case "Moderate": return "bg-warning";
@@ -114,8 +68,8 @@ const Events = () => {
     }
   };
 
-  const getCategoryIcon = (category: string) => {
-    switch (category.toLowerCase()) {
+  const getCategoryIcon = (category?: string) => {
+    switch ((category ?? '').toLowerCase()) {
       case "trekking": return "🥾";
       case "photography": return "📸";
       case "water sports": return "🏄";
@@ -129,10 +83,8 @@ const Events = () => {
     <div className="min-h-screen bg-background">
       <Header />
       
-      {/* Breadcrumbs */}
       <Breadcrumbs items={[{ label: 'Events' }]} />
 
-      {/* Weather Alert Banner */}
       <div className="bg-warning/10 border-l-4 border-warning py-3">
         <div className="container mx-auto px-4">
           <div className="flex items-center gap-3">
@@ -145,7 +97,6 @@ const Events = () => {
         </div>
       </div>
 
-      {/* Controls */}
       <section className="py-6 bg-muted/50">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
@@ -190,7 +141,6 @@ const Events = () => {
         </div>
       </section>
 
-      {/* Main Content */}
       <section className="py-12">
         <div className="container mx-auto px-4">
           <TabsContent value="calendar" className={viewMode === "calendar" ? "block" : "hidden"}>
@@ -206,72 +156,103 @@ const Events = () => {
           </TabsContent>
 
           <TabsContent value="list" className={viewMode === "list" ? "block" : "hidden"}>
-            <div className="space-y-6">
-              {events.map((event) => (
-                <Card key={event.id} className="hover:shadow-glow transition-all duration-300">
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <div className="md:col-span-1">
-                      <img 
-                        src={event.image} 
-                        alt={event.title}
-                        className="w-full h-48 md:h-full object-cover rounded-l-card"
-                      />
-                    </div>
-                    <div className="md:col-span-3 p-6">
-                      <div className="flex flex-wrap items-start gap-4 mb-4">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            <span className="text-2xl">{getCategoryIcon(event.category)}</span>
-                            <h3 className="text-xl font-semibold font-heading">{event.title}</h3>
-                            <Badge className={`${getDifficultyColor(event.difficulty)} text-white`}>
-                              {event.difficulty}
-                            </Badge>
+            {loading && (
+              <div className="text-center py-16">
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mx-auto mb-4" />
+                <p className="text-muted-foreground font-body">Loading events…</p>
+              </div>
+            )}
+            {error && (
+              <div className="text-center py-16">
+                <p className="text-destructive font-body mb-4">Could not load events: {error}</p>
+                <Button variant="outline" onClick={() => window.location.reload()}>Retry</Button>
+              </div>
+            )}
+            {!loading && !error && events.length === 0 && (
+              <div className="text-center py-16">
+                <p className="text-muted-foreground font-body">No upcoming events at the moment.</p>
+              </div>
+            )}
+            {!loading && !error && events.length > 0 && (
+              <div className="space-y-6">
+                {events.map((event) => (
+                  <Card key={event.id} className="hover:shadow-glow transition-all duration-300">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                      <div className="md:col-span-1">
+                        <img 
+                          src={getImage(event)} 
+                          alt={event.title}
+                          className="w-full h-48 md:h-full object-cover rounded-l-card"
+                        />
+                      </div>
+                      <div className="md:col-span-3 p-6">
+                        <div className="flex flex-wrap items-start gap-4 mb-4">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-2">
+                              <span className="text-2xl">{getCategoryIcon(event.category)}</span>
+                              <h3 className="text-xl font-semibold font-heading">{event.title}</h3>
+                              {event.difficulty && (
+                                <Badge className={`${getDifficultyColor(event.difficulty)} text-white`}>
+                                  {event.difficulty}
+                                </Badge>
+                              )}
+                            </div>
+                            <p className="text-muted-foreground font-body mb-3">{event.description}</p>
                           </div>
-                          <p className="text-muted-foreground font-body mb-3">{event.description}</p>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-lg font-semibold font-heading text-primary mb-1">
-                            {new Date(event.date).toLocaleDateString('en-US', { 
-                              month: 'short', 
-                              day: 'numeric' 
-                            })}
+                          <div className="text-right">
+                            {getEventDate(event) && (
+                              <div className="text-lg font-semibold font-heading text-primary mb-1">
+                                {new Date(getEventDate(event)).toLocaleDateString('en-US', { 
+                                  month: 'short', 
+                                  day: 'numeric' 
+                                })}
+                              </div>
+                            )}
+                            {getEventTime(event) && (
+                              <div className="text-sm text-muted-foreground">{getEventTime(event)}</div>
+                            )}
                           </div>
-                          <div className="text-sm text-muted-foreground">{event.time}</div>
                         </div>
-                      </div>
-                      
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 text-sm">
-                        <div className="flex items-center gap-2">
-                          <MapPin className="w-4 h-4 text-muted-foreground" />
-                          <span className="font-body">{event.location}</span>
+                        
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 text-sm">
+                          {event.location && (
+                            <div className="flex items-center gap-2">
+                              <MapPin className="w-4 h-4 text-muted-foreground" />
+                              <span className="font-body">{event.location}</span>
+                            </div>
+                          )}
+                          <div className="flex items-center gap-2">
+                            <Users className="w-4 h-4 text-muted-foreground" />
+                            <span className="font-body">{getRsvpCount(event)}/{getMaxCapacity(event)} attending</span>
+                          </div>
+                          {event.weather && (
+                            <div className="flex items-center gap-2">
+                              <Cloud className="w-4 h-4 text-muted-foreground" />
+                              <span className="font-body">{event.weather}</span>
+                            </div>
+                          )}
+                          {event.organizer && (
+                            <div className="flex items-center gap-2">
+                              <Clock className="w-4 h-4 text-muted-foreground" />
+                              <span className="font-body">by {event.organizer}</span>
+                            </div>
+                          )}
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Users className="w-4 h-4 text-muted-foreground" />
-                          <span className="font-body">{event.rsvpCount}/{event.maxCapacity} attending</span>
+                        
+                        <div className="flex items-center justify-between">
+                          <div className="text-sm text-muted-foreground font-body">
+                            {getMaxCapacity(event) - getRsvpCount(event)} spots remaining
+                          </div>
+                          <Button className="bg-secondary hover:bg-secondary/90">
+                            RSVP Now
+                          </Button>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Cloud className="w-4 h-4 text-muted-foreground" />
-                          <span className="font-body">{event.weather}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Clock className="w-4 h-4 text-muted-foreground" />
-                          <span className="font-body">by {event.organizer}</span>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center justify-between">
-                        <div className="text-sm text-muted-foreground font-body">
-                          {event.maxCapacity - event.rsvpCount} spots remaining
-                        </div>
-                        <Button className="bg-secondary hover:bg-secondary/90">
-                          RSVP Now
-                        </Button>
                       </div>
                     </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
+                  </Card>
+                ))}
+              </div>
+            )}
           </TabsContent>
 
           <TabsContent value="map" className={viewMode === "map" ? "block" : "hidden"}>
@@ -286,39 +267,40 @@ const Events = () => {
             </div>
           </TabsContent>
 
-          {/* Past Events Section */}
-          <div className="mt-16">
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-3xl font-bold font-heading">Past Events</h2>
-              <Button variant="outline">View All</Button>
+          {!loading && events.length > 0 && (
+            <div className="mt-16">
+              <div className="flex items-center justify-between mb-8">
+                <h2 className="text-3xl font-bold font-heading">Past Events</h2>
+                <Button variant="outline">View All</Button>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {events.slice(0, 3).map((event) => (
+                  <Card key={`past-${event.id}`} className="hover:shadow-elegant transition-all duration-300">
+                    <div className="relative">
+                      <img 
+                        src={getImage(event)} 
+                        alt={event.title}
+                        className="w-full h-32 object-cover rounded-t-card"
+                      />
+                      <Badge className="absolute top-2 right-2 bg-muted text-muted-foreground">
+                        Completed
+                      </Badge>
+                    </div>
+                    <CardContent className="p-4">
+                      <h3 className="font-semibold font-heading mb-2">{event.title}</h3>
+                      <p className="text-sm text-muted-foreground font-body mb-3">
+                        {getRsvpCount(event)} participants • Photo gallery available
+                      </p>
+                      <Button variant="outline" size="sm" className="w-full">
+                        View Photos
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {events.slice(0, 3).map((event) => (
-                <Card key={`past-${event.id}`} className="hover:shadow-elegant transition-all duration-300">
-                  <div className="relative">
-                    <img 
-                      src={event.image} 
-                      alt={event.title}
-                      className="w-full h-32 object-cover rounded-t-card"
-                    />
-                    <Badge className="absolute top-2 right-2 bg-muted text-muted-foreground">
-                      Completed
-                    </Badge>
-                  </div>
-                  <CardContent className="p-4">
-                    <h3 className="font-semibold font-heading mb-2">{event.title}</h3>
-                    <p className="text-sm text-muted-foreground font-body mb-3">
-                      {event.rsvpCount} participants • Photo gallery available
-                    </p>
-                    <Button variant="outline" size="sm" className="w-full">
-                      View Photos
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
+          )}
         </div>
       </section>
 
