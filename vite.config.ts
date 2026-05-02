@@ -19,7 +19,7 @@ function patchCookies(proxyRes: any) {
       cookie
         .replace(/;\s*Secure/gi, "")
         .replace(/;\s*Domain=[^;]*/gi, "; Domain=localhost")
-        .replace(/;\s*SameSite=None/gi, "; SameSite=Lax")
+        .replace(/;\s*SameSite=None/gi, "; SameSite=Lax"),
   );
 }
 
