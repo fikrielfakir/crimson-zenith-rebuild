@@ -11,8 +11,8 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { apiFetch } from '@/lib/apiFetch';
-import maplibregl from 'maplibre-gl';
-import 'maplibre-gl/dist/maplibre-gl.css';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
 // ─── Zod schema ──────────────────────────────────────────────────────────────
 const clubFormSchema = z.object({
@@ -126,9 +126,34 @@ function ImageUpload({ value, onChange }: { value?: string; onChange: (url: stri
   );
 }
 
-// ─── Map Location Picker ──────────────────────────────────────────────────────
-const MOROCCO_CENTER: [number, number] = [-7.0926, 31.7917];
+// ─── Fix Leaflet's broken default icon paths in Vite builds ──────────────────
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconUrl:       new URL('leaflet/dist/images/marker-icon.png',    import.meta.url).href,
+  iconRetinaUrl: new URL('leaflet/dist/images/marker-icon-2x.png', import.meta.url).href,
+  shadowUrl:     new URL('leaflet/dist/images/marker-shadow.png',  import.meta.url).href,
+});
 
+// Blue pin icon matching the site's primary colour
+const BLUE_ICON = L.divIcon({
+  className: '',
+  html: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 36" width="28" height="42">
+    <path d="M12 0C5.373 0 0 5.373 0 12c0 9 12 24 12 24S24 21 24 12C24 5.373 18.627 0 12 0z"
+      fill="#2563eb" stroke="#1d4ed8" stroke-width="1"/>
+    <circle cx="12" cy="12" r="5" fill="white"/>
+  </svg>`,
+  iconSize:   [28, 42],
+  iconAnchor: [14, 42],
+  popupAnchor:[0, -42],
+});
+
+const MOROCCO_CENTER: L.LatLngTuple = [31.7917, -7.0926];
+
+// ─── Esri tile layers (same imagery as ClubsWithMap landing section) ──────────
+const ESRI_SAT_URL   = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+const ESRI_LABEL_URL = 'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}';
+
+// ─── Map Location Picker — Leaflet (no WebGL required) ───────────────────────
 function MapLocationPicker({
   lat,
   lng,
@@ -139,82 +164,91 @@ function MapLocationPicker({
   onChange: (lat: number, lng: number) => void;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<maplibregl.Map | null>(null);
-  const markerRef = useRef<maplibregl.Marker | null>(null);
-  const [search, setSearch] = useState('');
+  const mapRef       = useRef<L.Map | null>(null);
+  const markerRef    = useRef<L.Marker | null>(null);
+
+  const [search,    setSearch]    = useState('');
   const [searching, setSearching] = useState(false);
-  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(
-    lat != null && lng != null ? { lat, lng } : null
+  const [coords,    setCoords]    = useState<{ lat: number; lng: number } | null>(
+    lat != null && lng != null ? { lat, lng } : null,
   );
   const { toast } = useToast();
 
-  // Sync external lat/lng into local state when form data loads
+  // Sync external lat/lng (fires when edit form data loads)
   useEffect(() => {
     if (lat != null && lng != null) setCoords({ lat, lng });
   }, [lat, lng]);
 
   const placeMarker = useCallback(
-    (lngLat: { lng: number; lat: number }) => {
+    (latlng: L.LatLngLiteral) => {
       if (!mapRef.current) return;
-      const rounded = { lat: +lngLat.lat.toFixed(6), lng: +lngLat.lng.toFixed(6) };
-      setCoords(rounded);
-      onChange(rounded.lat, rounded.lng);
+      const r = { lat: +latlng.lat.toFixed(6), lng: +latlng.lng.toFixed(6) };
+      setCoords(r);
+      onChange(r.lat, r.lng);
 
       if (markerRef.current) {
-        markerRef.current.setLngLat([rounded.lng, rounded.lat]);
+        markerRef.current.setLatLng([r.lat, r.lng]);
       } else {
-        markerRef.current = new maplibregl.Marker({ color: '#2563eb', draggable: true })
-          .setLngLat([rounded.lng, rounded.lat])
+        markerRef.current = L.marker([r.lat, r.lng], { icon: BLUE_ICON, draggable: true })
           .addTo(mapRef.current);
 
         markerRef.current.on('dragend', () => {
-          const pos = markerRef.current!.getLngLat();
-          const r = { lat: +pos.lat.toFixed(6), lng: +pos.lng.toFixed(6) };
-          setCoords(r);
-          onChange(r.lat, r.lng);
+          const pos = markerRef.current!.getLatLng();
+          const d = { lat: +pos.lat.toFixed(6), lng: +pos.lng.toFixed(6) };
+          setCoords(d);
+          onChange(d.lat, d.lng);
         });
       }
     },
-    [onChange]
+    [onChange],
   );
 
-  // Init map
+  // Init Leaflet map once
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
 
-    const center: [number, number] =
-      lng != null && lat != null ? [lng, lat] : MOROCCO_CENTER;
-    const zoom = lng != null && lat != null ? 12 : 5;
+    const center: L.LatLngTuple =
+      lat != null && lng != null ? [lat, lng] : MOROCCO_CENTER;
+    const zoom = lat != null && lng != null ? 12 : 5;
 
-    mapRef.current = new maplibregl.Map({
-      container: containerRef.current,
-      style: 'https://demotiles.maplibre.org/style.json',
+    mapRef.current = L.map(containerRef.current, {
       center,
       zoom,
-      attributionControl: false,
+      zoomControl: true,
     });
 
-    mapRef.current.addControl(new maplibregl.NavigationControl(), 'top-right');
+    // Satellite base layer
+    L.tileLayer(ESRI_SAT_URL, {
+      maxZoom: 18,
+      attribution: '© Esri',
+    }).addTo(mapRef.current);
 
-    mapRef.current.on('click', (e) => placeMarker(e.lngLat));
+    // Labels overlay (city names, roads)
+    L.tileLayer(ESRI_LABEL_URL, {
+      maxZoom: 18,
+      opacity: 0.8,
+    }).addTo(mapRef.current);
 
-    // Place initial marker if coords exist
+    // Click to place / move pin
+    mapRef.current.on('click', (e: L.LeafletMouseEvent) => placeMarker(e.latlng));
+
+    // Restore existing pin for edit mode
     if (lat != null && lng != null) {
-      mapRef.current.on('load', () => placeMarker({ lat: lat!, lng: lng! }));
+      placeMarker({ lat, lng });
     }
 
     return () => {
       mapRef.current?.remove();
-      mapRef.current = null;
+      mapRef.current  = null;
       markerRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Fly to + place marker when external coords change after map init
+  // Pan + re-pin when external coords arrive after map ready (edit mode load)
   useEffect(() => {
     if (!mapRef.current || lat == null || lng == null) return;
-    mapRef.current.flyTo({ center: [lng, lat], zoom: 12, duration: 800 });
+    mapRef.current.flyTo([lat, lng], 12, { duration: 0.8 });
     placeMarker({ lat, lng });
   }, [lat, lng, placeMarker]);
 
@@ -225,7 +259,7 @@ function MapLocationPicker({
     try {
       const res = await fetch(
         `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(search)}&format=json&limit=1`,
-        { headers: { 'Accept-Language': 'en' } }
+        { headers: { 'Accept-Language': 'en' } },
       );
       const results = await res.json();
       if (!results.length) {
@@ -233,8 +267,10 @@ function MapLocationPicker({
         return;
       }
       const { lat: rlat, lon: rlon } = results[0];
-      placeMarker({ lat: parseFloat(rlat), lng: parseFloat(rlon) });
-      mapRef.current?.flyTo({ center: [parseFloat(rlon), parseFloat(rlat)], zoom: 13, duration: 800 });
+      const rl = parseFloat(rlat);
+      const rn = parseFloat(rlon);
+      placeMarker({ lat: rl, lng: rn });
+      mapRef.current?.flyTo([rl, rn], 13, { duration: 0.8 });
     } catch {
       toast({ title: 'Search failed', description: 'Could not reach geocoding service.', variant: 'destructive' });
     } finally {
@@ -251,7 +287,7 @@ function MapLocationPicker({
 
   return (
     <div className="space-y-2">
-      {/* Search bar */}
+      {/* Search */}
       <form onSubmit={handleSearch} className="flex gap-2">
         <div className="relative flex-1">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -267,22 +303,20 @@ function MapLocationPicker({
         </Button>
       </form>
 
-      {/* Map container */}
-      <div className="relative rounded-lg overflow-hidden border" style={{ height: 320 }}>
+      {/* Map */}
+      <div className="relative rounded-lg overflow-hidden border" style={{ height: 340 }}>
         <div ref={containerRef} className="w-full h-full" />
-        <div className="absolute bottom-2 left-2 bg-background/80 backdrop-blur-sm text-xs text-muted-foreground px-2 py-1 rounded pointer-events-none">
-          Click on the map to set location
+        <div className="absolute bottom-8 left-2 z-[1000] bg-black/50 backdrop-blur-sm text-white text-xs px-2 py-1 rounded pointer-events-none">
+          Click on the map to pin location
         </div>
       </div>
 
-      {/* Coordinates pill + clear */}
+      {/* Coords + clear */}
       {coords && coords.lat !== 0 && coords.lng !== 0 ? (
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1.5 bg-muted px-3 py-1.5 rounded-full text-sm">
             <MapPin className="h-3.5 w-3.5 text-primary" />
-            <span className="font-mono">
-              {coords.lat.toFixed(6)}, {coords.lng.toFixed(6)}
-            </span>
+            <span className="font-mono">{coords.lat.toFixed(6)}, {coords.lng.toFixed(6)}</span>
           </div>
           <Button type="button" variant="ghost" size="sm" onClick={handleClear} className="text-muted-foreground h-7 px-2">
             <X className="h-3.5 w-3.5 mr-1" /> Clear
