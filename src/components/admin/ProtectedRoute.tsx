@@ -1,7 +1,19 @@
+import { useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { AdminLayout } from './AdminLayout';
 import { Loader2 } from 'lucide-react';
+
+async function prefetchCsrfCookie(): Promise<void> {
+  try {
+    await fetch('/sanctum/csrf-cookie', {
+      credentials: 'include',
+    });
+  } catch {
+    // Non-fatal — the cookie request may fail in dev environments
+    // without a Laravel backend; mutations will surface any real 419s.
+  }
+}
 
 async function fetchCurrentUser() {
   const response = await fetch('/api/user', {
@@ -19,6 +31,10 @@ async function fetchCurrentUser() {
 }
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  useEffect(() => {
+    prefetchCsrfCookie();
+  }, []);
+
   const { data: user, isLoading, error } = useQuery({
     queryKey: ['currentUser'],
     queryFn: fetchCurrentUser,
