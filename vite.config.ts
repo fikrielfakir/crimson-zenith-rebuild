@@ -23,20 +23,17 @@ function patchCookies(proxyRes: any) {
   );
 }
 
-// ---------------------------------------------------------------------------
-// Local Laravel API (port 8000) — used for ALL routes in development.
-// The local API has StartSession + Sanctum token auth working correctly.
-//
-// To switch back to the live production API once backend changes are deployed:
-//   1. Change LOCAL_API_TARGET to 'https://api.thejourney-ma.org'
-//   2. Replace the headers block with the production Origin/Referer spoof
-//   3. Remove changeOrigin: false (set it to true for cross-origin)
-// ---------------------------------------------------------------------------
-const LOCAL_API_TARGET = "http://localhost:8000";
+const PROD_API = "https://api.thejourney-ma.org";
 
-const localProxyOptions = {
-  target: LOCAL_API_TARGET,
-  changeOrigin: false,
+const proxyOptions = {
+  target: PROD_API,
+  changeOrigin: true,
+  secure: true,
+  // Spoof Origin/Referer so Sanctum's SANCTUM_STATEFUL_DOMAINS check passes
+  headers: {
+    Origin: "https://thejourney-ma.org",
+    Referer: "https://thejourney-ma.org/",
+  },
   configure: (proxy: any) => {
     proxy.on("proxyRes", patchCookies);
   },
@@ -48,8 +45,8 @@ export default defineConfig(({ mode }: { mode: string }) => ({
     port: 5000,
     allowedHosts: true as const,
     proxy: {
-      "/api": localProxyOptions,
-      "/sanctum": localProxyOptions,
+      "/api": proxyOptions,
+      "/sanctum": proxyOptions,
     },
     watch: {
       ignored: [

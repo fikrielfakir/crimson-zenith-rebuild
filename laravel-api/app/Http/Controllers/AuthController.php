@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Mail\WelcomeEmail;
 use App\Models\User;
+use App\Services\AdminTokenService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -101,6 +102,14 @@ class AuthController extends Controller
 
     public function user(Request $request)
     {
+        // HMAC admin token takes priority
+        $bearer = $request->bearerToken();
+        if ($bearer) {
+            $user = AdminTokenService::verify($bearer);
+            if ($user) return response()->json($this->formatUser($user));
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
         $user = auth('sanctum')->user() ?? auth('web')->user();
         if (!$user) {
             return response()->json(['message' => 'Unauthorized'], 401);

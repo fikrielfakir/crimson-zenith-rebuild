@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\AdminTokenService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -32,9 +33,9 @@ class AdminAuthController extends Controller
         // Session-based auth (works when StartSession is in API middleware)
         Auth::login($user);
 
-        // Sanctum personal access token — stateless fallback that works even
-        // when the production server does not run StartSession on API routes.
-        $token = $user->createToken('admin-token', ['admin'])->plainTextToken;
+        // HMAC-signed stateless token — no database table required.
+        // Works on production regardless of session middleware configuration.
+        $token = AdminTokenService::generate((string) $user->id);
 
         return response()->json([
             'message'      => 'Login successful',
@@ -54,11 +55,6 @@ class AdminAuthController extends Controller
 
     public function logout(Request $request)
     {
-        // Revoke the current Sanctum token if present
-        if ($request->user()) {
-            $request->user()->currentAccessToken()?->delete();
-        }
-
         Auth::guard('web')->logout();
 
         if ($request->hasSession()) {

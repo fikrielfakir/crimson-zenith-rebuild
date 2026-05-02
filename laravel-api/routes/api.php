@@ -15,6 +15,7 @@ Route::get('/health', fn () => response()->json([
     'timestamp' => now()->toISOString(),
 ]));
 
+
 /*
 |--------------------------------------------------------------------------
 | Authentication routes (public)
