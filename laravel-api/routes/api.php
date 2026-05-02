@@ -186,8 +186,8 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     // Bookings
     Route::get('/bookings',                    [\App\Http\Controllers\Admin\BookingController::class, 'index']);
     Route::get('/bookings/{ref}',              [\App\Http\Controllers\Admin\BookingController::class, 'showByRef']);
-    Route::put('/bookings/{id}/status',        [\App\Http\Controllers\Admin\BookingController::class, 'updateStatus']);
-    Route::put('/bookings/{bookingReference}/status', [\App\Http\Controllers\Admin\BookingController::class, 'updateStatus']);
+    Route::put('/bookings/{identifier}/status',    [\App\Http\Controllers\Admin\BookingController::class, 'updateStatus']);
+    Route::delete('/bookings/{identifier}',        [\App\Http\Controllers\Admin\BookingController::class, 'destroy']);
 
     // News / Blog
     Route::get('/news',                        [\App\Http\Controllers\Admin\NewsController::class, 'index']);
@@ -215,10 +215,11 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::post('/cms/media',                  [\App\Http\Controllers\Admin\CmsAdminController::class, 'uploadMedia']);
 
     // CMS focus items (dedicated CRUD used by FocusAreasManagement page)
-    Route::get('/cms/focus-items',             [\App\Http\Controllers\Admin\FocusItemController::class, 'index']);
-    Route::post('/cms/focus-items',            [\App\Http\Controllers\Admin\FocusItemController::class, 'store']);
-    Route::put('/cms/focus-items/{id}',        [\App\Http\Controllers\Admin\FocusItemController::class, 'update']);
-    Route::delete('/cms/focus-items/{id}',     [\App\Http\Controllers\Admin\FocusItemController::class, 'destroy']);
+    Route::get('/cms/focus-items',                  [\App\Http\Controllers\Admin\FocusItemController::class, 'index']);
+    Route::post('/cms/focus-items',                 [\App\Http\Controllers\Admin\FocusItemController::class, 'store']);
+    Route::post('/cms/focus-items/bulk-reorder',    [\App\Http\Controllers\Admin\FocusItemController::class, 'bulkReorder']);
+    Route::put('/cms/focus-items/{id}',             [\App\Http\Controllers\Admin\FocusItemController::class, 'update']);
+    Route::delete('/cms/focus-items/{id}',          [\App\Http\Controllers\Admin\FocusItemController::class, 'destroy']);
 
     // CMS bulk-update collections (focus, team, testimonials, stats, partners)
     Route::get('/cms/stats',                   [\App\Http\Controllers\Admin\CmsAdminController::class, 'getCmsStat']);

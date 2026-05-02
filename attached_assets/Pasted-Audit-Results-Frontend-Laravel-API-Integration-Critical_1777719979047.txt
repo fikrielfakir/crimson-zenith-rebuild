@@ -1,0 +1,127 @@
+Audit Results — Frontend × Laravel API Integration
+🔴 Critical Bugs (Things That Break Right Now)
+#	Location	Problem	Fix
+1	HeroSettings.tsx	Calls /api/admin/cms/hero-settings → 404	Rename to /api/admin/cms/hero
+2	ThemeSettings.tsx	Calls /api/admin/cms/theme-settings → 404	Rename to /api/admin/cms/theme
+3	SmartEventCalendar.tsx	Calls /api/events → 404	Rename to /api/booking/events
+4	BookingForm.tsx	GET /api/booking/events/{id} returns {message} error for string IDs	API returns 404 for string slug IDs
+5	Clubs.tsx	Expects response.clubs array wrapper → API returns a flat array	Fix frontend mapping
+6	AdminDashboard.tsx	Expects activeClubs, userGrowth, upcomingEvents, revenueGrowth → API returns totalClubs, totalEvents (no growth metrics)	Fix field mapping both sides
+7	BookingManagement.tsx	Uses PATCH method → backend only has PUT route	Fix HTTP method
+8	BookingManagement.tsx	Passes bookingReference string as ID → updateStatus() does findOrFail($id) expecting numeric	Add findByRef logic
+9	ClubsManagement.tsx	Uses PATCH /clubs/{id}/feature → backend has POST	Fix HTTP method
+10	UserManagement.tsx	Uses PATCH /users/{id} → backend has PUT	Fix HTTP method
+11	FocusAreasManagement.tsx	Calls /api/admin/cms/focus-items/bulk-reorder → route doesn't exist	Add backend route
+12	AdminLogin.tsx	Calls /api/login (no admin check) instead of /api/admin/login	Fix to /api/admin/login
+13	AdminLayout.tsx logout	Missing credentials: 'include' → session not cleared	Add credentials option
+14	PaymentController.php	Uses \Stripe\Stripe::setApiKey() but stripe/stripe-php not in composer.json → fatal PHP error	Install package
+🟠 Disconnected Pages (Static Mock Data, Not From API)
+Page	Current State	API Exists?
+Events.tsx	100% hardcoded mock	✅ /api/booking/events
+News.tsx	100% hardcoded mock	✅ /api/news
+Gallery.tsx	100% hardcoded mock	⚠️ /api/admin/media (upload only)
+JoinUs.tsx	Submit is console.log only	✅ POST /api/applications
+OurTeam.tsx	Hardcoded 6 fake members	✅ /api/landing has real team
+BlogPost.tsx	Needs verification	✅ /api/news/{slug}
+Contact.tsx	Needs verification	✅ POST /api/contact
+🟡 Missing Features
+Feature	Status
+Forgot Password page + flow	Page doesn't exist, login links to /forgot-password
+Stripe card payment in booking	No stripe/stripe-php in composer, no publishable key in env
+PayPal payment	Stub only — returns 503
+CSRF token handling	Frontend never fetches /sanctum/csrf-cookie before state-changing requests
+Email confirmation on booking	No Mail classes, no Blade templates
+Social OAuth (Google/Replit)	Buttons redirect to /api/login which does nothing useful
+Email Campaigns admin page	Placeholder UI only — no backend
+Analytics charts on PostgreSQL	DATE_FORMAT() works on Hostinger MySQL, breaks on local PostgreSQL dev
+Production CORS	thejourney-ma.org not in allowed_origins
+Unused npm packages	express, drizzle-orm, drizzle-kit, passport, mysql2, socket.io, nodemailer still installed (~15 dead packages)
+Phases & Tasks
+Phase 1 — Fix Critical Integration Bugs
+Goal: Every page that touches the real API actually works. Zero 404s, zero method mismatches, zero data shape errors.
+
+Task	File(s)	Description
+T1.1	HeroSettings.tsx	Change fetch URL to /api/admin/cms/hero (GET + PUT)
+T1.2	ThemeSettings.tsx	Change fetch URL to /api/admin/cms/theme (GET + PUT)
+T1.3	SmartEventCalendar.tsx	Change /api/events to /api/booking/events
+T1.4	Clubs.tsx	Fix mapping — API returns flat array, remove .clubs wrapper
+T1.5	AdminDashboard.tsx + StatsController.php	Align field names: add activeClubs, upcomingEvents, userGrowth, revenueGrowth to API response
+T1.6	BookingManagement.tsx + BookingController.php	Change PATCH → PUT; fix updateStatus to accept booking reference string
+T1.7	ClubsManagement.tsx	Change PATCH → POST for feature toggle
+T1.8	UserManagement.tsx	Change PATCH → PUT
+T1.9	FocusAreasManagement.tsx + api.php	Add POST /admin/cms/focus-items/bulk-reorder route and handler
+T1.10	AdminLogin.tsx	Change /api/login → /api/admin/login
+T1.11	AdminLayout.tsx	Add credentials: 'include' to logout fetch
+T1.12	BookingEventController.php	Fix single event lookup to support both numeric ID and string slug
+Phase 2 — Connect All Static Pages to Real API
+Goal: No page uses hardcoded mock data. All content comes from api.thejourney-ma.org.
+
+Task	File(s)	Description
+T2.1	Events.tsx	Replace mock array with useQuery → GET /api/booking/events
+T2.2	News.tsx	Replace mock articles with useQuery → GET /api/news; seed 4–6 real posts via admin or seeder
+T2.3	JoinUs.tsx	Wire submit handler to POST /api/applications with real fetch + error handling
+T2.4	OurTeam.tsx (About)	Fetch team members from /api/landing response instead of hardcoded array
+T2.5	BlogPost.tsx	Verify route params map to /api/news/{slug} correctly
+T2.6	Contact.tsx	Verify form submits to POST /api/contact with credentials: 'include'
+T2.7	Gallery.tsx	Connect to /api/admin/media for uploaded assets; keep static fallback
+Phase 3 — Complete the Auth Flow
+Goal: Login, register, logout, forgot password, and admin auth all work end-to-end with real sessions.
+
+Task	File(s)	Description
+T3.1	New ForgotPassword.tsx + Laravel	Create page at /forgot-password, add POST /api/forgot-password + POST /api/reset-password routes and controller
+T3.2	All POST/PUT/DELETE fetches	Fetch /sanctum/csrf-cookie before first state-changing request; add X-XSRF-TOKEN header handling
+T3.3	UserLogin.tsx	Remove non-functional Google/Replit OAuth buttons or implement real OAuth
+T3.4	UserProfile.tsx	Verify profile update and image upload endpoints work with session auth
+T3.5	ClubProfileEdit.tsx	Verify club edit uses auth middleware correctly
+Phase 4 — Payments & Booking Flow
+Goal: Stripe card payments work end-to-end; cash bookings work; booking confirmation shown.
+
+Task	File(s)	Description
+T4.1	laravel-api/composer.json	Run composer require stripe/stripe-php on Hostinger
+T4.2	laravel-api/.env + Hostinger env	Set STRIPE_SECRET_KEY and expose VITE_STRIPE_PUBLISHABLE_KEY
+T4.3	BookingForm.tsx	Wire Stripe Elements card payment to POST /api/payments/stripe/intent; confirm payment before submitting ticket
+T4.4	BookingTicketController.php	After successful payment, set payment_status: completed and transaction_id
+T4.5	PaymentController.php	Add PAYPAL_CLIENT_ID / PAYPAL_CLIENT_SECRET config and implement real PayPal order creation
+T4.6	PDF ticket	Verify jsPDF ticket download works post-booking
+Phase 5 — Admin CMS & Dashboard Completeness
+Goal: All admin management pages load, display, create, update, and delete real data.
+
+Task	File(s)	Description
+T5.1	StatsController.php + dashboard	Add computed fields: activeClubs, upcomingEvents, userGrowth, revenueGrowth
+T5.2	StatsController.php	Fix DATE_FORMAT() to use TO_CHAR() on PostgreSQL / DATE_FORMAT on MySQL (detect driver)
+T5.3	FocusAreasManagement.tsx + API	Add bulk-reorder backend route and test drag-and-drop reorder
+T5.4	New admin page: Team Members	Create CRUD UI → GET/POST/PUT/DELETE /api/admin/cms/stats with type=team
+T5.5	New admin page: Testimonials	Create CRUD UI → same stats endpoint with type=testimonials
+T5.6	NewsManagement.tsx	Verify full CRUD (create, edit, publish, delete) works with /api/admin/news
+T5.7	MediaLibrary.tsx	Verify upload → base64 storage → retrieval via /api/cms/media/{id} works
+T5.8	EmailCampaigns.tsx	Build basic email blast feature using Mail::send or mark page as "Coming Soon"
+T5.9	PresidentMessageSettings.tsx	Verify save hits /api/admin/cms/president-message correctly
+Phase 6 — Email Notifications
+Goal: Users receive emails for bookings; admins notified of new applications.
+
+Task	File(s)	Description
+T6.1	Hostinger .env	Configure MAIL_MAILER, MAIL_HOST, MAIL_USERNAME, MAIL_PASSWORD (Hostinger SMTP)
+T6.2	New Mail/BookingConfirmed.php + Blade	Send confirmation email after ticket created in BookingService
+T6.3	New Mail/ApplicationReceived.php	Send email to admin when new application submitted
+T6.4	ContactController.php	Fix to use proper Mail class instead of Mail::raw()
+T6.5	New Mail/WelcomeEmail.php	Send welcome email on user registration
+Phase 7 — Production Hardening & Cleanup
+Goal: Secure, fast, clean codebase ready for real users.
+
+Task	File(s)	Description
+T7.1	laravel-api/config/cors.php	Add https://thejourney-ma.org and https://www.thejourney-ma.org to allowed origins
+T7.2	Hostinger .env	Set APP_DEBUG=false, APP_ENV=production
+T7.3	laravel-api/routes/api.php	Add ThrottleRequests middleware on login/register/contact endpoints
+T7.4	New app/Http/Requests/	Add Form Request validation classes for BookingTicket, Application, Contact
+T7.5	package.json	Remove ~15 unused packages: express, drizzle-orm, drizzle-kit, passport, passport-local, mysql2, socket.io, socket.io-client, nodemailer, pg, postgres, connect-pg-simple, openid-client, ws, bcryptjs
+T7.6	Hostinger server	Add security headers (X-Frame-Options, CSP, HSTS) via Nginx config
+Summary by priority:
+
+Phase	Tasks	Priority	Effort
+Phase 1 — Fix Integration Bugs	12 tasks	🔴 Do first	~2–3 hours
+Phase 2 — Connect Static Pages	7 tasks	🔴 Do first	~2 hours
+Phase 3 — Auth Flow	5 tasks	🟠 High	~2 hours
+Phase 4 — Payments	6 tasks	🟠 High	~3 hours
+Phase 5 — Admin CMS	9 tasks	🟡 Medium	~4 hours
+Phase 6 — Email	5 tasks	🟡 Medium	~2 hours
+Phase 7 — Hardening	6 tasks	🟢 Before launch	~1 hour

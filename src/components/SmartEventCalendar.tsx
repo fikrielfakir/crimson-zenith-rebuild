@@ -74,7 +74,7 @@ const SmartEventCalendar = () => {
       // Fetch clubs and their events
       const [clubsResponse, eventsResponse] = await Promise.all([
         fetch('/api/clubs'),
-        fetch('/api/events')
+        fetch('/api/booking/events')
       ]);
       
       const clubsData = await clubsResponse.json();

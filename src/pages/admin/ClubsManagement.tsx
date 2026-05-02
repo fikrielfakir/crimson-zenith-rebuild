@@ -112,7 +112,7 @@ export default function ClubsManagement() {
   const toggleFeatureMutation = useMutation({
     mutationFn: async ({ clubId, featured }: { clubId: number; featured: boolean }) => {
       const response = await fetch(`/api/admin/clubs/${clubId}/feature`, {
-        method: 'PATCH',
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ featured: !featured }),
       });

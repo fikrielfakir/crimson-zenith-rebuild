@@ -142,7 +142,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch('/api/logout', { method: 'POST' });
+      const response = await fetch('/api/admin/logout', { method: 'POST', credentials: 'include' });
       if (response.ok) {
         toast({ title: 'Logged out successfully' });
         navigate('/admin/login');

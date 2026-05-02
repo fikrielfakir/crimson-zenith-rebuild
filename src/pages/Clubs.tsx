@@ -17,7 +17,7 @@ const Clubs = () => {
   });
 
   // Transform API data for UI display
-  const clubs = clubsResponse?.clubs?.map((club: any) => ({
+  const clubs = (Array.isArray(clubsResponse) ? clubsResponse : clubsResponse?.clubs || clubsResponse?.data || []).map((club: any) => ({
     id: club.id,
     name: club.name,
     image: club.image || "/api/placeholder/300/200",

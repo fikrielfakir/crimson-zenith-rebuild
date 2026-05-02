@@ -221,7 +221,7 @@ export default function UserManagement() {
   const toggleAdminMutation = useMutation({
     mutationFn: async ({ userId, isAdmin }: { userId: number; isAdmin: boolean }) => {
       const response = await fetch(`/api/admin/users/${userId}/toggle-admin`, {
-        method: 'PATCH',
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ isAdmin: !isAdmin }),
       });
@@ -236,7 +236,7 @@ export default function UserManagement() {
   const toggleActiveMutation = useMutation({
     mutationFn: async (userId: string) => {
       const response = await fetch(`/api/admin/users/${userId}/toggle-active`, {
-        method: 'PATCH',
+        method: 'POST',
       });
       if (!response.ok) throw new Error('Failed to toggle active status');
       return response.json();

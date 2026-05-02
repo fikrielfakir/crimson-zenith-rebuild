@@ -71,7 +71,7 @@ async function fetchBookings() {
 
 async function updateBookingStatus(bookingReference: string, status: string) {
   const response = await fetch(`/api/admin/bookings/${bookingReference}/status`, {
-    method: 'PATCH',
+    method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ status }),
   });

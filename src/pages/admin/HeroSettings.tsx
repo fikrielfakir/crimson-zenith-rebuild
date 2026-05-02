@@ -57,7 +57,7 @@ export default function HeroSettings() {
 
   const loadSettings = async () => {
     try {
-      const response = await fetch('/api/admin/cms/hero-settings');
+      const response = await fetch('/api/admin/cms/hero');
       if (response.ok) {
         const data = await response.json();
         if (data) {
@@ -121,7 +121,7 @@ export default function HeroSettings() {
       formData.append('heroHeight', heroHeight);
       formData.append('contentMaxWidth', contentMaxWidth);
 
-      const response = await fetch('/api/admin/cms/hero-settings', {
+      const response = await fetch('/api/admin/cms/hero', {
         method: 'PUT',
         body: formData,
       });
