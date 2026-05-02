@@ -32,7 +32,7 @@ function patchCookies(proxyRes: any) {
 //   2. Replace the headers block with the production Origin/Referer spoof
 //   3. Remove changeOrigin: false (set it to true for cross-origin)
 // ---------------------------------------------------------------------------
-const LOCAL_API_TARGET = "http://localhost:8000";
+const LOCAL_API_TARGET = "https://api.thejourney-ma.org";
 
 const localProxyOptions = {
   target: LOCAL_API_TARGET,
