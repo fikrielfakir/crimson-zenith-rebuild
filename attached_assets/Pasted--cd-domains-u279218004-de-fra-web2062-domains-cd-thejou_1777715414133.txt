@@ -1,0 +1,48 @@
+ cd domains
+[u279218004@de-fra-web2062 domains]$ cd thejourney-ma.org
+[u279218004@de-fra-web2062 thejourney-ma.org]$ cd api
+-bash: cd: api: No such file or directory
+[u279218004@de-fra-web2062 thejourney-ma.org]$ cd public_html
+[u279218004@de-fra-web2062 public_html]$ cd api
+[u279218004@de-fra-web2062 api]$ php artisan key:generate
+
+   INFO  Application key set successfully.
+
+[u279218004@de-fra-web2062 api]$ php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+
+   INFO  Configuration cached successfully.
+
+
+   INFO  Routes cached successfully.
+
+
+
+   INFO  Blade templates cached successfully.
+
+[u279218004@de-fra-web2062 api]$ php artisan migrate --force
+
+   INFO  Preparing database.
+
+  Creating migration table ........................................................................................ 9.49ms DONE
+
+   INFO  Running migrations.
+
+  0001_01_01_000000_create_users_table ........................................................................... 12.01ms DONE
+  0001_01_01_000001_create_cache_table ............................................................................ 7.29ms DONE
+  0001_01_01_000002_create_jobs_table ............................................................................. 8.76ms DONE
+  2026_05_02_090157_create_personal_access_tokens_table ........................................................... 8.64ms DONE
+  2026_05_02_100001_create_media_assets_table ..................................................................... 2.10ms DONE
+  2026_05_02_100002_modify_users_table ............................................................................ 4.44ms FAIL
+
+In Connection.php line 838:
+
+  SQLSTATE[42S22]: Column not found: 1054 Unknown column 'interests' in 'users' (Connection: mysql, Host: 127.0.0.1, Port: 330
+  6, Database: u279218004_thejourney, SQL: alter table `users` add `role` varchar(20) not null default 'user' after `interests
+  `)
+
+
+In Connection.php line 584:
+
+  SQLSTATE[42S22]: Column not found: 1054 Unknown column 'interests' in 'users'
