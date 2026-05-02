@@ -79,7 +79,7 @@ class StatsController extends Controller
                 'user'        => ['name' => "{$u->first_name} {$u->last_name}"],
             ]);
 
-        $activity = $recentBookings->merge($recentUsers)
+        $activity = $recentBookings->toBase()->merge($recentUsers->toBase())
             ->sortByDesc('timestamp')
             ->values();
 
