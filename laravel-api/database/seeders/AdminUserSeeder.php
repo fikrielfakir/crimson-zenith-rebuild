@@ -14,6 +14,7 @@ class AdminUserSeeder extends Seeder
         if (!User::where('username', 'admin')->exists()) {
             User::create([
                 'id'         => Str::uuid(),
+                'name'       => 'Admin User',
                 'username'   => 'admin',
                 'email'      => 'admin@morocclubs.com',
                 'password'   => Hash::make('admin123'),

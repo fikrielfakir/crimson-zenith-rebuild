@@ -32,14 +32,23 @@ return new class extends Migration {
         } else {
             // Existing table — add columns that are missing, no ->after() on new columns
             // Step 1: fix the primary key if it is still a bigint auto-increment
-            $idType = DB::select("SELECT DATA_TYPE FROM information_schema.COLUMNS
-                WHERE TABLE_SCHEMA = DATABASE()
-                  AND TABLE_NAME   = 'users'
-                  AND COLUMN_NAME  = 'id' LIMIT 1");
-
-            if (!empty($idType) && $idType[0]->DATA_TYPE === 'bigint') {
-                // Remove auto-increment, change type to varchar, re-set as PK
-                DB::statement('ALTER TABLE `users` MODIFY `id` VARCHAR(255) NOT NULL');
+            $driver = DB::getDriverName();
+            if ($driver === 'mysql') {
+                $idType = DB::select("SELECT DATA_TYPE FROM information_schema.COLUMNS
+                    WHERE TABLE_SCHEMA = DATABASE()
+                      AND TABLE_NAME   = 'users'
+                      AND COLUMN_NAME  = 'id' LIMIT 1");
+                if (!empty($idType) && $idType[0]->DATA_TYPE === 'bigint') {
+                    DB::statement('ALTER TABLE `users` MODIFY `id` VARCHAR(255) NOT NULL');
+                }
+            } elseif ($driver === 'pgsql') {
+                $idType = DB::select("SELECT data_type FROM information_schema.columns
+                    WHERE table_schema = current_schema()
+                      AND table_name   = 'users'
+                      AND column_name  = 'id' LIMIT 1");
+                if (!empty($idType) && $idType[0]->data_type === 'bigint') {
+                    DB::statement('ALTER TABLE "users" ALTER COLUMN "id" TYPE VARCHAR(255)');
+                }
             }
 
             Schema::table('users', function (Blueprint $table) {
