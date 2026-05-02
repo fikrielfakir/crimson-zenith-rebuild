@@ -1,3 +1,4 @@
+import { apiFetch } from '@/lib/apiFetch';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -40,14 +41,14 @@ interface Testimonial {
 }
 
 async function fetchTestimonials(): Promise<Testimonial[]> {
-  const res = await fetch('/api/admin/cms/stats?type=testimonials', { credentials: 'include' });
+  const res = await apiFetch('/api/admin/cms/stats?type=testimonials', { credentials: 'include' });
   if (!res.ok) throw new Error('Failed to fetch testimonials');
   const data = await res.json();
   return data.testimonials ?? [];
 }
 
 async function saveTestimonial(item: Partial<Testimonial> & { id?: number }): Promise<void> {
-  const res = await fetch('/api/admin/cms/stats', {
+  const res = await apiFetch('/api/admin/cms/stats', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
@@ -57,7 +58,7 @@ async function saveTestimonial(item: Partial<Testimonial> & { id?: number }): Pr
 }
 
 async function deleteTestimonial(id: number): Promise<void> {
-  const res = await fetch(`/api/admin/cms/stats/testimonials/${id}`, {
+  const res = await apiFetch(`/api/admin/cms/stats/testimonials/${id}`, {
     method: 'DELETE',
     credentials: 'include',
   });

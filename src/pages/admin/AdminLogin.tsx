@@ -37,9 +37,19 @@ export default function AdminLogin() {
 
   const loginMutation = useMutation({
     mutationFn: async (credentials: LoginFormData) => {
+      // Prefetch CSRF cookie before submitting — required by Sanctum stateful API
+      try {
+        await fetch('/sanctum/csrf-cookie', { credentials: 'include' });
+      } catch {
+        // Non-fatal in local dev where Sanctum CSRF is not enforced
+      }
+
       const response = await fetch('/api/admin/login', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+        },
         body: JSON.stringify({
           username: credentials.username,
           password: credentials.password,

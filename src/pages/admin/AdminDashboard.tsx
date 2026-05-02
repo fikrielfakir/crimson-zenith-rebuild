@@ -1,3 +1,4 @@
+import { apiFetch } from '@/lib/apiFetch';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import {
@@ -48,25 +49,25 @@ interface Event {
 }
 
 async function fetchDashboardStats(): Promise<DashboardStats> {
-  const response = await fetch('/api/admin/stats', { credentials: 'include' });
+  const response = await apiFetch('/api/admin/stats', { credentials: 'include' });
   if (!response.ok) throw new Error('Failed to fetch stats');
   return response.json();
 }
 
 async function fetchRecentActivity(): Promise<Activity[]> {
-  const response = await fetch('/api/admin/activity', { credentials: 'include' });
+  const response = await apiFetch('/api/admin/activity', { credentials: 'include' });
   if (!response.ok) throw new Error('Failed to fetch activity');
   return response.json();
 }
 
 async function fetchUpcomingEvents(): Promise<Event[]> {
-  const response = await fetch('/api/admin/upcoming-events', { credentials: 'include' });
+  const response = await apiFetch('/api/admin/upcoming-events', { credentials: 'include' });
   if (!response.ok) throw new Error('Failed to fetch events');
   return response.json();
 }
 
 async function fetchChartsData() {
-  const response = await fetch('/api/admin/charts', { credentials: 'include' });
+  const response = await apiFetch('/api/admin/charts', { credentials: 'include' });
   if (!response.ok) throw new Error('Failed to fetch charts data');
   return response.json();
 }

@@ -1,3 +1,4 @@
+import { apiFetch } from '@/lib/apiFetch';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
@@ -57,7 +58,7 @@ async function fetchClubs(params: any) {
     ...(params.status && params.status !== 'all' && { status: params.status }),
   });
   
-  const response = await fetch(`/api/admin/clubs?${queryParams}`, { credentials: 'include' });
+  const response = await apiFetch(`/api/admin/clubs?${queryParams}`, { credentials: 'include' });
   if (!response.ok) throw new Error('Failed to fetch clubs');
   return response.json();
 }
@@ -85,7 +86,7 @@ export default function ClubsManagement() {
 
   const approveClubMutation = useMutation({
     mutationFn: async (clubId: number) => {
-      const response = await fetch(`/api/admin/clubs/${clubId}/approve`, {
+      const response = await apiFetch(`/api/admin/clubs/${clubId}/approve`, {
         method: 'POST',
         credentials: 'include',
       });
@@ -99,7 +100,7 @@ export default function ClubsManagement() {
 
   const deleteClubMutation = useMutation({
     mutationFn: async (clubId: number) => {
-      const response = await fetch(`/api/admin/clubs/${clubId}`, {
+      const response = await apiFetch(`/api/admin/clubs/${clubId}`, {
         method: 'DELETE',
         credentials: 'include',
       });
@@ -113,7 +114,7 @@ export default function ClubsManagement() {
 
   const toggleFeatureMutation = useMutation({
     mutationFn: async ({ clubId, featured }: { clubId: number; featured: boolean }) => {
-      const response = await fetch(`/api/admin/clubs/${clubId}/feature`, {
+      const response = await apiFetch(`/api/admin/clubs/${clubId}/feature`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ featured: !featured }),

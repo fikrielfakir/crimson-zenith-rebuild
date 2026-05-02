@@ -1,3 +1,4 @@
+import { apiFetch } from '@/lib/apiFetch';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,7 +17,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 
 async function fetchApplications() {
-  const response = await fetch('/api/admin/applications', { credentials: 'include' });
+  const response = await apiFetch('/api/admin/applications', { credentials: 'include' });
   if (!response.ok) throw new Error('Failed to fetch applications');
   return response.json();
 }
@@ -32,7 +33,7 @@ export default function ApplicationsManagement() {
 
   const approveApplicationMutation = useMutation({
     mutationFn: async (appId: number) => {
-      const response = await fetch(`/api/admin/applications/${appId}/approve`, {
+      const response = await apiFetch(`/api/admin/applications/${appId}/approve`, {
         method: 'POST',
         credentials: 'include',
       });
@@ -46,7 +47,7 @@ export default function ApplicationsManagement() {
 
   const rejectApplicationMutation = useMutation({
     mutationFn: async (appId: number) => {
-      const response = await fetch(`/api/admin/applications/${appId}/reject`, {
+      const response = await apiFetch(`/api/admin/applications/${appId}/reject`, {
         method: 'POST',
         credentials: 'include',
       });

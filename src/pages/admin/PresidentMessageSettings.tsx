@@ -1,3 +1,4 @@
+import { apiFetch } from '@/lib/apiFetch';
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -143,7 +144,7 @@ export default function PresidentMessageSettings() {
 
   const loadSettings = async () => {
     try {
-      const response = await fetch('/api/cms/president-message');
+      const response = await apiFetch('/api/cms/president-message');
       if (response.ok) {
         const data = await response.json();
         if (data) {
@@ -199,7 +200,7 @@ export default function PresidentMessageSettings() {
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      const response = await fetch('/api/admin/cms/president-message', {
+      const response = await apiFetch('/api/admin/cms/president-message', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

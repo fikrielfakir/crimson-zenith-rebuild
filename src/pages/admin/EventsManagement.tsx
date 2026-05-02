@@ -1,3 +1,4 @@
+import { apiFetch } from '@/lib/apiFetch';
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
@@ -92,13 +93,13 @@ const eventSchema = z.object({
 type EventFormData = z.infer<typeof eventSchema>;
 
 async function fetchEvents() {
-  const response = await fetch(`/api/admin/events`, { credentials: 'include' });
+  const response = await apiFetch(`/api/admin/events`, { credentials: 'include' });
   if (!response.ok) throw new Error('Failed to fetch events');
   return response.json();
 }
 
 async function fetchClubs() {
-  const response = await fetch('/api/clubs');
+  const response = await apiFetch('/api/clubs');
   if (!response.ok) throw new Error('Failed to fetch clubs');
   return response.json();
 }
@@ -215,7 +216,7 @@ export default function EventsManagement() {
 
   const deleteEventMutation = useMutation({
     mutationFn: async (eventId: string) => {
-      const response = await fetch(`/api/admin/events/${eventId}`, {
+      const response = await apiFetch(`/api/admin/events/${eventId}`, {
         method: 'DELETE',
         credentials: 'include',
       });

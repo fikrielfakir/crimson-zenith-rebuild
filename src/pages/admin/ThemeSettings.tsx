@@ -1,3 +1,4 @@
+import { apiFetch } from '@/lib/apiFetch';
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger} from '@/components/ui/tabs';
@@ -67,7 +68,7 @@ export default function ThemeSettings() {
 
   const loadSettings = async () => {
     try {
-      const response = await fetch('/api/cms/theme', { credentials: 'include' });
+      const response = await apiFetch('/api/cms/theme', { credentials: 'include' });
       if (response.ok) {
         const data = await response.json();
         if (data) {
@@ -99,7 +100,7 @@ export default function ThemeSettings() {
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      const response = await fetch('/api/admin/cms/theme', {
+      const response = await apiFetch('/api/admin/cms/theme', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

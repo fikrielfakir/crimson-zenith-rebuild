@@ -1,3 +1,4 @@
+import { apiFetch } from '@/lib/apiFetch';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -39,14 +40,14 @@ interface TeamMember {
 }
 
 async function fetchTeamMembers(): Promise<TeamMember[]> {
-  const res = await fetch('/api/admin/cms/stats?type=team', { credentials: 'include' });
+  const res = await apiFetch('/api/admin/cms/stats?type=team', { credentials: 'include' });
   if (!res.ok) throw new Error('Failed to fetch team members');
   const data = await res.json();
   return data.teamMembers ?? [];
 }
 
 async function saveTeamMember(member: Partial<TeamMember> & { id?: number }): Promise<void> {
-  const res = await fetch('/api/admin/cms/stats', {
+  const res = await apiFetch('/api/admin/cms/stats', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
@@ -56,7 +57,7 @@ async function saveTeamMember(member: Partial<TeamMember> & { id?: number }): Pr
 }
 
 async function deleteTeamMember(id: number): Promise<void> {
-  const res = await fetch(`/api/admin/cms/stats/team/${id}`, {
+  const res = await apiFetch(`/api/admin/cms/stats/team/${id}`, {
     method: 'DELETE',
     credentials: 'include',
   });

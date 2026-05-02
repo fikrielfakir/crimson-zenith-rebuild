@@ -1,3 +1,4 @@
+import { apiFetch } from '@/lib/apiFetch';
 import { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -64,13 +65,13 @@ interface Booking {
 }
 
 async function fetchBookings() {
-  const response = await fetch('/api/admin/bookings', { credentials: 'include' });
+  const response = await apiFetch('/api/admin/bookings', { credentials: 'include' });
   if (!response.ok) throw new Error('Failed to fetch bookings');
   return response.json();
 }
 
 async function updateBookingStatus(bookingReference: string, status: string) {
-  const response = await fetch(`/api/admin/bookings/${bookingReference}/status`, {
+  const response = await apiFetch(`/api/admin/bookings/${bookingReference}/status`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ status }),
@@ -81,7 +82,7 @@ async function updateBookingStatus(bookingReference: string, status: string) {
 }
 
 async function deleteBooking(bookingReference: string) {
-  const response = await fetch(`/api/admin/bookings/${bookingReference}`, {
+  const response = await apiFetch(`/api/admin/bookings/${bookingReference}`, {
     method: 'DELETE',
     credentials: 'include',
   });

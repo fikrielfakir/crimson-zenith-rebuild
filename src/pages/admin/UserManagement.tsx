@@ -1,3 +1,4 @@
+import { apiFetch } from '@/lib/apiFetch';
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
@@ -95,7 +96,7 @@ async function fetchUsers(params: { search?: string; role?: string; status?: str
     ...(params.status && params.status !== 'all' && { status: params.status }),
   });
   
-  const response = await fetch(`/api/admin/users?${queryParams}`, { credentials: 'include' });
+  const response = await apiFetch(`/api/admin/users?${queryParams}`, { credentials: 'include' });
   if (!response.ok) throw new Error('Failed to fetch users');
   return response.json();
 }
@@ -178,7 +179,7 @@ export default function UserManagement() {
 
   const deleteUserMutation = useMutation({
     mutationFn: async (userId: number) => {
-      const response = await fetch(`/api/admin/users/${userId}`, {
+      const response = await apiFetch(`/api/admin/users/${userId}`, {
         method: 'DELETE',
         credentials: 'include',
       });
@@ -222,7 +223,7 @@ export default function UserManagement() {
 
   const toggleAdminMutation = useMutation({
     mutationFn: async ({ userId, isAdmin }: { userId: number; isAdmin: boolean }) => {
-      const response = await fetch(`/api/admin/users/${userId}/toggle-admin`, {
+      const response = await apiFetch(`/api/admin/users/${userId}/toggle-admin`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ isAdmin: !isAdmin }),
@@ -238,7 +239,7 @@ export default function UserManagement() {
 
   const toggleActiveMutation = useMutation({
     mutationFn: async (userId: string) => {
-      const response = await fetch(`/api/admin/users/${userId}/toggle-active`, {
+      const response = await apiFetch(`/api/admin/users/${userId}/toggle-active`, {
         method: 'POST',
         credentials: 'include',
       });
@@ -256,7 +257,7 @@ export default function UserManagement() {
 
   const resetPasswordMutation = useMutation({
     mutationFn: async ({ userId, newPassword }: { userId: string; newPassword: string }) => {
-      const response = await fetch(`/api/admin/users/${userId}/reset-password`, {
+      const response = await apiFetch(`/api/admin/users/${userId}/reset-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ newPassword }),

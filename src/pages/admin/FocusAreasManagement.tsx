@@ -1,3 +1,4 @@
+import { apiFetch } from '@/lib/apiFetch';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -22,7 +23,7 @@ const iconOptions = [
 ];
 
 async function fetchFocusItems() {
-  const response = await fetch('/api/cms/focus-items');
+  const response = await apiFetch('/api/cms/focus-items');
   if (!response.ok) throw new Error('Failed to fetch focus items');
   return response.json();
 }
@@ -83,7 +84,7 @@ export default function FocusAreasManagement() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
-      const response = await fetch(`/api/admin/cms/focus-items/${id}`, {
+      const response = await apiFetch(`/api/admin/cms/focus-items/${id}`, {
         method: 'DELETE',
         credentials: 'include',
       });
@@ -101,7 +102,7 @@ export default function FocusAreasManagement() {
 
   const bulkReorderMutation = useMutation({
     mutationFn: async (items: Array<{ id: number; ordering: number }>) => {
-      const response = await fetch('/api/admin/cms/focus-items/bulk-reorder', {
+      const response = await apiFetch('/api/admin/cms/focus-items/bulk-reorder', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ items }),

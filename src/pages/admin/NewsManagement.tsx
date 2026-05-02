@@ -1,3 +1,4 @@
+import { apiFetch } from '@/lib/apiFetch';
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
@@ -85,7 +86,7 @@ async function fetchPosts(params: { search?: string; status?: string; category?:
     ...(params.category && params.category !== 'all' && { category: params.category }),
   });
   
-  const response = await fetch(`/api/admin/news?${queryParams}`, { credentials: 'include' });
+  const response = await apiFetch(`/api/admin/news?${queryParams}`, { credentials: 'include' });
   if (!response.ok) throw new Error('Failed to fetch posts');
   return response.json();
 }
@@ -150,7 +151,7 @@ export default function NewsManagement() {
 
   const deletePostMutation = useMutation({
     mutationFn: async (postId: number) => {
-      const response = await fetch(`/api/admin/news/${postId}`, {
+      const response = await apiFetch(`/api/admin/news/${postId}`, {
         method: 'DELETE',
         credentials: 'include',
       });

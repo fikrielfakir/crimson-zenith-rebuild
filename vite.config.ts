@@ -15,11 +15,23 @@ export default defineConfig(({ mode }: { mode: string }) => ({
         target: 'https://api.thejourney-ma.org',
         changeOrigin: true,
         secure: true,
+        // Spoof Origin/Referer so Sanctum's SANCTUM_STATEFUL_DOMAINS check passes
+        headers: {
+          Origin: 'https://thejourney-ma.org',
+          Referer: 'https://thejourney-ma.org/',
+        },
+        // Rewrite cookie domains so the browser stores and resends them from localhost
+        cookieDomainRewrite: { '*': 'localhost' },
       },
       '/sanctum': {
         target: 'https://api.thejourney-ma.org',
         changeOrigin: true,
         secure: true,
+        headers: {
+          Origin: 'https://thejourney-ma.org',
+          Referer: 'https://thejourney-ma.org/',
+        },
+        cookieDomainRewrite: { '*': 'localhost' },
       },
     },
     watch: {

@@ -1,3 +1,4 @@
+import { apiFetch } from '@/lib/apiFetch';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Calendar, Download, TrendingUp, Users, Calendar as CalendarIcon, DollarSign, Building } from 'lucide-react';
@@ -26,7 +27,7 @@ import {
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
 
 async function fetchAnalytics(period: string) {
-  const response = await fetch(`/api/admin/analytics?period=${period}`, { credentials: 'include' });
+  const response = await apiFetch(`/api/admin/analytics?period=${period}`, { credentials: 'include' });
   if (!response.ok) throw new Error('Failed to fetch analytics');
   return response.json();
 }

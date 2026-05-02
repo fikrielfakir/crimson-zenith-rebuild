@@ -1,3 +1,4 @@
+import { apiFetch } from '@/lib/apiFetch';
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -57,7 +58,7 @@ export default function HeroSettings() {
 
   const loadSettings = async () => {
     try {
-      const response = await fetch('/api/cms/hero', { credentials: 'include' });
+      const response = await apiFetch('/api/cms/hero', { credentials: 'include' });
       if (response.ok) {
         const data = await response.json();
         if (data) {
@@ -121,7 +122,7 @@ export default function HeroSettings() {
       formData.append('heroHeight', heroHeight);
       formData.append('contentMaxWidth', contentMaxWidth);
 
-      const response = await fetch('/api/admin/cms/hero', {
+      const response = await apiFetch('/api/admin/cms/hero', {
         method: 'PUT',
         body: formData,
         credentials: 'include',

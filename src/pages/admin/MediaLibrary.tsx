@@ -1,3 +1,4 @@
+import { apiFetch } from '@/lib/apiFetch';
 import { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -29,14 +30,14 @@ interface MediaFile {
 }
 
 async function fetchMedia(): Promise<MediaFile[]> {
-  const response = await fetch('/api/admin/media', { credentials: 'include' });
+  const response = await apiFetch('/api/admin/media', { credentials: 'include' });
   if (!response.ok) throw new Error('Failed to fetch media files');
   const data = await response.json();
   return Array.isArray(data) ? data : (data.media ?? []);
 }
 
 async function deleteMedia(id: number): Promise<void> {
-  const response = await fetch(`/api/admin/media/${id}`, {
+  const response = await apiFetch(`/api/admin/media/${id}`, {
     method: 'DELETE',
     credentials: 'include',
   });
@@ -153,7 +154,7 @@ export default function MediaLibrary() {
       formData.append('file', file);
 
       try {
-        const response = await fetch('/api/admin/media', {
+        const response = await apiFetch('/api/admin/media', {
           method: 'POST',
           body: formData,
           credentials: 'include',

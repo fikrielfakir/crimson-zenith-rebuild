@@ -1,3 +1,4 @@
+import { apiFetch } from '@/lib/apiFetch';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,7 +17,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 
 async function fetchPendingClubs() {
-  const response = await fetch('/api/admin/clubs?status=pending', { credentials: 'include' });
+  const response = await apiFetch('/api/admin/clubs?status=pending', { credentials: 'include' });
   if (!response.ok) throw new Error('Failed to fetch pending clubs');
   return response.json();
 }
@@ -32,7 +33,7 @@ export default function ClubsPendingApproval() {
 
   const approveClubMutation = useMutation({
     mutationFn: async (clubId: number) => {
-      const response = await fetch(`/api/admin/clubs/${clubId}/approve`, {
+      const response = await apiFetch(`/api/admin/clubs/${clubId}/approve`, {
         method: 'POST',
         credentials: 'include',
       });
@@ -49,7 +50,7 @@ export default function ClubsPendingApproval() {
 
   const rejectClubMutation = useMutation({
     mutationFn: async (clubId: number) => {
-      const response = await fetch(`/api/admin/clubs/${clubId}/reject`, {
+      const response = await apiFetch(`/api/admin/clubs/${clubId}/reject`, {
         method: 'POST',
         credentials: 'include',
       });
