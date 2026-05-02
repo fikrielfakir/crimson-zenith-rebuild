@@ -101,12 +101,16 @@ class AuthController extends Controller
 
     public function user(Request $request)
     {
-        return response()->json($this->formatUser($request->user()));
+        $user = auth('sanctum')->user() ?? auth('web')->user();
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+        return response()->json($this->formatUser($user));
     }
 
     public function updateProfile(Request $request)
     {
-        $user = $request->user();
+        $user = auth('sanctum')->user() ?? auth('web')->user();
 
         $data = $request->validate([
             'firstName'       => 'nullable|string|max:255',
@@ -144,7 +148,7 @@ class AuthController extends Controller
             return response()->json(['message' => 'Invalid image format'], 400);
         }
 
-        $user = $request->user();
+        $user = auth('sanctum')->user() ?? auth('web')->user();
         $user->update(['profile_image_url' => $imageData]);
 
         return response()->json([

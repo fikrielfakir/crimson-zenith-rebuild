@@ -1,11 +1,13 @@
 /**
  * Centralized fetch wrapper for all API calls.
  *
- * - Always sends session cookies (credentials: 'include')
- * - Reads the XSRF-TOKEN cookie set by Sanctum and forwards it
- *   as the X-XSRF-TOKEN header on every non-GET request so that
- *   Laravel's CSRF middleware accepts the request.
+ * Priority auth order:
+ *  1. Bearer token (Sanctum personal access token) — stored in tokenStore
+ *  2. Session cookie fallback (credentials: 'include')
+ *  3. XSRF-TOKEN cookie forwarded as X-XSRF-TOKEN for non-GET requests
  */
+
+import { getAdminToken } from './tokenStore';
 
 function getXsrfToken(): string | null {
   const match = document.cookie
@@ -27,20 +29,25 @@ export async function apiFetch(
 
   const headers = new Headers(options.headers ?? {});
 
-  // Always include credentials (session cookie)
+  // 1. Bearer token auth (takes priority — stateless, works without sessions)
+  const token = getAdminToken();
+  if (token) {
+    headers.set('Authorization', `Bearer ${token}`);
+  }
+
+  // 2. Always include session cookies as well (belt-and-suspenders)
   const init: RequestInit = {
     ...options,
     credentials: 'include',
     headers,
   };
 
-  // Attach XSRF token for state-mutating requests
+  // 3. Forward XSRF token for state-mutating requests
   if (method !== 'GET' && method !== 'HEAD') {
-    const token = getXsrfToken();
-    if (token) {
-      headers.set('X-XSRF-TOKEN', token);
+    const xsrf = getXsrfToken();
+    if (xsrf) {
+      headers.set('X-XSRF-TOKEN', xsrf);
     }
-    // Mark as XHR so Laravel/Sanctum treats it as an API call
     headers.set('X-Requested-With', 'XMLHttpRequest');
   }
 

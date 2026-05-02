@@ -11,7 +11,7 @@ A full-stack web application for "The Journey Association" — Morocco's network
 - **State**: TanStack Query (React Query)
 - **UI**: shadcn/ui + Radix UI + Tailwind CSS
 - **Maps**: MapLibre GL JS with Esri satellite imagery
-- **Auth**: Session-based via Laravel Sanctum (credentials: include)
+- **Auth**: Sanctum Bearer token (stored in sessionStorage via tokenStore.ts) + session cookie fallback
 
 ### Backend (Laravel 12 / PHP 8.2) — port 8000
 - **Location**: `laravel-api/`

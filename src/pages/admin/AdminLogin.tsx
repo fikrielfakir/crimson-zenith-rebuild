@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
+import { setAdminToken } from '@/lib/tokenStore';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
@@ -74,9 +75,14 @@ export default function AdminLogin() {
         return;
       }
 
+      // Store the Bearer token so apiFetch sends it on every request.
+      // This is the stateless auth path — no session cookie needed.
+      if (data.access_token) {
+        setAdminToken(data.access_token);
+      }
+
       // Populate the cache immediately so ProtectedRoute sees the user
-      // before the navigate() call re-renders it. Without this the stale
-      // null value triggers a redirect back to /admin/login.
+      // before the navigate() call re-renders it.
       queryClient.setQueryData(['currentUser'], data.user);
 
       toast({

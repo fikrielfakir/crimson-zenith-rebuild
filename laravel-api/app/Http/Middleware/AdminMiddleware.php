@@ -10,11 +10,13 @@ class AdminMiddleware
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if (!$request->user()) {
+        $user = auth('sanctum')->user() ?? auth('web')->user();
+
+        if (!$user) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
-        if (!$request->user()->is_admin) {
+        if (!$user->is_admin) {
             return response()->json(['message' => 'Forbidden - Admin access required'], 403);
         }
 

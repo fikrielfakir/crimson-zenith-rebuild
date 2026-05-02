@@ -143,11 +143,12 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch('/api/admin/logout', { method: 'POST', credentials: 'include' });
-      if (response.ok) {
-        toast({ title: 'Logged out successfully' });
-        navigate('/admin/login');
-      }
+      const { apiFetch } = await import('@/lib/apiFetch');
+      const { clearAdminToken } = await import('@/lib/tokenStore');
+      await apiFetch('/api/admin/logout', { method: 'POST' }).catch(() => null);
+      clearAdminToken();
+      toast({ title: 'Logged out successfully' });
+      navigate('/admin/login');
     } catch (error) {
       toast({ title: 'Error logging out', variant: 'destructive' });
     }
