@@ -6,8 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class BookingTicket extends Model
 {
+    public $incrementing = false;
+    protected $keyType = 'string';
+
     protected $fillable = [
-        'booking_reference', 'event_id', 'user_id', 'customer_name',
+        'id', 'booking_reference', 'event_id', 'user_id', 'customer_name',
         'customer_email', 'customer_phone', 'number_of_participants',
         'event_date', 'total_price', 'payment_status', 'payment_method',
         'transaction_id', 'special_requests', 'status',

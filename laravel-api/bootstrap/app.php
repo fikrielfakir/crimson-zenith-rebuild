@@ -24,8 +24,9 @@ return Application::configure(basePath: dirname(__DIR__))
         // Sanctum stateful domains for session-based auth
         $middleware->statefulApi();
 
-        // Alias for admin protection
+        // Middleware aliases
         $middleware->alias([
+            'auth'  => \App\Http\Middleware\Authenticate::class,
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
         ]);
     })
