@@ -8,35 +8,30 @@ return new class extends Migration
     /**
      * Fix sessions.user_id column type on production MySQL.
      *
-     * The production table was imported with user_id BIGINT, but users have
-     * UUID primary keys (varchar 36). This migration alters the column to
-     * varchar(255) so HMAC-authenticated requests no longer throw a
-     * "Data truncated for column 'user_id'" 500 error.
+     * The production table was imported with user_id BIGINT but users have
+     * UUID primary keys (varchar 36). This migration alters the column so
+     * HMAC-authenticated requests no longer throw a truncation 500 error.
      *
-     * Also creates the public/storage symlink using PHP's native symlink()
-     * instead of Artisan storage:link — Hostinger disables exec() so the
-     * Artisan command fails with "Call to undefined function exec()".
+     * NOTE: Storage symlink creation has been removed from this migration.
+     * Hostinger disables both exec() and symlink(). Create it via SSH:
+     *   ln -s storage/app/public public/storage
+     * Or use public/uploads/ for file storage (no symlink needed — see
+     * ClubController::uploadImage which writes directly to public/uploads/).
      */
     public function up(): void
     {
-        // 1. Fix sessions.user_id column type
-        if (DB::getDriverName() === 'mysql') {
-            $columns = DB::select("SHOW COLUMNS FROM sessions WHERE Field = 'user_id'");
-            if (!empty($columns)) {
-                $type = strtolower($columns[0]->Type ?? '');
-                if (str_contains($type, 'int')) {
-                    DB::statement('ALTER TABLE sessions MODIFY COLUMN user_id VARCHAR(255) NULL');
-                }
-            }
+        if (DB::getDriverName() !== 'mysql') {
+            return;
         }
 
-        // 2. Create storage symlink without exec().
-        //    symlink() is a native PHP function — no shell access needed.
-        $target = storage_path('app/public');
-        $link   = public_path('storage');
+        $columns = DB::select("SHOW COLUMNS FROM sessions WHERE Field = 'user_id'");
+        if (empty($columns)) {
+            return;
+        }
 
-        if (!file_exists($link) && !is_link($link)) {
-            symlink($target, $link);
+        $type = strtolower($columns[0]->Type ?? '');
+        if (str_contains($type, 'int')) {
+            DB::statement('ALTER TABLE sessions MODIFY COLUMN user_id VARCHAR(255) NULL');
         }
     }
 

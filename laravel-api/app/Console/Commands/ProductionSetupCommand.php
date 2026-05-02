@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 class ProductionSetupCommand extends Command
 {
     protected $signature   = 'app:production-setup';
-    protected $description = 'Run all one-time production setup tasks: fix sessions table, create storage symlink, clear caches.';
+    protected $description = 'Run all one-time production setup tasks: fix sessions table, clear caches, run migrations.';
 
     public function handle(): int
     {
@@ -37,32 +37,42 @@ class ProductionSetupCommand extends Command
             $this->error('   ✗ sessions fix failed: ' . $e->getMessage());
         }
 
-        // 2. Storage symlink — use PHP native symlink() instead of
-        //    Artisan storage:link which calls exec() (disabled on Hostinger).
-        $this->info('2. Creating storage symlink...');
-        $target = storage_path('app/public');
-        $link   = public_path('storage');
-
+        // 2. Storage symlink status
+        $this->info('2. Checking storage symlink...');
+        $link = public_path('storage');
         if (file_exists($link) || is_link($link)) {
             $this->info('   ✓ public/storage already exists');
         } else {
-            if (symlink($target, $link)) {
-                $this->info('   ✓ Symlink created: public/storage → storage/app/public');
-            } else {
-                $this->error('   ✗ symlink() failed — check directory permissions');
-            }
+            $this->warn('   ! public/storage symlink missing.');
+            $this->warn('     Hostinger disables exec() and symlink().');
+            $this->warn('     Create it manually via SSH:');
+            $this->warn('       ln -s storage/app/public public/storage');
+            $this->warn('     Or skip it — image uploads now use public/uploads/ directly.');
         }
 
-        // 3. Clear all caches
-        $this->info('3. Clearing caches...');
+        // 3. Ensure public/uploads directory exists (no symlink needed)
+        $this->info('3. Ensuring public/uploads/ directory exists...');
+        $uploadsDir = public_path('uploads');
+        if (!is_dir($uploadsDir)) {
+            if (mkdir($uploadsDir, 0755, true)) {
+                $this->info('   ✓ Created public/uploads/');
+            } else {
+                $this->error('   ✗ Could not create public/uploads/ — check permissions');
+            }
+        } else {
+            $this->info('   ✓ public/uploads/ already exists');
+        }
+
+        // 4. Clear all caches
+        $this->info('4. Clearing caches...');
         $this->call('config:clear');
         $this->call('cache:clear');
         $this->call('route:clear');
         $this->call('view:clear');
         $this->info('   ✓ All caches cleared');
 
-        // 4. Run pending migrations
-        $this->info('4. Running pending migrations...');
+        // 5. Run pending migrations
+        $this->info('5. Running pending migrations...');
         $this->call('migrate', ['--force' => true]);
         $this->info('   ✓ Migrations complete');
 

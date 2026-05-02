@@ -190,8 +190,19 @@ class ClubController extends Controller
             'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:5120',
         ]);
 
-        $path = $request->file('image')->store('clubs', 'public');
-        $url  = url('storage/' . $path);
+        // Store directly in public/uploads/clubs/ — no storage symlink needed.
+        // This works on Hostinger where exec() and symlink() are both disabled.
+        $file     = $request->file('image');
+        $filename = uniqid('club_', true) . '.' . $file->getClientOriginalExtension();
+        $dir      = public_path('uploads/clubs');
+
+        if (!is_dir($dir)) {
+            mkdir($dir, 0755, true);
+        }
+
+        $file->move($dir, $filename);
+
+        $url = url('uploads/clubs/' . $filename);
 
         return response()->json(['url' => $url]);
     }
