@@ -2,6 +2,7 @@ modules = ["nodejs-20", "python-3.12", "web"]
 [agent]
 expertMode = true
 integrations = ["javascript_log_in_with_replit:1.0.0", "javascript_database:1.0.0", "javascript_stripe:1.0.0", "javascript_paypal:1.0.0"]
+stack = "BEST_EFFORT_FALLBACK"
 
 [nix]
 channel = "stable-25_05"
@@ -32,7 +33,7 @@ outputType = "webview"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "PATH=\"/nix/store/brk41mvaqsffxszsiw6lcd35m6y1pp0v-nodejs-22.17.0-wrapped/bin:$PATH\" bun run dev"
+args = "npm run dev"
 waitForPort = 5000
 
 [[ports]]
