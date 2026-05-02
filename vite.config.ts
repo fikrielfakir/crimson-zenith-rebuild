@@ -1,12 +1,10 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
-import { componentTagger } from "lovable-tagger";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// https://vitejs.dev/config/
 export default defineConfig(({ mode }: { mode: string }) => ({
   server: {
     host: "0.0.0.0",
@@ -14,7 +12,7 @@ export default defineConfig(({ mode }: { mode: string }) => ({
     allowedHosts: true as const,
     proxy: {
       '/api': {
-        target: 'http://localhost:3001',
+        target: 'http://localhost:8000',
         changeOrigin: true,
       },
     },
@@ -22,7 +20,8 @@ export default defineConfig(({ mode }: { mode: string }) => ({
       ignored: [
         "**/.cache/**",
         "**/.bun/**",
-        "**/node_modules/**"
+        "**/node_modules/**",
+        "**/laravel-api/**"
       ]
     },
     fs: {
