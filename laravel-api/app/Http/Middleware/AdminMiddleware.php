@@ -11,20 +11,20 @@ class AdminMiddleware
 {
     public function handle(Request $request, Closure $next): Response
     {
-        // 1. HMAC admin token (Authorization: Bearer …)
+        // 1. HMAC Bearer token — stateless, no session side-effects.
+        //    Use setUserResolver() so StartSession never reads a UUID user_id
+        //    and never attempts to write it to sessions.user_id (bigint).
         $bearer = $request->bearerToken();
         if ($bearer) {
             $user = AdminTokenService::verify($bearer);
             if ($user && $user->is_admin) {
-                // Bind user to the request so controllers can call $request->user()
-                auth()->setUser($user);
+                $request->setUserResolver(fn () => $user);
                 return $next($request);
             }
-            // Invalid or non-admin token — reject immediately
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
-        // 2. Session / Sanctum fallback
+        // 2. Session / Sanctum fallback (local dev only)
         $user = auth('sanctum')->user() ?? auth('web')->user();
 
         if (!$user) {

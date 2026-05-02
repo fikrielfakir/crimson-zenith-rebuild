@@ -109,22 +109,21 @@ class StatsController extends Controller
         $driver = config('database.default');
 
         if ($driver === 'mysql') {
-            $monthlyBookings = BookingTicket::selectRaw(
-                'DATE_FORMAT(created_at, "%Y-%m") as month, COUNT(*) as users, SUM(total_price) as revenue'
-            )
-                ->where('created_at', '>=', now()->subMonths(6))
-                ->groupBy('month')
-                ->orderBy('month')
-                ->get();
+            $dateExpr = 'DATE_FORMAT(created_at, "%Y-%m") as month';
+        } elseif ($driver === 'sqlite') {
+            $dateExpr = "strftime('%Y-%m', created_at) as month";
         } else {
-            $monthlyBookings = BookingTicket::selectRaw(
-                "TO_CHAR(created_at, 'YYYY-MM') as month, COUNT(*) as users, SUM(total_price) as revenue"
-            )
-                ->where('created_at', '>=', now()->subMonths(6))
-                ->groupBy('month')
-                ->orderBy('month')
-                ->get();
+            // PostgreSQL
+            $dateExpr = "TO_CHAR(created_at, 'YYYY-MM') as month";
         }
+
+        $monthlyBookings = BookingTicket::selectRaw(
+            "$dateExpr, COUNT(*) as users, SUM(total_price) as revenue"
+        )
+            ->where('created_at', '>=', now()->subMonths(6))
+            ->groupBy('month')
+            ->orderBy('month')
+            ->get();
 
         return response()->json([
             'userGrowth'      => $monthlyBookings,

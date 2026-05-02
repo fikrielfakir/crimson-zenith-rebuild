@@ -11,13 +11,15 @@ class Authenticate
 {
     public function handle(Request $request, Closure $next): Response
     {
-        // 1. HMAC Bearer token — works for both admin and regular users
+        // 1. HMAC Bearer token — works for both admin and regular users.
+        //    Use setUserResolver() instead of auth()->setUser() so that
+        //    StartSession never sees an authenticated user and never tries
+        //    to write the UUID into sessions.user_id (bigint on production).
         $bearer = $request->bearerToken();
         if ($bearer) {
             $user = AdminTokenService::verify($bearer);
             if ($user) {
-                // Bind user so $request->user() works in all downstream controllers
-                auth()->setUser($user);
+                $request->setUserResolver(fn () => $user);
                 return $next($request);
             }
             return response()->json(['message' => 'Unauthorized'], 401);
