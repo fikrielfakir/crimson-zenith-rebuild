@@ -154,6 +154,17 @@ Route::get('/placeholder/{width}/{height}', function ($width, $height) {
 */
 Route::prefix('admin')->middleware(['admin'])->group(function () {
 
+    // Validate HMAC token and return admin user info (used by ProtectedRoute)
+    Route::get('/me', function (\Illuminate\Http\Request $request) {
+        $user = $request->user();
+        return response()->json([
+            'id'       => $user->id,
+            'username' => $user->username ?? $user->email,
+            'email'    => $user->email,
+            'isAdmin'  => (bool) $user->is_admin,
+        ]);
+    });
+
     // Dashboard & Stats
     Route::get('/stats',           [\App\Http\Controllers\Admin\StatsController::class, 'stats']);
     Route::get('/activity',        [\App\Http\Controllers\Admin\StatsController::class, 'activity']);

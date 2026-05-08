@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { apiFetch } from '@/lib/apiFetch';
+import { clearAdminToken } from '@/lib/tokenStore';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -81,6 +83,7 @@ function SecretInput({
 
 export default function PaymentSettings() {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [settings, setSettings] = useState<PaymentSettingsData>(defaultSettings);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -127,7 +130,11 @@ export default function PaymentSettings() {
         setSettings({ ...defaultSettings, ...data });
         toast({ title: 'Saved', description: 'Payment settings updated successfully.' });
       } else if (res.status === 401) {
-        toast({ title: 'Session expired', description: 'Please log out and log back in.', variant: 'destructive' });
+        clearAdminToken();
+        toast({ title: 'Session expired', description: 'Redirecting to login…', variant: 'destructive' });
+        setTimeout(() => navigate('/admin/login'), 1500);
+      } else if (res.status === 503) {
+        toast({ title: 'API unavailable', description: 'The local API is starting up — please wait a moment and try again.', variant: 'destructive' });
       } else {
         throw new Error(data.message || `Server error ${res.status}`);
       }

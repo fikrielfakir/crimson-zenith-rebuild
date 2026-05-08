@@ -83,7 +83,7 @@ export default function AdminLogin() {
 
       // Populate the cache immediately so ProtectedRoute sees the user
       // before the navigate() call re-renders it.
-      queryClient.setQueryData(['currentUser'], data.user);
+      queryClient.setQueryData(['adminMe'], data.user);
 
       toast({
         title: 'Login successful',
