@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Upload, X, ImageIcon, Loader2 } from 'lucide-react';
+import { Upload, X, ImageIcon, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -9,10 +9,20 @@ interface ImageUploadProps {
   className?: string;
 }
 
+function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
 export function ImageUpload({ value, onChange, className }: ImageUploadProps) {
   const [preview, setPreview] = useState<string | null>(value || null);
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState<'idle' | 'server' | 'local'>('idle');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = async (file: File | null) => {
@@ -29,38 +39,43 @@ export function ImageUpload({ value, onChange, className }: ImageUploadProps) {
     }
 
     setIsUploading(true);
+    setUploadStatus('idle');
 
     try {
-      // Upload via FormData to the media endpoint — gets a real URL back
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('type', 'event');
+      // Convert to base64 first — this always persists (unlike blob URLs)
+      const base64 = await fileToBase64(file);
 
-      const res = await fetch('/api/admin/cms/media', {
-        method: 'POST',
-        credentials: 'include',
-        body: formData,
-      });
+      // Try uploading to the server as imageData JSON
+      try {
+        const res = await fetch('/api/admin/cms/media', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify({ imageData: base64, alt: file.name }),
+        });
 
-      if (res.ok) {
-        const data = await res.json();
-        const url: string = data.url || data.imageUrl || data.path || data.file_url || '';
-        if (url) {
-          setPreview(url);
-          onChange(url);
-          return;
+        if (res.ok) {
+          const data = await res.json();
+          // The endpoint returns the MediaAsset model; `url` is the base64 data URL stored in DB
+          const serverUrl: string = data.url || data.imageUrl || data.file_url || data.fileUrl || '';
+          if (serverUrl) {
+            setPreview(serverUrl);
+            onChange(serverUrl);
+            setUploadStatus('server');
+            return;
+          }
         }
+      } catch {
+        // Network error — fall through to base64 fallback
       }
 
-      // Fallback: use local object URL so at least the preview works
-      const objectUrl = URL.createObjectURL(file);
-      setPreview(objectUrl);
-      onChange(objectUrl);
+      // Fallback: store the base64 data URL directly
+      // This is persistent (survives page reloads) unlike blob: URLs
+      setPreview(base64);
+      onChange(base64);
+      setUploadStatus('local');
     } catch {
-      // Last resort: object URL
-      const objectUrl = URL.createObjectURL(file);
-      setPreview(objectUrl);
-      onChange(objectUrl);
+      alert('Failed to read the image file. Please try again.');
     } finally {
       setIsUploading(false);
     }
@@ -89,6 +104,7 @@ export function ImageUpload({ value, onChange, className }: ImageUploadProps) {
   const handleRemove = (e: React.MouseEvent) => {
     e.stopPropagation();
     setPreview(null);
+    setUploadStatus('idle');
     onChange('');
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -112,6 +128,9 @@ export function ImageUpload({ value, onChange, className }: ImageUploadProps) {
               src={preview}
               alt="Preview"
               className="h-full w-full object-cover"
+              onError={(e) => {
+                (e.target as HTMLImageElement).style.display = 'none';
+              }}
             />
             {isUploading && (
               <div className="absolute inset-0 flex items-center justify-center bg-black/40">
@@ -119,6 +138,23 @@ export function ImageUpload({ value, onChange, className }: ImageUploadProps) {
               </div>
             )}
           </div>
+
+          {/* Upload status badge */}
+          {!isUploading && uploadStatus !== 'idle' && (
+            <div className={cn(
+              'absolute bottom-2 left-2 flex items-center gap-1 px-2 py-1 rounded text-xs font-medium',
+              uploadStatus === 'server'
+                ? 'bg-green-600/90 text-white'
+                : 'bg-amber-500/90 text-white'
+            )}>
+              {uploadStatus === 'server' ? (
+                <><CheckCircle className="h-3 w-3" /> Saved to server</>
+              ) : (
+                <><AlertCircle className="h-3 w-3" /> Saved locally (embedded)</>
+              )}
+            </div>
+          )}
+
           <Button
             type="button"
             variant="destructive"

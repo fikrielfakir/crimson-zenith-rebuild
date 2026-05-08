@@ -64,19 +64,51 @@ class CmsAdminController extends Controller
 
     public function uploadMedia(Request $request)
     {
+        $userId = $request->user()?->id ?? 'system';
+
+        // Accept multipart file upload
+        if ($request->hasFile('file')) {
+            $file    = $request->file('file');
+            $mime    = $file->getMimeType() ?? 'image/jpeg';
+            $b64     = base64_encode(file_get_contents($file->getRealPath()));
+            $dataUrl = 'data:' . $mime . ';base64,' . $b64;
+
+            $asset = MediaAsset::create([
+                'id'          => Str::uuid(),
+                'url'         => $dataUrl,
+                'alt'         => $request->input('alt', $file->getClientOriginalName()),
+                'file_type'   => $mime,
+                'file_name'   => $file->getClientOriginalName(),
+                'uploaded_by' => $userId,
+            ]);
+
+            return response()->json([
+                'url'      => $dataUrl,
+                'imageUrl' => $dataUrl,
+                'id'       => $asset->id,
+            ], 201);
+        }
+
+        // Accept JSON base64 imageData
         $request->validate(['imageData' => 'required|string', 'alt' => 'nullable|string']);
         $imageData = $request->imageData;
         if (!preg_match('/^data:image\/(png|jpeg|jpg|gif|webp);base64,.+$/', $imageData, $m)) {
             return response()->json(['message' => 'Invalid image format'], 400);
         }
+
         $asset = MediaAsset::create([
             'id'          => Str::uuid(),
             'url'         => $imageData,
-            'alt'         => $request->alt ?? '',
-            'file_type'   => 'image/'.$m[1],
-            'uploaded_by' => $request->user()->id,
+            'alt'         => $request->input('alt', ''),
+            'file_type'   => 'image/' . $m[1],
+            'uploaded_by' => $userId,
         ]);
-        return response()->json($asset, 201);
+
+        return response()->json([
+            'url'      => $imageData,
+            'imageUrl' => $imageData,
+            'id'       => $asset->id,
+        ], 201);
     }
 
     public function getCmsStat(Request $request)
