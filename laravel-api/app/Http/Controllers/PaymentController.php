@@ -157,16 +157,25 @@ class PaymentController extends Controller
     // -------------------------------------------------------------------------
     public function cmiStatus(Request $request, string $ref)
     {
-        $ticket = BookingTicket::where('booking_reference', $ref)->first();
+        $ticket = BookingTicket::where('booking_reference', $ref)->with('event')->first();
         if (!$ticket) {
             return response()->json(['message' => 'Booking not found'], 404);
         }
 
         return response()->json([
-            'booking_reference' => $ticket->booking_reference,
-            'payment_status'    => $ticket->payment_status,
-            'status'            => $ticket->status,
-            'transaction_id'    => $ticket->transaction_id,
+            'booking_reference'     => $ticket->booking_reference,
+            'payment_status'        => $ticket->payment_status,
+            'status'                => $ticket->status,
+            'transaction_id'        => $ticket->transaction_id,
+            'customer_name'         => $ticket->customer_name,
+            'customer_email'        => $ticket->customer_email,
+            'customer_phone'        => $ticket->customer_phone,
+            'number_of_participants'=> $ticket->number_of_participants,
+            'event_date'            => $ticket->event_date,
+            'total_price'           => $ticket->total_price,
+            'payment_method'        => $ticket->payment_method,
+            'event_title'           => $ticket->event?->title ?? 'Event',
+            'event_location'        => $ticket->event?->location ?? null,
         ]);
     }
 

@@ -1,115 +1,218 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { CheckCircle2, Download, Home, FileText, Loader2 } from 'lucide-react';
+import { CheckCircle2, Download, Home, FileText, Loader2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { jsPDF } from 'jspdf';
+import { generateTicketPDF, TicketData } from '@/lib/generateTicketPDF';
 
 export default function PaymentSuccess() {
   const [searchParams] = useSearchParams();
   const ref = searchParams.get('ref') || '';
   const [ticket, setTicket] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
     if (!ref) { setLoading(false); return; }
-    const checkStatus = async () => {
+
+    let attempts = 0;
+    const MAX = 6;
+
+    const poll = async () => {
+      attempts++;
       try {
         const res = await fetch(`/api/payments/cmi/status/${ref}`);
         if (res.ok) {
           const data = await res.json();
           setTicket(data);
+          // Auto-download ticket once payment is confirmed
+          if (data.payment_status === 'completed') {
+            setLoading(false);
+            triggerDownload(data);
+            return;
+          }
         }
-      } catch { /* ignore */ } finally {
+      } catch { /* ignore */ }
+
+      if (attempts < MAX) {
+        setTimeout(poll, 2000);
+      } else {
         setLoading(false);
       }
     };
-    // Poll briefly to allow the server callback to propagate
-    const t = setTimeout(checkStatus, 1500);
+
+    // Give CMI callback a moment to process
+    const t = setTimeout(poll, 1800);
     return () => clearTimeout(t);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ref]);
 
-  const downloadReceipt = () => {
-    const doc = new jsPDF();
-    doc.setFillColor(17, 31, 80);
-    doc.rect(0, 0, 210, 45, 'F');
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(22);
-    doc.setTextColor(255, 255, 255);
-    doc.text('PAYMENT CONFIRMED', 105, 22, { align: 'center' });
-    doc.setFontSize(11);
-    doc.setTextColor(212, 178, 106);
-    doc.text('THE JOURNEY ASSOCIATION', 105, 35, { align: 'center' });
-    let y = 65;
-    doc.setTextColor(17, 31, 80);
-    doc.setFontSize(13);
-    doc.text('Booking Reference:', 20, y);
-    y += 10;
-    doc.setFontSize(20);
-    doc.setTextColor(212, 178, 106);
-    doc.text(ref, 20, y);
-    y += 20;
-    doc.setFontSize(12);
-    doc.setTextColor(60, 60, 60);
-    doc.text(`Payment Status: Completed`, 20, y); y += 10;
-    doc.text(`Transaction ID: ${ticket?.transaction_id || 'N/A'}`, 20, y);
-    doc.save(`receipt-${ref}.pdf`);
+  const triggerDownload = async (data: any) => {
+    setDownloading(true);
+    try {
+      const ticketData: TicketData = {
+        bookingReference:     data.booking_reference,
+        customerName:         data.customer_name,
+        customerEmail:        data.customer_email,
+        customerPhone:        data.customer_phone,
+        numberOfParticipants: data.number_of_participants,
+        eventTitle:           data.event_title || 'Event',
+        eventDate:            data.event_date,
+        eventLocation:        data.event_location,
+        totalPrice:           Number(data.total_price),
+        paymentMethod:        data.payment_method,
+        paymentStatus:        data.payment_status,
+        transactionId:        data.transaction_id,
+      };
+      await generateTicketPDF(ticketData);
+    } catch (e) {
+      console.error('Ticket generation failed', e);
+    } finally {
+      setDownloading(false);
+    }
   };
 
+  const handleDownload = () => {
+    if (ticket) triggerDownload(ticket);
+  };
+
+  const isPaid = ticket?.payment_status === 'completed';
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       <Header />
-      <section className="bg-gradient-to-r from-[#111f50] to-[#1a2d5a]" style={{ paddingTop: '14rem', paddingBottom: '3rem' }}>
+
+      {/* Hero */}
+      <section
+        className="bg-gradient-to-r from-[#111f50] to-[#1a2d5a]"
+        style={{ paddingTop: '14rem', paddingBottom: '3rem' }}
+      >
         <div className="container mx-auto px-6 text-center">
           <div className="w-20 h-20 rounded-full bg-green-400/20 flex items-center justify-center mx-auto mb-6">
             <CheckCircle2 className="w-10 h-10 text-green-400" />
           </div>
-          <h1 className="font-['Poppins'] font-bold text-white text-4xl mb-3">Payment Successful!</h1>
-          <p className="text-white/80 font-['Inter'] text-lg">Your booking has been confirmed and your ticket is ready.</p>
+          <h1 className="font-['Poppins'] font-bold text-white text-4xl mb-3">
+            Payment Successful!
+          </h1>
+          <p className="text-white/80 font-['Inter'] text-lg">
+            Your booking is confirmed — your ticket is being prepared.
+          </p>
         </div>
       </section>
 
-      <div className="container mx-auto px-6 py-12 max-w-lg">
+      <div className="container mx-auto px-6 py-12 max-w-lg flex-1">
         {loading ? (
-          <div className="text-center py-8">
-            <Loader2 className="w-8 h-8 animate-spin text-[#D4B26A] mx-auto mb-3" />
-            <p className="text-gray-500 font-['Inter']">Verifying your payment…</p>
+          <div className="text-center py-16 space-y-4">
+            <Loader2 className="w-10 h-10 animate-spin text-[#D4B26A] mx-auto" />
+            <p className="text-gray-500 font-['Inter'] text-lg">Verifying your payment…</p>
+            <p className="text-gray-400 font-['Inter'] text-sm">This usually takes a few seconds.</p>
           </div>
         ) : (
-          <Card className="border-2 border-green-200 rounded-3xl shadow-xl">
-            <CardContent className="p-8 space-y-6">
-              <div className="flex items-center gap-3">
-                <FileText className="w-6 h-6 text-[#D4B26A]" />
-                <span className="font-['Poppins'] font-semibold text-[#111f50] text-lg">Booking Reference</span>
-              </div>
-              <p className="font-['Inter'] text-3xl font-bold text-[#D4B26A] tracking-widest">{ref || '—'}</p>
-
-              {ticket && (
-                <div className="bg-green-50 border border-green-200 rounded-xl p-4 space-y-1">
-                  <p className="text-sm font-semibold text-green-800">Payment Status: <span className="capitalize">{ticket.payment_status}</span></p>
-                  {ticket.transaction_id && (
-                    <p className="text-xs text-green-700 font-mono">Transaction: {ticket.transaction_id}</p>
-                  )}
+          <div className="space-y-6">
+            {/* Reference card */}
+            <Card className="border-2 border-[#D4B26A]/40 rounded-3xl shadow-xl overflow-hidden">
+              {/* Gold top accent */}
+              <div className="h-2 bg-gradient-to-r from-[#D4B26A] to-[#C9A758]" />
+              <CardContent className="p-8 space-y-6">
+                {/* Booking ref */}
+                <div className="text-center space-y-2">
+                  <div className="flex items-center justify-center gap-2 text-[#D4B26A]">
+                    <FileText className="w-5 h-5" />
+                    <span className="font-['Poppins'] font-semibold text-[#111f50] text-base">
+                      Booking Reference
+                    </span>
+                  </div>
+                  <p className="font-['Inter'] text-3xl font-bold text-[#D4B26A] tracking-widest">
+                    {ref || '—'}
+                  </p>
                 </div>
-              )}
 
-              <div className="space-y-3">
-                <Button onClick={downloadReceipt}
-                  className="w-full bg-[#111f50] hover:bg-[#1a2d5a] text-white font-['Poppins'] font-semibold py-6 rounded-xl">
-                  <Download className="w-5 h-5 mr-2" /> Download Receipt
-                </Button>
-                <Link to="/" className="block">
-                  <Button variant="outline" className="w-full font-['Poppins'] font-semibold py-6 rounded-xl border-2">
-                    <Home className="w-5 h-5 mr-2" /> Return to Home
+                {/* Event details */}
+                {ticket && (
+                  <div className="bg-[#111f50]/5 border border-[#111f50]/10 rounded-2xl p-5 space-y-3">
+                    <p className="font-['Poppins'] font-bold text-[#111f50] text-lg leading-tight">
+                      {ticket.event_title || 'Your Event'}
+                    </p>
+                    <div className="grid grid-cols-2 gap-3 text-sm font-['Inter']">
+                      <div>
+                        <p className="text-gray-400 text-xs uppercase tracking-wide mb-0.5">Date</p>
+                        <p className="text-[#111f50] font-semibold">
+                          {new Date(ticket.event_date).toLocaleDateString('en-GB', {
+                            day: 'numeric', month: 'long', year: 'numeric',
+                          })}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-gray-400 text-xs uppercase tracking-wide mb-0.5">Participants</p>
+                        <p className="text-[#111f50] font-semibold">{ticket.number_of_participants}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-400 text-xs uppercase tracking-wide mb-0.5">Amount</p>
+                        <p className="text-[#111f50] font-semibold">{Number(ticket.total_price).toFixed(2)} MAD</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-400 text-xs uppercase tracking-wide mb-0.5">Status</p>
+                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold ${
+                          isPaid
+                            ? 'bg-green-100 text-green-700'
+                            : 'bg-amber-100 text-amber-700'
+                        }`}>
+                          {isPaid ? <CheckCircle2 className="w-3 h-3" /> : <AlertCircle className="w-3 h-3" />}
+                          {(ticket.payment_status || 'pending').toUpperCase()}
+                        </span>
+                      </div>
+                    </div>
+                    {ticket.transaction_id && (
+                      <p className="text-xs text-gray-400 font-mono pt-1 border-t border-gray-100">
+                        TXN: {ticket.transaction_id}
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {/* Actions */}
+                <div className="space-y-3">
+                  <Button
+                    onClick={handleDownload}
+                    disabled={downloading}
+                    className="w-full bg-gradient-to-r from-[#D4B26A] to-[#C9A758] hover:from-[#C9A758] hover:to-[#B89647] text-white font-['Poppins'] font-bold py-6 rounded-xl shadow-lg text-base"
+                  >
+                    {downloading ? (
+                      <span className="flex items-center gap-2">
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        Generating ticket…
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-2">
+                        <Download className="w-5 h-5" />
+                        Download Event Ticket
+                      </span>
+                    )}
                   </Button>
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
+
+                  <Link to="/" className="block">
+                    <Button
+                      variant="outline"
+                      className="w-full font-['Poppins'] font-semibold py-6 rounded-xl border-2 border-[#111f50]/20 text-base"
+                    >
+                      <Home className="w-5 h-5 mr-2" />
+                      Return to Home
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+
+            <p className="text-center text-xs text-gray-400 font-['Inter']">
+              A confirmation email has been sent to{' '}
+              <strong className="text-gray-600">{ticket?.customer_email || 'your email'}</strong>.
+            </p>
+          </div>
         )}
       </div>
+
       <Footer />
     </div>
   );

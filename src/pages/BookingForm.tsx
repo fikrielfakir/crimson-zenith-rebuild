@@ -27,7 +27,7 @@ import {
   Mail,
   ExternalLink,
 } from "lucide-react";
-import { jsPDF } from "jspdf";
+import { generateTicketPDF } from "@/lib/generateTicketPDF";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { format } from "date-fns";
@@ -204,98 +204,21 @@ const BookingForm = () => {
     return null;
   };
 
-  const generatePDFTicket = (booking: any) => {
-    const doc = new jsPDF();
-    
-    doc.setFillColor(17, 31, 80);
-    doc.rect(0, 0, 210, 50, 'F');
-    
-    doc.setFillColor(212, 178, 106);
-    doc.rect(0, 50, 210, 3, 'F');
-    
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(28);
-    doc.setTextColor(255, 255, 255);
-    doc.text('EVENT TICKET', 105, 30, { align: 'center' });
-    
-    doc.setFontSize(12);
-    doc.setTextColor(212, 178, 106);
-    doc.text('THE JOURNEY ASSOCIATION', 105, 42, { align: 'center' });
-    
-    let yPos = 70;
-    
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(14);
-    doc.setTextColor(17, 31, 80);
-    doc.text('Booking Reference:', 20, yPos);
-    yPos += 8;
-    
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(18);
-    doc.setTextColor(212, 178, 106);
-    doc.text(booking.bookingReference, 20, yPos);
-    yPos += 20;
-    
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(14);
-    doc.setTextColor(17, 31, 80);
-    doc.text('Event Details:', 20, yPos);
-    yPos += 10;
-    
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(12);
-    doc.setTextColor(60, 60, 60);
-    doc.text(`Event: ${selectedEvent.title}`, 20, yPos);
-    yPos += 8;
-    doc.text(`Date: ${selectedDate ? format(selectedDate, 'MMMM d, yyyy') : 'N/A'}`, 20, yPos);
-    yPos += 8;
-    doc.text(`Location: ${selectedEvent.location}`, 20, yPos);
-    yPos += 8;
-    doc.text(`Duration: ${selectedEvent.duration || '4 hours'}`, 20, yPos);
-    yPos += 15;
-    
-    doc.setFont('helvetica', 'bold');
-    doc.text('Attendee Information:', 20, yPos);
-    yPos += 10;
-    
-    doc.setFont('helvetica', 'normal');
-    doc.text(`Name: ${customerName}`, 20, yPos);
-    yPos += 8;
-    doc.text(`Email: ${customerEmail}`, 20, yPos);
-    yPos += 8;
-    if (customerPhone) {
-      doc.text(`Phone: ${customerPhone}`, 20, yPos);
-      yPos += 8;
-    }
-    yPos += 7;
-    
-    doc.setFont('helvetica', 'bold');
-    doc.text('Booking Summary:', 20, yPos);
-    yPos += 10;
-    
-    doc.setFont('helvetica', 'normal');
-    doc.text(`Number of Travelers: ${participants}`, 20, yPos);
-    yPos += 8;
-    doc.text(`Price per Person: $${selectedEvent.price}`, 20, yPos);
-    yPos += 8;
-    
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(14);
-    doc.text(`Total Amount: $${totalPrice}`, 20, yPos);
-    yPos += 15;
-    
-    doc.setFillColor(212, 178, 106);
-    doc.roundedRect(20, yPos, 170, 25, 3, 3, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(12);
-    doc.text('Status: CONFIRMED - Payment Verified', 105, yPos + 15, { align: 'center' });
-    
-    doc.setTextColor(128, 128, 128);
-    doc.setFontSize(10);
-    doc.text('Please present this ticket at the event entrance.', 105, 270, { align: 'center' });
-    doc.text('Thank you for booking with us!', 105, 278, { align: 'center' });
-    
-    doc.save(`ticket-${booking.bookingReference}.pdf`);
+  const generatePDFTicket = async (booking: any) => {
+    await generateTicketPDF({
+      bookingReference:     booking.bookingReference,
+      customerName:         booking.customerName || customerName,
+      customerEmail:        booking.customerEmail || customerEmail,
+      customerPhone:        booking.customerPhone || customerPhone || null,
+      numberOfParticipants: booking.numberOfParticipants || participants,
+      eventTitle:           booking.eventTitle || selectedEvent?.title || 'Event',
+      eventDate:            booking.eventDate || selectedDate?.toISOString() || '',
+      eventLocation:        booking.eventLocation || selectedEvent?.location || null,
+      totalPrice:           booking.totalPrice ?? totalPrice,
+      paymentMethod:        booking.paymentMethod || paymentMethod,
+      paymentStatus:        booking.paymentStatus || 'completed',
+      transactionId:        booking.transactionId || null,
+    });
   };
 
   const handleSubmitBooking = async (e: React.FormEvent) => {
@@ -403,7 +326,21 @@ const BookingForm = () => {
         setBookingReference(data.ticket.bookingReference);
         setBookingComplete(true);
         setBookingStep(3);
-        if (!isCashPayment) generatePDFTicket(data.ticket);
+        if (!isCashPayment) {
+          await generatePDFTicket({
+            bookingReference:     data.ticket.bookingReference,
+            customerName,
+            customerEmail,
+            customerPhone,
+            numberOfParticipants: participants,
+            eventTitle:           selectedEvent?.title || 'Event',
+            eventDate:            selectedDate?.toISOString() || '',
+            eventLocation:        selectedEvent?.location || null,
+            totalPrice,
+            paymentMethod,
+            paymentStatus: 'completed',
+          });
+        }
         toast({
           title: isCashPayment ? "Booking Submitted!" : "Booking Confirmed!",
           description: isCashPayment
@@ -921,16 +858,26 @@ const BookingForm = () => {
                     </div>
 
                     <div className="space-y-4 max-w-md mx-auto">
-                      {paymentMethod === 'cash' && (
-                        <Button 
-                          type="button"
-                          onClick={() => generatePDFTicket({ bookingReference })}
-                          className="w-full bg-[#111f50] hover:bg-[#1a2d5a] text-white font-['Poppins'] font-semibold py-6 rounded-xl text-base"
-                        >
-                          <Download className="w-5 h-5 mr-2" />
-                          Download Booking Receipt
-                        </Button>
-                      )}
+                      <Button
+                        type="button"
+                        onClick={() => generatePDFTicket({
+                          bookingReference,
+                          customerName,
+                          customerEmail,
+                          customerPhone,
+                          numberOfParticipants: participants,
+                          eventTitle:    selectedEvent?.title || 'Event',
+                          eventDate:     selectedDate?.toISOString() || '',
+                          eventLocation: selectedEvent?.location || null,
+                          totalPrice,
+                          paymentMethod,
+                          paymentStatus: paymentMethod === 'cash' ? 'pending' : 'completed',
+                        })}
+                        className="w-full bg-gradient-to-r from-[#D4B26A] to-[#C9A758] hover:from-[#C9A758] hover:to-[#B89647] text-white font-['Poppins'] font-semibold py-6 rounded-xl shadow-lg text-base"
+                      >
+                        <Download className="w-5 h-5 mr-2" />
+                        Download Event Ticket
+                      </Button>
 
                       <Link to="/" className="block">
                         <Button 

@@ -24,6 +24,18 @@ function patchCookies(proxyRes: any) {
 
 const PROD_API = "https://api.thejourney-ma.org";
 
+// Local Laravel API handles all NEW routes that don't exist on production yet
+const LOCAL_API = "http://localhost:8000";
+
+const localProxyOptions = {
+  target: LOCAL_API,
+  changeOrigin: true,
+  secure: false,
+  configure: (proxy: any) => {
+    proxy.on("proxyRes", patchCookies);
+  },
+};
+
 const proxyOptions = {
   target: PROD_API,
   changeOrigin: true,
@@ -43,6 +55,12 @@ export default defineConfig(({ mode }: { mode: string }) => ({
     port: 5000,
     allowedHosts: true as const,
     proxy: {
+      // ── Routes that ONLY exist on the local Laravel API ──────────────────
+      // Must be listed BEFORE the catch-all "/api" rule.
+      "/api/payments":               localProxyOptions,
+      "/api/admin/payment-settings": localProxyOptions,
+
+      // ── Everything else → production API ─────────────────────────────────
       "/api": proxyOptions,
       "/sanctum": proxyOptions,
       "/storage": proxyOptions,
