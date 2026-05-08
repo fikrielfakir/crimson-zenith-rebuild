@@ -462,7 +462,7 @@ const BookingForm = () => {
     <div className="min-h-screen bg-gray-50">
       <Header />
 
-      <section className="bg-gradient-to-r from-[#111f50] to-[#1a2d5a] relative overflow-hidden" style={{ paddingTop: '10rem' }}>
+      <section className="bg-gradient-to-r from-[#111f50] to-[#1a2d5a] relative overflow-hidden" style={{ paddingTop: '14rem' }}>
         <div className="container mx-auto px-6 pb-8">
           <nav className="mb-6">
             <ol className="flex items-center space-x-3">
