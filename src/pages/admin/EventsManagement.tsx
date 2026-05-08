@@ -93,7 +93,7 @@ const eventSchema = z.object({
   maxPeople: z.string().optional(),
   maxAttendees: z.string().optional(),
   price: z.string().optional(),
-  image: z.string().optional(),
+  image: z.string().min(1, 'Event image is required'),
   highlights: z.string().optional(),
   included: z.string().optional(),
   notIncluded: z.string().optional(),
@@ -771,7 +771,7 @@ export default function EventsManagement() {
                     name="image"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Event Image (optional)</FormLabel>
+                        <FormLabel>Event Image <span className="text-red-500">*</span></FormLabel>
                         <FormControl>
                           <ImageUpload
                             value={field.value}

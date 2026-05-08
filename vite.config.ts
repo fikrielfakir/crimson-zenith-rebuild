@@ -45,6 +45,7 @@ export default defineConfig(({ mode }: { mode: string }) => ({
     proxy: {
       "/api": proxyOptions,
       "/sanctum": proxyOptions,
+      "/storage": proxyOptions,
     },
     watch: {
       ignored: [
