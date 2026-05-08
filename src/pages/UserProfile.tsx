@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
+import { apiFetch } from "@/lib/apiFetch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -129,9 +130,7 @@ const UserProfile = () => {
   const fetchUserClubs = async () => {
     try {
       setClubsLoading(true);
-      const response = await fetch('/api/user/clubs', {
-        credentials: 'include',
-      });
+      const response = await apiFetch('/api/user/clubs');
       if (response.ok) {
         const clubs = await response.json();
         setUserClubs(Array.isArray(clubs) ? clubs : []);
@@ -149,9 +148,7 @@ const UserProfile = () => {
   const fetchUserBookings = async () => {
     try {
       setBookingsLoading(true);
-      const response = await fetch('/api/booking/my-tickets', {
-        credentials: 'include',
-      });
+      const response = await apiFetch('/api/booking/my-tickets');
       if (response.ok) {
         const data = await response.json();
         setUserBookings(Array.isArray(data.tickets) ? data.tickets : []);
@@ -171,10 +168,8 @@ const UserProfile = () => {
     
     try {
       setActionLoading(true);
-      const response = await fetch(`/api/booking/my-tickets/${cancellingBooking.bookingReference}/cancel`, {
+      const response = await apiFetch(`/api/booking/my-tickets/${cancellingBooking.bookingReference}/cancel`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify({ reason: cancelReason }),
       });
       
@@ -206,10 +201,8 @@ const UserProfile = () => {
     
     try {
       setActionLoading(true);
-      const response = await fetch(`/api/booking/my-tickets/${editingBooking.bookingReference}/update`, {
+      const response = await apiFetch(`/api/booking/my-tickets/${editingBooking.bookingReference}/update`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify(editFormData),
       });
       
@@ -275,12 +268,8 @@ const UserProfile = () => {
 
   const handleSaveProfile = async () => {
     try {
-      const response = await fetch('/api/auth/user', {
+      const response = await apiFetch('/api/auth/user', {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
         body: JSON.stringify(profileData),
       });
 
@@ -342,10 +331,8 @@ const UserProfile = () => {
       reader.onload = async (e) => {
         const imageData = e.target?.result as string;
         
-        const response = await fetch('/api/auth/upload-profile-image', {
+        const response = await apiFetch('/api/auth/upload-profile-image', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
           body: JSON.stringify({ imageData }),
         });
 
@@ -390,10 +377,7 @@ const UserProfile = () => {
 
   const handleLogout = async () => {
     try {
-      await fetch('/api/logout', {
-        method: 'POST',
-        credentials: 'include',
-      });
+      await apiFetch('/api/logout', { method: 'POST' });
     } catch (_) {}
     // Clear HMAC user token so subsequent auth checks return unauthenticated
     const { clearUserToken } = await import('@/lib/tokenStore');
