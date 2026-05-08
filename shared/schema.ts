@@ -33,6 +33,7 @@ export const users = mysqlTable("users", {
   username: varchar("username", { length: 255 }).unique(),
   password: varchar("password", { length: 255 }),
   email: varchar("email", { length: 255 }).unique(),
+  name: varchar("name", { length: 255 }),
   firstName: varchar("first_name", { length: 255 }),
   lastName: varchar("last_name", { length: 255 }),
   profileImageUrl: varchar("profile_image_url", { length: 500 }),

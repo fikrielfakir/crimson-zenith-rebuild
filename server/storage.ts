@@ -352,6 +352,7 @@ export class DatabaseStorage implements IStorage {
         username: userData.username,
         password: userData.password || '',
         email: userData.email,
+        name: userData.name || `${userData.firstName || ''} ${userData.lastName || ''}`.trim() || null,
         firstName: userData.firstName,
         lastName: userData.lastName,
         profileImageUrl: userData.profileImageUrl,

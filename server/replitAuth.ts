@@ -154,6 +154,7 @@ export async function setupAuth(app: Express) {
         id,
         username: email,
         email,
+        name: `${firstName} ${lastName}`.trim(),
         firstName,
         lastName,
         password: hashedPassword,
