@@ -348,9 +348,15 @@ const Book = () => {
   const scrollPrev = () => emblaApi && emblaApi.scrollPrev();
   const scrollNext = () => emblaApi && emblaApi.scrollNext();
 
-  const displayImages = galleryImages.length > 0
-    ? galleryImages.map(img => typeof img === 'string' ? img : (img.imageUrl || img.url || '/api/placeholder/1200/600'))
-    : (selectedEvent.image ? [selectedEvent.image] : ['/api/placeholder/1200/600']);
+  const FALLBACK_IMG = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&q=80';
+  const sanitizeImg = (src: string) =>
+    src && !src.startsWith('blob:') ? src : FALLBACK_IMG;
+
+  const rawImages = galleryImages.length > 0
+    ? galleryImages.map(img => typeof img === 'string' ? img : (img.imageUrl || img.url || FALLBACK_IMG))
+    : (selectedEvent.image ? [selectedEvent.image] : [FALLBACK_IMG]);
+
+  const displayImages = rawImages.map(sanitizeImg);
 
   return (
     <div className="min-h-screen bg-white">
@@ -517,6 +523,7 @@ const Book = () => {
                     src={displayImages[selectedImageIndex]}
                     alt={`Event image ${selectedImageIndex + 1}`}
                     className="w-full max-h-[80vh] object-contain rounded-xl"
+                    onError={e => { (e.target as HTMLImageElement).src = FALLBACK_IMG; }}
                   />
 
                   {/* Lightbox prev/next */}
@@ -548,7 +555,7 @@ const Book = () => {
                             i === selectedImageIndex ? 'border-[#D4B26A] scale-110' : 'border-white/30 opacity-60 hover:opacity-100'
                           }`}
                         >
-                          <img src={img} alt="" className="w-full h-full object-cover" />
+                          <img src={img} alt="" className="w-full h-full object-cover" onError={e => { (e.target as HTMLImageElement).src = FALLBACK_IMG; }} />
                         </button>
                       ))}
                     </div>

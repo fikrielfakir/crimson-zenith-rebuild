@@ -867,12 +867,13 @@ const BookingForm = () => {
                 <h5 className="font-['Poppins'] font-bold text-white text-lg">Booking Summary</h5>
               </div>
               <CardContent className="p-6 space-y-4">
-                {selectedEvent.image && (
+                {selectedEvent.image && !selectedEvent.image.startsWith('blob:') && (
                   <div className="rounded-xl overflow-hidden">
                     <img 
                       src={selectedEvent.image} 
                       alt={selectedEvent.title}
                       className="w-full h-32 object-cover"
+                      onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80'; }}
                     />
                   </div>
                 )}

@@ -196,9 +196,10 @@ const EventCalendar = () => {
                   {/* Image Section */}
                   <div className="relative overflow-hidden" style={{ height: '280px' }}>
                     <img 
-                      src={event.image} 
+                      src={event.image && !event.image.startsWith('blob:') ? event.image : 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80'}
                       alt={event.title}
                       className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                      onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80'; }}
                     />
                     {/* Featured Badge */}
                     {event.featured && (
