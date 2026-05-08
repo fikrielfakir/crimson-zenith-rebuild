@@ -167,12 +167,23 @@ function MapLocationPicker({
   const mapRef       = useRef<L.Map | null>(null);
   const markerRef    = useRef<L.Marker | null>(null);
 
-  const [search,    setSearch]    = useState('');
-  const [searching, setSearching] = useState(false);
-  const [coords,    setCoords]    = useState<{ lat: number; lng: number } | null>(
+  const [search,           setSearch]           = useState('');
+  const [searching,        setSearching]        = useState(false);
+  const [scrollZoomActive, setScrollZoomActive] = useState(false);
+  const [coords,           setCoords]           = useState<{ lat: number; lng: number } | null>(
     lat != null && lng != null ? { lat, lng } : null,
   );
   const { toast } = useToast();
+
+  const enableScrollZoom = () => {
+    mapRef.current?.scrollWheelZoom.enable();
+    setScrollZoomActive(true);
+  };
+
+  const disableScrollZoom = () => {
+    mapRef.current?.scrollWheelZoom.disable();
+    setScrollZoomActive(false);
+  };
 
   // Sync external lat/lng (fires when edit form data loads)
   useEffect(() => {
@@ -306,9 +317,30 @@ function MapLocationPicker({
       </div>
 
       {/* Map */}
-      <div className="relative rounded-lg overflow-hidden border" style={{ height: 340 }}>
+      <div
+        className="relative rounded-lg overflow-hidden border"
+        style={{ height: 340 }}
+        onMouseLeave={disableScrollZoom}
+      >
         <div ref={containerRef} className="w-full h-full" />
-        <div className="absolute bottom-8 left-2 z-[1000] bg-black/50 backdrop-blur-sm text-white text-xs px-2 py-1 rounded pointer-events-none">
+
+        {/* Scroll-zoom activation overlay — click to enable, auto-hides when active */}
+        <div
+          onClick={enableScrollZoom}
+          className={`absolute inset-0 z-[1000] flex items-center justify-center transition-opacity duration-300 cursor-pointer select-none ${
+            scrollZoomActive ? 'opacity-0 pointer-events-none' : 'opacity-100'
+          }`}
+        >
+          <div className="bg-black/50 backdrop-blur-sm text-white text-sm px-4 py-2 rounded-full flex items-center gap-2 shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/>
+            </svg>
+            Click to enable scroll zoom
+          </div>
+        </div>
+
+        {/* Pin hint — bottom left */}
+        <div className="absolute bottom-8 left-2 z-[999] bg-black/50 backdrop-blur-sm text-white text-xs px-2 py-1 rounded pointer-events-none">
           Click on the map to pin location
         </div>
       </div>
