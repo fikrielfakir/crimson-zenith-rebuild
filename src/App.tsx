@@ -9,6 +9,8 @@ import EventsActivities from "./pages/EventsActivities";
 import Clubs from "./pages/Clubs";
 import Book from "./pages/Book";
 import BookingForm from "./pages/BookingForm";
+import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentFail from "./pages/PaymentFail";
 import Gallery from "./pages/Gallery";
 import News from "./pages/News";
 import BlogPost from "./pages/BlogPost";
@@ -102,6 +104,8 @@ const App = () => (
           <Route path="/smart-events" element={<SmartEvents />} />
           <Route path="/book" element={<Book />} />
           <Route path="/book/form" element={<BookingForm />} />
+          <Route path="/book/payment/success" element={<PaymentSuccess />} />
+          <Route path="/book/payment/fail" element={<PaymentFail />} />
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/news" element={<News />} />
           <Route path="/news/:slug" element={<BlogPost />} />

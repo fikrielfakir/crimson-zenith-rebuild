@@ -71,6 +71,27 @@ cd laravel-api && php artisan db:seed
 - **Dev Server**: `npm run dev` (concurrently runs Vite on :5000 + legacy server.ts on :3001 — server.ts fails without MYSQL_PASSWORD but Vite proxy goes to Laravel :8000)
 - **Laravel API**: `cd laravel-api && php artisan config:clear && php artisan serve --host=0.0.0.0 --port=8000`
 
+## CMI Payment Gateway Integration
+- **Admin UI**: `/admin/payments` — configure and toggle CMI, Cash, and Stripe
+- **Backend service**: `laravel-api/app/Services/CmiPaymentService.php`
+  - `buildPaymentForm()` — generates HMAC-SHA512 signed fields for CMI 3D Secure hosting
+  - `verifyCallback()` — verifies server-to-server callback HMAC from CMI
+- **API routes** (all public):
+  - `GET /api/payments/methods` — returns which methods are enabled (cmi/cash/stripe)
+  - `POST /api/payments/cmi/initiate` — creates pending ticket + returns CMI form fields
+  - `POST /api/payments/cmi/callback` — CMI server-to-server callback (updates ticket status)
+  - `GET /api/payments/cmi/status/{ref}` — check payment status by booking reference
+- **Admin routes** (auth + admin):
+  - `GET /api/admin/payment-settings` — read settings (includes masked secrets)
+  - `PUT /api/admin/payment-settings` — update settings
+  - `POST /api/admin/payment-settings/test` — test configured connections
+- **Frontend pages**:
+  - `/book/payment/success?ref=XXX` — CMI success redirect landing page
+  - `/book/payment/fail?ref=XXX` — CMI failure redirect landing page
+- **Payment flow**: User selects CMI → POST to initiate → backend creates pending ticket + builds signed form → frontend auto-submits form to CMI gateway → CMI redirects browser to success/fail URL + POSTs callback → backend verifies HMAC + updates ticket status
+- **CMI URLs**: Test: `https://testpayment.cmi.co.ma/fim/est3Dgate` | Live: `https://payment.cmi.co.ma/fim/est3Dgate`
+- **Currency**: 504 = MAD (Moroccan Dirham)
+
 ## Environment Secrets Required
 - `MYSQL_PASSWORD` — Hostinger MySQL password (REQUIRED for all DB operations)
 

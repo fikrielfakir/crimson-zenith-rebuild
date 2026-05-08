@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -24,12 +24,20 @@ import {
   MapPin,
   Clock,
   Users,
-  Mail
+  Mail,
+  ExternalLink,
 } from "lucide-react";
 import { jsPDF } from "jspdf";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { format } from "date-fns";
+
+interface PaymentMethods {
+  cmi_enabled: boolean;
+  cash_enabled: boolean;
+  stripe_enabled: boolean;
+  cmi_mode: string;
+}
 
 const BookingForm = () => {
   const [searchParams] = useSearchParams();
@@ -58,13 +66,15 @@ const BookingForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [bookingStep, setBookingStep] = useState(1);
-  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card'>('card');
+  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card' | 'cmi'>('cmi');
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethods>({ cmi_enabled: false, cash_enabled: true, stripe_enabled: false, cmi_mode: 'test' });
   const [cin, setCin] = useState('');
   const [cne, setCne] = useState('');
   const [dateOfBirth, setDateOfBirth] = useState('');
   const [address, setAddress] = useState('');
   const [bookingComplete, setBookingComplete] = useState(false);
   const [bookingReference, setBookingReference] = useState('');
+  const cmiFormRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -119,6 +129,23 @@ const BookingForm = () => {
       fetchEvent();
     }
   }, [eventId, isAuthenticated]);
+
+  // Fetch available payment methods
+  useEffect(() => {
+    const fetchMethods = async () => {
+      try {
+        const res = await fetch('/api/payments/methods');
+        if (res.ok) {
+          const data: PaymentMethods = await res.json();
+          setPaymentMethods(data);
+          // Set default payment method based on what's enabled
+          if (data.cmi_enabled) setPaymentMethod('cmi');
+          else if (data.cash_enabled) setPaymentMethod('cash');
+        }
+      } catch { /* fallback: keep defaults */ }
+    };
+    fetchMethods();
+  }, []);
 
   const totalPrice = selectedEvent ? (selectedEvent.price || 0) * participants : 0;
 
@@ -276,11 +303,7 @@ const BookingForm = () => {
     
     const validationError = validateBookingForm();
     if (validationError) {
-      toast({
-        title: "Validation Error",
-        description: validationError,
-        variant: "destructive",
-      });
+      toast({ title: "Validation Error", description: validationError, variant: "destructive" });
       return;
     }
 
@@ -289,32 +312,88 @@ const BookingForm = () => {
     try {
       const isAssociation = selectedEvent.isAssociationEvent;
       const isCashPayment = !isAssociation && paymentMethod === 'cash';
-      
+      const isCmiPayment  = paymentMethod === 'cmi' || (isAssociation && paymentMethods.cmi_enabled);
+
+      // ── CMI: initiate hosted payment ────────────────────────────────────
+      if (isCmiPayment) {
+        const cmiPayload = {
+          eventId:              selectedEvent!.id,
+          customerName:         customerName.trim(),
+          customerEmail:        customerEmail.trim().toLowerCase(),
+          customerPhone:        customerPhone.trim() || null,
+          numberOfParticipants: participants,
+          eventDate:            selectedDate!.toISOString(),
+          totalPrice:           selectedEvent!.price * participants,
+          specialRequests:      specialRequests.trim() || null,
+          cin:                  !isAssociation ? cin.trim() : null,
+          cne:                  !isAssociation ? cne.trim() : null,
+          dateOfBirth:          isAssociation ? dateOfBirth : null,
+          address:              isAssociation ? address.trim() : null,
+          isAssociationEvent:   isAssociation,
+          participants,
+        };
+
+        const res = await fetch('/api/payments/cmi/initiate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(cmiPayload),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          toast({ title: "Payment Error", description: data.message || 'CMI initiation failed', variant: "destructive" });
+          setIsSubmitting(false);
+          return;
+        }
+
+        // Build a hidden form and auto-submit to CMI gateway
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = data.gateway_url;
+        form.style.display = 'none';
+
+        Object.entries(data.fields as Record<string, string>).forEach(([key, val]) => {
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = key;
+          input.value = val;
+          form.appendChild(input);
+        });
+
+        document.body.appendChild(form);
+        toast({ title: "Redirecting to payment…", description: "You will be redirected to the CMI secure payment page." });
+        form.submit();
+        return; // browser navigates away
+      }
+
+      // ── Cash / direct booking ────────────────────────────────────────────
       const bookingData = {
-        eventId: selectedEvent!.id,
-        eventTitle: selectedEvent!.title,
-        eventDate: selectedDate!.toISOString(),
-        participants: participants,
-        customerName: customerName.trim(),
-        customerEmail: customerEmail.trim().toLowerCase(),
-        customerPhone: customerPhone.trim() || null,
-        specialRequests: specialRequests.trim() || null,
-        totalPrice: selectedEvent!.price * participants,
-        status: isCashPayment ? 'pending' : 'accepted',
-        paymentStatus: isCashPayment ? 'pending' : 'completed',
-        paymentMethod: isAssociation ? 'card' : paymentMethod,
-        cin: !isAssociation ? cin.trim() : null,
-        cne: !isAssociation ? cne.trim() : null,
-        dateOfBirth: isAssociation ? dateOfBirth : null,
-        address: isAssociation ? address.trim() : null,
-        isAssociationEvent: isAssociation,
+        eventId:              selectedEvent!.id,
+        eventTitle:           selectedEvent!.title,
+        eventDate:            selectedDate!.toISOString(),
+        participants,
+        numberOfParticipants: participants,
+        customerName:         customerName.trim(),
+        customerEmail:        customerEmail.trim().toLowerCase(),
+        customerPhone:        customerPhone.trim() || null,
+        specialRequests:      specialRequests.trim() || null,
+        totalPrice:           selectedEvent!.price * participants,
+        status:               isCashPayment ? 'pending' : 'accepted',
+        paymentStatus:        isCashPayment ? 'pending' : 'completed',
+        paymentMethod:        isAssociation ? 'card' : paymentMethod,
+        cin:                  !isAssociation ? cin.trim() : null,
+        cne:                  !isAssociation ? cne.trim() : null,
+        dateOfBirth:          isAssociation ? dateOfBirth : null,
+        address:              isAssociation ? address.trim() : null,
+        isAssociationEvent:   isAssociation,
       };
 
       const response = await fetch('/api/booking/tickets', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(bookingData),
       });
 
@@ -324,31 +403,18 @@ const BookingForm = () => {
         setBookingReference(data.ticket.bookingReference);
         setBookingComplete(true);
         setBookingStep(3);
-        
-        if (!isCashPayment) {
-          generatePDFTicket(data.ticket);
-        }
-        
+        if (!isCashPayment) generatePDFTicket(data.ticket);
         toast({
           title: isCashPayment ? "Booking Submitted!" : "Booking Confirmed!",
-          description: isCashPayment 
-            ? `Your booking reference is: ${data.ticket.bookingReference}. Payment pending admin approval.`
-            : `Your booking reference is: ${data.ticket.bookingReference}. Your ticket has been downloaded.`,
+          description: isCashPayment
+            ? `Your booking reference is: ${data.ticket.bookingReference}. Pending admin approval.`
+            : `Your booking reference is: ${data.ticket.bookingReference}. Ticket downloaded.`,
         });
       } else {
-        const errorMessage = data.error || 'Failed to create booking';
-        toast({
-          title: "Booking Failed",
-          description: errorMessage,
-          variant: "destructive",
-        });
+        toast({ title: "Booking Failed", description: data.error || 'Failed to create booking', variant: "destructive" });
       }
     } catch (err) {
-      toast({
-        title: "Network Error",
-        description: "Unable to connect to the server. Please check your internet connection and try again.",
-        variant: "destructive",
-      });
+      toast({ title: "Network Error", description: "Unable to connect to the server.", variant: "destructive" });
     } finally {
       setIsSubmitting(false);
     }
@@ -690,84 +756,100 @@ const BookingForm = () => {
                       Payment Method
                     </h3>
 
-                    {!selectedEvent.isAssociationEvent ? (
-                      <div className="space-y-4">
+                    <div className="space-y-4">
                         <Label className="font-['Inter'] font-semibold text-[#111f50] block text-sm">
                           Choose your payment method
                         </Label>
-                        
-                        <button
-                          type="button"
-                          onClick={() => setPaymentMethod('card')}
-                          className={`w-full p-5 rounded-xl border-2 transition-all duration-300 flex items-center gap-4 ${
-                            paymentMethod === 'card'
-                              ? 'border-[#D4B26A] bg-[#D4B26A]/10 shadow-md'
-                              : 'border-gray-200 hover:border-[#D4B26A]/50'
-                          }`}
-                        >
-                          <div className={`w-14 h-14 rounded-full flex items-center justify-center ${
-                            paymentMethod === 'card' ? 'bg-[#D4B26A] text-white' : 'bg-gray-100 text-gray-500'
-                          }`}>
-                            <CreditCard className="w-7 h-7" />
-                          </div>
-                          <div className="text-left flex-1">
-                            <p className="font-['Poppins'] font-semibold text-[#111f50] text-lg">Card Payment</p>
-                            <p className="font-['Inter'] text-sm text-gray-500">Instant confirmation & ticket</p>
-                          </div>
-                          {paymentMethod === 'card' && (
-                            <div className="w-7 h-7 rounded-full bg-[#D4B26A] flex items-center justify-center">
-                              <Check className="w-5 h-5 text-white" />
-                            </div>
-                          )}
-                        </button>
 
-                        <button
-                          type="button"
-                          onClick={() => setPaymentMethod('cash')}
-                          className={`w-full p-5 rounded-xl border-2 transition-all duration-300 flex items-center gap-4 ${
-                            paymentMethod === 'cash'
-                              ? 'border-[#D4B26A] bg-[#D4B26A]/10 shadow-md'
-                              : 'border-gray-200 hover:border-[#D4B26A]/50'
-                          }`}
-                        >
-                          <div className={`w-14 h-14 rounded-full flex items-center justify-center ${
-                            paymentMethod === 'cash' ? 'bg-[#D4B26A] text-white' : 'bg-gray-100 text-gray-500'
-                          }`}>
-                            <Banknote className="w-7 h-7" />
-                          </div>
-                          <div className="text-left flex-1">
-                            <p className="font-['Poppins'] font-semibold text-[#111f50] text-lg">Cash Payment</p>
-                            <p className="font-['Inter'] text-sm text-gray-500">Pay on-site, pending admin approval</p>
-                          </div>
-                          {paymentMethod === 'cash' && (
-                            <div className="w-7 h-7 rounded-full bg-[#D4B26A] flex items-center justify-center">
-                              <Check className="w-5 h-5 text-white" />
+                        {/* CMI Bank Card */}
+                        {paymentMethods.cmi_enabled && (
+                          <button
+                            type="button"
+                            onClick={() => setPaymentMethod('cmi')}
+                            className={`w-full p-5 rounded-xl border-2 transition-all duration-300 flex items-center gap-4 ${
+                              paymentMethod === 'cmi'
+                                ? 'border-[#D4B26A] bg-[#D4B26A]/10 shadow-md'
+                                : 'border-gray-200 hover:border-[#D4B26A]/50'
+                            }`}
+                          >
+                            <div className={`w-14 h-14 rounded-full flex items-center justify-center ${
+                              paymentMethod === 'cmi' ? 'bg-[#D4B26A] text-white' : 'bg-gray-100 text-gray-500'
+                            }`}>
+                              <CreditCard className="w-7 h-7" />
                             </div>
-                          )}
-                        </button>
+                            <div className="text-left flex-1">
+                              <div className="flex items-center gap-2">
+                                <p className="font-['Poppins'] font-semibold text-[#111f50] text-lg">Bank Card (CMI)</p>
+                                {paymentMethods.cmi_mode === 'test' && (
+                                  <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-['Inter']">Test Mode</span>
+                                )}
+                              </div>
+                              <p className="font-['Inter'] text-sm text-gray-500">Secure 3D payment • Instant confirmation</p>
+                            </div>
+                            {paymentMethod === 'cmi' && (
+                              <div className="w-7 h-7 rounded-full bg-[#D4B26A] flex items-center justify-center">
+                                <Check className="w-5 h-5 text-white" />
+                              </div>
+                            )}
+                          </button>
+                        )}
+
+                        {paymentMethod === 'cmi' && (
+                          <div className="flex items-start gap-3 bg-blue-50 border border-blue-200 rounded-xl p-4">
+                            <ExternalLink className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                            <p className="font-['Inter'] text-sm text-blue-800">
+                              You will be securely redirected to the CMI (Centre Monétique Interbancaire) payment page to complete your transaction.
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Cash payment — only for non-association events */}
+                        {paymentMethods.cash_enabled && !selectedEvent.isAssociationEvent && (
+                          <button
+                            type="button"
+                            onClick={() => setPaymentMethod('cash')}
+                            className={`w-full p-5 rounded-xl border-2 transition-all duration-300 flex items-center gap-4 ${
+                              paymentMethod === 'cash'
+                                ? 'border-[#D4B26A] bg-[#D4B26A]/10 shadow-md'
+                                : 'border-gray-200 hover:border-[#D4B26A]/50'
+                            }`}
+                          >
+                            <div className={`w-14 h-14 rounded-full flex items-center justify-center ${
+                              paymentMethod === 'cash' ? 'bg-[#D4B26A] text-white' : 'bg-gray-100 text-gray-500'
+                            }`}>
+                              <Banknote className="w-7 h-7" />
+                            </div>
+                            <div className="text-left flex-1">
+                              <p className="font-['Poppins'] font-semibold text-[#111f50] text-lg">Cash Payment</p>
+                              <p className="font-['Inter'] text-sm text-gray-500">Pay on-site, pending admin approval</p>
+                            </div>
+                            {paymentMethod === 'cash' && (
+                              <div className="w-7 h-7 rounded-full bg-[#D4B26A] flex items-center justify-center">
+                                <Check className="w-5 h-5 text-white" />
+                              </div>
+                            )}
+                          </button>
+                        )}
 
                         {paymentMethod === 'cash' && (
-                          <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl p-4 mt-4">
+                          <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl p-4">
                             <Info className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
                             <p className="font-['Inter'] text-sm text-amber-800">
                               Cash payments require admin approval. Your booking will be pending until confirmed.
                             </p>
                           </div>
                         )}
-                      </div>
-                    ) : (
-                      <div className="space-y-4">
-                        <div className="w-full p-5 rounded-xl border-2 border-[#D4B26A] bg-[#D4B26A]/10 flex items-center gap-4">
-                          <div className="w-14 h-14 rounded-full bg-[#D4B26A] text-white flex items-center justify-center">
-                            <CreditCard className="w-7 h-7" />
+
+                        {/* No methods configured fallback */}
+                        {!paymentMethods.cmi_enabled && !paymentMethods.cash_enabled && (
+                          <div className="flex items-start gap-3 bg-red-50 border border-red-200 rounded-xl p-4">
+                            <Info className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+                            <p className="font-['Inter'] text-sm text-red-700">
+                              No payment methods are currently available. Please contact us directly to complete your booking.
+                            </p>
                           </div>
-                          <div className="text-left flex-1">
-                            <p className="font-['Poppins'] font-semibold text-[#111f50] text-lg">Card Payment Only</p>
-                            <p className="font-['Inter'] text-sm text-gray-500">Association events require card payment</p>
-                          </div>
-                        </div>
+                        )}
                       </div>
-                    )}
 
                     <div className="flex gap-4 pt-6">
                       <Button 
@@ -789,8 +871,13 @@ const BookingForm = () => {
                             <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                             Processing...
                           </span>
+                        ) : paymentMethod === 'cmi' ? (
+                          <span className="flex items-center gap-2">
+                            <ExternalLink className="w-5 h-5" />
+                            Pay with Bank Card — {totalPrice} MAD
+                          </span>
                         ) : (
-                          <>Confirm Booking - ${totalPrice}</>
+                          <>Confirm Booking — {totalPrice} MAD</>
                         )}
                       </Button>
                     </div>
@@ -834,14 +921,14 @@ const BookingForm = () => {
                     </div>
 
                     <div className="space-y-4 max-w-md mx-auto">
-                      {(paymentMethod === 'card' || selectedEvent.isAssociationEvent) && (
+                      {paymentMethod === 'cash' && (
                         <Button 
                           type="button"
                           onClick={() => generatePDFTicket({ bookingReference })}
                           className="w-full bg-[#111f50] hover:bg-[#1a2d5a] text-white font-['Poppins'] font-semibold py-6 rounded-xl text-base"
                         >
                           <Download className="w-5 h-5 mr-2" />
-                          Download Ticket Again
+                          Download Booking Receipt
                         </Button>
                       )}
 

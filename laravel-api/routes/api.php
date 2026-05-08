@@ -128,6 +128,12 @@ Route::post('/applications',           [\App\Http\Controllers\ApplicationControl
 Route::post('/payments/stripe/intent', [\App\Http\Controllers\PaymentController::class, 'createPaymentIntent']);
 Route::post('/payments/paypal/order',  [\App\Http\Controllers\PaymentController::class, 'createPaypalOrder']);
 
+// CMI Payment Gateway
+Route::get('/payments/methods',              [\App\Http\Controllers\PaymentController::class, 'availableMethods']);
+Route::post('/payments/cmi/initiate',        [\App\Http\Controllers\PaymentController::class, 'initiateCmiPayment']);
+Route::post('/payments/cmi/callback',        [\App\Http\Controllers\PaymentController::class, 'cmiCallback']);
+Route::get('/payments/cmi/status/{ref}',     [\App\Http\Controllers\PaymentController::class, 'cmiStatus']);
+
 /*
 |--------------------------------------------------------------------------
 | Placeholder images (SVG)
@@ -236,4 +242,9 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::put('/applications/{id}',           [\App\Http\Controllers\Admin\ApplicationAdminController::class, 'update']);
     Route::post('/applications/{id}/approve',  [\App\Http\Controllers\Admin\ApplicationAdminController::class, 'approve']);
     Route::post('/applications/{id}/reject',   [\App\Http\Controllers\Admin\ApplicationAdminController::class, 'reject']);
+
+    // Payment Settings (CMI, Stripe, Cash)
+    Route::get('/payment-settings',            [\App\Http\Controllers\Admin\PaymentSettingsController::class, 'show']);
+    Route::put('/payment-settings',            [\App\Http\Controllers\Admin\PaymentSettingsController::class, 'update']);
+    Route::post('/payment-settings/test',      [\App\Http\Controllers\Admin\PaymentSettingsController::class, 'testConnection']);
 });
