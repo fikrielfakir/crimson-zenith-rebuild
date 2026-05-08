@@ -41,7 +41,7 @@ class BookingEventAdminController extends Controller
             'duration'             => $r->input('duration'),
             'start_date'           => $r->input('startDate') ? date('Y-m-d', strtotime($r->input('startDate'))) : null,
             'end_date'             => $r->input('endDate')   ? date('Y-m-d', strtotime($r->input('endDate')))   : null,
-            'event_date'           => $r->input('startDate') ?? null,
+            'event_date'           => $r->input('startDate') ? date('Y-m-d H:i:s', strtotime($r->input('startDate'))) : null,
             'price'                => $r->input('price') !== null ? (int) $r->input('price') : 0,
             'category'             => $r->input('category'),
             'languages'            => $this->toArray($r->input('languages')),

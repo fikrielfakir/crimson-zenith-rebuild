@@ -67,6 +67,16 @@ import * as z from 'zod';
 import { format } from 'date-fns';
 import { ImageUpload } from '@/components/admin/ImageUpload';
 
+/** Convert any date string to MySQL-compatible datetime: '2026-06-15 08:00:00' */
+function toMySQLDatetime(value: string | null | undefined): string | null {
+  if (!value) return null;
+  try {
+    return new Date(value).toISOString().slice(0, 19).replace('T', ' ');
+  } catch {
+    return null;
+  }
+}
+
 const eventSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   description: z.string().min(10, 'Description must be at least 10 characters'),
@@ -247,8 +257,8 @@ export default function EventsManagement() {
         clubId: data.clubId && !data.isAssociationEvent ? parseInt(data.clubId) : null,
         location: data.location,
         locationDetails: data.locationDetails,
-        startDate: new Date(data.startDate).toISOString(),
-        endDate: data.endDate ? new Date(data.endDate).toISOString() : null,
+        startDate: toMySQLDatetime(data.startDate),
+        endDate: toMySQLDatetime(data.endDate),
         duration: data.duration || null,
         category: data.category,
         languages: data.languages || null,
@@ -293,8 +303,8 @@ export default function EventsManagement() {
         clubId: event.clubId ?? null,
         location: event.location,
         locationDetails: event.locationDetails ?? null,
-        startDate: event.startDate ?? event.eventDate ?? new Date().toISOString(),
-        endDate: event.endDate ?? null,
+        startDate: toMySQLDatetime(event.startDate ?? event.eventDate) ?? toMySQLDatetime(new Date().toISOString()),
+        endDate: toMySQLDatetime(event.endDate),
         duration: event.duration ?? null,
         category: event.category,
         languages: event.languages ?? null,
