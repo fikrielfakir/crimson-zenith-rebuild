@@ -1,6 +1,8 @@
 import { apiFetch } from '@/lib/apiFetch';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 import { Link } from 'react-router-dom';
 import {
   Search,
@@ -49,6 +51,107 @@ import {
 } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
+
+// ── Leaflet icon fix for Vite ─────────────────────────────────────────────────
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconUrl:       new URL('leaflet/dist/images/marker-icon.png',    import.meta.url).href,
+  iconRetinaUrl: new URL('leaflet/dist/images/marker-icon-2x.png', import.meta.url).href,
+  shadowUrl:     new URL('leaflet/dist/images/marker-shadow.png',  import.meta.url).href,
+});
+
+const BLUE_ICON = L.divIcon({
+  className: '',
+  html: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 36" width="28" height="42">
+    <path d="M12 0C5.373 0 0 5.373 0 12c0 9 12 24 12 24S24 21 24 12C24 5.373 18.627 0 12 0z"
+      fill="#2563eb" stroke="#1d4ed8" stroke-width="1"/>
+    <circle cx="12" cy="12" r="5" fill="white"/>
+  </svg>`,
+  iconSize:    [28, 42],
+  iconAnchor:  [14, 42],
+  popupAnchor: [0, -42],
+});
+
+const ESRI_SAT_URL   = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+const ESRI_LABEL_URL = 'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}';
+const MOROCCO_CENTER: L.LatLngTuple = [31.7917, -7.0926];
+
+// ── Clubs map component ───────────────────────────────────────────────────────
+function ClubsMap({ clubs }: { clubs: any[] }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const mapRef       = useRef<L.Map | null>(null);
+
+  useEffect(() => {
+    if (!containerRef.current || mapRef.current) return;
+
+    mapRef.current = L.map(containerRef.current, {
+      center: MOROCCO_CENTER,
+      zoom: 5,
+      scrollWheelZoom: false,
+    });
+
+    L.tileLayer(ESRI_SAT_URL, { maxZoom: 18, attribution: '© Esri' }).addTo(mapRef.current);
+    L.tileLayer(ESRI_LABEL_URL, { maxZoom: 18, opacity: 0.8 }).addTo(mapRef.current);
+
+    return () => {
+      mapRef.current?.remove();
+      mapRef.current = null;
+    };
+  }, []);
+
+  // Re-draw markers whenever clubs list changes
+  useEffect(() => {
+    if (!mapRef.current) return;
+
+    // Remove existing markers
+    mapRef.current.eachLayer((layer) => {
+      if (layer instanceof L.Marker) layer.remove();
+    });
+
+    const pinned = clubs.filter((c) => c.latitude != null && c.longitude != null);
+
+    pinned.forEach((club) => {
+      const marker = L.marker([+club.latitude, +club.longitude], { icon: BLUE_ICON })
+        .addTo(mapRef.current!);
+
+      marker.bindPopup(`
+        <div style="min-width:180px">
+          ${club.image ? `<img src="${club.image}" style="width:100%;height:80px;object-fit:cover;border-radius:4px;margin-bottom:6px" />` : ''}
+          <strong style="font-size:14px">${club.name}</strong><br/>
+          <span style="font-size:12px;color:#666">${club.location ?? ''}</span><br/>
+          <a href="/admin/clubs/${club.id}/edit"
+             style="display:inline-block;margin-top:6px;font-size:12px;color:#2563eb;text-decoration:underline">
+            Edit club
+          </a>
+        </div>
+      `);
+    });
+
+    // Fit map to pins if any exist
+    if (pinned.length > 0) {
+      const bounds = L.latLngBounds(pinned.map((c) => [+c.latitude, +c.longitude] as L.LatLngTuple));
+      mapRef.current.fitBounds(bounds, { padding: [40, 40], maxZoom: 10 });
+    }
+  }, [clubs]);
+
+  const pinned = clubs.filter((c) => c.latitude != null && c.longitude != null);
+
+  return (
+    <div className="space-y-2">
+      <div className="relative rounded-lg overflow-hidden border" style={{ height: 520 }}>
+        <div ref={containerRef} className="w-full h-full" />
+        <div className="absolute bottom-8 left-2 z-[1000] bg-black/50 backdrop-blur-sm text-white text-xs px-2 py-1 rounded pointer-events-none">
+          {pinned.length} of {clubs.length} clubs have map coordinates
+        </div>
+      </div>
+      {pinned.length < clubs.length && (
+        <p className="text-xs text-muted-foreground">
+          {clubs.length - pinned.length} club(s) are not shown — they have no coordinates set. Edit them to add a map pin.
+        </p>
+      )}
+    </div>
+  );
+}
 
 async function fetchClubs(params: any) {
   const queryParams = new URLSearchParams({
@@ -377,13 +480,13 @@ export default function ClubsManagement() {
 
       {/* Map View */}
       {viewMode === 'map' && (
-        <div className="border rounded-lg p-8 text-center">
-          <MapIcon className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-          <p className="text-lg font-medium">Map View</p>
-          <p className="text-sm text-muted-foreground">
-            Interactive map showing all club locations will be displayed here
-          </p>
-        </div>
+        isLoading ? (
+          <div className="flex items-center justify-center h-64 border rounded-lg">
+            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          </div>
+        ) : (
+          <ClubsMap clubs={data?.clubs ?? []} />
+        )
       )}
 
       {/* Pagination */}
