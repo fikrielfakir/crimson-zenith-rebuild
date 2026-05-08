@@ -93,12 +93,35 @@ const Book = () => {
           }
         } else {
           const response = await fetch(`/api/booking/events/${eventParam}`);
-          const data = await response.json();
-          
-          if (response.ok && data.event) {
-            setSelectedEvent(data.event);
+
+          if (response.ok) {
+            const data = await response.json();
+            // Handle both wrapped { event: {...} } and direct {...} response formats
+            const event = data.event || (data.id ? data : null);
+            if (event) {
+              setSelectedEvent(event);
+            } else {
+              throw new Error('Event not found');
+            }
           } else {
-            throw new Error(data.error || 'Failed to fetch event');
+            // Server error (e.g. 500) — fall back to the events list and find the event there
+            const listResponse = await fetch('/api/booking/events');
+            if (listResponse.ok) {
+              const listData = await listResponse.json();
+              const events = listData.events || listData || [];
+              const found = Array.isArray(events)
+                ? events.find((e: any) => e.id === eventParam)
+                : null;
+              if (found) {
+                setSelectedEvent(found);
+              } else if (Array.isArray(events) && events.length > 0) {
+                setSelectedEvent(events[0]);
+              } else {
+                throw new Error('Event not found');
+              }
+            } else {
+              throw new Error('Failed to fetch event');
+            }
           }
         }
       } catch (err) {
@@ -263,10 +286,19 @@ const Book = () => {
     );
   }
 
-  const highlights = Array.isArray(selectedEvent.highlights) ? selectedEvent.highlights : [];
-  const included = Array.isArray(selectedEvent.included) ? selectedEvent.included : [];
-  const notIncluded = Array.isArray(selectedEvent.notIncluded) ? selectedEvent.notIncluded : [];
-  const languages = selectedEvent.languages?.split(',').map((l: string) => l.trim()) || ['English'];
+  const parseLines = (v: any): string[] => {
+    if (Array.isArray(v)) return v.filter(Boolean);
+    if (typeof v === 'string' && v.trim()) return v.split('\n').map(s => s.trim()).filter(Boolean);
+    return [];
+  };
+  const highlights = parseLines(selectedEvent.highlights);
+  const included = parseLines(selectedEvent.included);
+  const notIncluded = parseLines(selectedEvent.notIncluded);
+  const languages: string[] = Array.isArray(selectedEvent.languages) && selectedEvent.languages.length > 0
+    ? selectedEvent.languages
+    : typeof selectedEvent.languages === 'string' && selectedEvent.languages.trim()
+      ? selectedEvent.languages.split(',').map((l: string) => l.trim())
+      : ['English'];
   const schedule: any[] = [];
   const reviews: any[] = [];
 

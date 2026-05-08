@@ -85,13 +85,11 @@ class BookingEventController extends Controller
     {
         $event = BookingEvent::where('id', $id)
             ->where('is_active', true)
-            ->with(['prices', 'gallery'])
             ->first();
 
         if (!$event) {
             $event = BookingEvent::where('status', '!=', 'cancelled')
                 ->where('is_active', true)
-                ->with(['prices', 'gallery'])
                 ->firstOrFail();
         }
 
