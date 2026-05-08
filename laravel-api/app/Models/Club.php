@@ -10,13 +10,14 @@ class Club extends Model
         'name', 'slug', 'description', 'long_description', 'image',
         'location', 'member_count', 'features', 'contact_phone',
         'contact_email', 'website', 'social_media', 'rating',
-        'established', 'is_active', 'latitude', 'longitude', 'owner_id',
+        'established', 'is_active', 'is_featured', 'latitude', 'longitude', 'owner_id',
     ];
 
     protected $casts = [
         'features'     => 'array',
         'social_media' => 'array',
         'is_active'    => 'boolean',
+        'is_featured'  => 'boolean',
         'latitude'     => 'float',
         'longitude'    => 'float',
     ];
