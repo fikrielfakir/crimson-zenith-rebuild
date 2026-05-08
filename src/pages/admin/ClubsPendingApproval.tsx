@@ -16,6 +16,16 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
 
 async function fetchPendingClubs() {
@@ -24,9 +34,16 @@ async function fetchPendingClubs() {
   return response.json();
 }
 
+type PendingAction = {
+  clubId: number;
+  clubName: string;
+  action: 'approve' | 'reject';
+};
+
 export default function ClubsPendingApproval() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [pendingAction, setPendingAction] = useState<PendingAction | null>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ['clubs', 'pending'],
@@ -67,7 +84,20 @@ export default function ClubsPendingApproval() {
     },
   });
 
+  const isMutating = approveClubMutation.isPending || rejectClubMutation.isPending;
+
+  const handleConfirm = () => {
+    if (!pendingAction) return;
+    if (pendingAction.action === 'approve') {
+      approveClubMutation.mutate(pendingAction.clubId);
+    } else {
+      rejectClubMutation.mutate(pendingAction.clubId);
+    }
+    setPendingAction(null);
+  };
+
   const pendingCount = data?.clubs?.length || 0;
+  const isApproving = pendingAction?.action === 'approve';
 
   return (
     <div className="space-y-6">
@@ -172,8 +202,8 @@ export default function ClubsPendingApproval() {
                       <Button
                         variant="default"
                         size="sm"
-                        onClick={() => approveClubMutation.mutate(club.id)}
-                        disabled={approveClubMutation.isPending || rejectClubMutation.isPending}
+                        disabled={isMutating}
+                        onClick={() => setPendingAction({ clubId: club.id, clubName: club.name, action: 'approve' })}
                       >
                         <Check className="mr-1 h-4 w-4" />
                         Approve
@@ -181,8 +211,8 @@ export default function ClubsPendingApproval() {
                       <Button
                         variant="destructive"
                         size="sm"
-                        onClick={() => rejectClubMutation.mutate(club.id)}
-                        disabled={rejectClubMutation.isPending || approveClubMutation.isPending}
+                        disabled={isMutating}
+                        onClick={() => setPendingAction({ clubId: club.id, clubName: club.name, action: 'reject' })}
                       >
                         <X className="mr-1 h-4 w-4" />
                         Reject
@@ -195,6 +225,32 @@ export default function ClubsPendingApproval() {
           )}
         </CardContent>
       </Card>
+
+      <AlertDialog open={!!pendingAction} onOpenChange={(open) => { if (!open) setPendingAction(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {isApproving ? 'Approve this club?' : 'Reject this club?'}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {isApproving
+                ? <>You are about to approve <strong>{pendingAction?.clubName}</strong>. It will become publicly visible and members will be able to join.</>
+                : <>You are about to reject <strong>{pendingAction?.clubName}</strong>. It will be marked inactive and hidden from public listings. This can be reversed later from the edit page.</>
+              }
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirm}
+              className={isApproving ? '' : 'bg-destructive text-destructive-foreground hover:bg-destructive/90'}
+            >
+              {isMutating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isApproving ? 'Yes, approve' : 'Yes, reject'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
