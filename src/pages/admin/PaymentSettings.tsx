@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { apiFetch } from '@/lib/apiFetch';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -93,7 +94,7 @@ export default function PaymentSettings() {
   const fetchSettings = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/admin/payment-settings', { credentials: 'include' });
+      const res = await apiFetch('/api/admin/payment-settings');
       if (res.ok) {
         const data = await res.json();
         setSettings({ ...defaultSettings, ...data });
@@ -111,10 +112,8 @@ export default function PaymentSettings() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const res = await fetch('/api/admin/payment-settings', {
+      const res = await apiFetch('/api/admin/payment-settings', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify(settings),
       });
       const data = await res.json();
@@ -135,10 +134,7 @@ export default function PaymentSettings() {
     setTesting(true);
     setTestResult(null);
     try {
-      const res = await fetch('/api/admin/payment-settings/test', {
-        method: 'POST',
-        credentials: 'include',
-      });
+      const res = await apiFetch('/api/admin/payment-settings/test', { method: 'POST' });
       const data = await res.json();
       setTestResult(data.checks || {});
     } catch {
