@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Check, X, Clock, MapPin, Users, Eye } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Loader2 } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -74,35 +76,25 @@ export default function ClubsPendingApproval() {
         <p className="text-muted-foreground mt-1">Review and approve new club registrations</p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Pending Approval</CardTitle>
             <Clock className="h-4 w-4 text-orange-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{pendingCount}</div>
+            <div className="text-2xl font-bold">{isLoading ? '—' : pendingCount}</div>
             <p className="text-xs text-muted-foreground">Awaiting review</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Approved Today</CardTitle>
-            <Check className="h-4 w-4 text-green-500" />
+            <CardTitle className="text-sm font-medium">Total Pending</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">5</div>
-            <p className="text-xs text-muted-foreground">Last 24 hours</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Average Review Time</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">2.5h</div>
-            <p className="text-xs text-muted-foreground">Per application</p>
+            <div className="text-2xl font-bold">{isLoading ? '—' : (data?.total ?? 0)}</div>
+            <p className="text-xs text-muted-foreground">Across all pages</p>
           </CardContent>
         </Card>
       </div>
@@ -115,7 +107,7 @@ export default function ClubsPendingApproval() {
         <CardContent>
           {isLoading ? (
             <div className="flex items-center justify-center p-8">
-              <div className="text-muted-foreground">Loading pending clubs...</div>
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
             </div>
           ) : pendingCount === 0 ? (
             <div className="flex flex-col items-center justify-center p-8 text-center">
@@ -172,23 +164,25 @@ export default function ClubsPendingApproval() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right space-x-2">
-                      <Button variant="ghost" size="sm">
-                        <Eye className="h-4 w-4" />
+                      <Button variant="ghost" size="sm" asChild>
+                        <Link to={`/admin/clubs/${club.id}/edit`}>
+                          <Eye className="h-4 w-4" />
+                        </Link>
                       </Button>
-                      <Button 
-                        variant="default" 
+                      <Button
+                        variant="default"
                         size="sm"
                         onClick={() => approveClubMutation.mutate(club.id)}
-                        disabled={approveClubMutation.isPending}
+                        disabled={approveClubMutation.isPending || rejectClubMutation.isPending}
                       >
                         <Check className="mr-1 h-4 w-4" />
                         Approve
                       </Button>
-                      <Button 
-                        variant="destructive" 
+                      <Button
+                        variant="destructive"
                         size="sm"
                         onClick={() => rejectClubMutation.mutate(club.id)}
-                        disabled={rejectClubMutation.isPending}
+                        disabled={rejectClubMutation.isPending || approveClubMutation.isPending}
                       >
                         <X className="mr-1 h-4 w-4" />
                         Reject

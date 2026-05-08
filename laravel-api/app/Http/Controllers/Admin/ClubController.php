@@ -36,8 +36,32 @@ class ClubController extends Controller
                           ->take($perPage)
                           ->get();
 
+        $mapped = $clubs->map(fn($c) => [
+            'id'              => $c->id,
+            'name'            => $c->name,
+            'slug'            => $c->slug,
+            'description'     => $c->description,
+            'longDescription' => $c->long_description,
+            'image'           => $c->image,
+            'location'        => $c->location,
+            'contactPhone'    => $c->contact_phone,
+            'contactEmail'    => $c->contact_email,
+            'website'         => $c->website,
+            'established'     => $c->established,
+            'isActive'        => $c->is_active,
+            'isFeatured'      => $c->is_featured ?? false,
+            'latitude'        => $c->latitude,
+            'longitude'       => $c->longitude,
+            'socialMedia'     => $c->social_media,
+            'features'        => $c->features,
+            'rating'          => $c->rating,
+            'memberCount'     => $c->member_count ?? 0,
+            'createdAt'       => $c->created_at?->toISOString(),
+            'updatedAt'       => $c->updated_at?->toISOString(),
+        ]);
+
         return response()->json([
-            'clubs'      => $clubs,
+            'clubs'      => $mapped,
             'total'      => $total,
             'page'       => $page,
             'perPage'    => $perPage,
