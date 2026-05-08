@@ -31,6 +31,9 @@ const localProxyOptions = {
   target: LOCAL_API,
   changeOrigin: true,
   secure: false,
+  headers: {
+    Origin: "http://localhost:5000",
+  },
   configure: (proxy: any) => {
     proxy.on("proxyRes", patchCookies);
   },

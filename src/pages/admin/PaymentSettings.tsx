@@ -109,6 +109,12 @@ export default function PaymentSettings() {
   const set = <K extends keyof PaymentSettingsData>(key: K, value: PaymentSettingsData[K]) =>
     setSettings(prev => ({ ...prev, [key]: value }));
 
+  const safeJson = async (res: Response): Promise<any> => {
+    const text = await res.text();
+    if (!text) return {};
+    try { return JSON.parse(text); } catch { return {}; }
+  };
+
   const handleSave = async () => {
     setSaving(true);
     try {
@@ -116,12 +122,14 @@ export default function PaymentSettings() {
         method: 'PUT',
         body: JSON.stringify(settings),
       });
-      const data = await res.json();
+      const data = await safeJson(res);
       if (res.ok) {
         setSettings({ ...defaultSettings, ...data });
         toast({ title: 'Saved', description: 'Payment settings updated successfully.' });
+      } else if (res.status === 401) {
+        toast({ title: 'Session expired', description: 'Please log out and log back in.', variant: 'destructive' });
       } else {
-        throw new Error(data.message || 'Save failed');
+        throw new Error(data.message || `Server error ${res.status}`);
       }
     } catch (e: any) {
       toast({ title: 'Error', description: e.message, variant: 'destructive' });
@@ -135,7 +143,7 @@ export default function PaymentSettings() {
     setTestResult(null);
     try {
       const res = await apiFetch('/api/admin/payment-settings/test', { method: 'POST' });
-      const data = await res.json();
+      const data = await safeJson(res);
       setTestResult(data.checks || {});
     } catch {
       toast({ title: 'Test failed', variant: 'destructive' });

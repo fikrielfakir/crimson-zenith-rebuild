@@ -2,16 +2,6 @@
 
 return [
 
-    /*
-    |--------------------------------------------------------------------------
-    | Cross-Origin Resource Sharing (CORS) Configuration
-    |--------------------------------------------------------------------------
-    |
-    | Allows the React/Vite frontend (localhost:5000) and production domain
-    | to call this API.
-    |
-    */
-
     'paths' => ['api/*', 'sanctum/csrf-cookie'],
 
     'allowed_methods' => ['*'],
@@ -21,7 +11,6 @@ return [
         'http://localhost:3000',
         'https://*.replit.dev',
         'https://*.repl.co',
-        'https://*.kirk.replit.dev',
         'https://*.replit.app',
     ],
 
@@ -29,6 +18,7 @@ return [
         '#^https://.*\.replit\.dev$#',
         '#^https://.*\.replit\.app$#',
         '#^https://.*\.repl\.co$#',
+        '#^http://.*$#',
     ],
 
     'allowed_headers' => ['*'],
