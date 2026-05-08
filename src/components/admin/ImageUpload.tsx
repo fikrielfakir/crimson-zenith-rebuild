@@ -57,22 +57,22 @@ export function ImageUpload({ value, onChange, className }: ImageUploadProps) {
 
       if (res.ok) {
         const data = await res.json();
-        // Build a short proxy URL using the asset ID — fits in VARCHAR(500)
-        // The Vite dev-server middleware intercepts /api/media/{id} and serves
-        // binary image data so <img src="/api/media/{id}"> renders correctly.
-        const assetId: string = data.id ?? '';
-        if (assetId) {
-          const mediaUrl = `/api/media/${assetId}`;
-          onChange(mediaUrl);
-          setUploadStatus('server');
-          return;
-        }
-
-        // Fallback: production returned a URL but no id — use it if it's short
+        // Prefer a direct short URL (e.g. /uploads/uuid.jpg) returned by the
+        // Vite upload middleware — it's a static file, fits in VARCHAR(500),
+        // and works immediately as an <img src> without any extra proxying.
         const serverUrl: string = data.url || data.imageUrl || data.file_url || '';
         if (serverUrl && serverUrl.length <= 500 && !serverUrl.startsWith('data:')) {
           setPreview(serverUrl);
           onChange(serverUrl);
+          setUploadStatus('server');
+          return;
+        }
+
+        // Fallback: build a media proxy URL from the asset id
+        const assetId: string = data.id ?? '';
+        if (assetId) {
+          const mediaUrl = `/api/media/${assetId}`;
+          onChange(mediaUrl);
           setUploadStatus('server');
           return;
         }

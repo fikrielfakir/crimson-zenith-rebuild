@@ -62,11 +62,66 @@ export default defineConfig(({ mode }: { mode: string }) => ({
   plugins: [
     react(),
     {
-      // Intercept GET /api/media/{id} — fetch the media asset JSON from
-      // production, decode the base64 data URL, and serve binary image data
-      // so <img src="/api/media/{id}"> renders correctly in the browser.
-      // This keeps the event's `image` column value short (/api/media/{uuid},
-      // ≤60 chars) while still displaying full images.
+      // Intercept POST /api/admin/cms/media — the production endpoint is
+      // broken (missing DB columns). Handle uploads locally instead:
+      //   1. Decode the base64 imageData from the JSON body
+      //   2. Save the binary file to public/uploads/{uuid}.{ext}
+      //   3. Return { url: '/uploads/{uuid}.{ext}', id: uuid }
+      // Vite serves public/ statically, so the URL works immediately as
+      // an <img src> and is short enough for the VARCHAR(500) image column.
+      name: "handle-media-upload",
+      configureServer(server) {
+        server.middlewares.use(async (req: any, res: any, next: any) => {
+          if (req.method !== "POST" || req.url !== "/api/admin/cms/media") {
+            return next();
+          }
+
+          try {
+            const fs = await import("fs/promises");
+            const path = await import("path");
+            const crypto = await import("crypto");
+
+            const chunks: Buffer[] = [];
+            for await (const chunk of req) chunks.push(chunk);
+            const body = JSON.parse(Buffer.concat(chunks).toString());
+
+            const dataUrl: string = body.imageData ?? "";
+            const match = dataUrl.match(/^data:([^;]+);base64,(.+)$/s);
+            if (!match) {
+              res.statusCode = 400;
+              res.setHeader("Content-Type", "application/json");
+              res.end(JSON.stringify({ message: "Invalid imageData" }));
+              return;
+            }
+
+            const mime = match[1];
+            const ext = mime.split("/")[1]?.replace("jpeg", "jpg") ?? "jpg";
+            const binary = Buffer.from(match[2], "base64");
+            const id = crypto.randomUUID();
+            const filename = `${id}.${ext}`;
+            const uploadsDir = path.resolve(__dirname, "public/uploads");
+
+            await fs.mkdir(uploadsDir, { recursive: true });
+            await fs.writeFile(path.join(uploadsDir, filename), binary);
+
+            const url = `/uploads/${filename}`;
+            res.statusCode = 201;
+            res.setHeader("Content-Type", "application/json");
+            res.end(JSON.stringify({ url, id, alt: body.alt ?? "" }));
+            console.log(`[handle-media-upload] Saved ${filename} (${binary.length} bytes)`);
+          } catch (err) {
+            console.error("[handle-media-upload] Error:", err);
+            res.statusCode = 500;
+            res.setHeader("Content-Type", "application/json");
+            res.end(JSON.stringify({ message: "Upload failed" }));
+          }
+        });
+      },
+    },
+    {
+      // Intercept GET /api/media/{id} — check local uploads first, then
+      // fetch the media asset JSON from production, decode the base64 data
+      // URL, and serve binary image data so <img src="/api/media/{id}"> works.
       name: "serve-media-binary",
       configureServer(server) {
         server.middlewares.use(async (req: any, res: any, next: any) => {
@@ -78,6 +133,34 @@ export default defineConfig(({ mode }: { mode: string }) => ({
           if (!id) return next();
 
           try {
+            const fs = await import("fs/promises");
+            const path = await import("path");
+
+            // Check if a locally-uploaded file exists for this id
+            const uploadsDir = path.resolve(__dirname, "public/uploads");
+            let localFile: string | null = null;
+            try {
+              const files = await fs.readdir(uploadsDir);
+              const match = files.find((f) => f.startsWith(id + "."));
+              if (match) localFile = path.join(uploadsDir, match);
+            } catch { /* directory may not exist yet */ }
+
+            if (localFile) {
+              const ext = localFile.split(".").pop() ?? "jpg";
+              const mimeMap: Record<string, string> = {
+                jpg: "image/jpeg", jpeg: "image/jpeg",
+                png: "image/png", gif: "image/gif", webp: "image/webp",
+              };
+              const mime = mimeMap[ext] ?? "image/jpeg";
+              const binary = await fs.readFile(localFile);
+              res.statusCode = 200;
+              res.setHeader("Content-Type", mime);
+              res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+              res.end(binary);
+              return;
+            }
+
+            // Fall back to fetching from production
             const prodRes = await fetch(`${PROD_API}/api/media/${id}`, {
               headers: {
                 Accept: "application/json",
@@ -94,20 +177,17 @@ export default defineConfig(({ mode }: { mode: string }) => ({
 
             const data = await prodRes.json();
             const dataUrl: string = data.url || data.file_url || "";
-
-            const match = dataUrl.match(/^data:([^;]+);base64,(.+)$/s);
-            if (match) {
-              const mime = match[1];
-              const binary = Buffer.from(match[2], "base64");
+            const b64Match = dataUrl.match(/^data:([^;]+);base64,(.+)$/s);
+            if (b64Match) {
+              const mime = b64Match[1];
+              const binary = Buffer.from(b64Match[2], "base64");
               res.statusCode = 200;
               res.setHeader("Content-Type", mime);
               res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
-              res.setHeader("Content-Length", binary.length);
               res.end(binary);
               return;
             }
 
-            // If the URL is a plain HTTP URL, redirect to it
             if (dataUrl.startsWith("http")) {
               res.statusCode = 302;
               res.setHeader("Location", dataUrl);
@@ -115,7 +195,6 @@ export default defineConfig(({ mode }: { mode: string }) => ({
               return;
             }
 
-            // Fallback: return the raw JSON
             res.statusCode = 200;
             res.setHeader("Content-Type", "application/json");
             res.end(JSON.stringify(data));
