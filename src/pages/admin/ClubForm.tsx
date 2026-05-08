@@ -166,6 +166,7 @@ function MapLocationPicker({
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef       = useRef<L.Map | null>(null);
   const markerRef    = useRef<L.Marker | null>(null);
+  const isUserPin    = useRef(false); // true when pin was placed by user interaction (not API load)
 
   const [search,           setSearch]           = useState('');
   const [searching,        setSearching]        = useState(false);
@@ -191,9 +192,10 @@ function MapLocationPicker({
   }, [lat, lng]);
 
   const placeMarker = useCallback(
-    (latlng: L.LatLngLiteral) => {
+    (latlng: L.LatLngLiteral, fromUser = false) => {
       if (!mapRef.current) return;
       const r = { lat: +latlng.lat.toFixed(6), lng: +latlng.lng.toFixed(6) };
+      if (fromUser) isUserPin.current = true;
       setCoords(r);
       onChange(r.lat, r.lng);
 
@@ -206,6 +208,7 @@ function MapLocationPicker({
         markerRef.current.on('dragend', () => {
           const pos = markerRef.current!.getLatLng();
           const d = { lat: +pos.lat.toFixed(6), lng: +pos.lng.toFixed(6) };
+          isUserPin.current = true;
           setCoords(d);
           onChange(d.lat, d.lng);
         });
@@ -241,8 +244,8 @@ function MapLocationPicker({
       opacity: 0.8,
     }).addTo(mapRef.current);
 
-    // Click to place / move pin
-    mapRef.current.on('click', (e: L.LeafletMouseEvent) => placeMarker(e.latlng));
+    // Click to place / move pin (fromUser=true so flyTo effect is skipped)
+    mapRef.current.on('click', (e: L.LeafletMouseEvent) => placeMarker(e.latlng, true));
 
     // Restore existing pin for edit mode
     if (lat != null && lng != null) {
@@ -257,9 +260,14 @@ function MapLocationPicker({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Pan + re-pin when external coords arrive after map ready (edit mode load)
+  // Pan + re-pin when external coords arrive after map ready (edit mode load).
+  // Skip entirely when the change came from a user click/drag — no auto-zoom.
   useEffect(() => {
     if (!mapRef.current || lat == null || lng == null) return;
+    if (isUserPin.current) {
+      isUserPin.current = false;
+      return;
+    }
     mapRef.current.flyTo([lat, lng], 12, { duration: 0.8 });
     placeMarker({ lat, lng });
   }, [lat, lng, placeMarker]);
