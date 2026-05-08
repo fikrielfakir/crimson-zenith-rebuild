@@ -5,12 +5,6 @@ import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-/**
- * Rewrites Set-Cookie headers so they work in the local HTTP dev environment:
- *   - Strips the `Secure` flag  (http://localhost cannot store Secure cookies)
- *   - Rewrites `Domain` to `localhost`
- *   - Downgrades `SameSite=None` → `SameSite=Lax`
- */
 function patchCookies(proxyRes: any) {
   const raw = proxyRes.headers["set-cookie"];
   if (!raw) return;
@@ -23,17 +17,12 @@ function patchCookies(proxyRes: any) {
   );
 }
 
-const PROD_API = "https://api.thejourney-ma.org";
+const LOCAL_API = "http://localhost:8000";
 
 const proxyOptions = {
-  target: PROD_API,
+  target: LOCAL_API,
   changeOrigin: true,
-  secure: true,
-  // Spoof Origin/Referer so Sanctum's SANCTUM_STATEFUL_DOMAINS check passes
-  headers: {
-    Origin: "https://thejourney-ma.org",
-    Referer: "https://thejourney-ma.org/",
-  },
+  secure: false,
   configure: (proxy: any) => {
     proxy.on("proxyRes", patchCookies);
   },

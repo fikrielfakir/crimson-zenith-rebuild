@@ -95,6 +95,6 @@ class BookingEventController extends Controller
                 ->firstOrFail();
         }
 
-        return response()->json($this->mapOutput($event));
+        return response()->json(['event' => $this->mapOutput($event)]);
     }
 }
