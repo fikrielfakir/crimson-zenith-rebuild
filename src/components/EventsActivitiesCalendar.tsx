@@ -51,18 +51,40 @@ const EventsActivitiesCalendar = () => {
     const fetchEvents = async () => {
       try {
         setLoading(true);
-        
-        // Fetch all events from booking_events table
         const response = await fetch('/api/booking/events');
         const data = await response.json();
-        
-        // Map the events to match the component's expected format
-        const mappedEvents = (data.events || []).map((event: any) => ({
-          ...event,
-          // The booking_events table already has isAssociationEvent field
-          // clubName will be populated if it's a club event
+
+        // Handle both plain-array and {events:[]} response shapes
+        const raw: any[] = Array.isArray(data) ? data : (data.events || []);
+
+        const mappedEvents: Event[] = raw.map((e: any) => ({
+          id: e.id,
+          title: e.title,
+          description: e.description,
+          // camelCase from fixed backend, snake_case as fallback for old API
+          startDate:           e.startDate           ?? e.start_date,
+          endDate:             e.endDate             ?? e.end_date,
+          eventDate:           e.eventDate           ?? e.event_date,
+          location:            e.location,
+          locationDetails:     e.locationDetails     ?? e.location_details,
+          duration:            e.duration,
+          category:            e.category,
+          languages:           Array.isArray(e.languages) ? e.languages.join(', ') : (e.languages ?? ''),
+          minAge:              e.minAge              ?? e.min_age,
+          maxPeople:           e.maxPeople           ?? e.max_people,
+          price:               e.price,
+          maxParticipants:     e.maxParticipants     ?? e.max_participants,
+          currentParticipants: e.currentParticipants ?? e.current_participants ?? 0,
+          highlights:          Array.isArray(e.highlights)  ? e.highlights.join('\n')  : (e.highlights  ?? ''),
+          included:            Array.isArray(e.included)    ? e.included.join('\n')    : (e.included    ?? ''),
+          notIncluded:         Array.isArray(e.not_included ?? e.notIncluded) ? (e.not_included ?? e.notIncluded).join('\n') : (e.not_included ?? e.notIncluded ?? ''),
+          importantInfo:       e.importantInfo       ?? e.important_info,
+          status:              e.status,
+          image:               e.image,
+          isAssociationEvent:  e.isAssociationEvent  ?? e.is_association_event ?? false,
+          clubName:            e.clubName,
         }));
-        
+
         setEvents(mappedEvents);
       } catch (error) {
         console.error('Failed to fetch events:', error);
@@ -187,6 +209,20 @@ const EventsActivitiesCalendar = () => {
                   onChange={handleDateChange}
                   value={selectedDate}
                   className="w-full"
+                  tileContent={({ date, view }) => {
+                    if (view !== 'month') return null;
+                    const d = date.toISOString().slice(0, 10);
+                    const hasEvent = events.some(ev => {
+                      const start = (ev.startDate || ev.eventDate || '').slice(0, 10);
+                      const end   = (ev.endDate   || start).slice(0, 10);
+                      return start && d >= start && d <= end;
+                    });
+                    return hasEvent ? (
+                      <div style={{ display: 'flex', justifyContent: 'center', marginTop: '2px' }}>
+                        <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#D4B26A' }} />
+                      </div>
+                    ) : null;
+                  }}
                 />
               </Card>
               
