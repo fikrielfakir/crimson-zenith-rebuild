@@ -83,6 +83,24 @@ class CmsController extends Controller
     public function media($id)
     {
         $asset = MediaAsset::findOrFail($id);
+
+        $dataUrl = $asset->url ?? ($asset->file_url ?? null);
+
+        // If it's a base64 data URL, decode and serve as binary image
+        if ($dataUrl && preg_match('/^data:([^;]+);base64,(.+)$/s', $dataUrl, $m)) {
+            $mime    = $m[1];
+            $binary  = base64_decode($m[2]);
+            return response($binary, 200)
+                ->header('Content-Type', $mime)
+                ->header('Cache-Control', 'public, max-age=31536000, immutable');
+        }
+
+        // If it's an external URL, redirect to it
+        if ($dataUrl && filter_var($dataUrl, FILTER_VALIDATE_URL)) {
+            return redirect($dataUrl);
+        }
+
+        // Fallback: return JSON representation
         return response()->json($asset);
     }
 }

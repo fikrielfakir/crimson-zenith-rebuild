@@ -62,6 +62,71 @@ export default defineConfig(({ mode }: { mode: string }) => ({
   plugins: [
     react(),
     {
+      // Intercept GET /api/media/{id} — fetch the media asset JSON from
+      // production, decode the base64 data URL, and serve binary image data
+      // so <img src="/api/media/{id}"> renders correctly in the browser.
+      // This keeps the event's `image` column value short (/api/media/{uuid},
+      // ≤60 chars) while still displaying full images.
+      name: "serve-media-binary",
+      configureServer(server) {
+        server.middlewares.use(async (req: any, res: any, next: any) => {
+          if (req.method !== "GET" || !req.url?.startsWith("/api/media/")) {
+            return next();
+          }
+
+          const id = req.url.replace(/^\/api\/media\//, "").split("?")[0];
+          if (!id) return next();
+
+          try {
+            const prodRes = await fetch(`${PROD_API}/api/media/${id}`, {
+              headers: {
+                Accept: "application/json",
+                Origin: "https://thejourney-ma.org",
+                Referer: "https://thejourney-ma.org/",
+              },
+            });
+
+            if (!prodRes.ok) {
+              res.statusCode = prodRes.status;
+              res.end();
+              return;
+            }
+
+            const data = await prodRes.json();
+            const dataUrl: string = data.url || data.file_url || "";
+
+            const match = dataUrl.match(/^data:([^;]+);base64,(.+)$/s);
+            if (match) {
+              const mime = match[1];
+              const binary = Buffer.from(match[2], "base64");
+              res.statusCode = 200;
+              res.setHeader("Content-Type", mime);
+              res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+              res.setHeader("Content-Length", binary.length);
+              res.end(binary);
+              return;
+            }
+
+            // If the URL is a plain HTTP URL, redirect to it
+            if (dataUrl.startsWith("http")) {
+              res.statusCode = 302;
+              res.setHeader("Location", dataUrl);
+              res.end();
+              return;
+            }
+
+            // Fallback: return the raw JSON
+            res.statusCode = 200;
+            res.setHeader("Content-Type", "application/json");
+            res.end(JSON.stringify(data));
+          } catch (err) {
+            console.error("[serve-media-binary] Error:", err);
+            next();
+          }
+        });
+      },
+    },
+    {
       // Intercept POST /api/register to inject the missing `name` field
       // that the production DB requires. This fixes signup without needing
       // any changes on the production server.

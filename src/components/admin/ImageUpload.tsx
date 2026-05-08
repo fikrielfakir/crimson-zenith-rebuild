@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { Upload, X, ImageIcon, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { apiFetch } from '@/lib/apiFetch';
 
 interface ImageUploadProps {
   value?: string;
@@ -22,7 +23,8 @@ export function ImageUpload({ value, onChange, className }: ImageUploadProps) {
   const [preview, setPreview] = useState<string | null>(value || null);
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-  const [uploadStatus, setUploadStatus] = useState<'idle' | 'server' | 'local'>('idle');
+  const [uploadStatus, setUploadStatus] = useState<'idle' | 'server' | 'error'>('idle');
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = async (file: File | null) => {
@@ -32,7 +34,6 @@ export function ImageUpload({ value, onChange, className }: ImageUploadProps) {
       alert('Please select an image file');
       return;
     }
-
     if (file.size > 10 * 1024 * 1024) {
       alert('File size should be less than 10MB');
       return;
@@ -40,42 +41,57 @@ export function ImageUpload({ value, onChange, className }: ImageUploadProps) {
 
     setIsUploading(true);
     setUploadStatus('idle');
+    setUploadError(null);
 
     try {
-      // Convert to base64 first — this always persists (unlike blob URLs)
+      // Convert to base64 for local preview (never stored in DB directly)
       const base64 = await fileToBase64(file);
+      // Show preview immediately while uploading
+      setPreview(base64);
 
-      // Try uploading to the server as imageData JSON
-      try {
-        const res = await fetch('/api/admin/cms/media', {
-          method: 'POST',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-          body: JSON.stringify({ imageData: base64, alt: file.name }),
-        });
+      // Upload to server using apiFetch so the Bearer token is included
+      const res = await apiFetch('/api/admin/cms/media', {
+        method: 'POST',
+        body: JSON.stringify({ imageData: base64, alt: file.name }),
+      });
 
-        if (res.ok) {
-          const data = await res.json();
-          // The endpoint returns the MediaAsset model; `url` is the base64 data URL stored in DB
-          const serverUrl: string = data.url || data.imageUrl || data.file_url || data.fileUrl || '';
-          if (serverUrl) {
-            setPreview(serverUrl);
-            onChange(serverUrl);
-            setUploadStatus('server');
-            return;
-          }
+      if (res.ok) {
+        const data = await res.json();
+        // Build a short proxy URL using the asset ID — fits in VARCHAR(500)
+        // The Vite dev-server middleware intercepts /api/media/{id} and serves
+        // binary image data so <img src="/api/media/{id}"> renders correctly.
+        const assetId: string = data.id ?? '';
+        if (assetId) {
+          const mediaUrl = `/api/media/${assetId}`;
+          onChange(mediaUrl);
+          setUploadStatus('server');
+          return;
         }
-      } catch {
-        // Network error — fall through to base64 fallback
+
+        // Fallback: production returned a URL but no id — use it if it's short
+        const serverUrl: string = data.url || data.imageUrl || data.file_url || '';
+        if (serverUrl && serverUrl.length <= 500 && !serverUrl.startsWith('data:')) {
+          setPreview(serverUrl);
+          onChange(serverUrl);
+          setUploadStatus('server');
+          return;
+        }
       }
 
-      // Fallback: store the base64 data URL directly
-      // This is persistent (survives page reloads) unlike blob: URLs
-      setPreview(base64);
-      onChange(base64);
-      setUploadStatus('local');
+      // Upload failed — do NOT store base64 (too long for VARCHAR 500)
+      const status = res.status;
+      const errText = status === 401
+        ? 'Session expired — please log out and log in again to upload images.'
+        : `Upload failed (${status}). Please try again.`;
+      setUploadError(errText);
+      setUploadStatus('error');
+      setPreview(null);
+      onChange('');
     } catch {
-      alert('Failed to read the image file. Please try again.');
+      setUploadError('Network error while uploading. Please check your connection and try again.');
+      setUploadStatus('error');
+      setPreview(null);
+      onChange('');
     } finally {
       setIsUploading(false);
     }
@@ -84,8 +100,7 @@ export function ImageUpload({ value, onChange, className }: ImageUploadProps) {
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setIsDragging(false);
-    const file = e.dataTransfer.files[0];
-    handleFileChange(file);
+    handleFileChange(e.dataTransfer.files[0]);
   };
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
@@ -93,22 +108,13 @@ export function ImageUpload({ value, onChange, className }: ImageUploadProps) {
     setIsDragging(true);
   };
 
-  const handleDragLeave = () => {
-    setIsDragging(false);
-  };
-
-  const handleClick = () => {
-    if (!isUploading) fileInputRef.current?.click();
-  };
-
   const handleRemove = (e: React.MouseEvent) => {
     e.stopPropagation();
     setPreview(null);
     setUploadStatus('idle');
+    setUploadError(null);
     onChange('');
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   return (
@@ -120,6 +126,13 @@ export function ImageUpload({ value, onChange, className }: ImageUploadProps) {
         className="hidden"
         onChange={(e) => handleFileChange(e.target.files?.[0] || null)}
       />
+
+      {uploadError && (
+        <div className="flex items-start gap-2 rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+          <span>{uploadError}</span>
+        </div>
+      )}
 
       {preview ? (
         <div className="relative group">
@@ -139,19 +152,9 @@ export function ImageUpload({ value, onChange, className }: ImageUploadProps) {
             )}
           </div>
 
-          {/* Upload status badge */}
-          {!isUploading && uploadStatus !== 'idle' && (
-            <div className={cn(
-              'absolute bottom-2 left-2 flex items-center gap-1 px-2 py-1 rounded text-xs font-medium',
-              uploadStatus === 'server'
-                ? 'bg-green-600/90 text-white'
-                : 'bg-amber-500/90 text-white'
-            )}>
-              {uploadStatus === 'server' ? (
-                <><CheckCircle className="h-3 w-3" /> Saved to server</>
-              ) : (
-                <><AlertCircle className="h-3 w-3" /> Saved locally (embedded)</>
-              )}
+          {!isUploading && uploadStatus === 'server' && (
+            <div className="absolute bottom-2 left-2 flex items-center gap-1 rounded bg-green-600/90 px-2 py-1 text-xs font-medium text-white">
+              <CheckCircle className="h-3 w-3" /> Saved to server
             </div>
           )}
 
@@ -167,10 +170,10 @@ export function ImageUpload({ value, onChange, className }: ImageUploadProps) {
         </div>
       ) : (
         <div
-          onClick={handleClick}
+          onClick={() => { if (!isUploading) fileInputRef.current?.click(); }}
           onDrop={handleDrop}
           onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
+          onDragLeave={() => setIsDragging(false)}
           className={cn(
             'relative aspect-video w-full cursor-pointer overflow-hidden rounded-lg border-2 border-dashed transition-colors',
             isDragging
@@ -181,19 +184,15 @@ export function ImageUpload({ value, onChange, className }: ImageUploadProps) {
         >
           <div className="flex h-full flex-col items-center justify-center gap-2 p-6 text-center">
             <div className="rounded-full bg-muted p-4">
-              {isUploading ? (
-                <Loader2 className="h-8 w-8 text-muted-foreground animate-spin" />
-              ) : (
-                <ImageIcon className="h-8 w-8 text-muted-foreground" />
-              )}
+              {isUploading
+                ? <Loader2 className="h-8 w-8 text-muted-foreground animate-spin" />
+                : <ImageIcon className="h-8 w-8 text-muted-foreground" />}
             </div>
             <div className="space-y-1">
               <p className="text-sm font-medium">
                 {isUploading ? 'Uploading…' : 'Drop your image here, or click to browse'}
               </p>
-              <p className="text-xs text-muted-foreground">
-                PNG, JPG, GIF up to 10MB
-              </p>
+              <p className="text-xs text-muted-foreground">PNG, JPG, GIF up to 10MB</p>
             </div>
           </div>
         </div>
