@@ -6,10 +6,10 @@ import { fileURLToPath } from "url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 /**
- * Rewrites Set-Cookie headers so they work in the local HTTP dev environment:
- *   - Strips the `Secure` flag  (http://localhost cannot store Secure cookies)
- *   - Rewrites `Domain` to `localhost`
+ * Rewrites Set-Cookie headers so they work in the Replit HTTPS dev environment:
+ *   - Strips the `Domain` attribute so the browser uses the current host
  *   - Downgrades `SameSite=None` → `SameSite=Lax`
+ *   - Keeps `Secure` since Replit serves over HTTPS
  */
 function patchCookies(proxyRes: any) {
   const raw = proxyRes.headers["set-cookie"];
@@ -17,8 +17,7 @@ function patchCookies(proxyRes: any) {
   proxyRes.headers["set-cookie"] = (Array.isArray(raw) ? raw : [raw]).map(
     (cookie: string) =>
       cookie
-        .replace(/;\s*Secure/gi, "")
-        .replace(/;\s*Domain=[^;]*/gi, "; Domain=localhost")
+        .replace(/;\s*Domain=[^;]*/gi, "")
         .replace(/;\s*SameSite=None/gi, "; SameSite=Lax"),
   );
 }
