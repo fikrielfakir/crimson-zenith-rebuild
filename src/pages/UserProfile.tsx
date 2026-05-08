@@ -1092,9 +1092,10 @@ const UserProfile = () => {
                           {/* Event Image */}
                           <div className="relative h-44 bg-slate-100 overflow-hidden">
                             <img
-                              src={event.image || 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80'}
+                              src={event.image && !event.image.startsWith('blob:') ? event.image : 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80'}
                               alt={event.title}
                               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                              onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80'; }}
                             />
                             {/* Remove button */}
                             <button
