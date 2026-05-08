@@ -152,7 +152,7 @@ Route::get('/placeholder/{width}/{height}', function ($width, $height) {
 | Admin routes (auth + admin middleware)
 |--------------------------------------------------------------------------
 */
-Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
+Route::prefix('admin')->middleware(['admin'])->group(function () {
 
     // Dashboard & Stats
     Route::get('/stats',           [\App\Http\Controllers\Admin\StatsController::class, 'stats']);

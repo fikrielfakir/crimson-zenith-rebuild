@@ -58,7 +58,7 @@ export default defineConfig(({ mode }: { mode: string }) => ({
       // ── Routes that ONLY exist on the local Laravel API ──────────────────
       // Must be listed BEFORE the catch-all "/api" rule.
       "/api/payments":               localProxyOptions,
-      "/api/admin/payment-settings": localProxyOptions,
+      "/api/admin":                  localProxyOptions,
 
       // ── Everything else → production API ─────────────────────────────────
       "/api": proxyOptions,
