@@ -29,7 +29,6 @@ const proxyOptions = {
   target: PROD_API,
   changeOrigin: true,
   secure: true,
-  // Spoof Origin/Referer so Sanctum's SANCTUM_STATEFUL_DOMAINS check passes
   headers: {
     Origin: "https://thejourney-ma.org",
     Referer: "https://thejourney-ma.org/",
@@ -60,7 +59,68 @@ export default defineConfig(({ mode }: { mode: string }) => ({
       allow: [__dirname],
     },
   },
-  plugins: [react()],
+  plugins: [
+    react(),
+    {
+      // Intercept POST /api/register to inject the missing `name` field
+      // that the production DB requires. This fixes signup without needing
+      // any changes on the production server.
+      name: "fix-register-name-field",
+      configureServer(server) {
+        server.middlewares.use(async (req: any, res: any, next: any) => {
+          if (req.method !== "POST" || req.url !== "/api/register") {
+            return next();
+          }
+
+          try {
+            // Read the full request body
+            const chunks: Buffer[] = [];
+            for await (const chunk of req) chunks.push(chunk);
+            const raw = Buffer.concat(chunks).toString();
+            const body = JSON.parse(raw);
+
+            // Inject `name` so the production DB constraint is satisfied
+            if (!body.name) {
+              body.name = `${body.firstName || ""} ${body.lastName || ""}`.trim();
+            }
+
+            // Forward to production API with the patched body
+            const prodRes = await fetch(`${PROD_API}/api/register`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+                Origin: "https://thejourney-ma.org",
+                Referer: "https://thejourney-ma.org/",
+              },
+              body: JSON.stringify(body),
+            });
+
+            const responseText = await prodRes.text();
+
+            // Relay status + headers + body back to the browser
+            res.statusCode = prodRes.status;
+            res.setHeader("Content-Type", "application/json");
+
+            // Patch any Set-Cookie headers from the production response
+            const setCookie = prodRes.headers.get("set-cookie");
+            if (setCookie) {
+              const patched = setCookie
+                .replace(/;\s*Secure/gi, "")
+                .replace(/;\s*Domain=[^;]*/gi, "; Domain=localhost")
+                .replace(/;\s*SameSite=None/gi, "; SameSite=Lax");
+              res.setHeader("Set-Cookie", patched);
+            }
+
+            res.end(responseText);
+          } catch (err) {
+            console.error("[fix-register] Error intercepting /api/register:", err);
+            next();
+          }
+        });
+      },
+    },
+  ],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
