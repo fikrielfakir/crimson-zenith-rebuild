@@ -21,10 +21,13 @@ import {
   Globe,
   Home,
   ChevronRight,
+  ChevronLeft,
   Plus,
   Minus,
   Award,
-  Info
+  Info,
+  Expand,
+  ZoomIn
 } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import Header from "@/components/Header";
@@ -55,6 +58,7 @@ const Book = () => {
   const [reviewText, setReviewText] = useState('');
   const [reviewSubmitting, setReviewSubmitting] = useState(false);
   const [reviewSubmitted, setReviewSubmitted] = useState(false);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
 
   const { toast } = useToast();
 
@@ -412,28 +416,146 @@ const Book = () => {
           {/* Left Column - Event Details */}
           <div className="lg:col-span-2 space-y-10">
             
-            {/* Thumbnail Slider - Same Width as TabsList */}
-            <div className="w-full">
-              <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-                {displayImages.map((image, index) => (
-                  <button
-                    key={index}
-                    onClick={() => emblaApi && emblaApi.scrollTo(index)}
-                    className={`flex-shrink-0 w-32 h-20 rounded-xl overflow-hidden transition-all duration-300 border-2 ${
-                      index === selectedImageIndex
-                        ? 'border-[#D4B26A] shadow-xl scale-105'
-                        : 'border-gray-200 hover:border-[#D4B26A]/50 shadow-md'
-                    }`}
-                  >
-                    <img 
-                      src={image}
-                      alt={`Thumbnail ${index + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                  </button>
-                ))}
+            {/* Image Gallery */}
+            <div className="w-full space-y-3">
+
+              {/* Main Hero Image */}
+              <div className="relative w-full rounded-2xl overflow-hidden shadow-xl group" style={{ aspectRatio: '16/9' }}>
+                <img
+                  src={displayImages[selectedImageIndex]}
+                  alt={`Event image ${selectedImageIndex + 1}`}
+                  className="w-full h-full object-cover transition-all duration-500"
+                  onError={e => {
+                    (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&q=80';
+                  }}
+                />
+
+                {/* Gradient overlay at bottom */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+
+                {/* Click to expand overlay */}
+                <button
+                  onClick={() => setLightboxOpen(true)}
+                  className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/10"
+                  aria-label="View fullscreen"
+                >
+                  <div className="bg-white/90 backdrop-blur-sm rounded-full p-3 shadow-lg">
+                    <Expand className="w-5 h-5 text-[#111f50]" />
+                  </div>
+                </button>
+
+                {/* Prev / Next arrows */}
+                {displayImages.length > 1 && (
+                  <>
+                    <button
+                      onClick={() => setSelectedImageIndex(i => (i - 1 + displayImages.length) % displayImages.length)}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 bg-white/90 backdrop-blur-sm rounded-full p-2.5 shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white hover:scale-110"
+                      aria-label="Previous image"
+                    >
+                      <ChevronLeft className="w-5 h-5 text-[#111f50]" />
+                    </button>
+                    <button
+                      onClick={() => setSelectedImageIndex(i => (i + 1) % displayImages.length)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 bg-white/90 backdrop-blur-sm rounded-full p-2.5 shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white hover:scale-110"
+                      aria-label="Next image"
+                    >
+                      <ChevronRight className="w-5 h-5 text-[#111f50]" />
+                    </button>
+                  </>
+                )}
+
+                {/* Image counter badge */}
+                {displayImages.length > 1 && (
+                  <div className="absolute bottom-3 right-3 bg-black/60 backdrop-blur-sm text-white text-xs font-['Inter'] font-semibold px-3 py-1.5 rounded-full">
+                    {selectedImageIndex + 1} / {displayImages.length}
+                  </div>
+                )}
               </div>
+
+              {/* Thumbnail Strip */}
+              {displayImages.length > 1 && (
+                <div className="flex gap-2.5 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                  {displayImages.map((image, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setSelectedImageIndex(index)}
+                      className={`flex-shrink-0 w-20 h-14 rounded-xl overflow-hidden transition-all duration-300 border-2 ${
+                        index === selectedImageIndex
+                          ? 'border-[#D4B26A] shadow-lg scale-105 ring-2 ring-[#D4B26A]/30'
+                          : 'border-transparent hover:border-[#D4B26A]/60 opacity-70 hover:opacity-100 shadow-sm'
+                      }`}
+                      aria-label={`View image ${index + 1}`}
+                    >
+                      <img
+                        src={image}
+                        alt={`Thumbnail ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
+
+            {/* Lightbox Modal */}
+            {lightboxOpen && (
+              <div
+                className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4"
+                onClick={() => setLightboxOpen(false)}
+              >
+                <div className="relative max-w-5xl w-full" onClick={e => e.stopPropagation()}>
+                  {/* Close button */}
+                  <button
+                    onClick={() => setLightboxOpen(false)}
+                    className="absolute -top-12 right-0 text-white/80 hover:text-white transition-colors"
+                  >
+                    <X className="w-8 h-8" />
+                  </button>
+
+                  {/* Full image */}
+                  <img
+                    src={displayImages[selectedImageIndex]}
+                    alt={`Event image ${selectedImageIndex + 1}`}
+                    className="w-full max-h-[80vh] object-contain rounded-xl"
+                  />
+
+                  {/* Lightbox prev/next */}
+                  {displayImages.length > 1 && (
+                    <>
+                      <button
+                        onClick={() => setSelectedImageIndex(i => (i - 1 + displayImages.length) % displayImages.length)}
+                        className="absolute left-3 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur-sm rounded-full p-3 text-white transition-all duration-200"
+                      >
+                        <ChevronLeft className="w-6 h-6" />
+                      </button>
+                      <button
+                        onClick={() => setSelectedImageIndex(i => (i + 1) % displayImages.length)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur-sm rounded-full p-3 text-white transition-all duration-200"
+                      >
+                        <ChevronRight className="w-6 h-6" />
+                      </button>
+                    </>
+                  )}
+
+                  {/* Lightbox thumbnail strip */}
+                  {displayImages.length > 1 && (
+                    <div className="flex justify-center gap-2 mt-4 overflow-x-auto pb-1">
+                      {displayImages.map((img, i) => (
+                        <button
+                          key={i}
+                          onClick={() => setSelectedImageIndex(i)}
+                          className={`flex-shrink-0 w-14 h-10 rounded-lg overflow-hidden border-2 transition-all duration-200 ${
+                            i === selectedImageIndex ? 'border-[#D4B26A] scale-110' : 'border-white/30 opacity-60 hover:opacity-100'
+                          }`}
+                        >
+                          <img src={img} alt="" className="w-full h-full object-cover" />
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* Modern Floating Tabs */}
             <Tabs defaultValue="overview" className="w-full">
