@@ -36,6 +36,8 @@ import {
   Shield,
   Bell,
   Eye,
+  EyeOff,
+  Lock,
   CreditCard,
   Clock,
   ChevronRight,
@@ -76,6 +78,12 @@ const UserProfile = () => {
   const queryClient = useQueryClient();
   
   const [isEditing, setIsEditing] = useState(false);
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [passwordData, setPasswordData] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
+  const [showCurrentPw, setShowCurrentPw] = useState(false);
+  const [showNewPw, setShowNewPw] = useState(false);
+  const [showConfirmPw, setShowConfirmPw] = useState(false);
   const [userClubs, setUserClubs] = useState<any[]>([]);
   const [clubsLoading, setClubsLoading] = useState(true);
   const [userBookings, setUserBookings] = useState<Booking[]>([]);
@@ -264,6 +272,40 @@ const UserProfile = () => {
       style: 'currency',
       currency: 'MAD',
     }).format(parseFloat(price));
+  };
+
+  const handleChangePassword = async () => {
+    if (!passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword) {
+      toast({ title: "Error", description: "All password fields are required.", variant: "destructive" });
+      return;
+    }
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      toast({ title: "Error", description: "New passwords do not match.", variant: "destructive" });
+      return;
+    }
+    if (passwordData.newPassword.length < 6) {
+      toast({ title: "Error", description: "New password must be at least 6 characters.", variant: "destructive" });
+      return;
+    }
+    try {
+      setPasswordLoading(true);
+      const response = await apiFetch('/api/auth/change-password', {
+        method: 'POST',
+        body: JSON.stringify(passwordData),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        toast({ title: "Password changed", description: "Your password has been updated successfully." });
+        setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+        setShowPasswordForm(false);
+      } else {
+        toast({ title: "Error", description: data.message || "Failed to change password.", variant: "destructive" });
+      }
+    } catch {
+      toast({ title: "Error", description: "An error occurred. Please try again.", variant: "destructive" });
+    } finally {
+      setPasswordLoading(false);
+    }
   };
 
   const handleSaveProfile = async () => {
@@ -956,7 +998,85 @@ const UserProfile = () => {
                     </div>
                     <Badge className="bg-green-100 text-green-700">Verified</Badge>
                   </div>
-                  <Button variant="outline" className="w-full">Change Password</Button>
+                  {!showPasswordForm ? (
+                    <Button
+                      variant="outline"
+                      className="w-full border-[hsl(227,65%,19%)] text-[hsl(227,65%,19%)] hover:bg-[hsl(227,65%,19%)] hover:text-white transition-all"
+                      onClick={() => setShowPasswordForm(true)}
+                    >
+                      <Lock className="w-4 h-4 mr-2" />
+                      Change Password
+                    </Button>
+                  ) : (
+                    <div className="space-y-3 pt-1">
+                      <div className="relative">
+                        <Label className="text-xs text-slate-500 mb-1 block">Current Password</Label>
+                        <div className="relative">
+                          <Input
+                            type={showCurrentPw ? "text" : "password"}
+                            placeholder="Current password"
+                            value={passwordData.currentPassword}
+                            onChange={(e) => setPasswordData(p => ({ ...p, currentPassword: e.target.value }))}
+                            className="pr-10 h-10 text-sm"
+                          />
+                          <button type="button" onClick={() => setShowCurrentPw(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                            {showCurrentPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          </button>
+                        </div>
+                      </div>
+                      <div>
+                        <Label className="text-xs text-slate-500 mb-1 block">New Password</Label>
+                        <div className="relative">
+                          <Input
+                            type={showNewPw ? "text" : "password"}
+                            placeholder="New password (min. 6 chars)"
+                            value={passwordData.newPassword}
+                            onChange={(e) => setPasswordData(p => ({ ...p, newPassword: e.target.value }))}
+                            className="pr-10 h-10 text-sm"
+                          />
+                          <button type="button" onClick={() => setShowNewPw(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                            {showNewPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          </button>
+                        </div>
+                      </div>
+                      <div>
+                        <Label className="text-xs text-slate-500 mb-1 block">Confirm New Password</Label>
+                        <div className="relative">
+                          <Input
+                            type={showConfirmPw ? "text" : "password"}
+                            placeholder="Confirm new password"
+                            value={passwordData.confirmPassword}
+                            onChange={(e) => setPasswordData(p => ({ ...p, confirmPassword: e.target.value }))}
+                            className="pr-10 h-10 text-sm"
+                          />
+                          <button type="button" onClick={() => setShowConfirmPw(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                            {showConfirmPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          </button>
+                        </div>
+                      </div>
+                      <div className="flex gap-2 pt-1">
+                        <Button
+                          className="flex-1 h-9 text-sm bg-[hsl(227,65%,19%)] hover:bg-[hsl(227,65%,25%)] text-white"
+                          onClick={handleChangePassword}
+                          disabled={passwordLoading}
+                        >
+                          {passwordLoading ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <CheckCircle className="w-4 h-4 mr-1" />}
+                          {passwordLoading ? 'Saving…' : 'Save Password'}
+                        </Button>
+                        <Button
+                          variant="outline"
+                          className="h-9 text-sm"
+                          onClick={() => {
+                            setShowPasswordForm(false);
+                            setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+                          }}
+                          disabled={passwordLoading}
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
