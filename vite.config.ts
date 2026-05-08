@@ -23,17 +23,10 @@ function patchCookies(proxyRes: any) {
   );
 }
 
-const PROD_API = "https://api.thejourney-ma.org";
-
 const proxyOptions = {
-  target: PROD_API,
-  changeOrigin: true,
-  secure: true,
-  // Spoof Origin/Referer so Sanctum's SANCTUM_STATEFUL_DOMAINS check passes
-  headers: {
-    Origin: "https://thejourney-ma.org",
-    Referer: "https://thejourney-ma.org/",
-  },
+  target: "http://localhost:8000",
+  changeOrigin: false,
+  secure: false,
   configure: (proxy: any) => {
     proxy.on("proxyRes", patchCookies);
   },
