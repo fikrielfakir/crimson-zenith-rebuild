@@ -215,6 +215,7 @@ function MapLocationPicker({
       center,
       zoom,
       zoomControl: true,
+      scrollWheelZoom: false,
     });
 
     // Satellite base layer
@@ -252,7 +253,7 @@ function MapLocationPicker({
     placeMarker({ lat, lng });
   }, [lat, lng, placeMarker]);
 
-  const handleSearch = async (e: React.FormEvent) => {
+  const handleSearch = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     if (!search.trim()) return;
     setSearching(true);
@@ -287,21 +288,22 @@ function MapLocationPicker({
 
   return (
     <div className="space-y-2">
-      {/* Search */}
-      <form onSubmit={handleSearch} className="flex gap-2">
+      {/* Search — intentionally a div, NOT a form, to avoid nested-form bug */}
+      <div className="flex gap-2">
         <div className="relative flex-1">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleSearch(e as any); } }}
             placeholder="Search city or address…"
             className="pl-8"
           />
         </div>
-        <Button type="submit" variant="secondary" disabled={searching} size="sm" className="shrink-0">
+        <Button type="button" variant="secondary" disabled={searching} size="sm" className="shrink-0" onClick={(e) => handleSearch(e as any)}>
           {searching ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Search'}
         </Button>
-      </form>
+      </div>
 
       {/* Map */}
       <div className="relative rounded-lg overflow-hidden border" style={{ height: 340 }}>
@@ -418,7 +420,7 @@ export default function ClubForm() {
         isActive:        data.isActive,
         latitude:        data.latitude  || null,
         longitude:       data.longitude || null,
-        socialMedia:     Object.keys(socialMedia).length > 0 ? socialMedia : null,
+        socialMedia:     socialMedia,
       };
 
       const res = await apiFetch(

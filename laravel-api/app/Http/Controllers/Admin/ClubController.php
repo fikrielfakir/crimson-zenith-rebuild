@@ -105,7 +105,7 @@ class ClubController extends Controller
             'is_active'        => $data['isActive'] ?? true,
             'latitude'         => $data['latitude'] ?? null,
             'longitude'        => $data['longitude'] ?? null,
-            'social_media'     => $data['socialMedia'] ?? null,
+            'social_media'     => $data['socialMedia'] ?? [],
             'features'         => $data['features'] ?? [],
         ]);
 
@@ -149,7 +149,7 @@ class ClubController extends Controller
         if (array_key_exists('isActive', $data))        $mapped['is_active']        = $data['isActive'];
         if (array_key_exists('latitude', $data))        $mapped['latitude']         = $data['latitude'];
         if (array_key_exists('longitude', $data))       $mapped['longitude']        = $data['longitude'];
-        if (array_key_exists('socialMedia', $data))     $mapped['social_media']     = $data['socialMedia'];
+        if (array_key_exists('socialMedia', $data))     $mapped['social_media']     = $data['socialMedia'] ?? [];
         if (array_key_exists('features', $data))        $mapped['features']         = $data['features'];
 
         $club->update($mapped);
