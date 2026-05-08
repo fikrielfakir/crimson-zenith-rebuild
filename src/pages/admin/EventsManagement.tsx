@@ -17,6 +17,7 @@ import {
   ArrowLeft,
   Building2,
   Globe,
+  Copy,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -234,10 +235,11 @@ export default function EventsManagement() {
 
   const saveEventMutation = useMutation({
     mutationFn: async (data: EventFormData) => {
-      const url = (editingEvent && editingEvent.id)
+      const isEditing = editingEvent && editingEvent.id;
+      const url = isEditing
         ? `/api/admin/events/${editingEvent.id}`
         : '/api/admin/events';
-      
+
       const payload = {
         title: data.title,
         description: data.description,
@@ -261,19 +263,17 @@ export default function EventsManagement() {
         importantInfo: data.importantInfo || null,
         status: data.status,
       };
-      
-      const response = await fetch(url, {
-        method: (editingEvent && editingEvent.id) ? 'PUT' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
+
+      const response = await apiFetch(url, {
+        method: isEditing ? 'PUT' : 'POST',
         body: JSON.stringify(payload),
-        credentials: 'include',
       });
       if (!response.ok) throw new Error('Failed to save event');
       return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-club-events'] });
-      toast({ title: `Event ${editingEvent ? 'updated' : 'created'} successfully` });
+      toast({ title: `Event ${editingEvent?.id ? 'updated' : 'created'} successfully` });
       setEditingEvent(null);
       setShowForm(false);
       setSelectedEventType(null);
@@ -281,6 +281,48 @@ export default function EventsManagement() {
     },
     onError: (error: Error) => {
       toast({ title: 'Failed to save event', description: error.message, variant: 'destructive' });
+    },
+  });
+
+  const duplicateEventMutation = useMutation({
+    mutationFn: async (event: any) => {
+      const payload = {
+        title: `Copy of ${event.title}`,
+        description: event.description,
+        isAssociationEvent: event.isAssociationEvent,
+        clubId: event.clubId ?? null,
+        location: event.location,
+        locationDetails: event.locationDetails ?? null,
+        startDate: event.startDate ?? event.eventDate ?? new Date().toISOString(),
+        endDate: event.endDate ?? null,
+        duration: event.duration ?? null,
+        category: event.category,
+        languages: event.languages ?? null,
+        minAge: event.minAge ?? null,
+        maxPeople: event.maxPeople ?? null,
+        maxAttendees: event.maxAttendees ?? null,
+        price: event.price ?? null,
+        image: event.image ?? null,
+        highlights: event.highlights ?? null,
+        included: event.included ?? null,
+        notIncluded: event.notIncluded ?? null,
+        importantInfo: event.importantInfo ?? null,
+        status: 'upcoming',
+      };
+
+      const response = await apiFetch('/api/admin/events', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) throw new Error('Failed to duplicate event');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-club-events'] });
+      toast({ title: 'Event duplicated', description: 'A copy has been created with status "upcoming".' });
+    },
+    onError: (error: Error) => {
+      toast({ title: 'Failed to duplicate event', description: error.message, variant: 'destructive' });
     },
   });
 
@@ -927,6 +969,13 @@ export default function EventsManagement() {
                         <DropdownMenuItem onClick={() => { setEditingEvent(event); setShowForm(true); }}>
                           <Edit className="mr-2 h-4 w-4" />
                           Edit Event
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => duplicateEventMutation.mutate(event)}
+                          disabled={duplicateEventMutation.isPending}
+                        >
+                          <Copy className="mr-2 h-4 w-4" />
+                          Duplicate Event
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
