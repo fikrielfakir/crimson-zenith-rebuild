@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\BookingEvent;
+use App\Models\EventReview;
 use Illuminate\Http\Request;
 
 class BookingEventController extends Controller
@@ -94,5 +95,59 @@ class BookingEventController extends Controller
         }
 
         return response()->json(['event' => $this->mapOutput($event)]);
+    }
+
+    public function reviews($id)
+    {
+        $reviews = EventReview::where('event_id', $id)
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(fn($r) => [
+                'id'        => $r->id,
+                'userName'  => $r->user_name ?? 'Anonymous',
+                'rating'    => (int) $r->rating,
+                'review'    => $r->review,
+                'createdAt' => $r->created_at,
+            ]);
+
+        return response()->json(['reviews' => $reviews, 'total' => $reviews->count()]);
+    }
+
+    public function submitReview(Request $request, $id)
+    {
+        $request->validate([
+            'rating'   => 'required|integer|min:1|max:5',
+            'review'   => 'nullable|string|max:2000',
+            'userName' => 'nullable|string|max:100',
+        ]);
+
+        $event = BookingEvent::where('id', $id)->firstOrFail();
+
+        $review = EventReview::create([
+            'event_id'  => $id,
+            'user_name' => $request->input('userName', 'Anonymous'),
+            'rating'    => $request->input('rating'),
+            'review'    => $request->input('review'),
+        ]);
+
+        // Recompute average rating and review count
+        $avg   = EventReview::where('event_id', $id)->avg('rating');
+        $count = EventReview::where('event_id', $id)->count();
+
+        $event->update([
+            'rating'       => round($avg, 1),
+            'review_count' => $count,
+        ]);
+
+        return response()->json([
+            'message' => 'Review submitted successfully',
+            'review'  => [
+                'id'        => $review->id,
+                'userName'  => $review->user_name,
+                'rating'    => (int) $review->rating,
+                'review'    => $review->review,
+                'createdAt' => $review->created_at,
+            ],
+        ], 201);
     }
 }

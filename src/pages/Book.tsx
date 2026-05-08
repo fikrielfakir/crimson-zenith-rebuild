@@ -49,7 +49,13 @@ const Book = () => {
   const [galleryImages, setGalleryImages] = useState<any[]>([]);
   const [existingBooking, setExistingBooking] = useState<any>(null);
   const [hasBookedEvent, setHasBookedEvent] = useState(false);
-  
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [reviewRating, setReviewRating] = useState(0);
+  const [reviewHover, setReviewHover] = useState(0);
+  const [reviewText, setReviewText] = useState('');
+  const [reviewSubmitting, setReviewSubmitting] = useState(false);
+  const [reviewSubmitted, setReviewSubmitted] = useState(false);
+
   const { toast } = useToast();
 
   const [emblaRef, emblaApi] = useEmblaCarousel(
@@ -215,6 +221,14 @@ const Book = () => {
   }, [selectedEvent?.eventDate, selectedDate]);
 
   useEffect(() => {
+    if (!selectedEvent?.id) return;
+    fetch(`/api/booking/events/${selectedEvent.id}/reviews`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.reviews) setReviews(d.reviews); })
+      .catch(() => {});
+  }, [selectedEvent?.id]);
+
+  useEffect(() => {
     const checkExistingBooking = async () => {
       if (authLoading) {
         return;
@@ -288,7 +302,11 @@ const Book = () => {
 
   const parseLines = (v: any): string[] => {
     if (Array.isArray(v)) return v.filter(Boolean);
-    if (typeof v === 'string' && v.trim()) return v.split('\n').map(s => s.trim()).filter(Boolean);
+    if (typeof v === 'string' && v.trim()) {
+      const byNewline = v.split('\n').map(s => s.trim()).filter(Boolean);
+      if (byNewline.length > 1) return byNewline;
+      return v.split(',').map(s => s.trim()).filter(Boolean);
+    }
     return [];
   };
   const highlights = parseLines(selectedEvent.highlights);
@@ -300,7 +318,6 @@ const Book = () => {
       ? selectedEvent.languages.split(',').map((l: string) => l.trim())
       : ['English'];
   const schedule: any[] = [];
-  const reviews: any[] = [];
 
   const totalPrice = (selectedEvent.price || 0) * participants;
 
@@ -442,138 +459,127 @@ const Book = () => {
               </TabsList>
               
               {/* Overview Tab */}
-              <TabsContent value="overview" className="space-y-10 mt-10">
-                
-                {/* About Section */}
-                <div>
-                  <h3 className="font-['Poppins'] text-3xl font-bold text-[#111f50] mb-6">About This Experience</h3>
-                  <p className="font-['Inter'] text-gray-700 leading-relaxed text-lg mb-8">
-                    {selectedEvent.description}
-                  </p>
-                  
-                  {/* Highlights */}
-                  {highlights.length > 0 && (
-                    <>
-                      <h4 className="font-['Poppins'] text-2xl font-semibold text-[#111f50] mb-6 flex items-center gap-3">
-                        <Award className="w-6 h-6 text-[#D4B26A]" />
-                        Experience Highlights
-                      </h4>
-                      <div className="grid md:grid-cols-2 gap-4 mb-8">
-                        {highlights.map((highlight, index) => (
-                          <div 
-                            key={index} 
-                            className="flex items-start gap-4 p-4 rounded-xl bg-gradient-to-br from-green-50 to-emerald-50 border border-green-100 transition-all duration-300 hover:shadow-md"
-                          >
-                            <div className="flex-shrink-0 w-6 h-6 rounded-full bg-green-500 flex items-center justify-center mt-0.5">
-                              <Check className="w-4 h-4 text-white" strokeWidth={3} />
-                            </div>
-                            <span className="font-['Inter'] text-gray-800 leading-relaxed">{highlight}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </>
+              <TabsContent value="overview" className="space-y-8 mt-8">
+
+                {/* Important Note (importantInfo) */}
+                {selectedEvent.importantInfo && (
+                  <div className="flex items-start gap-4 bg-amber-50 border border-amber-200 rounded-2xl p-5">
+                    <Info className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-['Inter'] font-semibold text-amber-800 mb-1">Important Notice</p>
+                      <p className="font-['Inter'] text-amber-700 leading-relaxed">{selectedEvent.importantInfo}</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Quick stats row */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {selectedEvent.duration && (
+                    <div className="flex flex-col items-center gap-1 bg-gray-50 rounded-2xl p-4 border border-gray-100">
+                      <Clock className="w-5 h-5 text-[#D4B26A]" />
+                      <span className="font-['Poppins'] font-bold text-[#111f50] text-sm">{selectedEvent.duration}</span>
+                      <span className="font-['Inter'] text-gray-500 text-xs">Duration</span>
+                    </div>
+                  )}
+                  {selectedEvent.minAge && (
+                    <div className="flex flex-col items-center gap-1 bg-gray-50 rounded-2xl p-4 border border-gray-100">
+                      <Users className="w-5 h-5 text-[#D4B26A]" />
+                      <span className="font-['Poppins'] font-bold text-[#111f50] text-sm">{selectedEvent.minAge}+</span>
+                      <span className="font-['Inter'] text-gray-500 text-xs">Min Age</span>
+                    </div>
+                  )}
+                  {selectedEvent.maxPeople && (
+                    <div className="flex flex-col items-center gap-1 bg-gray-50 rounded-2xl p-4 border border-gray-100">
+                      <Users className="w-5 h-5 text-[#D4B26A]" />
+                      <span className="font-['Poppins'] font-bold text-[#111f50] text-sm">{selectedEvent.maxPeople}</span>
+                      <span className="font-['Inter'] text-gray-500 text-xs">Max Capacity</span>
+                    </div>
+                  )}
+                  {languages.length > 0 && (
+                    <div className="flex flex-col items-center gap-1 bg-gray-50 rounded-2xl p-4 border border-gray-100">
+                      <Globe className="w-5 h-5 text-[#D4B26A]" />
+                      <span className="font-['Poppins'] font-bold text-[#111f50] text-sm text-center leading-tight">{languages.join(', ')}</span>
+                      <span className="font-['Inter'] text-gray-500 text-xs">Language</span>
+                    </div>
                   )}
                 </div>
 
-                {/* What's Included / Not Included Cards */}
-                <div className="grid md:grid-cols-2 gap-8">
-                  
-                  {/* Included Card */}
-                  <Card className="border-2 border-green-100 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
-                    <div className="bg-gradient-to-r from-green-500 to-emerald-600 p-5">
-                      <h4 className="font-['Poppins'] text-xl font-bold text-white flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                          <Check className="w-5 h-5 text-white" strokeWidth={3} />
-                        </div>
-                        What's Included
-                      </h4>
-                    </div>
-                    <CardContent className="p-6">
-                      <ul className="space-y-3">
-                        {included.map((item, index) => (
-                          <li key={index} className="flex items-start gap-3 font-['Inter'] text-gray-700">
-                            <Check className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" strokeWidth={2.5} />
-                            <span>{item}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </CardContent>
-                  </Card>
-                  
-                  {/* Not Included Card */}
-                  <Card className="border-2 border-red-100 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
-                    <div className="bg-gradient-to-r from-red-500 to-rose-600 p-5">
-                      <h4 className="font-['Poppins'] text-xl font-bold text-white flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                          <X className="w-5 h-5 text-white" strokeWidth={3} />
-                        </div>
-                        What's Not Included
-                      </h4>
-                    </div>
-                    <CardContent className="p-6">
-                      <ul className="space-y-3">
-                        {notIncluded.map((item, index) => (
-                          <li key={index} className="flex items-start gap-3 font-['Inter'] text-gray-700">
-                            <X className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" strokeWidth={2.5} />
-                            <span>{item}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </CardContent>
-                  </Card>
+                {/* About Section */}
+                <div>
+                  <h3 className="font-['Poppins'] text-2xl font-bold text-[#111f50] mb-4">About This Experience</h3>
+                  <p className="font-['Inter'] text-gray-700 leading-relaxed text-lg">
+                    {selectedEvent.description}
+                  </p>
                 </div>
 
-                {/* Important Information Section */}
-                <Card className="border border-gray-200 rounded-2xl shadow-md bg-gradient-to-br from-blue-50/50 to-indigo-50/30">
-                  <CardContent className="p-8">
-                    <h4 className="font-['Poppins'] text-2xl font-semibold text-[#111f50] mb-6 flex items-center gap-3">
-                      <Info className="w-6 h-6 text-[#D4B26A]" />
-                      Important Information
+                {/* Highlights */}
+                {highlights.length > 0 && (
+                  <div>
+                    <h4 className="font-['Poppins'] text-xl font-semibold text-[#111f50] mb-4 flex items-center gap-3">
+                      <Award className="w-5 h-5 text-[#D4B26A]" />
+                      Experience Highlights
                     </h4>
-                    <div className="grid md:grid-cols-2 gap-6">
-                      {selectedEvent.ageRange && (
-                        <div className="flex items-start gap-4 p-4 rounded-xl bg-white border border-gray-100">
-                          <div className="w-10 h-10 rounded-full bg-[#D4B26A]/10 flex items-center justify-center flex-shrink-0">
-                            <Users className="w-5 h-5 text-[#D4B26A]" />
+                    <div className="grid md:grid-cols-2 gap-3">
+                      {highlights.map((highlight, index) => (
+                        <div
+                          key={index}
+                          className="flex items-start gap-3 p-4 rounded-xl bg-gradient-to-br from-green-50 to-emerald-50 border border-green-100"
+                        >
+                          <div className="flex-shrink-0 w-5 h-5 rounded-full bg-green-500 flex items-center justify-center mt-0.5">
+                            <Check className="w-3 h-3 text-white" strokeWidth={3} />
                           </div>
-                          <div>
-                            <p className="font-['Inter'] font-semibold text-[#111f50] mb-1">Age Range</p>
-                            <p className="font-['Inter'] text-gray-600">{selectedEvent.ageRange}</p>
-                          </div>
+                          <span className="font-['Inter'] text-gray-800 leading-relaxed text-sm">{highlight}</span>
                         </div>
-                      )}
-                      {selectedEvent.cancellationPolicy && (
-                        <div className="flex items-start gap-4 p-4 rounded-xl bg-white border border-gray-100">
-                          <div className="w-10 h-10 rounded-full bg-[#D4B26A]/10 flex items-center justify-center flex-shrink-0">
-                            <Shield className="w-5 h-5 text-[#D4B26A]" />
-                          </div>
-                          <div>
-                            <p className="font-['Inter'] font-semibold text-[#111f50] mb-1">Cancellation Policy</p>
-                            <p className="font-['Inter'] text-gray-600">{selectedEvent.cancellationPolicy}</p>
-                          </div>
-                        </div>
-                      )}
-                      <div className="flex items-start gap-4 p-4 rounded-xl bg-white border border-gray-100">
-                        <div className="w-10 h-10 rounded-full bg-[#D4B26A]/10 flex items-center justify-center flex-shrink-0">
-                          <Globe className="w-5 h-5 text-[#D4B26A]" />
-                        </div>
-                        <div>
-                          <p className="font-['Inter'] font-semibold text-[#111f50] mb-1">Languages</p>
-                          <p className="font-['Inter'] text-gray-600">Available in {languages.join(', ')}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-4 p-4 rounded-xl bg-white border border-gray-100">
-                        <div className="w-10 h-10 rounded-full bg-[#D4B26A]/10 flex items-center justify-center flex-shrink-0">
-                          <MessageCircle className="w-5 h-5 text-[#D4B26A]" />
-                        </div>
-                        <div>
-                          <p className="font-['Inter'] font-semibold text-[#111f50] mb-1">Support</p>
-                          <p className="font-['Inter'] text-gray-600">24/7 customer service</p>
-                        </div>
-                      </div>
+                      ))}
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                )}
+
+                {/* What's Included / Not Included */}
+                {(included.length > 0 || notIncluded.length > 0) && (
+                  <div className="grid md:grid-cols-2 gap-6">
+                    {included.length > 0 && (
+                      <Card className="border-2 border-green-100 rounded-2xl shadow-md overflow-hidden">
+                        <div className="bg-gradient-to-r from-green-500 to-emerald-600 p-4">
+                          <h4 className="font-['Poppins'] text-lg font-bold text-white flex items-center gap-2">
+                            <Check className="w-5 h-5" strokeWidth={3} />
+                            What's Included
+                          </h4>
+                        </div>
+                        <CardContent className="p-5">
+                          <ul className="space-y-2.5">
+                            {included.map((item, index) => (
+                              <li key={index} className="flex items-start gap-3 font-['Inter'] text-gray-700 text-sm">
+                                <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" strokeWidth={2.5} />
+                                <span>{item}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </CardContent>
+                      </Card>
+                    )}
+                    {notIncluded.length > 0 && (
+                      <Card className="border-2 border-red-100 rounded-2xl shadow-md overflow-hidden">
+                        <div className="bg-gradient-to-r from-red-500 to-rose-600 p-4">
+                          <h4 className="font-['Poppins'] text-lg font-bold text-white flex items-center gap-2">
+                            <X className="w-5 h-5" strokeWidth={3} />
+                            Not Included
+                          </h4>
+                        </div>
+                        <CardContent className="p-5">
+                          <ul className="space-y-2.5">
+                            {notIncluded.map((item, index) => (
+                              <li key={index} className="flex items-start gap-3 font-['Inter'] text-gray-700 text-sm">
+                                <X className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" strokeWidth={2.5} />
+                                <span>{item}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </CardContent>
+                      </Card>
+                    )}
+                  </div>
+                )}
 
                 {/* Location Map */}
                 {selectedEvent.latitude && selectedEvent.longitude && (
@@ -590,79 +596,59 @@ const Book = () => {
               </TabsContent>
               
               {/* Schedule Tab */}
-              <TabsContent value="schedule" className="space-y-6 mt-10">
-                <div>
-                  <h3 className="font-['Poppins'] text-3xl font-bold text-[#111f50] mb-6">Daily Schedule</h3>
-                  {schedule.length > 0 ? (
-                    <div className="space-y-4">
-                      {schedule.map((item, index) => (
-                        <Card key={index} className="border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-300">
-                          <CardContent className="p-6">
-                            <div className="flex gap-6 items-start">
-                              <div className="font-['Poppins'] font-bold text-[#D4B26A] text-lg min-w-[80px] bg-[#D4B26A]/10 px-4 py-2 rounded-lg text-center">
-                                {item.time}
-                              </div>
-                              <div className="font-['Inter'] text-gray-700 leading-relaxed text-lg flex-1">
-                                {item.activity}
-                              </div>
+              <TabsContent value="schedule" className="space-y-6 mt-8">
+                <h3 className="font-['Poppins'] text-2xl font-bold text-[#111f50]">Event Schedule</h3>
+
+                {/* Always show event date/time info */}
+                <div className="grid sm:grid-cols-2 gap-4">
+                  {selectedEvent.eventDate && (
+                    <div className="flex items-start gap-4 p-5 rounded-2xl bg-[#111f50]/5 border border-[#111f50]/10">
+                      <div className="w-10 h-10 rounded-full bg-[#111f50] flex items-center justify-center flex-shrink-0">
+                        <CalendarIcon className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <p className="font-['Inter'] font-semibold text-[#111f50] mb-0.5">Start Date</p>
+                        <p className="font-['Inter'] text-gray-600 text-sm">
+                          {format(new Date(selectedEvent.eventDate), 'EEEE, MMMM d, yyyy')}
+                        </p>
+                        <p className="font-['Poppins'] font-bold text-[#D4B26A] text-sm mt-1">
+                          {format(new Date(selectedEvent.eventDate), 'h:mm a')}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  {selectedEvent.endDate && (
+                    <div className="flex items-start gap-4 p-5 rounded-2xl bg-[#D4B26A]/5 border border-[#D4B26A]/20">
+                      <div className="w-10 h-10 rounded-full bg-[#D4B26A] flex items-center justify-center flex-shrink-0">
+                        <CalendarIcon className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <p className="font-['Inter'] font-semibold text-[#111f50] mb-0.5">End Date</p>
+                        <p className="font-['Inter'] text-gray-600 text-sm">
+                          {format(new Date(selectedEvent.endDate), 'EEEE, MMMM d, yyyy')}
+                        </p>
+                        {selectedEvent.duration && (
+                          <p className="font-['Inter'] text-gray-500 text-xs mt-1">Duration: {selectedEvent.duration}</p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Detailed schedule items if any */}
+                {schedule.length > 0 ? (
+                  <div className="space-y-4">
+                    {schedule.map((item: any, index: number) => (
+                      <Card key={index} className="border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-300">
+                        <CardContent className="p-5">
+                          <div className="flex gap-5 items-start">
+                            <div className="font-['Poppins'] font-bold text-[#D4B26A] text-base min-w-[70px] bg-[#D4B26A]/10 px-3 py-1.5 rounded-lg text-center">
+                              {item.time || `Day ${item.day_number || index + 1}`}
                             </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                  ) : (
-                    <Card className="border border-gray-200 rounded-xl">
-                      <CardContent className="p-12 text-center">
-                        <Clock className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                        <p className="font-['Inter'] text-gray-500 text-lg">Detailed schedule coming soon</p>
-                      </CardContent>
-                    </Card>
-                  )}
-                </div>
-              </TabsContent>
-              
-              {/* Reviews Tab */}
-              <TabsContent value="reviews" className="space-y-8 mt-10">
-                <div className="flex justify-between items-center">
-                  <h3 className="font-['Poppins'] text-3xl font-bold text-[#111f50]">Guest Reviews</h3>
-                  {selectedEvent.rating && (
-                    <div className="flex items-center gap-3 bg-[#D4B26A]/10 px-6 py-3 rounded-xl border border-[#D4B26A]/20">
-                      <Star className="w-7 h-7 text-[#D4B26A] fill-[#D4B26A]" />
-                      <span className="font-['Poppins'] text-2xl font-bold text-[#111f50]">{selectedEvent.rating}</span>
-                      <span className="font-['Inter'] text-gray-600">({selectedEvent.reviewCount} reviews)</span>
-                    </div>
-                  )}
-                </div>
-                
-                {reviews.length > 0 ? (
-                  <div className="space-y-6">
-                    {reviews.map((review, index) => (
-                      <Card key={index} className="border border-gray-200 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
-                        <CardContent className="p-8">
-                          <div className="flex items-start gap-5">
-                            <img 
-                              src={review.avatar} 
-                              alt={review.name}
-                              className="w-14 h-14 rounded-full object-cover shadow-md"
-                            />
                             <div className="flex-1">
-                              <div className="flex items-center gap-3 mb-3">
-                                <h5 className="font-['Poppins'] font-semibold text-lg text-[#111f50]">{review.name}</h5>
-                                <div className="flex gap-1">
-                                  {[...Array(5)].map((_, i) => (
-                                    <Star 
-                                      key={i}
-                                      className={`w-4 h-4 ${
-                                        i < review.rating 
-                                          ? 'text-[#D4B26A] fill-[#D4B26A]' 
-                                          : 'text-gray-300'
-                                      }`}
-                                    />
-                                  ))}
-                                </div>
-                                <span className="font-['Inter'] text-sm text-gray-500">{review.date}</span>
-                              </div>
-                              <p className="font-['Inter'] text-gray-700 leading-relaxed">{review.comment}</p>
+                              {item.title && <p className="font-['Poppins'] font-semibold text-[#111f50] mb-1">{item.title}</p>}
+                              {item.description && <p className="font-['Inter'] text-gray-600 text-sm leading-relaxed">{item.description}</p>}
+                              {item.activity && <p className="font-['Inter'] text-gray-700 leading-relaxed">{item.activity}</p>}
                             </div>
                           </div>
                         </CardContent>
@@ -670,12 +656,184 @@ const Book = () => {
                     ))}
                   </div>
                 ) : (
-                  <Card className="border border-gray-200 rounded-xl">
-                    <CardContent className="p-12 text-center">
-                      <Star className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                      <p className="font-['Inter'] text-gray-500 text-lg">Be the first to review this experience</p>
+                  <div className="bg-gray-50 rounded-2xl border border-gray-100 p-8 text-center">
+                    <Clock className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                    <p className="font-['Poppins'] font-semibold text-gray-400 mb-1">Detailed schedule coming soon</p>
+                    <p className="font-['Inter'] text-gray-400 text-sm">The organiser will update the full day-by-day plan shortly.</p>
+                  </div>
+                )}
+              </TabsContent>
+              
+              {/* Reviews Tab */}
+              <TabsContent value="reviews" className="space-y-8 mt-8">
+
+                {/* Header row */}
+                <div className="flex flex-wrap justify-between items-center gap-4">
+                  <h3 className="font-['Poppins'] text-2xl font-bold text-[#111f50]">Guest Reviews</h3>
+                  {(selectedEvent.rating > 0 || reviews.length > 0) && (
+                    <div className="flex items-center gap-2 bg-[#D4B26A]/10 px-5 py-2.5 rounded-xl border border-[#D4B26A]/20">
+                      <Star className="w-5 h-5 text-[#D4B26A] fill-[#D4B26A]" />
+                      <span className="font-['Poppins'] text-xl font-bold text-[#111f50]">
+                        {selectedEvent.rating || (reviews.length > 0 ? (reviews.reduce((s: number, r: any) => s + r.rating, 0) / reviews.length).toFixed(1) : '—')}
+                      </span>
+                      <span className="font-['Inter'] text-gray-500 text-sm">({reviews.length || selectedEvent.reviewCount} reviews)</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Submit a review — only if authenticated */}
+                {!reviewSubmitted ? (
+                  <Card className="border-2 border-[#D4B26A]/20 rounded-2xl shadow-md bg-gradient-to-br from-amber-50/40 to-orange-50/20">
+                    <CardContent className="p-6">
+                      <h4 className="font-['Poppins'] font-semibold text-[#111f50] text-lg mb-4 flex items-center gap-2">
+                        <MessageCircle className="w-5 h-5 text-[#D4B26A]" />
+                        {isAuthenticated ? 'Write a Review' : 'Log in to Leave a Review'}
+                      </h4>
+
+                      {isAuthenticated ? (
+                        <div className="space-y-4">
+                          {/* Star selector */}
+                          <div>
+                            <p className="font-['Inter'] text-sm text-gray-600 mb-2">Your Rating</p>
+                            <div className="flex gap-1">
+                              {[1, 2, 3, 4, 5].map(star => (
+                                <button
+                                  key={star}
+                                  type="button"
+                                  onClick={() => setReviewRating(star)}
+                                  onMouseEnter={() => setReviewHover(star)}
+                                  onMouseLeave={() => setReviewHover(0)}
+                                  className="transition-transform hover:scale-110"
+                                >
+                                  <Star
+                                    className={`w-8 h-8 transition-colors ${
+                                      star <= (reviewHover || reviewRating)
+                                        ? 'text-[#D4B26A] fill-[#D4B26A]'
+                                        : 'text-gray-300'
+                                    }`}
+                                  />
+                                </button>
+                              ))}
+                              {reviewRating > 0 && (
+                                <span className="ml-2 font-['Inter'] text-sm text-gray-600 self-center">
+                                  {['', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent'][reviewRating]}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Comment */}
+                          <div>
+                            <p className="font-['Inter'] text-sm text-gray-600 mb-2">Your Review (optional)</p>
+                            <textarea
+                              value={reviewText}
+                              onChange={e => setReviewText(e.target.value)}
+                              placeholder="Share your experience…"
+                              rows={3}
+                              className="w-full rounded-xl border border-gray-200 px-4 py-3 font-['Inter'] text-sm text-gray-700 resize-none focus:outline-none focus:ring-2 focus:ring-[#D4B26A]/40 focus:border-[#D4B26A]"
+                            />
+                          </div>
+
+                          <Button
+                            onClick={async () => {
+                              if (!reviewRating) {
+                                toast({ title: 'Please select a star rating', variant: 'destructive' });
+                                return;
+                              }
+                              setReviewSubmitting(true);
+                              try {
+                                const res = await fetch(`/api/booking/events/${selectedEvent.id}/reviews`, {
+                                  method: 'POST',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  credentials: 'include',
+                                  body: JSON.stringify({
+                                    rating: reviewRating,
+                                    review: reviewText,
+                                    userName: user?.name || user?.username || 'Anonymous',
+                                  }),
+                                });
+                                if (res.ok) {
+                                  const d = await res.json();
+                                  setReviews(prev => [d.review, ...prev]);
+                                  setReviewSubmitted(true);
+                                  toast({ title: 'Review submitted — thank you!' });
+                                } else {
+                                  toast({ title: 'Could not submit review', description: 'Please try again later.', variant: 'destructive' });
+                                }
+                              } catch {
+                                toast({ title: 'Could not submit review', description: 'Please try again later.', variant: 'destructive' });
+                              } finally {
+                                setReviewSubmitting(false);
+                              }
+                            }}
+                            disabled={reviewSubmitting || !reviewRating}
+                            className="bg-[#D4B26A] hover:bg-[#C9A758] text-white font-['Poppins'] font-semibold px-6 py-2.5 rounded-xl border-0"
+                          >
+                            {reviewSubmitting ? 'Submitting…' : 'Submit Review'}
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-4">
+                          <p className="font-['Inter'] text-gray-600 text-sm">You must be logged in to share your experience.</p>
+                          <Button
+                            onClick={() => navigate(`/login?redirect=${encodeURIComponent(window.location.href)}`)}
+                            className="bg-[#111f50] hover:bg-[#1a2d5a] text-white font-['Inter'] font-semibold px-5 py-2 rounded-xl border-0 text-sm"
+                          >
+                            Log In
+                          </Button>
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
+                ) : (
+                  <div className="flex items-center gap-3 bg-green-50 border border-green-200 rounded-2xl p-5">
+                    <Check className="w-5 h-5 text-green-600 flex-shrink-0" />
+                    <p className="font-['Inter'] text-green-800 font-semibold">Thanks for your review! It helps other travellers.</p>
+                  </div>
+                )}
+
+                {/* Review list */}
+                {reviews.length > 0 ? (
+                  <div className="space-y-4">
+                    {reviews.map((review: any, index: number) => (
+                      <Card key={index} className="border border-gray-200 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
+                        <CardContent className="p-6">
+                          <div className="flex items-start gap-4">
+                            <div className="w-10 h-10 rounded-full bg-[#111f50] flex items-center justify-center flex-shrink-0 text-white font-['Poppins'] font-bold text-sm">
+                              {(review.userName || review.user_name || 'A')[0].toUpperCase()}
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex flex-wrap items-center gap-2 mb-2">
+                                <h5 className="font-['Poppins'] font-semibold text-[#111f50]">{review.userName || review.user_name || 'Anonymous'}</h5>
+                                <div className="flex gap-0.5">
+                                  {[...Array(5)].map((_, i) => (
+                                    <Star
+                                      key={i}
+                                      className={`w-3.5 h-3.5 ${i < review.rating ? 'text-[#D4B26A] fill-[#D4B26A]' : 'text-gray-300'}`}
+                                    />
+                                  ))}
+                                </div>
+                                {review.createdAt && (
+                                  <span className="font-['Inter'] text-xs text-gray-400">
+                                    {format(new Date(review.createdAt), 'MMM d, yyyy')}
+                                  </span>
+                                )}
+                              </div>
+                              {review.review && (
+                                <p className="font-['Inter'] text-gray-700 leading-relaxed text-sm">{review.review}</p>
+                              )}
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="bg-gray-50 rounded-2xl border border-gray-100 p-10 text-center">
+                    <Star className="w-12 h-12 text-gray-200 mx-auto mb-3" />
+                    <p className="font-['Poppins'] font-semibold text-gray-400 mb-1">No reviews yet</p>
+                    <p className="font-['Inter'] text-gray-400 text-sm">Be the first to share your experience!</p>
+                  </div>
                 )}
               </TabsContent>
             </Tabs>

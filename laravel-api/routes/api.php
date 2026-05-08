@@ -64,6 +64,8 @@ Route::middleware('auth')->group(function () {
 */
 Route::get('/booking/events',                [\App\Http\Controllers\BookingEventController::class, 'index']);
 Route::get('/booking/events/{id}',           [\App\Http\Controllers\BookingEventController::class, 'show']);
+Route::get('/booking/events/{id}/reviews',   [\App\Http\Controllers\BookingEventController::class, 'reviews']);
+Route::post('/booking/events/{id}/reviews',  [\App\Http\Controllers\BookingEventController::class, 'submitReview']);
 
 /*
 |--------------------------------------------------------------------------
