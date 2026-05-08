@@ -8,6 +8,7 @@ import CalendarComponent from "react-calendar";
 import noEventsImage from "@/assets/no-events.png";
 import "react-calendar/dist/Calendar.css";
 import "./EventsActivitiesCalendar.css";
+import { useToast } from "@/hooks/use-toast";
 
 interface Event {
   id: number | string;
@@ -107,14 +108,67 @@ const StatusBadge = ({ status }: { status: string }) => {
 /* ─── Filter tabs ────────────────────────────────────────────────── */
 const STATUS_FILTERS = ['All', 'Upcoming', 'Ongoing', 'Completed'] as const;
 
+const FAVORITES_KEY = 'journey_favorite_events';
+
 const EventsActivitiesCalendar = () => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>('All');
   const [currentPage, setCurrentPage] = useState(0);
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
+  const [favorites, setFavorites] = useState<Set<string>>(() => {
+    try {
+      const stored = localStorage.getItem(FAVORITES_KEY);
+      return stored ? new Set(JSON.parse(stored)) : new Set();
+    } catch {
+      return new Set();
+    }
+  });
   const navigate = useNavigate();
+  const { toast } = useToast();
   const eventsPerPage = 2;
+
+  const toggleFavorite = (e: React.MouseEvent, eventId: string | number) => {
+    e.stopPropagation();
+    const id = String(eventId);
+    setFavorites(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+        toast({ title: 'Removed from favorites' });
+      } else {
+        next.add(id);
+        toast({ title: 'Added to favorites', description: 'Event saved to your favorites.' });
+      }
+      localStorage.setItem(FAVORITES_KEY, JSON.stringify([...next]));
+      return next;
+    });
+  };
+
+  const handleShare = async (e: React.MouseEvent, event: Event) => {
+    e.stopPropagation();
+    const url = `${window.location.origin}/book?event=${event.id}`;
+    const shareData = {
+      title: event.title,
+      text: `Check out this event: ${event.title} — ${event.location}`,
+      url,
+    };
+    try {
+      if (navigator.share && navigator.canShare(shareData)) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(url);
+        toast({ title: 'Link copied!', description: 'Event link copied to clipboard.' });
+      }
+    } catch {
+      try {
+        await navigator.clipboard.writeText(url);
+        toast({ title: 'Link copied!', description: 'Event link copied to clipboard.' });
+      } catch {
+        toast({ title: 'Could not share', description: 'Please copy the URL manually.', variant: 'destructive' });
+      }
+    }
+  };
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -411,12 +465,29 @@ const EventsActivitiesCalendar = () => {
                           </div>
 
                           {/* Action icons — top right */}
-                          <div className="absolute flex gap-2" style={{ top: '12px', right: '12px' }}
-                            onClick={e => e.stopPropagation()}>
-                            <button className="p-2 rounded-full bg-white/90 backdrop-blur-sm hover:bg-white" style={{ boxShadow: '0 2px 6px rgba(0,0,0,0.15)', transition: 'all 0.25s' }}>
-                              <Heart className="w-4 h-4" style={{ color: '#666A73' }} strokeWidth={2} />
+                          <div className="absolute flex gap-2" style={{ top: '12px', right: '12px' }}>
+                            <button
+                              onClick={e => toggleFavorite(e, event.id)}
+                              className="p-2 rounded-full bg-white/90 backdrop-blur-sm hover:bg-white"
+                              style={{ boxShadow: '0 2px 6px rgba(0,0,0,0.15)', transition: 'all 0.25s' }}
+                              title={favorites.has(String(event.id)) ? 'Remove from favorites' : 'Add to favorites'}
+                            >
+                              <Heart
+                                className="w-4 h-4"
+                                style={{
+                                  color: favorites.has(String(event.id)) ? '#ef4444' : '#666A73',
+                                  fill: favorites.has(String(event.id)) ? '#ef4444' : 'none',
+                                  transition: 'color 0.2s, fill 0.2s',
+                                }}
+                                strokeWidth={2}
+                              />
                             </button>
-                            <button className="p-2 rounded-full bg-white/90 backdrop-blur-sm hover:bg-white" style={{ boxShadow: '0 2px 6px rgba(0,0,0,0.15)', transition: 'all 0.25s' }}>
+                            <button
+                              onClick={e => handleShare(e, event)}
+                              className="p-2 rounded-full bg-white/90 backdrop-blur-sm hover:bg-white"
+                              style={{ boxShadow: '0 2px 6px rgba(0,0,0,0.15)', transition: 'all 0.25s' }}
+                              title="Share event"
+                            >
                               <Share2 className="w-4 h-4" style={{ color: '#666A73' }} strokeWidth={2} />
                             </button>
                           </div>
