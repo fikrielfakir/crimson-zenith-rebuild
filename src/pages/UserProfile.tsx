@@ -47,7 +47,8 @@ import {
   AlertCircle,
   CheckCircle,
   XCircle,
-  Loader2
+  Loader2,
+  Heart
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -71,6 +72,23 @@ interface Booking {
   eventTitle?: string;
 }
 
+const FAVORITES_KEY = 'journey_favorite_events';
+
+interface FavoriteEvent {
+  id: number | string;
+  title: string;
+  description?: string;
+  location?: string;
+  price?: number;
+  image?: string;
+  status?: string;
+  startDate?: string;
+  endDate?: string;
+  eventDate?: string;
+  category?: string;
+  duration?: string;
+}
+
 const UserProfile = () => {
   const { user, isAuthenticated, isLoading, refetch } = useAuth();
   const { toast } = useToast();
@@ -88,6 +106,16 @@ const UserProfile = () => {
   const [clubsLoading, setClubsLoading] = useState(true);
   const [userBookings, setUserBookings] = useState<Booking[]>([]);
   const [bookingsLoading, setBookingsLoading] = useState(true);
+  const [favoriteIds, setFavoriteIds] = useState<Set<string>>(() => {
+    try {
+      const stored = localStorage.getItem(FAVORITES_KEY);
+      return stored ? new Set(JSON.parse(stored)) : new Set();
+    } catch {
+      return new Set();
+    }
+  });
+  const [favoriteEvents, setFavoriteEvents] = useState<FavoriteEvent[]>([]);
+  const [favoritesLoading, setFavoritesLoading] = useState(true);
   const [editingBooking, setEditingBooking] = useState<Booking | null>(null);
   const [cancellingBooking, setCancellingBooking] = useState<Booking | null>(null);
   const [editFormData, setEditFormData] = useState({ numberOfParticipants: 1, specialRequests: '' });
@@ -132,6 +160,7 @@ const UserProfile = () => {
       
       fetchUserClubs();
       fetchUserBookings();
+      fetchFavoriteEvents();
     }
   }, [user, isAuthenticated, isLoading, toast, navigate]);
 
@@ -169,6 +198,60 @@ const UserProfile = () => {
     } finally {
       setBookingsLoading(false);
     }
+  };
+
+  const fetchFavoriteEvents = async () => {
+    try {
+      setFavoritesLoading(true);
+      const stored = localStorage.getItem(FAVORITES_KEY);
+      const ids: string[] = stored ? JSON.parse(stored) : [];
+      setFavoriteIds(new Set(ids));
+      if (ids.length === 0) {
+        setFavoriteEvents([]);
+        return;
+      }
+      const response = await fetch('/api/booking/events');
+      if (response.ok) {
+        const data = await response.json();
+        const raw: any[] = Array.isArray(data) ? data : (data.events || []);
+        const matched = raw
+          .filter((e: any) => ids.includes(String(e.id)))
+          .map((e: any) => ({
+            id: e.id,
+            title: e.title,
+            description: e.description,
+            location: e.location,
+            price: e.price,
+            image: e.image,
+            status: e.status,
+            startDate: e.startDate ?? e.start_date,
+            endDate: e.endDate ?? e.end_date,
+            eventDate: e.eventDate ?? e.event_date,
+            category: e.category,
+            duration: e.duration,
+          }));
+        setFavoriteEvents(matched);
+      } else {
+        setFavoriteEvents([]);
+      }
+    } catch (error) {
+      console.error('Error fetching favorite events:', error);
+      setFavoriteEvents([]);
+    } finally {
+      setFavoritesLoading(false);
+    }
+  };
+
+  const removeFavorite = (eventId: number | string) => {
+    const id = String(eventId);
+    setFavoriteIds(prev => {
+      const next = new Set(prev);
+      next.delete(id);
+      localStorage.setItem(FAVORITES_KEY, JSON.stringify([...next]));
+      return next;
+    });
+    setFavoriteEvents(prev => prev.filter(e => String(e.id) !== id));
+    toast({ title: 'Removed from favorites' });
   };
 
   const handleCancelBooking = async () => {
@@ -578,6 +661,15 @@ const UserProfile = () => {
               <CreditCard className="w-4 h-4 mr-2" />
               Bookings
             </TabsTrigger>
+            <TabsTrigger value="favorites" className="data-[state=active]:bg-[hsl(227,65%,19%)] data-[state=active]:text-white rounded-lg px-4 py-2">
+              <Heart className="w-4 h-4 mr-2" />
+              My Favorites
+              {favoriteIds.size > 0 && (
+                <span className="ml-1.5 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-semibold">
+                  {favoriteIds.size}
+                </span>
+              )}
+            </TabsTrigger>
             <TabsTrigger value="activity" className="data-[state=active]:bg-[hsl(227,65%,19%)] data-[state=active]:text-white rounded-lg px-4 py-2">
               <Activity className="w-4 h-4 mr-2" />
               Activity
@@ -950,6 +1042,125 @@ const UserProfile = () => {
                         </div>
                       </div>
                     ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* My Favorites Tab */}
+          <TabsContent value="favorites" className="space-y-6">
+            <Card className="shadow-sm border-0 bg-white">
+              <CardHeader className="border-b border-slate-100">
+                <CardTitle className="flex items-center gap-2 text-[hsl(227,65%,19%)]">
+                  <Heart className="w-5 h-5 text-red-500" fill="#ef4444" />
+                  My Favorites ({favoriteEvents.length})
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6">
+                {favoritesLoading ? (
+                  <div className="text-center py-12">
+                    <Loader2 className="w-10 h-10 animate-spin mx-auto text-[hsl(227,65%,19%)]" />
+                    <p className="text-slate-500 mt-4">Loading your favorites...</p>
+                  </div>
+                ) : favoriteEvents.length === 0 ? (
+                  <div className="text-center py-12">
+                    <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-red-50 flex items-center justify-center">
+                      <Heart className="w-10 h-10 text-red-300" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-slate-800 mb-2">No Favorites Yet</h3>
+                    <p className="text-slate-500 mb-6 max-w-md mx-auto">
+                      Heart any event on the booking page to save it here for quick access.
+                    </p>
+                    <Button onClick={() => navigate('/book')} className="bg-[hsl(227,65%,19%)] hover:bg-[hsl(227,65%,25%)]">
+                      Browse Events
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                    {favoriteEvents.map((event) => {
+                      const dateStr = event.startDate || event.eventDate;
+                      const formattedDate = dateStr
+                        ? new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                        : null;
+                      return (
+                        <div
+                          key={event.id}
+                          className="group relative border border-slate-100 rounded-2xl overflow-hidden hover:shadow-lg transition-all duration-200 cursor-pointer bg-white"
+                          onClick={() => navigate(`/book?event=${event.id}`)}
+                        >
+                          {/* Event Image */}
+                          <div className="relative h-44 bg-slate-100 overflow-hidden">
+                            <img
+                              src={event.image || 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80'}
+                              alt={event.title}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            />
+                            {/* Remove button */}
+                            <button
+                              className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow hover:bg-white transition-colors z-10"
+                              title="Remove from favorites"
+                              onClick={(e) => { e.stopPropagation(); removeFavorite(event.id); }}
+                            >
+                              <Heart className="w-4 h-4 text-red-500" fill="#ef4444" />
+                            </button>
+                            {/* Status badge */}
+                            {event.status && (
+                              <span className={`absolute top-3 left-3 text-xs font-semibold px-2.5 py-1 rounded-full ${
+                                event.status.toLowerCase() === 'upcoming'
+                                  ? 'bg-blue-100 text-blue-700'
+                                  : event.status.toLowerCase() === 'ongoing'
+                                  ? 'bg-green-100 text-green-700'
+                                  : 'bg-slate-100 text-slate-600'
+                              }`}>
+                                {event.status}
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Card Body */}
+                          <div className="p-4">
+                            <h4 className="font-semibold text-slate-800 leading-snug mb-2 line-clamp-2 group-hover:text-[hsl(227,65%,19%)] transition-colors">
+                              {event.title}
+                            </h4>
+
+                            <div className="space-y-1.5 text-sm text-slate-500 mb-4">
+                              {event.location && (
+                                <div className="flex items-center gap-1.5">
+                                  <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
+                                  <span className="truncate">{event.location}</span>
+                                </div>
+                              )}
+                              {formattedDate && (
+                                <div className="flex items-center gap-1.5">
+                                  <Calendar className="w-3.5 h-3.5 flex-shrink-0" />
+                                  <span>{formattedDate}</span>
+                                </div>
+                              )}
+                              {event.duration && (
+                                <div className="flex items-center gap-1.5">
+                                  <Clock className="w-3.5 h-3.5 flex-shrink-0" />
+                                  <span>{event.duration}</span>
+                                </div>
+                              )}
+                            </div>
+
+                            <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+                              <span className="font-bold text-[hsl(227,65%,19%)]">
+                                {event.price ? `${event.price} MAD` : 'Free'}
+                              </span>
+                              <Button
+                                size="sm"
+                                className="bg-[hsl(227,65%,19%)] hover:bg-[hsl(227,65%,25%)] text-white text-xs px-3 h-8"
+                                onClick={(e) => { e.stopPropagation(); navigate(`/book?event=${event.id}`); }}
+                              >
+                                Book Now
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </CardContent>
