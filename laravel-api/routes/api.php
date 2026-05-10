@@ -184,6 +184,12 @@ Route::prefix('admin')->middleware(['admin'])->group(function () {
     Route::post('/users/{id}/toggle-active',   [\App\Http\Controllers\Admin\UserController::class, 'toggleActive']);
     Route::post('/users/{id}/reset-password',  [\App\Http\Controllers\Admin\UserController::class, 'resetPassword']);
 
+    // Roles & Permissions
+    Route::get('/roles',                       [\App\Http\Controllers\Admin\RolesController::class, 'index']);
+    Route::get('/roles/users',                 [\App\Http\Controllers\Admin\RolesController::class, 'allUsers']);
+    Route::get('/roles/{role}/users',          [\App\Http\Controllers\Admin\RolesController::class, 'users']);
+    Route::put('/users/{id}/role',             [\App\Http\Controllers\Admin\RolesController::class, 'updateUserRole']);
+
     // Clubs
     Route::get('/clubs',                       [\App\Http\Controllers\Admin\ClubController::class, 'index']);
     Route::post('/clubs/upload-image',         [\App\Http\Controllers\Admin\ClubController::class, 'uploadImage']);

@@ -35,7 +35,7 @@ class UserController extends Controller
             'lastName'  => 'required|string',
             'email'     => 'required|email|unique:users,email',
             'password'  => 'required|string|min:6',
-            'role'      => 'nullable|in:user,admin',
+            'role'      => 'nullable|in:user,admin,moderator,club_manager,event_organizer',
         ]);
 
         $user = User::create([
@@ -61,7 +61,7 @@ class UserController extends Controller
             'firstName' => 'nullable|string',
             'lastName'  => 'nullable|string',
             'email'     => 'nullable|email',
-            'role'      => 'nullable|in:user,admin',
+            'role'      => 'nullable|in:user,admin,moderator,club_manager,event_organizer',
         ]);
 
         $update = [];
