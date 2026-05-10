@@ -184,23 +184,25 @@ export default function PaymentSuccess() {
 
                 {/* Actions */}
                 <div className="space-y-3">
-                  <Button
-                    onClick={handleDownload}
-                    disabled={downloading}
-                    className="w-full bg-gradient-to-r from-[#D4B26A] to-[#C9A758] hover:from-[#C9A758] hover:to-[#B89647] text-white font-['Poppins'] font-bold py-6 rounded-xl shadow-lg text-base"
-                  >
-                    {downloading ? (
-                      <span className="flex items-center gap-2">
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                        Generating ticket…
-                      </span>
-                    ) : (
-                      <span className="flex items-center gap-2">
-                        <Download className="w-5 h-5" />
-                        Download Event Ticket
-                      </span>
-                    )}
-                  </Button>
+                  {isPaid && (
+                    <Button
+                      onClick={handleDownload}
+                      disabled={downloading}
+                      className="w-full bg-gradient-to-r from-[#D4B26A] to-[#C9A758] hover:from-[#C9A758] hover:to-[#B89647] text-white font-['Poppins'] font-bold py-6 rounded-xl shadow-lg text-base"
+                    >
+                      {downloading ? (
+                        <span className="flex items-center gap-2">
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                          Generating ticket…
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-2">
+                          <Download className="w-5 h-5" />
+                          Download Event Ticket
+                        </span>
+                      )}
+                    </Button>
+                  )}
 
                   <Link to="/" className="block">
                     <Button
