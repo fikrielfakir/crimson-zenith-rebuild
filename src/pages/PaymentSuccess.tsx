@@ -90,26 +90,36 @@ export default function PaymentSuccess() {
         style={{ paddingTop: '14rem', paddingBottom: '3rem' }}
       >
         <div className="container mx-auto px-6 text-center">
-          <div className="w-20 h-20 rounded-full bg-green-400/20 flex items-center justify-center mx-auto mb-6">
-            <CheckCircle2 className="w-10 h-10 text-green-400" />
-          </div>
-          <h1 className="font-['Poppins'] font-bold text-white text-4xl mb-3">
-            Payment Successful!
-          </h1>
-          <p className="text-white/80 font-['Inter'] text-lg">
-            Your booking is confirmed — your ticket is being prepared.
-          </p>
+          {loading ? (
+            <>
+              <div className="w-20 h-20 rounded-full bg-[#D4B26A]/20 flex items-center justify-center mx-auto mb-6">
+                <Loader2 className="w-10 h-10 text-[#D4B26A] animate-spin" />
+              </div>
+              <h1 className="font-['Poppins'] font-bold text-white text-4xl mb-3">
+                Verifying Payment…
+              </h1>
+              <p className="text-white/80 font-['Inter'] text-lg">
+                Please wait while we confirm your booking.
+              </p>
+            </>
+          ) : (
+            <>
+              <div className="w-20 h-20 rounded-full bg-green-400/20 flex items-center justify-center mx-auto mb-6">
+                <CheckCircle2 className="w-10 h-10 text-green-400" />
+              </div>
+              <h1 className="font-['Poppins'] font-bold text-white text-4xl mb-3">
+                Payment Successful!
+              </h1>
+              <p className="text-white/80 font-['Inter'] text-lg">
+                Your booking is confirmed — your ticket is being prepared.
+              </p>
+            </>
+          )}
         </div>
       </section>
 
       <div className="container mx-auto px-6 py-12 max-w-lg flex-1">
-        {loading ? (
-          <div className="text-center py-16 space-y-4">
-            <Loader2 className="w-10 h-10 animate-spin text-[#D4B26A] mx-auto" />
-            <p className="text-gray-500 font-['Inter'] text-lg">Verifying your payment…</p>
-            <p className="text-gray-400 font-['Inter'] text-sm">This usually takes a few seconds.</p>
-          </div>
-        ) : (
+        {loading ? null : (
           <div className="space-y-6">
             {/* Reference card */}
             <Card className="border-2 border-[#D4B26A]/40 rounded-3xl shadow-xl overflow-hidden">
