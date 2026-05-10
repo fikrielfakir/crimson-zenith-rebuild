@@ -1,485 +1,441 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Separator } from "@/components/ui/separator";
-import { 
-  Users, 
-  Mail, 
-  Phone, 
-  MapPin, 
-  Heart, 
-  FileText,
-  CheckCircle,
+import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/hooks/use-toast';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import {
   CheckCircle2,
   User,
-  Calendar,
+  Mail,
+  Phone,
+  ChevronRight,
   Mountain,
   Camera,
   Waves,
-  Compass
-} from "lucide-react";
-import type { JoinUsFormData, JoinUsPageConfig } from "@/types/admin";
-import { joinUsConfigService } from "@/lib/joinUsConfig";
+  Compass,
+  Users,
+  MapPin,
+  Loader2,
+  ArrowRight,
+  Sparkles,
+} from 'lucide-react';
 
-// Create dynamic form validation schema based on config
-const createJoinUsSchema = (config: JoinUsPageConfig | null) => {
-  if (!config) {
-    // Fallback schema
-    return z.object({
-      applicantName: z.string().min(2, "Name must be at least 2 characters"),
-      email: z.string().email("Please enter a valid email address"),
-      phone: z.string().min(10, "Please enter a valid phone number"),
-      preferredClub: z.string().optional(),
-      interests: z.array(z.string()).min(1, "Please select at least one interest"),
-      motivation: z.string().min(50, "Please tell us more about your motivation (at least 50 characters)"),
-      agreeToTerms: z.boolean().refine(val => val === true, "You must agree to the terms and conditions")
-    });
-  }
+// ─── Schema ───────────────────────────────────────────────────────────────────
+const schema = z.object({
+  applicantName: z.string().min(2, 'Name must be at least 2 characters'),
+  email: z.string().email('Please enter a valid email address'),
+  phone: z.string().min(10, 'Please enter a valid phone number'),
+  preferredClub: z.string().optional(),
+  interests: z.array(z.string()).min(1, 'Please select at least one interest'),
+  motivation: z.string().min(50, 'Please write at least 50 characters'),
+  agreeToTerms: z.boolean().refine(v => v === true, 'You must agree to the terms'),
+});
+type FormData = z.infer<typeof schema>;
 
-  return z.object({
-    applicantName: z.string().min(config.validation.nameMinLength, `Name must be at least ${config.validation.nameMinLength} characters`),
-    email: z.string().email("Please enter a valid email address"),
-    phone: z.string().min(config.validation.phoneMinLength, "Please enter a valid phone number"),
-    preferredClub: z.string().optional(),
-    interests: z.array(z.string()).min(1, "Please select at least one interest"),
-    motivation: z.string().min(config.validation.motivationMinLength, `Please tell us more about your motivation (at least ${config.validation.motivationMinLength} characters)`),
-    agreeToTerms: z.boolean().refine(val => val === true, "You must agree to the terms and conditions")
-  });
+// ─── Static interests ─────────────────────────────────────────────────────────
+const INTERESTS = [
+  'Mountain Trekking', 'Desert Adventures', 'Photography', 'Water Sports',
+  'Cultural Tours', 'Local Cuisine', 'Traditional Crafts', 'Historical Sites',
+  'Nature Conservation', 'Community Service', 'Language Exchange', 'Wellness',
+];
+
+const ICON_MAP: Record<string, React.ElementType> = {
+  Mountain, Camera, Waves, Compass, Users, MapPin,
 };
 
-const JoinUs = () => {
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+// ─── Component ────────────────────────────────────────────────────────────────
+export default function JoinUs() {
+  const { toast } = useToast();
+  const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [clubs, setClubs] = useState<any[]>([]);
+  const [clubsLoading, setClubsLoading] = useState(true);
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
-  const [config, setConfig] = useState<JoinUsPageConfig | null>(null);
-  const [configLoading, setConfigLoading] = useState(true);
-
-  // Load configuration on mount
-  useEffect(() => {
-    const loadConfig = async () => {
-      try {
-        const loadedConfig = await joinUsConfigService.getConfig();
-        setConfig(loadedConfig);
-      } catch (error) {
-        console.error('Error loading Join Us configuration:', error);
-        setConfig(null);
-      } finally {
-        setConfigLoading(false);
-      }
-    };
-    
-    loadConfig();
-    
-    // Subscribe to configuration changes
-    const unsubscribe = joinUsConfigService.onConfigChange((newConfig) => {
-      setConfig(newConfig);
-    });
-    
-    return unsubscribe;
-  }, []);
-
-  // Get icon component from string
-  const getIconComponent = (iconName: string) => {
-    const iconMap: Record<string, any> = {
-      User, Users, MapPin, Heart, FileText, Mountain, Camera, Waves, Compass, CheckCircle, CheckCircle2
-    };
-    return iconMap[iconName] || Users;
-  };
-
-  // Memoized form schema that updates when config changes
-  const joinUsSchema = useMemo(() => createJoinUsSchema(config), [config]);
+  const [selectedClub, setSelectedClub] = useState('');
 
   const {
     register,
     handleSubmit,
-    formState: { errors },
     setValue,
     watch,
-    reset
-  } = useForm<JoinUsFormData>({
-    resolver: zodResolver(joinUsSchema),
-    defaultValues: {
-      applicantName: '',
-      email: '',
-      phone: '',
-      preferredClub: '',
-      interests: [],
-      motivation: '',
-      agreeToTerms: false
-    }
+    formState: { errors },
+  } = useForm<FormData>({
+    resolver: zodResolver(schema),
+    defaultValues: { applicantName: '', email: '', phone: '', preferredClub: '', interests: [], motivation: '', agreeToTerms: false },
   });
 
-  // Reset form when config changes to apply new validation
+  const motivation = watch('motivation') ?? '';
+  const agreeToTerms = watch('agreeToTerms');
+
+  // Fetch real clubs from backend
   useEffect(() => {
-    if (config) {
-      reset();
-    }
-  }, [config, reset]);
+    fetch('/api/clubs', { headers: { Accept: 'application/json' } })
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(data => {
+        const list = Array.isArray(data) ? data : data?.clubs ?? data?.data ?? [];
+        setClubs(list.slice(0, 6));
+      })
+      .catch(() => setClubs([]))
+      .finally(() => setClubsLoading(false));
+  }, []);
 
-  // Dynamic clubs and interests based on config
-  const clubs = config?.availableClubs?.filter(club => club.isActive).sort((a, b) => a.order - b.order) || [];
-  const interestOptions = config?.availableInterests || [];
-
-  const handleInterestChange = (interest: string, checked: boolean) => {
-    const updatedInterests = checked 
-      ? [...selectedInterests, interest]
-      : selectedInterests.filter(i => i !== interest);
-    
-    setSelectedInterests(updatedInterests);
-    setValue('interests', updatedInterests);
+  const toggleInterest = (interest: string) => {
+    const next = selectedInterests.includes(interest)
+      ? selectedInterests.filter(i => i !== interest)
+      : [...selectedInterests, interest];
+    setSelectedInterests(next);
+    setValue('interests', next, { shouldValidate: true });
   };
 
-  const onSubmit = async (data: JoinUsFormData) => {
-    setIsLoading(true);
-    
+  const selectClub = (id: string) => {
+    const next = selectedClub === id ? '' : id;
+    setSelectedClub(next);
+    setValue('preferredClub', next);
+  };
+
+  const onSubmit = async (data: FormData) => {
+    setLoading(true);
     try {
       const res = await fetch('/api/applications', {
         method: 'POST',
         credentials: 'include',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify(data),
       });
-
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        throw new Error(body?.message ?? `Server error: ${res.status}`);
+        throw new Error(body?.message ?? `Error ${res.status}`);
       }
-
-      setIsSubmitted(true);
-    } catch (error: any) {
-      console.error('Error submitting application:', error);
-      alert(error?.message ?? 'Error submitting application. Please try again.');
+      setSubmitted(true);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (err: any) {
+      toast({ title: 'Submission failed', description: err?.message ?? 'Please try again.', variant: 'destructive' });
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
-  // Show loading state while configuration loads
-  if (configLoading) {
+  // ── Success state ───────────────────────────────────────────────────────────
+  if (submitted) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-primary to-primary/80 flex items-center justify-center">
-        <div className="text-white text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
-          <p>Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // If config failed to load, show error message
-  if (!config) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-primary to-primary/80 flex items-center justify-center py-12 px-4">
-        <Card className="w-full max-w-2xl">
-          <CardContent className="text-center py-12">
-            <div className="text-red-500 mb-4">⚠️</div>
-            <h1 className="text-2xl font-bold mb-4">Configuration Error</h1>
-            <p className="text-muted-foreground mb-6">
-              Unable to load the Join Us page configuration. Please try again later or contact support.
-            </p>
-            <Button 
-              onClick={() => window.location.href = '/'}
-              variant="outline"
-            >
-              Return to Homepage
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  if (isSubmitted) {
-    return (
-      <div className={`min-h-screen bg-gradient-to-b ${config?.headerGradient || 'from-primary to-primary/80'} flex items-center justify-center py-12 px-4`}>
-        <Card className="w-full max-w-2xl">
-          <CardContent className="text-center py-12">
-            <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-6" />
-            <h1 className="text-3xl font-bold mb-4">{config?.successPage.title || 'Application Submitted!'}</h1>
-            <p className="text-muted-foreground mb-6">
-              {config?.successPage.subtitle || 'Thank you for your interest in joining our community. We\'ve received your application and will review it shortly. You\'ll hear from us within 2-3 business days.'}
-            </p>
-            <div className="bg-muted rounded-lg p-4 mb-6">
-              <h3 className="font-semibold mb-2">What happens next?</h3>
-              <ul className="text-sm text-muted-foreground space-y-1">
-                {(config?.successPage.nextSteps || []).map((step, index) => (
-                  <li key={index}>• {step}</li>
-                ))}
-              </ul>
+      <div className="min-h-screen bg-[#FAF8F5] flex flex-col">
+        <Header />
+        <main className="flex-1 flex items-center justify-center px-4 py-24">
+          <div className="text-center max-w-lg">
+            <div className="w-20 h-20 rounded-full bg-[#0B1F5E]/8 flex items-center justify-center mx-auto mb-8">
+              <CheckCircle2 className="w-10 h-10 text-[#0B1F5E]" />
             </div>
-            <Button 
-              onClick={() => window.location.href = '/'}
-              className="w-full sm:w-auto"
-            >
-              {config?.successPage.returnButtonText || 'Return to Homepage'}
-            </Button>
-          </CardContent>
-        </Card>
+            <h1 className="text-3xl font-bold text-[#0B1F5E] mb-4 font-['Poppins']">Application Submitted!</h1>
+            <p className="text-gray-500 text-lg mb-10 leading-relaxed">
+              Thank you for your interest. Our team will review your application and get back to you within 2–3 business days.
+            </p>
+            <div className="bg-white border border-[#D6B98C]/30 rounded-2xl p-7 mb-10 text-left space-y-4 shadow-sm">
+              <p className="text-xs font-semibold text-[#D6B98C] tracking-widest uppercase mb-5">What happens next</p>
+              {[
+                'Our team reviews your application',
+                'We\'ll contact you for a brief conversation',
+                'Upon approval, you\'ll receive your welcome kit',
+                'Join events and meet your community!',
+              ].map((step, i) => (
+                <div key={i} className="flex items-start gap-4">
+                  <span className="w-7 h-7 rounded-full bg-[#0B1F5E] text-white text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">{i + 1}</span>
+                  <p className="text-gray-700 text-sm pt-1">{step}</p>
+                </div>
+              ))}
+            </div>
+            <Link to="/">
+              <Button className="bg-[#0B1F5E] hover:bg-[#0B1F5E]/90 text-white px-10 py-6 rounded-xl text-base font-semibold font-['Poppins']">
+                Return to Homepage
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            </Link>
+          </div>
+        </main>
+        <Footer />
       </div>
     );
   }
 
+  // ── Main page ───────────────────────────────────────────────────────────────
   return (
-    <div className={`min-h-screen bg-gradient-to-b ${config.headerGradient} py-12 px-4`}>
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-white mb-4">
-            {config.pageTitle}
-          </h1>
-          <p className="text-xl text-white/90 max-w-2xl mx-auto">
-            {config.pageSubtitle}
-          </p>
+    <div className="min-h-screen bg-[#FAF8F5] flex flex-col">
+      <Header />
+
+      {/* ── Hero ─────────────────────────────────────────────────────────── */}
+      <section
+        className="relative overflow-hidden"
+        style={{
+          background: 'linear-gradient(135deg, #0B1F5E 0%, #112470 50%, #0d2878 100%)',
+          paddingTop: '10rem',
+          paddingBottom: '5rem',
+        }}
+      >
+        {/* Subtle decorative circles */}
+        <div className="absolute top-0 right-0 w-96 h-96 rounded-full opacity-5"
+          style={{ background: '#D6B98C', transform: 'translate(30%, -30%)' }} />
+        <div className="absolute bottom-0 left-0 w-64 h-64 rounded-full opacity-5"
+          style={{ background: '#D6B98C', transform: 'translate(-30%, 30%)' }} />
+
+        <div className="container mx-auto px-6 relative z-10">
+          <div className="max-w-2xl mx-auto text-center">
+            <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-2 mb-6">
+              <Sparkles className="w-4 h-4 text-[#D6B98C]" />
+              <span className="text-white/90 text-sm font-medium">Open Applications</span>
+            </div>
+            <h1 className="text-4xl md:text-5xl font-bold text-white mb-5 leading-tight font-['Poppins']">
+              Join Our Adventure<br />
+              <span style={{ color: '#D6B98C' }}>Community</span>
+            </h1>
+            <p className="text-white/75 text-lg leading-relaxed max-w-xl mx-auto">
+              Ready to explore Morocco's wonders with like-minded adventurers? Complete this application to become part of our vibrant community.
+            </p>
+          </div>
+
+          {/* Stats strip */}
+          <div className="grid grid-cols-3 gap-4 max-w-lg mx-auto mt-12">
+            {[
+              { value: '1,200+', label: 'Members' },
+              { value: '24', label: 'Active Clubs' },
+              { value: '180+', label: 'Events / Year' },
+            ].map(stat => (
+              <div key={stat.label} className="text-center">
+                <p className="text-2xl font-bold font-['Poppins']" style={{ color: '#D6B98C' }}>{stat.value}</p>
+                <p className="text-white/60 text-sm mt-1">{stat.label}</p>
+              </div>
+            ))}
+          </div>
         </div>
+      </section>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-          {/* Personal Information */}
-          {config.sections.personalInfo.isEnabled && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  {React.createElement(getIconComponent(config.sections.personalInfo.icon), { className: "w-5 h-5" })}
-                  {config.sections.personalInfo.title}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="applicantName">Full Name *</Label>
-                    <Input
-                      id="applicantName"
-                      {...register('applicantName')}
-                      placeholder="Enter your full name"
-                      className={errors.applicantName ? 'border-red-500' : ''}
-                    />
-                    {errors.applicantName && (
-                      <p className="text-sm text-red-500">{errors.applicantName.message}</p>
-                    )}
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email Address *</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      {...register('email')}
-                      placeholder="your.email@example.com"
-                      className={errors.email ? 'border-red-500' : ''}
-                    />
-                    {errors.email && (
-                      <p className="text-sm text-red-500">{errors.email.message}</p>
-                    )}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Phone Number *</Label>
-                  <Input
-                    id="phone"
-                    {...register('phone')}
-                    placeholder="+212 XXX XXX XXX"
-                    className={errors.phone ? 'border-red-500' : ''}
-                  />
-                  {errors.phone && (
-                    <p className="text-sm text-red-500">{errors.phone.message}</p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          )}
+      {/* ── Form ─────────────────────────────────────────────────────────── */}
+      <main className="container mx-auto px-4 py-14 max-w-2xl flex-1">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
 
-          {/* Club Preferences */}
-          {config.sections.clubPreferences.isEnabled && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  {React.createElement(getIconComponent(config.sections.clubPreferences.icon), { className: "w-5 h-5" })}
-                  {config.sections.clubPreferences.title}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Preferred Club (Optional)</Label>
-                  <p className="text-sm text-muted-foreground mb-3">
-                    {config.sections.clubPreferences.description}
-                  </p>
+          {/* ── 1. Personal Info ───────────────────────────────────────────── */}
+          <Section number={1} title="Personal Information">
+            <div className="grid sm:grid-cols-2 gap-4">
+              <Field label="Full Name" required error={errors.applicantName?.message}>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <Input {...register('applicantName')} placeholder="Your full name"
+                    className={`pl-10 h-12 bg-white border-gray-200 focus:border-[#0B1F5E] focus:ring-[#0B1F5E]/20 rounded-xl ${errors.applicantName ? 'border-red-400' : ''}`} />
                 </div>
-                
-                <div className="grid md:grid-cols-2 gap-4">
-                  {clubs.map((club) => {
-                    const IconComponent = getIconComponent(club.icon);
-                    return (
-                      <Card key={club.id} className="cursor-pointer hover:bg-muted/50 transition-colors">
-                        <CardContent className="p-4">
-                          <div className="flex items-start gap-3">
-                            <IconComponent className="w-5 h-5 text-primary mt-1" />
-                            <div className="flex-1">
-                              <h3 className="font-semibold text-sm">{club.name}</h3>
-                              <p className="text-xs text-muted-foreground mb-2">{club.description}</p>
-                              <Badge variant="outline" className="text-xs">{club.members}</Badge>
-                            </div>
-                            <input
-                              type="radio"
-                              {...register('preferredClub')}
-                              value={club.id}
-                              className="mt-1"
-                            />
+              </Field>
+              <Field label="Email Address" required error={errors.email?.message}>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <Input {...register('email')} type="email" placeholder="you@example.com"
+                    className={`pl-10 h-12 bg-white border-gray-200 focus:border-[#0B1F5E] focus:ring-[#0B1F5E]/20 rounded-xl ${errors.email ? 'border-red-400' : ''}`} />
+                </div>
+              </Field>
+            </div>
+            <Field label="Phone Number" required error={errors.phone?.message}>
+              <div className="relative">
+                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Input {...register('phone')} placeholder="+212 6XX XXX XXX"
+                  className={`pl-10 h-12 bg-white border-gray-200 focus:border-[#0B1F5E] focus:ring-[#0B1F5E]/20 rounded-xl ${errors.phone ? 'border-red-400' : ''}`} />
+              </div>
+            </Field>
+          </Section>
+
+          {/* ── 2. Club Preference ─────────────────────────────────────────── */}
+          <Section number={2} title="Choose a Club" subtitle="Optional — pick the one that excites you most">
+            {clubsLoading ? (
+              <div className="flex items-center justify-center py-8 text-gray-400">
+                <Loader2 className="w-5 h-5 animate-spin mr-2" /> Loading clubs…
+              </div>
+            ) : clubs.length === 0 ? (
+              <p className="text-gray-400 text-sm text-center py-4">No clubs found. You can still apply!</p>
+            ) : (
+              <div className="grid sm:grid-cols-2 gap-3">
+                {clubs.map(club => {
+                  const Icon = ICON_MAP[club.icon] ?? Users;
+                  const active = selectedClub === String(club.id ?? club.slug ?? club.name);
+                  return (
+                    <button
+                      key={club.id ?? club.name}
+                      type="button"
+                      onClick={() => selectClub(String(club.id ?? club.slug ?? club.name))}
+                      className={`text-left p-4 rounded-xl border-2 transition-all duration-200 ${
+                        active
+                          ? 'border-[#0B1F5E] bg-[#0B1F5E]/5'
+                          : 'border-gray-200 bg-white hover:border-[#D6B98C]/60 hover:bg-[#D6B98C]/5'
+                      }`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${active ? 'bg-[#0B1F5E]' : 'bg-gray-100'}`}>
+                          <Icon className={`w-4 h-4 ${active ? 'text-white' : 'text-gray-500'}`} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className={`font-semibold text-sm leading-tight ${active ? 'text-[#0B1F5E]' : 'text-gray-800'}`}>
+                            {club.name}
+                          </p>
+                          <p className="text-xs text-gray-500 mt-1 line-clamp-2">{club.description}</p>
+                        </div>
+                        {active && (
+                          <div className="w-5 h-5 rounded-full bg-[#0B1F5E] flex items-center justify-center flex-shrink-0">
+                            <CheckCircle2 className="w-3 h-3 text-white" />
                           </div>
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
-                </div>
-              </CardContent>
-            </Card>
-          )}
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </Section>
 
-          {/* Interests */}
-          {config.sections.interests.isEnabled && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  {React.createElement(getIconComponent(config.sections.interests.icon), { className: "w-5 h-5" })}
-                  {config.sections.interests.title}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Select your interests *</Label>
-                  <p className="text-sm text-muted-foreground">
-                    {config.sections.interests.description}
-                  </p>
-                </div>
-                
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                  {interestOptions.map((interest) => (
-                    <div key={interest} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={interest}
-                        checked={selectedInterests.includes(interest)}
-                        onCheckedChange={(checked) => handleInterestChange(interest, checked as boolean)}
-                      />
-                      <Label
-                        htmlFor={interest}
-                        className="text-sm cursor-pointer"
-                      >
-                        {interest}
-                      </Label>
-                    </div>
-                  ))}
-                </div>
-                
-                {selectedInterests.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-3">
-                    {selectedInterests.map((interest) => (
-                      <Badge key={interest} variant="secondary">
-                        {interest}
-                      </Badge>
-                    ))}
-                  </div>
-                )}
-                
-                {errors.interests && (
-                  <p className="text-sm text-red-500">{errors.interests.message}</p>
-                )}
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Motivation */}
-          {config.sections.motivation.isEnabled && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  {React.createElement(getIconComponent(config.sections.motivation.icon), { className: "w-5 h-5" })}
-                  {config.sections.motivation.title}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="motivation">Why do you want to join our community? *</Label>
-                  <p className="text-sm text-muted-foreground">
-                    {config.sections.motivation.description}
-                  </p>
-                  <Textarea
-                    id="motivation"
-                    {...register('motivation')}
-                    placeholder="Tell us about your passion for adventure, what you hope to experience, and how you'd like to contribute to our community..."
-                    className={`min-h-[120px] ${errors.motivation ? 'border-red-500' : ''}`}
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    {watch('motivation')?.length || 0} / {config.validation.motivationMinLength} characters minimum
-                  </p>
-                  {errors.motivation && (
-                    <p className="text-sm text-red-500">{errors.motivation.message}</p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Terms and Submit */}
-          {config.sections.terms.isEnabled && (
-            <Card>
-              <CardContent className="pt-6">
-                <div className="space-y-4">
-                  <div className="flex items-start space-x-3">
-                    <Checkbox
-                      id="agreeToTerms"
-                      {...register('agreeToTerms')}
-                      className={errors.agreeToTerms ? 'border-red-500' : ''}
-                    />
-                    <div className="space-y-1">
-                      <Label 
-                        htmlFor="agreeToTerms"
-                        className="text-sm cursor-pointer"
-                      >
-                        {config.termsText}
-                      </Label>
-                      <p className="text-xs text-muted-foreground">
-                        {config.termsDescription}
-                      </p>
-                    </div>
-                  </div>
-                  {errors.agreeToTerms && (
-                    <p className="text-sm text-red-500">{errors.agreeToTerms.message}</p>
-                  )}
-                  
-                  <Separator />
-                  
-                  <Alert>
-                    <Calendar className="h-4 w-4" />
-                    <AlertDescription>
-                      <strong>What to expect:</strong> After submission, our team will review your application 
-                      within 2-3 business days. We may contact you for a brief conversation to get to know you better 
-                      before finalizing your membership.
-                    </AlertDescription>
-                  </Alert>
-                  
-                  <Button 
-                    type="submit" 
-                    className="w-full" 
-                    size="lg"
-                    disabled={isLoading}
+          {/* ── 3. Interests ───────────────────────────────────────────────── */}
+          <Section number={3} title="Your Interests" subtitle="Select everything that excites you">
+            <div className="flex flex-wrap gap-2">
+              {INTERESTS.map(interest => {
+                const active = selectedInterests.includes(interest);
+                return (
+                  <button
+                    key={interest}
+                    type="button"
+                    onClick={() => toggleInterest(interest)}
+                    className={`px-4 py-2 rounded-full text-sm font-medium border transition-all duration-150 ${
+                      active
+                        ? 'bg-[#0B1F5E] text-white border-[#0B1F5E]'
+                        : 'bg-white text-gray-600 border-gray-200 hover:border-[#0B1F5E]/50 hover:text-[#0B1F5E]'
+                    }`}
                   >
-                    {isLoading ? 'Submitting Application...' : 'Submit Application'}
-                  </Button>
+                    {active && <span className="mr-1.5">✓</span>}{interest}
+                  </button>
+                );
+              })}
+            </div>
+            {errors.interests && (
+              <p className="text-sm text-red-500 mt-2">{errors.interests.message}</p>
+            )}
+          </Section>
+
+          {/* ── 4. Motivation ──────────────────────────────────────────────── */}
+          <Section number={4} title="Tell Us About Yourself" subtitle="Why do you want to join our community?">
+            <div className="relative">
+              <Textarea
+                {...register('motivation')}
+                placeholder="Share your passion for adventure, what you hope to experience, and how you'd like to contribute to our community…"
+                className={`min-h-[140px] bg-white border-gray-200 focus:border-[#0B1F5E] focus:ring-[#0B1F5E]/20 rounded-xl resize-none text-sm leading-relaxed p-4 ${errors.motivation ? 'border-red-400' : ''}`}
+              />
+              <div className="flex items-center justify-between mt-2">
+                {errors.motivation
+                  ? <p className="text-sm text-red-500">{errors.motivation.message}</p>
+                  : <span />
+                }
+                <span className={`text-xs ml-auto ${motivation.length >= 50 ? 'text-green-600 font-medium' : 'text-gray-400'}`}>
+                  {motivation.length} / 50 min
+                </span>
+              </div>
+            </div>
+          </Section>
+
+          {/* ── 5. Terms + Submit ──────────────────────────────────────────── */}
+          <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm space-y-5">
+            {/* Terms checkbox */}
+            <label className="flex items-start gap-4 cursor-pointer group">
+              <div className="relative mt-0.5 flex-shrink-0">
+                <input
+                  type="checkbox"
+                  {...register('agreeToTerms')}
+                  className="sr-only peer"
+                />
+                <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
+                  agreeToTerms ? 'bg-[#0B1F5E] border-[#0B1F5E]' : 'bg-white border-gray-300 group-hover:border-[#0B1F5E]/50'
+                } ${errors.agreeToTerms ? 'border-red-400' : ''}`}>
+                  {agreeToTerms && (
+                    <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  )}
                 </div>
-              </CardContent>
-            </Card>
-          )}
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-800">I agree to the terms and conditions</p>
+                <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+                  By submitting, you agree to our community guidelines, privacy policy, and terms of service. You consent to receive updates about events and activities.
+                </p>
+                {errors.agreeToTerms && (
+                  <p className="text-xs text-red-500 mt-1">{errors.agreeToTerms.message}</p>
+                )}
+              </div>
+            </label>
+
+            {/* Info note */}
+            <div className="flex items-start gap-3 bg-[#0B1F5E]/4 rounded-xl p-4">
+              <div className="w-5 h-5 rounded-full bg-[#D6B98C]/30 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span className="text-[#D6B98C] text-xs font-bold">i</span>
+              </div>
+              <p className="text-xs text-gray-600 leading-relaxed">
+                After submission, our team reviews your application within <strong>2–3 business days</strong>. We may reach out for a brief conversation before finalising your membership.
+              </p>
+            </div>
+
+            {/* Submit */}
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full h-14 text-base font-semibold rounded-xl font-['Poppins'] shadow-lg transition-all duration-200"
+              style={{ background: loading ? '#9CA3AF' : 'linear-gradient(135deg, #0B1F5E 0%, #1a3485 100%)' }}
+            >
+              {loading ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Submitting Application…
+                </span>
+              ) : (
+                <span className="flex items-center gap-2">
+                  Submit Application
+                  <ChevronRight className="w-5 h-5" />
+                </span>
+              )}
+            </Button>
+          </div>
         </form>
-      </div>
+      </main>
+
+      <Footer />
     </div>
   );
-};
+}
 
-export default JoinUs;
+// ─── Helper sub-components ────────────────────────────────────────────────────
+function Section({ number, title, subtitle, children }: {
+  number: number; title: string; subtitle?: string; children: React.ReactNode;
+}) {
+  return (
+    <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm space-y-5">
+      <div className="flex items-center gap-3">
+        <div className="w-8 h-8 rounded-full bg-[#0B1F5E] text-white text-sm font-bold flex items-center justify-center flex-shrink-0">
+          {number}
+        </div>
+        <div>
+          <h2 className="font-semibold text-[#0B1F5E] text-base font-['Poppins']">{title}</h2>
+          {subtitle && <p className="text-gray-400 text-xs mt-0.5">{subtitle}</p>}
+        </div>
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function Field({ label, required, error, children }: {
+  label: string; required?: boolean; error?: string; children: React.ReactNode;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <label className="text-sm font-medium text-gray-700">
+        {label}{required && <span className="text-[#D6B98C] ml-0.5">*</span>}
+      </label>
+      {children}
+      {error && <p className="text-xs text-red-500">{error}</p>}
+    </div>
+  );
+}
