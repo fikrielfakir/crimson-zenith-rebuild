@@ -21,6 +21,8 @@ import {
   Loader2,
   Map as MapIcon,
   Table as TableIcon,
+  FileText,
+  UserCheck,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -253,9 +255,21 @@ export default function ClubsManagement() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <h1 className="text-3xl font-bold">Clubs Management</h1>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          <Button variant="outline" size="sm" asChild>
+            <Link to="/admin/users">
+              <Users className="mr-2 h-4 w-4" />
+              Users
+            </Link>
+          </Button>
+          <Button variant="outline" size="sm" asChild>
+            <Link to="/admin/applications">
+              <FileText className="mr-2 h-4 w-4" />
+              Applications
+            </Link>
+          </Button>
           <Button variant="outline" onClick={handleExport}>
             <Download className="mr-2 h-4 w-4" />
             Export
@@ -438,9 +452,15 @@ export default function ClubsManagement() {
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem asChild>
-                            <Link to={`/club/${encodeURIComponent(club.name)}`}>
+                            <Link to={`/club/${encodeURIComponent(club.slug || club.name)}`}>
                               <Eye className="mr-2 h-4 w-4" />
                               View Club Page
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem asChild>
+                            <Link to={`/admin/users?search=${encodeURIComponent(club.name)}`}>
+                              <UserCheck className="mr-2 h-4 w-4" />
+                              View Members
                             </Link>
                           </DropdownMenuItem>
                           <DropdownMenuItem asChild>

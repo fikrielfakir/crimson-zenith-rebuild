@@ -15,9 +15,11 @@ import {
   SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import { Link } from 'react-router-dom';
 import {
   Shield, Users, Settings, Search,
   ChevronDown, ChevronUp, Loader2, User,
+  FileText, Building,
 } from 'lucide-react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -383,9 +385,31 @@ export default function UserRolesManagement() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold">Roles & Permissions</h1>
-        <p className="text-muted-foreground mt-1">Manage user roles and their access permissions</p>
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div>
+          <h1 className="text-3xl font-bold">Roles & Permissions</h1>
+          <p className="text-muted-foreground mt-1">Manage user roles and their access permissions</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" asChild>
+            <Link to="/admin/users">
+              <Users className="mr-2 h-4 w-4" />
+              All Users
+            </Link>
+          </Button>
+          <Button variant="outline" size="sm" asChild>
+            <Link to="/admin/applications">
+              <FileText className="mr-2 h-4 w-4" />
+              Applications
+            </Link>
+          </Button>
+          <Button variant="outline" size="sm" asChild>
+            <Link to="/admin/clubs">
+              <Building className="mr-2 h-4 w-4" />
+              Clubs
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {/* Stats */}

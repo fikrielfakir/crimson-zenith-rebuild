@@ -1,11 +1,20 @@
 import { apiFetch } from '@/lib/apiFetch';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Check, X, Clock, Mail, Phone } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Check, X, Clock, Mail, Phone, Search, Users, ExternalLink } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -16,8 +25,11 @@ import {
 } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
 
-async function fetchApplications() {
-  const response = await apiFetch('/api/admin/applications', { credentials: 'include' });
+async function fetchApplications(status?: string, search?: string) {
+  const params = new URLSearchParams();
+  if (status && status !== 'all') params.set('status', status);
+  if (search) params.set('search', search);
+  const response = await apiFetch(`/api/admin/applications?${params}`, { credentials: 'include' });
   if (!response.ok) throw new Error('Failed to fetch applications');
   return response.json();
 }
@@ -25,10 +37,12 @@ async function fetchApplications() {
 export default function ApplicationsManagement() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [search, setSearch] = useState('');
 
   const { data, isLoading } = useQuery({
-    queryKey: ['applications'],
-    queryFn: fetchApplications,
+    queryKey: ['applications', statusFilter, search],
+    queryFn: () => fetchApplications(statusFilter, search),
   });
 
   const approveApplicationMutation = useMutation({
@@ -60,53 +74,85 @@ export default function ApplicationsManagement() {
   });
 
   const applications = data?.applications || [];
-  const pendingCount = applications.filter((app: any) => app.status === 'pending').length;
+  const pendingCount  = data?.pendingCount  ?? applications.filter((a: any) => a.status === 'pending').length;
+  const approvedCount = data?.approvedCount ?? applications.filter((a: any) => a.status === 'approved').length;
+  const rejectedCount = data?.rejectedCount ?? applications.filter((a: any) => a.status === 'rejected').length;
+  const totalCount    = data?.total ?? applications.length;
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Applications Management</h1>
-        <p className="text-muted-foreground mt-1">Review membership applications and requests</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Applications Management</h1>
+          <p className="text-muted-foreground mt-1">Review membership applications and requests</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" asChild>
+            <Link to="/admin/users">
+              <Users className="mr-2 h-4 w-4" />
+              All Users
+            </Link>
+          </Button>
+          <Button variant="outline" size="sm" asChild>
+            <Link to="/admin/users/roles">
+              <ExternalLink className="mr-2 h-4 w-4" />
+              Roles & Permissions
+            </Link>
+          </Button>
+        </div>
       </div>
 
+      {/* Stats */}
       <div className="grid gap-4 md:grid-cols-4">
-        <Card>
+        <Card
+          className="cursor-pointer hover:shadow-md transition-shadow"
+          onClick={() => setStatusFilter('pending')}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Pending</CardTitle>
             <Clock className="h-4 w-4 text-orange-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{pendingCount}</div>
+            <div className="text-2xl font-bold">{isLoading ? '—' : pendingCount}</div>
             <p className="text-xs text-muted-foreground">Awaiting review</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card
+          className="cursor-pointer hover:shadow-md transition-shadow"
+          onClick={() => setStatusFilter('approved')}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Approved</CardTitle>
             <Check className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">89</div>
-            <p className="text-xs text-muted-foreground">This month</p>
+            <div className="text-2xl font-bold">{isLoading ? '—' : approvedCount}</div>
+            <p className="text-xs text-muted-foreground">All time</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card
+          className="cursor-pointer hover:shadow-md transition-shadow"
+          onClick={() => setStatusFilter('rejected')}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Rejected</CardTitle>
             <X className="h-4 w-4 text-red-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">12</div>
-            <p className="text-xs text-muted-foreground">This month</p>
+            <div className="text-2xl font-bold">{isLoading ? '—' : rejectedCount}</div>
+            <p className="text-xs text-muted-foreground">All time</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card
+          className="cursor-pointer hover:shadow-md transition-shadow"
+          onClick={() => setStatusFilter('all')}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total</CardTitle>
             <Mail className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{applications.length}</div>
+            <div className="text-2xl font-bold">{isLoading ? '—' : totalCount}</div>
             <p className="text-xs text-muted-foreground">All time</p>
           </CardContent>
         </Card>
@@ -114,8 +160,34 @@ export default function ApplicationsManagement() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Pending Applications</CardTitle>
-          <CardDescription>Review and process membership applications</CardDescription>
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div>
+              <CardTitle>Applications</CardTitle>
+              <CardDescription>Review and process membership applications</CardDescription>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="relative">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search by name or email…"
+                  className="pl-8 w-56"
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                />
+              </div>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-36">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="approved">Approved</SelectItem>
+                  <SelectItem value="rejected">Rejected</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -125,8 +197,10 @@ export default function ApplicationsManagement() {
           ) : applications.length === 0 ? (
             <div className="flex flex-col items-center justify-center p-8 text-center">
               <Check className="h-12 w-12 text-green-500 mb-4" />
-              <p className="text-lg font-medium">All caught up!</p>
-              <p className="text-muted-foreground">No pending applications at the moment</p>
+              <p className="text-lg font-medium">No applications found</p>
+              <p className="text-muted-foreground">
+                {statusFilter !== 'all' ? `No ${statusFilter} applications` : 'No applications at the moment'}
+              </p>
             </div>
           ) : (
             <Table>
@@ -156,8 +230,10 @@ export default function ApplicationsManagement() {
                               const raw = app.interests;
                               if (!raw) return '—';
                               if (Array.isArray(raw)) return raw.join(', ');
-                              try { const parsed = JSON.parse(raw); return Array.isArray(parsed) ? parsed.join(', ') : String(raw); }
-                              catch { return String(raw); }
+                              try {
+                                const parsed = JSON.parse(raw);
+                                return Array.isArray(parsed) ? parsed.join(', ') : String(raw);
+                              } catch { return String(raw); }
                             })()}
                           </p>
                         </div>
@@ -166,13 +242,15 @@ export default function ApplicationsManagement() {
                     <TableCell>
                       <div className="space-y-1">
                         <div className="flex items-center text-sm">
-                          <Mail className="mr-1 h-3 w-3" />
-                          {app.email}
+                          <Mail className="mr-1 h-3 w-3 shrink-0" />
+                          <span className="truncate max-w-[160px]">{app.email}</span>
                         </div>
-                        <div className="flex items-center text-sm text-muted-foreground">
-                          <Phone className="mr-1 h-3 w-3" />
-                          {app.phone || 'N/A'}
-                        </div>
+                        {app.phone && (
+                          <div className="flex items-center text-sm text-muted-foreground">
+                            <Phone className="mr-1 h-3 w-3 shrink-0" />
+                            {app.phone}
+                          </div>
+                        )}
                       </div>
                     </TableCell>
                     <TableCell>
@@ -189,8 +267,8 @@ export default function ApplicationsManagement() {
                     <TableCell>
                       <Badge
                         variant={
-                          app.status === 'pending' ? 'secondary' :
-                          app.status === 'approved' ? 'default' :
+                          app.status === 'pending'  ? 'secondary'   :
+                          app.status === 'approved' ? 'default'     :
                           'destructive'
                         }
                       >
@@ -199,6 +277,16 @@ export default function ApplicationsManagement() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          asChild
+                          title="Search this applicant in Users"
+                        >
+                          <Link to={`/admin/users?search=${encodeURIComponent(app.email)}`}>
+                            <Users className="h-3.5 w-3.5" />
+                          </Link>
+                        </Button>
                         <Button
                           variant="default"
                           size="sm"
