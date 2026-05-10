@@ -48,10 +48,12 @@ import {
   CheckCircle,
   XCircle,
   Loader2,
-  Heart
+  Heart,
+  Download
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { generateTicketPDF, TicketData } from "@/lib/generateTicketPDF";
 
 interface Booking {
   id: number;
@@ -66,10 +68,16 @@ interface Booking {
   paymentStatus: string;
   paymentMethod: string | null;
   specialRequests: string | null;
+  transactionId?: string | null;
   status: string;
   createdAt: string;
   updatedAt: string;
   eventTitle?: string;
+  event?: {
+    title?: string;
+    location?: string;
+    [key: string]: any;
+  } | null;
 }
 
 const FAVORITES_KEY = 'journey_favorite_events';
@@ -125,6 +133,7 @@ const UserProfile = () => {
   const [refLookupLoading, setRefLookupLoading] = useState(false);
   const [refLookupResult, setRefLookupResult] = useState<Booking | null>(null);
   const [refLookupError, setRefLookupError] = useState('');
+  const [downloadingRef, setDownloadingRef] = useState<string | null>(null);
   const [imageUploading, setImageUploading] = useState(false);
   const [profileData, setProfileData] = useState({
     firstName: '',
@@ -336,6 +345,36 @@ const UserProfile = () => {
     });
     setEditingBooking(booking);
   };
+
+  const handleDownloadTicket = async (booking: Booking) => {
+    setDownloadingRef(booking.bookingReference);
+    try {
+      const ticketData: TicketData = {
+        bookingReference:     booking.bookingReference,
+        customerName:         booking.customerName,
+        customerEmail:        booking.customerEmail,
+        customerPhone:        booking.customerPhone,
+        numberOfParticipants: booking.numberOfParticipants,
+        eventTitle:           booking.event?.title || booking.eventTitle || 'Event',
+        eventDate:            booking.eventDate,
+        eventLocation:        booking.event?.location ?? null,
+        totalPrice:           Number(booking.totalPrice),
+        paymentMethod:        booking.paymentMethod ?? undefined,
+        paymentStatus:        booking.paymentStatus,
+        transactionId:        booking.transactionId ?? null,
+      };
+      await generateTicketPDF(ticketData);
+    } catch (e) {
+      console.error('Ticket download failed', e);
+      toast({ title: 'Error', description: 'Could not generate ticket PDF. Please try again.', variant: 'destructive' });
+    } finally {
+      setDownloadingRef(null);
+    }
+  };
+
+  const isConfirmed = (booking: Booking) =>
+    ['completed', 'paid'].includes((booking.paymentStatus || '').toLowerCase()) ||
+    ['confirmed', 'accepted'].includes((booking.status || '').toLowerCase());
 
   const handleRefLookup = async () => {
     const ref = refLookup.trim().toUpperCase();
@@ -1094,28 +1133,46 @@ const UserProfile = () => {
                             </div>
                           </div>
                           
-                          {booking.status === 'pending' && (
-                            <div className="flex gap-2 flex-shrink-0">
-                              <Button 
-                                variant="outline" 
+                          <div className="flex gap-2 flex-shrink-0 flex-wrap">
+                            {/* Download ticket — only for confirmed/paid bookings */}
+                            {isConfirmed(booking) && (
+                              <Button
                                 size="sm"
-                                onClick={() => openEditDialog(booking)}
-                                className="border-[hsl(227,65%,19%)] text-[hsl(227,65%,19%)] hover:bg-[hsl(227,65%,19%)] hover:text-white"
+                                onClick={() => handleDownloadTicket(booking)}
+                                disabled={downloadingRef === booking.bookingReference}
+                                className="bg-gradient-to-r from-[#D4B26A] to-[#C9A758] hover:from-[#C9A758] hover:to-[#B89647] text-white shadow-sm"
                               >
-                                <Edit3 className="w-4 h-4 mr-1" />
-                                Edit
+                                {downloadingRef === booking.bookingReference ? (
+                                  <><Loader2 className="w-4 h-4 mr-1 animate-spin" /> Generating…</>
+                                ) : (
+                                  <><Download className="w-4 h-4 mr-1" /> Ticket</>
+                                )}
                               </Button>
-                              <Button 
-                                variant="outline" 
-                                size="sm"
-                                onClick={() => setCancellingBooking(booking)}
-                                className="border-red-300 text-red-600 hover:bg-red-50"
-                              >
-                                <X className="w-4 h-4 mr-1" />
-                                Cancel
-                              </Button>
-                            </div>
-                          )}
+                            )}
+
+                            {booking.status === 'pending' && (
+                              <>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => openEditDialog(booking)}
+                                  className="border-[hsl(227,65%,19%)] text-[hsl(227,65%,19%)] hover:bg-[hsl(227,65%,19%)] hover:text-white"
+                                >
+                                  <Edit3 className="w-4 h-4 mr-1" />
+                                  Edit
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => setCancellingBooking(booking)}
+                                  className="border-red-300 text-red-600 hover:bg-red-50"
+                                >
+                                  <X className="w-4 h-4 mr-1" />
+                                  Cancel
+                                </Button>
+                              </>
+                            )}
+                          </div>
                         </div>
                       </div>
                     ))}
