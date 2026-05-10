@@ -1,4 +1,5 @@
 import { apiFetch } from '@/lib/apiFetch';
+import { generateTicketPDF } from '@/lib/generateTicketPDF';
 import { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -91,170 +92,218 @@ async function deleteBooking(bookingReference: string) {
 }
 
 function TicketModal({ booking, isOpen, onClose }: { booking: Booking | null; isOpen: boolean; onClose: () => void }) {
-  const ticketRef = useRef<HTMLDivElement>(null);
-
-  const handlePrint = () => {
-    const printContent = ticketRef.current;
-    if (!printContent) return;
-    
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) return;
-    
-    printWindow.document.write(`
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>Booking Ticket - ${booking?.ticketNumber || booking?.id}</title>
-          <style>
-            * { margin: 0; padding: 0; box-sizing: border-box; }
-            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; }
-            .ticket { 
-              max-width: 500px; 
-              margin: 0 auto; 
-              border: 2px solid #1a1a2e;
-              border-radius: 16px;
-              overflow: hidden;
-              background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-              color: white;
-            }
-            .ticket-header {
-              background: linear-gradient(135deg, #c4a052 0%, #d4b062 100%);
-              padding: 24px;
-              text-align: center;
-            }
-            .logo { width: 80px; height: 80px; margin-bottom: 12px; }
-            .ticket-title { font-size: 24px; font-weight: bold; color: #1a1a2e; }
-            .ticket-subtitle { font-size: 14px; color: #1a1a2e; opacity: 0.8; }
-            .ticket-body { padding: 24px; }
-            .ticket-row { display: flex; justify-content: space-between; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px dashed rgba(255,255,255,0.2); }
-            .ticket-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
-            .ticket-label { font-size: 12px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 1px; }
-            .ticket-value { font-size: 16px; font-weight: 600; color: white; margin-top: 4px; }
-            .ticket-footer { 
-              background: rgba(196, 160, 82, 0.1); 
-              padding: 16px 24px; 
-              text-align: center;
-              border-top: 2px dashed rgba(196, 160, 82, 0.3);
-            }
-            .ticket-number { font-size: 20px; font-weight: bold; color: #c4a052; letter-spacing: 2px; }
-            .ticket-qr { margin-top: 16px; }
-            .status-badge {
-              display: inline-block;
-              background: #22c55e;
-              color: white;
-              padding: 4px 12px;
-              border-radius: 20px;
-              font-size: 12px;
-              font-weight: 600;
-              text-transform: uppercase;
-            }
-          </style>
-        </head>
-        <body>
-          ${printContent.innerHTML}
-        </body>
-      </html>
-    `);
-    printWindow.document.close();
-    printWindow.print();
-  };
+  const [downloading, setDownloading] = useState(false);
 
   if (!booking) return null;
 
-  const ticketNumber = booking.ticketNumber || `TKT-${String(booking.id).padStart(6, '0')}`;
   const eventDate = new Date(booking.eventDate);
-  const formattedDate = eventDate.toLocaleDateString('en-US', { 
-    weekday: 'long', 
-    year: 'numeric', 
-    month: 'long', 
-    day: 'numeric' 
-  });
-  const formattedTime = eventDate.toLocaleTimeString('en-US', { 
-    hour: '2-digit', 
-    minute: '2-digit' 
-  });
+  const fmtDate = eventDate.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+  const fmtTime = eventDate.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+
+  const handleDownload = async () => {
+    setDownloading(true);
+    try {
+      await generateTicketPDF({
+        bookingReference: booking.bookingReference,
+        customerName:     booking.userName,
+        customerEmail:    booking.userEmail,
+        numberOfParticipants: booking.attendees,
+        eventTitle:       booking.eventTitle,
+        eventDate:        booking.eventDate,
+        totalPrice:       booking.totalAmount,
+        paymentStatus:    booking.status,
+      });
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-lg p-0 overflow-hidden">
-        <div className="flex items-center justify-between p-4 border-b">
-          <DialogTitle className="text-lg font-semibold">Booking Ticket</DialogTitle>
-          <Button variant="ghost" size="icon" onClick={onClose}>
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
-        
-        <div className="p-4">
-          <div ref={ticketRef} className="ticket rounded-2xl overflow-hidden border-2 border-[#1a1a2e] shadow-2xl">
-            <div className="ticket-header bg-gradient-to-r from-[#c4a052] to-[#d4b062] p-6 text-center">
-              <img src={logoImg} alt="Logo" className="logo w-20 h-20 mx-auto mb-3 object-contain" />
-              <h2 className="ticket-title text-2xl font-bold text-[#1a1a2e]">The Journey Association</h2>
-              <p className="ticket-subtitle text-sm text-[#1a1a2e]/80 mt-1">Event Booking Confirmation</p>
-            </div>
-            
-            <div className="ticket-body bg-gradient-to-br from-[#1a1a2e] to-[#16213e] p-6 text-white">
-              <div className="ticket-row flex justify-between items-start pb-4 mb-4 border-b border-dashed border-white/20">
-                <div>
-                  <p className="ticket-label text-xs text-white/60 uppercase tracking-wider">Event</p>
-                  <p className="ticket-value text-lg font-semibold mt-1">{booking.eventTitle}</p>
+      <DialogContent className="max-w-sm p-0 overflow-hidden bg-transparent border-0 shadow-none">
+
+        {/* ── Luxury vertical ticket ── */}
+        <div
+          className="relative mx-auto select-none"
+          style={{ width: 300, fontFamily: 'sans-serif' }}
+        >
+          {/* Outer gold border wrapper */}
+          <div className="rounded-2xl p-[2px]" style={{ background: 'linear-gradient(180deg,#D4B26A 0%,#8B6914 60%,#D4B26A 100%)' }}>
+            <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(175deg,#0B1F5E 0%,#07153A 100%)' }}>
+
+              {/* ── TOP STUB ── */}
+              <div className="relative px-6 pt-6 pb-5 text-center"
+                style={{ background: 'linear-gradient(175deg,#1230A0 0%,#0B1F5E 100%)' }}>
+
+                {/* Corner fan lines */}
+                <svg className="absolute top-0 right-0 opacity-30" width="60" height="60" viewBox="0 0 60 60">
+                  {[8,16,24,32].map((o,i) => (
+                    <line key={i} x1={60-o} y1="0" x2="60" y2={o+8}
+                      stroke="#D4B26A" strokeWidth={0.6 - i*0.1} />
+                  ))}
+                </svg>
+
+                {/* Logo */}
+                <img src={logoImg} alt="Logo" className="w-14 h-14 mx-auto mb-2 object-contain drop-shadow-lg" />
+
+                <p className="font-bold tracking-widest text-white text-[11px] leading-tight">THE JOURNEY</p>
+
+                {/* Flanking rules */}
+                <div className="flex items-center gap-2 my-1 px-4">
+                  <div className="flex-1 h-px" style={{ background: 'linear-gradient(90deg,transparent,#D4B26A)' }} />
+                  <p className="text-[8px] tracking-[3px] font-medium" style={{ color: '#D4B26A' }}>ASSOCIATION</p>
+                  <div className="flex-1 h-px" style={{ background: 'linear-gradient(270deg,transparent,#D4B26A)' }} />
                 </div>
-                <span className={`status-badge text-white px-3 py-1 rounded-full text-xs font-semibold uppercase ${
-                  booking.status === 'confirmed' ? 'bg-blue-500' :
-                  booking.status === 'pending' ? 'bg-yellow-500' : 'bg-red-500'
-                }`}>
-                  {booking.status}
-                </span>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4 mb-4 pb-4 border-b border-dashed border-white/20">
-                <div>
-                  <p className="ticket-label text-xs text-white/60 uppercase tracking-wider">Guest Name</p>
-                  <p className="ticket-value font-semibold mt-1">{booking.userName}</p>
-                </div>
-                <div>
-                  <p className="ticket-label text-xs text-white/60 uppercase tracking-wider">Attendees</p>
-                  <p className="ticket-value font-semibold mt-1">{booking.attendees} {booking.attendees > 1 ? 'persons' : 'person'}</p>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4 mb-4 pb-4 border-b border-dashed border-white/20">
-                <div>
-                  <p className="ticket-label text-xs text-white/60 uppercase tracking-wider">Date</p>
-                  <p className="ticket-value font-semibold mt-1">{formattedDate}</p>
-                </div>
-                <div>
-                  <p className="ticket-label text-xs text-white/60 uppercase tracking-wider">Time</p>
-                  <p className="ticket-value font-semibold mt-1">{formattedTime}</p>
+
+                <div className="h-px w-4/5 mx-auto mb-3 opacity-40" style={{ background: '#D4B26A' }} />
+
+                <p className="font-bold text-white text-base tracking-[2px]">EVENT  TICKET</p>
+
+                {/* Confirmed pill */}
+                <div className="inline-block mt-2 px-5 py-1 rounded-full text-[9px] font-bold tracking-widest"
+                  style={{ background: 'linear-gradient(90deg,#D4B26A,#C9A758)', color: '#07153A' }}>
+                  *&nbsp;&nbsp;CONFIRMED&nbsp;&nbsp;*
                 </div>
               </div>
-              
-              <div className="ticket-row flex justify-between items-center">
-                <div>
-                  <p className="ticket-label text-xs text-white/60 uppercase tracking-wider">Total Amount</p>
-                  <p className="ticket-value text-xl font-bold text-[#c4a052] mt-1">${booking.totalAmount}</p>
-                </div>
-                <div className="text-right">
-                  <p className="ticket-label text-xs text-white/60 uppercase tracking-wider">Booking Date</p>
-                  <p className="ticket-value font-semibold mt-1">{new Date(booking.createdAt).toLocaleDateString()}</p>
+
+              {/* ── PERFORATION ── */}
+              <div className="relative flex items-center" style={{ height: 24 }}>
+                {/* Left notch */}
+                <div className="absolute -left-3 w-6 h-6 rounded-full"
+                  style={{ background: 'linear-gradient(175deg,#0B1F5E 0%,#07153A 100%)' }} />
+                {/* Right notch */}
+                <div className="absolute -right-3 w-6 h-6 rounded-full"
+                  style={{ background: 'linear-gradient(175deg,#0B1F5E 0%,#07153A 100%)' }} />
+                {/* Gold rules + dashes */}
+                <div className="flex-1 mx-5 flex flex-col gap-[5px]">
+                  <div className="h-px opacity-40" style={{ background: '#D4B26A' }} />
+                  <div className="flex gap-[5px]">
+                    {Array.from({ length: 22 }).map((_, i) => (
+                      <div key={i} className="h-[2px] flex-1 rounded-full" style={{ background: '#D4B26A', opacity: 0.8 }} />
+                    ))}
+                  </div>
+                  <div className="h-px opacity-40" style={{ background: '#D4B26A' }} />
                 </div>
               </div>
-            </div>
-            
-            <div className="ticket-footer bg-[#1a1a2e]/50 p-4 text-center border-t-2 border-dashed border-[#c4a052]/30">
-              <p className="text-xs text-white/60 uppercase tracking-wider mb-2">Ticket Number</p>
-              <p className="ticket-number text-xl font-bold text-[#c4a052] tracking-widest">{ticketNumber}</p>
-              <p className="text-xs text-white/40 mt-3">Present this ticket at the event entrance</p>
+
+              {/* ── BOTTOM SECTION ── */}
+              <div className="px-5 pt-4 pb-5 relative">
+
+                {/* Subtle Moroccan star overlays */}
+                <svg className="absolute top-2 left-1 opacity-[0.12]" width="38" height="38" viewBox="-19 -19 38 38">
+                  {Array.from({length:8}).map((_,i) => {
+                    const a = (i*Math.PI/4)-Math.PI/2, b = a+Math.PI/8;
+                    const o=15,n=6;
+                    return <line key={i} x1={Math.cos(a)*o} y1={Math.sin(a)*o} x2={Math.cos(b)*n} y2={Math.sin(b)*n} stroke="#D4B26A" strokeWidth="0.8"/>;
+                  })}
+                  <circle r="6" fill="none" stroke="#D4B26A" strokeWidth="0.5"/>
+                </svg>
+
+                {/* Event label + title */}
+                <p className="text-center text-[8px] tracking-[3px] font-bold mb-1" style={{ color: '#D4B26A' }}>
+                  E &nbsp; V &nbsp; E &nbsp; N &nbsp; T
+                </p>
+                <p className="text-center text-white font-bold text-[13px] leading-snug mb-3 line-clamp-2">
+                  {booking.eventTitle}
+                </p>
+
+                {/* Diamond divider */}
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="flex-1 h-px opacity-30" style={{ background: '#D4B26A' }} />
+                  <svg width="12" height="8" viewBox="-6 -4 12 8">
+                    <polygon points="0,-4 5,0 0,4 -5,0" fill="none" stroke="#D4B26A" strokeWidth="0.8"/>
+                  </svg>
+                  <div className="flex-1 h-px opacity-30" style={{ background: '#D4B26A' }} />
+                </div>
+
+                {/* Info grid */}
+                {[
+                  [['GUEST NAME', booking.userName], ['ATTENDEES', `${booking.attendees} person${booking.attendees !== 1 ? 's' : ''}`]],
+                  [['DATE', fmtDate], ['TIME', fmtTime]],
+                ].map((row, ri) => (
+                  <div key={ri}>
+                    <div className="grid grid-cols-2 gap-3 py-2">
+                      {row.map(([label, value]) => (
+                        <div key={label}>
+                          <p className="text-[7px] tracking-[2px] font-bold mb-1" style={{ color: '#D4B26A' }}>{label}</p>
+                          <p className="text-white font-bold text-[10px] leading-tight">{value}</p>
+                        </div>
+                      ))}
+                    </div>
+                    {ri < 1 && <div className="h-px opacity-20" style={{ background: '#D4B26A' }} />}
+                  </div>
+                ))}
+
+                <div className="h-px opacity-20 mt-1 mb-2" style={{ background: '#D4B26A' }} />
+
+                <div className="py-2">
+                  <p className="text-[7px] tracking-[2px] font-bold mb-1" style={{ color: '#D4B26A' }}>TOTAL AMOUNT</p>
+                  <p className="text-white font-bold text-[13px]">{Number(booking.totalAmount).toFixed(2)} MAD</p>
+                </div>
+
+                {/* Separator */}
+                <div className="h-px opacity-30 my-3" style={{ background: '#D4B26A' }} />
+
+                {/* Booking reference */}
+                <p className="text-center text-[7px] tracking-[3px] font-bold mb-1" style={{ color: '#D4B26A' }}>
+                  BOOKING  REFERENCE
+                </p>
+                <p className="text-center text-white font-bold text-[11px] tracking-wider mb-3">
+                  {booking.bookingReference}
+                </p>
+
+                {/* QR placeholder */}
+                <div className="flex justify-center mb-4">
+                  <div className="p-1.5 rounded-lg" style={{ border: '1.5px solid #D4B26A', background: 'white' }}>
+                    <svg width="64" height="64" viewBox="0 0 64 64" className="opacity-80">
+                      <rect x="2" y="2" width="20" height="20" fill="none" stroke="#07153A" strokeWidth="2"/>
+                      <rect x="6" y="6" width="12" height="12" fill="#07153A"/>
+                      <rect x="42" y="2" width="20" height="20" fill="none" stroke="#07153A" strokeWidth="2"/>
+                      <rect x="46" y="6" width="12" height="12" fill="#07153A"/>
+                      <rect x="2" y="42" width="20" height="20" fill="none" stroke="#07153A" strokeWidth="2"/>
+                      <rect x="6" y="46" width="12" height="12" fill="#07153A"/>
+                      <rect x="26" y="2" width="4" height="4" fill="#07153A"/>
+                      <rect x="32" y="2" width="4" height="4" fill="#07153A"/>
+                      <rect x="26" y="8" width="8" height="4" fill="#07153A"/>
+                      <rect x="26" y="26" width="12" height="4" fill="#07153A"/>
+                      <rect x="40" y="26" width="4" height="8" fill="#07153A"/>
+                      <rect x="46" y="26" width="4" height="4" fill="#07153A"/>
+                      <rect x="26" y="40" width="4" height="4" fill="#07153A"/>
+                      <rect x="34" y="40" width="8" height="4" fill="#07153A"/>
+                      <rect x="26" y="48" width="8" height="4" fill="#07153A"/>
+                      <rect x="46" y="46" width="4" height="4" fill="#07153A"/>
+                      <rect x="54" y="40" width="4" height="8" fill="#07153A"/>
+                    </svg>
+                  </div>
+                </div>
+
+                {/* Footer rule */}
+                <div className="h-px opacity-30 mb-2" style={{ background: '#D4B26A' }} />
+                <p className="text-center text-[7px] tracking-[1.5px] font-medium" style={{ color: '#D4B26A', opacity: 0.8 }}>
+                  PRESENT THIS TICKET AT THE EVENT ENTRANCE
+                </p>
+              </div>
             </div>
           </div>
         </div>
-        
-        <DialogFooter className="p-4 border-t">
-          <Button variant="outline" onClick={onClose}>Close</Button>
-          <Button onClick={handlePrint} className="bg-[#c4a052] hover:bg-[#b3903f] text-white">
-            <Printer className="mr-2 h-4 w-4" />
-            Print Ticket
+
+        {/* ── Action buttons ── */}
+        <div className="flex gap-2 mt-4 px-1">
+          <Button variant="outline" className="flex-1" onClick={onClose}>Close</Button>
+          <Button
+            onClick={handleDownload}
+            disabled={downloading}
+            className="flex-1 font-semibold"
+            style={{ background: 'linear-gradient(90deg,#D4B26A,#C9A758)', color: '#07153A' }}
+          >
+            {downloading ? (
+              <><span className="animate-spin mr-2">⟳</span> Generating…</>
+            ) : (
+              <><Download className="mr-2 h-4 w-4" /> Download PDF</>
+            )}
           </Button>
-        </DialogFooter>
+        </div>
+
       </DialogContent>
     </Dialog>
   );
