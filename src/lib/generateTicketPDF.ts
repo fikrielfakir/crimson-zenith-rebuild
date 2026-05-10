@@ -29,7 +29,7 @@ const MUTED:   [number, number, number] = [130, 128, 124];  // muted grey for se
 // ─── Geometry ─────────────────────────────────────────────────────────────────
 const W      = 86;   // mm — portrait width
 const H      = 210;  // mm
-const HEADER = 60;   // mm — navy stub height
+const HEADER = 46;   // mm — navy stub height
 const PERF   = HEADER + 8;
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -122,33 +122,18 @@ export async function generateTicketPDF(data: TicketData): Promise<void> {
     doc.text('TJ', W / 2, LY + LS / 2 + 2.5, { align: 'center' });
   }
 
-  // ── Brand text ────────────────────────────────────────────────────────────
-  const bY = LY + LS + 5;
-
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(8);
-  doc.setTextColor(255, 255, 255);
-  doc.setCharSpace(1.6);
-  doc.text('THE JOURNEY', W / 2, bY, { align: 'center' });
-  doc.setCharSpace(0);
-
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(5.5);
-  doc.setTextColor(...GOLD);
-  doc.setCharSpace(2.8);
-  doc.text('ASSOCIATION', W / 2, bY + 4.2, { align: 'center' });
-  doc.setCharSpace(0);
-
   // ── "EVENT TICKET" ────────────────────────────────────────────────────────
+  const bY = LY + LS + 6;
+
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(13);
   doc.setTextColor(255, 255, 255);
   doc.setCharSpace(0.8);
-  doc.text('EVENT TICKET', W / 2, bY + 12, { align: 'center' });
+  doc.text('EVENT TICKET', W / 2, bY, { align: 'center' });
   doc.setCharSpace(0);
 
   // ── CONFIRMED badge — wider, stronger ────────────────────────────────────
-  const pillW = 36, pillH = 6.5, pillX = (W - pillW) / 2, pillY = bY + 16;
+  const pillW = 36, pillH = 6.5, pillX = (W - pillW) / 2, pillY = bY + 6;
   doc.setFillColor(...GOLD);
   rr(doc, pillX, pillY, pillW, pillH, 3.2, 'F');
   doc.setFont('helvetica', 'bold');
