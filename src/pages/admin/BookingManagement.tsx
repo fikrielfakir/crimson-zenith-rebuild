@@ -129,7 +129,7 @@ function TicketModal({ booking, isOpen, onClose }: { booking: Booking | null; is
         >
           {/* Outer gold border wrapper */}
           <div className="rounded-2xl p-[2px]" style={{ background: 'linear-gradient(180deg,#D4B26A 0%,#8B6914 60%,#D4B26A 100%)' }}>
-            <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(175deg,#0B1F5E 0%,#07153A 100%)' }}>
+            <div className="rounded-2xl overflow-hidden" style={{ background: '#ffffff' }}>
 
               {/* ── TOP STUB ── */}
               <div className="relative px-6 pt-6 pb-5 text-center"
@@ -200,20 +200,20 @@ function TicketModal({ booking, isOpen, onClose }: { booking: Booking | null; is
                 </svg>
 
                 {/* Event label + title */}
-                <p className="text-center text-[8px] tracking-[3px] font-bold mb-1" style={{ color: '#D4B26A' }}>
+                <p className="text-center text-[8px] tracking-[3px] font-bold mb-1" style={{ color: '#B8952A' }}>
                   E &nbsp; V &nbsp; E &nbsp; N &nbsp; T
                 </p>
-                <p className="text-center text-white font-bold text-[13px] leading-snug mb-3 line-clamp-2">
+                <p className="text-center font-bold text-[13px] leading-snug mb-3 line-clamp-2" style={{ color: '#07153A' }}>
                   {booking.eventTitle}
                 </p>
 
                 {/* Diamond divider */}
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="flex-1 h-px opacity-30" style={{ background: '#D4B26A' }} />
+                  <div className="flex-1 h-px opacity-40" style={{ background: '#B8952A' }} />
                   <svg width="12" height="8" viewBox="-6 -4 12 8">
-                    <polygon points="0,-4 5,0 0,4 -5,0" fill="none" stroke="#D4B26A" strokeWidth="0.8"/>
+                    <polygon points="0,-4 5,0 0,4 -5,0" fill="none" stroke="#B8952A" strokeWidth="0.8"/>
                   </svg>
-                  <div className="flex-1 h-px opacity-30" style={{ background: '#D4B26A' }} />
+                  <div className="flex-1 h-px opacity-40" style={{ background: '#B8952A' }} />
                 </div>
 
                 {/* Info grid */}
@@ -225,30 +225,30 @@ function TicketModal({ booking, isOpen, onClose }: { booking: Booking | null; is
                     <div className="grid grid-cols-2 gap-3 py-2">
                       {row.map(([label, value]) => (
                         <div key={label}>
-                          <p className="text-[7px] tracking-[2px] font-bold mb-1" style={{ color: '#D4B26A' }}>{label}</p>
-                          <p className="text-white font-bold text-[10px] leading-tight">{value}</p>
+                          <p className="text-[7px] tracking-[2px] font-bold mb-1" style={{ color: '#B8952A' }}>{label}</p>
+                          <p className="font-bold text-[10px] leading-tight" style={{ color: '#07153A' }}>{value}</p>
                         </div>
                       ))}
                     </div>
-                    {ri < 1 && <div className="h-px opacity-20" style={{ background: '#D4B26A' }} />}
+                    {ri < 1 && <div className="h-px opacity-20" style={{ background: '#B8952A' }} />}
                   </div>
                 ))}
 
-                <div className="h-px opacity-20 mt-1 mb-2" style={{ background: '#D4B26A' }} />
+                <div className="h-px opacity-20 mt-1 mb-2" style={{ background: '#B8952A' }} />
 
                 <div className="py-2">
-                  <p className="text-[7px] tracking-[2px] font-bold mb-1" style={{ color: '#D4B26A' }}>TOTAL AMOUNT</p>
-                  <p className="text-white font-bold text-[13px]">{Number(booking.totalAmount).toFixed(2)} MAD</p>
+                  <p className="text-[7px] tracking-[2px] font-bold mb-1" style={{ color: '#B8952A' }}>TOTAL AMOUNT</p>
+                  <p className="font-bold text-[13px]" style={{ color: '#07153A' }}>{Number(booking.totalAmount).toFixed(2)} MAD</p>
                 </div>
 
                 {/* Separator */}
-                <div className="h-px opacity-30 my-3" style={{ background: '#D4B26A' }} />
+                <div className="h-px opacity-30 my-3" style={{ background: '#B8952A' }} />
 
                 {/* Booking reference */}
-                <p className="text-center text-[7px] tracking-[3px] font-bold mb-1" style={{ color: '#D4B26A' }}>
+                <p className="text-center text-[7px] tracking-[3px] font-bold mb-1" style={{ color: '#B8952A' }}>
                   BOOKING  REFERENCE
                 </p>
-                <p className="text-center text-white font-bold text-[11px] tracking-wider mb-3">
+                <p className="text-center font-bold text-[11px] tracking-wider mb-3" style={{ color: '#07153A' }}>
                   {booking.bookingReference}
                 </p>
 
@@ -278,8 +278,8 @@ function TicketModal({ booking, isOpen, onClose }: { booking: Booking | null; is
                 </div>
 
                 {/* Footer rule */}
-                <div className="h-px opacity-30 mb-2" style={{ background: '#D4B26A' }} />
-                <p className="text-center text-[7px] tracking-[1.5px] font-medium" style={{ color: '#D4B26A', opacity: 0.8 }}>
+                <div className="h-px opacity-30 mb-2" style={{ background: '#B8952A' }} />
+                <p className="text-center text-[7px] tracking-[1.5px] font-medium" style={{ color: '#B8952A' }}>
                   PRESENT THIS TICKET AT THE EVENT ENTRANCE
                 </p>
               </div>

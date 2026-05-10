@@ -145,7 +145,7 @@ function field(doc: jsPDF, label: string, value: string,
 
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(8.5);
-  doc.setTextColor(...WHITE);
+  doc.setTextColor(...NAVY_DEEP);
   const lines = doc.splitTextToSize(value || '—', maxW);
   doc.text(lines[0], x, y + 5.5);
 }
@@ -166,9 +166,11 @@ export async function generateTicketPDF(data: TicketData): Promise<void> {
   const doc = new jsPDF({ unit: 'mm', format: [W, H] });
 
   // ── Background ─────────────────────────────────────────────────────────────
-  drawGradient(doc, 0, 0, W, H, NAVY_DEEP, NAVY_MID);
+  // White body
+  doc.setFillColor(255, 255, 255);
+  doc.rect(0, 0, W, H, 'F');
 
-  // Slightly brighter top stub panel
+  // Dark navy top stub panel only
   drawGradient(doc, 0, 0, W, PERF_Y, NAVY_MID, NAVY_LIGHT, 30);
 
   // ── Assets ─────────────────────────────────────────────────────────────────
@@ -275,7 +277,7 @@ export async function generateTicketPDF(data: TicketData): Promise<void> {
   // Event title
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(11.5);
-  doc.setTextColor(...WHITE);
+  doc.setTextColor(...NAVY_DEEP);
   const titleLines = doc.splitTextToSize(data.eventTitle, W - 14);
   const maxLines = Math.min(titleLines.length, 2);
   for (let i = 0; i < maxLines; i++) {
@@ -359,7 +361,7 @@ export async function generateTicketPDF(data: TicketData): Promise<void> {
 
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(10);
-  doc.setTextColor(...WHITE);
+  doc.setTextColor(...NAVY_DEEP);
   doc.text(data.bookingReference, W / 2, cy, { align: 'center' });
   cy += 5.5;
 
