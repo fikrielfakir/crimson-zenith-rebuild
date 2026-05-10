@@ -81,13 +81,9 @@ class PaymentController extends Controller
                 'status'         => 'accepted',
             ]), $request->user()?->id);
 
-            $appUrl     = rtrim(env('APP_FRONTEND_URL', env('APP_URL', 'http://localhost:5000')), '/');
-            $successUrl = $appUrl . '/book/payment/success?ref=' . $ticket->booking_reference;
-
             return response()->json([
                 'demo_mode'         => true,
                 'booking_reference' => $ticket->booking_reference,
-                'redirect_url'      => $successUrl,
             ]);
         }
 

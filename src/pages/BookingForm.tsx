@@ -271,10 +271,10 @@ const BookingForm = () => {
           return;
         }
 
-        // Demo mode: skip gateway, redirect straight to success page
+        // Demo mode: skip gateway, navigate to success page on the same frontend
         if (data.demo_mode) {
           toast({ title: "Demo Payment Approved", description: "Redirecting to your booking confirmation…" });
-          window.location.href = data.redirect_url;
+          navigate(`/book/payment/success?ref=${data.booking_reference}`);
           return;
         }
 
