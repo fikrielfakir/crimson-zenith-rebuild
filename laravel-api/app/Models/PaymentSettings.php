@@ -14,7 +14,7 @@ class PaymentSettings extends Model
         'id',
         'cmi_enabled', 'cash_enabled',
         'cmi_merchant_id', 'cmi_store_key', 'cmi_gateway_url',
-        'cmi_currency', 'cmi_mode',
+        'cmi_currency', 'cmi_mode', 'demo_mode',
         'cmi_ok_url', 'cmi_fail_url', 'cmi_callback_url',
         'stripe_enabled', 'stripe_publishable_key', 'stripe_secret_key', 'stripe_mode',
         'updated_by',
@@ -24,6 +24,7 @@ class PaymentSettings extends Model
         'cmi_enabled'    => 'boolean',
         'cash_enabled'   => 'boolean',
         'stripe_enabled' => 'boolean',
+        'demo_mode'      => 'boolean',
     ];
 
     protected $hidden = [

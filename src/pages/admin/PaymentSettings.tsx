@@ -12,7 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
 import {
   CreditCard, Banknote, Shield, Eye, EyeOff, Save,
-  CheckCircle2, AlertCircle, Loader2, RefreshCw, ExternalLink, Info,
+  CheckCircle2, AlertCircle, Loader2, RefreshCw, ExternalLink, Info, FlaskConical,
 } from 'lucide-react';
 
 interface PaymentSettingsData {
@@ -23,6 +23,7 @@ interface PaymentSettingsData {
   cmi_gateway_url: string;
   cmi_currency: string;
   cmi_mode: 'test' | 'live';
+  demo_mode: boolean;
   cmi_ok_url: string;
   cmi_fail_url: string;
   cmi_callback_url: string;
@@ -40,6 +41,7 @@ const defaultSettings: PaymentSettingsData = {
   cmi_gateway_url: 'https://testpayment.cmi.co.ma/fim/est3Dgate',
   cmi_currency: '504',
   cmi_mode: 'test',
+  demo_mode: false,
   cmi_ok_url: '',
   cmi_fail_url: '',
   cmi_callback_url: '',
@@ -410,12 +412,48 @@ export default function PaymentSettings() {
             ))}
           </div>
 
-          {settings.cmi_enabled && (!settings.cmi_merchant_id || !settings.cmi_store_key) && (
+          {/* Demo Mode */}
+          <Separator />
+          <div className="space-y-3">
+            <div className="flex items-center justify-between p-4 rounded-xl border-2 border-dashed border-amber-300 bg-amber-50">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full bg-amber-100 flex items-center justify-center">
+                  <FlaskConical className="w-4 h-4 text-amber-600" />
+                </div>
+                <div>
+                  <p className="font-semibold text-sm text-amber-900">Demo Mode</p>
+                  <p className="text-xs text-amber-700">
+                    Simulate successful payments instantly — no CMI credentials needed. For testing only.
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Badge variant={settings.demo_mode ? 'default' : 'secondary'} className={settings.demo_mode ? 'bg-amber-500' : ''}>
+                  {settings.demo_mode ? 'ON' : 'OFF'}
+                </Badge>
+                <Switch
+                  checked={settings.demo_mode}
+                  onCheckedChange={v => set('demo_mode', v)}
+                />
+              </div>
+            </div>
+            {settings.demo_mode && (
+              <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-lg p-3">
+                <Info className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                <p className="text-xs text-amber-800">
+                  Demo Mode is <strong>active</strong>. All CMI payment attempts will be instantly approved with a fake transaction ID
+                  and redirected to the success page. Disable this before going live.
+                </p>
+              </div>
+            )}
+          </div>
+
+          {settings.cmi_enabled && !settings.demo_mode && (!settings.cmi_merchant_id || !settings.cmi_store_key) && (
             <div className="flex items-start gap-3 bg-red-50 border border-red-200 rounded-lg p-3">
               <AlertCircle className="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" />
               <p className="text-sm text-red-700">
                 CMI is enabled but <strong>Merchant ID</strong> and/or <strong>Store Key</strong> are missing.
-                Payments will fail until both credentials are set.
+                Enable Demo Mode to test without credentials, or enter your real credentials above.
               </p>
             </div>
           )}

@@ -271,6 +271,13 @@ const BookingForm = () => {
           return;
         }
 
+        // Demo mode: skip gateway, redirect straight to success page
+        if (data.demo_mode) {
+          toast({ title: "Demo Payment Approved", description: "Redirecting to your booking confirmation…" });
+          window.location.href = data.redirect_url;
+          return;
+        }
+
         // Build a hidden form and auto-submit to CMI gateway
         const form = document.createElement('form');
         form.method = 'POST';

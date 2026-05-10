@@ -70,6 +70,27 @@ class PaymentController extends Controller
             return response()->json(['message' => 'CMI payment is not enabled.'], 503);
         }
 
+        $settings = $this->cmiService->getSettings();
+
+        // ── Demo mode: simulate a completed payment without hitting CMI ────────
+        if ($settings->demo_mode) {
+            $ticket = $this->bookingService->createTicket(array_merge($validated, [
+                'paymentMethod'  => 'cmi',
+                'transactionId'  => 'DEMO-' . strtoupper(\Illuminate\Support\Str::random(10)),
+                'paymentStatus'  => 'completed',
+                'status'         => 'accepted',
+            ]), $request->user()?->id);
+
+            $appUrl     = rtrim(env('APP_FRONTEND_URL', env('APP_URL', 'http://localhost:5000')), '/');
+            $successUrl = $appUrl . '/book/payment/success?ref=' . $ticket->booking_reference;
+
+            return response()->json([
+                'demo_mode'         => true,
+                'booking_reference' => $ticket->booking_reference,
+                'redirect_url'      => $successUrl,
+            ]);
+        }
+
         // Create a pending booking ticket first so we have a reference
         $ticket = $this->bookingService->createTicket(array_merge($validated, [
             'paymentMethod'  => 'cmi',
@@ -80,7 +101,6 @@ class PaymentController extends Controller
         $appUrl    = rtrim(env('APP_FRONTEND_URL', env('APP_URL', 'http://localhost:5000')), '/');
         $apiUrl    = rtrim(env('APP_URL', 'http://localhost:8000'), '/');
 
-        $settings  = $this->cmiService->getSettings();
         $okUrl     = $settings->cmi_ok_url     ?: $appUrl . '/book/payment/success';
         $failUrl   = $settings->cmi_fail_url   ?: $appUrl . '/book/payment/fail';
         $callbackUrl = $settings->cmi_callback_url ?: $apiUrl . '/api/payments/cmi/callback';

@@ -25,20 +25,21 @@ class PaymentSettingsController extends Controller
     public function update(Request $request)
     {
         $validated = $request->validate([
-            'cmi_enabled'          => 'nullable|boolean',
-            'cash_enabled'         => 'nullable|boolean',
-            'cmi_merchant_id'      => 'nullable|string|max:255',
-            'cmi_store_key'        => 'nullable|string',
-            'cmi_gateway_url'      => 'nullable|url|max:500',
-            'cmi_currency'         => 'nullable|string|max:10',
-            'cmi_mode'             => 'nullable|in:test,live',
-            'cmi_ok_url'           => 'nullable|max:500',
-            'cmi_fail_url'         => 'nullable|max:500',
-            'cmi_callback_url'     => 'nullable|max:500',
-            'stripe_enabled'       => 'nullable|boolean',
+            'cmi_enabled'           => 'nullable|boolean',
+            'cash_enabled'          => 'nullable|boolean',
+            'cmi_merchant_id'       => 'nullable|string|max:255',
+            'cmi_store_key'         => 'nullable|string',
+            'cmi_gateway_url'       => 'nullable|url|max:500',
+            'cmi_currency'          => 'nullable|string|max:10',
+            'cmi_mode'              => 'nullable|in:test,live',
+            'demo_mode'             => 'nullable|boolean',
+            'cmi_ok_url'            => 'nullable|max:500',
+            'cmi_fail_url'          => 'nullable|max:500',
+            'cmi_callback_url'      => 'nullable|max:500',
+            'stripe_enabled'        => 'nullable|boolean',
             'stripe_publishable_key'=> 'nullable|string',
-            'stripe_secret_key'    => 'nullable|string',
-            'stripe_mode'          => 'nullable|in:test,live',
+            'stripe_secret_key'     => 'nullable|string',
+            'stripe_mode'           => 'nullable|in:test,live',
         ]);
 
         $settings = PaymentSettings::firstOrCreate(['id' => 'default']);
