@@ -188,7 +188,13 @@ const UserProfile = () => {
       const response = await apiFetch('/api/booking/my-tickets');
       if (response.ok) {
         const data = await response.json();
-        setUserBookings(Array.isArray(data.tickets) ? data.tickets : []);
+        // API returns a plain array; fall back to data.tickets for older shape
+        const list = Array.isArray(data)
+          ? data
+          : Array.isArray(data.tickets)
+          ? data.tickets
+          : [];
+        setUserBookings(list);
       } else {
         setUserBookings([]);
       }
@@ -540,7 +546,7 @@ const UserProfile = () => {
       <Header />
       
       {/* Profile Hero Section */}
-      <div className="relative pt-40 pb-12">
+      <div className="relative pt-52 pb-12">
         {/* Background Pattern */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-0 left-0 right-0 h-64 bg-gradient-to-br from-[hsl(227,65%,19%)] via-[hsl(227,65%,25%)] to-[hsl(227,65%,19%)]" />
