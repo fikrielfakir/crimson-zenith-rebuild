@@ -330,12 +330,13 @@ const BookingForm = () => {
       const data = await response.json();
 
       if (response.ok) {
-        setBookingReference(data.ticket.bookingReference);
+        const bookingRef = data.ticket?.bookingReference ?? data.booking_reference ?? data.bookingReference ?? '';
+        setBookingReference(bookingRef);
         setBookingComplete(true);
         setBookingStep(3);
         if (!isCashPayment) {
           await generatePDFTicket({
-            bookingReference:     data.ticket.bookingReference,
+            bookingReference:     bookingRef,
             customerName,
             customerEmail,
             customerPhone,
@@ -351,8 +352,8 @@ const BookingForm = () => {
         toast({
           title: isCashPayment ? "Booking Submitted!" : "Booking Confirmed!",
           description: isCashPayment
-            ? `Your booking reference is: ${data.ticket.bookingReference}. Pending admin approval.`
-            : `Your booking reference is: ${data.ticket.bookingReference}. Ticket downloaded.`,
+            ? `Your booking reference is: ${bookingRef}. Pending admin approval.`
+            : `Your booking reference is: ${bookingRef}. Ticket downloaded.`,
         });
       } else {
         toast({ title: "Booking Failed", description: data.error || 'Failed to create booking', variant: "destructive" });

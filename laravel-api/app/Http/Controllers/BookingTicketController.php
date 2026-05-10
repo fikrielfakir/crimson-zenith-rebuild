@@ -27,7 +27,8 @@ class BookingTicketController extends Controller
         ]);
 
         $ticket = $this->bookingService->createTicket($data, $request->user()?->id);
-        return response()->json($ticket, 201);
+        $ticket->load('event');
+        return response()->json(['ticket' => $this->formatTicket($ticket)], 201);
     }
 
     public function show($ref)
