@@ -132,7 +132,7 @@ export default function JoinUs() {
           className="relative overflow-hidden"
           style={{
             background: 'linear-gradient(135deg, #0B1F5E 0%, #112470 50%, #0d2878 100%)',
-            paddingTop: '10rem',
+            paddingTop: '14rem',
             paddingBottom: '4rem',
           }}
         >
