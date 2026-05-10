@@ -16,12 +16,15 @@ export interface TicketData {
   transactionId?: string | null;
 }
 
-// Navy + gold brand colours
-const NAVY  = [17, 31, 80]   as [number, number, number];
-const GOLD  = [212, 178, 106] as [number, number, number];
-const WHITE = [255, 255, 255] as [number, number, number];
-const LIGHT = [248, 249, 252] as [number, number, number];
-const GREY  = [100, 110, 130] as [number, number, number];
+const NAVY:      [number, number, number] = [10,  22,  60];
+const NAVY2:     [number, number, number] = [16,  30,  82];
+const GOLD:      [number, number, number] = [212, 178, 106];
+const WHITE:     [number, number, number] = [255, 255, 255];
+const DARK_TEXT: [number, number, number] = [18,  28,  65];
+const DIVIDER:   [number, number, number] = [228, 230, 242];
+
+const W = 165;
+const H = 262;
 
 async function loadLogoBase64(): Promise<string | null> {
   try {
@@ -30,7 +33,7 @@ async function loadLogoBase64(): Promise<string | null> {
     const blob = await res.blob();
     return await new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
+      reader.onload  = () => resolve(reader.result as string);
       reader.onerror = reject;
       reader.readAsDataURL(blob);
     });
@@ -41,201 +44,240 @@ async function loadLogoBase64(): Promise<string | null> {
 
 async function buildQR(text: string): Promise<string> {
   return QRCode.toDataURL(text, {
-    width: 180,
+    width: 220,
     margin: 1,
-    color: { dark: '#111f50', light: '#ffffff' },
+    color: { dark: '#0a163c', light: '#ffffff' },
   });
 }
 
-function drawDashedLine(doc: jsPDF, y: number) {
-  doc.setDrawColor(...GOLD);
-  doc.setLineWidth(0.4);
-  let x = 15;
-  while (x < 195) {
-    doc.line(x, y, Math.min(x + 5, 195), y);
-    x += 8;
-  }
+function drawTopRightDecoration(doc: jsPDF) {
+  const curves = [
+    { sx: W - 6,  sy: 0, ex: W, ey: 28, lw: 0.5 },
+    { sx: W - 14, sy: 0, ex: W, ey: 36, lw: 0.4 },
+    { sx: W - 22, sy: 0, ex: W, ey: 44, lw: 0.3 },
+    { sx: W - 30, sy: 0, ex: W, ey: 52, lw: 0.25 },
+    { sx: W - 38, sy: 0, ex: W, ey: 60, lw: 0.2 },
+  ];
+  curves.forEach(({ sx, sy, ex, ey, lw }) => {
+    doc.setDrawColor(...GOLD);
+    doc.setLineWidth(lw);
+    doc.line(sx, sy, ex, ey);
+  });
 }
 
-function pill(doc: jsPDF, text: string, x: number, y: number, bg: [number, number, number], fg: [number, number, number]) {
-  const w = doc.getTextWidth(text) + 8;
-  doc.setFillColor(...bg);
-  doc.roundedRect(x, y - 4.5, w, 7, 2, 2, 'F');
-  doc.setTextColor(...fg);
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(7);
-  doc.text(text, x + 4, y);
+function drawBarDecoration(doc: jsPDF, startX: number, centerY: number, dir: 'left' | 'right') {
+  const bars = [
+    { offset: 0,  h: 14 },
+    { offset: 4,  h: 10 },
+    { offset: 8,  h:  7 },
+    { offset: 12, h: 10 },
+    { offset: 16, h: 14 },
+  ];
+  const bw = 2.2;
+  doc.setFillColor(...GOLD);
+  bars.forEach(({ offset, h }) => {
+    const bx = dir === 'right' ? startX + offset : startX - offset - bw;
+    doc.roundedRect(bx, centerY - h / 2, bw, h, 0.6, 0.6, 'F');
+  });
 }
 
 export async function generateTicketPDF(data: TicketData): Promise<void> {
-  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
-  const W = 210;
+  const doc = new jsPDF({ unit: 'mm', format: [W, H] });
 
-  // ── Header band ─────────────────────────────────────────────────────────
   doc.setFillColor(...NAVY);
-  doc.rect(0, 0, W, 52, 'F');
+  doc.rect(0, 0, W, H, 'F');
 
-  // Subtle gold top accent strip
-  doc.setFillColor(...GOLD);
-  doc.rect(0, 0, W, 3, 'F');
+  drawTopRightDecoration(doc);
 
-  // Logo
   const logo = await loadLogoBase64();
+  const logoSize = 22;
+  const logoX = W / 2 - logoSize / 2;
+  const logoY = 8;
   if (logo) {
-    doc.addImage(logo, 'PNG', 14, 10, 28, 28);
+    doc.addImage(logo, 'PNG', logoX, logoY, logoSize, logoSize);
   }
 
-  // Brand name
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(18);
+  doc.setFontSize(10.5);
   doc.setTextColor(...WHITE);
-  doc.text('THE JOURNEY ASSOCIATION', 48, 22);
+  doc.text('THE JOURNEY', W / 2, logoY + logoSize + 5, { align: 'center' });
 
   doc.setFont('helvetica', 'normal');
-  doc.setFontSize(9);
+  doc.setFontSize(8);
   doc.setTextColor(...GOLD);
-  doc.text('Official Event Ticket', 48, 30);
+  doc.text('Association', W / 2, logoY + logoSize + 10.5, { align: 'center' });
 
-  // TICKET label (right)
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(28);
-  doc.setTextColor(255, 255, 255, 0.15);
-  doc.setTextColor(255, 255, 255);
-  doc.text('TICKET', W - 14, 28, { align: 'right' });
-  doc.setFontSize(9);
-  doc.setFont('helvetica', 'normal');
-  doc.setTextColor(...GOLD);
-  doc.text('ADMIT ONE', W - 14, 36, { align: 'right' });
-
-  // ── Gold divider ─────────────────────────────────────────────────────────
-  doc.setFillColor(...GOLD);
-  doc.rect(0, 52, W, 1.5, 'F');
-
-  // ── Main body ────────────────────────────────────────────────────────────
-  doc.setFillColor(...LIGHT);
-  doc.rect(0, 53.5, W, 155, 'F');
-
-  // Event title block
-  doc.setFillColor(...NAVY);
-  doc.roundedRect(14, 62, W - 28, 22, 3, 3, 'F');
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(15);
   doc.setTextColor(...WHITE);
-  const titleLines = doc.splitTextToSize(data.eventTitle, W - 48);
-  doc.text(titleLines[0], W / 2, 76, { align: 'center' });
+  doc.text('Event Booking Confirmation', W / 2, logoY + logoSize + 20, { align: 'center' });
 
-  // Reference badge
+  const badgeW = 50;
+  const badgeH = 8.5;
+  const badgeX = (W - badgeW) / 2;
+  const badgeY = logoY + logoSize + 24;
   doc.setFillColor(...GOLD);
-  doc.roundedRect(14, 91, W - 28, 14, 2, 2, 'F');
+  doc.roundedRect(badgeX, badgeY, badgeW, badgeH, 4, 4, 'F');
+
+  const ckCX = badgeX + 7.5;
+  const ckCY = badgeY + badgeH / 2;
+  doc.setFillColor(...NAVY);
+  doc.circle(ckCX, ckCY, 3.2, 'F');
+  doc.setDrawColor(...WHITE);
+  doc.setLineWidth(0.7);
+  doc.line(ckCX - 1.5, ckCY,        ckCX - 0.2, ckCY + 1.4);
+  doc.line(ckCX - 0.2, ckCY + 1.4,  ckCX + 1.8, ckCY - 1.4);
+
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(8);
+  doc.setFontSize(7);
   doc.setTextColor(...NAVY);
-  doc.text('BOOKING REFERENCE', W / 2, 97, { align: 'center' });
-  doc.setFontSize(16);
+  doc.text('CONFIRMED', badgeX + badgeW / 2 + 2.5, badgeY + 5.6, { align: 'center' });
+
+  const cardX  = 7;
+  const cardY  = badgeY + 13;
+  const cardW  = W - 14;
+  const whiteH = 97;
+  const darkH  = 54;
+
+  doc.setFillColor(...WHITE);
+  doc.roundedRect(cardX, cardY, cardW, whiteH + darkH, 5, 5, 'F');
+
+  let cy = cardY + 10;
+  const padL = cardX + 10;
+
   doc.setFont('helvetica', 'bold');
-  doc.text(data.bookingReference, W / 2, 103, { align: 'center' });
+  doc.setFontSize(6);
+  doc.setTextColor(...GOLD);
+  doc.text('EVENT', padL, cy);
+  cy += 5.5;
 
-  // ── Two-column detail block ───────────────────────────────────────────────
-  const col1X = 20;
-  const col2X = 115;
-  let y = 118;
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(13);
+  doc.setTextColor(...DARK_TEXT);
+  const titleLines = doc.splitTextToSize(data.eventTitle, cardW - 18);
+  doc.text(titleLines[0], padL, cy);
+  cy += 8;
 
-  const row = (label: string, value: string, x: number, yPos: number) => {
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(7.5);
-    doc.setTextColor(...GREY);
-    doc.text(label.toUpperCase(), x, yPos);
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(10);
-    doc.setTextColor(...NAVY);
-    const lines = doc.splitTextToSize(value || '—', 85);
-    doc.text(lines[0], x, yPos + 6);
-  };
+  doc.setDrawColor(...DIVIDER);
+  doc.setLineWidth(0.3);
+  doc.line(padL, cy, cardX + cardW - 10, cy);
+  cy += 7;
 
-  const eventDate = new Date(data.eventDate);
+  const eventDate   = new Date(data.eventDate);
   const formattedDate = eventDate.toLocaleDateString('en-GB', {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
   });
   const formattedTime = eventDate.toLocaleTimeString('en-GB', {
     hour: '2-digit', minute: '2-digit',
   });
+  const bookingDate = new Date().toLocaleDateString('en-GB');
 
-  row('Event Date', formattedDate, col1X, y);
-  row('Time', formattedTime, col2X, y);
-  y += 18;
+  const col1X  = padL;
+  const col2X  = cardX + cardW / 2 + 4;
+  const midX   = cardX + cardW / 2;
+  const rowH   = 16;
 
-  row('Ticket Holder', data.customerName, col1X, y);
-  row('Participants', `${data.numberOfParticipants} person${data.numberOfParticipants > 1 ? 's' : ''}`, col2X, y);
-  y += 18;
+  const gridRow = (
+    label1: string, val1: string,
+    label2: string, val2: string,
+    yPos: number,
+  ) => {
+    doc.setDrawColor(...DIVIDER);
+    doc.setLineWidth(0.3);
+    doc.line(midX, yPos - 3, midX, yPos + rowH - 4);
 
-  row('Email', data.customerEmail, col1X, y);
-  if (data.customerPhone) row('Phone', data.customerPhone, col2X, y);
-  y += 18;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(6);
+    doc.setTextColor(...GOLD);
+    doc.text(label1, col1X, yPos);
+    doc.text(label2, col2X, yPos);
 
-  if (data.eventLocation) {
-    row('Location', data.eventLocation, col1X, y);
-    y += 18;
-  }
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.setTextColor(...DARK_TEXT);
+    const v1 = doc.splitTextToSize(val1, midX - col1X - 4);
+    const v2 = doc.splitTextToSize(val2, cardX + cardW - 10 - col2X);
+    doc.text(v1[0], col1X, yPos + 6);
+    doc.text(v2[0], col2X, yPos + 6);
 
-  const payLabel = data.paymentMethod === 'cmi' ? 'Bank Card (CMI)' : data.paymentMethod === 'cash' ? 'Cash' : data.paymentMethod || '—';
-  row('Payment Method', payLabel, col1X, y);
-  row('Amount Paid', `${data.totalPrice.toFixed(2)} MAD`, col2X, y);
-  y += 18;
+    doc.setDrawColor(...DIVIDER);
+    doc.line(padL, yPos + rowH - 4, cardX + cardW - 10, yPos + rowH - 4);
+  };
 
-  if (data.transactionId) {
-    row('Transaction ID', data.transactionId, col1X, y);
-    y += 18;
-  }
+  gridRow('GUEST NAME',   data.customerName,
+          'ATTENDEES',    `${data.numberOfParticipants} person${data.numberOfParticipants > 1 ? 's' : ''}`,
+          cy);
+  cy += rowH;
 
-  // ── Tear-off dashed line ─────────────────────────────────────────────────
-  y += 4;
-  drawDashedLine(doc, y);
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(7);
-  doc.setTextColor(...GREY);
-  doc.text('✂  TEAR HERE', W / 2, y + 4, { align: 'center' });
+  gridRow('DATE',         formattedDate,
+          'TIME',         formattedTime,
+          cy);
+  cy += rowH;
 
-  // ── Stub: QR code + status pills ─────────────────────────────────────────
-  const stubY = y + 8;
+  gridRow('TOTAL AMOUNT', `${data.totalPrice.toFixed(2)} MAD`,
+          'BOOKING DATE', bookingDate,
+          cy);
+
+  const stubY = cardY + whiteH;
+  doc.setFillColor(...NAVY2);
+  doc.roundedRect(cardX, stubY - 4, cardW, darkH + 8, 5, 5, 'F');
+  doc.rect(cardX, stubY - 4, cardW, 8, 'F');
+
+  const tnLabelY = stubY + 5;
+  const lineLen  = 28;
+
+  doc.setDrawColor(...GOLD);
+  doc.setLineWidth(0.35);
+  doc.line(cardX + 10,           tnLabelY, cardX + 10 + lineLen,        tnLabelY);
+  doc.line(cardX + cardW - 10 - lineLen, tnLabelY, cardX + cardW - 10, tnLabelY);
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(6.5);
+  doc.setTextColor(...GOLD);
+  doc.text('TICKET NUMBER', W / 2, tnLabelY + 0.5, { align: 'center' });
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(6.5);
+  doc.setTextColor(...WHITE);
+  const refLines2 = doc.splitTextToSize(data.bookingReference, cardW - 20);
+  doc.text(refLines2, W / 2, tnLabelY + 8, { align: 'center' });
+
+  const qrSize = 26;
+  const qrX    = W / 2 - qrSize / 2;
+  const qrY    = tnLabelY + 13;
   const qrData = await buildQR(
     `${window.location.origin}/book/payment/success?ref=${data.bookingReference}`
   );
-  doc.addImage(qrData, 'PNG', 14, stubY, 36, 36);
+  doc.setFillColor(...WHITE);
+  doc.roundedRect(qrX - 2, qrY - 2, qrSize + 4, qrSize + 4, 2, 2, 'F');
+  doc.addImage(qrData, 'PNG', qrX, qrY, qrSize, qrSize);
 
-  // Status pills
-  let pillX = 56;
-  const statusText = (data.paymentStatus || 'pending').toUpperCase();
-  const statusBg: [number, number, number] = statusText === 'COMPLETED' ? [34, 197, 94] : [212, 178, 106];
-  pill(doc, `PAYMENT: ${statusText}`, pillX, stubY + 9, statusBg, WHITE);
-  pillX += doc.getTextWidth(`PAYMENT: ${statusText}`) + 14;
-  pill(doc, 'OFFICIAL TICKET', pillX, stubY + 9, NAVY, GOLD);
+  drawBarDecoration(doc, qrX - 8,               qrY + qrSize / 2, 'left');
+  drawBarDecoration(doc, qrX + qrSize + 6 + 18, qrY + qrSize / 2, 'right');
 
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(7.5);
-  doc.setTextColor(...GREY);
-  doc.text('Scan QR code to verify this ticket online', 56, stubY + 20);
+  const footerY = H - 18;
+  doc.setFillColor(...GOLD);
+  doc.rect(0, footerY, W, 18, 'F');
+
+  const iconCX = 14;
+  const iconCY = footerY + 9;
+  doc.setFillColor(...NAVY);
+  doc.circle(iconCX, iconCY, 5.5, 'F');
+  doc.setDrawColor(...GOLD);
+  doc.setLineWidth(1);
+  doc.line(iconCX,       iconCY - 3,  iconCX + 3,  iconCY);
+  doc.line(iconCX + 3,  iconCY,       iconCX,       iconCY + 3);
+  doc.line(iconCX,       iconCY + 3,  iconCX - 3,  iconCY);
+  doc.line(iconCX - 3,  iconCY,       iconCX,       iconCY - 3);
+
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(8);
   doc.setTextColor(...NAVY);
-  doc.text('This ticket is your proof of booking. Please present it at the event entrance.', 56, stubY + 27, { maxWidth: 135 });
-
-  // ── Footer band ──────────────────────────────────────────────────────────
-  const footerY = stubY + 48;
-  doc.setFillColor(...NAVY);
-  doc.rect(0, footerY, W, 22, 'F');
-  doc.setFillColor(...GOLD);
-  doc.rect(0, footerY + 22, W, 2, 'F');
+  doc.text('PRESENT THIS TICKET', 24, footerY + 8);
 
   doc.setFont('helvetica', 'normal');
-  doc.setFontSize(7.5);
-  doc.setTextColor(...GOLD);
-  doc.text('www.thejourneyassociation.ma', W / 2, footerY + 8, { align: 'center' });
-  doc.setTextColor(255, 255, 255);
   doc.setFontSize(6.5);
-  doc.text(
-    `Ticket issued: ${new Date().toLocaleDateString('en-GB')} · Reference: ${data.bookingReference} · Non-transferable`,
-    W / 2, footerY + 15, { align: 'center' }
-  );
+  doc.text('at the event entrance', 24, footerY + 14);
 
   doc.save(`ticket-${data.bookingReference}.pdf`);
 }
