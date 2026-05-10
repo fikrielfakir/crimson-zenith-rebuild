@@ -126,15 +126,36 @@ export default function JoinUs() {
     return (
       <div className="min-h-screen bg-[#FAF8F5] flex flex-col">
         <Header />
-        <main className="flex-1 flex items-center justify-center px-4 py-24">
-          <div className="text-center max-w-lg">
-            <div className="w-20 h-20 rounded-full bg-[#0B1F5E]/8 flex items-center justify-center mx-auto mb-8">
-              <CheckCircle2 className="w-10 h-10 text-[#0B1F5E]" />
+
+        {/* Dark hero banner — gives the transparent header proper contrast */}
+        <section
+          className="relative overflow-hidden"
+          style={{
+            background: 'linear-gradient(135deg, #0B1F5E 0%, #112470 50%, #0d2878 100%)',
+            paddingTop: '10rem',
+            paddingBottom: '4rem',
+          }}
+        >
+          <div className="absolute top-0 right-0 w-96 h-96 rounded-full opacity-5"
+            style={{ background: '#D6B98C', transform: 'translate(30%, -30%)' }} />
+          <div className="absolute bottom-0 left-0 w-64 h-64 rounded-full opacity-5"
+            style={{ background: '#D6B98C', transform: 'translate(-30%, 30%)' }} />
+
+          <div className="container mx-auto px-6 relative z-10 text-center">
+            <div className="w-20 h-20 rounded-full bg-white/10 border border-white/20 flex items-center justify-center mx-auto mb-6">
+              <CheckCircle2 className="w-10 h-10 text-[#D6B98C]" />
             </div>
-            <h1 className="text-3xl font-bold text-[#0B1F5E] mb-4 font-['Poppins']">Application Submitted!</h1>
-            <p className="text-gray-500 text-lg mb-10 leading-relaxed">
+            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 font-['Poppins']">
+              Application Submitted!
+            </h1>
+            <p className="text-white/70 text-lg leading-relaxed max-w-xl mx-auto">
               Thank you for your interest. Our team will review your application and get back to you within 2–3 business days.
             </p>
+          </div>
+        </section>
+
+        <main className="flex-1 flex items-start justify-center px-4 py-14">
+          <div className="text-center max-w-lg w-full">
             <div className="bg-white border border-[#D6B98C]/30 rounded-2xl p-7 mb-10 text-left space-y-4 shadow-sm">
               <p className="text-xs font-semibold text-[#D6B98C] tracking-widest uppercase mb-5">What happens next</p>
               {[
