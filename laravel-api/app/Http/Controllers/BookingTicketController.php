@@ -46,7 +46,16 @@ class BookingTicketController extends Controller
 
     public function myTickets(Request $request)
     {
-        $tickets = BookingTicket::where('user_id', $request->user()->id)->with('event')->orderBy('created_at', 'desc')->get();
+        $user = $request->user();
+        $tickets = BookingTicket::where(function ($q) use ($user) {
+                $q->where('user_id', $user->id)
+                  ->orWhere('customer_email', $user->email);
+            })
+            ->with('event')
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->unique('id')
+            ->values();
         return response()->json($tickets->map(fn($t) => $this->formatTicket($t)));
     }
 

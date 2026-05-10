@@ -121,6 +121,10 @@ const UserProfile = () => {
   const [editFormData, setEditFormData] = useState({ numberOfParticipants: 1, specialRequests: '' });
   const [cancelReason, setCancelReason] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
+  const [refLookup, setRefLookup] = useState('');
+  const [refLookupLoading, setRefLookupLoading] = useState(false);
+  const [refLookupResult, setRefLookupResult] = useState<Booking | null>(null);
+  const [refLookupError, setRefLookupError] = useState('');
   const [imageUploading, setImageUploading] = useState(false);
   const [profileData, setProfileData] = useState({
     firstName: '',
@@ -331,6 +335,37 @@ const UserProfile = () => {
       specialRequests: booking.specialRequests || '',
     });
     setEditingBooking(booking);
+  };
+
+  const handleRefLookup = async () => {
+    const ref = refLookup.trim().toUpperCase();
+    if (!ref) return;
+    setRefLookupLoading(true);
+    setRefLookupError('');
+    setRefLookupResult(null);
+    try {
+      const res = await fetch(`/api/booking/tickets/${ref}`, {
+        headers: { Accept: 'application/json' },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setRefLookupResult(data);
+        // Add to userBookings if not already present
+        if (data && data.bookingReference) {
+          setUserBookings(prev =>
+            prev.some(b => b.bookingReference === data.bookingReference)
+              ? prev
+              : [data, ...prev]
+          );
+        }
+      } else {
+        setRefLookupError('No booking found with that reference. Please check and try again.');
+      }
+    } catch {
+      setRefLookupError('Could not look up booking. Please try again.');
+    } finally {
+      setRefLookupLoading(false);
+    }
   };
 
   const getStatusBadge = (status: string) => {
@@ -959,6 +994,41 @@ const UserProfile = () => {
 
           {/* Bookings Tab */}
           <TabsContent value="bookings" className="space-y-6">
+            {/* Reference lookup card — always visible */}
+            <Card className="shadow-sm border-0 bg-white border-l-4 border-l-[#D4B26A]">
+              <CardContent className="p-5">
+                <p className="text-sm font-semibold text-[hsl(227,65%,19%)] mb-3">
+                  Have a booking reference? Look it up here
+                </p>
+                <div className="flex gap-2">
+                  <Input
+                    value={refLookup}
+                    onChange={e => setRefLookup(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && handleRefLookup()}
+                    placeholder="e.g. TJ-ABC12345"
+                    className="font-mono uppercase text-sm border-slate-200 focus:border-[hsl(227,65%,19%)]"
+                  />
+                  <Button
+                    onClick={handleRefLookup}
+                    disabled={refLookupLoading || !refLookup.trim()}
+                    className="bg-[hsl(227,65%,19%)] hover:bg-[hsl(227,65%,25%)] shrink-0"
+                  >
+                    {refLookupLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Find'}
+                  </Button>
+                </div>
+                {refLookupError && (
+                  <p className="text-sm text-red-500 mt-2 flex items-center gap-1">
+                    <AlertCircle className="w-4 h-4" /> {refLookupError}
+                  </p>
+                )}
+                {refLookupResult && (
+                  <p className="text-sm text-green-600 mt-2 flex items-center gap-1">
+                    <CheckCircle className="w-4 h-4" /> Booking found and added to your list below.
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+
             <Card className="shadow-sm border-0 bg-white">
               <CardHeader className="border-b border-slate-100">
                 <CardTitle className="flex items-center gap-2 text-[hsl(227,65%,19%)]">
@@ -977,8 +1047,9 @@ const UserProfile = () => {
                     <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-slate-100 flex items-center justify-center">
                       <Ticket className="w-10 h-10 text-slate-400" />
                     </div>
-                    <h3 className="text-xl font-semibold text-slate-800 mb-2">No Bookings Yet</h3>
-                    <p className="text-slate-500 mb-6">Book your first activity or event!</p>
+                    <h3 className="text-xl font-semibold text-slate-800 mb-2">No Bookings Found</h3>
+                    <p className="text-slate-500 mb-2">If you made a booking, use the reference lookup above.</p>
+                    <p className="text-slate-400 text-sm mb-6">Or explore and book a new activity below.</p>
                     <Button onClick={() => navigate('/book')} className="bg-[hsl(227,65%,19%)] hover:bg-[hsl(227,65%,25%)]">
                       Explore Activities
                     </Button>
