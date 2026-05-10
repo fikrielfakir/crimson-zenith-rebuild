@@ -17,18 +17,18 @@ export interface TicketData {
 }
 
 // ─── Palette ─────────────────────────────────────────────────────────────────
-const NAVY_DEEP:  [number, number, number] = [7,   21,  58];
-const NAVY_MID:   [number, number, number] = [17,  34,  80];   // #112250
-const NAVY_LIGHT: [number, number, number] = [22,  42,  95];   // slightly lighter stub fade
-const GOLD:       [number, number, number] = [212, 178, 106];
-const GOLD_DIM:   [number, number, number] = [160, 130,  72];
-const WHITE:      [number, number, number] = [255, 255, 255];
+const NAVY:  [number, number, number] = [11,  31,  94];   // #0B1F5E
+const GOLD:  [number, number, number] = [214, 185, 140];  // #D6B98C
+const GOLD_MID: [number, number, number] = [190, 158, 108]; // slightly deeper gold for text
+const WHITE: [number, number, number] = [250, 249, 247];  // #FAF9F7
+const MIST:  [number, number, number] = [228, 226, 222];  // subtle border/divider color
+const INK:   [number, number, number] = [30,  40,  70];   // near-navy for body text
 
 // ─── Ticket geometry ─────────────────────────────────────────────────────────
-const W      = 86;   // mm  — narrow portrait
-const H      = 222;  // mm  — tall
-const PERF_Y = 73;   // mm  — perforation / stub split
-const NOTCH  = 5.8;  // mm  — radius of side notches
+const W      = 86;    // mm — narrow portrait
+const H      = 210;   // mm — tall
+const HEADER = 62;    // mm — navy header height
+const PERF_Y = HEADER + 8; // perforation y
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 async function loadLogoBase64(): Promise<string | null> {
@@ -47,131 +47,20 @@ async function loadLogoBase64(): Promise<string | null> {
 
 async function buildQR(text: string): Promise<string> {
   return QRCode.toDataURL(text, {
-    width: 220, margin: 1,
-    color: { dark: '#070F2A', light: '#ffffff' },
+    width: 240,
+    margin: 1,
+    color: { dark: '#0B1F5E', light: '#FAF9F7' },
   });
 }
 
-/** Simulate vertical gradient by stacking thin rectangles */
-function drawGradient(doc: jsPDF, x: number, y: number, w: number, h: number,
-  from: [number,number,number], to: [number,number,number], steps = 50) {
-  const sh = h / steps;
-  for (let i = 0; i < steps; i++) {
-    const t = i / (steps - 1);
-    const r = Math.round(from[0] + (to[0] - from[0]) * t);
-    const g = Math.round(from[1] + (to[1] - from[1]) * t);
-    const b = Math.round(from[2] + (to[2] - from[2]) * t);
-    doc.setFillColor(r, g, b);
-    doc.rect(x, y + i * sh, w, sh + 0.3, 'F');
-  }
-}
-
-/** Blend two colours by ratio t (0–1) */
-function blend(a: [number,number,number], b: [number,number,number], t: number): [number,number,number] {
-  return [
-    Math.round(a[0] + (b[0] - a[0]) * t),
-    Math.round(a[1] + (b[1] - a[1]) * t),
-    Math.round(a[2] + (b[2] - a[2]) * t),
-  ];
-}
-
-/** 8-pointed Moroccan star at (cx, cy) with outer radius r, opacity-simulated via colour blend */
-function drawStar(doc: jsPDF, cx: number, cy: number, r: number, opacity: number) {
-  const pts = 8;
-  const inner = r * 0.42;
-  const col = blend(NAVY_MID, GOLD, opacity);
-  doc.setDrawColor(...col);
-  doc.setLineWidth(0.25);
-
-  const verts: [number, number][] = [];
-  for (let i = 0; i < pts * 2; i++) {
-    const angle = (i * Math.PI / pts) - Math.PI / 2;
-    const rad   = i % 2 === 0 ? r : inner;
-    verts.push([cx + Math.cos(angle) * rad, cy + Math.sin(angle) * rad]);
-  }
-  for (let i = 0; i < verts.length; i++) {
-    const [x1, y1] = verts[i];
-    const [x2, y2] = verts[(i + 1) % verts.length];
-    doc.line(x1, y1, x2, y2);
-  }
-  // inner circle
-  doc.setDrawColor(...blend(NAVY_MID, GOLD, opacity * 0.6));
-  doc.circle(cx, cy, inner * 0.6, 'S');
-}
-
-/** Draw the double gold outer + inner border */
-function drawBorders(doc: jsPDF) {
-  doc.setDrawColor(...GOLD);
-  doc.setLineWidth(0.7);
-  doc.roundedRect(1.8, 1.8, W - 3.6, H - 3.6, 4.5, 4.5, 'S');
-
-  doc.setDrawColor(...GOLD_DIM);
-  doc.setLineWidth(0.25);
-  doc.roundedRect(3.5, 3.5, W - 7, H - 7, 3.2, 3.2, 'S');
-}
-
-/** Perforated tear line + side notch "holes" */
-function drawPerforation(doc: jsPDF) {
-  const y = PERF_Y;
-
-  // Notch holes — white circles bleed off both edges (simulate punched holes)
-  doc.setFillColor(...WHITE);
-  doc.circle(-NOTCH * 0.1, y, NOTCH, 'F');
-  doc.circle(W + NOTCH * 0.1, y, NOTCH, 'F');
-
-  // Thin gold rules flanking the dashes
-  doc.setDrawColor(...GOLD_DIM);
-  doc.setLineWidth(0.2);
-  doc.line(NOTCH + 1.5, y - 1.8, W - NOTCH - 1.5, y - 1.8);
-  doc.line(NOTCH + 1.5, y + 1.8, W - NOTCH - 1.5, y + 1.8);
-
-  // Dashes
-  const dashLen = 2.2, gap = 1.8;
-  const x0 = NOTCH + 3, x1 = W - NOTCH - 3;
-  doc.setDrawColor(...GOLD);
-  doc.setLineWidth(0.55);
-  for (let x = x0; x < x1; x += dashLen + gap) {
-    doc.line(x, y, Math.min(x + dashLen, x1), y);
-  }
-}
-
-/** Elegant label + value field */
-function field(doc: jsPDF, label: string, value: string,
-  x: number, y: number, maxW: number) {
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(5.2);
-  doc.setTextColor(...GOLD);
-  doc.text(label, x, y);
-
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(8.5);
-  doc.setTextColor(...NAVY_DEEP);
-  const lines = doc.splitTextToSize(value || '—', maxW);
-  doc.text(lines[0], x, y + 5.5);
-}
-
-/** Tiny decorative bar cluster (music-ticket style) */
-function drawBars(doc: jsPDF, anchorX: number, anchorY: number, dir: 'L' | 'R') {
-  const bars = [{ w: 1.8, h: 11 }, { w: 1.8, h: 7.5 }, { w: 1.8, h: 4.5 }];
-  const gap = 3;
-  doc.setFillColor(...GOLD);
-  bars.forEach(({ w, h }, i) => {
-    const bx = dir === 'L' ? anchorX - (i + 1) * gap : anchorX + i * gap;
-    doc.roundedRect(bx, anchorY - h / 2, w, h, 0.55, 0.55, 'F');
-  });
+/** Rounded rectangle helper */
+function rrect(doc: jsPDF, x: number, y: number, w: number, h: number, r: number, style: string) {
+  doc.roundedRect(x, y, w, h, r, r, style);
 }
 
 // ─── Main export ─────────────────────────────────────────────────────────────
 export async function generateTicketPDF(data: TicketData): Promise<void> {
   const doc = new jsPDF({ unit: 'mm', format: [W, H] });
-
-  // ── Background ─────────────────────────────────────────────────────────────
-  // White body
-  doc.setFillColor(255, 255, 255);
-  doc.rect(0, 0, W, H, 'F');
-
-  // Dark navy top stub panel only
-  drawGradient(doc, 0, 0, W, PERF_Y, NAVY_MID, NAVY_LIGHT, 30);
 
   // ── Assets ─────────────────────────────────────────────────────────────────
   const [logo, qrImg] = await Promise.all([
@@ -179,221 +68,218 @@ export async function generateTicketPDF(data: TicketData): Promise<void> {
     buildQR(`${window.location.origin}/book/payment/success?ref=${data.bookingReference}`),
   ]);
 
-  // ── Double border ──────────────────────────────────────────────────────────
-  drawBorders(doc);
+  // ── Warm white background ───────────────────────────────────────────────────
+  doc.setFillColor(...WHITE);
+  doc.rect(0, 0, W, H, 'F');
 
-  // ── Corner fan lines (top-right decoration) ────────────────────────────────
-  [
-    { sx: W - 5,  ex: W - 4, ey: 22, lw: 0.45 },
-    { sx: W - 13, ex: W - 4, ey: 30, lw: 0.35 },
-    { sx: W - 21, ex: W - 4, ey: 38, lw: 0.28 },
-    { sx: W - 29, ex: W - 4, ey: 46, lw: 0.22 },
-  ].forEach(({ sx, ex, ey, lw }) => {
-    doc.setDrawColor(...GOLD_DIM);
-    doc.setLineWidth(lw);
-    doc.line(sx, 4, ex, ey);
-  });
+  // ── Outer border — single, very thin, warm grey ────────────────────────────
+  doc.setDrawColor(...MIST);
+  doc.setLineWidth(0.4);
+  rrect(doc, 1.2, 1.2, W - 2.4, H - 2.4, 4, 'S');
 
-  // ── TOP STUB ──────────────────────────────────────────────────────────────
+  // ── Navy header ─────────────────────────────────────────────────────────────
+  doc.setFillColor(...NAVY);
+  rrect(doc, 1.2, 1.2, W - 2.4, HEADER, 4, 'F');
+  // square off the bottom corners of header
+  doc.rect(1.2, HEADER - 4, W - 2.4, 4, 'F');
 
-  // Logo
-  const logoSz = 20, logoX = W / 2 - logoSz / 2, logoY = 8.5;
+  // ── Logo ────────────────────────────────────────────────────────────────────
+  const logoSz = 18;
+  const logoX  = W / 2 - logoSz / 2;
+  const logoY  = 9;
   if (logo) {
     doc.addImage(logo, 'PNG', logoX, logoY, logoSz, logoSz);
   } else {
     doc.setFillColor(...GOLD);
     doc.circle(W / 2, logoY + logoSz / 2, logoSz / 2, 'F');
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(11);
-    doc.setTextColor(...NAVY_DEEP);
-    doc.text('TJ', W / 2, logoY + logoSz / 2 + 3.5, { align: 'center' });
+    doc.setFontSize(10);
+    doc.setTextColor(...NAVY);
+    doc.text('TJ', W / 2, logoY + logoSz / 2 + 3, { align: 'center' });
   }
 
-  // Brand name
-  const brandY = logoY + logoSz + 5.5;
+  // ── Brand name ──────────────────────────────────────────────────────────────
+  const brandY = logoY + logoSz + 6.5;
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(9.5);
-  doc.setTextColor(...WHITE);
+  doc.setFontSize(9);
+  doc.setTextColor(255, 255, 255);
+  doc.setCharSpace(2.5);
   doc.text('THE JOURNEY', W / 2, brandY, { align: 'center' });
-
-  // Flanking rules
-  doc.setDrawColor(...GOLD);
-  doc.setLineWidth(0.3);
-  doc.line(7,       brandY - 1.8, 20,       brandY - 1.8);
-  doc.line(W - 20, brandY - 1.8, W - 7,   brandY - 1.8);
+  doc.setCharSpace(0);
 
   doc.setFont('helvetica', 'normal');
-  doc.setFontSize(6.5);
+  doc.setFontSize(6);
   doc.setTextColor(...GOLD);
-  doc.text('A  S  S  O  C  I  A  T  I  O  N', W / 2, brandY + 5, { align: 'center' });
+  doc.setCharSpace(3.5);
+  doc.text('ASSOCIATION', W / 2, brandY + 5, { align: 'center' });
+  doc.setCharSpace(0);
 
-  // Thin separator
-  doc.setDrawColor(...GOLD_DIM);
-  doc.setLineWidth(0.22);
-  doc.line(10, brandY + 8, W - 10, brandY + 8);
-
-  // "EVENT TICKET" heading
+  // ── "EVENT TICKET" label ────────────────────────────────────────────────────
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(14);
-  doc.setTextColor(...WHITE);
-  doc.text('EVENT  TICKET', W / 2, brandY + 16, { align: 'center' });
+  doc.setFontSize(11);
+  doc.setTextColor(255, 255, 255);
+  doc.setCharSpace(1.5);
+  doc.text('EVENT TICKET', W / 2, brandY + 13.5, { align: 'center' });
+  doc.setCharSpace(0);
 
-  // Status pill
-  const pillW = 46, pillH = 8, pillX = (W - pillW) / 2, pillY = brandY + 19;
+  // ── Status badge — small gold pill ──────────────────────────────────────────
+  const pillW = 34, pillH = 6.5;
+  const pillX = (W - pillW) / 2;
+  const pillY = brandY + 17;
   doc.setFillColor(...GOLD);
-  doc.roundedRect(pillX, pillY, pillW, pillH, 4, 4, 'F');
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(6.8);
-  doc.setTextColor(...NAVY_DEEP);
-  doc.text('*   CONFIRMED   *', W / 2, pillY + 5.2, { align: 'center' });
-
-  // ── Perforation ───────────────────────────────────────────────────────────
-  drawPerforation(doc);
-
-  // ── BOTTOM SECTION ────────────────────────────────────────────────────────
-  const bot = PERF_Y + 5;
-
-  // Moroccan star overlays (very subtle)
-  drawStar(doc, 10,      bot + 12, 11, 0.13);
-  drawStar(doc, W - 10,  bot + 14, 9,  0.11);
-  drawStar(doc, W / 2,   H - 22,   8,  0.10);
-
-  // Small architectural line corner (bottom-right)
-  doc.setDrawColor(...blend(NAVY_MID, GOLD, 0.18));
-  doc.setLineWidth(0.22);
-  [8, 14, 20].forEach(off => {
-    doc.line(W - 4, H - 4 - off, W - 4 - off, H - 4);
-  });
-
-  let cy = bot + 10;
-
-  // Event sub-label
+  rrect(doc, pillX, pillY, pillW, pillH, 3.2, 'F');
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(5.5);
-  doc.setTextColor(...GOLD);
-  doc.text('E  V  E  N  T', W / 2, cy, { align: 'center' });
-  cy += 6;
+  doc.setCharSpace(1.8);
+  doc.setTextColor(...NAVY);
+  doc.text('CONFIRMED', W / 2, pillY + 4.3, { align: 'center' });
+  doc.setCharSpace(0);
 
-  // Event title
+  // ── Perforation line — very subtle dashed ──────────────────────────────────
+  const perfY = PERF_Y;
+
+  // Notch cutouts (white circles at edges)
+  doc.setFillColor(...WHITE);
+  doc.circle(1.2, perfY, 3.6, 'F');
+  doc.circle(W - 1.2, perfY, 3.6, 'F');
+
+  // Single thin dashed line
+  const dashLen = 1.8, gap = 2;
+  const x0 = 6.5, x1 = W - 6.5;
+  doc.setDrawColor(...MIST);
+  doc.setLineWidth(0.3);
+  for (let x = x0; x < x1; x += dashLen + gap) {
+    doc.line(x, perfY, Math.min(x + dashLen, x1), perfY);
+  }
+
+  // ── White body ──────────────────────────────────────────────────────────────
+  // (already white from background — nothing needed)
+
+  // ── Event title section ─────────────────────────────────────────────────────
+  let cy = perfY + 10;
+
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(11.5);
-  doc.setTextColor(...NAVY_DEEP);
-  const titleLines = doc.splitTextToSize(data.eventTitle, W - 14);
+  doc.setFontSize(5);
+  doc.setTextColor(...GOLD_MID);
+  doc.setCharSpace(2);
+  doc.text('EVENT', W / 2, cy, { align: 'center' });
+  doc.setCharSpace(0);
+  cy += 5.5;
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(12);
+  doc.setTextColor(...NAVY);
+  const titleLines = doc.splitTextToSize(data.eventTitle, W - 20);
   const maxLines = Math.min(titleLines.length, 2);
   for (let i = 0; i < maxLines; i++) {
     doc.text(titleLines[i], W / 2, cy, { align: 'center' });
-    cy += 7.5;
+    cy += 7;
   }
-  cy += 1;
+  cy += 4;
 
-  // Diamond divider
-  doc.setDrawColor(...GOLD_DIM);
-  doc.setLineWidth(0.25);
-  doc.line(8,      cy, W / 2 - 5, cy);
-  doc.line(W / 2 + 5, cy, W - 8,  cy);
+  // ── Thin gold accent line ───────────────────────────────────────────────────
   doc.setDrawColor(...GOLD);
   doc.setLineWidth(0.5);
-  const dX = W / 2, dY = cy;
-  doc.line(dX - 3.5, dY, dX, dY - 2.2);
-  doc.line(dX, dY - 2.2, dX + 3.5, dY);
-  doc.line(dX + 3.5, dY, dX, dY + 2.2);
-  doc.line(dX, dY + 2.2, dX - 3.5, dY);
-  cy += 7;
+  doc.line(W / 2 - 8, cy, W / 2 + 8, cy);
+  cy += 9;
 
-  // Two-column info grid
-  const c1 = 8, c2 = W / 2 + 3, cw = W / 2 - 13, rowH = 13.5;
-
+  // ── Info fields — two-column, no dividers ───────────────────────────────────
   const eventDate = new Date(data.eventDate);
   const fmtDate = eventDate.toLocaleDateString('en-GB', {
     weekday: 'short', day: 'numeric', month: 'short', year: 'numeric',
   });
   const fmtTime = eventDate.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
 
-  // Vertical column divider
-  doc.setDrawColor(...GOLD_DIM);
-  doc.setLineWidth(0.2);
-  doc.line(W / 2, cy - 1, W / 2, cy + rowH * 2 + 1);
+  type FieldDef = { label: string; value: string; full?: boolean };
+  const fields: FieldDef[] = [
+    { label: 'GUEST NAME',  value: data.customerName },
+    { label: 'ATTENDEES',   value: `${data.numberOfParticipants} person${data.numberOfParticipants !== 1 ? 's' : ''}` },
+    { label: 'DATE',        value: fmtDate },
+    { label: 'TIME',        value: fmtTime },
+    ...(data.eventLocation ? [{ label: 'LOCATION', value: data.eventLocation, full: true } as FieldDef] : []),
+    { label: 'AMOUNT',      value: `${Number(data.totalPrice).toFixed(2)} MAD`, full: true },
+  ];
 
-  field(doc, 'GUEST NAME', data.customerName,          c1, cy, cw);
-  field(doc, 'ATTENDEES',  `${data.numberOfParticipants} person${data.numberOfParticipants !== 1 ? 's' : ''}`, c2, cy, cw);
-  cy += rowH;
+  const lx = 10, rx = W / 2 + 4;
+  const cw = W / 2 - 14;
+  const rowH = 12;
 
-  // Thin row divider
-  doc.setDrawColor(...GOLD_DIM);
-  doc.setLineWidth(0.15);
-  doc.line(8, cy - 1, W - 8, cy - 1);
+  for (let i = 0; i < fields.length; i += 2) {
+    const left = fields[i];
+    const right = !left.full ? fields[i + 1] : null;
 
-  field(doc, 'DATE', fmtDate, c1, cy, cw);
-  field(doc, 'TIME', fmtTime, c2, cy, cw);
-  cy += rowH;
+    // Label
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(4.8);
+    doc.setCharSpace(1.5);
+    doc.setTextColor(...GOLD_MID);
+    doc.text(left.label, lx, cy);
+    if (right) doc.text(right.label, rx, cy);
+    doc.setCharSpace(0);
 
-  // Row divider
-  doc.setDrawColor(...GOLD_DIM);
-  doc.setLineWidth(0.15);
-  doc.line(8, cy - 1, W - 8, cy - 1);
+    // Value
+    cy += 4.5;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8);
+    doc.setTextColor(...INK);
+    const leftLines = doc.splitTextToSize(left.value || '—', left.full ? W - 20 : cw);
+    doc.text(leftLines[0], lx, cy);
+    if (right) {
+      const rightLines = doc.splitTextToSize(right.value || '—', cw);
+      doc.text(rightLines[0], rx, cy);
+      i += 1; // consumed right
+    } else if (!left.full) {
+      i -= 1; // no pair, don't skip extra
+    }
 
-  // Full-width location
-  if (data.eventLocation) {
-    field(doc, 'LOCATION', data.eventLocation, c1, cy, W - 18);
-    cy += rowH;
-    doc.setDrawColor(...GOLD_DIM);
-    doc.setLineWidth(0.15);
-    doc.line(8, cy - 1, W - 8, cy - 1);
+    cy += rowH - 4.5;
   }
 
-  // Full-width amount
-  field(doc, 'TOTAL AMOUNT', `${Number(data.totalPrice).toFixed(2)} MAD`, c1, cy, W - 18);
-  cy += rowH;
+  cy += 4;
 
-  // Separator before stub-bottom area
-  cy += 1;
-  doc.setDrawColor(...GOLD_DIM);
-  doc.setLineWidth(0.25);
-  doc.line(8, cy, W - 8, cy);
-  cy += 5;
+  // ── Booking Reference ───────────────────────────────────────────────────────
+  // Subtle background pill
+  doc.setFillColor(240, 238, 235);
+  rrect(doc, 8, cy - 2, W - 16, 14, 3, 'F');
 
-  // Booking reference
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(5.5);
-  doc.setTextColor(...GOLD);
-  doc.text('BOOKING  REFERENCE', W / 2, cy, { align: 'center' });
-  cy += 5;
+  doc.setFontSize(4.8);
+  doc.setCharSpace(1.8);
+  doc.setTextColor(...GOLD_MID);
+  doc.text('BOOKING REFERENCE', W / 2, cy + 2.5, { align: 'center' });
+  doc.setCharSpace(0);
 
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(10);
-  doc.setTextColor(...NAVY_DEEP);
-  doc.text(data.bookingReference, W / 2, cy, { align: 'center' });
-  cy += 5.5;
+  doc.setCharSpace(1.5);
+  doc.setTextColor(...NAVY);
+  doc.text(data.bookingReference, W / 2, cy + 9, { align: 'center' });
+  doc.setCharSpace(0);
 
-  // QR code
-  const qrSz = 27;
+  cy += 20;
+
+  // ── QR Code ─────────────────────────────────────────────────────────────────
+  const qrSz = 30;
   const qrX  = W / 2 - qrSz / 2;
   const qrY  = cy;
 
-  // QR frame: white + gold border
+  // Very subtle white frame
   doc.setFillColor(...WHITE);
-  doc.setDrawColor(...GOLD);
-  doc.setLineWidth(0.55);
-  doc.roundedRect(qrX - 3, qrY - 3, qrSz + 6, qrSz + 6, 2.2, 2.2, 'FD');
+  doc.setDrawColor(...MIST);
+  doc.setLineWidth(0.3);
+  rrect(doc, qrX - 2.5, qrY - 2.5, qrSz + 5, qrSz + 5, 2.5, 'FD');
   doc.addImage(qrImg, 'PNG', qrX, qrY, qrSz, qrSz);
 
-  // Bar decorations flanking QR
-  drawBars(doc, qrX - 5,          qrY + qrSz / 2, 'L');
-  drawBars(doc, qrX + qrSz + 5,   qrY + qrSz / 2, 'R');
+  cy += qrSz + 8;
 
-  cy += qrSz + 7;
-
-  // Footer rule
-  doc.setDrawColor(...GOLD_DIM);
-  doc.setLineWidth(0.25);
-  doc.line(8, cy, W - 8, cy);
-  cy += 4;
-
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(5.2);
-  doc.setTextColor(...GOLD);
+  // ── Footer ──────────────────────────────────────────────────────────────────
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(4.5);
+  doc.setCharSpace(1.2);
+  doc.setTextColor(...GOLD_MID);
   doc.text('PRESENT THIS TICKET AT THE EVENT ENTRANCE', W / 2, cy, { align: 'center' });
+  doc.setCharSpace(0);
 
-  // ── Save ──────────────────────────────────────────────────────────────────
+  // ── Save ────────────────────────────────────────────────────────────────────
   doc.save(`ticket-${data.bookingReference}.pdf`);
 }
