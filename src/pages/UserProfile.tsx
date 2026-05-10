@@ -261,6 +261,12 @@ const UserProfile = () => {
     }
   };
 
+  const isWithin12Hours = (createdAt: string): boolean => {
+    const created = new Date(createdAt).getTime();
+    const now = Date.now();
+    return now - created < 12 * 60 * 60 * 1000;
+  };
+
   const removeFavorite = (eventId: number | string) => {
     const id = String(eventId);
     setFavoriteIds(prev => {
@@ -1150,7 +1156,7 @@ const UserProfile = () => {
                               </Button>
                             )}
 
-                            {booking.status === 'pending' && (
+                            {booking.status === 'pending' && isWithin12Hours(booking.createdAt) && (
                               <>
                                 <Button
                                   variant="outline"

@@ -74,6 +74,7 @@ const BookingForm = () => {
   const [address, setAddress] = useState('');
   const [bookingComplete, setBookingComplete] = useState(false);
   const [bookingReference, setBookingReference] = useState('');
+  const [alreadyBooked, setAlreadyBooked] = useState(false);
   const cmiFormRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
@@ -118,6 +119,18 @@ const BookingForm = () => {
         } else {
           throw new Error(data.error || 'Failed to fetch event');
         }
+
+        // Check if user already has an active booking for this event
+        try {
+          const ticketsRes = await fetch('/api/booking/my-tickets', { credentials: 'include' });
+          if (ticketsRes.ok) {
+            const tickets = await ticketsRes.json();
+            const hasActive = Array.isArray(tickets) && tickets.some(
+              (t: any) => String(t.event_id || t.eventId) === String(eventId) && t.status !== 'cancelled'
+            );
+            setAlreadyBooked(hasActive);
+          }
+        } catch { /* non-fatal */ }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load event');
       } finally {
@@ -463,6 +476,36 @@ const BookingForm = () => {
               Back to Events
             </Button>
           </Link>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (alreadyBooked) {
+    return (
+      <div className="min-h-screen bg-white">
+        <Header />
+        <div className="container mx-auto px-6 py-32 text-center max-w-lg">
+          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-10 shadow-sm">
+            <div className="text-5xl mb-4">🎫</div>
+            <h2 className="text-2xl font-bold font-['Poppins'] text-[#111f50] mb-3">Already Booked</h2>
+            <p className="text-gray-600 font-['Inter'] mb-6">
+              You already have an active booking for <strong>{selectedEvent.title}</strong>. You cannot book the same event twice.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Link to="/profile">
+                <Button className="bg-[#D4B26A] hover:bg-[#C9A758] text-white font-['Poppins'] px-6">
+                  View My Bookings
+                </Button>
+              </Link>
+              <Link to="/book">
+                <Button variant="outline" className="font-['Poppins'] px-6">
+                  Browse Other Events
+                </Button>
+              </Link>
+            </div>
+          </div>
         </div>
         <Footer />
       </div>
