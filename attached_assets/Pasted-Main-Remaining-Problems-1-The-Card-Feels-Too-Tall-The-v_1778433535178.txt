@@ -1,0 +1,172 @@
+Main Remaining Problems
+1. The Card Feels Too Tall
+
+The vertical spacing is still excessive, especially:
+
+Between sections
+Under the QR
+Around the attendee info
+
+This creates a “stretched” feeling.
+
+Fix
+
+Reduce total height by ~15–20%.
+
+Especially compress:
+
+Header bottom spacing
+Guest section
+QR bottom margin
+2. QR Section Dominates Too Much
+
+The QR becomes the main visual element instead of supporting the ticket.
+
+Problem
+Too large
+Too much white padding
+Border too heavy
+Fix
+Reduce QR size by 15%
+Use thinner border
+Reduce internal padding
+Move closer to booking reference
+
+Premium tickets usually keep QR secondary.
+
+3. Typography Hierarchy Still Weak
+
+Everything visually has similar importance.
+
+Current issue:
+
+Labels
+Values
+Booking ID
+Footer
+
+…all compete equally.
+
+Better hierarchy
+
+Use:
+
+Labels → 9–10px
+Secondary text → 12px
+Main values → 18–22px
+Event title → 28px+
+4. The Header Is Visually Detached
+
+The blue top section feels like a separate card.
+
+Why
+
+Because:
+
+Large empty blue area
+Divider too harsh
+No transition element
+Fix
+
+Add:
+
+subtle gradient fade
+OR
+curved transition
+OR
+reduce header height
+
+Also:
+Move EVENT TICKET slightly upward.
+
+5. The Booking Reference Box Looks Generic
+
+It resembles an input field instead of a premium ticket component.
+
+Fix
+
+Try:
+
+transparent background
+thin gold border
+smaller radius
+tighter padding
+
+Luxury style = less heavy containers.
+
+6. Alignment Problem in Information Grid
+
+The left/right columns don’t feel mathematically aligned.
+
+Fix
+
+Use exact grid:
+
+2 equal columns
+Same baseline
+Same spacing top/bottom
+
+Currently TIME feels floating.
+
+7. Footer Text Is Too Small
+
+“PRESENT THIS TICKET...” becomes unreadable on mobile.
+
+Fix
+Increase size slightly
+Add opacity instead of ultra-small font
+8. Missing Premium Details
+
+The design lacks micro-details that create luxury feel.
+
+You can add:
+
+subtle gold dividers
+soft shadows
+embossed effect on QR card
+very soft off-white background (#FAF8F5)
+paper texture/noise (2–3%)
+Biggest Design Issue Right Now
+
+The layout density is inconsistent:
+
+Top = spacious
+Middle = compressed
+QR = oversized
+Bottom = empty
+
+You need a more balanced rhythm.
+
+Recommended Layout Structure
+
+HEADER
+
+Logo
+Event Ticket
+Status badge
+
+BODY
+
+Event Name
+Guest Name
+Info Grid
+Booking Ref
+
+QR SECTION
+
+Smaller QR
+“Scan at Entrance”
+
+FOOTER
+
+Small helper text
+
+Everything should fit comfortably without scrolling feeling.
+
+Quick Improvements That Will Instantly Upgrade It
+Do these 5 things:
+Reduce overall card height
+Reduce QR size
+Increase typography contrast
+Reduce empty spaces
+Make booking reference thinner/minimal
