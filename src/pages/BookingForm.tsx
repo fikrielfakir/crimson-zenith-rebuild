@@ -866,26 +866,28 @@ const BookingForm = () => {
                     </div>
 
                     <div className="space-y-4 max-w-md mx-auto">
-                      <Button
-                        type="button"
-                        onClick={() => generatePDFTicket({
-                          bookingReference,
-                          customerName,
-                          customerEmail,
-                          customerPhone,
-                          numberOfParticipants: participants,
-                          eventTitle:    selectedEvent?.title || 'Event',
-                          eventDate:     selectedDate?.toISOString() || '',
-                          eventLocation: selectedEvent?.location || null,
-                          totalPrice,
-                          paymentMethod,
-                          paymentStatus: paymentMethod === 'cash' ? 'pending' : 'completed',
-                        })}
-                        className="w-full bg-gradient-to-r from-[#D4B26A] to-[#C9A758] hover:from-[#C9A758] hover:to-[#B89647] text-white font-['Poppins'] font-semibold py-6 rounded-xl shadow-lg text-base"
-                      >
-                        <Download className="w-5 h-5 mr-2" />
-                        Download Event Ticket
-                      </Button>
+                      {paymentMethod !== 'cash' && (
+                        <Button
+                          type="button"
+                          onClick={() => generatePDFTicket({
+                            bookingReference,
+                            customerName,
+                            customerEmail,
+                            customerPhone,
+                            numberOfParticipants: participants,
+                            eventTitle:    selectedEvent?.title || 'Event',
+                            eventDate:     selectedDate?.toISOString() || '',
+                            eventLocation: selectedEvent?.location || null,
+                            totalPrice,
+                            paymentMethod,
+                            paymentStatus: 'completed',
+                          })}
+                          className="w-full bg-gradient-to-r from-[#D4B26A] to-[#C9A758] hover:from-[#C9A758] hover:to-[#B89647] text-white font-['Poppins'] font-semibold py-6 rounded-xl shadow-lg text-base"
+                        >
+                          <Download className="w-5 h-5 mr-2" />
+                          Download Event Ticket
+                        </Button>
+                      )}
 
                       <Link to="/" className="block">
                         <Button 
