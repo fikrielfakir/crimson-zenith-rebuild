@@ -1,12 +1,12 @@
 import { apiFetch } from '@/lib/apiFetch';
 import { generateTicketPDF } from '@/lib/generateTicketPDF';
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Plus, Search, Calendar, Users, DollarSign, Download, MoreHorizontal, Eye, Edit, Trash2, XCircle, Ticket, X, Printer } from 'lucide-react';
+import { Plus, Search, Calendar, Users, DollarSign, Download, MoreHorizontal, Eye, Edit, Trash2, XCircle, Ticket, X } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -93,6 +93,7 @@ async function deleteBooking(bookingReference: string) {
 
 function TicketModal({ booking, isOpen, onClose }: { booking: Booking | null; isOpen: boolean; onClose: () => void }) {
   const [downloading, setDownloading] = useState(false);
+  const [dlError, setDlError] = useState<string | null>(null);
 
   if (!booking) return null;
 
@@ -101,18 +102,22 @@ function TicketModal({ booking, isOpen, onClose }: { booking: Booking | null; is
   const fmtTime = eventDate.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
 
   const handleDownload = async () => {
+    setDlError(null);
     setDownloading(true);
     try {
       await generateTicketPDF({
-        bookingReference: booking.bookingReference,
-        customerName:     booking.userName,
-        customerEmail:    booking.userEmail,
+        bookingReference:     booking.bookingReference,
+        customerName:         booking.userName,
+        customerEmail:        booking.userEmail,
         numberOfParticipants: booking.attendees,
-        eventTitle:       booking.eventTitle,
-        eventDate:        booking.eventDate,
-        totalPrice:       booking.totalAmount,
-        paymentStatus:    booking.status,
+        eventTitle:           booking.eventTitle,
+        eventDate:            booking.eventDate,
+        totalPrice:           booking.totalAmount,
+        paymentStatus:        booking.status,
       });
+    } catch (err) {
+      console.error('[TicketPDF] download failed:', err);
+      setDlError(err instanceof Error ? err.message : 'PDF generation failed');
     } finally {
       setDownloading(false);
     }
@@ -133,7 +138,7 @@ function TicketModal({ booking, isOpen, onClose }: { booking: Booking | null; is
 
               {/* ── TOP STUB ── */}
               <div className="relative px-6 pt-6 pb-5 text-center"
-                style={{ background: 'linear-gradient(175deg,#1230A0 0%,#0B1F5E 100%)' }}>
+                style={{ background: '#112250' }}>
 
                 {/* Corner fan lines */}
                 <svg className="absolute top-0 right-0 opacity-30" width="60" height="60" viewBox="0 0 60 60">
@@ -169,11 +174,9 @@ function TicketModal({ booking, isOpen, onClose }: { booking: Booking | null; is
               {/* ── PERFORATION ── */}
               <div className="relative flex items-center" style={{ height: 24 }}>
                 {/* Left notch */}
-                <div className="absolute -left-3 w-6 h-6 rounded-full"
-                  style={{ background: 'linear-gradient(175deg,#0B1F5E 0%,#07153A 100%)' }} />
+                <div className="absolute -left-3 w-6 h-6 rounded-full bg-white" />
                 {/* Right notch */}
-                <div className="absolute -right-3 w-6 h-6 rounded-full"
-                  style={{ background: 'linear-gradient(175deg,#0B1F5E 0%,#07153A 100%)' }} />
+                <div className="absolute -right-3 w-6 h-6 rounded-full bg-white" />
                 {/* Gold rules + dashes */}
                 <div className="flex-1 mx-5 flex flex-col gap-[5px]">
                   <div className="h-px opacity-40" style={{ background: '#D4B26A' }} />
@@ -288,7 +291,10 @@ function TicketModal({ booking, isOpen, onClose }: { booking: Booking | null; is
         </div>
 
         {/* ── Action buttons ── */}
-        <div className="flex gap-2 mt-4 px-1">
+        {dlError && (
+          <p className="mt-3 px-1 text-center text-[11px] text-red-600 font-medium">{dlError}</p>
+        )}
+        <div className="flex gap-2 mt-3 px-1">
           <Button variant="outline" className="flex-1" onClick={onClose}>Close</Button>
           <Button
             onClick={handleDownload}

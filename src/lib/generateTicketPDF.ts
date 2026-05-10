@@ -18,8 +18,8 @@ export interface TicketData {
 
 // ─── Palette ─────────────────────────────────────────────────────────────────
 const NAVY_DEEP:  [number, number, number] = [7,   21,  58];
-const NAVY_MID:   [number, number, number] = [11,  31,  94];
-const NAVY_LIGHT: [number, number, number] = [18,  45, 118];
+const NAVY_MID:   [number, number, number] = [17,  34,  80];   // #112250
+const NAVY_LIGHT: [number, number, number] = [22,  42,  95];   // slightly lighter stub fade
 const GOLD:       [number, number, number] = [212, 178, 106];
 const GOLD_DIM:   [number, number, number] = [160, 130,  72];
 const WHITE:      [number, number, number] = [255, 255, 255];
@@ -114,8 +114,8 @@ function drawBorders(doc: jsPDF) {
 function drawPerforation(doc: jsPDF) {
   const y = PERF_Y;
 
-  // Notch holes — dark circles bleeding off both edges
-  doc.setFillColor(...NAVY_DEEP);
+  // Notch holes — white circles bleed off both edges (simulate punched holes)
+  doc.setFillColor(...WHITE);
   doc.circle(-NOTCH * 0.1, y, NOTCH, 'F');
   doc.circle(W + NOTCH * 0.1, y, NOTCH, 'F');
 
