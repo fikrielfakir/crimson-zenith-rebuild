@@ -24,35 +24,6 @@ function patchCookies(proxyRes: any) {
 
 const PROD_API = "https://api.thejourney-ma.org";
 
-// Local Laravel API handles all NEW routes that don't exist on production yet
-const LOCAL_API = "http://localhost:8000";
-
-const localProxyOptions = {
-  target: LOCAL_API,
-  changeOrigin: true,
-  secure: false,
-  configure: (proxy: any) => {
-    proxy.on("proxyRes", patchCookies);
-
-    // Override Origin header so Laravel's CORS accepts the request
-    // regardless of which IP/domain the browser is actually on.
-    proxy.on("proxyReq", (proxyReq: any) => {
-      proxyReq.setHeader("Origin", "http://localhost:5000");
-    });
-
-    // When the local Laravel API is unreachable (cold start / restart),
-    // return a proper JSON 503 instead of an empty 500 so the frontend
-    // can show a meaningful error message to the user.
-    proxy.on("error", (err: any, _req: any, res: any) => {
-      console.error("[local-proxy] Laravel API unavailable:", err.message);
-      if (res && !res.headersSent) {
-        res.writeHead(503, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ message: "Local API unavailable — please wait and try again." }));
-      }
-    });
-  },
-};
-
 const proxyOptions = {
   target: PROD_API,
   changeOrigin: true,
@@ -72,12 +43,6 @@ export default defineConfig(({ mode }: { mode: string }) => ({
     port: 5000,
     allowedHosts: true as const,
     proxy: {
-      // ── Routes that ONLY exist on the local Laravel API ──────────────────
-      // Must be listed BEFORE the catch-all "/api" rule.
-      "/api/payments":               localProxyOptions,
-      "/api/admin":                  localProxyOptions,
-
-      // ── Everything else → production API ─────────────────────────────────
       "/api": proxyOptions,
       "/sanctum": proxyOptions,
       "/storage": proxyOptions,
