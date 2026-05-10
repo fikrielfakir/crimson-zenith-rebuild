@@ -147,11 +147,19 @@ export default function ApplicationsManagement() {
                       <div className="flex items-center space-x-3">
                         <Avatar>
                           <AvatarImage src={app.avatar} />
-                          <AvatarFallback>{app.name?.[0]}</AvatarFallback>
+                          <AvatarFallback>{(app.applicant_name || app.name)?.[0]}</AvatarFallback>
                         </Avatar>
                         <div>
-                          <p className="font-medium">{app.name}</p>
-                          <p className="text-sm text-muted-foreground">{app.interests}</p>
+                          <p className="font-medium">{app.applicant_name || app.name}</p>
+                          <p className="text-sm text-muted-foreground line-clamp-1">
+                            {(() => {
+                              const raw = app.interests;
+                              if (!raw) return '—';
+                              if (Array.isArray(raw)) return raw.join(', ');
+                              try { const parsed = JSON.parse(raw); return Array.isArray(parsed) ? parsed.join(', ') : String(raw); }
+                              catch { return String(raw); }
+                            })()}
+                          </p>
                         </div>
                       </div>
                     </TableCell>
@@ -171,7 +179,12 @@ export default function ApplicationsManagement() {
                       <Badge variant="outline">{app.type || 'Membership'}</Badge>
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
-                      {new Date(app.createdAt).toLocaleDateString()}
+                      {(() => {
+                        const raw = app.created_at || app.createdAt || app.submitted_at;
+                        if (!raw) return '—';
+                        const d = new Date(raw);
+                        return isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
+                      })()}
                     </TableCell>
                     <TableCell>
                       <Badge
@@ -184,25 +197,27 @@ export default function ApplicationsManagement() {
                         {app.status}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-right space-x-2">
-                      <Button
-                        variant="default"
-                        size="sm"
-                        onClick={() => approveApplicationMutation.mutate(app.id)}
-                        disabled={approveApplicationMutation.isPending || app.status !== 'pending'}
-                      >
-                        <Check className="mr-1 h-4 w-4" />
-                        Approve
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => rejectApplicationMutation.mutate(app.id)}
-                        disabled={rejectApplicationMutation.isPending || app.status !== 'pending'}
-                      >
-                        <X className="mr-1 h-4 w-4" />
-                        Reject
-                      </Button>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <Button
+                          variant="default"
+                          size="sm"
+                          onClick={() => approveApplicationMutation.mutate(app.id)}
+                          disabled={approveApplicationMutation.isPending || app.status !== 'pending'}
+                        >
+                          <Check className="mr-1 h-4 w-4" />
+                          Approve
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => rejectApplicationMutation.mutate(app.id)}
+                          disabled={rejectApplicationMutation.isPending || app.status !== 'pending'}
+                        >
+                          <X className="mr-1 h-4 w-4" />
+                          Reject
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
