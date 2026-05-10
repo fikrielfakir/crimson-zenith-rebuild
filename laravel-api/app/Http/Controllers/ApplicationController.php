@@ -20,6 +20,18 @@ class ApplicationController extends Controller
             'preferredClub'  => 'nullable|string',
         ]);
 
+        $existing = MembershipApplication::where('email', $data['email'])
+            ->whereIn('status', ['pending', 'approved'])
+            ->first();
+
+        if ($existing) {
+            $statusLabel = $existing->status === 'approved' ? 'already been approved' : 'already been submitted and is pending review';
+            return response()->json([
+                'message' => 'An application with this email address has ' . $statusLabel . '.',
+                'errors'  => ['email' => ['This email address already has an application on file.']],
+            ], 422);
+        }
+
         $application = MembershipApplication::create([
             'user_id'        => $request->user()?->id ?? 'guest',
             'applicant_name' => $data['applicantName'],

@@ -63,6 +63,7 @@ export default function JoinUs() {
     register,
     handleSubmit,
     setValue,
+    setError,
     watch,
     formState: { errors },
   } = useForm<FormData>({
@@ -110,6 +111,12 @@ export default function JoinUs() {
       });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
+        if (res.status === 422 && body?.errors?.email) {
+          setError('email', { type: 'server', message: body.errors.email[0] });
+          const emailEl = document.querySelector('input[name="email"]');
+          emailEl?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          return;
+        }
         throw new Error(body?.message ?? `Error ${res.status}`);
       }
       setSubmitted(true);
