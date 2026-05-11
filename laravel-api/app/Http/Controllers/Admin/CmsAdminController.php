@@ -9,6 +9,7 @@ use App\Models\NavbarSettings;
 use App\Models\FooterSettings;
 use App\Models\PresidentMessageSettings;
 use App\Models\AboutSettings;
+use App\Models\DiscoverSettings;
 use App\Models\MediaAsset;
 use App\Models\FocusItem;
 use App\Models\TeamMember;
@@ -58,6 +59,13 @@ class CmsAdminController extends Controller
     public function updateAbout(Request $request)
     {
         $settings = AboutSettings::firstOrCreate(['id' => 'default']);
+        $settings->update(array_merge($request->except(['id']), ['updated_by' => $request->user()->id]));
+        return response()->json($settings->fresh());
+    }
+
+    public function updateDiscover(Request $request)
+    {
+        $settings = DiscoverSettings::firstOrCreate(['id' => 'default']);
         $settings->update(array_merge($request->except(['id']), ['updated_by' => $request->user()->id]));
         return response()->json($settings->fresh());
     }

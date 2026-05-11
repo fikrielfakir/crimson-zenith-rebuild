@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from '@/components/ui/dialog';
@@ -16,7 +17,7 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Pencil, Trash2, MapPin, RefreshCw } from 'lucide-react';
+import { Plus, Pencil, Trash2, MapPin, RefreshCw, Settings, Globe, Save } from 'lucide-react';
 
 interface CityActivity {
   name: string;
@@ -47,6 +48,30 @@ interface City {
   ordering: number;
 }
 
+interface DiscoverSettings {
+  hero_title: string;
+  hero_subtitle: string;
+  hero_bg_image: string;
+  intro_heading: string;
+  intro_description: string;
+  cta_heading: string;
+  cta_description: string;
+  cta_button_text: string;
+  cta_button_link: string;
+}
+
+const defaultDiscoverSettings: DiscoverSettings = {
+  hero_title: 'Discover',
+  hero_subtitle: "Embark on a journey through Morocco's most enchanting destinations. From ancient medinas to coastal paradises, discover the soul of this magnificent country.",
+  hero_bg_image: '/attached_assets/generated_images/Fes_medina_and_tanneries_3e9a2ff0.png',
+  intro_heading: 'Morocco, a melting pot of dynasties and cultures',
+  intro_description: "From the northern coastal cities touching the Mediterranean to the ancient imperial cities steeped in history, Morocco offers an incredible tapestry of experiences. Each city tells its own unique story, shaped by centuries of diverse cultural influences, from Berber traditions to Arab, Andalusian, and European heritage. Discover the soul of Morocco through its most captivating cities, where ancient medinas meet modern vitality, and every street corner reveals a new chapter in this nation's rich cultural narrative.",
+  cta_heading: 'Ready to Start Your Journey?',
+  cta_description: 'Join us to explore these magnificent cities and create unforgettable memories in Morocco.',
+  cta_button_text: 'JOIN THE JOURNEY',
+  cta_button_link: '/join-us',
+};
+
 const emptyCity: Omit<City, 'id' | 'createdAt' | 'updatedAt'> = {
   name: '', slug: '', title: '', description: '', image: '',
   highlights: [], activities: [], travelTips: [],
@@ -63,16 +88,33 @@ async function fetchCities() {
   return res.json();
 }
 
+async function fetchDiscoverSettings(): Promise<DiscoverSettings> {
+  const res = await apiFetch('/api/cms/discover');
+  if (!res.ok) throw new Error('Failed to fetch discover settings');
+  return res.json();
+}
+
 export default function CitiesManagement() {
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<City | null>(null);
   const [form, setForm] = useState<any>(emptyCity);
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [discoverForm, setDiscoverForm] = useState<DiscoverSettings | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const { data, isLoading } = useQuery({ queryKey: ['admin-cities'], queryFn: fetchCities });
   const cities: City[] = data?.cities ?? [];
+
+  const { data: discoverData } = useQuery({
+    queryKey: ['discover-settings'],
+    queryFn: fetchDiscoverSettings,
+    onSuccess: (d: DiscoverSettings) => {
+      if (!discoverForm) setDiscoverForm(d);
+    },
+  });
+
+  const currentDiscover: DiscoverSettings = discoverForm ?? discoverData ?? defaultDiscoverSettings;
 
   function openCreate() {
     setEditing(null);
@@ -171,6 +213,25 @@ export default function CitiesManagement() {
     onError: () => toast({ title: 'Seed failed', variant: 'destructive' }),
   });
 
+  const saveDiscoverMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiFetch('/api/admin/cms/discover', {
+        method: 'PUT',
+        body: JSON.stringify(currentDiscover),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || 'Save failed');
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['discover-settings'] });
+      toast({ title: 'Discover page settings saved' });
+    },
+    onError: (e: any) => toast({ title: 'Error saving settings', description: e.message, variant: 'destructive' }),
+  });
+
   function setField(path: string, value: any) {
     setForm((prev: any) => {
       const parts = path.split('.');
@@ -180,103 +241,256 @@ export default function CitiesManagement() {
     });
   }
 
+  function setDiscoverField(key: keyof DiscoverSettings, value: string) {
+    setDiscoverForm(prev => ({ ...(prev ?? defaultDiscoverSettings), [key]: value }));
+  }
+
   return (
     <AdminLayout>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Cities Management</h1>
-            <p className="text-muted-foreground mt-1">Manage the cities shown on the Discover page</p>
-          </div>
-          <div className="flex gap-2">
-            {cities.length === 0 && (
-              <Button variant="outline" onClick={() => seedMutation.mutate()} disabled={seedMutation.isPending}>
-                <RefreshCw className="w-4 h-4 mr-2" />
-                Seed Defaults
-              </Button>
-            )}
-            <Button onClick={openCreate}>
-              <Plus className="w-4 h-4 mr-2" />
-              Add City
-            </Button>
+            <h1 className="text-3xl font-bold text-foreground">Discover Page</h1>
+            <p className="text-muted-foreground mt-1">Edit the Discover page content and manage cities</p>
           </div>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <MapPin className="w-5 h-5" />
+        <Tabs defaultValue="page-settings">
+          <TabsList className="mb-6">
+            <TabsTrigger value="page-settings" className="flex items-center gap-2">
+              <Settings className="w-4 h-4" />
+              Page Settings
+            </TabsTrigger>
+            <TabsTrigger value="cities" className="flex items-center gap-2">
+              <Globe className="w-4 h-4" />
               Cities ({cities.length})
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <div className="text-center py-8 text-muted-foreground">Loading cities...</div>
-            ) : cities.length === 0 ? (
-              <div className="text-center py-12">
-                <MapPin className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-                <p className="text-muted-foreground mb-4">No cities yet. Click "Seed Defaults" to populate with the existing cities or "Add City" to create one.</p>
+            </TabsTrigger>
+          </TabsList>
+
+          {/* ── PAGE SETTINGS TAB ── */}
+          <TabsContent value="page-settings">
+            <div className="space-y-6">
+              {/* Hero Section */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Hero Section</CardTitle>
+                  <p className="text-sm text-muted-foreground">The full-screen banner at the top of the Discover page</p>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Page Title</Label>
+                    <Input
+                      value={currentDiscover.hero_title}
+                      onChange={e => setDiscoverField('hero_title', e.target.value)}
+                      placeholder="Discover"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Subtitle</Label>
+                    <Textarea
+                      rows={3}
+                      value={currentDiscover.hero_subtitle}
+                      onChange={e => setDiscoverField('hero_subtitle', e.target.value)}
+                      placeholder="Embark on a journey..."
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Background Image URL</Label>
+                    <Input
+                      value={currentDiscover.hero_bg_image}
+                      onChange={e => setDiscoverField('hero_bg_image', e.target.value)}
+                      placeholder="/attached_assets/generated_images/..."
+                    />
+                    {currentDiscover.hero_bg_image && (
+                      <img
+                        src={currentDiscover.hero_bg_image}
+                        alt="Hero preview"
+                        className="h-32 w-full rounded-lg object-cover border"
+                      />
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Intro Section */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Introduction Section</CardTitle>
+                  <p className="text-sm text-muted-foreground">The text section below the hero banner</p>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Heading</Label>
+                    <Input
+                      value={currentDiscover.intro_heading}
+                      onChange={e => setDiscoverField('intro_heading', e.target.value)}
+                      placeholder="Morocco, a melting pot of dynasties and cultures"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Description</Label>
+                    <Textarea
+                      rows={5}
+                      value={currentDiscover.intro_description}
+                      onChange={e => setDiscoverField('intro_description', e.target.value)}
+                      placeholder="From the northern coastal cities..."
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* CTA Section */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Call-to-Action Section</CardTitle>
+                  <p className="text-sm text-muted-foreground">The banner at the bottom of the Discover page</p>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Heading</Label>
+                    <Input
+                      value={currentDiscover.cta_heading}
+                      onChange={e => setDiscoverField('cta_heading', e.target.value)}
+                      placeholder="Ready to Start Your Journey?"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Description</Label>
+                    <Textarea
+                      rows={2}
+                      value={currentDiscover.cta_description}
+                      onChange={e => setDiscoverField('cta_description', e.target.value)}
+                      placeholder="Join us to explore..."
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Button Text</Label>
+                      <Input
+                        value={currentDiscover.cta_button_text}
+                        onChange={e => setDiscoverField('cta_button_text', e.target.value)}
+                        placeholder="JOIN THE JOURNEY"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Button Link</Label>
+                      <Input
+                        value={currentDiscover.cta_button_link}
+                        onChange={e => setDiscoverField('cta_button_link', e.target.value)}
+                        placeholder="/join-us"
+                      />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <div className="flex justify-end">
+                <Button
+                  onClick={() => saveDiscoverMutation.mutate()}
+                  disabled={saveDiscoverMutation.isPending}
+                  size="lg"
+                >
+                  <Save className="w-4 h-4 mr-2" />
+                  {saveDiscoverMutation.isPending ? 'Saving...' : 'Save Page Settings'}
+                </Button>
               </div>
-            ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Order</TableHead>
-                    <TableHead>City</TableHead>
-                    <TableHead>Tagline</TableHead>
-                    <TableHead>Highlights</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {cities.map((city) => (
-                    <TableRow key={city.id}>
-                      <TableCell className="text-muted-foreground">{city.ordering}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-3">
-                          {city.image && (
-                            <img src={city.image} alt={city.name} className="w-10 h-10 rounded object-cover" />
-                          )}
-                          <div>
-                            <div className="font-semibold">{city.name}</div>
-                            <div className="text-xs text-muted-foreground">/{city.slug}</div>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-muted-foreground italic max-w-[200px] truncate">{city.title}</TableCell>
-                      <TableCell>
-                        <div className="flex flex-wrap gap-1 max-w-[200px]">
-                          {(city.highlights || []).slice(0, 2).map((h, i) => (
-                            <Badge key={i} variant="secondary" className="text-xs">{h}</Badge>
-                          ))}
-                          {(city.highlights || []).length > 2 && (
-                            <Badge variant="outline" className="text-xs">+{city.highlights.length - 2}</Badge>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={city.isActive ? 'default' : 'secondary'}>
-                          {city.isActive ? 'Active' : 'Hidden'}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button size="sm" variant="outline" onClick={() => openEdit(city)}>
-                            <Pencil className="w-4 h-4" />
-                          </Button>
-                          <Button size="sm" variant="destructive" onClick={() => setDeleteId(city.id)}>
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            )}
-          </CardContent>
-        </Card>
+            </div>
+          </TabsContent>
+
+          {/* ── CITIES TAB ── */}
+          <TabsContent value="cities">
+            <div className="space-y-4">
+              <div className="flex justify-end gap-2">
+                {cities.length === 0 && (
+                  <Button variant="outline" onClick={() => seedMutation.mutate()} disabled={seedMutation.isPending}>
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                    Seed Defaults
+                  </Button>
+                )}
+                <Button onClick={openCreate}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add City
+                </Button>
+              </div>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <MapPin className="w-5 h-5" />
+                    Cities — each city's content controls its detail page at /discover/cities?city=slug
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {isLoading ? (
+                    <div className="text-center py-8 text-muted-foreground">Loading cities...</div>
+                  ) : cities.length === 0 ? (
+                    <div className="text-center py-12">
+                      <MapPin className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                      <p className="text-muted-foreground mb-4">No cities yet. Click "Seed Defaults" to populate or "Add City" to create one.</p>
+                    </div>
+                  ) : (
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Order</TableHead>
+                          <TableHead>City</TableHead>
+                          <TableHead>Tagline</TableHead>
+                          <TableHead>Highlights</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {cities.map((city) => (
+                          <TableRow key={city.id}>
+                            <TableCell className="text-muted-foreground">{city.ordering}</TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-3">
+                                {city.image && (
+                                  <img src={city.image} alt={city.name} className="w-10 h-10 rounded object-cover" />
+                                )}
+                                <div>
+                                  <div className="font-semibold">{city.name}</div>
+                                  <div className="text-xs text-muted-foreground">/{city.slug}</div>
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-muted-foreground italic max-w-[200px] truncate">{city.title}</TableCell>
+                            <TableCell>
+                              <div className="flex flex-wrap gap-1 max-w-[200px]">
+                                {(city.highlights || []).slice(0, 2).map((h, i) => (
+                                  <Badge key={i} variant="secondary" className="text-xs">{h}</Badge>
+                                ))}
+                                {(city.highlights || []).length > 2 && (
+                                  <Badge variant="outline" className="text-xs">+{city.highlights.length - 2}</Badge>
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant={city.isActive ? 'default' : 'secondary'}>
+                                {city.isActive ? 'Active' : 'Hidden'}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <div className="flex justify-end gap-2">
+                                <Button size="sm" variant="outline" onClick={() => openEdit(city)}>
+                                  <Pencil className="w-4 h-4" />
+                                </Button>
+                                <Button size="sm" variant="destructive" onClick={() => setDeleteId(city.id)}>
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
 
       {/* City Form Dialog */}
@@ -352,8 +566,8 @@ export default function CitiesManagement() {
                 <Input value={form.cuisine?.title ?? ''} onChange={e => setField('cuisine.title', e.target.value)} />
               </div>
               <div className="space-y-2">
-                <Label>Dishes (JSON array: [{`{"name":"...", "description":"..."}`}])</Label>
-                <Textarea rows={5} value={form.dishesJson ?? JSON.stringify(form.cuisine?.dishes ?? [], null, 2)} onChange={e => setField('dishesJson', e.target.value)} className="font-mono text-xs" />
+                <Label>Dishes (JSON array)</Label>
+                <Textarea rows={5} value={form.dishesJson ?? JSON.stringify(form.cuisine?.dishes ?? [], null, 2)} onChange={e => setField('dishesJson', e.target.value)} className="font-mono text-xs" placeholder={`[{"name":"Tagine","description":"Slow-cooked Moroccan stew"}]`} />
               </div>
             </div>
 

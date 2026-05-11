@@ -10,6 +10,7 @@ use App\Models\ContactSettings;
 use App\Models\FooterSettings;
 use App\Models\SeoSettings;
 use App\Models\AboutSettings;
+use App\Models\DiscoverSettings;
 use App\Models\FocusItem;
 use App\Models\TeamMember;
 use App\Models\LandingTestimonial;
@@ -56,6 +57,11 @@ class CmsController extends Controller
     public function about()
     {
         return response()->json(AboutSettings::firstOrCreate(['id' => 'default']));
+    }
+
+    public function discoverSettings()
+    {
+        return response()->json(DiscoverSettings::firstOrCreate(['id' => 'default']));
     }
 
     public function focusItems()

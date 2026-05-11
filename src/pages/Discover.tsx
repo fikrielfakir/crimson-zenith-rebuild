@@ -18,9 +18,39 @@ interface City {
   highlights: string[];
 }
 
+interface DiscoverSettings {
+  hero_title: string;
+  hero_subtitle: string;
+  hero_bg_image: string;
+  intro_heading: string;
+  intro_description: string;
+  cta_heading: string;
+  cta_description: string;
+  cta_button_text: string;
+  cta_button_link: string;
+}
+
+const defaultSettings: DiscoverSettings = {
+  hero_title: 'Discover',
+  hero_subtitle: "Embark on a journey through Morocco's most enchanting destinations. From ancient medinas to coastal paradises, discover the soul of this magnificent country.",
+  hero_bg_image: '/attached_assets/generated_images/Fes_medina_and_tanneries_3e9a2ff0.png',
+  intro_heading: 'Morocco, a melting pot of dynasties and cultures',
+  intro_description: "From the northern coastal cities touching the Mediterranean to the ancient imperial cities steeped in history, Morocco offers an incredible tapestry of experiences. Each city tells its own unique story, shaped by centuries of diverse cultural influences, from Berber traditions to Arab, Andalusian, and European heritage. Discover the soul of Morocco through its most captivating cities, where ancient medinas meet modern vitality, and every street corner reveals a new chapter in this nation's rich cultural narrative.",
+  cta_heading: 'Ready to Start Your Journey?',
+  cta_description: 'Join us to explore these magnificent cities and create unforgettable memories in Morocco.',
+  cta_button_text: 'JOIN THE JOURNEY',
+  cta_button_link: '/join-us',
+};
+
 async function fetchCities(): Promise<City[]> {
   const res = await apiFetch('/api/cities');
   if (!res.ok) throw new Error('Failed to fetch cities');
+  return res.json();
+}
+
+async function fetchDiscoverSettings(): Promise<DiscoverSettings> {
+  const res = await apiFetch('/api/cms/discover');
+  if (!res.ok) throw new Error('Failed to fetch settings');
   return res.json();
 }
 
@@ -36,13 +66,21 @@ const Discover = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const { data: apiCities, isError } = useQuery({
+  const { data: apiCities, isError: citiesError } = useQuery({
     queryKey: ['public-cities'],
     queryFn: fetchCities,
     retry: 1,
   });
 
-  const cities: City[] = (!isError && apiCities && apiCities.length > 0)
+  const { data: settingsData } = useQuery({
+    queryKey: ['discover-settings-public'],
+    queryFn: fetchDiscoverSettings,
+    retry: 1,
+  });
+
+  const settings: DiscoverSettings = settingsData ?? defaultSettings;
+
+  const cities: City[] = (!citiesError && apiCities && apiCities.length > 0)
     ? apiCities
     : moroccoCities.map(c => ({
         id: c.id,
@@ -54,6 +92,8 @@ const Discover = () => {
         highlights: c.highlights,
       }));
 
+  const heroBg = settings.hero_bg_image || defaultSettings.hero_bg_image;
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -64,7 +104,7 @@ const Discover = () => {
           <div 
             className="absolute inset-0 bg-cover bg-center bg-no-repeat"
             style={{
-              backgroundImage: `url('/attached_assets/generated_images/Fes_medina_and_tanneries_3e9a2ff0.png')`,
+              backgroundImage: `url('${heroBg}')`,
               transform: `translateY(${scrollY * 0.3}px)`,
               filter: 'brightness(0.6) contrast(1.1) saturate(1.2)',
             }}
@@ -95,10 +135,10 @@ const Discover = () => {
 
             <div className={`transition-all duration-700 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-4 drop-shadow-2xl">
-                Discover
+                {settings.hero_title || defaultSettings.hero_title}
               </h1>
               <p className="text-lg md:text-xl text-white/95 max-w-2xl leading-relaxed drop-shadow-lg">
-                Embark on a journey through Morocco's most enchanting destinations. From ancient medinas to coastal paradises, discover the soul of this magnificent country.
+                {settings.hero_subtitle || defaultSettings.hero_subtitle}
               </p>
             </div>
           </div>
@@ -109,10 +149,22 @@ const Discover = () => {
           <div className="container mx-auto px-6">
             <div className={`max-w-4xl mx-auto text-center transition-all duration-1000 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
               <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-8 leading-tight">
-                Morocco, a melting pot of <span className="text-primary">dynasties and cultures</span>
+                {settings.intro_heading
+                  ? settings.intro_heading.split(' of ').length > 1
+                    ? (
+                      <>
+                        {settings.intro_heading.split(' of ')[0]} of{' '}
+                        <span className="text-primary">{settings.intro_heading.split(' of ').slice(1).join(' of ')}</span>
+                      </>
+                    )
+                    : settings.intro_heading
+                  : (
+                    <>Morocco, a melting pot of <span className="text-primary">dynasties and cultures</span></>
+                  )
+                }
               </h2>
               <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
-                From the northern coastal cities touching the Mediterranean to the ancient imperial cities steeped in history, Morocco offers an incredible tapestry of experiences. Each city tells its own unique story, shaped by centuries of diverse cultural influences, from Berber traditions to Arab, Andalusian, and European heritage. Discover the soul of Morocco through its most captivating cities, where ancient medinas meet modern vitality, and every street corner reveals a new chapter in this nation's rich cultural narrative.
+                {settings.intro_description || defaultSettings.intro_description}
               </p>
             </div>
           </div>
@@ -197,17 +249,17 @@ const Discover = () => {
           <div className="container mx-auto px-6 relative z-10">
             <div className="max-w-3xl mx-auto text-center text-white">
               <h2 className="text-4xl md:text-5xl font-bold mb-6 drop-shadow-lg">
-                Ready to Start Your Journey?
+                {settings.cta_heading || defaultSettings.cta_heading}
               </h2>
               <p className="text-lg md:text-xl mb-10 text-white/90 leading-relaxed">
-                Join us to explore these magnificent cities and create unforgettable memories in Morocco.
+                {settings.cta_description || defaultSettings.cta_description}
               </p>
               <Button
                 asChild
                 className="bg-white text-primary hover:bg-white/90 px-12 py-7 rounded-full text-lg font-bold shadow-2xl hover:shadow-3xl transition-all duration-300 group"
               >
-                <Link to="/join-us">
-                  JOIN THE JOURNEY
+                <Link to={settings.cta_button_link || defaultSettings.cta_button_link}>
+                  {settings.cta_button_text || defaultSettings.cta_button_text}
                   <ArrowRight className="ml-3 w-6 h-6 group-hover:translate-x-2 transition-transform duration-300" />
                 </Link>
               </Button>

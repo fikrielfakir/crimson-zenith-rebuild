@@ -119,6 +119,7 @@ Route::prefix('cms')->group(function () {
     Route::get('/testimonials',      [\App\Http\Controllers\CmsController::class, 'testimonials']);
     Route::get('/stats',             [\App\Http\Controllers\CmsController::class, 'stats']);
     Route::get('/media/{id}',        [\App\Http\Controllers\CmsController::class, 'media']);
+    Route::get('/discover',          [\App\Http\Controllers\CmsController::class, 'discoverSettings']);
 });
 
 Route::get('/landing', [\App\Http\Controllers\LandingController::class, 'index']);
@@ -257,6 +258,7 @@ Route::prefix('admin')->middleware(['admin'])->group(function () {
     Route::put('/cms/footer',                  [\App\Http\Controllers\Admin\CmsAdminController::class, 'updateFooter']);
     Route::put('/cms/president-message',       [\App\Http\Controllers\Admin\CmsAdminController::class, 'updatePresidentMessage']);
     Route::put('/cms/about',                   [\App\Http\Controllers\Admin\CmsAdminController::class, 'updateAbout']);
+    Route::put('/cms/discover',                [\App\Http\Controllers\Admin\CmsAdminController::class, 'updateDiscover']);
     Route::post('/cms/media',                  [\App\Http\Controllers\Admin\CmsAdminController::class, 'uploadMedia']);
 
     // CMS focus items (dedicated CRUD used by FocusAreasManagement page)
