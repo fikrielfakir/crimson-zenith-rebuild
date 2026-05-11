@@ -18,6 +18,8 @@ interface CuisineDish {
   description: string;
 }
 
+type HighlightItem = string | { text: string; image?: string };
+
 interface City {
   id: number;
   name: string;
@@ -25,8 +27,8 @@ interface City {
   title: string;
   description: string;
   image: string;
-  highlights: string[];
-  culture: { title: string; description: string; highlights: string[] } | null;
+  highlights: HighlightItem[];
+  culture: { title: string; description: string; highlights: HighlightItem[] } | null;
   cuisine: { title: string; dishes: CuisineDish[] } | null;
   activities: CityActivity[];
   bestTime: { season: string; months: string; description: string; temperature: string } | null;
@@ -206,14 +208,27 @@ const CityDetail = () => {
                     Highlights & Must-See Attractions
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {city.highlights.map((highlight, index) => (
-                      <div key={index} className="flex items-center gap-4">
-                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-secondary/20 flex items-center justify-center">
-                          <span className="text-secondary font-bold text-sm">{index + 1}</span>
+                    {city.highlights.map((highlight, index) => {
+                      const text = typeof highlight === 'string' ? highlight : highlight.text;
+                      const image = typeof highlight === 'object' ? highlight.image : undefined;
+                      return (
+                        <div key={index} className={`flex items-center gap-4 ${image ? 'rounded-xl overflow-hidden border border-border/50 bg-card shadow-sm' : ''}`}>
+                          {image ? (
+                            <>
+                              <img src={image} alt={text} className="w-24 h-20 object-cover flex-shrink-0" onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                              <h4 className="text-lg font-semibold text-foreground pr-4">{text}</h4>
+                            </>
+                          ) : (
+                            <>
+                              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-secondary/20 flex items-center justify-center">
+                                <span className="text-secondary font-bold text-sm">{index + 1}</span>
+                              </div>
+                              <h4 className="text-lg font-semibold text-foreground">{text}</h4>
+                            </>
+                          )}
                         </div>
-                        <h4 className="text-lg font-semibold text-foreground">{highlight}</h4>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               )}
@@ -237,12 +252,17 @@ const CityDetail = () => {
                 </p>
                 {(city.culture.highlights || []).length > 0 && (
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {city.culture.highlights.map((item, index) => (
+                    {city.culture.highlights.map((item, index) => {
+                      const text = typeof item === 'string' ? item : item.text;
+                      const image = typeof item === 'object' ? item.image : undefined;
+                      return (
                       <div key={index} className="flex items-start gap-3 p-6 bg-card rounded-lg border border-border/50 shadow-sm">
-                        <CheckCircle2 className="w-5 h-5 text-secondary flex-shrink-0 mt-1" />
-                        <p className="text-foreground">{item}</p>
+                        {image && <img src={image} alt={text} className="w-16 h-12 object-cover rounded flex-shrink-0" onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />}
+                        {!image && <CheckCircle2 className="w-5 h-5 text-secondary flex-shrink-0 mt-1" />}
+                        <p className="text-foreground">{text}</p>
                       </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>
