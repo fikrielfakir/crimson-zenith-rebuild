@@ -100,6 +100,7 @@ function MediaPickerDialog({
   const [media, setMedia]       = useState<MediaFile[]>([]);
   const [loadingMedia, setLoadingMedia] = useState(false);
   const [isUploading, setIsUploading]   = useState(false);
+  const [deletingId, setDeletingId]     = useState<number | null>(null);
   const uploadRef = useRef<HTMLInputElement>(null);
 
   function loadLibrary() {
@@ -114,6 +115,23 @@ function MediaPickerDialog({
   useEffect(() => {
     if (open && tab === 'library' && media.length === 0) loadLibrary();
   }, [open, tab]);
+
+  async function handleDelete(id: number, fileUrl: string) {
+    setDeletingId(id);
+    try {
+      const res = await apiFetch(`/api/admin/media/${id}`, { method: 'DELETE', credentials: 'include' });
+      if (res.ok) {
+        if (selected === fileUrl) setSelected('');
+        setMedia(prev => prev.filter(m => m.id !== id));
+        toast({ title: 'Image deleted' });
+      } else {
+        toast({ title: 'Failed to delete image', variant: 'destructive' });
+      }
+    } catch {
+      toast({ title: 'Failed to delete image', variant: 'destructive' });
+    }
+    setDeletingId(null);
+  }
 
   async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const files = e.target.files;
@@ -273,14 +291,14 @@ function MediaPickerDialog({
             ) : (
               <div className="grid grid-cols-3 gap-3 p-1">
                 {filteredMedia.map(item => (
-                  <button
+                  <div
                     key={item.id}
-                    onClick={() => setSelected(item.fileUrl)}
-                    className={`relative group rounded-xl overflow-hidden border-2 transition-all ${
+                    className={`relative group rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${
                       selected === item.fileUrl
                         ? 'border-primary ring-2 ring-primary/30'
                         : 'border-transparent hover:border-primary/50'
                     }`}
+                    onClick={() => setSelected(item.fileUrl)}
                   >
                     <img
                       src={item.fileUrl}
@@ -288,13 +306,29 @@ function MediaPickerDialog({
                       className="w-full h-36 object-cover bg-muted"
                       onError={e => { (e.target as HTMLImageElement).style.opacity = '0.3'; }}
                     />
+
+                    {/* Delete button — top-left, visible on hover */}
+                    <button
+                      type="button"
+                      disabled={deletingId === item.id}
+                      onClick={e => { e.stopPropagation(); handleDelete(item.id, item.fileUrl); }}
+                      className="absolute top-2 left-2 w-6 h-6 rounded-full bg-black/60 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive disabled:opacity-40"
+                      title="Delete image"
+                    >
+                      {deletingId === item.id
+                        ? <RefreshCw className="w-3 h-3 animate-spin" />
+                        : <X className="w-3 h-3" />
+                      }
+                    </button>
+
+                    {/* Selection checkmark — top-right */}
                     {selected === item.fileUrl && (
                       <div className="absolute top-2 right-2 w-6 h-6 bg-primary rounded-full flex items-center justify-center">
                         <Check className="w-4 h-4 text-white" />
                       </div>
                     )}
                     <p className="text-xs text-center py-1.5 text-muted-foreground truncate px-1">{item.fileName}</p>
-                  </button>
+                  </div>
                 ))}
               </div>
             )
