@@ -1,7 +1,6 @@
 import { apiFetch } from '@/lib/apiFetch';
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -532,8 +531,7 @@ export default function CitiesManagement() {
 
   /* ── render ── */
   return (
-    <AdminLayout>
-      <div className="space-y-6">
+    <>
         <div>
           <h1 className="text-3xl font-bold text-foreground">Discover Page</h1>
           <p className="text-muted-foreground mt-1">Edit the Discover page content and manage city destination cards</p>
@@ -810,7 +808,6 @@ export default function CitiesManagement() {
             </div>
           </TabsContent>
         </Tabs>
-      </div>
 
       {/* ── City Edit/Create Dialog ── */}
       <Dialog open={showForm} onOpenChange={setShowForm}>
@@ -1006,6 +1003,6 @@ export default function CitiesManagement() {
           </div>
         </DialogContent>
       </Dialog>
-    </AdminLayout>
+    </>
   );
 }
