@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import {
@@ -29,25 +30,30 @@ import {
   EyeOff,
 } from 'lucide-react';
 
-// ─── Schema ───────────────────────────────────────────────────────────────────
-const schema = z
-  .object({
-    applicantName:   z.string().min(2, 'Name must be at least 2 characters'),
-    email:           z.string().email('Please enter a valid email address'),
-    phone:           z.string().min(10, 'Please enter a valid phone number'),
+// ─── Schemas ──────────────────────────────────────────────────────────────────
+const schemaBase = z.object({
+  applicantName:   z.string().min(2, 'Name must be at least 2 characters'),
+  email:           z.string().email('Please enter a valid email address'),
+  phone:           z.string().min(10, 'Please enter a valid phone number'),
+  password:        z.string().optional().default(''),
+  confirmPassword: z.string().optional().default(''),
+  preferredClub:   z.string().optional(),
+  interests:       z.array(z.string()).min(1, 'Please select at least one interest'),
+  motivation:      z.string().min(50, 'Please write at least 50 characters'),
+  agreeToTerms:    z.boolean().refine(v => v === true, 'You must agree to the terms'),
+});
+
+const schemaWithPassword = schemaBase
+  .extend({
     password:        z.string().min(8, 'Password must be at least 8 characters'),
     confirmPassword: z.string().min(1, 'Please confirm your password'),
-    preferredClub:   z.string().optional(),
-    interests:       z.array(z.string()).min(1, 'Please select at least one interest'),
-    motivation:      z.string().min(50, 'Please write at least 50 characters'),
-    agreeToTerms:    z.boolean().refine(v => v === true, 'You must agree to the terms'),
   })
   .refine(d => d.password === d.confirmPassword, {
     message: "Passwords don't match",
     path: ['confirmPassword'],
   });
 
-type FormData = z.infer<typeof schema>;
+type FormData = z.infer<typeof schemaWithPassword>;
 
 // ─── Interests list ───────────────────────────────────────────────────────────
 const INTERESTS = [
@@ -78,8 +84,8 @@ function getPasswordStrength(pw: string): { score: number; label: string; color:
 // ─── Component ────────────────────────────────────────────────────────────────
 export default function JoinUs() {
   const { toast } = useToast();
-  const [submitted, setSubmitted]               = useState(false);
-  const [accountCreated, setAccountCreated]     = useState(false);
+  const navigate = useNavigate();
+  const { isAuthenticated, user } = useAuth();
   const [loading, setLoading]                   = useState(false);
   const [clubs, setClubs]                       = useState<any[]>([]);
   const [clubsLoading, setClubsLoading]         = useState(true);
@@ -96,9 +102,11 @@ export default function JoinUs() {
     watch,
     formState: { errors },
   } = useForm<FormData>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(isAuthenticated ? schemaBase : schemaWithPassword),
     defaultValues: {
-      applicantName: '', email: '', phone: '',
+      applicantName: user ? `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim() : '',
+      email: user?.email ?? '',
+      phone: user?.phone ?? '',
       password: '', confirmPassword: '',
       preferredClub: '', interests: [], motivation: '', agreeToTerms: false,
     },
@@ -163,103 +171,24 @@ export default function JoinUs() {
       }
 
       const result = await res.json();
-      setAccountCreated(result.accountCreated === true);
-      setSubmitted(true);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      const didCreateAccount = result.accountCreated === true;
+
+      if (isAuthenticated) {
+        // User was already logged in — go straight to their application tab
+        navigate('/profile?tab=application');
+      } else if (didCreateAccount) {
+        // Account was just created — send them to login, then to profile application tab
+        navigate('/login?redirect=' + encodeURIComponent('/profile?tab=application'));
+      } else {
+        // Guest application with no account — show brief success then go home
+        navigate('/profile?tab=application');
+      }
     } catch (err: any) {
       toast({ title: 'Submission failed', description: err?.message ?? 'Please try again.', variant: 'destructive' });
     } finally {
       setLoading(false);
     }
   };
-
-  // ── Success state ───────────────────────────────────────────────────────────
-  if (submitted) {
-    return (
-      <div className="min-h-screen bg-[#FAF8F5] flex flex-col">
-        <Header />
-
-        <section
-          className="relative overflow-hidden"
-          style={{
-            background: 'linear-gradient(135deg, #0B1F5E 0%, #112470 50%, #0d2878 100%)',
-            paddingTop: '14rem',
-            paddingBottom: '4rem',
-          }}
-        >
-          <div className="absolute top-0 right-0 w-96 h-96 rounded-full opacity-5"
-            style={{ background: '#D6B98C', transform: 'translate(30%, -30%)' }} />
-          <div className="absolute bottom-0 left-0 w-64 h-64 rounded-full opacity-5"
-            style={{ background: '#D6B98C', transform: 'translate(-30%, 30%)' }} />
-
-          <div className="container mx-auto px-6 relative z-10 text-center">
-            <div className="w-20 h-20 rounded-full bg-white/10 border border-white/20 flex items-center justify-center mx-auto mb-6">
-              <CheckCircle2 className="w-10 h-10 text-[#D6B98C]" />
-            </div>
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 font-['Poppins']">
-              {accountCreated ? 'Account Created & Application Submitted!' : 'Application Submitted!'}
-            </h1>
-            <p className="text-white/70 text-lg leading-relaxed max-w-xl mx-auto">
-              {accountCreated
-                ? 'Your account is ready and your application is under review. You can log in once your membership is approved.'
-                : 'Thank you for your interest. Our team will review your application and get back to you within 2–3 business days.'}
-            </p>
-          </div>
-        </section>
-
-        <main className="flex-1 flex items-start justify-center px-4 py-14">
-          <div className="text-center max-w-lg w-full">
-            {accountCreated && (
-              <div className="mb-6 bg-green-50 border border-green-200 rounded-2xl p-5 flex items-start gap-3 text-left">
-                <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-sm font-semibold text-green-800">Account created successfully</p>
-                  <p className="text-xs text-green-700 mt-1">
-                    You can log in with your email and password once your membership is approved.
-                  </p>
-                </div>
-              </div>
-            )}
-
-            <div className="bg-white border border-[#D6B98C]/30 rounded-2xl p-7 mb-10 text-left space-y-4 shadow-sm">
-              <p className="text-xs font-semibold text-[#D6B98C] tracking-widest uppercase mb-5">What happens next</p>
-              {[
-                'Our team reviews your application',
-                "We'll contact you for a brief conversation",
-                'Upon approval, you\'ll receive your welcome kit',
-                'Log in and join events with your community!',
-              ].map((step, i) => (
-                <div key={i} className="flex items-start gap-4">
-                  <span className="w-7 h-7 rounded-full bg-[#0B1F5E] text-white text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
-                    {i + 1}
-                  </span>
-                  <p className="text-gray-700 text-sm pt-1">{step}</p>
-                </div>
-              ))}
-            </div>
-
-            <div className="flex gap-3 justify-center flex-wrap">
-              {accountCreated && (
-                <Link to="/login">
-                  <Button variant="outline" className="border-[#0B1F5E] text-[#0B1F5E] px-8 py-6 rounded-xl text-base font-semibold font-['Poppins']">
-                    <Lock className="w-4 h-4 mr-2" />
-                    Go to Login
-                  </Button>
-                </Link>
-              )}
-              <Link to="/">
-                <Button className="bg-[#0B1F5E] hover:bg-[#0B1F5E]/90 text-white px-10 py-6 rounded-xl text-base font-semibold font-['Poppins']">
-                  Return to Homepage
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </main>
-        <Footer />
-      </div>
-    );
-  }
 
   // ── Main form ───────────────────────────────────────────────────────────────
   return (
@@ -352,91 +281,105 @@ export default function JoinUs() {
               </div>
             </Field>
 
-            {/* Password divider */}
-            <div className="flex items-center gap-3 pt-1">
-              <div className="flex-1 h-px bg-gray-100" />
-              <span className="text-xs text-gray-400 font-medium flex items-center gap-1.5">
-                <Lock className="w-3 h-3" /> Create your password
-              </span>
-              <div className="flex-1 h-px bg-gray-100" />
-            </div>
-
-            <div className="grid sm:grid-cols-2 gap-4">
-              {/* Password */}
-              <div className="space-y-1.5">
-                <Field label="Password" required error={errors.password?.message}>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    <Input
-                      {...register('password')}
-                      type={showPassword ? 'text' : 'password'}
-                      placeholder="Min. 8 characters"
-                      autoComplete="new-password"
-                      className={`pl-10 pr-10 h-12 bg-white border-gray-200 focus:border-[#0B1F5E] rounded-xl ${errors.password ? 'border-red-400' : ''}`}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(v => !v)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                      tabIndex={-1}
-                    >
-                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  </div>
-                </Field>
-
-                {/* Strength bar */}
-                {passwordValue.length > 0 && (
-                  <div className="space-y-1">
-                    <div className="flex gap-1">
-                      {[1, 2, 3, 4, 5].map(i => (
-                        <div
-                          key={i}
-                          className={`h-1 flex-1 rounded-full transition-all duration-300 ${
-                            i <= strength.score ? strength.color : 'bg-gray-100'
-                          }`}
-                        />
-                      ))}
-                    </div>
-                    <p className="text-xs text-gray-500">
-                      Strength: <span className={`font-medium ${
-                        strength.label === 'Weak'   ? 'text-red-500'   :
-                        strength.label === 'Fair'   ? 'text-yellow-600' :
-                        strength.label === 'Good'   ? 'text-blue-600'  :
-                        'text-green-600'
-                      }`}>{strength.label}</span>
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              {/* Confirm password */}
-              <Field label="Confirm Password" required error={errors.confirmPassword?.message}>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <Input
-                    {...register('confirmPassword')}
-                    type={showConfirm ? 'text' : 'password'}
-                    placeholder="Repeat your password"
-                    autoComplete="new-password"
-                    className={`pl-10 pr-10 h-12 bg-white border-gray-200 focus:border-[#0B1F5E] rounded-xl ${errors.confirmPassword ? 'border-red-400' : ''}`}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirm(v => !v)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                    tabIndex={-1}
-                  >
-                    {showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
+            {/* Password section — only shown when user doesn't have an account yet */}
+            {!isAuthenticated && (
+              <>
+                <div className="flex items-center gap-3 pt-1">
+                  <div className="flex-1 h-px bg-gray-100" />
+                  <span className="text-xs text-gray-400 font-medium flex items-center gap-1.5">
+                    <Lock className="w-3 h-3" /> Create your password
+                  </span>
+                  <div className="flex-1 h-px bg-gray-100" />
                 </div>
-              </Field>
-            </div>
 
-            <p className="text-xs text-gray-400 leading-relaxed flex items-start gap-1.5">
-              <Lock className="w-3 h-3 mt-0.5 flex-shrink-0" />
-              Your account lets you track your application, access approved events, and manage your profile after joining.
-            </p>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  {/* Password */}
+                  <div className="space-y-1.5">
+                    <Field label="Password" required error={errors.password?.message}>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <Input
+                          {...register('password')}
+                          type={showPassword ? 'text' : 'password'}
+                          placeholder="Min. 8 characters"
+                          autoComplete="new-password"
+                          className={`pl-10 pr-10 h-12 bg-white border-gray-200 focus:border-[#0B1F5E] rounded-xl ${errors.password ? 'border-red-400' : ''}`}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(v => !v)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                          tabIndex={-1}
+                        >
+                          {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
+                      </div>
+                    </Field>
+
+                    {/* Strength bar */}
+                    {passwordValue.length > 0 && (
+                      <div className="space-y-1">
+                        <div className="flex gap-1">
+                          {[1, 2, 3, 4, 5].map(i => (
+                            <div
+                              key={i}
+                              className={`h-1 flex-1 rounded-full transition-all duration-300 ${
+                                i <= strength.score ? strength.color : 'bg-gray-100'
+                              }`}
+                            />
+                          ))}
+                        </div>
+                        <p className="text-xs text-gray-500">
+                          Strength: <span className={`font-medium ${
+                            strength.label === 'Weak'   ? 'text-red-500'   :
+                            strength.label === 'Fair'   ? 'text-yellow-600' :
+                            strength.label === 'Good'   ? 'text-blue-600'  :
+                            'text-green-600'
+                          }`}>{strength.label}</span>
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Confirm password */}
+                  <Field label="Confirm Password" required error={errors.confirmPassword?.message}>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <Input
+                        {...register('confirmPassword')}
+                        type={showConfirm ? 'text' : 'password'}
+                        placeholder="Repeat your password"
+                        autoComplete="new-password"
+                        className={`pl-10 pr-10 h-12 bg-white border-gray-200 focus:border-[#0B1F5E] rounded-xl ${errors.confirmPassword ? 'border-red-400' : ''}`}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirm(v => !v)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                        tabIndex={-1}
+                      >
+                        {showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </Field>
+                </div>
+
+                <p className="text-xs text-gray-400 leading-relaxed flex items-start gap-1.5">
+                  <Lock className="w-3 h-3 mt-0.5 flex-shrink-0" />
+                  Your account lets you track your application, access approved events, and manage your profile after joining.
+                </p>
+              </>
+            )}
+
+            {/* When already logged in — show a note instead */}
+            {isAuthenticated && (
+              <div className="flex items-start gap-3 p-4 bg-blue-50 border border-blue-100 rounded-xl">
+                <CheckCircle2 className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-blue-800">
+                  You're logged in as <span className="font-semibold">{user?.email}</span>. This application will be linked to your account automatically.
+                </p>
+              </div>
+            )}
           </Section>
 
           {/* ── 2. Club Preference ─────────────────────────────────────────── */}
@@ -582,22 +525,24 @@ export default function JoinUs() {
               {loading ? (
                 <span className="flex items-center gap-2">
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  Creating account & submitting…
+                  {isAuthenticated ? 'Submitting…' : 'Creating account & submitting…'}
                 </span>
               ) : (
                 <span className="flex items-center gap-2">
-                  Create Account & Apply
+                  {isAuthenticated ? 'Submit Application' : 'Create Account & Apply'}
                   <ChevronRight className="w-5 h-5" />
                 </span>
               )}
             </Button>
 
-            <p className="text-center text-xs text-gray-400">
-              Already have an account?{' '}
-              <Link to="/login" className="text-[#0B1F5E] font-medium hover:underline">
-                Sign in instead
-              </Link>
-            </p>
+            {!isAuthenticated && (
+              <p className="text-center text-xs text-gray-400">
+                Already have an account?{' '}
+                <Link to="/login" className="text-[#0B1F5E] font-medium hover:underline">
+                  Sign in instead
+                </Link>
+              </p>
+            )}
           </div>
         </form>
       </main>

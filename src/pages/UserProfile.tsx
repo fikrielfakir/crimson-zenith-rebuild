@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/apiFetch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -106,6 +106,8 @@ const UserProfile = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [searchParams] = useSearchParams();
+  const initialTab = searchParams.get('tab') || 'overview';
   
   const [isEditing, setIsEditing] = useState(false);
   const [showPasswordForm, setShowPasswordForm] = useState(false);
@@ -753,7 +755,7 @@ const UserProfile = () => {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
-        <Tabs defaultValue="overview" className="w-full">
+        <Tabs defaultValue={initialTab} className="w-full">
           <TabsList className="bg-white shadow-sm rounded-xl p-1 mb-6 flex-wrap h-auto gap-1">
             <TabsTrigger value="overview" className="data-[state=active]:bg-[hsl(227,65%,19%)] data-[state=active]:text-white rounded-lg px-4 py-2">
               <User className="w-4 h-4 mr-2" />
@@ -1395,7 +1397,7 @@ const UserProfile = () => {
                       className="bg-[hsl(227,65%,19%)] hover:bg-[hsl(227,65%,25%)] text-white"
                     >
                       <ClipboardList className="w-4 h-4 mr-2" />
-                      Apply for Membership
+                      Submit an Application
                     </Button>
                   </div>
                 ) : (
