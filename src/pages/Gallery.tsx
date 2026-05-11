@@ -758,27 +758,27 @@ export default function Gallery() {
     return () => window.removeEventListener("resize", upd);
   }, []);
 
-  /* fetch real media */
+  /* fetch real gallery items from admin-managed gallery API */
   useEffect(() => {
-    fetch("/api/admin/media", { credentials:"include" })
+    fetch("/api/gallery")
       .then(r => r.ok ? r.json() : null)
-      .then((data:unknown) => {
+      .then((data: unknown) => {
         if (!data) return;
-        const raw = data as Record<string, unknown>;
-        const items = Array.isArray(data) ? data : (Array.isArray(raw["data"]) ? raw["data"] : []) as Record<string, unknown>[];
-        if (items.length >= 3) {
+        const raw  = data as Record<string, unknown>;
+        const items = (Array.isArray(raw["items"]) ? raw["items"] : []) as Record<string, unknown>[];
+        if (items.length >= 1) {
           setGalleryItems(items.map((it, i) => ({
-            id:          (it["id"] as number) ?? i,
-            type:        String(it["fileType"] ?? "").startsWith("video") ? "video" : "photo",
-            url:         String(it["fileUrl"] ?? it["url"] ?? STATIC_GALLERY[i % STATIC_GALLERY.length].url),
-            title:       String(it["altText"] || it["fileName"] || STATIC_GALLERY[i % STATIC_GALLERY.length].title),
-            location:    STATIC_GALLERY[i % STATIC_GALLERY.length].location,
-            photographer:STATIC_GALLERY[i % STATIC_GALLERY.length].photographer,
-            tags:        STATIC_GALLERY[i % STATIC_GALLERY.length].tags,
-            category:    STATIC_GALLERY[i % STATIC_GALLERY.length].category,
-            likes:       STATIC_GALLERY[i % STATIC_GALLERY.length].likes,
-            description: STATIC_GALLERY[i % STATIC_GALLERY.length].description,
-            aspect:      STATIC_GALLERY[i % STATIC_GALLERY.length].aspect,
+            id:           Number(it["id"]) || i,
+            type:         "photo",
+            url:          String(it["image_url"] ?? STATIC_GALLERY[i % STATIC_GALLERY.length].url),
+            title:        String(it["title"]       || STATIC_GALLERY[i % STATIC_GALLERY.length].title),
+            location:     it["location"]   ? String(it["location"])   : STATIC_GALLERY[i % STATIC_GALLERY.length].location,
+            photographer: it["photographer"]? String(it["photographer"]): STATIC_GALLERY[i % STATIC_GALLERY.length].photographer,
+            tags:         STATIC_GALLERY[i % STATIC_GALLERY.length].tags,
+            category:     it["category"]   ? String(it["category"])   : STATIC_GALLERY[i % STATIC_GALLERY.length].category,
+            likes:        STATIC_GALLERY[i % STATIC_GALLERY.length].likes,
+            description:  it["description"]? String(it["description"]): STATIC_GALLERY[i % STATIC_GALLERY.length].description,
+            aspect:       (it["aspect"] === "portrait" ? "portrait" : "landscape") as "portrait" | "landscape",
           })));
         }
       }).catch(() => {});
@@ -981,19 +981,18 @@ export default function Gallery() {
         <VolumetricBloom/>
 
         {/* nav arrows */}
-        {[{dir:"left", fn:goPrev, Icon:ChevronLeft}, {dir:"right", fn:goNext, Icon:ChevronRight}].map(({dir,fn,Icon}) => (
-          <button key={dir}
-            onClick={fn}
-            className={`absolute ${dir}-6 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full flex items-center justify-center transition-all group hover:scale-110`}
-            style={{
-              background:"rgba(10,30,80,0.60)",
-              border:"1px solid rgba(100,170,255,0.22)",
-              backdropFilter:"blur(12px)",
-              boxShadow:"0 0 20px rgba(37,99,235,0.18)",
-            }}>
-            <Icon className="w-5 h-5 text-white/65 group-hover:text-white transition-colors"/>
-          </button>
-        ))}
+        <button
+          onClick={goPrev}
+          className="absolute left-6 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full flex items-center justify-center transition-all group hover:scale-110"
+          style={{ background:"rgba(10,30,80,0.60)", border:"1px solid rgba(100,170,255,0.22)", backdropFilter:"blur(12px)", boxShadow:"0 0 20px rgba(37,99,235,0.18)" }}>
+          <ChevronLeft className="w-5 h-5 text-white/65 group-hover:text-white transition-colors"/>
+        </button>
+        <button
+          onClick={goNext}
+          className="absolute right-6 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full flex items-center justify-center transition-all group hover:scale-110"
+          style={{ background:"rgba(10,30,80,0.60)", border:"1px solid rgba(100,170,255,0.22)", backdropFilter:"blur(12px)", boxShadow:"0 0 20px rgba(37,99,235,0.18)" }}>
+          <ChevronRight className="w-5 h-5 text-white/65 group-hover:text-white transition-colors"/>
+        </button>
 
         {/* 3-D perspective container */}
         <div ref={sceneRef} className="relative w-full"

@@ -8,6 +8,19 @@ use Illuminate\Http\Request;
 
 class GalleryAdminController extends Controller
 {
+    public function publicIndex(Request $request)
+    {
+        $query = GalleryItem::query();
+
+        if ($request->filled('category') && $request->category !== 'all') {
+            $query->where('category', $request->category);
+        }
+
+        $items = $query->orderBy('sort_order')->orderBy('created_at', 'desc')->get();
+
+        return response()->json(['items' => $items, 'total' => $items->count()]);
+    }
+
     public function index(Request $request)
     {
         $query = GalleryItem::query();

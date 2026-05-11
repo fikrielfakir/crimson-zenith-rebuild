@@ -31,6 +31,13 @@ Route::post('/admin/logout', [AdminAuthController::class, 'logout'])->middleware
 
 /*
 |--------------------------------------------------------------------------
+| Public gallery (no auth needed)
+|--------------------------------------------------------------------------
+*/
+Route::get('/gallery', [\App\Http\Controllers\Admin\GalleryAdminController::class, 'publicIndex']);
+
+/*
+|--------------------------------------------------------------------------
 | Authenticated user routes
 |--------------------------------------------------------------------------
 */

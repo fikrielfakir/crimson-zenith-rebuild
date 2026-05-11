@@ -1,7 +1,6 @@
 import { apiFetch } from '@/lib/apiFetch';
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -495,7 +494,7 @@ export default function GalleryManagement() {
   const openEdit = (item: GalleryItem) => { setEditItem(item); setFormOpen(true); };
 
   return (
-    <AdminLayout>
+    <div>
       {/* ── header ── */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
         <div>
@@ -768,6 +767,6 @@ export default function GalleryManagement() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </AdminLayout>
+    </div>
   );
 }
