@@ -22,7 +22,8 @@ import {
   LogOut,
   User,
   Palette,
-  MapPin
+  MapPin,
+  Images,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -76,7 +77,8 @@ const navigationItems: NavigationItem[] = [
     icon: FileEdit,
     children: [
       { label: 'News/Blog', href: '/admin/news' },
-      { label: 'Media Library', href: '/admin/media' }
+      { label: 'Media Library', href: '/admin/media' },
+      { label: 'Gallery', href: '/admin/gallery' },
     ]
   },
   {

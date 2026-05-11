@@ -246,6 +246,14 @@ Route::prefix('admin')->middleware(['admin'])->group(function () {
     Route::post('/media',                      [\App\Http\Controllers\Admin\MediaController::class, 'store']);
     Route::delete('/media/{id}',               [\App\Http\Controllers\Admin\MediaController::class, 'destroy']);
 
+    // Gallery Management
+    Route::get('/gallery',                          [\App\Http\Controllers\Admin\GalleryAdminController::class, 'index']);
+    Route::post('/gallery',                         [\App\Http\Controllers\Admin\GalleryAdminController::class, 'store']);
+    Route::put('/gallery/{id}',                     [\App\Http\Controllers\Admin\GalleryAdminController::class, 'update']);
+    Route::delete('/gallery/{id}',                  [\App\Http\Controllers\Admin\GalleryAdminController::class, 'destroy']);
+    Route::post('/gallery/bulk-reorder',            [\App\Http\Controllers\Admin\GalleryAdminController::class, 'bulkReorder']);
+    Route::post('/gallery/{id}/toggle-featured',    [\App\Http\Controllers\Admin\GalleryAdminController::class, 'toggleFeatured']);
+
     // Settings & SEO
     Route::get('/settings',                    [\App\Http\Controllers\Admin\SettingsController::class, 'show']);
     Route::put('/settings/seo',                [\App\Http\Controllers\Admin\SettingsController::class, 'updateSeo']);

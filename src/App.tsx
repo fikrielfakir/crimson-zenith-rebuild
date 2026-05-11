@@ -56,6 +56,7 @@ import CookieSettings from "./pages/admin/CookieSettings";
 import AuthSettings from "./pages/admin/AuthSettings";
 import PaymentSettings from "./pages/admin/PaymentSettings";
 import BookingManagement from "./pages/admin/BookingManagement";
+import GalleryManagement from "./pages/admin/GalleryManagement";
 import ThemeCustomization from "./pages/admin/ThemeCustomization";
 import ThemeSettings from "./pages/admin/ThemeSettings";
 import NavbarSettings from "./pages/admin/NavbarSettings";
@@ -182,6 +183,11 @@ const App = () => (
           <Route path="/admin/media" element={
             <ProtectedRoute>
               <MediaLibrary />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/gallery" element={
+            <ProtectedRoute>
+              <GalleryManagement />
             </ProtectedRoute>
           } />
           <Route path="/admin/email" element={
