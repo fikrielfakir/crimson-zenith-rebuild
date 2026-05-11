@@ -13,6 +13,9 @@ class GalleryItem extends Model
         'photographer',
         'description',
         'image_url',
+        'panorama_url',
+        'has_360',
+        'hotspots',
         'is_featured',
         'sort_order',
         'aspect',
@@ -20,6 +23,8 @@ class GalleryItem extends Model
 
     protected $casts = [
         'is_featured' => 'boolean',
+        'has_360'     => 'boolean',
         'sort_order'  => 'integer',
+        'hotspots'    => 'array',
     ];
 }

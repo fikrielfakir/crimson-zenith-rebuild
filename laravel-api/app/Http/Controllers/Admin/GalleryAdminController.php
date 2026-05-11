@@ -45,9 +45,10 @@ class GalleryAdminController extends Controller
         $items = $query->orderBy('sort_order')->orderBy('created_at', 'desc')->get();
 
         return response()->json([
-            'items' => $items,
-            'total' => $items->count(),
+            'items'          => $items,
+            'total'          => $items->count(),
             'featured_count' => GalleryItem::where('is_featured', true)->count(),
+            'count_360'      => GalleryItem::where('has_360', true)->count(),
         ]);
     }
 
@@ -60,6 +61,13 @@ class GalleryAdminController extends Controller
             'photographer' => 'nullable|string|max:255',
             'description'  => 'nullable|string',
             'image_url'    => 'required|string',
+            'panorama_url' => 'nullable|string|max:2000',
+            'has_360'      => 'nullable|boolean',
+            'hotspots'     => 'nullable|array',
+            'hotspots.*.yaw'      => 'nullable|numeric',
+            'hotspots.*.pitch'    => 'nullable|numeric',
+            'hotspots.*.label'    => 'nullable|string|max:255',
+            'hotspots.*.targetId' => 'nullable|integer',
             'is_featured'  => 'nullable|boolean',
             'sort_order'   => 'nullable|integer',
             'aspect'       => 'nullable|string|in:landscape,portrait',
@@ -81,6 +89,13 @@ class GalleryAdminController extends Controller
             'photographer' => 'nullable|string|max:255',
             'description'  => 'nullable|string',
             'image_url'    => 'sometimes|string',
+            'panorama_url' => 'nullable|string|max:2000',
+            'has_360'      => 'nullable|boolean',
+            'hotspots'     => 'nullable|array',
+            'hotspots.*.yaw'      => 'nullable|numeric',
+            'hotspots.*.pitch'    => 'nullable|numeric',
+            'hotspots.*.label'    => 'nullable|string|max:255',
+            'hotspots.*.targetId' => 'nullable|integer',
             'is_featured'  => 'nullable|boolean',
             'sort_order'   => 'nullable|integer',
             'aspect'       => 'nullable|string|in:landscape,portrait',

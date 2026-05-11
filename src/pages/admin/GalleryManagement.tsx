@@ -43,6 +43,14 @@ import {
 import { cn } from '@/lib/utils';
 
 /* ─── types ─────────────────────────────────────────────────────────── */
+interface HotspotDef {
+  id: string;
+  yaw: number;
+  pitch: number;
+  label: string;
+  targetId: number | null;
+}
+
 interface GalleryItem {
   id: number;
   title: string;
@@ -53,6 +61,7 @@ interface GalleryItem {
   image_url: string;
   panorama_url: string | null;
   has_360: boolean;
+  hotspots: HotspotDef[] | null;
   is_featured: boolean;
   sort_order: number;
   aspect: 'landscape' | 'portrait';
