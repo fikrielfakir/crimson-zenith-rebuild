@@ -28,6 +28,8 @@ interface City {
   title: string;
   description: string;
   image: string;
+  heroType: string;
+  heroVideo: string;
   highlights: HighlightItem[];
   culture: { title: string; description: string; highlights: HighlightItem[] } | null;
   cuisine: { title: string; dishes: CuisineDish[] } | null;
@@ -43,6 +45,8 @@ async function fetchCityBySlug(slug: string): Promise<City> {
   const data = await res.json();
   return {
     ...data,
+    heroType: data.hero_type ?? data.heroType ?? 'image',
+    heroVideo: data.hero_video ?? data.heroVideo ?? '',
     bestTime: data.best_time ?? data.bestTime ?? null,
     gettingThere: data.getting_there ?? data.gettingThere ?? null,
     travelTips: data.travel_tips ?? data.travelTips ?? [],
@@ -88,6 +92,8 @@ const CityDetail = () => {
             title: fallback.title,
             description: fallback.description,
             image: fallback.image,
+            heroType: 'image',
+            heroVideo: '',
             highlights: fallback.highlights,
             culture: fallback.culture ?? null,
             cuisine: fallback.cuisine ?? null,
@@ -114,8 +120,9 @@ const CityDetail = () => {
       });
   }, [location.search, navigate]);
 
-  const heroBgType: string = pageHeroData?.backgroundType || "image";
-  const heroVideoUrl: string = pageHeroData?.backgroundVideoUrl || "";
+  // City's own hero takes priority; fall back to page-hero CMS setting
+  const heroBgType: string = city?.heroType || pageHeroData?.backgroundType || "image";
+  const heroVideoUrl: string = city?.heroVideo || pageHeroData?.backgroundVideoUrl || "";
   const isVideoHero = heroBgType === "video" && !!heroVideoUrl;
 
   if (!city) {
