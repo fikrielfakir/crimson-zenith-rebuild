@@ -62,15 +62,6 @@ const PAGE_CONFIGS = [
     defaultSubtitle: "Explore the wonders of the Kingdom.",
     defaultImage: "",
   },
-  {
-    key: "city-detail",
-    label: "City Detail",
-    previewUrl: "/discover",
-    defaultTitle: "(Uses city name)",
-    defaultSubtitle: "(Uses city description)",
-    defaultImage: "(Uses city image by default)",
-    note: "city-detail",
-  },
 ] as const;
 
 interface HeroFormData {

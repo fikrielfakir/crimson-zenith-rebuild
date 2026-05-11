@@ -25,6 +25,7 @@ import {
   Anchor, Zap, Wind, Cloud, Umbrella, Leaf, Utensils, ShoppingBag,
   Trophy, Flag, Landmark, Building2, Palette, Dumbbell, Flower2, Pizza,
   Mic, Layers, Activity, Users, Sparkles, Aperture, Feather, Shell,
+  Video, Loader2,
 } from 'lucide-react';
 
 /* ─────────────────────────────── types ─────────────────────────────── */
@@ -380,6 +381,78 @@ function MediaPickerDialog({
   );
 }
 
+/* ─────────────────── VideoUploadField ─────────────────── */
+function VideoUploadField({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (url: string) => void;
+}) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
+  const [uploading, setUploading] = useState(false);
+
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 200 * 1024 * 1024) {
+      toast({ title: 'File too large', description: 'Maximum video size is 200 MB.', variant: 'destructive' });
+      return;
+    }
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('type', 'video');
+      const res = await apiFetch('/api/admin/cms/page-hero-upload', { method: 'POST', body: formData });
+      if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error(err.message || 'Upload failed'); }
+      const data = await res.json();
+      onChange(data.url);
+      toast({ title: 'Video uploaded successfully' });
+    } catch (err: any) {
+      toast({ title: 'Upload failed', description: err.message || 'Could not upload video.', variant: 'destructive' });
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = '';
+    }
+  }
+
+  return (
+    <div className="space-y-2">
+      <Label className="flex items-center gap-1.5"><Video className="w-3.5 h-3.5" /> City Hero Video</Label>
+      <div className="flex gap-2">
+        <Input
+          value={value}
+          onChange={e => onChange(e.target.value)}
+          placeholder="https://example.com/hero.mp4 or upload ↑"
+          className="flex-1 font-mono text-xs"
+        />
+        <Button type="button" variant="outline" size="icon" disabled={uploading} onClick={() => fileRef.current?.click()} title="Upload video">
+          {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+        </Button>
+        {value && (
+          <Button type="button" variant="ghost" size="icon" onClick={() => onChange('')} title="Clear">
+            <X className="w-4 h-4" />
+          </Button>
+        )}
+      </div>
+      <input ref={fileRef} type="file" accept="video/mp4,video/webm,video/ogg" className="hidden" onChange={handleFileChange} />
+      {uploading && (
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <Loader2 className="w-3 h-3 animate-spin" /> Uploading video…
+        </div>
+      )}
+      {value && (
+        <div className="mt-2 rounded-lg overflow-hidden border aspect-video bg-black/10">
+          <video src={value} className="w-full h-full object-cover" muted playsInline controls />
+        </div>
+      )}
+      <p className="text-xs text-muted-foreground">Upload an MP4 or WebM file (max 200 MB) or paste a direct video URL. Plays automatically, muted, on loop.</p>
+    </div>
+  );
+}
+
 /* ─────────────────── ImageField ─────────────────── */
 function ImageField({
   value,
@@ -559,6 +632,12 @@ const emptyCity: Omit<City, 'id'> = {
   isActive: true, ordering: 0,
 };
 
+const emptyCityForm = {
+  ...emptyCity,
+  heroType: 'image' as 'image' | 'video',
+  heroVideo: '',
+};
+
 /* ─────────────────── fetchers ─────────────────── */
 async function fetchCities() {
   const res = await apiFetch('/api/admin/cities');
@@ -602,7 +681,7 @@ export default function CitiesManagement() {
   /* city form helpers */
   function openCreate() {
     setEditing(null);
-    setForm({ ...emptyCity, highlights: [], cultureHighlights: [], activities: [], dishes: [] });
+    setForm({ ...emptyCityForm, highlights: [], cultureHighlights: [], activities: [], dishes: [] });
     setShowForm(true);
   }
 
@@ -616,6 +695,8 @@ export default function CitiesManagement() {
       dishes:             city.cuisine?.dishes ?? [],
       travelTipsText:     (city.travelTips ?? []).join('\n'),
       transportText:      (city.gettingThere?.transport ?? []).join('\n'),
+      heroType:           (city as any).heroType ?? 'image',
+      heroVideo:          (city as any).heroVideo ?? '',
     });
     setShowForm(true);
   }
@@ -627,6 +708,8 @@ export default function CitiesManagement() {
       title:       f.title,
       description: f.description,
       image:       f.image,
+      heroType:    f.heroType ?? 'image',
+      heroVideo:   f.heroVideo ?? '',
       highlights:  (f.highlights ?? []).filter((h: HighlightItem) => h.text).map((h: HighlightItem) => h.image ? { text: h.text, image: h.image } : h.text),
       activities:  f.activities ?? [],
       travelTips:  (f.travelTipsText || '').split('\n').map((s: string) => s.trim()).filter(Boolean),
@@ -1110,12 +1193,46 @@ export default function CitiesManagement() {
               <Textarea rows={4} value={form.description} onChange={e => setField('description', e.target.value)} placeholder="Describe this city…" />
             </div>
 
-            {/* Image picker */}
-            <ImageField
-              label="City Hero Image"
-              value={form.image}
-              onChange={url => setField('image', url)}
-            />
+            {/* Hero media */}
+            <div className="space-y-3 border rounded-xl p-4 bg-muted/30">
+              <h3 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">City Hero</h3>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setField('heroType', 'image')}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border transition-colors ${
+                    (form.heroType ?? 'image') === 'image'
+                      ? 'bg-primary text-white border-primary'
+                      : 'text-muted-foreground border-input hover:bg-muted'
+                  }`}
+                >
+                  <ImageIcon className="w-4 h-4" /> Image
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setField('heroType', 'video')}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border transition-colors ${
+                    form.heroType === 'video'
+                      ? 'bg-primary text-white border-primary'
+                      : 'text-muted-foreground border-input hover:bg-muted'
+                  }`}
+                >
+                  <Video className="w-4 h-4" /> Video
+                </button>
+              </div>
+              {(form.heroType ?? 'image') === 'image' ? (
+                <ImageField
+                  label="City Hero Image"
+                  value={form.image}
+                  onChange={url => setField('image', url)}
+                />
+              ) : (
+                <VideoUploadField
+                  value={form.heroVideo ?? ''}
+                  onChange={url => setField('heroVideo', url)}
+                />
+              )}
+            </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
