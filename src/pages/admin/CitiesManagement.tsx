@@ -929,7 +929,7 @@ export default function CitiesManagement() {
                           <div className="flex flex-wrap gap-1">
                             {city.highlights.slice(0, 3).map((h, i) => (
                               <span key={i} className="text-xs bg-secondary/10 text-secondary px-2 py-0.5 rounded-full border border-secondary/20">
-                                {h}
+                                {typeof h === 'string' ? h : (h as any).text}
                               </span>
                             ))}
                             {city.highlights.length > 3 && (
