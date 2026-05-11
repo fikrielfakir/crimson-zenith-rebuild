@@ -1,0 +1,119 @@
+Prompt Guide — Integrating 360° View into the 3D Gallery
+
+🎯 Goal
+
+Extend the existing Vite + React + TypeScript + Tailwind + shadcn/ui 3D floating gallery to support 360° panoramic viewing when a card is clicked. The experience should feel like stepping inside the location — a full immersive sphere the user can drag to explore in every direction.
+
+
+📦 Technology Stack to Add
+Tell the agent:
+
+Install and use @photo-sphere-viewer/core — it is the most lightweight, framework-agnostic 360° panorama renderer built on Three.js internally. Also install @photo-sphere-viewer/markers-plugin for optional hotspot support later.
+npm install @photo-sphere-viewer/core @photo-sphere-viewer/markers-plugin
+Import its required CSS in main.tsx:
+tsimport '@photo-sphere-viewer/core/index.css'
+
+
+🗂️ Data Model Update
+Tell the agent to extend GalleryItem type:
+
+Add two optional fields to the existing card data type:
+
+panoramaUrl?: string — equirectangular 360° image URL (full sphere map, 2:1 ratio)
+has360?: boolean — boolean flag to show a 360° badge on the card
+
+Cards with panoramaUrl get a glowing "360°" pill badge on their thumbnail (top-right corner, blue gradient, pulsing ring animation). Cards without it open a regular fullscreen lightbox as before.
+
+
+🧩 New Components to Build
+1. PanoramaViewer Component
+
+Create a full-screen overlay component that:
+
+Renders a div ref container that fills 100vw × 100vh with z-index: 9999 and black background
+On mount, initializes PhotoSphereViewer from @photo-sphere-viewer/core pointing at the card's panoramaUrl
+Passes these viewer options:
+
+container: the div ref
+panorama: the URL
+defaultYaw: 0
+defaultPitch: 0
+defaultZoomLvl: 50
+navbar: ['zoom', 'fullscreen'] — minimal UI only
+loadingImg: a custom spinner matching the app's dark theme
+
+
+On unmount, calls viewer.destroy() to prevent memory leaks
+Wraps everything in useEffect with the ref as dependency
+
+
+2. PanoramaOverlay Wrapper
+
+Wrap PanoramaViewer in a portal (ReactDOM.createPortal into document.body) so it escapes all CSS stacking contexts. Include:
+
+Close button — top-right X icon (lucide X), white, 48×48px tap target, position: fixed
+Location header — top-left strip showing card title + MapPin icon, frosted glass background
+Transition — fade in with opacity 0 → 1 over 400ms, scale from 0.96 → 1
+Escape key listener to close
+
+
+3. Badge360 Component
+
+A small reusable badge:
+
+Text: "360°"
+Style: background: linear-gradient(135deg, #1E90FF, #00C8FF), border-radius: 999px, font-size: 11px, font-weight: 700, white text, padding: 3px 8px
+Surrounded by an animated pulsing ring: box-shadow: 0 0 0 0 rgba(30,144,255,0.6) keyframed to 0 0 0 10px transparent
+Position: absolute top-3 right-3 on the card thumbnail
+
+
+
+🖱️ Interaction Flow
+Describe the full user journey to the agent:
+
+
+User sees floating cards in the 3D scene — cards with 360° content show the Badge360 pulsing pill
+User clicks a 360° card → the card scales up briefly (existing animation), then after 300ms the PanoramaOverlay fades in on top of everything
+Inside the overlay, the panorama is fully interactive: click + drag to look around horizontally and vertically, scroll/pinch to zoom
+A subtle gyroscope option — if DeviceOrientationEvent is available, show a phone-tilt icon button in the navbar to enable gyro mode (PhotoSphereViewer supports this natively via plugins)
+Pressing Escape, clicking X, or clicking the dark backdrop edge closes the viewer and returns to the gallery scene
+
+
+
+🌐 360° Image Sources Strategy
+Tell the agent how to handle image URLs:
+
+For development/demo, use free equirectangular panoramas from:
+
+https://photo-sphere-viewer-data.netlify.app/assets/sphere.jpg — PSV official test panorama
+Unsplash doesn't provide 360° images — instead use Polyhaven (polyhaven.com/hdris) for HDRIs converted to JPG, or Flickr equirectangular tag URLs
+
+In the GalleryItem data array, assign panoramaUrl only to cards that have a real equirectangular image. Others keep has360: false and open a standard detail view.
+
+
+🎨 Visual Integration Rules
+
+
+The PanoramaOverlay must not look like a separate app — maintain the dark navy theme inside the overlay header and close button
+Loading state: show a centered animated ring spinner (border-top: 3px solid #1E90FF) while the panorama texture loads. PSV fires a ready event — hide the spinner on that event.
+On desktop, show a one-time tooltip hint "Click and drag to look around" that auto-dismisses after 3 seconds, stored in sessionStorage so it only shows once per session
+On mobile, hint changes to "Drag to explore · Pinch to zoom"
+
+
+
+⚙️ Performance & Cleanup Rules
+
+
+Always call viewer.destroy() inside the useEffect cleanup function — PhotoSphereViewer holds a WebGL context and will leak if not destroyed
+Lazy-load PanoramaViewer using React.lazy + Suspense so Three.js/WebGL code is NOT bundled in the initial chunk
+Use loading="lazy" on all regular card images to keep initial paint fast
+Panorama textures are large (4K–8K JPEGs) — add a maxTextureSize warning comment for the agent to consider resizing assets to 4096×2048 max for web
+
+
+
+🔌 Optional Hotspots Extension (Phase 2 hint)
+
+Tell the agent to leave a commented stub for MarkersPlugin integration:
+
+Each GalleryItem may later include a hotspots array with { yaw, pitch, label, link } objects
+When present, markers appear as glowing dots inside the panorama the user can click to navigate to another card's 360° view — creating a virtual tour between locations

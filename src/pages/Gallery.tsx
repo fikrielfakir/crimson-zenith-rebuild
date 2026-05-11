@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo, lazy, Suspense } from "react";
 import { motion, useMotionValue, useSpring, AnimatePresence } from "framer-motion";
 import {
   MapPin, X, ChevronLeft, ChevronRight, Upload, Search,
@@ -9,12 +9,16 @@ import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
+const PanoramaOverlay = lazy(() => import("@/components/PanoramaOverlay"));
+
 /* ─── types ──────────────────────────────────────────────────────────── */
 interface GalleryItem {
   id: number; type: string; url: string; title: string;
   location?: string; photographer?: string; tags?: string[];
   category?: string; likes?: number; description?: string;
   aspect?: "portrait" | "landscape";
+  panoramaUrl?: string;
+  has360?: boolean;
 }
 
 /* ─── static data ────────────────────────────────────────────────────── */
@@ -23,12 +27,16 @@ const STATIC_GALLERY: GalleryItem[] = [
     url:"https://images.unsplash.com/photo-1539020140153-e479b8c22e70?w=800&q=90",
     title:"High Atlas Mountains", location:"Imlil, Morocco",
     photographer:"Sarah M.", tags:["mountain","landscape"], category:"mountain", likes:128,
-    description:"Breathtaking peaks rising above the clouds over the High Atlas range." },
+    description:"Breathtaking peaks rising above the clouds over the High Atlas range.",
+    has360: true,
+    panoramaUrl: "https://photo-sphere-viewer-data.netlify.app/assets/sphere.jpg" },
   { id:2, type:"photo", aspect:"landscape",
     url:"https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=800&q=90",
     title:"Sahara Desert", location:"Merzouga, Morocco",
     photographer:"Ahmed K.", tags:["desert","sahara"], category:"desert", likes:95,
-    description:"Golden hour illuminating the endless dunes of the Sahara." },
+    description:"Golden hour illuminating the endless dunes of the Sahara.",
+    has360: true,
+    panoramaUrl: "https://photo-sphere-viewer-data.netlify.app/assets/sphere-small.jpg" },
   { id:3, type:"photo", aspect:"portrait",
     url:"https://images.unsplash.com/photo-1548696056-01a4a7b4e9e7?w=800&q=90",
     title:"Blue Streets", location:"Chefchaouen, Morocco",
@@ -53,7 +61,9 @@ const STATIC_GALLERY: GalleryItem[] = [
     url:"https://images.unsplash.com/photo-1500463959177-e0869687b1f7?w=800&q=90",
     title:"Todra Gorge", location:"Tinghir, Morocco",
     photographer:"Hassan M.", tags:["gorge","adventure"], category:"adventure", likes:88,
-    description:"Towering limestone walls carving through the heart of the Atlas." },
+    description:"Towering limestone walls carving through the heart of the Atlas.",
+    has360: true,
+    panoramaUrl: "https://photo-sphere-viewer-data.netlify.app/assets/sphere.jpg" },
   { id:8, type:"photo", aspect:"portrait",
     url:"https://images.unsplash.com/photo-1552665945-afd7c01898f9?w=800&q=90",
     title:"Fes Medina", location:"Fès, Morocco",
@@ -99,7 +109,28 @@ const GLOBAL_CSS = `
   @keyframes auroraShift{ 0%{opacity:0;transform:translateX(-12%) skewX(-8deg)} 35%{opacity:1} 65%{opacity:.7} 100%{opacity:0;transform:translateX(16%) skewX(-8deg)} }
   @keyframes gridPulse  { 0%,100%{opacity:.045} 50%{opacity:.09} }
   @keyframes centerPulse{ 0%,100%{opacity:.12;transform:translate(-50%,-50%) scale(1)} 50%{opacity:.26;transform:translate(-50%,-50%) scale(1.06)} }
+  @keyframes badge360Ring { 0%{box-shadow:0 0 0 0 rgba(30,144,255,0.65)} 100%{box-shadow:0 0 0 10px rgba(30,144,255,0)} }
 `;
+
+/* ─── 360° badge ─────────────────────────────────────────────────────── */
+function Badge360({ small = false }: { small?: boolean }) {
+  return (
+    <div style={{
+      display: "inline-flex", alignItems: "center",
+      background: "linear-gradient(135deg, #1E90FF, #00C8FF)",
+      borderRadius: 999,
+      fontSize: small ? 9 : 11, fontWeight: 700,
+      color: "#fff", padding: small ? "2px 6px" : "3px 8px",
+      letterSpacing: "0.06em",
+      animation: "badge360Ring 1.6s ease-out infinite",
+      boxShadow: "0 0 0 0 rgba(30,144,255,0.65)",
+      whiteSpace: "nowrap",
+      userSelect: "none",
+    }}>
+      360°
+    </div>
+  );
+}
 
 /* ─── stable random seeds ────────────────────────────────────────────── */
 function seededRand(seed: number) {
@@ -593,6 +624,36 @@ function GlassCard({ item, slot, isCenter, isFlying, onClick }: CardProps) {
               </motion.div>
             )}
 
+            {/* 360° badge — top-left, shown on all 360-capable cards */}
+            {item.has360 && (
+              <div style={{
+                position:"absolute", top:12, left:12,
+                zIndex:4,
+              }}>
+                <Badge360 small={!isCenter}/>
+              </div>
+            )}
+
+            {/* center 360° click hint */}
+            {isCenter && item.has360 && (
+              <motion.div
+                initial={{ opacity:0, y:4 }} animate={{ opacity:1, y:0 }}
+                transition={{ delay:0.5 }}
+                style={{
+                  position:"absolute", bottom:isCenter ? 68 : 54, left:"50%",
+                  transform:"translateX(-50%)",
+                  background:"rgba(14,40,120,0.85)", backdropFilter:"blur(12px)",
+                  borderRadius:20, padding:"4px 12px",
+                  border:"1px solid rgba(30,144,255,0.50)",
+                  fontSize:9, fontWeight:700, color:"#bfdbfe",
+                  letterSpacing:"0.08em", whiteSpace:"nowrap",
+                  boxShadow:"0 0 16px rgba(30,144,255,0.45)",
+                  pointerEvents:"none",
+                }}>
+                ▶ ENTER 360° VIEW
+              </motion.div>
+            )}
+
             {/* hover ring pulse on side cards */}
             {!isCenter && !slot.blur && hovered && (
               <motion.div
@@ -800,6 +861,7 @@ export default function Gallery() {
   const [flyingFrom,   setFlyingFrom]   = useState<number|null>(null);
   const [sceneW,       setSceneW]       = useState(1200);
   const [mouseIdle,    setMouseIdle]    = useState(true);
+  const [panoramaItem, setPanoramaItem] = useState<GalleryItem|null>(null);
 
   /* Z-axis dolly from scroll wheel */
   const sceneZ  = useMotionValue(0);
@@ -921,7 +983,13 @@ export default function Gallery() {
   /* carousel click */
   function handleCardClick(slotIdx: number) {
     if (slotIdx === 0) {
-      setSelected(filtered[centerIdx]);
+      const item = filtered[centerIdx];
+      if (item.panoramaUrl) {
+        // 300ms delay so the card scale-up animation plays first
+        setTimeout(() => setPanoramaItem(item), 300);
+      } else {
+        setSelected(item);
+      }
     } else {
       setFlyingFrom(slotIdx);
       setCenterIdx((centerIdx + slotIdx) % filtered.length);
@@ -1324,6 +1392,19 @@ export default function Gallery() {
       </section>
 
       <FullscreenModal item={selected} onClose={closeItem} onPrev={prevItem} onNext={nextItem}/>
+
+      {/* ── 360° PANORAMA OVERLAY (lazy-loaded) ──────────────────── */}
+      <Suspense fallback={null}>
+        {panoramaItem && (
+          <PanoramaOverlay
+            panoramaUrl={panoramaItem.panoramaUrl!}
+            title={panoramaItem.title}
+            location={panoramaItem.location}
+            onClose={() => setPanoramaItem(null)}
+          />
+        )}
+      </Suspense>
+
       <Footer/>
     </div>
   );
