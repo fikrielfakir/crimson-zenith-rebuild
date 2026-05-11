@@ -1,0 +1,91 @@
+Ultra-premium futuristic 3D gallery interface inspired by Meta Horizon OS, Apple Vision Pro, and cinematic WebGL experiences.
+Dark immersive midnight-blue environment with glowing particles and subtle stars in background.
+
+Scene contains floating glassmorphism image cards positioned in true 3D space with perspective depth.
+The gallery cards orbit around a central featured image in a smooth curved path.
+
+Center card:
+
+Large vertical glass panel
+Moroccan architecture image
+Strong cinematic focus
+Frosted glass border
+Soft neon blue glow
+Reflection effects
+Blur transparency
+Floating shadow underneath
+
+Surrounding cards:
+
+Smaller floating cards on left and right
+Different distances in Z-depth
+Tilted angles for spatial realism
+Smooth perspective distortion
+Semi-transparent edges
+Soft bloom glow
+Holographic feeling
+
+Environment:
+
+Deep dark blue gradient background
+Tiny floating particles
+Spatial ambient fog
+Thin glowing orbital lines connecting cards
+Curved spline path around center object
+Futuristic metaverse atmosphere
+
+Lighting:
+
+Cinematic volumetric lighting
+Blue ambient glow
+Soft rim lights around cards
+Glass reflections
+Bloom lighting
+Premium luxury contrast
+
+Style:
+
+Minimal UI
+Clean spatial composition
+Apple Vision Pro aesthetic
+Unreal Engine 5 quality
+High-end Awwwards website design
+Floating holographic museum gallery
+
+Camera:
+
+Slight wide-angle cinematic lens
+Strong depth of field
+Foreground and background blur
+Immersive perspective
+
+Animation feeling (for generated frame):
+
+Cards appear suspended in air
+Smooth orbital movement implied
+Dynamic immersive composition
+Spatial computing interface
+
+Avoid:
+
+Flat layouts
+Traditional grids
+Text-heavy UI
+Overcrowded composition
+Cartoon style
+Low-quality lighting
+Generic website appearance
+
+Color palette:
+
+Deep navy blue
+Electric blue glow
+Soft cyan highlights
+White reflections
+Glass transparency
+
+Aspect ratio:
+16:9 ultra wide cinematic website hero section
+
+Quality:
+Ultra detailed, photorealistic, cinematic, sharp focus, realistic glass materials, realistic shadows, luxury futuristic UI, immersive 3D depth
