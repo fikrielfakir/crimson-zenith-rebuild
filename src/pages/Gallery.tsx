@@ -1,539 +1,826 @@
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { 
-  Search, 
-  Filter, 
-  Upload, 
-  Play, 
-  Download, 
-  Heart, 
-  Share2, 
-  X,
-  MapPin,
-  Calendar,
-  User,
-  Tag,
-  Home,
-  ChevronRight
+import { useState, useRef, useEffect, useCallback } from "react";
+import { motion, useMotionValue, useSpring, AnimatePresence } from "framer-motion";
+import {
+  MapPin, X, ChevronLeft, ChevronRight, Upload, Search,
+  Home, ChevronRight as CRight, Heart, Share2, Download
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
+/* ─── types ─────────────────────────────────────────────────────────────── */
 interface GalleryItem {
   id: number;
   type: string;
   url: string;
-  thumbnail?: string;
   title: string;
   location?: string;
-  date?: string;
   photographer?: string;
   tags?: string[];
   category?: string;
   likes?: number;
   description?: string;
+  aspect?: "portrait" | "landscape";
 }
 
+/* ─── static data ────────────────────────────────────────────────────────── */
 const STATIC_GALLERY: GalleryItem[] = [
   {
-    id: 1,
-    type: "photo",
-    url: "/api/placeholder/400/600",
-    title: "Atlas Mountain Sunrise",
-    location: "High Atlas",
-    date: "2024-11-15",
-    photographer: "Sarah M.",
-    tags: ["mountain", "sunrise", "landscape"],
-    category: "mountain",
-    likes: 42,
-    description: "Breathtaking sunrise over the snow-capped Atlas peaks during our winter trek."
+    id: 1, type: "photo", aspect: "portrait",
+    url: "https://images.unsplash.com/photo-1539020140153-e479b8c22e70?w=700&q=80",
+    title: "High Atlas Mountains", location: "Imlil, Morocco",
+    photographer: "Sarah M.", tags: ["mountain", "landscape"], category: "mountain", likes: 128,
+    description: "Breathtaking peaks rising above the clouds over the High Atlas range."
   },
   {
-    id: 2,
-    type: "photo",
-    url: "/api/placeholder/600/400",
-    title: "Desert Dunes",
-    location: "Merzouga",
-    date: "2024-11-10",
-    photographer: "Ahmed K.",
-    tags: ["desert", "sahara", "landscape"],
-    category: "desert",
-    likes: 35,
-    description: "Golden hour illuminating the endless dunes of the Sahara Desert."
+    id: 2, type: "photo", aspect: "landscape",
+    url: "https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=700&q=80",
+    title: "Sahara Desert", location: "Merzouga, Morocco",
+    photographer: "Ahmed K.", tags: ["desert", "sahara"], category: "desert", likes: 95,
+    description: "Golden hour illuminating the endless dunes of the Sahara."
   },
   {
-    id: 3,
-    type: "video",
-    url: "/api/placeholder/400/300",
-    thumbnail: "/api/placeholder/400/300",
-    title: "Surfing Taghazout",
-    location: "Taghazout",
-    date: "2024-11-08",
-    photographer: "Fatima R.",
-    tags: ["surfing", "ocean", "sport"],
-    category: "water",
-    likes: 28,
-    description: "Catching the perfect wave on Morocco's Atlantic coast."
+    id: 3, type: "photo", aspect: "portrait",
+    url: "https://images.unsplash.com/photo-1548696056-01a4a7b4e9e7?w=700&q=80",
+    title: "Blue Streets", location: "Chefchaouen, Morocco",
+    photographer: "Layla S.", tags: ["city", "blue", "architecture"], category: "cultural", likes: 210,
+    description: "The iconic blue-washed alleyways of Morocco's mountain city."
   },
   {
-    id: 4,
-    type: "photo",
-    url: "/api/placeholder/300/400",
-    title: "Berber Village Life",
-    location: "Imlil Valley",
-    date: "2024-11-12",
-    photographer: "Omar L.",
-    tags: ["culture", "people", "village"],
-    category: "cultural",
-    likes: 51,
-    description: "Daily life in a traditional Berber village nestled in the Atlas Mountains."
+    id: 4, type: "photo", aspect: "landscape",
+    url: "https://images.unsplash.com/photo-1553603229-5b0e7b6a3b3e?w=700&q=80",
+    title: "Aït Ben Haddou", location: "Ouarzazate, Morocco",
+    photographer: "Omar L.", tags: ["ksar", "history", "architecture"], category: "cultural", likes: 74,
+    description: "Ancient fortified village glowing at the edge of the desert."
   },
   {
-    id: 5,
-    type: "photo",
-    url: "/api/placeholder/500/300",
-    title: "Rock Climbing Adventure",
-    location: "Todra Gorge",
-    date: "2024-11-05",
-    photographer: "Hassan M.",
-    tags: ["climbing", "adventure", "sport"],
-    category: "adventure",
-    likes: 33,
-    description: "Scaling the limestone cliffs of the spectacular Todra Gorge."
+    id: 5, type: "photo", aspect: "landscape",
+    url: "https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=700&q=80",
+    title: "Desert Sunset", location: "Erg Chebbi, Morocco",
+    photographer: "Youssef A.", tags: ["desert", "sunset"], category: "desert", likes: 61,
+    description: "A camel caravan silhouetted against the burning horizon."
   },
   {
-    id: 6,
-    type: "photo",
-    url: "/api/placeholder/400/500",
-    title: "Chefchaouen Blues",
-    location: "Chefchaouen",
-    date: "2024-11-18",
-    photographer: "Layla S.",
-    tags: ["architecture", "blue", "city"],
-    category: "cultural",
-    likes: 67,
-    description: "The iconic blue streets of Morocco's most photogenic city."
+    id: 6, type: "photo", aspect: "portrait",
+    url: "https://images.unsplash.com/photo-1585016495481-91613a0a5c8f?w=700&q=80",
+    title: "Local Culture", location: "Marrakech, Morocco",
+    photographer: "Fatima R.", tags: ["culture", "people"], category: "cultural", likes: 43,
+    description: "Vibrant colours and traditions alive in the ancient medina."
   },
   {
-    id: 7,
-    type: "video",
-    url: "/api/placeholder/600/400",
-    thumbnail: "/api/placeholder/600/400",
-    title: "Camel Caravan",
-    location: "Erg Chebbi",
-    date: "2024-11-14",
-    photographer: "Youssef A.",
-    tags: ["desert", "camel", "tradition"],
-    category: "desert",
-    likes: 45,
-    description: "Traditional camel caravan crossing the golden dunes at sunset."
+    id: 7, type: "photo", aspect: "landscape",
+    url: "https://images.unsplash.com/photo-1500463959177-e0869687b1f7?w=700&q=80",
+    title: "Todra Gorge", location: "Tinghir, Morocco",
+    photographer: "Hassan M.", tags: ["gorge", "rock", "adventure"], category: "adventure", likes: 88,
+    description: "Towering limestone walls carving through the heart of the Atlas."
   },
   {
-    id: 8,
-    type: "photo",
-    url: "/api/placeholder/350/450",
-    title: "Mountain Lake Reflection",
-    location: "Ifni Lake",
-    date: "2024-11-20",
-    photographer: "Nadia H.",
-    tags: ["lake", "reflection", "nature"],
-    category: "mountain",
-    likes: 38,
-    description: "Perfect reflections in the crystal-clear waters of Lake Ifni."
-  }
+    id: 8, type: "photo", aspect: "portrait",
+    url: "https://images.unsplash.com/photo-1552665945-afd7c01898f9?w=700&q=80",
+    title: "Fes Medina", location: "Fès, Morocco",
+    photographer: "Nadia H.", tags: ["architecture", "medina", "city"], category: "cultural", likes: 56,
+    description: "Labyrinthine streets of the world's largest living medieval city."
+  },
 ];
 
-const normalizeMediaItem = (item: any, index: number): GalleryItem => ({
-  id: item.id ?? index + 1000,
-  type: item.type ?? item.mime_type?.startsWith('video') ? 'video' : 'photo',
-  url: item.url ?? item.file_url ?? item.path ?? '/api/placeholder/400/300',
-  thumbnail: item.thumbnail ?? item.thumb_url ?? undefined,
-  title: item.title ?? item.name ?? item.filename ?? `Media ${index + 1}`,
-  location: item.location ?? undefined,
-  date: item.created_at ?? item.date ?? undefined,
-  photographer: item.photographer ?? item.uploaded_by ?? undefined,
-  tags: Array.isArray(item.tags) ? item.tags : (item.tags ? [item.tags] : []),
-  category: item.category ?? undefined,
-  likes: item.likes ?? undefined,
-  description: item.description ?? item.caption ?? undefined,
-});
+/* 3-D position slots for the scene */
+const SLOTS = [
+  { tx: 0,    ty: 0,   tz: 0,    ry: 0,   rx: 0,  scale: 1.18, blur: false }, // center hero
+  { tx: -42,  ty: -14, tz: -130, ry: 22,  rx: -4, scale: 0.76, blur: false }, // top-left
+  { tx: -52,  ty: 20,  tz: -190, ry: 28,  rx:  6, scale: 0.69, blur: false }, // bottom-left
+  { tx:  42,  ty: -16, tz: -110, ry: -18, rx: -4, scale: 0.80, blur: false }, // top-right
+  { tx:  50,  ty: 20,  tz: -170, ry: -26, rx:  6, scale: 0.71, blur: false }, // bottom-right
+  { tx: -74,  ty:  2,  tz: -320, ry:  42, rx:  0, scale: 0.46, blur: true  }, // far-left
+  { tx:  74,  ty:  5,  tz: -300, ry: -42, rx:  0, scale: 0.43, blur: true  }, // far-right
+];
 
-const Gallery = () => {
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const [lightboxImage, setLightboxImage] = useState<GalleryItem | null>(null);
-  const [isVisible, setIsVisible] = useState(false);
-  const [scrollY, setScrollY] = useState(0);
-  const [galleryItems, setGalleryItems] = useState<GalleryItem[]>(STATIC_GALLERY);
+const CATEGORIES = [
+  { id: "all",       label: "All" },
+  { id: "mountain",  label: "Mountains" },
+  { id: "desert",    label: "Desert" },
+  { id: "cultural",  label: "Culture" },
+  { id: "adventure", label: "Adventure" },
+];
 
+/* ─── particles ─────────────────────────────────────────────────────────── */
+function Particles() {
+  const dots = Array.from({ length: 55 }, (_, i) => ({
+    id: i,
+    x: Math.random() * 100,
+    y: Math.random() * 100,
+    size: Math.random() * 2.5 + 0.5,
+    delay: Math.random() * 4,
+    dur: Math.random() * 3 + 2,
+    opacity: Math.random() * 0.5 + 0.1,
+  }));
+
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {dots.map(d => (
+        <motion.div
+          key={d.id}
+          className="absolute rounded-full"
+          style={{
+            left: `${d.x}%`,
+            top: `${d.y}%`,
+            width: d.size,
+            height: d.size,
+            background: d.size > 2
+              ? "radial-gradient(circle, #4a9eff, #0066cc)"
+              : "rgba(147, 197, 253, 0.8)",
+          }}
+          animate={{ opacity: [d.opacity, d.opacity * 2.5, d.opacity], y: [0, -14, 0] }}
+          transition={{ duration: d.dur, delay: d.delay, repeat: Infinity, ease: "easeInOut" }}
+        />
+      ))}
+      {/* orbital rings */}
+      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[220px] rounded-full border border-blue-500/10 rotate-[15deg]" />
+      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[280px] rounded-full border border-blue-400/6 rotate-[-8deg]" />
+    </div>
+  );
+}
+
+/* ─── glass card ─────────────────────────────────────────────────────────── */
+function GlassCard({
+  item, slot, isCenter, onClick,
+}: {
+  item: GalleryItem; slot: typeof SLOTS[0]; isCenter?: boolean; onClick: () => void;
+}) {
+  const [hovered, setHovered] = useState(false);
+
+  const cardW = isCenter ? 300 : slot.scale < 0.55 ? 180 : 240;
+  const cardH = isCenter
+    ? (item.aspect === "portrait" ? 380 : 290)
+    : slot.scale < 0.55 ? 220 : item.aspect === "portrait" ? 305 : 230;
+
+  return (
+    <motion.div
+      className="absolute cursor-pointer"
+      style={{
+        left: `calc(50% + ${slot.tx}%)`,
+        top:  `calc(50% + ${slot.ty}%)`,
+        translateX: "-50%",
+        translateY: "-50%",
+        translateZ: slot.tz,
+        rotateY: slot.ry,
+        rotateX: slot.rx,
+        scale: slot.scale,
+        zIndex: isCenter ? 20 : slot.blur ? 1 : 10,
+        transformStyle: "preserve-3d",
+      }}
+      whileHover={{
+        scale: slot.scale * (isCenter ? 1.04 : 1.07),
+        translateZ: slot.tz + 50,
+        transition: { duration: 0.35, ease: "easeOut" },
+      }}
+      animate={{
+        y: isCenter
+          ? [0, -8, 0]
+          : slot.tx < 0
+            ? [0, -5, 3, 0]
+            : [0, 4, -5, 0],
+      }}
+      transition={{
+        y: {
+          duration: isCenter ? 3.5 : 4 + Math.abs(slot.tx) * 0.03,
+          repeat: Infinity,
+          ease: "easeInOut",
+          delay: Math.abs(slot.tx) * 0.02,
+        },
+      }}
+      onHoverStart={() => setHovered(true)}
+      onHoverEnd={() => setHovered(false)}
+      onClick={onClick}
+    >
+      <motion.div
+        style={{
+          width: cardW,
+          height: cardH,
+          borderRadius: 16,
+          overflow: "hidden",
+          position: "relative",
+          filter: slot.blur ? "blur(2.5px) brightness(0.7)" : "none",
+          boxShadow: hovered
+            ? "0 0 40px rgba(59,130,246,0.5), 0 0 80px rgba(37,99,235,0.25), 0 30px 80px rgba(0,0,0,0.6)"
+            : isCenter
+              ? "0 0 25px rgba(59,130,246,0.3), 0 20px 60px rgba(0,0,0,0.7)"
+              : "0 0 15px rgba(59,130,246,0.15), 0 15px 40px rgba(0,0,0,0.6)",
+          border: hovered
+            ? "1px solid rgba(147,197,253,0.6)"
+            : isCenter
+              ? "1px solid rgba(147,197,253,0.35)"
+              : "1px solid rgba(99,157,255,0.2)",
+          transition: "box-shadow 0.35s ease, border 0.35s ease",
+        }}
+      >
+        {/* background image */}
+        <img
+          src={item.url}
+          alt={item.title}
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{
+            transform: hovered ? "scale(1.06)" : "scale(1)",
+            transition: "transform 0.5s ease",
+            filter: "brightness(0.85) saturate(1.1)",
+          }}
+          onError={e => {
+            (e.target as HTMLImageElement).src =
+              `https://placehold.co/${cardW}x${cardH}/0f2b6b/4a9eff?text=${encodeURIComponent(item.title)}`;
+          }}
+        />
+
+        {/* glass overlay */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background: "linear-gradient(135deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0) 60%, rgba(0,0,0,0.25) 100%)",
+          }}
+        />
+
+        {/* glow on hover */}
+        {hovered && (
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background: "linear-gradient(135deg, rgba(59,130,246,0.15) 0%, transparent 60%)",
+            }}
+          />
+        )}
+
+        {/* caption */}
+        <div
+          className="absolute bottom-0 left-0 right-0 p-3"
+          style={{
+            background: "linear-gradient(to top, rgba(7,23,57,0.92) 0%, rgba(7,23,57,0.6) 60%, transparent 100%)",
+            backdropFilter: "blur(4px)",
+          }}
+        >
+          <p
+            className="font-bold text-white leading-tight"
+            style={{ fontSize: isCenter ? 15 : 12 }}
+          >
+            {item.title}
+          </p>
+          {item.location && (
+            <div className="flex items-center gap-1 mt-0.5">
+              <MapPin style={{ width: isCenter ? 11 : 9, height: isCenter ? 11 : 9 }} className="text-blue-300 shrink-0" />
+              <span style={{ fontSize: isCenter ? 11 : 9 }} className="text-blue-200/80">
+                {item.location}
+              </span>
+            </div>
+          )}
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+/* ─── fullscreen modal ───────────────────────────────────────────────────── */
+function FullscreenModal({ item, onClose, onPrev, onNext }: {
+  item: GalleryItem | null; onClose: () => void; onPrev: () => void; onNext: () => void;
+}) {
   useEffect(() => {
-    setIsVisible(true);
-    const handleScroll = () => setScrollY(window.scrollY);
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  useEffect(() => {
-    const fetchMedia = async () => {
-      try {
-        const res = await fetch('/api/admin/media', { credentials: 'include' });
-        if (!res.ok) return;
-        const data = await res.json();
-        const items: any[] = Array.isArray(data) ? data : (data.data ?? []);
-        if (items.length > 0) {
-          setGalleryItems(items.map(normalizeMediaItem));
-        }
-      } catch {
-        // Silently fall back to static data
-      }
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+      if (e.key === "ArrowLeft") onPrev();
+      if (e.key === "ArrowRight") onNext();
     };
-    fetchMedia();
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [onClose, onPrev, onNext]);
+
+  return (
+    <AnimatePresence>
+      {item && (
+        <motion.div
+          className="fixed inset-0 z-[100] flex items-center justify-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.4 }}
+          onClick={onClose}
+        >
+          {/* depth fog */}
+          <div className="absolute inset-0" style={{ background: "rgba(4,12,35,0.93)", backdropFilter: "blur(20px)" }} />
+
+          {/* particles */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            {Array.from({ length: 20 }, (_, i) => (
+              <motion.div
+                key={i}
+                className="absolute rounded-full"
+                style={{
+                  left: `${Math.random() * 100}%`,
+                  top: `${Math.random() * 100}%`,
+                  width: Math.random() * 3 + 1,
+                  height: Math.random() * 3 + 1,
+                  background: "rgba(147,197,253,0.4)",
+                }}
+                animate={{ opacity: [0.2, 0.8, 0.2], y: [0, -20, 0] }}
+                transition={{ duration: Math.random() * 3 + 2, repeat: Infinity, delay: Math.random() * 2 }}
+              />
+            ))}
+          </div>
+
+          <motion.div
+            className="relative z-10 flex items-center gap-6 px-6 max-w-5xl w-full"
+            initial={{ scale: 0.85, y: 30, opacity: 0 }}
+            animate={{ scale: 1, y: 0, opacity: 1 }}
+            exit={{ scale: 0.9, y: 20, opacity: 0 }}
+            transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* prev */}
+            <button
+              onClick={onPrev}
+              className="shrink-0 w-12 h-12 rounded-full flex items-center justify-center transition-all"
+              style={{ background: "rgba(15,43,107,0.6)", border: "1px solid rgba(147,197,253,0.3)", backdropFilter: "blur(10px)" }}
+            >
+              <ChevronLeft className="w-5 h-5 text-white" />
+            </button>
+
+            {/* image + info */}
+            <div
+              className="flex-1 rounded-2xl overflow-hidden"
+              style={{
+                background: "rgba(7,23,57,0.7)",
+                border: "1px solid rgba(147,197,253,0.25)",
+                boxShadow: "0 0 80px rgba(37,99,235,0.3), 0 40px 100px rgba(0,0,0,0.7)",
+                backdropFilter: "blur(16px)",
+              }}
+            >
+              <div className="relative" style={{ maxHeight: "65vh" }}>
+                <img
+                  src={item.url}
+                  alt={item.title}
+                  className="w-full object-cover"
+                  style={{ maxHeight: "65vh" }}
+                  onError={e => {
+                    (e.target as HTMLImageElement).src =
+                      `https://placehold.co/800x600/0f2b6b/4a9eff?text=${encodeURIComponent(item.title)}`;
+                  }}
+                />
+                <button
+                  onClick={onClose}
+                  className="absolute top-4 right-4 w-9 h-9 rounded-full flex items-center justify-center transition-all"
+                  style={{ background: "rgba(7,23,57,0.8)", border: "1px solid rgba(147,197,253,0.3)" }}
+                >
+                  <X className="w-4 h-4 text-white" />
+                </button>
+              </div>
+
+              <div className="p-5">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <h2 className="text-xl font-bold text-white mb-1">{item.title}</h2>
+                    {item.location && (
+                      <div className="flex items-center gap-1.5 text-blue-300 text-sm">
+                        <MapPin className="w-3.5 h-3.5" />
+                        {item.location}
+                      </div>
+                    )}
+                    {item.description && (
+                      <p className="text-white/60 text-sm mt-2 leading-relaxed">{item.description}</p>
+                    )}
+                  </div>
+                  <div className="flex gap-2 shrink-0">
+                    {[Heart, Share2, Download].map((Icon, i) => (
+                      <button
+                        key={i}
+                        className="w-8 h-8 rounded-full flex items-center justify-center transition-all hover:bg-blue-500/20"
+                        style={{ border: "1px solid rgba(147,197,253,0.2)" }}
+                      >
+                        <Icon className="w-4 h-4 text-blue-300" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {item.tags && item.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    {item.tags.map(tag => (
+                      <span
+                        key={tag}
+                        className="text-xs px-2.5 py-0.5 rounded-full text-blue-200/80"
+                        style={{ background: "rgba(59,130,246,0.15)", border: "1px solid rgba(59,130,246,0.25)" }}
+                      >
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* next */}
+            <button
+              onClick={onNext}
+              className="shrink-0 w-12 h-12 rounded-full flex items-center justify-center transition-all"
+              style={{ background: "rgba(15,43,107,0.6)", border: "1px solid rgba(147,197,253,0.3)", backdropFilter: "blur(10px)" }}
+            >
+              <ChevronRight className="w-5 h-5 text-white" />
+            </button>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
+/* ─── main page ──────────────────────────────────────────────────────────── */
+export default function Gallery() {
+  const [category, setCategory]         = useState("all");
+  const [search, setSearch]             = useState("");
+  const [selected, setSelected]         = useState<GalleryItem | null>(null);
+  const [galleryItems, setGalleryItems] = useState<GalleryItem[]>(STATIC_GALLERY);
+  const [scrollY, setScrollY]           = useState(0);
+  const sceneRef                        = useRef<HTMLDivElement>(null);
+  const isDragging                      = useRef(false);
+  const lastMouse                       = useRef({ x: 0, y: 0 });
+
+  /* spring-driven scene rotation */
+  const rotX = useMotionValue(0);
+  const rotY = useMotionValue(0);
+  const sRotX = useSpring(rotX, { stiffness: 60, damping: 18 });
+  const sRotY = useSpring(rotY, { stiffness: 60, damping: 18 });
+
+  /* fetch real media if available */
+  useEffect(() => {
+    fetch("/api/admin/media", { credentials: "include" })
+      .then(r => r.ok ? r.json() : null)
+      .then((data: any) => {
+        if (!data) return;
+        const items: any[] = Array.isArray(data) ? data : (data.data ?? []);
+        if (items.length >= 3) {
+          setGalleryItems(
+            items.map((it, i) => ({
+              id: it.id ?? i,
+              type: it.fileType?.startsWith("video") ? "video" : "photo",
+              url: it.fileUrl ?? it.url ?? STATIC_GALLERY[i % STATIC_GALLERY.length].url,
+              title: it.altText || it.fileName || STATIC_GALLERY[i % STATIC_GALLERY.length].title,
+              location: STATIC_GALLERY[i % STATIC_GALLERY.length].location,
+              photographer: STATIC_GALLERY[i % STATIC_GALLERY.length].photographer,
+              tags: STATIC_GALLERY[i % STATIC_GALLERY.length].tags,
+              category: STATIC_GALLERY[i % STATIC_GALLERY.length].category,
+              likes: STATIC_GALLERY[i % STATIC_GALLERY.length].likes,
+              description: STATIC_GALLERY[i % STATIC_GALLERY.length].description,
+              aspect: STATIC_GALLERY[i % STATIC_GALLERY.length].aspect,
+            }))
+          );
+        }
+      })
+      .catch(() => {});
   }, []);
 
-  const uniqueCategories = Array.from(
-    new Set(galleryItems.map(i => i.category).filter(Boolean))
-  ) as string[];
+  /* scroll parallax */
+  useEffect(() => {
+    const onScroll = () => setScrollY(window.scrollY);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
-  const categories = [
-    { id: "all", name: "All", count: galleryItems.length },
-    ...uniqueCategories.map(cat => ({
-      id: cat,
-      name: cat.charAt(0).toUpperCase() + cat.slice(1),
-      count: galleryItems.filter(i => i.category === cat).length,
-    }))
-  ];
+  /* mouse/touch scene rotation */
+  const onMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!sceneRef.current) return;
+    if (!isDragging.current) {
+      /* gentle passive tilt based on mouse position */
+      const rect = sceneRef.current.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      rotY.set(((e.clientX - cx) / rect.width) * 18);
+      rotX.set(-((e.clientY - cy) / rect.height) * 10);
+      return;
+    }
+    const dx = e.clientX - lastMouse.current.x;
+    const dy = e.clientY - lastMouse.current.y;
+    rotY.set(rotY.get() + dx * 0.25);
+    rotX.set(rotX.get() - dy * 0.15);
+    lastMouse.current = { x: e.clientX, y: e.clientY };
+  }, [rotX, rotY]);
 
-  const filteredItems = selectedCategory === "all"
-    ? galleryItems
-    : galleryItems.filter(item => item.category === selectedCategory);
+  const onMouseDown = (e: React.MouseEvent) => {
+    isDragging.current = true;
+    lastMouse.current = { x: e.clientX, y: e.clientY };
+  };
+  const onMouseUp = () => { isDragging.current = false; };
+  const onMouseLeave = () => {
+    isDragging.current = false;
+    rotX.set(0); rotY.set(0);
+  };
 
-  const featuredVideos = galleryItems.filter(item => item.type === "video");
+  /* filtered items → first 7 go to 3D scene, rest to grid */
+  const filtered = galleryItems.filter(it => {
+    const matchCat  = category === "all" || it.category === category;
+    const matchSearch = !search || it.title.toLowerCase().includes(search.toLowerCase()) ||
+      it.location?.toLowerCase().includes(search.toLowerCase()) || false;
+    return matchCat && matchSearch;
+  });
 
-  const getMasonryItemClass = (index: number) => {
-    const patterns = [
-      "md:row-span-2",
-      "md:col-span-2",
-      "",
-      "md:row-span-2",
-      "",
-      "md:col-span-2",
-      "",
-      "md:row-span-2"
-    ];
-    return patterns[index % patterns.length];
+  const sceneItems = filtered.slice(0, SLOTS.length);
+  const gridItems  = filtered.slice(SLOTS.length);
+
+  /* modal navigation */
+  const openItem = (item: GalleryItem) => setSelected(item);
+  const closeItem = () => setSelected(null);
+  const prevItem = () => {
+    if (!selected) return;
+    const idx = filtered.findIndex(i => i.id === selected.id);
+    setSelected(filtered[(idx - 1 + filtered.length) % filtered.length]);
+  };
+  const nextItem = () => {
+    if (!selected) return;
+    const idx = filtered.findIndex(i => i.id === selected.id);
+    setSelected(filtered[(idx + 1) % filtered.length]);
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen" style={{ background: "#071739" }}>
       <Header />
-      
-      <main className="relative">
-        <section className="relative py-20 overflow-hidden" style={{ paddingTop: '15rem' }}>
-          <div 
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-            style={{
-              backgroundImage: `url('/attached_assets/generated_images/Chefchaouen_blue_streets_272376ab.png')`,
-              transform: `translateY(${scrollY * 0.3}px)`,
-              filter: 'brightness(0.6) contrast(1.1) saturate(1.2)',
-            }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/50" />
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-transparent to-primary/20" />
 
-          <div className="relative container mx-auto px-6">
-            <nav className={`mb-8 transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
-              <ol className="flex items-center space-x-2 text-sm">
-                <li>
-                  <Link 
-                    to="/" 
-                    className="flex items-center text-white/90 hover:text-white transition-colors bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-full border border-white/20 hover:border-white/40"
-                  >
-                    <Home className="w-4 h-4 mr-1.5" />
-                    Home
-                  </Link>
-                </li>
-                <li className="flex items-center">
-                  <ChevronRight className="w-4 h-4 mx-2 text-white/50" />
-                  <span className="text-white font-semibold bg-white/15 backdrop-blur-sm px-3 py-1.5 rounded-full border border-white/30 shadow-lg">
-                    Gallery
-                  </span>
-                </li>
-              </ol>
-            </nav>
+      {/* ── HERO ──────────────────────────────────────────────────────── */}
+      <section
+        className="relative overflow-hidden"
+        style={{ paddingTop: "10rem", paddingBottom: "4rem" }}
+      >
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage: "url('/attached_assets/generated_images/Chefchaouen_blue_streets_272376ab.png')",
+            transform: `translateY(${scrollY * 0.28}px)`,
+            filter: "brightness(0.45) saturate(1.3)",
+          }}
+        />
+        <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(7,23,57,0.5) 0%, rgba(7,23,57,0.8) 100%)" }} />
 
-            <div className={`transition-all duration-700 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-4 drop-shadow-2xl">
-                Gallery
-              </h1>
-              <p className="text-lg md:text-xl text-white/95 max-w-2xl leading-relaxed drop-shadow-lg">
-                Explore stunning moments captured during our adventures across Morocco. From mountain peaks to desert dunes, witness the beauty through our community's lens.
-              </p>
+        <div className="relative container mx-auto px-6">
+          <nav className="mb-8">
+            <ol className="flex items-center gap-2 text-sm">
+              <li>
+                <Link to="/" className="flex items-center gap-1.5 text-white/80 hover:text-white transition-colors px-3 py-1.5 rounded-full backdrop-blur-sm" style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)" }}>
+                  <Home className="w-3.5 h-3.5" /> Home
+                </Link>
+              </li>
+              <CRight className="w-4 h-4 text-white/40" />
+              <li>
+                <span className="text-white font-semibold px-3 py-1.5 rounded-full" style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.25)" }}>
+                  Gallery
+                </span>
+              </li>
+            </ol>
+          </nav>
+
+          <motion.h1
+            className="text-5xl md:text-7xl font-bold text-white mb-4"
+            style={{ textShadow: "0 0 60px rgba(59,130,246,0.4)" }}
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}
+          >
+            Gallery
+          </motion.h1>
+          <motion.p
+            className="text-lg text-white/75 max-w-xl leading-relaxed"
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.15 }}
+          >
+            Explore stunning moments captured across Morocco — from mountain peaks to desert dunes.
+          </motion.p>
+        </div>
+      </section>
+
+      {/* ── FILTERS ───────────────────────────────────────────────────── */}
+      <section className="py-8" style={{ background: "rgba(7,23,57,0.95)" }}>
+        <div className="container mx-auto px-6">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            {/* search */}
+            <div className="relative">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-300/60" />
+              <input
+                type="text"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                placeholder="Search locations, titles…"
+                className="pl-10 pr-4 py-2.5 rounded-full text-sm text-white/90 placeholder-white/30 outline-none w-64"
+                style={{
+                  background: "rgba(15,43,107,0.5)",
+                  border: "1px solid rgba(147,197,253,0.2)",
+                  backdropFilter: "blur(12px)",
+                }}
+              />
             </div>
-          </div>
-        </section>
 
-        <section className="py-8 bg-muted/50">
-          <div className="container mx-auto px-4">
-            <div className="flex flex-col md:flex-row gap-4 items-center justify-between mb-6">
-              <div className="flex items-center gap-4">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                  <input 
-                    type="text"
-                    placeholder="Search photos..."
-                    className="pl-10 pr-4 py-2 border rounded-button font-body w-64"
-                  />
-                </div>
-                <Button variant="outline" size="sm">
-                  <Filter className="w-4 h-4 mr-2" />
-                  Filters
-                </Button>
-              </div>
-              
-              <div className="text-sm text-muted-foreground font-body">
-                {filteredItems.length} items found
-              </div>
-            </div>
-            
-            <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
-              <TabsList className="grid w-full lg:w-auto lg:flex" style={{ gridTemplateColumns: `repeat(${categories.length}, 1fr)` }}>
-                {categories.map((category) => (
-                  <TabsTrigger key={category.id} value={category.id} className="font-body">
-                    {category.name} ({category.count})
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-            </Tabs>
-          </div>
-        </section>
-
-        <section className="py-12">
-          <div className="container mx-auto px-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 auto-rows-[200px]">
-              {filteredItems.map((item, index) => (
-                <Card 
-                  key={item.id}
-                  className={`group cursor-pointer hover:shadow-glow transition-all duration-300 overflow-hidden ${getMasonryItemClass(index)}`}
-                  onClick={() => setLightboxImage(item)}
+            {/* category pills */}
+            <div className="flex gap-2 flex-wrap justify-center">
+              {CATEGORIES.map(cat => (
+                <button
+                  key={cat.id}
+                  onClick={() => setCategory(cat.id)}
+                  className="px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-300"
+                  style={{
+                    background: category === cat.id
+                      ? "linear-gradient(135deg, #1d4ed8, #2563eb)"
+                      : "rgba(15,43,107,0.4)",
+                    border: category === cat.id
+                      ? "1px solid rgba(147,197,253,0.5)"
+                      : "1px solid rgba(147,197,253,0.15)",
+                    color: category === cat.id ? "#fff" : "rgba(147,197,253,0.7)",
+                    boxShadow: category === cat.id
+                      ? "0 0 20px rgba(59,130,246,0.3)"
+                      : "none",
+                    backdropFilter: "blur(10px)",
+                  }}
                 >
-                  <div className="relative h-full">
-                    <img 
-                      src={item.url} 
+                  {cat.label}
+                </button>
+              ))}
+            </div>
+
+            <span className="text-sm text-blue-300/50">{filtered.length} photos</span>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 3-D SCENE ─────────────────────────────────────────────────── */}
+      <section
+        className="relative select-none overflow-hidden"
+        style={{
+          background: "linear-gradient(180deg, #071739 0%, #0a1f5c 45%, #071739 100%)",
+          minHeight: "680px",
+        }}
+      >
+        <Particles />
+
+        {/* ambient glow */}
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full pointer-events-none"
+          style={{ background: "radial-gradient(circle, rgba(37,99,235,0.12) 0%, transparent 70%)" }} />
+
+        {/* scene */}
+        <div
+          ref={sceneRef}
+          className="relative w-full"
+          style={{ height: 640, perspective: "1200px", perspectiveOrigin: "50% 48%", cursor: isDragging.current ? "grabbing" : "grab" }}
+          onMouseMove={onMouseMove}
+          onMouseDown={onMouseDown}
+          onMouseUp={onMouseUp}
+          onMouseLeave={onMouseLeave}
+        >
+          <motion.div
+            className="absolute inset-0"
+            style={{ rotateX: sRotX, rotateY: sRotY, transformStyle: "preserve-3d" }}
+          >
+            {sceneItems.map((item, i) => (
+              <GlassCard
+                key={item.id}
+                item={item}
+                slot={SLOTS[i]}
+                isCenter={i === 0}
+                onClick={() => openItem(item)}
+              />
+            ))}
+          </motion.div>
+        </div>
+
+        {/* hint bar */}
+        <motion.div
+          className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-6 px-6 py-2.5 rounded-full text-xs"
+          style={{
+            background: "rgba(7,23,57,0.65)",
+            border: "1px solid rgba(147,197,253,0.15)",
+            backdropFilter: "blur(12px)",
+            color: "rgba(147,197,253,0.6)",
+          }}
+          initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1 }}
+        >
+          <span className="flex items-center gap-1.5">
+            <span className="text-blue-400">⟵⟶</span> Drag to rotate
+          </span>
+          <span className="w-px h-3 bg-blue-400/20" />
+          <span className="flex items-center gap-1.5">
+            <span className="text-blue-400">⊙</span> Scroll to move
+          </span>
+          <span className="w-px h-3 bg-blue-400/20" />
+          <span className="flex items-center gap-1.5">
+            <span className="text-blue-400">↗</span> Click to open
+          </span>
+        </motion.div>
+      </section>
+
+      {/* ── OVERFLOW GRID ─────────────────────────────────────────────── */}
+      {gridItems.length > 0 && (
+        <section className="py-16" style={{ background: "#071739" }}>
+          <div className="container mx-auto px-6">
+            <h2 className="text-2xl font-bold text-white mb-8" style={{ textShadow: "0 0 30px rgba(59,130,246,0.3)" }}>
+              More Moments
+            </h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {gridItems.map((item, i) => (
+                <motion.div
+                  key={item.id}
+                  className="cursor-pointer rounded-2xl overflow-hidden"
+                  style={{
+                    border: "1px solid rgba(99,157,255,0.15)",
+                    background: "rgba(15,43,107,0.3)",
+                    aspectRatio: item.aspect === "portrait" ? "3/4" : "4/3",
+                  }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.06 }}
+                  whileHover={{ scale: 1.03, boxShadow: "0 0 30px rgba(59,130,246,0.3)" }}
+                  onClick={() => openItem(item)}
+                >
+                  <div className="relative w-full h-full">
+                    <img
+                      src={item.url}
                       alt={item.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      className="w-full h-full object-cover"
+                      style={{ filter: "brightness(0.85) saturate(1.1)" }}
+                      onError={e => {
+                        (e.target as HTMLImageElement).src =
+                          `https://placehold.co/400x300/0f2b6b/4a9eff?text=${encodeURIComponent(item.title)}`;
+                      }}
                     />
-                    
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    
-                    {item.type === "video" && (
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
-                          <Play className="w-6 h-6 text-white ml-1" />
+                    <div className="absolute bottom-0 left-0 right-0 p-3" style={{ background: "linear-gradient(to top, rgba(7,23,57,0.9) 0%, transparent 100%)" }}>
+                      <p className="text-white font-semibold text-sm">{item.title}</p>
+                      {item.location && (
+                        <div className="flex items-center gap-1 mt-0.5">
+                          <MapPin className="w-2.5 h-2.5 text-blue-300" />
+                          <span className="text-blue-200/70 text-xs">{item.location}</span>
                         </div>
-                      </div>
-                    )}
-                    
-                    <div className="absolute bottom-0 left-0 right-0 p-4 text-white transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                      <h3 className="font-semibold font-heading mb-1">{item.title}</h3>
-                      <div className="flex items-center gap-2 text-xs opacity-90 mb-2">
-                        {item.location && (
-                          <>
-                            <MapPin className="w-3 h-3" />
-                            <span className="font-body">{item.location}</span>
-                          </>
-                        )}
-                        {item.photographer && (
-                          <>
-                            <span>•</span>
-                            <User className="w-3 h-3" />
-                            <span className="font-body">{item.photographer}</span>
-                          </>
-                        )}
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-1">
-                          <Heart className="w-4 h-4" />
-                          <span className="text-xs font-body">{item.likes ?? 0}</span>
-                        </div>
-                        <div className="flex gap-2">
-                          <Button size="sm" variant="ghost" className="h-6 w-6 p-0 text-white hover:bg-white/20">
-                            <Share2 className="w-3 h-3" />
-                          </Button>
-                          <Button size="sm" variant="ghost" className="h-6 w-6 p-0 text-white hover:bg-white/20">
-                            <Download className="w-3 h-3" />
-                          </Button>
-                        </div>
-                      </div>
+                      )}
                     </div>
                   </div>
-                </Card>
+                </motion.div>
               ))}
             </div>
           </div>
         </section>
+      )}
 
-        {featuredVideos.length > 0 && (
-          <section className="py-16 bg-muted/50">
-            <div className="container mx-auto px-4">
-              <div className="text-center mb-12">
-                <h2 className="text-3xl md:text-4xl font-bold font-heading mb-4">Featured Videos</h2>
-                <p className="text-xl text-muted-foreground font-body max-w-2xl mx-auto">
-                  Watch our most popular adventure videos and get inspired for your next journey
-                </p>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {featuredVideos.map((video) => (
-                  <Card key={video.id} className="group hover:shadow-elegant transition-all duration-300">
-                    <div className="relative">
-                      <img 
-                        src={video.thumbnail ?? video.url} 
-                        alt={video.title}
-                        className="w-full h-48 object-cover rounded-t-card"
-                      />
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <Button className="w-16 h-16 rounded-full bg-secondary hover:bg-secondary/90 group-hover:scale-110 transition-transform duration-300">
-                          <Play className="w-8 h-8 ml-1" />
-                        </Button>
-                      </div>
-                      <Badge className="absolute top-3 right-3 bg-primary text-white">
-                        Video
-                      </Badge>
-                    </div>
-                    <CardContent className="p-6">
-                      <h3 className="text-lg font-semibold font-heading mb-2">{video.title}</h3>
-                      {video.description && (
-                        <p className="text-sm text-muted-foreground font-body mb-3">{video.description}</p>
-                      )}
-                      <div className="flex items-center justify-between text-sm">
-                        {video.location && (
-                          <div className="flex items-center gap-2">
-                            <MapPin className="w-4 h-4" />
-                            <span className="font-body">{video.location}</span>
-                          </div>
-                        )}
-                        <div className="flex items-center gap-1">
-                          <Heart className="w-4 h-4" />
-                          <span className="font-body">{video.likes ?? 0}</span>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          </section>
-        )}
+      {/* ── UPLOAD PORTAL ─────────────────────────────────────────────── */}
+      <section className="py-20" style={{ background: "linear-gradient(180deg, #071739 0%, #0a1553 50%, #071739 100%)" }}>
+        <div className="container mx-auto px-6 text-center">
+          <motion.h2
+            className="text-3xl md:text-4xl font-bold text-white mb-3"
+            style={{ textShadow: "0 0 40px rgba(59,130,246,0.35)" }}
+            initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+          >
+            Share Your Journey With The World
+          </motion.h2>
+          <p className="text-blue-200/60 mb-10 max-w-md mx-auto">
+            Upload your Moroccan adventure photos and inspire our growing community of explorers.
+          </p>
 
-        <section className="py-16 bg-primary text-primary-foreground">
-          <div className="container mx-auto px-4 text-center">
-            <h2 className="text-3xl md:text-4xl font-bold font-heading mb-4">Share Your Adventure</h2>
-            <p className="text-xl text-primary-foreground/80 font-body mb-8 max-w-2xl mx-auto">
-              Upload your photos and videos to inspire fellow adventurers and build our community gallery
-            </p>
-            
-            <div className="max-w-md mx-auto">
-              <div className="border-2 border-dashed border-primary-foreground/30 rounded-card p-8 hover:border-primary-foreground/50 transition-colors cursor-pointer">
-                <Upload className="w-12 h-12 mx-auto mb-4 text-primary-foreground/70" />
-                <p className="font-body text-primary-foreground/80 mb-4">
-                  Drag and drop your files here, or click to browse
-                </p>
-                <Button variant="secondary" className="bg-white text-primary hover:bg-white/90">
-                  Choose Files
-                </Button>
-              </div>
-              <p className="text-xs text-primary-foreground/60 mt-4 font-body">
-                Supported formats: JPG, PNG, MP4, MOV. Max file size: 50MB
-              </p>
-            </div>
-          </div>
-        </section>
+          <motion.div
+            className="relative max-w-md mx-auto rounded-3xl p-10 cursor-pointer group"
+            style={{
+              background: "rgba(15,43,107,0.35)",
+              border: "2px dashed rgba(147,197,253,0.25)",
+              backdropFilter: "blur(16px)",
+            }}
+            whileHover={{
+              borderColor: "rgba(147,197,253,0.55)",
+              boxShadow: "0 0 60px rgba(59,130,246,0.25)",
+            }}
+          >
+            {/* animated glow dot */}
+            <motion.div
+              className="absolute -top-1 -right-1 w-3 h-3 rounded-full"
+              style={{ background: "radial-gradient(circle, #60a5fa, #2563eb)" }}
+              animate={{ scale: [1, 1.5, 1], opacity: [0.8, 1, 0.8] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            />
 
-        {lightboxImage && (
-          <Dialog open={!!lightboxImage} onOpenChange={() => setLightboxImage(null)}>
-            <DialogContent className="max-w-4xl p-0 bg-black">
-              <div className="relative">
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  className="absolute top-4 right-4 z-10 text-white hover:bg-white/20"
-                  onClick={() => setLightboxImage(null)}
-                >
-                  <X className="w-4 h-4" />
-                </Button>
-                
-                <img 
-                  src={lightboxImage.url} 
-                  alt={lightboxImage.title}
-                  className="w-full max-h-[80vh] object-contain"
-                />
-                
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 text-white">
-                  <h3 className="text-xl font-semibold font-heading mb-2">{lightboxImage.title}</h3>
-                  {lightboxImage.description && (
-                    <p className="font-body mb-4">{lightboxImage.description}</p>
-                  )}
-                  
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4 text-sm">
-                      {lightboxImage.location && (
-                        <div className="flex items-center gap-1">
-                          <MapPin className="w-4 h-4" />
-                          <span className="font-body">{lightboxImage.location}</span>
-                        </div>
-                      )}
-                      {lightboxImage.date && (
-                        <div className="flex items-center gap-1">
-                          <Calendar className="w-4 h-4" />
-                          <span className="font-body">{new Date(lightboxImage.date).toLocaleDateString()}</span>
-                        </div>
-                      )}
-                      {lightboxImage.photographer && (
-                        <div className="flex items-center gap-1">
-                          <User className="w-4 h-4" />
-                          <span className="font-body">{lightboxImage.photographer}</span>
-                        </div>
-                      )}
-                    </div>
-                    
-                    <div className="flex items-center gap-2">
-                      <Button size="sm" variant="ghost" className="text-white hover:bg-white/20">
-                        <Heart className="w-4 h-4 mr-1" />
-                        {lightboxImage.likes ?? 0}
-                      </Button>
-                      <Button size="sm" variant="ghost" className="text-white hover:bg-white/20">
-                        <Share2 className="w-4 h-4" />
-                      </Button>
-                      <Button size="sm" variant="ghost" className="text-white hover:bg-white/20">
-                        <Download className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
-                  
-                  {lightboxImage.tags && lightboxImage.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mt-4">
-                      {lightboxImage.tags.map((tag: string) => (
-                        <Badge key={tag} variant="secondary" className="text-xs">
-                          <Tag className="w-3 h-3 mr-1" />
-                          {tag}
-                        </Badge>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </DialogContent>
-          </Dialog>
-        )}
-      </main>
-      
+            <motion.div
+              className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-5"
+              style={{
+                background: "linear-gradient(135deg, rgba(37,99,235,0.3), rgba(15,43,107,0.6))",
+                border: "1px solid rgba(147,197,253,0.3)",
+                boxShadow: "0 0 30px rgba(59,130,246,0.2)",
+              }}
+              animate={{ y: [0, -6, 0] }}
+              transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <Upload className="w-8 h-8 text-blue-300" />
+            </motion.div>
+
+            <p className="text-white font-semibold mb-1">Drop your photos here</p>
+            <p className="text-blue-200/50 text-sm mb-5">JPG, PNG, MP4 · Max 50 MB</p>
+
+            <button
+              className="px-6 py-2.5 rounded-full text-sm font-semibold text-white transition-all"
+              style={{
+                background: "linear-gradient(135deg, #1d4ed8, #2563eb)",
+                boxShadow: "0 0 20px rgba(37,99,235,0.4)",
+                border: "1px solid rgba(147,197,253,0.3)",
+              }}
+            >
+              Browse Files
+            </button>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ── FULLSCREEN MODAL ──────────────────────────────────────────── */}
+      <FullscreenModal item={selected} onClose={closeItem} onPrev={prevItem} onNext={nextItem} />
+
       <Footer />
     </div>
   );
-};
-
-export default Gallery;
+}

@@ -1,0 +1,167 @@
+3D Gallery Layout
+
+Replace traditional image grid with immersive spatial gallery.
+
+Gallery Concept
+
+Images float in 3D space like holographic panels.
+
+Features
+Masonry-style floating cards
+Different depths on Z-axis
+Cards slowly move in idle animation
+Hover effect:
+image expands
+soft glow
+depth elevation
+cinematic shadow
+Glass borders
+Reflection effects
+Floating captions
+Dynamic light reflections
+Interactions
+Mouse drag to rotate gallery scene
+Scroll controls forward movement in 3D world
+Smooth inertia physics
+Magnetic hover interactions
+Opening image creates immersive fullscreen modal
+Fullscreen Modal Experience
+
+When opening a gallery item:
+
+Transition
+Smooth zoom-in cinematic animation
+Background blurs into depth fog
+UI fades softly
+Modal Design
+Large immersive image
+Floating information card
+Animated metadata
+Soft ambient gradients
+Navigation arrows floating in space
+Advanced Features
+360° panorama support
+Video support
+Spatial audio ambience
+Story timeline beside image
+Interactive map pin of Morocco location
+Search + Filters
+
+Transform filters into futuristic floating controls.
+
+Design
+Floating glass capsules
+Neon borders
+Blur background
+Micro-interactions
+Features
+
+Filter by:
+
+Mountains
+Desert
+Culture
+Villages
+Ocean
+Community
+Events
+
+Add:
+
+AI smart search bar
+Animated category pills
+Voice-search style input UI
+3D Environment Elements
+
+Add immersive environmental elements:
+
+Floating dust particles
+Light rays
+Dynamic shadows
+Animated ambient gradients
+Glass reflections
+3D depth layers
+Soft bloom lighting
+GPU particle effects
+Motion blur transitions
+Floating Moroccan geometric patterns
+Community Upload Section
+
+Rebuild upload area as futuristic creator portal.
+
+Design
+Floating holographic upload dock
+Animated glowing border
+Drag-drop zone with particle reaction
+Upload icon floating in 3D
+Progress animation using light waves
+Text
+
+“Share Your Journey With The World”
+
+Footer
+
+Premium cinematic footer.
+
+Features
+Dark transparent glass panel
+Floating icons
+Soft animated gradient lines
+Moroccan geometric ornaments
+Interactive social buttons
+Subtle light reflections
+Technical Direction
+
+Use:
+
+Three.js
+React Three Fiber
+Framer Motion
+GSAP
+WebGL shaders
+Postprocessing bloom
+Smooth scrolling
+GPU acceleration
+Color Palette
+
+Primary:
+
+Deep Midnight Blue → #071739
+Royal Blue → #0F2B6B
+Gold Accent → #D8C18D
+Soft White → #F5F7FA
+
+Effects:
+
+Frosted glass
+Soft neon glow
+Ambient cinematic shadows
+Typography
+Large bold cinematic headings
+Minimal luxury typography
+Spacious layout
+Clean futuristic UI
+
+Suggested fonts:
+
+Sora
+Clash Display
+General Sans
+Poppins
+Animation Style
+
+Everything should feel:
+
+fluid
+cinematic
+spatial
+organic
+immersive
+premium
+
+Avoid:
+
+static layouts
+traditional cards
+flat UI
+generic gallery grids
