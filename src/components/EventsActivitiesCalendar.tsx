@@ -391,18 +391,6 @@ const EventsActivitiesCalendar = () => {
                 ))}
               </div>
 
-              {/* Legend */}
-              <div className="mt-4 p-3 rounded-xl" style={{ backgroundColor: '#F9F9F9' }}>
-                <p className="font-['Inter'] font-semibold mb-2" style={{ fontSize: '12px', color: '#555', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Status Legend</p>
-                <div className="space-y-1.5">
-                  {Object.entries(STATUS_CONFIG).map(([key, cfg]) => (
-                    <div key={key} className="flex items-center gap-2">
-                      <span className="inline-block w-2.5 h-2.5 rounded-full" style={{ backgroundColor: cfg.dot }} />
-                      <span className="font-['Inter']" style={{ fontSize: '12px', color: '#555' }}>{cfg.label}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
             </div>
           </div>
 
