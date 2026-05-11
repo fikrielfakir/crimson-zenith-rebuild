@@ -2,7 +2,8 @@ import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { motion, useMotionValue, useSpring, AnimatePresence } from "framer-motion";
 import {
   MapPin, X, ChevronLeft, ChevronRight, Upload, Search,
-  Home, ChevronRight as CRight, Heart, Share2, Download
+  Home, ChevronRight as CRight, Heart, Share2, Download,
+  Move, MousePointer, MousePointer2,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
@@ -60,18 +61,18 @@ const STATIC_GALLERY: GalleryItem[] = [
     description:"Labyrinthine streets of the world's largest living medieval city." },
 ];
 
-/* ─── slot positions (% of scene width / height) ────────────────────── */
+/* ─── slot positions (pixels) ────────────────────────────────────────── */
 const SLOTS = [
-  { tx:  0,  ty:  0,  tz:    0, ry:   0, rx:  0, scale:1.22, blur:false, zi:20 }, // center
-  { tx:-36,  ty:-13, tz: -140, ry:  24, rx: -5, scale:0.77, blur:false, zi:13 }, // top-left
-  { tx:-46,  ty: 21, tz: -200, ry:  30, rx:  7, scale:0.68, blur:false, zi:12 }, // bot-left
-  { tx: 36,  ty:-15, tz: -120, ry: -20, rx: -5, scale:0.81, blur:false, zi:13 }, // top-right
-  { tx: 46,  ty: 21, tz: -180, ry: -28, rx:  7, scale:0.70, blur:false, zi:12 }, // bot-right
-  { tx:-70,  ty:  2, tz: -310, ry:  44, rx:  0, scale:0.44, blur:true,  zi: 2 }, // far-left
-  { tx: 70,  ty:  4, tz: -290, ry: -44, rx:  0, scale:0.41, blur:true,  zi: 2 }, // far-right
+  { tx:    0, ty:    0, tz:   80, ry:   0, rx:  0, blur:false, zi:20 }, // center
+  { tx: -420, ty: -160, tz: -120, ry:  18, rx: -3, blur:false, zi:13 }, // top-left
+  { tx: -480, ty:   80, tz: -200, ry:  22, rx:  4, blur:false, zi:12 }, // bot-left
+  { tx:  380, ty: -180, tz: -150, ry: -20, rx: -3, blur:false, zi:13 }, // top-right
+  { tx:  420, ty:  100, tz: -100, ry: -15, rx:  4, blur:false, zi:12 }, // bot-right
+  { tx: -640, ty:    0, tz: -300, ry:  44, rx:  0, blur:true,  zi: 2 }, // far-left
+  { tx:  640, ty:   40, tz: -300, ry: -44, rx:  0, blur:true,  zi: 2 }, // far-right
 ];
-const SCENE_H = 680;
-const PERSP   = 1100;
+const SCENE_H = 700;
+const PERSP   = 1200;
 
 const CATEGORIES = [
   { id:"all", label:"All" }, { id:"mountain", label:"Mountains" },
@@ -79,12 +80,11 @@ const CATEGORIES = [
   { id:"adventure", label:"Adventure" },
 ];
 
-function cardDims(slot: typeof SLOTS[0], aspect?: "portrait"|"landscape") {
-  const center = slot.tx === 0 && slot.ty === 0;
-  const w = center ? 300 : slot.blur ? 168 : 238;
-  const h = center
+function cardDims(isCenter: boolean, isBlur: boolean, aspect?: "portrait"|"landscape") {
+  const w = isCenter ? 300 : isBlur ? 168 : 238;
+  const h = isCenter
     ? (aspect === "landscape" ? 265 : 385)
-    : slot.blur
+    : isBlur
       ? (aspect === "landscape" ? 195 : 245)
       : (aspect === "landscape" ? 222 : 308);
   return { w, h };
@@ -198,8 +198,8 @@ function OrbitalSVG({ sceneW, slotAssignments }: {
     .map(({ slot }) => {
       const f = PERSP / (PERSP - slot.tz);
       return {
-        x: cx + (slot.tx / 100) * sceneW * 0.74 * f,
-        y: cy + (slot.ty / 100) * SCENE_H * 0.74 * f,
+        x: cx + slot.tx * f * 0.55,
+        y: cy + slot.ty * f * 0.55,
         blur: slot.blur,
       };
     });
@@ -311,6 +311,30 @@ function FogVignette() {
   );
 }
 
+/* ─── ground ring ────────────────────────────────────────────────────── */
+function GroundRing() {
+  return (
+    <div className="absolute pointer-events-none" style={{
+      bottom: "8%", left: "50%",
+      transform: "translateX(-50%)",
+      zIndex: 5,
+    }}>
+      {[380, 260, 160].map((size, i) => (
+        <div key={i} style={{
+          position: "absolute",
+          width: size * 2,
+          height: size * 0.55,
+          border: "1px solid rgba(50,150,255,0.20)",
+          borderRadius: "50%",
+          top: "50%", left: "50%",
+          transform: `translate(-50%,-50%) rotateX(75deg)`,
+          animation: `pulseRing ${4 + i * 1.5}s ${i * 0.8}s infinite ease-in-out`,
+        }}/>
+      ))}
+    </div>
+  );
+}
+
 /* ─── premium glass card ─────────────────────────────────────────────── */
 interface CardProps {
   item: GalleryItem; slot: typeof SLOTS[0];
@@ -318,12 +342,12 @@ interface CardProps {
   onClick: () => void;
 }
 
-function GlassCard({ item, slot, sceneW, isCenter, isFlying, onClick }: CardProps) {
+function GlassCard({ item, slot, isCenter, isFlying, onClick }: CardProps) {
   const [hovered, setHovered] = useState(false);
-  const { w, h } = cardDims(slot, item.aspect);
+  const { w, h } = cardDims(isCenter, slot.blur, item.aspect);
 
-  const px = (slot.tx / 100) * sceneW;
-  const py = (slot.ty / 100) * SCENE_H;
+  const px = slot.tx;
+  const py = slot.ty;
 
   /* ── layered bloom shadow ── */
   const shadow = isCenter
@@ -696,6 +720,10 @@ export default function Gallery() {
   const [sceneW,       setSceneW]       = useState(1200);
   const [mouseIdle,    setMouseIdle]    = useState(true);
 
+  /* Z-axis dolly from scroll wheel */
+  const sceneZ  = useMotionValue(0);
+  const sSceneZ = useSpring(sceneZ, { stiffness:60, damping:18 });
+
   const sceneRef    = useRef<HTMLDivElement>(null);
   const isDragging  = useRef(false);
   const lastMouse   = useRef({ x:0, y:0 });
@@ -761,6 +789,13 @@ export default function Gallery() {
     window.addEventListener("scroll", h, { passive:true });
     return () => window.removeEventListener("scroll", h);
   }, []);
+
+  /* wheel handler — only dolly when hovering the scene */
+  const onWheel = useCallback((e: React.WheelEvent) => {
+    e.preventDefault();
+    const next = Math.max(-200, Math.min(200, sceneZ.get() - e.deltaY * 0.4));
+    sceneZ.set(next);
+  }, [sceneZ]);
 
   /* filtered list */
   const filtered = galleryItems.filter(it => {
@@ -969,13 +1004,17 @@ export default function Gallery() {
           }}
           onMouseMove={onMouseMove} onMouseDown={onMouseDown}
           onMouseUp={onMouseUp} onMouseLeave={onMouseLeave}
+          onWheel={onWheel}
         >
           {/* SVG orbital rings + connecting lines (behind cards) */}
           <OrbitalSVG sceneW={sceneW} slotAssignments={slotAssignments}/>
 
-          {/* rotatable scene (mouse spring + idle drift via rotX/rotY) */}
+          {/* ground rings — perspective floor */}
+          <GroundRing/>
+
+          {/* rotatable scene (mouse spring + idle drift + Z dolly) */}
           <motion.div className="absolute inset-0"
-            style={{ rotateX:sRotX, rotateY:sRotY, transformStyle:"preserve-3d" }}>
+            style={{ rotateX:sRotX, rotateY:sRotY, z:sSceneZ, transformStyle:"preserve-3d", willChange:"transform" }}>
             {slotAssignments.map(({ slot, item, slotIdx }) => (
               <GlassCard
                 key={item.id}
@@ -1005,21 +1044,27 @@ export default function Gallery() {
           ))}
         </div>
 
-        {/* hint */}
+        {/* controls hint bar */}
         <motion.div
-          className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-5 px-5 py-2 rounded-full text-xs whitespace-nowrap z-20"
+          className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-5 px-5 py-2.5 rounded-full text-xs whitespace-nowrap z-20"
           style={{
-            background:"rgba(4,13,33,0.65)",
-            border:"1px solid rgba(100,160,255,0.10)",
-            backdropFilter:"blur(14px)",
-            color:"rgba(120,195,255,0.48)",
+            background:"rgba(4,13,33,0.70)",
+            border:"1px solid rgba(100,160,255,0.12)",
+            backdropFilter:"blur(16px)",
+            color:"rgba(255,255,255,0.50)",
           }}
           initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ delay:1.2 }}>
-          <span className="flex items-center gap-1.5"><span style={{ color:"#60a5fa" }}>⟵⟶</span> Drag to rotate</span>
+          <span className="flex items-center gap-1.5">
+            <Move className="w-3.5 h-3.5" style={{ color:"#60a5fa" }}/> Drag to rotate
+          </span>
           <span className="w-px h-3" style={{ background:"rgba(100,160,255,0.18)" }}/>
-          <span className="flex items-center gap-1.5"><span style={{ color:"#60a5fa" }}>↗</span> Click to fly center</span>
+          <span className="flex items-center gap-1.5">
+            <MousePointer className="w-3.5 h-3.5" style={{ color:"#60a5fa" }}/> Scroll to move
+          </span>
           <span className="w-px h-3" style={{ background:"rgba(100,160,255,0.18)" }}/>
-          <span className="flex items-center gap-1.5"><span style={{ color:"#60a5fa" }}>⊙</span> Center to open</span>
+          <span className="flex items-center gap-1.5">
+            <MousePointer2 className="w-3.5 h-3.5" style={{ color:"#60a5fa" }}/> Click to open
+          </span>
         </motion.div>
 
         <FogVignette/>
