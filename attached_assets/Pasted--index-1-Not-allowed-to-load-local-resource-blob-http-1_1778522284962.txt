@@ -1,0 +1,542 @@
+
+(index):1 Not allowed to load local resource: blob:http://192.168.56.1:5000/cfc061a6-50ba-4310-8423-0efcf342eaf5Understand this error
+ClubsWithMap.tsx:230 Initializing map with container: <div class=​"absolute inset-0 z-0 maplibregl-map" id=​"clubs-map" style=​"height:​ 100vh;​ width:​ 100%;​ position:​ absolute;​">​…​</div>​
+via.placeholder.com/180x80/FFFFFF/112250?text=LOGO+6:1  GET https://via.placeholder.com/180x80/FFFFFF/112250?text=LOGO+6 net::ERR_CONNECTION_CLOSED
+Image
+commitMount @ chunk-NXESFFTV.js?v=4351792d:8459
+commitLayoutEffectOnFiber @ chunk-NXESFFTV.js?v=4351792d:17150
+commitLayoutMountEffects_complete @ chunk-NXESFFTV.js?v=4351792d:18030
+commitLayoutEffects_begin @ chunk-NXESFFTV.js?v=4351792d:18019
+commitLayoutEffects @ chunk-NXESFFTV.js?v=4351792d:17970
+commitRootImpl @ chunk-NXESFFTV.js?v=4351792d:19406
+commitRoot @ chunk-NXESFFTV.js?v=4351792d:19330
+finishConcurrentRender @ chunk-NXESFFTV.js?v=4351792d:18858
+performConcurrentWorkOnRoot @ chunk-NXESFFTV.js?v=4351792d:18768
+workLoop @ chunk-NXESFFTV.js?v=4351792d:197
+flushWork @ chunk-NXESFFTV.js?v=4351792d:176
+performWorkUntilDeadline @ chunk-NXESFFTV.js?v=4351792d:384
+postMessage
+schedulePerformWorkUntilDeadline @ chunk-NXESFFTV.js?v=4351792d:407
+requestHostCallback @ chunk-NXESFFTV.js?v=4351792d:418
+unstable_scheduleCallback @ chunk-NXESFFTV.js?v=4351792d:330
+scheduleCallback$1 @ chunk-NXESFFTV.js?v=4351792d:19879
+ensureRootIsScheduled @ chunk-NXESFFTV.js?v=4351792d:18702
+scheduleUpdateOnFiber @ chunk-NXESFFTV.js?v=4351792d:18612
+updateContainer @ chunk-NXESFFTV.js?v=4351792d:20834
+ReactDOMHydrationRoot.render.ReactDOMRoot.render @ chunk-NXESFFTV.js?v=4351792d:21174
+(anonymous) @ main.tsx:7Understand this error
+via.placeholder.com/180x80/FFFFFF/112250?text=LOGO+4:1  GET https://via.placeholder.com/180x80/FFFFFF/112250?text=LOGO+4 net::ERR_CONNECTION_CLOSED
+Image
+commitMount @ chunk-NXESFFTV.js?v=4351792d:8459
+commitLayoutEffectOnFiber @ chunk-NXESFFTV.js?v=4351792d:17150
+commitLayoutMountEffects_complete @ chunk-NXESFFTV.js?v=4351792d:18030
+commitLayoutEffects_begin @ chunk-NXESFFTV.js?v=4351792d:18019
+commitLayoutEffects @ chunk-NXESFFTV.js?v=4351792d:17970
+commitRootImpl @ chunk-NXESFFTV.js?v=4351792d:19406
+commitRoot @ chunk-NXESFFTV.js?v=4351792d:19330
+finishConcurrentRender @ chunk-NXESFFTV.js?v=4351792d:18858
+performConcurrentWorkOnRoot @ chunk-NXESFFTV.js?v=4351792d:18768
+workLoop @ chunk-NXESFFTV.js?v=4351792d:197
+flushWork @ chunk-NXESFFTV.js?v=4351792d:176
+performWorkUntilDeadline @ chunk-NXESFFTV.js?v=4351792d:384
+postMessage
+schedulePerformWorkUntilDeadline @ chunk-NXESFFTV.js?v=4351792d:407
+requestHostCallback @ chunk-NXESFFTV.js?v=4351792d:418
+unstable_scheduleCallback @ chunk-NXESFFTV.js?v=4351792d:330
+scheduleCallback$1 @ chunk-NXESFFTV.js?v=4351792d:19879
+ensureRootIsScheduled @ chunk-NXESFFTV.js?v=4351792d:18702
+scheduleUpdateOnFiber @ chunk-NXESFFTV.js?v=4351792d:18612
+updateContainer @ chunk-NXESFFTV.js?v=4351792d:20834
+ReactDOMHydrationRoot.render.ReactDOMRoot.render @ chunk-NXESFFTV.js?v=4351792d:21174
+(anonymous) @ main.tsx:7Understand this error
+via.placeholder.com/180x80/FFFFFF/112250?text=LOGO+1:1  GET https://via.placeholder.com/180x80/FFFFFF/112250?text=LOGO+1 net::ERR_CONNECTION_CLOSED
+Image
+commitMount @ chunk-NXESFFTV.js?v=4351792d:8459
+commitLayoutEffectOnFiber @ chunk-NXESFFTV.js?v=4351792d:17150
+commitLayoutMountEffects_complete @ chunk-NXESFFTV.js?v=4351792d:18030
+commitLayoutEffects_begin @ chunk-NXESFFTV.js?v=4351792d:18019
+commitLayoutEffects @ chunk-NXESFFTV.js?v=4351792d:17970
+commitRootImpl @ chunk-NXESFFTV.js?v=4351792d:19406
+commitRoot @ chunk-NXESFFTV.js?v=4351792d:19330
+finishConcurrentRender @ chunk-NXESFFTV.js?v=4351792d:18858
+performConcurrentWorkOnRoot @ chunk-NXESFFTV.js?v=4351792d:18768
+workLoop @ chunk-NXESFFTV.js?v=4351792d:197
+flushWork @ chunk-NXESFFTV.js?v=4351792d:176
+performWorkUntilDeadline @ chunk-NXESFFTV.js?v=4351792d:384
+postMessage
+schedulePerformWorkUntilDeadline @ chunk-NXESFFTV.js?v=4351792d:407
+requestHostCallback @ chunk-NXESFFTV.js?v=4351792d:418
+unstable_scheduleCallback @ chunk-NXESFFTV.js?v=4351792d:330
+scheduleCallback$1 @ chunk-NXESFFTV.js?v=4351792d:19879
+ensureRootIsScheduled @ chunk-NXESFFTV.js?v=4351792d:18702
+scheduleUpdateOnFiber @ chunk-NXESFFTV.js?v=4351792d:18612
+updateContainer @ chunk-NXESFFTV.js?v=4351792d:20834
+ReactDOMHydrationRoot.render.ReactDOMRoot.render @ chunk-NXESFFTV.js?v=4351792d:21174
+(anonymous) @ main.tsx:7Understand this error
+via.placeholder.com/180x80/FFFFFF/112250?text=LOGO+2:1  GET https://via.placeholder.com/180x80/FFFFFF/112250?text=LOGO+2 net::ERR_CONNECTION_CLOSED
+Image
+commitMount @ chunk-NXESFFTV.js?v=4351792d:8459
+commitLayoutEffectOnFiber @ chunk-NXESFFTV.js?v=4351792d:17150
+commitLayoutMountEffects_complete @ chunk-NXESFFTV.js?v=4351792d:18030
+commitLayoutEffects_begin @ chunk-NXESFFTV.js?v=4351792d:18019
+commitLayoutEffects @ chunk-NXESFFTV.js?v=4351792d:17970
+commitRootImpl @ chunk-NXESFFTV.js?v=4351792d:19406
+commitRoot @ chunk-NXESFFTV.js?v=4351792d:19330
+finishConcurrentRender @ chunk-NXESFFTV.js?v=4351792d:18858
+performConcurrentWorkOnRoot @ chunk-NXESFFTV.js?v=4351792d:18768
+workLoop @ chunk-NXESFFTV.js?v=4351792d:197
+flushWork @ chunk-NXESFFTV.js?v=4351792d:176
+performWorkUntilDeadline @ chunk-NXESFFTV.js?v=4351792d:384
+postMessage
+schedulePerformWorkUntilDeadline @ chunk-NXESFFTV.js?v=4351792d:407
+requestHostCallback @ chunk-NXESFFTV.js?v=4351792d:418
+unstable_scheduleCallback @ chunk-NXESFFTV.js?v=4351792d:330
+scheduleCallback$1 @ chunk-NXESFFTV.js?v=4351792d:19879
+ensureRootIsScheduled @ chunk-NXESFFTV.js?v=4351792d:18702
+scheduleUpdateOnFiber @ chunk-NXESFFTV.js?v=4351792d:18612
+updateContainer @ chunk-NXESFFTV.js?v=4351792d:20834
+ReactDOMHydrationRoot.render.ReactDOMRoot.render @ chunk-NXESFFTV.js?v=4351792d:21174
+(anonymous) @ main.tsx:7Understand this error
+via.placeholder.com/180x80/FFFFFF/112250?text=LOGO+3:1  GET https://via.placeholder.com/180x80/FFFFFF/112250?text=LOGO+3 net::ERR_CONNECTION_CLOSED
+Image
+commitMount @ chunk-NXESFFTV.js?v=4351792d:8459
+commitLayoutEffectOnFiber @ chunk-NXESFFTV.js?v=4351792d:17150
+commitLayoutMountEffects_complete @ chunk-NXESFFTV.js?v=4351792d:18030
+commitLayoutEffects_begin @ chunk-NXESFFTV.js?v=4351792d:18019
+commitLayoutEffects @ chunk-NXESFFTV.js?v=4351792d:17970
+commitRootImpl @ chunk-NXESFFTV.js?v=4351792d:19406
+commitRoot @ chunk-NXESFFTV.js?v=4351792d:19330
+finishConcurrentRender @ chunk-NXESFFTV.js?v=4351792d:18858
+performConcurrentWorkOnRoot @ chunk-NXESFFTV.js?v=4351792d:18768
+workLoop @ chunk-NXESFFTV.js?v=4351792d:197
+flushWork @ chunk-NXESFFTV.js?v=4351792d:176
+performWorkUntilDeadline @ chunk-NXESFFTV.js?v=4351792d:384
+postMessage
+schedulePerformWorkUntilDeadline @ chunk-NXESFFTV.js?v=4351792d:407
+requestHostCallback @ chunk-NXESFFTV.js?v=4351792d:418
+unstable_scheduleCallback @ chunk-NXESFFTV.js?v=4351792d:330
+scheduleCallback$1 @ chunk-NXESFFTV.js?v=4351792d:19879
+ensureRootIsScheduled @ chunk-NXESFFTV.js?v=4351792d:18702
+scheduleUpdateOnFiber @ chunk-NXESFFTV.js?v=4351792d:18612
+updateContainer @ chunk-NXESFFTV.js?v=4351792d:20834
+ReactDOMHydrationRoot.render.ReactDOMRoot.render @ chunk-NXESFFTV.js?v=4351792d:21174
+(anonymous) @ main.tsx:7Understand this error
+via.placeholder.com/180x80/FFFFFF/112250?text=LOGO+5:1  GET https://via.placeholder.com/180x80/FFFFFF/112250?text=LOGO+5 net::ERR_CONNECTION_CLOSED
+Image
+commitMount @ chunk-NXESFFTV.js?v=4351792d:8459
+commitLayoutEffectOnFiber @ chunk-NXESFFTV.js?v=4351792d:17150
+commitLayoutMountEffects_complete @ chunk-NXESFFTV.js?v=4351792d:18030
+commitLayoutEffects_begin @ chunk-NXESFFTV.js?v=4351792d:18019
+commitLayoutEffects @ chunk-NXESFFTV.js?v=4351792d:17970
+commitRootImpl @ chunk-NXESFFTV.js?v=4351792d:19406
+commitRoot @ chunk-NXESFFTV.js?v=4351792d:19330
+finishConcurrentRender @ chunk-NXESFFTV.js?v=4351792d:18858
+performConcurrentWorkOnRoot @ chunk-NXESFFTV.js?v=4351792d:18768
+workLoop @ chunk-NXESFFTV.js?v=4351792d:197
+flushWork @ chunk-NXESFFTV.js?v=4351792d:176
+performWorkUntilDeadline @ chunk-NXESFFTV.js?v=4351792d:384
+postMessage
+schedulePerformWorkUntilDeadline @ chunk-NXESFFTV.js?v=4351792d:407
+requestHostCallback @ chunk-NXESFFTV.js?v=4351792d:418
+unstable_scheduleCallback @ chunk-NXESFFTV.js?v=4351792d:330
+scheduleCallback$1 @ chunk-NXESFFTV.js?v=4351792d:19879
+ensureRootIsScheduled @ chunk-NXESFFTV.js?v=4351792d:18702
+scheduleUpdateOnFiber @ chunk-NXESFFTV.js?v=4351792d:18612
+updateContainer @ chunk-NXESFFTV.js?v=4351792d:20834
+ReactDOMHydrationRoot.render.ReactDOMRoot.render @ chunk-NXESFFTV.js?v=4351792d:21174
+(anonymous) @ main.tsx:7Understand this error
+ClubsWithMap.tsx:249 ✅ Map loaded successfully with satellite tiles!
+via.placeholder.com/180x80/FFFFFF/112250?text=LOGO+7:1  GET https://via.placeholder.com/180x80/FFFFFF/112250?text=LOGO+7 net::ERR_CONNECTION_CLOSED
+Image
+commitMount @ chunk-NXESFFTV.js?v=4351792d:8459
+commitLayoutEffectOnFiber @ chunk-NXESFFTV.js?v=4351792d:17150
+commitLayoutMountEffects_complete @ chunk-NXESFFTV.js?v=4351792d:18030
+commitLayoutEffects_begin @ chunk-NXESFFTV.js?v=4351792d:18019
+commitLayoutEffects @ chunk-NXESFFTV.js?v=4351792d:17970
+commitRootImpl @ chunk-NXESFFTV.js?v=4351792d:19406
+commitRoot @ chunk-NXESFFTV.js?v=4351792d:19330
+finishConcurrentRender @ chunk-NXESFFTV.js?v=4351792d:18858
+performConcurrentWorkOnRoot @ chunk-NXESFFTV.js?v=4351792d:18768
+workLoop @ chunk-NXESFFTV.js?v=4351792d:197
+flushWork @ chunk-NXESFFTV.js?v=4351792d:176
+performWorkUntilDeadline @ chunk-NXESFFTV.js?v=4351792d:384
+postMessage
+schedulePerformWorkUntilDeadline @ chunk-NXESFFTV.js?v=4351792d:407
+requestHostCallback @ chunk-NXESFFTV.js?v=4351792d:418
+unstable_scheduleCallback @ chunk-NXESFFTV.js?v=4351792d:330
+scheduleCallback$1 @ chunk-NXESFFTV.js?v=4351792d:19879
+ensureRootIsScheduled @ chunk-NXESFFTV.js?v=4351792d:18702
+scheduleUpdateOnFiber @ chunk-NXESFFTV.js?v=4351792d:18612
+updateContainer @ chunk-NXESFFTV.js?v=4351792d:20834
+ReactDOMHydrationRoot.render.ReactDOMRoot.render @ chunk-NXESFFTV.js?v=4351792d:21174
+(anonymous) @ main.tsx:7Understand this error
+via.placeholder.com/180x80/FFFFFF/112250?text=LOGO+8:1  GET https://via.placeholder.com/180x80/FFFFFF/112250?text=LOGO+8 net::ERR_CONNECTION_CLOSED
+Image
+commitMount @ chunk-NXESFFTV.js?v=4351792d:8459
+commitLayoutEffectOnFiber @ chunk-NXESFFTV.js?v=4351792d:17150
+commitLayoutMountEffects_complete @ chunk-NXESFFTV.js?v=4351792d:18030
+commitLayoutEffects_begin @ chunk-NXESFFTV.js?v=4351792d:18019
+commitLayoutEffects @ chunk-NXESFFTV.js?v=4351792d:17970
+commitRootImpl @ chunk-NXESFFTV.js?v=4351792d:19406
+commitRoot @ chunk-NXESFFTV.js?v=4351792d:19330
+finishConcurrentRender @ chunk-NXESFFTV.js?v=4351792d:18858
+performConcurrentWorkOnRoot @ chunk-NXESFFTV.js?v=4351792d:18768
+workLoop @ chunk-NXESFFTV.js?v=4351792d:197
+flushWork @ chunk-NXESFFTV.js?v=4351792d:176
+performWorkUntilDeadline @ chunk-NXESFFTV.js?v=4351792d:384
+postMessage
+schedulePerformWorkUntilDeadline @ chunk-NXESFFTV.js?v=4351792d:407
+requestHostCallback @ chunk-NXESFFTV.js?v=4351792d:418
+unstable_scheduleCallback @ chunk-NXESFFTV.js?v=4351792d:330
+scheduleCallback$1 @ chunk-NXESFFTV.js?v=4351792d:19879
+ensureRootIsScheduled @ chunk-NXESFFTV.js?v=4351792d:18702
+scheduleUpdateOnFiber @ chunk-NXESFFTV.js?v=4351792d:18612
+updateContainer @ chunk-NXESFFTV.js?v=4351792d:20834
+ReactDOMHydrationRoot.render.ReactDOMRoot.render @ chunk-NXESFFTV.js?v=4351792d:21174
+(anonymous) @ main.tsx:7Understand this error
+via.placeholder.com/180x80/FFFFFF/112250?text=LOGO+9:1  GET https://via.placeholder.com/180x80/FFFFFF/112250?text=LOGO+9 net::ERR_CONNECTION_CLOSED
+Image
+commitMount @ chunk-NXESFFTV.js?v=4351792d:8459
+commitLayoutEffectOnFiber @ chunk-NXESFFTV.js?v=4351792d:17150
+commitLayoutMountEffects_complete @ chunk-NXESFFTV.js?v=4351792d:18030
+commitLayoutEffects_begin @ chunk-NXESFFTV.js?v=4351792d:18019
+commitLayoutEffects @ chunk-NXESFFTV.js?v=4351792d:17970
+commitRootImpl @ chunk-NXESFFTV.js?v=4351792d:19406
+commitRoot @ chunk-NXESFFTV.js?v=4351792d:19330
+finishConcurrentRender @ chunk-NXESFFTV.js?v=4351792d:18858
+performConcurrentWorkOnRoot @ chunk-NXESFFTV.js?v=4351792d:18768
+workLoop @ chunk-NXESFFTV.js?v=4351792d:197
+flushWork @ chunk-NXESFFTV.js?v=4351792d:176
+performWorkUntilDeadline @ chunk-NXESFFTV.js?v=4351792d:384
+postMessage
+schedulePerformWorkUntilDeadline @ chunk-NXESFFTV.js?v=4351792d:407
+requestHostCallback @ chunk-NXESFFTV.js?v=4351792d:418
+unstable_scheduleCallback @ chunk-NXESFFTV.js?v=4351792d:330
+scheduleCallback$1 @ chunk-NXESFFTV.js?v=4351792d:19879
+ensureRootIsScheduled @ chunk-NXESFFTV.js?v=4351792d:18702
+scheduleUpdateOnFiber @ chunk-NXESFFTV.js?v=4351792d:18612
+updateContainer @ chunk-NXESFFTV.js?v=4351792d:20834
+ReactDOMHydrationRoot.render.ReactDOMRoot.render @ chunk-NXESFFTV.js?v=4351792d:21174
+(anonymous) @ main.tsx:7Understand this error
+via.placeholder.com/180x80/FFFFFF/112250?text=LOGO+10:1  GET https://via.placeholder.com/180x80/FFFFFF/112250?text=LOGO+10 net::ERR_CONNECTION_CLOSED
+Image
+commitMount @ chunk-NXESFFTV.js?v=4351792d:8459
+commitLayoutEffectOnFiber @ chunk-NXESFFTV.js?v=4351792d:17150
+commitLayoutMountEffects_complete @ chunk-NXESFFTV.js?v=4351792d:18030
+commitLayoutEffects_begin @ chunk-NXESFFTV.js?v=4351792d:18019
+commitLayoutEffects @ chunk-NXESFFTV.js?v=4351792d:17970
+commitRootImpl @ chunk-NXESFFTV.js?v=4351792d:19406
+commitRoot @ chunk-NXESFFTV.js?v=4351792d:19330
+finishConcurrentRender @ chunk-NXESFFTV.js?v=4351792d:18858
+performConcurrentWorkOnRoot @ chunk-NXESFFTV.js?v=4351792d:18768
+workLoop @ chunk-NXESFFTV.js?v=4351792d:197
+flushWork @ chunk-NXESFFTV.js?v=4351792d:176
+performWorkUntilDeadline @ chunk-NXESFFTV.js?v=4351792d:384
+postMessage
+schedulePerformWorkUntilDeadline @ chunk-NXESFFTV.js?v=4351792d:407
+requestHostCallback @ chunk-NXESFFTV.js?v=4351792d:418
+unstable_scheduleCallback @ chunk-NXESFFTV.js?v=4351792d:330
+scheduleCallback$1 @ chunk-NXESFFTV.js?v=4351792d:19879
+ensureRootIsScheduled @ chunk-NXESFFTV.js?v=4351792d:18702
+scheduleUpdateOnFiber @ chunk-NXESFFTV.js?v=4351792d:18612
+updateContainer @ chunk-NXESFFTV.js?v=4351792d:20834
+ReactDOMHydrationRoot.render.ReactDOMRoot.render @ chunk-NXESFFTV.js?v=4351792d:21174
+(anonymous) @ main.tsx:7Understand this error
+CityDetail.tsx:111 Warning: React has detected a change in the order of Hooks called by CityDetail. This will lead to bugs and errors if not fixed. For more information, read the Rules of Hooks: https://reactjs.org/link/rules-of-hooks
+
+   Previous render            Next render
+   ------------------------------------------------------
+1. useContext                 useContext
+2. useContext                 useContext
+3. useContext                 useContext
+4. useContext                 useContext
+5. useContext                 useContext
+6. useContext                 useContext
+7. useContext                 useContext
+8. useContext                 useContext
+9. useContext                 useContext
+10. useRef                    useRef
+11. useContext                useContext
+12. useLayoutEffect           useLayoutEffect
+13. useCallback               useCallback
+14. useState                  useState
+15. useState                  useState
+16. useEffect                 useEffect
+17. undefined                 useContext
+   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+    at CityDetail (http://localhost:5000/src/pages/CityDetail.tsx:44:22)
+    at RenderedRoute (http://localhost:5000/node_modules/.vite/deps/react-router-dom.js?v=47c1b0e1:4088:5)
+    at Routes (http://localhost:5000/node_modules/.vite/deps/react-router-dom.js?v=47c1b0e1:4558:5)
+    at Router (http://localhost:5000/node_modules/.vite/deps/react-router-dom.js?v=47c1b0e1:4501:15)
+    at BrowserRouter (http://localhost:5000/node_modules/.vite/deps/react-router-dom.js?v=47c1b0e1:5247:5)
+    at Provider (http://localhost:5000/node_modules/.vite/deps/chunk-U4NED7UW.js?v=4351792d:37:15)
+    at TooltipProvider (http://localhost:5000/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=c3ef3e1a:65:5)
+    at QueryClientProvider (http://localhost:5000/node_modules/.vite/deps/@tanstack_react-query.js?v=26dff5a7:3025:3)
+    at App
+printWarning @ chunk-NXESFFTV.js?v=4351792d:521
+error @ chunk-NXESFFTV.js?v=4351792d:505
+warnOnHookMismatchInDev @ chunk-NXESFFTV.js?v=4351792d:11543
+updateHookTypesDev @ chunk-NXESFFTV.js?v=4351792d:11513
+useContext @ chunk-NXESFFTV.js?v=4351792d:12745
+useContext @ chunk-DRWLMN53.js?v=4351792d:1062
+useIsRestoring @ @tanstack_react-query.js?v=26dff5a7:3040
+useBaseQuery @ @tanstack_react-query.js?v=26dff5a7:3210
+useQuery @ @tanstack_react-query.js?v=26dff5a7:3286
+(anonymous) @ CityDetail.tsx:111
+renderWithHooks @ chunk-NXESFFTV.js?v=4351792d:11596
+updateFunctionComponent @ chunk-NXESFFTV.js?v=4351792d:14630
+beginWork @ chunk-NXESFFTV.js?v=4351792d:15972
+beginWork$1 @ chunk-NXESFFTV.js?v=4351792d:19806
+performUnitOfWork @ chunk-NXESFFTV.js?v=4351792d:19251
+workLoopSync @ chunk-NXESFFTV.js?v=4351792d:19190
+renderRootSync @ chunk-NXESFFTV.js?v=4351792d:19169
+performConcurrentWorkOnRoot @ chunk-NXESFFTV.js?v=4351792d:18728
+workLoop @ chunk-NXESFFTV.js?v=4351792d:197
+flushWork @ chunk-NXESFFTV.js?v=4351792d:176
+performWorkUntilDeadline @ chunk-NXESFFTV.js?v=4351792d:384
+postMessage
+schedulePerformWorkUntilDeadline @ chunk-NXESFFTV.js?v=4351792d:407
+requestHostCallback @ chunk-NXESFFTV.js?v=4351792d:418
+unstable_scheduleCallback @ chunk-NXESFFTV.js?v=4351792d:330
+scheduleCallback$1 @ chunk-NXESFFTV.js?v=4351792d:19879
+ensureRootIsScheduled @ chunk-NXESFFTV.js?v=4351792d:18702
+scheduleUpdateOnFiber @ chunk-NXESFFTV.js?v=4351792d:18612
+dispatchSetState @ chunk-NXESFFTV.js?v=4351792d:12451
+data @ CityDetail.tsx:68
+Promise.then
+(anonymous) @ CityDetail.tsx:68
+commitHookEffectListMount @ chunk-NXESFFTV.js?v=4351792d:16963
+commitPassiveMountOnFiber @ chunk-NXESFFTV.js?v=4351792d:18206
+commitPassiveMountEffects_complete @ chunk-NXESFFTV.js?v=4351792d:18179
+commitPassiveMountEffects_begin @ chunk-NXESFFTV.js?v=4351792d:18169
+commitPassiveMountEffects @ chunk-NXESFFTV.js?v=4351792d:18159
+flushPassiveEffectsImpl @ chunk-NXESFFTV.js?v=4351792d:19543
+flushPassiveEffects @ chunk-NXESFFTV.js?v=4351792d:19500
+commitRootImpl @ chunk-NXESFFTV.js?v=4351792d:19469
+commitRoot @ chunk-NXESFFTV.js?v=4351792d:19330
+performSyncWorkOnRoot @ chunk-NXESFFTV.js?v=4351792d:18948
+flushSyncCallbacks @ chunk-NXESFFTV.js?v=4351792d:9166
+(anonymous) @ chunk-NXESFFTV.js?v=4351792d:18677Understand this error
+chunk-NXESFFTV.js?v=4351792d:11726 Uncaught Error: Rendered more hooks than during the previous render.
+    at updateWorkInProgressHook (chunk-NXESFFTV.js?v=4351792d:11726:21)
+    at updateEffectImpl (chunk-NXESFFTV.js?v=4351792d:12122:22)
+    at updateEffect (chunk-NXESFFTV.js?v=4351792d:12147:18)
+    at Object.useEffect (chunk-NXESFFTV.js?v=4351792d:12751:22)
+    at Object.useEffect (chunk-DRWLMN53.js?v=4351792d:1078:29)
+    at useClearResetErrorBoundary (@tanstack_react-query.js?v=26dff5a7:3079:10)
+    at useBaseQuery (@tanstack_react-query.js?v=26dff5a7:3227:3)
+    at useQuery (@tanstack_react-query.js?v=26dff5a7:3286:10)
+    at CityDetail (CityDetail.tsx:111:34)
+    at renderWithHooks (chunk-NXESFFTV.js?v=4351792d:11596:26)
+updateWorkInProgressHook @ chunk-NXESFFTV.js?v=4351792d:11726
+updateEffectImpl @ chunk-NXESFFTV.js?v=4351792d:12122
+updateEffect @ chunk-NXESFFTV.js?v=4351792d:12147
+useEffect @ chunk-NXESFFTV.js?v=4351792d:12751
+useEffect @ chunk-DRWLMN53.js?v=4351792d:1078
+useClearResetErrorBoundary @ @tanstack_react-query.js?v=26dff5a7:3079
+useBaseQuery @ @tanstack_react-query.js?v=26dff5a7:3227
+useQuery @ @tanstack_react-query.js?v=26dff5a7:3286
+(anonymous) @ CityDetail.tsx:111
+renderWithHooks @ chunk-NXESFFTV.js?v=4351792d:11596
+updateFunctionComponent @ chunk-NXESFFTV.js?v=4351792d:14630
+beginWork @ chunk-NXESFFTV.js?v=4351792d:15972
+callCallback2 @ chunk-NXESFFTV.js?v=4351792d:3680
+invokeGuardedCallbackDev @ chunk-NXESFFTV.js?v=4351792d:3705
+invokeGuardedCallback @ chunk-NXESFFTV.js?v=4351792d:3739
+beginWork$1 @ chunk-NXESFFTV.js?v=4351792d:19818
+performUnitOfWork @ chunk-NXESFFTV.js?v=4351792d:19251
+workLoopSync @ chunk-NXESFFTV.js?v=4351792d:19190
+renderRootSync @ chunk-NXESFFTV.js?v=4351792d:19169
+performConcurrentWorkOnRoot @ chunk-NXESFFTV.js?v=4351792d:18728
+workLoop @ chunk-NXESFFTV.js?v=4351792d:197
+flushWork @ chunk-NXESFFTV.js?v=4351792d:176
+performWorkUntilDeadline @ chunk-NXESFFTV.js?v=4351792d:384
+postMessage
+schedulePerformWorkUntilDeadline @ chunk-NXESFFTV.js?v=4351792d:407
+requestHostCallback @ chunk-NXESFFTV.js?v=4351792d:418
+unstable_scheduleCallback @ chunk-NXESFFTV.js?v=4351792d:330
+scheduleCallback$1 @ chunk-NXESFFTV.js?v=4351792d:19879
+ensureRootIsScheduled @ chunk-NXESFFTV.js?v=4351792d:18702
+scheduleUpdateOnFiber @ chunk-NXESFFTV.js?v=4351792d:18612
+dispatchSetState @ chunk-NXESFFTV.js?v=4351792d:12451
+data @ CityDetail.tsx:68
+Promise.then
+(anonymous) @ CityDetail.tsx:68
+commitHookEffectListMount @ chunk-NXESFFTV.js?v=4351792d:16963
+commitPassiveMountOnFiber @ chunk-NXESFFTV.js?v=4351792d:18206
+commitPassiveMountEffects_complete @ chunk-NXESFFTV.js?v=4351792d:18179
+commitPassiveMountEffects_begin @ chunk-NXESFFTV.js?v=4351792d:18169
+commitPassiveMountEffects @ chunk-NXESFFTV.js?v=4351792d:18159
+flushPassiveEffectsImpl @ chunk-NXESFFTV.js?v=4351792d:19543
+flushPassiveEffects @ chunk-NXESFFTV.js?v=4351792d:19500
+commitRootImpl @ chunk-NXESFFTV.js?v=4351792d:19469
+commitRoot @ chunk-NXESFFTV.js?v=4351792d:19330
+performSyncWorkOnRoot @ chunk-NXESFFTV.js?v=4351792d:18948
+flushSyncCallbacks @ chunk-NXESFFTV.js?v=4351792d:9166
+(anonymous) @ chunk-NXESFFTV.js?v=4351792d:18677Understand this error
+chunk-NXESFFTV.js?v=4351792d:11726 Uncaught Error: Rendered more hooks than during the previous render.
+    at updateWorkInProgressHook (chunk-NXESFFTV.js?v=4351792d:11726:21)
+    at updateEffectImpl (chunk-NXESFFTV.js?v=4351792d:12122:22)
+    at updateEffect (chunk-NXESFFTV.js?v=4351792d:12147:18)
+    at Object.useEffect (chunk-NXESFFTV.js?v=4351792d:12751:22)
+    at Object.useEffect (chunk-DRWLMN53.js?v=4351792d:1078:29)
+    at useClearResetErrorBoundary (@tanstack_react-query.js?v=26dff5a7:3079:10)
+    at useBaseQuery (@tanstack_react-query.js?v=26dff5a7:3227:3)
+    at useQuery (@tanstack_react-query.js?v=26dff5a7:3286:10)
+    at CityDetail (CityDetail.tsx:111:34)
+    at renderWithHooks (chunk-NXESFFTV.js?v=4351792d:11596:26)
+updateWorkInProgressHook @ chunk-NXESFFTV.js?v=4351792d:11726
+updateEffectImpl @ chunk-NXESFFTV.js?v=4351792d:12122
+updateEffect @ chunk-NXESFFTV.js?v=4351792d:12147
+useEffect @ chunk-NXESFFTV.js?v=4351792d:12751
+useEffect @ chunk-DRWLMN53.js?v=4351792d:1078
+useClearResetErrorBoundary @ @tanstack_react-query.js?v=26dff5a7:3079
+useBaseQuery @ @tanstack_react-query.js?v=26dff5a7:3227
+useQuery @ @tanstack_react-query.js?v=26dff5a7:3286
+(anonymous) @ CityDetail.tsx:111
+renderWithHooks @ chunk-NXESFFTV.js?v=4351792d:11596
+updateFunctionComponent @ chunk-NXESFFTV.js?v=4351792d:14630
+beginWork @ chunk-NXESFFTV.js?v=4351792d:15972
+callCallback2 @ chunk-NXESFFTV.js?v=4351792d:3680
+invokeGuardedCallbackDev @ chunk-NXESFFTV.js?v=4351792d:3705
+invokeGuardedCallback @ chunk-NXESFFTV.js?v=4351792d:3739
+beginWork$1 @ chunk-NXESFFTV.js?v=4351792d:19818
+performUnitOfWork @ chunk-NXESFFTV.js?v=4351792d:19251
+workLoopSync @ chunk-NXESFFTV.js?v=4351792d:19190
+renderRootSync @ chunk-NXESFFTV.js?v=4351792d:19169
+recoverFromConcurrentError @ chunk-NXESFFTV.js?v=4351792d:18786
+performConcurrentWorkOnRoot @ chunk-NXESFFTV.js?v=4351792d:18734
+workLoop @ chunk-NXESFFTV.js?v=4351792d:197
+flushWork @ chunk-NXESFFTV.js?v=4351792d:176
+performWorkUntilDeadline @ chunk-NXESFFTV.js?v=4351792d:384
+postMessage
+schedulePerformWorkUntilDeadline @ chunk-NXESFFTV.js?v=4351792d:407
+requestHostCallback @ chunk-NXESFFTV.js?v=4351792d:418
+unstable_scheduleCallback @ chunk-NXESFFTV.js?v=4351792d:330
+scheduleCallback$1 @ chunk-NXESFFTV.js?v=4351792d:19879
+ensureRootIsScheduled @ chunk-NXESFFTV.js?v=4351792d:18702
+scheduleUpdateOnFiber @ chunk-NXESFFTV.js?v=4351792d:18612
+dispatchSetState @ chunk-NXESFFTV.js?v=4351792d:12451
+data @ CityDetail.tsx:68
+Promise.then
+(anonymous) @ CityDetail.tsx:68
+commitHookEffectListMount @ chunk-NXESFFTV.js?v=4351792d:16963
+commitPassiveMountOnFiber @ chunk-NXESFFTV.js?v=4351792d:18206
+commitPassiveMountEffects_complete @ chunk-NXESFFTV.js?v=4351792d:18179
+commitPassiveMountEffects_begin @ chunk-NXESFFTV.js?v=4351792d:18169
+commitPassiveMountEffects @ chunk-NXESFFTV.js?v=4351792d:18159
+flushPassiveEffectsImpl @ chunk-NXESFFTV.js?v=4351792d:19543
+flushPassiveEffects @ chunk-NXESFFTV.js?v=4351792d:19500
+commitRootImpl @ chunk-NXESFFTV.js?v=4351792d:19469
+commitRoot @ chunk-NXESFFTV.js?v=4351792d:19330
+performSyncWorkOnRoot @ chunk-NXESFFTV.js?v=4351792d:18948
+flushSyncCallbacks @ chunk-NXESFFTV.js?v=4351792d:9166
+(anonymous) @ chunk-NXESFFTV.js?v=4351792d:18677Understand this error
+chunk-NXESFFTV.js?v=4351792d:14080 The above error occurred in the <CityDetail> component:
+
+    at CityDetail (http://localhost:5000/src/pages/CityDetail.tsx:44:22)
+    at RenderedRoute (http://localhost:5000/node_modules/.vite/deps/react-router-dom.js?v=47c1b0e1:4088:5)
+    at Routes (http://localhost:5000/node_modules/.vite/deps/react-router-dom.js?v=47c1b0e1:4558:5)
+    at Router (http://localhost:5000/node_modules/.vite/deps/react-router-dom.js?v=47c1b0e1:4501:15)
+    at BrowserRouter (http://localhost:5000/node_modules/.vite/deps/react-router-dom.js?v=47c1b0e1:5247:5)
+    at Provider (http://localhost:5000/node_modules/.vite/deps/chunk-U4NED7UW.js?v=4351792d:37:15)
+    at TooltipProvider (http://localhost:5000/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=c3ef3e1a:65:5)
+    at QueryClientProvider (http://localhost:5000/node_modules/.vite/deps/@tanstack_react-query.js?v=26dff5a7:3025:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+logCapturedError @ chunk-NXESFFTV.js?v=4351792d:14080
+update.callback @ chunk-NXESFFTV.js?v=4351792d:14100
+callCallback @ chunk-NXESFFTV.js?v=4351792d:11296
+commitUpdateQueue @ chunk-NXESFFTV.js?v=4351792d:11313
+commitLayoutEffectOnFiber @ chunk-NXESFFTV.js?v=4351792d:17141
+commitLayoutMountEffects_complete @ chunk-NXESFFTV.js?v=4351792d:18030
+commitLayoutEffects_begin @ chunk-NXESFFTV.js?v=4351792d:18019
+commitLayoutEffects @ chunk-NXESFFTV.js?v=4351792d:17970
+commitRootImpl @ chunk-NXESFFTV.js?v=4351792d:19406
+commitRoot @ chunk-NXESFFTV.js?v=4351792d:19330
+finishConcurrentRender @ chunk-NXESFFTV.js?v=4351792d:18813
+performConcurrentWorkOnRoot @ chunk-NXESFFTV.js?v=4351792d:18768
+workLoop @ chunk-NXESFFTV.js?v=4351792d:197
+flushWork @ chunk-NXESFFTV.js?v=4351792d:176
+performWorkUntilDeadline @ chunk-NXESFFTV.js?v=4351792d:384
+postMessage
+schedulePerformWorkUntilDeadline @ chunk-NXESFFTV.js?v=4351792d:407
+requestHostCallback @ chunk-NXESFFTV.js?v=4351792d:418
+unstable_scheduleCallback @ chunk-NXESFFTV.js?v=4351792d:330
+scheduleCallback$1 @ chunk-NXESFFTV.js?v=4351792d:19879
+ensureRootIsScheduled @ chunk-NXESFFTV.js?v=4351792d:18702
+scheduleUpdateOnFiber @ chunk-NXESFFTV.js?v=4351792d:18612
+dispatchSetState @ chunk-NXESFFTV.js?v=4351792d:12451
+data @ CityDetail.tsx:68
+Promise.then
+(anonymous) @ CityDetail.tsx:68
+commitHookEffectListMount @ chunk-NXESFFTV.js?v=4351792d:16963
+commitPassiveMountOnFiber @ chunk-NXESFFTV.js?v=4351792d:18206
+commitPassiveMountEffects_complete @ chunk-NXESFFTV.js?v=4351792d:18179
+commitPassiveMountEffects_begin @ chunk-NXESFFTV.js?v=4351792d:18169
+commitPassiveMountEffects @ chunk-NXESFFTV.js?v=4351792d:18159
+flushPassiveEffectsImpl @ chunk-NXESFFTV.js?v=4351792d:19543
+flushPassiveEffects @ chunk-NXESFFTV.js?v=4351792d:19500
+commitRootImpl @ chunk-NXESFFTV.js?v=4351792d:19469
+commitRoot @ chunk-NXESFFTV.js?v=4351792d:19330
+performSyncWorkOnRoot @ chunk-NXESFFTV.js?v=4351792d:18948
+flushSyncCallbacks @ chunk-NXESFFTV.js?v=4351792d:9166
+(anonymous) @ chunk-NXESFFTV.js?v=4351792d:18677Understand this error
+chunk-NXESFFTV.js?v=4351792d:11726 Uncaught Error: Rendered more hooks than during the previous render.
+    at updateWorkInProgressHook (chunk-NXESFFTV.js?v=4351792d:11726:21)
+    at updateEffectImpl (chunk-NXESFFTV.js?v=4351792d:12122:22)
+    at updateEffect (chunk-NXESFFTV.js?v=4351792d:12147:18)
+    at Object.useEffect (chunk-NXESFFTV.js?v=4351792d:12751:22)
+    at Object.useEffect (chunk-DRWLMN53.js?v=4351792d:1078:29)
+    at useClearResetErrorBoundary (@tanstack_react-query.js?v=26dff5a7:3079:10)
+    at useBaseQuery (@tanstack_react-query.js?v=26dff5a7:3227:3)
+    at useQuery (@tanstack_react-query.js?v=26dff5a7:3286:10)
+    at CityDetail (CityDetail.tsx:111:34)
+    at renderWithHooks (chunk-NXESFFTV.js?v=4351792d:11596:26)
+updateWorkInProgressHook @ chunk-NXESFFTV.js?v=4351792d:11726
+updateEffectImpl @ chunk-NXESFFTV.js?v=4351792d:12122
+updateEffect @ chunk-NXESFFTV.js?v=4351792d:12147
+useEffect @ chunk-NXESFFTV.js?v=4351792d:12751
+useEffect @ chunk-DRWLMN53.js?v=4351792d:1078
+useClearResetErrorBoundary @ @tanstack_react-query.js?v=26dff5a7:3079
+useBaseQuery @ @tanstack_react-query.js?v=26dff5a7:3227
+useQuery @ @tanstack_react-query.js?v=26dff5a7:3286
+(anonymous) @ CityDetail.tsx:111
+renderWithHooks @ chunk-NXESFFTV.js?v=4351792d:11596
+updateFunctionComponent @ chunk-NXESFFTV.js?v=4351792d:14630
+beginWork @ chunk-NXESFFTV.js?v=4351792d:15972
+beginWork$1 @ chunk-NXESFFTV.js?v=4351792d:19806
+performUnitOfWork @ chunk-NXESFFTV.js?v=4351792d:19251
+workLoopSync @ chunk-NXESFFTV.js?v=4351792d:19190
+renderRootSync @ chunk-NXESFFTV.js?v=4351792d:19169
+recoverFromConcurrentError @ chunk-NXESFFTV.js?v=4351792d:18786
+performConcurrentWorkOnRoot @ chunk-NXESFFTV.js?v=4351792d:18734
+workLoop @ chunk-NXESFFTV.js?v=4351792d:197
+flushWork @ chunk-NXESFFTV.js?v=4351792d:176
+performWorkUntilDeadline @ chunk-NXESFFTV.js?v=4351792d:384
+postMessage
+schedulePerformWorkUntilDeadline @ chunk-NXESFFTV.js?v=4351792d:407
+requestHostCallback @ chunk-NXESFFTV.js?v=4351792d:418
+unstable_scheduleCallback @ chunk-NXESFFTV.js?v=4351792d:330
+scheduleCallback$1 @ chunk-NXESFFTV.js?v=4351792d:19879
+ensureRootIsScheduled @ chunk-NXESFFTV.js?v=4351792d:18702
+scheduleUpdateOnFiber @ chunk-NXESFFTV.js?v=4351792d:18612
+dispatchSetState @ chunk-NXESFFTV.js?v=4351792d:12451
+data @ CityDetail.tsx:68
+Promise.then
+(anonymous) @ CityDetail.tsx:68
+commitHookEffectListMount @ chunk-NXESFFTV.js?v=4351792d:16963
+commitPassiveMountOnFiber @ chunk-NXESFFTV.js?v=4351792d:18206
+commitPassiveMountEffects_complete @ chunk-NXESFFTV.js?v=4351792d:18179
+commitPassiveMountEffects_begin @ chunk-NXESFFTV.js?v=4351792d:18169
+commitPassiveMountEffects @ chunk-NXESFFTV.js?v=4351792d:18159
+flushPassiveEffectsImpl @ chunk-NXESFFTV.js?v=4351792d:19543
+flushPassiveEffects @ chunk-NXESFFTV.js?v=4351792d:19500
+commitRootImpl @ chunk-NXESFFTV.js?v=4351792d:19469
+commitRoot @ chunk-NXESFFTV.js?v=4351792d:19330
+performSyncWorkOnRoot @ chunk-NXESFFTV.js?v=4351792d:18948
+flushSyncCallbacks @ chunk-NXESFFTV.js?v=4351792d:9166
+(anonymous) @ chunk-NXESFFTV.js?v=4351792d:18677Understand this error
