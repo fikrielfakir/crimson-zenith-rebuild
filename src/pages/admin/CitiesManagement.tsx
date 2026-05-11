@@ -15,7 +15,12 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import {
   Plus, Pencil, Trash2, MapPin, RefreshCw, Settings, Globe, Save,
-  ImageIcon, Search, Check, Link as LinkIcon, Eye, EyeOff, ArrowUp, ArrowDown,
+  ImageIcon, Search, Check, Link as LinkIcon, Eye, EyeOff, ArrowUp, ArrowDown, X,
+  Mountain, Waves, Coffee, Map, Compass, Camera, Bike, Car, Plane, Ship,
+  Tent, Flame, Sun, Moon, Star, Heart, Music, Book, TreePine, Fish,
+  Anchor, Zap, Wind, Cloud, Umbrella, Leaf, Utensils, ShoppingBag,
+  Trophy, Flag, Landmark, Building2, Palette, Dumbbell, Flower2, Pizza,
+  Mic, Layers, Activity, Users, Sparkles, Aperture, Feather, Shell,
 } from 'lucide-react';
 
 /* ─────────────────────────────── types ─────────────────────────────── */
@@ -29,6 +34,7 @@ interface MediaFile {
 
 interface CityActivity { name: string; icon: string; description: string; }
 interface CuisineDish  { name: string; description: string; }
+interface HighlightItem { text: string; image?: string; }
 
 interface City {
   id: number;
@@ -320,6 +326,101 @@ function ImageField({
   );
 }
 
+/* ─────────────────── icon registry ─────────────────── */
+const COMMON_ICONS: { name: string; Icon: React.FC<any> }[] = [
+  { name: 'mountain',    Icon: Mountain },
+  { name: 'waves',       Icon: Waves },
+  { name: 'coffee',      Icon: Coffee },
+  { name: 'map',         Icon: Map },
+  { name: 'compass',     Icon: Compass },
+  { name: 'camera',      Icon: Camera },
+  { name: 'bike',        Icon: Bike },
+  { name: 'car',         Icon: Car },
+  { name: 'plane',       Icon: Plane },
+  { name: 'ship',        Icon: Ship },
+  { name: 'tent',        Icon: Tent },
+  { name: 'flame',       Icon: Flame },
+  { name: 'sun',         Icon: Sun },
+  { name: 'moon',        Icon: Moon },
+  { name: 'star',        Icon: Star },
+  { name: 'heart',       Icon: Heart },
+  { name: 'music',       Icon: Music },
+  { name: 'book',        Icon: Book },
+  { name: 'tree',        Icon: TreePine },
+  { name: 'fish',        Icon: Fish },
+  { name: 'anchor',      Icon: Anchor },
+  { name: 'zap',         Icon: Zap },
+  { name: 'wind',        Icon: Wind },
+  { name: 'cloud',       Icon: Cloud },
+  { name: 'umbrella',    Icon: Umbrella },
+  { name: 'leaf',        Icon: Leaf },
+  { name: 'utensils',    Icon: Utensils },
+  { name: 'shopping',    Icon: ShoppingBag },
+  { name: 'trophy',      Icon: Trophy },
+  { name: 'flag',        Icon: Flag },
+  { name: 'landmark',    Icon: Landmark },
+  { name: 'building',    Icon: Building2 },
+  { name: 'palette',     Icon: Palette },
+  { name: 'dumbbell',    Icon: Dumbbell },
+  { name: 'flower',      Icon: Flower2 },
+  { name: 'pizza',       Icon: Pizza },
+  { name: 'mic',         Icon: Mic },
+  { name: 'layers',      Icon: Layers },
+  { name: 'activity',    Icon: Activity },
+  { name: 'users',       Icon: Users },
+  { name: 'sparkles',    Icon: Sparkles },
+  { name: 'globe',       Icon: Globe },
+  { name: 'map-pin',     Icon: MapPin },
+  { name: 'aperture',    Icon: Aperture },
+  { name: 'feather',     Icon: Feather },
+  { name: 'shell',       Icon: Shell },
+  { name: 'settings',    Icon: Settings },
+];
+
+function renderLucideIcon(iconName: string, className = 'w-5 h-5') {
+  const found = COMMON_ICONS.find(i => i.name === iconName);
+  const Icon = found ? found.Icon : MapPin;
+  return <Icon className={className} />;
+}
+
+/* ─────────────────── IconPickerDialog ─────────────────── */
+function IconPickerDialog({
+  open, onOpenChange, onSelect, current,
+}: { open: boolean; onOpenChange: (v: boolean) => void; onSelect: (name: string) => void; current?: string }) {
+  const [search, setSearch] = useState('');
+  const filtered = COMMON_ICONS.filter(i => i.name.includes(search.toLowerCase()));
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Choose Icon</DialogTitle>
+          <DialogDescription>Pick an icon for this activity</DialogDescription>
+        </DialogHeader>
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input placeholder="Search icons…" value={search} onChange={e => setSearch(e.target.value)} className="pl-9" />
+        </div>
+        <div className="grid grid-cols-7 gap-1.5 max-h-64 overflow-y-auto py-1">
+          {filtered.map(({ name, Icon }) => (
+            <button
+              key={name}
+              type="button"
+              onClick={() => { onSelect(name); onOpenChange(false); }}
+              className={`flex flex-col items-center gap-1 p-2 rounded-lg border transition-all hover:border-primary ${
+                current === name ? 'border-primary bg-primary/10' : 'border-transparent bg-muted/40'
+              }`}
+              title={name}
+            >
+              <Icon className="w-5 h-5" />
+              <span className="text-[8px] text-muted-foreground leading-none text-center truncate w-full">{name}</span>
+            </button>
+          ))}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 /* ─────────────────── empty city ─────────────────── */
 const emptyCity: Omit<City, 'id'> = {
   name: '', slug: '', title: '', description: '', image: '',
@@ -351,10 +452,12 @@ export default function CitiesManagement() {
   const [showForm, setShowForm]     = useState(false);
   const [editing, setEditing]       = useState<City | null>(null);
   const [form, setForm]             = useState<any>(emptyCity);
-  const [deleteId, setDeleteId]     = useState<number | null>(null);
-  const [discoverForm, setDiscoverForm] = useState<DiscoverSettings | null>(null);
-  const { toast }                   = useToast();
-  const queryClient                 = useQueryClient();
+  const [deleteId, setDeleteId]           = useState<number | null>(null);
+  const [discoverForm, setDiscoverForm]   = useState<DiscoverSettings | null>(null);
+  const [iconPickerFor, setIconPickerFor] = useState<number | null>(null);
+  const [hlPickerFor, setHlPickerFor]     = useState<{ section: 'main' | 'culture'; idx: number } | null>(null);
+  const { toast }                         = useToast();
+  const queryClient                       = useQueryClient();
 
   const { data, isLoading } = useQuery({ queryKey: ['admin-cities'], queryFn: fetchCities });
   const cities: City[] = data?.cities ?? [];
@@ -372,7 +475,7 @@ export default function CitiesManagement() {
   /* city form helpers */
   function openCreate() {
     setEditing(null);
-    setForm({ ...emptyCity });
+    setForm({ ...emptyCity, highlights: [], cultureHighlights: [], activities: [], dishes: [] });
     setShowForm(true);
   }
 
@@ -380,37 +483,32 @@ export default function CitiesManagement() {
     setEditing(city);
     setForm({
       ...city,
-      highlightsText:       (city.highlights ?? []).join('\n'),
-      travelTipsText:       (city.travelTips ?? []).join('\n'),
-      cultureHighlightsText:(city.culture?.highlights ?? []).join('\n'),
-      transportText:        (city.gettingThere?.transport ?? []).join('\n'),
-      activitiesJson:       JSON.stringify(city.activities ?? [], null, 2),
-      dishesJson:           JSON.stringify(city.cuisine?.dishes ?? [], null, 2),
+      highlights:         (city.highlights ?? []).map((h: any) => typeof h === 'string' ? { text: h, image: '' } : h),
+      cultureHighlights:  (city.culture?.highlights ?? []).map((h: any) => typeof h === 'string' ? { text: h, image: '' } : h),
+      activities:         city.activities ?? [],
+      dishes:             city.cuisine?.dishes ?? [],
+      travelTipsText:     (city.travelTips ?? []).join('\n'),
+      transportText:      (city.gettingThere?.transport ?? []).join('\n'),
     });
     setShowForm(true);
   }
 
   function formToPayload(f: any) {
-    let activities: any[] = f.activities ?? [];
-    try { activities = JSON.parse(f.activitiesJson || '[]'); } catch {}
-    let dishes: any[] = [];
-    try { dishes = JSON.parse(f.dishesJson || '[]'); } catch {}
-
     return {
       name:        f.name,
       slug:        f.slug,
       title:       f.title,
       description: f.description,
       image:       f.image,
-      highlights:  (f.highlightsText || '').split('\n').map((s: string) => s.trim()).filter(Boolean),
-      activities,
+      highlights:  (f.highlights ?? []).map((h: HighlightItem) => h.text).filter(Boolean),
+      activities:  f.activities ?? [],
       travelTips:  (f.travelTipsText || '').split('\n').map((s: string) => s.trim()).filter(Boolean),
       culture: f.culture ? {
         ...f.culture,
-        highlights: (f.cultureHighlightsText || '').split('\n').map((s: string) => s.trim()).filter(Boolean),
+        highlights: (f.cultureHighlights ?? []).map((h: HighlightItem) => h.text).filter(Boolean),
       } : null,
-      cuisine:     f.cuisine ? { ...f.cuisine, dishes } : null,
-      bestTime:    f.bestTime,
+      cuisine:      f.cuisine ? { ...f.cuisine, dishes: f.dishes ?? [] } : null,
+      bestTime:     f.bestTime,
       gettingThere: f.gettingThere ? {
         ...f.gettingThere,
         transport: (f.transportText || '').split('\n').map((s: string) => s.trim()).filter(Boolean),
@@ -418,6 +516,40 @@ export default function CitiesManagement() {
       isActive:  f.isActive,
       ordering:  Number(f.ordering) || 0,
     };
+  }
+
+  /* array item helpers */
+  function addActivity() {
+    setForm((p: any) => ({ ...p, activities: [...(p.activities ?? []), { name: '', icon: 'map-pin', description: '' }] }));
+  }
+  function removeActivity(i: number) {
+    setForm((p: any) => ({ ...p, activities: (p.activities ?? []).filter((_: any, idx: number) => idx !== i) }));
+  }
+  function updateActivity(i: number, key: string, val: string) {
+    setForm((p: any) => { const a = [...(p.activities ?? [])]; a[i] = { ...a[i], [key]: val }; return { ...p, activities: a }; });
+  }
+
+  function addDish() {
+    setForm((p: any) => ({ ...p, dishes: [...(p.dishes ?? []), { name: '', description: '' }] }));
+  }
+  function removeDish(i: number) {
+    setForm((p: any) => ({ ...p, dishes: (p.dishes ?? []).filter((_: any, idx: number) => idx !== i) }));
+  }
+  function updateDish(i: number, key: string, val: string) {
+    setForm((p: any) => { const d = [...(p.dishes ?? [])]; d[i] = { ...d[i], [key]: val }; return { ...p, dishes: d }; });
+  }
+
+  function addHighlight(section: 'main' | 'culture') {
+    const key = section === 'main' ? 'highlights' : 'cultureHighlights';
+    setForm((p: any) => ({ ...p, [key]: [...(p[key] ?? []), { text: '', image: '' }] }));
+  }
+  function removeHighlight(section: 'main' | 'culture', i: number) {
+    const key = section === 'main' ? 'highlights' : 'cultureHighlights';
+    setForm((p: any) => ({ ...p, [key]: (p[key] ?? []).filter((_: any, idx: number) => idx !== i) }));
+  }
+  function updateHighlight(section: 'main' | 'culture', i: number, field: string, val: string) {
+    const key = section === 'main' ? 'highlights' : 'cultureHighlights';
+    setForm((p: any) => { const arr = [...(p[key] ?? [])]; arr[i] = { ...arr[i], [field]: val }; return { ...p, [key]: arr }; });
   }
 
   function setField(path: string, value: any) {
@@ -860,14 +992,37 @@ export default function CitiesManagement() {
             </div>
 
             {/* Highlights */}
-            <div className="space-y-2">
-              <Label>Highlights <span className="text-muted-foreground font-normal text-xs ml-1">— one per line</span></Label>
-              <Textarea
-                rows={4}
-                value={form.highlightsText ?? (form.highlights ?? []).join('\n')}
-                onChange={e => setField('highlightsText', e.target.value)}
-                placeholder={'Historic Kasbah\nCafé Hafa\nStrait of Gibraltar'}
-              />
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label>Highlights</Label>
+              </div>
+              <div className="space-y-2">
+                {(form.highlights ?? []).map((h: HighlightItem, i: number) => (
+                  <div key={i} className="flex gap-2 items-start p-3 border rounded-lg bg-card">
+                    <div className="flex-1 space-y-2">
+                      <Input
+                        value={h.text}
+                        onChange={e => updateHighlight('main', i, 'text', e.target.value)}
+                        placeholder="e.g. Historic Kasbah"
+                      />
+                      <div className="flex items-center gap-2">
+                        {h.image
+                          ? <img src={h.image} alt="" className="w-10 h-10 object-cover rounded border" />
+                          : <div className="w-10 h-10 rounded border bg-muted flex items-center justify-center shrink-0"><ImageIcon className="w-4 h-4 text-muted-foreground" /></div>
+                        }
+                        <button type="button" onClick={() => setHlPickerFor({ section: 'main', idx: i })} className="text-xs text-muted-foreground border rounded px-2 py-1 hover:bg-muted transition-colors">
+                          {h.image ? 'Change Image' : '+ Image'}
+                        </button>
+                        {h.image && <button type="button" onClick={() => updateHighlight('main', i, 'image', '')} className="text-xs text-destructive hover:underline">Remove</button>}
+                      </div>
+                    </div>
+                    <button type="button" onClick={() => removeHighlight('main', i)} className="text-muted-foreground hover:text-destructive mt-1 shrink-0"><X className="w-4 h-4" /></button>
+                  </div>
+                ))}
+                <button type="button" onClick={() => addHighlight('main')} className="w-full border-dashed border-2 rounded-lg py-3 text-muted-foreground hover:text-foreground hover:border-primary text-sm transition-colors flex items-center justify-center gap-2">
+                  <Plus className="w-4 h-4" /> Add Highlight
+                </button>
+              </div>
             </div>
 
             {/* Culture */}
@@ -881,9 +1036,35 @@ export default function CitiesManagement() {
                 <Label>Description</Label>
                 <Textarea rows={2} value={form.culture?.description ?? ''} onChange={e => setField('culture.description', e.target.value)} />
               </div>
-              <div className="space-y-2">
-                <Label>Highlights <span className="text-muted-foreground font-normal text-xs ml-1">— one per line</span></Label>
-                <Textarea rows={3} value={form.cultureHighlightsText ?? (form.culture?.highlights ?? []).join('\n')} onChange={e => setField('cultureHighlightsText', e.target.value)} />
+              <div className="space-y-3">
+                <Label>Highlights</Label>
+                <div className="space-y-2">
+                  {(form.cultureHighlights ?? []).map((h: HighlightItem, i: number) => (
+                    <div key={i} className="flex gap-2 items-start p-3 border rounded-lg bg-card">
+                      <div className="flex-1 space-y-2">
+                        <Input
+                          value={h.text}
+                          onChange={e => updateHighlight('culture', i, 'text', e.target.value)}
+                          placeholder="e.g. Ancient Medina"
+                        />
+                        <div className="flex items-center gap-2">
+                          {h.image
+                            ? <img src={h.image} alt="" className="w-10 h-10 object-cover rounded border" />
+                            : <div className="w-10 h-10 rounded border bg-muted flex items-center justify-center shrink-0"><ImageIcon className="w-4 h-4 text-muted-foreground" /></div>
+                          }
+                          <button type="button" onClick={() => setHlPickerFor({ section: 'culture', idx: i })} className="text-xs text-muted-foreground border rounded px-2 py-1 hover:bg-muted transition-colors">
+                            {h.image ? 'Change Image' : '+ Image'}
+                          </button>
+                          {h.image && <button type="button" onClick={() => updateHighlight('culture', i, 'image', '')} className="text-xs text-destructive hover:underline">Remove</button>}
+                        </div>
+                      </div>
+                      <button type="button" onClick={() => removeHighlight('culture', i)} className="text-muted-foreground hover:text-destructive mt-1 shrink-0"><X className="w-4 h-4" /></button>
+                    </div>
+                  ))}
+                  <button type="button" onClick={() => addHighlight('culture')} className="w-full border-dashed border-2 rounded-lg py-3 text-muted-foreground hover:text-foreground hover:border-primary text-sm transition-colors flex items-center justify-center gap-2">
+                    <Plus className="w-4 h-4" /> Add Culture Highlight
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -894,18 +1075,22 @@ export default function CitiesManagement() {
                 <Label>Section Title</Label>
                 <Input value={form.cuisine?.title ?? ''} onChange={e => setField('cuisine.title', e.target.value)} />
               </div>
-              <div className="space-y-2">
-                <Label className="flex items-center gap-1">
-                  Dishes
-                  <span className="text-muted-foreground font-normal text-xs ml-1">— JSON array</span>
-                </Label>
-                <Textarea
-                  rows={5}
-                  value={form.dishesJson ?? JSON.stringify(form.cuisine?.dishes ?? [], null, 2)}
-                  onChange={e => setField('dishesJson', e.target.value)}
-                  className="font-mono text-xs"
-                  placeholder={'[{"name":"Tagine","description":"Slow-cooked stew"}]'}
-                />
+              <div className="space-y-3">
+                <Label>Dishes</Label>
+                <div className="space-y-2">
+                  {(form.dishes ?? []).map((dish: CuisineDish, i: number) => (
+                    <div key={i} className="flex gap-2 items-start p-3 border rounded-lg bg-card">
+                      <div className="flex-1 space-y-2">
+                        <Input value={dish.name} onChange={e => updateDish(i, 'name', e.target.value)} placeholder="Dish name (e.g. Tagine)" />
+                        <Textarea rows={2} value={dish.description} onChange={e => updateDish(i, 'description', e.target.value)} placeholder="Short description…" />
+                      </div>
+                      <button type="button" onClick={() => removeDish(i)} className="text-muted-foreground hover:text-destructive mt-1 shrink-0"><X className="w-4 h-4" /></button>
+                    </div>
+                  ))}
+                  <button type="button" onClick={addDish} className="w-full border-dashed border-2 rounded-lg py-3 text-muted-foreground hover:text-foreground hover:border-primary text-sm transition-colors flex items-center justify-center gap-2">
+                    <Plus className="w-4 h-4" /> Add Dish
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -913,16 +1098,26 @@ export default function CitiesManagement() {
             <div className="border rounded-xl p-4 space-y-3 bg-muted/30">
               <h3 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">Activities</h3>
               <div className="space-y-2">
-                <Label className="flex items-center gap-1">
-                  Activities
-                  <span className="text-muted-foreground font-normal text-xs ml-1">— JSON (icon: map | mountain | coffee | waves)</span>
-                </Label>
-                <Textarea
-                  rows={7}
-                  value={form.activitiesJson ?? JSON.stringify(form.activities ?? [], null, 2)}
-                  onChange={e => setField('activitiesJson', e.target.value)}
-                  className="font-mono text-xs"
-                />
+                {(form.activities ?? []).map((act: CityActivity, i: number) => (
+                  <div key={i} className="p-3 border rounded-lg bg-card space-y-2">
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setIconPickerFor(i)}
+                        className="shrink-0 w-10 h-10 rounded-lg border bg-muted flex items-center justify-center hover:border-primary transition-colors"
+                        title="Choose icon"
+                      >
+                        {renderLucideIcon(act.icon)}
+                      </button>
+                      <Input value={act.name} onChange={e => updateActivity(i, 'name', e.target.value)} placeholder="Activity name" className="flex-1" />
+                      <button type="button" onClick={() => removeActivity(i)} className="text-muted-foreground hover:text-destructive shrink-0"><X className="w-4 h-4" /></button>
+                    </div>
+                    <Textarea rows={2} value={act.description} onChange={e => updateActivity(i, 'description', e.target.value)} placeholder="Description…" />
+                  </div>
+                ))}
+                <button type="button" onClick={addActivity} className="w-full border-dashed border-2 rounded-lg py-3 text-muted-foreground hover:text-foreground hover:border-primary text-sm transition-colors flex items-center justify-center gap-2">
+                  <Plus className="w-4 h-4" /> Add Activity
+                </button>
               </div>
             </div>
 
@@ -981,6 +1176,26 @@ export default function CitiesManagement() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* ── Icon picker for activities ── */}
+      <IconPickerDialog
+        open={iconPickerFor !== null}
+        onOpenChange={v => { if (!v) setIconPickerFor(null); }}
+        current={iconPickerFor !== null ? (form.activities ?? [])[iconPickerFor]?.icon : undefined}
+        onSelect={name => { if (iconPickerFor !== null) updateActivity(iconPickerFor, 'icon', name); }}
+      />
+
+      {/* ── Image picker for highlights ── */}
+      <MediaPickerDialog
+        open={hlPickerFor !== null}
+        onOpenChange={v => { if (!v) setHlPickerFor(null); }}
+        onSelect={url => {
+          if (hlPickerFor !== null) {
+            updateHighlight(hlPickerFor.section, hlPickerFor.idx, 'image', url);
+            setHlPickerFor(null);
+          }
+        }}
+      />
 
       {/* ── Delete confirmation ── */}
       <Dialog open={deleteId !== null} onOpenChange={() => setDeleteId(null)}>
