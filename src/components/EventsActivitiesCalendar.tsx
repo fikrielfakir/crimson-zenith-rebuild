@@ -243,10 +243,43 @@ const EventsActivitiesCalendar = () => {
     return `${start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })} – ${end.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}`;
   };
 
+  /* Determine effective status: auto-classify past events as completed */
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+
+  const getEffectiveStatus = (event: Event): string => {
+    const rawStatus = (event.status || '').toLowerCase();
+    if (rawStatus === 'completed') return 'completed';
+    const dateToUse = event.endDate || event.startDate || event.eventDate;
+    if (dateToUse) {
+      const eventEnd = new Date(dateToUse);
+      eventEnd.setHours(0, 0, 0, 0);
+      if (eventEnd < now) return 'completed';
+    }
+    return rawStatus;
+  };
+
+  /* Find the single most-recent past event to show in non-Completed views */
+  const allPastEvents = events
+    .filter(ev => getEffectiveStatus(ev) === 'completed')
+    .sort((a, b) => {
+      const da = new Date(a.endDate || a.startDate || a.eventDate || '').getTime();
+      const db = new Date(b.endDate || b.startDate || b.eventDate || '').getTime();
+      return db - da; // descending — most recent first
+    });
+  const lastPassedEventId = allPastEvents[0]?.id ?? null;
+
   /* Filter: date (optional) + status tab */
   const filteredEvents = events.filter((event) => {
+    const effectiveStatus = getEffectiveStatus(event);
+
     /* Status filter */
-    if (statusFilter !== 'All' && (event.status || '').toLowerCase() !== statusFilter.toLowerCase()) return false;
+    if (statusFilter !== 'All') {
+      if (effectiveStatus !== statusFilter.toLowerCase()) return false;
+    } else {
+      /* In "All" view: hide completed events except the single most-recent one */
+      if (effectiveStatus === 'completed' && String(event.id) !== String(lastPassedEventId)) return false;
+    }
 
     /* Date filter — only active when a date has been explicitly picked */
     if (selectedDate) {
@@ -267,8 +300,8 @@ const EventsActivitiesCalendar = () => {
   /* Sort: upcoming first, then ongoing, then completed, by date */
   const statusOrder: Record<string, number> = { upcoming: 0, ongoing: 1, completed: 2 };
   const sortedEvents = [...filteredEvents].sort((a, b) => {
-    const sa = statusOrder[(a.status || '').toLowerCase()] ?? 9;
-    const sb = statusOrder[(b.status || '').toLowerCase()] ?? 9;
+    const sa = statusOrder[getEffectiveStatus(a)] ?? 9;
+    const sb = statusOrder[getEffectiveStatus(b)] ?? 9;
     if (sa !== sb) return sa - sb;
     const da = new Date(a.startDate || a.eventDate || '').getTime();
     const db = new Date(b.startDate || b.eventDate || '').getTime();
@@ -428,11 +461,13 @@ const EventsActivitiesCalendar = () => {
                   {displayedEvents.map((event) => {
                     const dateStr = event.startDate || event.eventDate;
                     const imgSrc  = event.image || 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80';
+                    const effectiveStatus = getEffectiveStatus(event);
+                    const isLastPassed = effectiveStatus === 'completed' && String(event.id) === String(lastPassedEventId) && statusFilter === 'All';
                     return (
                       <Card
                         key={event.id}
                         className="border-none overflow-hidden"
-                        style={{ backgroundColor: '#FFFFFF', boxShadow: '0 4px 12px rgba(0,0,0,0.06)', borderRadius: '16px', transition: 'transform 0.25s, box-shadow 0.25s', cursor: 'pointer' }}
+                        style={{ backgroundColor: '#FFFFFF', boxShadow: '0 4px 12px rgba(0,0,0,0.06)', borderRadius: '16px', transition: 'transform 0.25s, box-shadow 0.25s', cursor: 'pointer', opacity: isLastPassed ? 0.45 : 1, filter: isLastPassed ? 'grayscale(40%)' : 'none' }}
                         onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.01)'; e.currentTarget.style.boxShadow = '0 8px 20px rgba(0,0,0,0.12)'; }}
                         onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.06)'; }}
                         onClick={() => navigate(`/book?event=${event.id}`)}
@@ -449,7 +484,7 @@ const EventsActivitiesCalendar = () => {
 
                           {/* Status badge — top left */}
                           <div className="absolute" style={{ top: '12px', left: '12px' }}>
-                            <StatusBadge status={event.status} />
+                            <StatusBadge status={effectiveStatus} />
                           </div>
 
                           {/* Action icons — top right */}
@@ -548,7 +583,7 @@ const EventsActivitiesCalendar = () => {
                               onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#C9A758'; }}
                               onMouseLeave={e => { e.currentTarget.style.backgroundColor = '#D4B26A'; }}
                             >
-                              {(event.status || '').toLowerCase() === 'completed' ? 'View Details' : 'Book Now'}
+                              {effectiveStatus === 'completed' ? 'View Details' : 'Book Now'}
                             </Button>
                           </div>
                         </div>
