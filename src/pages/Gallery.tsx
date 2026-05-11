@@ -606,7 +606,7 @@ function GlassCard({ item, slot, isCenter, isFlying, onClick }: CardProps) {
               />
             )}
 
-            {/* click-to-center label */}
+            {/* click-to-feature label */}
             {!isCenter && !slot.blur && hovered && (
               <motion.div
                 initial={{ opacity:0, y:4 }} animate={{ opacity:1, y:0 }}
@@ -620,7 +620,7 @@ function GlassCard({ item, slot, isCenter, isFlying, onClick }: CardProps) {
                   boxShadow:"0 0 14px rgba(37,99,235,0.50)",
                   pointerEvents:"none",
                 }}>
-                ↗ CLICK TO VIEW
+                ★ SET AS FEATURED
               </motion.div>
             )}
           </div>
@@ -1131,7 +1131,7 @@ export default function Gallery() {
 
         {/* controls hint bar */}
         <motion.div
-          className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-5 px-5 py-2.5 rounded-full text-xs whitespace-nowrap z-20"
+          className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-5 px-5 py-2.5 rounded-full text-xs whitespace-nowrap z-[21]"
           style={{
             background:"rgba(4,13,33,0.70)",
             border:"1px solid rgba(100,160,255,0.12)",
@@ -1153,6 +1153,112 @@ export default function Gallery() {
         </motion.div>
 
         <FogVignette/>
+      </section>
+
+      {/* ── THUMBNAIL SELECTOR STRIP ──────────────────────────────── */}
+      <section style={{ background:"rgba(4,13,33,0.98)", borderTop:"1px solid rgba(37,99,235,0.12)", borderBottom:"1px solid rgba(37,99,235,0.12)", padding:"16px 0" }}>
+        <div className="container mx-auto px-6">
+          <div className="flex items-center gap-3 mb-3">
+            <span className="text-xs font-semibold tracking-widest uppercase" style={{ color:"rgba(120,195,255,0.55)" }}>
+              Select Featured Image
+            </span>
+            <div style={{ flex:1, height:1, background:"linear-gradient(90deg, rgba(37,99,235,0.25), transparent)" }}/>
+            <span className="text-xs" style={{ color:"rgba(120,195,255,0.35)" }}>
+              {centerIdx + 1} / {filtered.length}
+            </span>
+          </div>
+          <div
+            className="flex gap-3 overflow-x-auto pb-1"
+            style={{ scrollbarWidth:"thin", scrollbarColor:"rgba(37,99,235,0.35) transparent" }}
+          >
+            {filtered.map((item, i) => {
+              const isActive = i === centerIdx;
+              return (
+                <motion.button
+                  key={item.id}
+                  onClick={() => {
+                    setFlyingFrom(centerIdx);
+                    setCenterIdx(i);
+                    setTimeout(() => setFlyingFrom(null), 950);
+                  }}
+                  className="relative shrink-0 overflow-hidden"
+                  style={{
+                    width: 72, height: 54,
+                    borderRadius: 10,
+                    border: isActive
+                      ? "2px solid rgba(96,165,250,0.90)"
+                      : "2px solid rgba(80,140,255,0.18)",
+                    boxShadow: isActive
+                      ? "0 0 18px rgba(37,99,235,0.65), 0 0 6px rgba(96,165,250,0.5)"
+                      : "none",
+                    transition: "border-color 0.25s, box-shadow 0.25s",
+                    cursor: "pointer",
+                    background: "rgba(10,30,80,0.5)",
+                    outline: "none",
+                    padding: 0,
+                  }}
+                  whileHover={{ scale: 1.08, zIndex: 2 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <img
+                    src={item.url}
+                    alt={item.title}
+                    style={{
+                      width: "100%", height: "100%",
+                      objectFit: "cover",
+                      filter: isActive
+                        ? "brightness(1) saturate(1.2)"
+                        : "brightness(0.60) saturate(0.8)",
+                      transition: "filter 0.3s ease",
+                    }}
+                    onError={e => {
+                      (e.target as HTMLImageElement).src =
+                        `https://placehold.co/72x54/0a1f5c/4a9eff?text=${encodeURIComponent(item.title.slice(0,6))}`;
+                    }}
+                  />
+                  {/* active glow overlay */}
+                  {isActive && (
+                    <motion.div
+                      initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                      style={{
+                        position: "absolute", inset: 0,
+                        background: "linear-gradient(135deg, rgba(59,130,246,0.22) 0%, transparent 60%)",
+                        borderRadius: 8,
+                        pointerEvents: "none",
+                      }}
+                    />
+                  )}
+                  {/* active indicator dot */}
+                  {isActive && (
+                    <motion.div
+                      initial={{ scale: 0 }} animate={{ scale: 1 }}
+                      style={{
+                        position: "absolute", bottom: 4, right: 4,
+                        width: 7, height: 7, borderRadius: "50%",
+                        background: "linear-gradient(135deg,#60a5fa,#3b82f6)",
+                        boxShadow: "0 0 8px rgba(96,165,250,0.9)",
+                      }}
+                    />
+                  )}
+                  {/* featured star label */}
+                  {isActive && (
+                    <div style={{
+                      position: "absolute", top: 3, left: 3,
+                      fontSize: 8, fontWeight: 700,
+                      color: "#dbeafe", letterSpacing: "0.06em",
+                      background: "rgba(29,78,216,0.80)",
+                      borderRadius: 6, padding: "1px 5px",
+                      backdropFilter: "blur(6px)",
+                      border: "1px solid rgba(120,195,255,0.35)",
+                    }}>
+                      ★
+                    </div>
+                  )}
+                </motion.button>
+              );
+            })}
+          </div>
+        </div>
       </section>
 
       {/* ── UPLOAD PORTAL ────────────────────────────────────────── */}
