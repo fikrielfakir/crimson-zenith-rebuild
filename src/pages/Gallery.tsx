@@ -936,6 +936,9 @@ export default function Gallery() {
             likes:        STATIC_GALLERY[i % STATIC_GALLERY.length].likes,
             description:  it["description"]? String(it["description"]): STATIC_GALLERY[i % STATIC_GALLERY.length].description,
             aspect:       (it["aspect"] === "portrait" ? "portrait" : "landscape") as "portrait" | "landscape",
+            has360:       Boolean(it["has_360"]),
+            panoramaUrl:  it["panorama_url"] ? String(it["panorama_url"]) : undefined,
+            hotspots:     it["hotspots"] ? (it["hotspots"] as TourStop[]) : undefined,
           })));
         }
       }).catch(() => {});

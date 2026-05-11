@@ -76,6 +76,9 @@ import {
   type InsertPartnerSettings,
   type Partner,
   type InsertPartner,
+  galleryItems,
+  type GalleryItem,
+  type InsertGalleryItem,
 } from "../shared/schema.js";
 import { db } from "./db";
 import { eq, and, desc, asc, count, sql } from "drizzle-orm";
@@ -247,6 +250,14 @@ export interface IStorage {
   createPartner(partner: InsertPartner): Promise<Partner>;
   updatePartner(id: number, partner: Partial<InsertPartner>): Promise<Partner>;
   deletePartner(id: number): Promise<void>;
+
+  // Gallery items operations
+  getGalleryItems(options?: { limit?: number; offset?: number; category?: string; featured?: boolean }): Promise<{ items: GalleryItem[]; total: number }>;
+  getGalleryItem(id: number): Promise<GalleryItem | undefined>;
+  createGalleryItem(item: InsertGalleryItem): Promise<GalleryItem>;
+  updateGalleryItem(id: number, item: Partial<InsertGalleryItem>): Promise<GalleryItem>;
+  deleteGalleryItem(id: number): Promise<void>;
+  toggleGalleryItemFeatured(id: number): Promise<GalleryItem>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1258,6 +1269,43 @@ export class DatabaseStorage implements IStorage {
         { ...settingsData, id: 'default', updatedBy: userId } as InsertPartnerSettings
       );
     }
+  }
+
+  // Gallery items operations
+  async getGalleryItems(options: { limit?: number; offset?: number; category?: string; featured?: boolean } = {}): Promise<{ items: GalleryItem[]; total: number }> {
+    const { limit = 100, offset = 0, category, featured } = options;
+    const conditions: any[] = [];
+    if (category) conditions.push(eq(galleryItems.category, category));
+    if (featured !== undefined) conditions.push(eq(galleryItems.isFeatured, featured));
+    const where = conditions.length > 0 ? (conditions.length === 1 ? conditions[0] : and(...conditions)) : undefined;
+    const [items, [{ value: total }]] = await Promise.all([
+      db.select().from(galleryItems).where(where).orderBy(asc(galleryItems.sortOrder), desc(galleryItems.createdAt)).limit(limit).offset(offset),
+      db.select({ value: count() }).from(galleryItems).where(where),
+    ]);
+    return { items, total: Number(total) };
+  }
+
+  async getGalleryItem(id: number): Promise<GalleryItem | undefined> {
+    const [item] = await db.select().from(galleryItems).where(eq(galleryItems.id, id));
+    return item;
+  }
+
+  async createGalleryItem(item: InsertGalleryItem): Promise<GalleryItem> {
+    return await this.insertAndFetch<GalleryItem>(galleryItems, item);
+  }
+
+  async updateGalleryItem(id: number, item: Partial<InsertGalleryItem>): Promise<GalleryItem> {
+    return await this.updateAndFetch<GalleryItem>(galleryItems, id, { ...item, updatedAt: new Date() });
+  }
+
+  async deleteGalleryItem(id: number): Promise<void> {
+    await db.delete(galleryItems).where(eq(galleryItems.id, id));
+  }
+
+  async toggleGalleryItemFeatured(id: number): Promise<GalleryItem> {
+    const item = await this.getGalleryItem(id);
+    if (!item) throw new Error(`Gallery item ${id} not found`);
+    return await this.updateAndFetch<GalleryItem>(galleryItems, id, { isFeatured: !item.isFeatured, updatedAt: new Date() });
   }
 
   // Partners operations

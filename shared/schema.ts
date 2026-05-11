@@ -721,7 +721,28 @@ export const blogPostsRelations = relations(blogPosts, ({ one }) => ({
   }),
 }));
 
+// Gallery items table - stores public gallery photos with optional 360 panorama
+export const galleryItems = mysqlTable("gallery_items", {
+  id: serial().primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  location: varchar("location", { length: 255 }),
+  category: varchar("category", { length: 100 }),
+  photographer: varchar("photographer", { length: 255 }),
+  description: text("description"),
+  imageUrl: varchar("image_url", { length: 1000 }).notNull(),
+  panoramaUrl: varchar("panorama_url", { length: 1000 }),
+  has360: boolean("has_360").default(false),
+  hotspots: json("hotspots"),
+  isFeatured: boolean("is_featured").default(false),
+  sortOrder: int("sort_order").default(0),
+  aspect: varchar("aspect", { length: 20 }).default("landscape"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Type exports
+export type GalleryItem = typeof galleryItems.$inferSelect;
+export type InsertGalleryItem = typeof galleryItems.$inferInsert;
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
 export type Club = typeof clubs.$inferSelect;

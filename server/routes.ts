@@ -200,6 +200,81 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Public gallery items route
+  app.get('/api/gallery', async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 100;
+      const offset = parseInt(req.query.offset as string) || 0;
+      const category = req.query.category as string | undefined;
+      const result = await storage.getGalleryItems({ limit, offset, category });
+      const featured_count = result.items.filter(i => i.isFeatured).length;
+      const count_360 = result.items.filter(i => i.has360).length;
+      res.json({ items: result.items, total: result.total, featured_count, count_360 });
+    } catch (error) {
+      console.error("Error fetching gallery items:", error);
+      res.status(500).json({ message: "Failed to fetch gallery items" });
+    }
+  });
+
+  // Admin gallery routes
+  app.get('/api/admin/gallery', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 100;
+      const offset = parseInt(req.query.offset as string) || 0;
+      const category = req.query.category as string | undefined;
+      const result = await storage.getGalleryItems({ limit, offset, category });
+      const featured_count = result.items.filter(i => i.isFeatured).length;
+      const count_360 = result.items.filter(i => i.has360).length;
+      res.json({ items: result.items, total: result.total, featured_count, count_360 });
+    } catch (error) {
+      console.error("Error fetching gallery items:", error);
+      res.status(500).json({ message: "Failed to fetch gallery items" });
+    }
+  });
+
+  app.post('/api/admin/gallery', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const item = await storage.createGalleryItem(req.body);
+      res.status(201).json(item);
+    } catch (error) {
+      console.error("Error creating gallery item:", error);
+      res.status(500).json({ message: "Failed to create gallery item" });
+    }
+  });
+
+  app.put('/api/admin/gallery/:id', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const item = await storage.updateGalleryItem(id, req.body);
+      res.json(item);
+    } catch (error) {
+      console.error("Error updating gallery item:", error);
+      res.status(500).json({ message: "Failed to update gallery item" });
+    }
+  });
+
+  app.delete('/api/admin/gallery/:id', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deleteGalleryItem(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting gallery item:", error);
+      res.status(500).json({ message: "Failed to delete gallery item" });
+    }
+  });
+
+  app.post('/api/admin/gallery/:id/toggle-featured', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const item = await storage.toggleGalleryItemFeatured(id);
+      res.json(item);
+    } catch (error) {
+      console.error("Error toggling gallery item featured:", error);
+      res.status(500).json({ message: "Failed to toggle featured status" });
+    }
+  });
+
   app.get('/api/events/:id/gallery', async (req, res) => {
     try {
       const eventId = req.params.id;
