@@ -9,7 +9,7 @@ class City extends Model
 {
     protected $fillable = [
         'name', 'slug', 'title', 'description', 'image',
-        'hero_type', 'hero_video',
+        'hero_type', 'hero_video', 'hero_overlay',
         'highlights', 'culture', 'cuisine', 'activities',
         'best_time', 'getting_there', 'travel_tips',
         'is_active', 'ordering',

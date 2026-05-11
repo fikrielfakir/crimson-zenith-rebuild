@@ -30,6 +30,7 @@ interface City {
   image: string;
   heroType: string;
   heroVideo: string;
+  heroOverlay: number;
   highlights: HighlightItem[];
   culture: { title: string; description: string; highlights: HighlightItem[] } | null;
   cuisine: { title: string; dishes: CuisineDish[] } | null;
@@ -45,8 +46,9 @@ async function fetchCityBySlug(slug: string): Promise<City> {
   const data = await res.json();
   return {
     ...data,
-    heroType: data.hero_type ?? data.heroType ?? 'image',
-    heroVideo: data.hero_video ?? data.heroVideo ?? '',
+    heroType:    data.hero_type    ?? data.heroType    ?? 'image',
+    heroVideo:   data.hero_video   ?? data.heroVideo   ?? '',
+    heroOverlay: data.hero_overlay ?? data.heroOverlay ?? 50,
     bestTime: data.best_time ?? data.bestTime ?? null,
     gettingThere: data.getting_there ?? data.gettingThere ?? null,
     travelTips: data.travel_tips ?? data.travelTips ?? [],
@@ -92,8 +94,9 @@ const CityDetail = () => {
             title: fallback.title,
             description: fallback.description,
             image: fallback.image,
-            heroType: 'image',
-            heroVideo: '',
+            heroType:    'image',
+            heroVideo:   '',
+            heroOverlay: 50,
             highlights: fallback.highlights,
             culture: fallback.culture ?? null,
             cuisine: fallback.cuisine ?? null,
@@ -124,6 +127,7 @@ const CityDetail = () => {
   const heroBgType: string = city?.heroType || pageHeroData?.backgroundType || "image";
   const heroVideoUrl: string = city?.heroVideo || pageHeroData?.backgroundVideoUrl || "";
   const isVideoHero = heroBgType === "video" && !!heroVideoUrl;
+  const overlayOpacity = Math.min(90, Math.max(0, city?.heroOverlay ?? 50)) / 100;
 
   if (!city) {
     return null;
@@ -133,12 +137,11 @@ const CityDetail = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <section className="relative w-full h-screen overflow-hidden">
+      <section className="relative w-full min-h-screen overflow-hidden" style={{ height: '100svh' }}>
         {isVideoHero ? (
           <video
             className="absolute inset-0 w-full h-full object-cover"
             autoPlay loop muted playsInline
-            style={{ filter: "brightness(0.65)" }}
           >
             <source src={heroVideoUrl} type="video/mp4" />
             <source src={heroVideoUrl} type="video/webm" />
@@ -152,8 +155,11 @@ const CityDetail = () => {
             }}
           />
         )}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/80" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-black/30" />
+        {/* Configurable dark overlay */}
+        <div className="absolute inset-0" style={{ backgroundColor: `rgba(0,0,0,${overlayOpacity})` }} />
+        {/* Edge gradients for text readability */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/60 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-transparent pointer-events-none" />
         
         <div className="relative z-50">
           <Header />

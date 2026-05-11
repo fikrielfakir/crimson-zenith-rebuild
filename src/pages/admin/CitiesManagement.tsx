@@ -636,6 +636,7 @@ const emptyCityForm = {
   ...emptyCity,
   heroType: 'image' as 'image' | 'video',
   heroVideo: '',
+  heroOverlay: 50,
 };
 
 /* ─────────────────── fetchers ─────────────────── */
@@ -697,6 +698,7 @@ export default function CitiesManagement() {
       transportText:      (city.gettingThere?.transport ?? []).join('\n'),
       heroType:           (city as any).heroType ?? 'image',
       heroVideo:          (city as any).heroVideo ?? '',
+      heroOverlay:        (city as any).heroOverlay ?? 50,
     });
     setShowForm(true);
   }
@@ -710,6 +712,7 @@ export default function CitiesManagement() {
       image:       f.image,
       heroType:    f.heroType ?? 'image',
       heroVideo:   f.heroVideo ?? '',
+      heroOverlay: Number(f.heroOverlay ?? 50),
       highlights:  (f.highlights ?? []).filter((h: HighlightItem) => h.text).map((h: HighlightItem) => h.image ? { text: h.text, image: h.image } : h.text),
       activities:  f.activities ?? [],
       travelTips:  (f.travelTipsText || '').split('\n').map((s: string) => s.trim()).filter(Boolean),
@@ -1232,6 +1235,27 @@ export default function CitiesManagement() {
                   onChange={url => setField('heroVideo', url)}
                 />
               )}
+
+              {/* Overlay darkness */}
+              <div className="space-y-2 pt-1">
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm">Overlay Darkness</Label>
+                  <span className="text-xs text-muted-foreground font-mono">{form.heroOverlay ?? 50}%</span>
+                </div>
+                <input
+                  type="range"
+                  min={0}
+                  max={90}
+                  step={5}
+                  value={form.heroOverlay ?? 50}
+                  onChange={e => setField('heroOverlay', Number(e.target.value))}
+                  className="w-full accent-primary"
+                />
+                <div className="flex justify-between text-xs text-muted-foreground">
+                  <span>0% — no filter</span>
+                  <span>90% — very dark</span>
+                </div>
+              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
