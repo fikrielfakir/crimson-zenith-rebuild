@@ -1366,68 +1366,6 @@ export default function Gallery() {
         </div>
       </section>
 
-      {/* ── UPLOAD PORTAL ────────────────────────────────────────── */}
-      <section className="py-20 relative overflow-hidden"
-        style={{ background:"linear-gradient(180deg,#040d21 0%,#071540 50%,#040d21 100%)" }}>
-        <div className="absolute inset-0 pointer-events-none" style={{
-          background:"radial-gradient(ellipse at 50% 50%, rgba(29,78,216,0.07) 0%, transparent 65%)",
-        }}/>
-        <div className="container mx-auto px-6 text-center relative">
-          <motion.h2
-            className="text-3xl md:text-4xl font-bold text-white mb-3"
-            style={{ textShadow:"0 0 45px rgba(59,130,246,0.38)" }}
-            initial={{ opacity:0, y:20 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }}>
-            Share Your Journey With The World
-          </motion.h2>
-          <p style={{ color:"rgba(120,195,255,0.52)" }} className="mb-10 max-w-md mx-auto text-sm leading-relaxed">
-            Upload your Moroccan adventure photos and inspire our growing community of explorers.
-          </p>
-          <motion.div
-            className="relative max-w-md mx-auto rounded-3xl p-10 cursor-pointer"
-            style={{
-              background:"rgba(10,30,80,0.30)",
-              border:"1.5px dashed rgba(100,170,255,0.22)",
-              backdropFilter:"blur(18px)",
-            }}
-            whileHover={{
-              borderColor:"rgba(100,170,255,0.50)",
-              boxShadow:"0 0 70px rgba(37,99,235,0.22), 0 0 140px rgba(37,99,235,0.10)",
-            }}>
-            <motion.div
-              className="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 rounded-full"
-              style={{ background:"radial-gradient(circle,#60a5fa,#1d4ed8)",
-                boxShadow:"0 0 12px rgba(96,165,250,0.7)" }}
-              animate={{ scale:[1,1.6,1], opacity:[0.7,1,0.7] }}
-              transition={{ duration:2.2, repeat:Infinity }}
-            />
-            <motion.div
-              className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-5"
-              style={{
-                background:"linear-gradient(135deg,rgba(29,78,216,0.35),rgba(10,30,80,0.65))",
-                border:"1px solid rgba(120,195,255,0.28)",
-                boxShadow:"0 0 35px rgba(37,99,235,0.22)",
-              }}
-              animate={{ y:[0,-8,0] }}
-              transition={{ duration:2.8, repeat:Infinity, ease:"easeInOut" }}>
-              <Upload className="w-8 h-8 text-sky-300"/>
-            </motion.div>
-            <p className="text-white font-semibold mb-1">Drop your photos here</p>
-            <p className="text-sm mb-6" style={{ color:"rgba(120,195,255,0.45)" }}>
-              JPG, PNG, MP4 · Max 50 MB
-            </p>
-            <button
-              className="px-7 py-2.5 rounded-full text-sm font-semibold text-white transition-all hover:scale-105"
-              style={{
-                background:"linear-gradient(135deg,#1d4ed8,#2563eb)",
-                boxShadow:"0 0 24px rgba(29,78,216,0.50), 0 0 6px rgba(37,99,235,0.7)",
-                border:"1px solid rgba(120,195,255,0.30)",
-              }}>
-              Browse Files
-            </button>
-          </motion.div>
-        </div>
-      </section>
-
       <FullscreenModal item={selected} onClose={closeItem} onPrev={prevItem} onNext={nextItem}/>
 
       {/* ── 360° PANORAMA OVERLAY (lazy-loaded, virtual tour) ───────── */}
