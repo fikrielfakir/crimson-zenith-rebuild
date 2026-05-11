@@ -888,7 +888,7 @@ export default function Gallery() {
       <Header/>
 
       {/* ── HERO ─────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden" style={{ paddingTop:"10rem", paddingBottom:"3.5rem" }}>
+      <section className="relative overflow-hidden" style={{ paddingTop:"15rem", paddingBottom:"3.5rem" }}>
         <div className="absolute inset-0 bg-cover bg-center"
           style={{
             backgroundImage:"url('/attached_assets/generated_images/Chefchaouen_blue_streets_272376ab.png')",
