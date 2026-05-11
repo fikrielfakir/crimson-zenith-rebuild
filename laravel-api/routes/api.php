@@ -46,6 +46,19 @@ Route::middleware('auth')->group(function () {
 | Clubs (public + auth)
 |--------------------------------------------------------------------------
 */
+/*
+|--------------------------------------------------------------------------
+| Cities (public)
+|--------------------------------------------------------------------------
+*/
+Route::get('/cities',         [\App\Http\Controllers\CityController::class, 'index']);
+Route::get('/cities/{slug}',  [\App\Http\Controllers\CityController::class, 'show']);
+
+/*
+|--------------------------------------------------------------------------
+| Clubs (public + auth)
+|--------------------------------------------------------------------------
+*/
 Route::get('/clubs',                   [\App\Http\Controllers\ClubController::class, 'index']);
 Route::get('/clubs/slug/{slug}',       [\App\Http\Controllers\ClubController::class, 'showBySlug']);
 Route::get('/clubs/{id}',              [\App\Http\Controllers\ClubController::class, 'show']);
@@ -268,4 +281,12 @@ Route::prefix('admin')->middleware(['admin'])->group(function () {
     Route::get('/payment-settings',            [\App\Http\Controllers\Admin\PaymentSettingsController::class, 'show']);
     Route::put('/payment-settings',            [\App\Http\Controllers\Admin\PaymentSettingsController::class, 'update']);
     Route::post('/payment-settings/test',      [\App\Http\Controllers\Admin\PaymentSettingsController::class, 'testConnection']);
+
+    // Cities (admin CRUD)
+    Route::get('/cities',                      [\App\Http\Controllers\Admin\CityAdminController::class, 'index']);
+    Route::post('/cities/seed',                [\App\Http\Controllers\Admin\CityAdminController::class, 'seedDefaults']);
+    Route::post('/cities',                     [\App\Http\Controllers\Admin\CityAdminController::class, 'store']);
+    Route::put('/cities/{id}',                 [\App\Http\Controllers\Admin\CityAdminController::class, 'update']);
+    Route::delete('/cities/{id}',              [\App\Http\Controllers\Admin\CityAdminController::class, 'destroy']);
+    Route::post('/cities/bulk-reorder',        [\App\Http\Controllers\Admin\CityAdminController::class, 'bulkReorder']);
 });

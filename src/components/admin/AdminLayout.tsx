@@ -21,7 +21,8 @@ import {
   Sun,
   LogOut,
   User,
-  Palette
+  Palette,
+  MapPin
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -67,6 +68,7 @@ const navigationItems: NavigationItem[] = [
     ]
   },
   { label: 'Events', icon: Calendar, href: '/admin/events' },
+  { label: 'Cities', icon: MapPin, href: '/admin/cities' },
   { label: 'Bookings', icon: Ticket, href: '/admin/bookings' },
   { label: 'Applications', icon: FileText, href: '/admin/applications' },
   {

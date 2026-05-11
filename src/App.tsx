@@ -64,6 +64,7 @@ import PresidentMessageSettings from "./pages/admin/PresidentMessageSettings";
 import FocusAreasManagement from "./pages/admin/FocusAreasManagement";
 import TeamMembersManagement from "./pages/admin/TeamMembersManagement";
 import TestimonialsManagement from "./pages/admin/TestimonialsManagement";
+import CitiesManagement from "./pages/admin/CitiesManagement";
 import JoinUs from "./pages/JoinUs";
 import ClubDetail from "./pages/ClubDetail";
 import ActivityDetail from "./pages/ActivityDetail";
@@ -309,6 +310,12 @@ const App = () => (
             </ProtectedRoute>
           } />
           
+          <Route path="/admin/cities" element={
+            <ProtectedRoute>
+              <CitiesManagement />
+            </ProtectedRoute>
+          } />
+
           {/* Error Pages */}
           <Route path="/error/400" element={<Error400 />} />
           <Route path="/error/401" element={<Error401 />} />
