@@ -125,6 +125,10 @@ Route::get('/news/{slug}',[\App\Http\Controllers\BlogController::class, 'show'])
 */
 Route::post('/contact',                [\App\Http\Controllers\ContactController::class, 'store']);
 Route::post('/applications',           [\App\Http\Controllers\ApplicationController::class, 'store']);
+
+Route::middleware('auth')->group(function () {
+    Route::get('/user/applications',   [\App\Http\Controllers\ApplicationController::class, 'myApplications']);
+});
 Route::post('/payments/stripe/intent', [\App\Http\Controllers\PaymentController::class, 'createPaymentIntent']);
 Route::post('/payments/paypal/order',  [\App\Http\Controllers\PaymentController::class, 'createPaypalOrder']);
 

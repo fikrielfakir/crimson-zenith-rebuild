@@ -12,6 +12,34 @@ use Illuminate\Support\Str;
 
 class ApplicationController extends Controller
 {
+    public function myApplications(Request $request)
+    {
+        $user = $request->user();
+
+        $applications = MembershipApplication::where(function ($q) use ($user) {
+                $q->where('email', $user->email)
+                  ->orWhere('user_id', (string) $user->id);
+            })
+            ->orderByDesc('created_at')
+            ->get()
+            ->map(fn ($a) => [
+                'id'            => $a->id,
+                'status'        => $a->status,
+                'applicantName' => $a->applicant_name,
+                'email'         => $a->email,
+                'phone'         => $a->phone,
+                'motivation'    => $a->motivation,
+                'interests'     => $a->interests ?? [],
+                'preferredClub' => $a->preferred_club,
+                'reviewNotes'   => $a->review_notes,
+                'reviewedAt'    => $a->reviewed_at?->toISOString(),
+                'submittedAt'   => $a->created_at->toISOString(),
+                'updatedAt'     => $a->updated_at->toISOString(),
+            ]);
+
+        return response()->json($applications);
+    }
+
     public function store(Request $request)
     {
         $data = $request->validate([

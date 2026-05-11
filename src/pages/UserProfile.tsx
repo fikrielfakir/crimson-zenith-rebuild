@@ -49,7 +49,11 @@ import {
   XCircle,
   Loader2,
   Heart,
-  Download
+  Download,
+  ClipboardList,
+  FileText,
+  MessageSquare,
+  RefreshCw
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -135,6 +139,8 @@ const UserProfile = () => {
   const [refLookupError, setRefLookupError] = useState('');
   const [downloadingRef, setDownloadingRef] = useState<string | null>(null);
   const [imageUploading, setImageUploading] = useState(false);
+  const [userApplications, setUserApplications] = useState<any[]>([]);
+  const [applicationsLoading, setApplicationsLoading] = useState(true);
   const [profileData, setProfileData] = useState({
     firstName: '',
     lastName: '',
@@ -174,8 +180,26 @@ const UserProfile = () => {
       fetchUserClubs();
       fetchUserBookings();
       fetchFavoriteEvents();
+      fetchUserApplications();
     }
   }, [user, isAuthenticated, isLoading, toast, navigate]);
+
+  const fetchUserApplications = async () => {
+    try {
+      setApplicationsLoading(true);
+      const response = await apiFetch('/api/user/applications');
+      if (response.ok) {
+        const data = await response.json();
+        setUserApplications(Array.isArray(data) ? data : []);
+      } else {
+        setUserApplications([]);
+      }
+    } catch {
+      setUserApplications([]);
+    } finally {
+      setApplicationsLoading(false);
+    }
+  };
 
   const fetchUserClubs = async () => {
     try {
@@ -756,6 +780,19 @@ const UserProfile = () => {
                 </span>
               )}
             </TabsTrigger>
+            <TabsTrigger value="application" className="data-[state=active]:bg-[hsl(227,65%,19%)] data-[state=active]:text-white rounded-lg px-4 py-2">
+              <ClipboardList className="w-4 h-4 mr-2" />
+              My Application
+              {userApplications.length > 0 && (
+                <span className={`ml-1.5 text-xs rounded-full w-5 h-5 flex items-center justify-center font-semibold ${
+                  userApplications[0]?.status === 'approved' ? 'bg-green-500 text-white' :
+                  userApplications[0]?.status === 'rejected' ? 'bg-red-500 text-white' :
+                  'bg-amber-400 text-white'
+                }`}>
+                  {userApplications.length}
+                </span>
+              )}
+            </TabsTrigger>
             <TabsTrigger value="activity" className="data-[state=active]:bg-[hsl(227,65%,19%)] data-[state=active]:text-white rounded-lg px-4 py-2">
               <Activity className="w-4 h-4 mr-2" />
               Activity
@@ -1298,6 +1335,255 @@ const UserProfile = () => {
                                 Book Now
                               </Button>
                             </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* My Application Tab */}
+          <TabsContent value="application" className="space-y-6">
+            <Card className="shadow-sm border-0 bg-white">
+              <CardHeader className="border-b border-slate-100">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2 text-[hsl(227,65%,19%)]">
+                    <ClipboardList className="w-5 h-5" />
+                    My Membership Application{userApplications.length > 1 ? 's' : ''}
+                  </CardTitle>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={fetchUserApplications}
+                      disabled={applicationsLoading}
+                      className="border-slate-200 text-slate-600 hover:border-[hsl(227,65%,19%)] hover:text-[hsl(227,65%,19%)]"
+                    >
+                      <RefreshCw className={`w-4 h-4 mr-1.5 ${applicationsLoading ? 'animate-spin' : ''}`} />
+                      Refresh
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={() => navigate('/join')}
+                      className="bg-[hsl(227,65%,19%)] hover:bg-[hsl(227,65%,25%)] text-white"
+                    >
+                      Apply Again
+                    </Button>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="p-6">
+                {applicationsLoading ? (
+                  <div className="text-center py-12">
+                    <Loader2 className="w-10 h-10 animate-spin mx-auto text-[hsl(227,65%,19%)]" />
+                    <p className="text-slate-500 mt-4">Loading your application...</p>
+                  </div>
+                ) : userApplications.length === 0 ? (
+                  <div className="text-center py-12">
+                    <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-slate-100 flex items-center justify-center">
+                      <ClipboardList className="w-10 h-10 text-slate-400" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-slate-800 mb-2">No Application Found</h3>
+                    <p className="text-slate-500 mb-6 max-w-md mx-auto">
+                      You haven't submitted a membership application yet. Join our adventure community today!
+                    </p>
+                    <Button
+                      onClick={() => navigate('/join')}
+                      className="bg-[hsl(227,65%,19%)] hover:bg-[hsl(227,65%,25%)] text-white"
+                    >
+                      <ClipboardList className="w-4 h-4 mr-2" />
+                      Apply for Membership
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-8">
+                    {userApplications.map((app, index) => {
+                      const isPending  = app.status === 'pending';
+                      const isApproved = app.status === 'approved';
+                      const isRejected = app.status === 'rejected';
+
+                      const steps = [
+                        {
+                          key: 'submitted',
+                          label: 'Application Submitted',
+                          description: 'Your application has been received by our team.',
+                          date: app.submittedAt,
+                          done: true,
+                          icon: <FileText className="w-4 h-4" />,
+                        },
+                        {
+                          key: 'review',
+                          label: 'Under Review',
+                          description: 'Our team is reviewing your application.',
+                          date: null,
+                          done: !isPending,
+                          icon: <Eye className="w-4 h-4" />,
+                        },
+                        {
+                          key: 'decision',
+                          label: isApproved ? 'Application Approved' : isRejected ? 'Application Declined' : 'Decision Pending',
+                          description: isApproved
+                            ? 'Welcome to The Journey Association! You are now a member.'
+                            : isRejected
+                            ? 'Unfortunately your application was not approved at this time.'
+                            : 'A decision will be communicated to you by email.',
+                          date: app.reviewedAt,
+                          done: !isPending,
+                          icon: isApproved
+                            ? <CheckCircle className="w-4 h-4" />
+                            : isRejected
+                            ? <XCircle className="w-4 h-4" />
+                            : <Clock className="w-4 h-4" />,
+                        },
+                      ];
+
+                      return (
+                        <div key={app.id} className={`rounded-2xl border-2 overflow-hidden ${
+                          isApproved ? 'border-green-200 bg-green-50/30' :
+                          isRejected ? 'border-red-200 bg-red-50/30' :
+                          'border-amber-200 bg-amber-50/30'
+                        }`}>
+                          {/* Header row */}
+                          <div className={`px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+                            isApproved ? 'bg-green-100/60' :
+                            isRejected ? 'bg-red-100/60' :
+                            'bg-amber-100/60'
+                          }`}>
+                            <div className="flex items-center gap-3">
+                              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                                isApproved ? 'bg-green-500' :
+                                isRejected ? 'bg-red-500' :
+                                'bg-amber-500'
+                              }`}>
+                                {isApproved ? <CheckCircle className="w-5 h-5 text-white" /> :
+                                 isRejected ? <XCircle className="w-5 h-5 text-white" /> :
+                                 <Clock className="w-5 h-5 text-white" />}
+                              </div>
+                              <div>
+                                <p className="font-semibold text-slate-800 text-sm">
+                                  Application #{app.id}
+                                  {index === 0 && <span className="ml-2 text-xs bg-[hsl(227,65%,19%)] text-white px-2 py-0.5 rounded-full">Latest</span>}
+                                </p>
+                                <p className="text-xs text-slate-500">
+                                  Submitted {new Date(app.submittedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                                </p>
+                              </div>
+                            </div>
+                            <Badge className={`text-sm px-3 py-1 font-semibold ${
+                              isApproved ? 'bg-green-500 text-white' :
+                              isRejected ? 'bg-red-500 text-white' :
+                              'bg-amber-500 text-white'
+                            }`}>
+                              {isApproved ? '✓ Approved' : isRejected ? '✗ Declined' : '⏳ Pending Review'}
+                            </Badge>
+                          </div>
+
+                          <div className="p-6 space-y-6">
+                            {/* Timeline */}
+                            <div className="relative">
+                              <div className="absolute left-5 top-0 bottom-0 w-0.5 bg-slate-200" />
+                              <div className="space-y-6">
+                                {steps.map((step, si) => (
+                                  <div key={step.key} className="flex gap-4 relative">
+                                    <div className={`relative z-10 w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 border-2 transition-colors ${
+                                      step.done
+                                        ? (si === steps.length - 1 && isApproved)
+                                          ? 'bg-green-500 border-green-500 text-white'
+                                          : (si === steps.length - 1 && isRejected)
+                                          ? 'bg-red-500 border-red-500 text-white'
+                                          : 'bg-[hsl(227,65%,19%)] border-[hsl(227,65%,19%)] text-white'
+                                        : 'bg-white border-slate-300 text-slate-400'
+                                    }`}>
+                                      {step.icon}
+                                    </div>
+                                    <div className="pt-1.5 pb-2 flex-1">
+                                      <p className={`font-semibold text-sm ${step.done ? 'text-slate-800' : 'text-slate-400'}`}>
+                                        {step.label}
+                                      </p>
+                                      <p className="text-xs text-slate-500 mt-0.5">{step.description}</p>
+                                      {step.date && (
+                                        <p className="text-xs text-slate-400 mt-1 flex items-center gap-1">
+                                          <Clock className="w-3 h-3" />
+                                          {new Date(step.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                        </p>
+                                      )}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+
+                            {/* Application details */}
+                            <div className="grid sm:grid-cols-2 gap-4 pt-2 border-t border-slate-100">
+                              {app.preferredClub && (
+                                <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-50">
+                                  <Users className="w-4 h-4 text-[hsl(227,65%,19%)] mt-0.5 flex-shrink-0" />
+                                  <div>
+                                    <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">Preferred Club</p>
+                                    <p className="text-sm font-semibold text-slate-800 mt-0.5">{app.preferredClub}</p>
+                                  </div>
+                                </div>
+                              )}
+                              {app.interests && app.interests.length > 0 && (
+                                <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-50">
+                                  <Star className="w-4 h-4 text-[hsl(227,65%,19%)] mt-0.5 flex-shrink-0" />
+                                  <div>
+                                    <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">Interests</p>
+                                    <div className="flex flex-wrap gap-1 mt-1">
+                                      {app.interests.map((i: string) => (
+                                        <span key={i} className="text-xs bg-[hsl(227,65%,19%)]/10 text-[hsl(227,65%,19%)] px-2 py-0.5 rounded-full font-medium">{i}</span>
+                                      ))}
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+                              {app.motivation && (
+                                <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-50 sm:col-span-2">
+                                  <MessageSquare className="w-4 h-4 text-[hsl(227,65%,19%)] mt-0.5 flex-shrink-0" />
+                                  <div>
+                                    <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">Your Motivation</p>
+                                    <p className="text-sm text-slate-700 mt-0.5 leading-relaxed line-clamp-3">{app.motivation}</p>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Review notes (only shown when reviewed) */}
+                            {app.reviewNotes && (
+                              <div className={`p-4 rounded-xl border-l-4 ${
+                                isApproved ? 'bg-green-50 border-green-400' :
+                                isRejected ? 'bg-red-50 border-red-400' :
+                                'bg-blue-50 border-blue-400'
+                              }`}>
+                                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">
+                                  Review Notes from Team
+                                </p>
+                                <p className={`text-sm leading-relaxed ${
+                                  isApproved ? 'text-green-800' :
+                                  isRejected ? 'text-red-800' :
+                                  'text-blue-800'
+                                }`}>
+                                  {app.reviewNotes}
+                                </p>
+                              </div>
+                            )}
+
+                            {/* CTA for rejected */}
+                            {isRejected && (
+                              <div className="flex justify-end">
+                                <Button
+                                  onClick={() => navigate('/join')}
+                                  variant="outline"
+                                  size="sm"
+                                  className="border-[hsl(227,65%,19%)] text-[hsl(227,65%,19%)] hover:bg-[hsl(227,65%,19%)] hover:text-white"
+                                >
+                                  Submit a New Application
+                                </Button>
+                              </div>
+                            )}
                           </div>
                         </div>
                       );
