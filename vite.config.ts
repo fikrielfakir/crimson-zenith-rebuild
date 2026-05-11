@@ -26,7 +26,7 @@ const PROD_API = "https://api.thejourney-ma.org";
 const LOCAL_API = "http://localhost:8000";
 
 const localProxyOptions = {
-  target: LOCAL_API,
+  target: PROD_API,
   changeOrigin: true,
   secure: false,
   configure: (proxy: any) => {
