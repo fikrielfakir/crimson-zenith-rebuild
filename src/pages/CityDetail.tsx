@@ -55,6 +55,18 @@ const CityDetail = () => {
   const [city, setCity] = useState<City | null>(null);
   const [allCities, setAllCities] = useState<City[]>([]);
 
+  const { data: pageHeroData } = useQuery({
+    queryKey: ["page-hero", "city-detail"],
+    queryFn: async () => {
+      try {
+        const res = await apiFetch("/api/cms/page-hero/city-detail");
+        if (!res.ok) return null;
+        return res.json();
+      } catch { return null; }
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const citySlug = searchParams.get('city');
@@ -102,27 +114,15 @@ const CityDetail = () => {
       });
   }, [location.search, navigate]);
 
+  const heroBgType: string = pageHeroData?.backgroundType || "image";
+  const heroVideoUrl: string = pageHeroData?.backgroundVideoUrl || "";
+  const isVideoHero = heroBgType === "video" && !!heroVideoUrl;
+
   if (!city) {
     return null;
   }
 
   const otherCities = allCities.filter(c => c.slug !== city.slug).slice(0, 3);
-
-  const { data: pageHeroData } = useQuery({
-    queryKey: ["page-hero", "city-detail"],
-    queryFn: async () => {
-      try {
-        const res = await apiFetch("/api/cms/page-hero/city-detail");
-        if (!res.ok) return null;
-        return res.json();
-      } catch { return null; }
-    },
-    staleTime: 5 * 60 * 1000,
-  });
-
-  const heroBgType: string = pageHeroData?.backgroundType || "image";
-  const heroVideoUrl: string = pageHeroData?.backgroundVideoUrl || "";
-  const isVideoHero = heroBgType === "video" && !!heroVideoUrl;
 
   return (
     <div className="min-h-screen bg-background">
