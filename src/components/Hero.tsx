@@ -1,11 +1,14 @@
 import { Button } from "@/components/ui/button";
-import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect, useCallback } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useHeroSettings } from "@/hooks/useCMS";
+import { useAuth } from "@/hooks/useAuth";
 import heroBackground from "@/assets/hero-bg.jpg";
 
 const Hero = () => {
   const { data: heroSettings, isLoading } = useHeroSettings();
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
 
   const defaultTaglines = [
     { text: "Where Adventure Meets\nTransformation", twoLines: true },
@@ -72,6 +75,26 @@ const Hero = () => {
   const primaryButtonText =
     heroSettings?.primaryButtonText || "Start Your Journey";
   const primaryButtonLink = heroSettings?.primaryButtonLink || "/join";
+
+  const handlePrimaryClick = useCallback(async (e: React.MouseEvent) => {
+    if (!isAuthenticated) return;
+    e.preventDefault();
+    try {
+      const res = await fetch('/api/user/applications', {
+        credentials: 'include',
+        headers: { Accept: 'application/json' },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const apps = Array.isArray(data) ? data : [];
+        if (apps.length > 0) {
+          navigate('/profile?tab=application');
+          return;
+        }
+      }
+    } catch {}
+    navigate(primaryButtonLink);
+  }, [isAuthenticated, primaryButtonLink, navigate]);
   const secondaryButtonText =
     heroSettings?.secondaryButtonText || "Explore Clubs";
   const secondaryButtonLink = heroSettings?.secondaryButtonLink || "/clubs";
@@ -152,7 +175,7 @@ const Hero = () => {
         {/* FIXED POSITION Buttons - Always at same Y position */}
         <div className="buttons-fixed-container">
           <div className="flex flex-col sm:flex-row gap-5 justify-center items-center">
-            <Link to={primaryButtonLink}>
+            <Link to={primaryButtonLink} onClick={handlePrimaryClick}>
               <Button className="w-full sm:w-auto bg-secondary hover:bg-secondary/90 text-primary text-base px-10 py-4 h-14 rounded-button font-medium transition-all duration-300 shadow-elegant hover:shadow-glow hover:scale-105 border-0">
                 {primaryButtonText}
               </Button>
