@@ -1081,14 +1081,8 @@ export default function Gallery() {
 
       {/* ── HERO ─────────────────────────────────────────────────── */}
       <section className="relative overflow-hidden" style={{ paddingTop:"15rem", paddingBottom:"3.5rem" }}>
-        <div className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage:"url('/attached_assets/generated_images/Chefchaouen_blue_streets_272376ab.png')",
-            transform:`translateY(${scrollY*0.28}px)`,
-            filter:"brightness(0.38) saturate(1.2)",
-          }}/>
         <div className="absolute inset-0"
-          style={{ background:"linear-gradient(180deg, rgba(4,13,33,0.45) 0%, rgba(4,13,33,0.88) 100%)" }}/>
+          style={{ background:"linear-gradient(180deg, rgba(4,13,33,0.18) 0%, rgba(4,13,33,0.72) 100%)" }}/>
         <div className="relative container mx-auto px-6">
           <nav className="mb-8">
             <ol className="flex items-center gap-2 text-sm">

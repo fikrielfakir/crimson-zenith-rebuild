@@ -85,10 +85,10 @@ function CSSParallaxBackground({ paused }: { paused: boolean }) {
         style={{
           position:"absolute",
           inset:"-10%",
-          backgroundImage:"url('/panoramas/background.jpg')",
+          backgroundImage:"url('/panoramas/nebula.png')",
           backgroundSize:"cover",
           backgroundPosition:"center",
-          filter: reducedMotion ? "blur(6px) brightness(0.40)" : "brightness(0.45) saturate(1.2)",
+          filter: reducedMotion ? "blur(6px) brightness(0.40)" : "brightness(0.55) saturate(1.3)",
           willChange:"transform",
           transform:"scale(1.18)",
         }}
@@ -134,7 +134,7 @@ function PSVBackground({ paused }: { paused: boolean }) {
         const { Viewer } = await import("@photo-sphere-viewer/core");
         viewer = new Viewer({
           container: containerRef.current,
-          panorama: "/panoramas/background.jpg",
+          panorama: "/panoramas/nebula.png",
           defaultYaw: 0,
           defaultPitch: 0,
           defaultZoomLvl: 0,
@@ -222,7 +222,7 @@ function PSVBackground({ paused }: { paused: boolean }) {
     return (
       <div style={{
         position:"fixed", inset:0, zIndex:0, pointerEvents:"none",
-        backgroundImage:"url('/panoramas/background.jpg')",
+        backgroundImage:"url('/panoramas/nebula.png')",
         backgroundSize:"cover", backgroundPosition:"center",
         filter:"blur(8px) brightness(0.5)",
       }}/>
