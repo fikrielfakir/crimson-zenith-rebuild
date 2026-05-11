@@ -24,21 +24,32 @@ import {
   Loader2,
   ArrowRight,
   Sparkles,
+  Lock,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 
 // ─── Schema ───────────────────────────────────────────────────────────────────
-const schema = z.object({
-  applicantName: z.string().min(2, 'Name must be at least 2 characters'),
-  email: z.string().email('Please enter a valid email address'),
-  phone: z.string().min(10, 'Please enter a valid phone number'),
-  preferredClub: z.string().optional(),
-  interests: z.array(z.string()).min(1, 'Please select at least one interest'),
-  motivation: z.string().min(50, 'Please write at least 50 characters'),
-  agreeToTerms: z.boolean().refine(v => v === true, 'You must agree to the terms'),
-});
+const schema = z
+  .object({
+    applicantName:   z.string().min(2, 'Name must be at least 2 characters'),
+    email:           z.string().email('Please enter a valid email address'),
+    phone:           z.string().min(10, 'Please enter a valid phone number'),
+    password:        z.string().min(8, 'Password must be at least 8 characters'),
+    confirmPassword: z.string().min(1, 'Please confirm your password'),
+    preferredClub:   z.string().optional(),
+    interests:       z.array(z.string()).min(1, 'Please select at least one interest'),
+    motivation:      z.string().min(50, 'Please write at least 50 characters'),
+    agreeToTerms:    z.boolean().refine(v => v === true, 'You must agree to the terms'),
+  })
+  .refine(d => d.password === d.confirmPassword, {
+    message: "Passwords don't match",
+    path: ['confirmPassword'],
+  });
+
 type FormData = z.infer<typeof schema>;
 
-// ─── Static interests ─────────────────────────────────────────────────────────
+// ─── Interests list ───────────────────────────────────────────────────────────
 const INTERESTS = [
   'Mountain Trekking', 'Desert Adventures', 'Photography', 'Water Sports',
   'Cultural Tours', 'Local Cuisine', 'Traditional Crafts', 'Historical Sites',
@@ -49,15 +60,33 @@ const ICON_MAP: Record<string, React.ElementType> = {
   Mountain, Camera, Waves, Compass, Users, MapPin,
 };
 
+// ─── Password strength ────────────────────────────────────────────────────────
+function getPasswordStrength(pw: string): { score: number; label: string; color: string } {
+  if (!pw) return { score: 0, label: '', color: '' };
+  let score = 0;
+  if (pw.length >= 8)  score++;
+  if (pw.length >= 12) score++;
+  if (/[A-Z]/.test(pw))        score++;
+  if (/[0-9]/.test(pw))        score++;
+  if (/[^A-Za-z0-9]/.test(pw)) score++;
+  if (score <= 1) return { score, label: 'Weak',   color: 'bg-red-400' };
+  if (score <= 3) return { score, label: 'Fair',   color: 'bg-yellow-400' };
+  if (score <= 4) return { score, label: 'Good',   color: 'bg-blue-400' };
+  return              { score, label: 'Strong', color: 'bg-green-500' };
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 export default function JoinUs() {
   const { toast } = useToast();
-  const [submitted, setSubmitted] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [clubs, setClubs] = useState<any[]>([]);
-  const [clubsLoading, setClubsLoading] = useState(true);
+  const [submitted, setSubmitted]               = useState(false);
+  const [accountCreated, setAccountCreated]     = useState(false);
+  const [loading, setLoading]                   = useState(false);
+  const [clubs, setClubs]                       = useState<any[]>([]);
+  const [clubsLoading, setClubsLoading]         = useState(true);
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
-  const [selectedClub, setSelectedClub] = useState('');
+  const [selectedClub, setSelectedClub]         = useState('');
+  const [showPassword, setShowPassword]         = useState(false);
+  const [showConfirm, setShowConfirm]           = useState(false);
 
   const {
     register,
@@ -68,13 +97,19 @@ export default function JoinUs() {
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues: { applicantName: '', email: '', phone: '', preferredClub: '', interests: [], motivation: '', agreeToTerms: false },
+    defaultValues: {
+      applicantName: '', email: '', phone: '',
+      password: '', confirmPassword: '',
+      preferredClub: '', interests: [], motivation: '', agreeToTerms: false,
+    },
   });
 
-  const motivation = watch('motivation') ?? '';
-  const agreeToTerms = watch('agreeToTerms');
+  const motivation    = watch('motivation') ?? '';
+  const agreeToTerms  = watch('agreeToTerms');
+  const passwordValue = watch('password') ?? '';
+  const strength      = getPasswordStrength(passwordValue);
 
-  // Fetch real clubs from backend
+  // Fetch clubs
   useEffect(() => {
     fetch('/api/clubs', { headers: { Accept: 'application/json' } })
       .then(r => r.ok ? r.json() : Promise.reject())
@@ -109,16 +144,26 @@ export default function JoinUs() {
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify(data),
       });
+
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        if (res.status === 422 && body?.errors?.email) {
-          setError('email', { type: 'server', message: body.errors.email[0] });
-          const emailEl = document.querySelector('input[name="email"]');
-          emailEl?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          return;
+
+        if (res.status === 422) {
+          if (body?.errors?.email) {
+            setError('email', { type: 'server', message: body.errors.email[0] });
+            document.querySelector('input[name="email"]')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+          }
+          if (body?.errors?.confirmPassword) {
+            setError('confirmPassword', { type: 'server', message: body.errors.confirmPassword[0] });
+            return;
+          }
         }
         throw new Error(body?.message ?? `Error ${res.status}`);
       }
+
+      const result = await res.json();
+      setAccountCreated(result.accountCreated === true);
       setSubmitted(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err: any) {
@@ -134,7 +179,6 @@ export default function JoinUs() {
       <div className="min-h-screen bg-[#FAF8F5] flex flex-col">
         <Header />
 
-        {/* Dark hero banner — gives the transparent header proper contrast */}
         <section
           className="relative overflow-hidden"
           style={{
@@ -153,36 +197,63 @@ export default function JoinUs() {
               <CheckCircle2 className="w-10 h-10 text-[#D6B98C]" />
             </div>
             <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 font-['Poppins']">
-              Application Submitted!
+              {accountCreated ? 'Account Created & Application Submitted!' : 'Application Submitted!'}
             </h1>
             <p className="text-white/70 text-lg leading-relaxed max-w-xl mx-auto">
-              Thank you for your interest. Our team will review your application and get back to you within 2–3 business days.
+              {accountCreated
+                ? 'Your account is ready and your application is under review. You can log in once your membership is approved.'
+                : 'Thank you for your interest. Our team will review your application and get back to you within 2–3 business days.'}
             </p>
           </div>
         </section>
 
         <main className="flex-1 flex items-start justify-center px-4 py-14">
           <div className="text-center max-w-lg w-full">
+            {accountCreated && (
+              <div className="mb-6 bg-green-50 border border-green-200 rounded-2xl p-5 flex items-start gap-3 text-left">
+                <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-semibold text-green-800">Account created successfully</p>
+                  <p className="text-xs text-green-700 mt-1">
+                    You can log in with your email and password once your membership is approved.
+                  </p>
+                </div>
+              </div>
+            )}
+
             <div className="bg-white border border-[#D6B98C]/30 rounded-2xl p-7 mb-10 text-left space-y-4 shadow-sm">
               <p className="text-xs font-semibold text-[#D6B98C] tracking-widest uppercase mb-5">What happens next</p>
               {[
                 'Our team reviews your application',
-                'We\'ll contact you for a brief conversation',
+                "We'll contact you for a brief conversation",
                 'Upon approval, you\'ll receive your welcome kit',
-                'Join events and meet your community!',
+                'Log in and join events with your community!',
               ].map((step, i) => (
                 <div key={i} className="flex items-start gap-4">
-                  <span className="w-7 h-7 rounded-full bg-[#0B1F5E] text-white text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">{i + 1}</span>
+                  <span className="w-7 h-7 rounded-full bg-[#0B1F5E] text-white text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
+                    {i + 1}
+                  </span>
                   <p className="text-gray-700 text-sm pt-1">{step}</p>
                 </div>
               ))}
             </div>
-            <Link to="/">
-              <Button className="bg-[#0B1F5E] hover:bg-[#0B1F5E]/90 text-white px-10 py-6 rounded-xl text-base font-semibold font-['Poppins']">
-                Return to Homepage
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            </Link>
+
+            <div className="flex gap-3 justify-center flex-wrap">
+              {accountCreated && (
+                <Link to="/login">
+                  <Button variant="outline" className="border-[#0B1F5E] text-[#0B1F5E] px-8 py-6 rounded-xl text-base font-semibold font-['Poppins']">
+                    <Lock className="w-4 h-4 mr-2" />
+                    Go to Login
+                  </Button>
+                </Link>
+              )}
+              <Link to="/">
+                <Button className="bg-[#0B1F5E] hover:bg-[#0B1F5E]/90 text-white px-10 py-6 rounded-xl text-base font-semibold font-['Poppins']">
+                  Return to Homepage
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </Link>
+            </div>
           </div>
         </main>
         <Footer />
@@ -190,12 +261,12 @@ export default function JoinUs() {
     );
   }
 
-  // ── Main page ───────────────────────────────────────────────────────────────
+  // ── Main form ───────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-[#FAF8F5] flex flex-col">
       <Header />
 
-      {/* ── Hero ─────────────────────────────────────────────────────────── */}
+      {/* Hero */}
       <section
         className="relative overflow-hidden"
         style={{
@@ -204,7 +275,6 @@ export default function JoinUs() {
           paddingBottom: '5rem',
         }}
       >
-        {/* Subtle decorative circles */}
         <div className="absolute top-0 right-0 w-96 h-96 rounded-full opacity-5"
           style={{ background: '#D6B98C', transform: 'translate(30%, -30%)' }} />
         <div className="absolute bottom-0 left-0 w-64 h-64 rounded-full opacity-5"
@@ -225,12 +295,11 @@ export default function JoinUs() {
             </p>
           </div>
 
-          {/* Stats strip */}
           <div className="grid grid-cols-3 gap-4 max-w-lg mx-auto mt-12">
             {[
               { value: '1,200+', label: 'Members' },
-              { value: '24', label: 'Active Clubs' },
-              { value: '180+', label: 'Events / Year' },
+              { value: '24',     label: 'Active Clubs' },
+              { value: '180+',   label: 'Events / Year' },
             ].map(stat => (
               <div key={stat.label} className="text-center">
                 <p className="text-2xl font-bold font-['Poppins']" style={{ color: '#D6B98C' }}>{stat.value}</p>
@@ -241,35 +310,133 @@ export default function JoinUs() {
         </div>
       </section>
 
-      {/* ── Form ─────────────────────────────────────────────────────────── */}
+      {/* Form */}
       <main className="container mx-auto px-4 py-14 max-w-2xl flex-1">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
 
-          {/* ── 1. Personal Info ───────────────────────────────────────────── */}
-          <Section number={1} title="Personal Information">
+          {/* ── 1. Personal Info + Account ───────────────────────────────── */}
+          <Section number={1} title="Personal Information" subtitle="This also creates your Journey Association account">
             <div className="grid sm:grid-cols-2 gap-4">
               <Field label="Full Name" required error={errors.applicantName?.message}>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <Input {...register('applicantName')} placeholder="Your full name"
-                    className={`pl-10 h-12 bg-white border-gray-200 focus:border-[#0B1F5E] focus:ring-[#0B1F5E]/20 rounded-xl ${errors.applicantName ? 'border-red-400' : ''}`} />
+                  <Input
+                    {...register('applicantName')}
+                    placeholder="Your full name"
+                    className={`pl-10 h-12 bg-white border-gray-200 focus:border-[#0B1F5E] rounded-xl ${errors.applicantName ? 'border-red-400' : ''}`}
+                  />
                 </div>
               </Field>
               <Field label="Email Address" required error={errors.email?.message}>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <Input {...register('email')} type="email" placeholder="you@example.com"
-                    className={`pl-10 h-12 bg-white border-gray-200 focus:border-[#0B1F5E] focus:ring-[#0B1F5E]/20 rounded-xl ${errors.email ? 'border-red-400' : ''}`} />
+                  <Input
+                    {...register('email')}
+                    type="email"
+                    placeholder="you@example.com"
+                    autoComplete="email"
+                    className={`pl-10 h-12 bg-white border-gray-200 focus:border-[#0B1F5E] rounded-xl ${errors.email ? 'border-red-400' : ''}`}
+                  />
                 </div>
               </Field>
             </div>
+
             <Field label="Phone Number" required error={errors.phone?.message}>
               <div className="relative">
                 <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <Input {...register('phone')} placeholder="+212 6XX XXX XXX"
-                  className={`pl-10 h-12 bg-white border-gray-200 focus:border-[#0B1F5E] focus:ring-[#0B1F5E]/20 rounded-xl ${errors.phone ? 'border-red-400' : ''}`} />
+                <Input
+                  {...register('phone')}
+                  placeholder="+212 6XX XXX XXX"
+                  className={`pl-10 h-12 bg-white border-gray-200 focus:border-[#0B1F5E] rounded-xl ${errors.phone ? 'border-red-400' : ''}`}
+                />
               </div>
             </Field>
+
+            {/* Password divider */}
+            <div className="flex items-center gap-3 pt-1">
+              <div className="flex-1 h-px bg-gray-100" />
+              <span className="text-xs text-gray-400 font-medium flex items-center gap-1.5">
+                <Lock className="w-3 h-3" /> Create your password
+              </span>
+              <div className="flex-1 h-px bg-gray-100" />
+            </div>
+
+            <div className="grid sm:grid-cols-2 gap-4">
+              {/* Password */}
+              <div className="space-y-1.5">
+                <Field label="Password" required error={errors.password?.message}>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <Input
+                      {...register('password')}
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="Min. 8 characters"
+                      autoComplete="new-password"
+                      className={`pl-10 pr-10 h-12 bg-white border-gray-200 focus:border-[#0B1F5E] rounded-xl ${errors.password ? 'border-red-400' : ''}`}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(v => !v)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      tabIndex={-1}
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </Field>
+
+                {/* Strength bar */}
+                {passwordValue.length > 0 && (
+                  <div className="space-y-1">
+                    <div className="flex gap-1">
+                      {[1, 2, 3, 4, 5].map(i => (
+                        <div
+                          key={i}
+                          className={`h-1 flex-1 rounded-full transition-all duration-300 ${
+                            i <= strength.score ? strength.color : 'bg-gray-100'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <p className="text-xs text-gray-500">
+                      Strength: <span className={`font-medium ${
+                        strength.label === 'Weak'   ? 'text-red-500'   :
+                        strength.label === 'Fair'   ? 'text-yellow-600' :
+                        strength.label === 'Good'   ? 'text-blue-600'  :
+                        'text-green-600'
+                      }`}>{strength.label}</span>
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Confirm password */}
+              <Field label="Confirm Password" required error={errors.confirmPassword?.message}>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <Input
+                    {...register('confirmPassword')}
+                    type={showConfirm ? 'text' : 'password'}
+                    placeholder="Repeat your password"
+                    autoComplete="new-password"
+                    className={`pl-10 pr-10 h-12 bg-white border-gray-200 focus:border-[#0B1F5E] rounded-xl ${errors.confirmPassword ? 'border-red-400' : ''}`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirm(v => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    tabIndex={-1}
+                  >
+                    {showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </Field>
+            </div>
+
+            <p className="text-xs text-gray-400 leading-relaxed flex items-start gap-1.5">
+              <Lock className="w-3 h-3 mt-0.5 flex-shrink-0" />
+              Your account lets you track your application, access approved events, and manage your profile after joining.
+            </p>
           </Section>
 
           {/* ── 2. Club Preference ─────────────────────────────────────────── */}
@@ -283,7 +450,7 @@ export default function JoinUs() {
             ) : (
               <div className="grid sm:grid-cols-2 gap-3">
                 {clubs.map(club => {
-                  const Icon = ICON_MAP[club.icon] ?? Users;
+                  const Icon   = ICON_MAP[club.icon] ?? Users;
                   const active = selectedClub === String(club.id ?? club.slug ?? club.name);
                   return (
                     <button
@@ -351,7 +518,7 @@ export default function JoinUs() {
               <Textarea
                 {...register('motivation')}
                 placeholder="Share your passion for adventure, what you hope to experience, and how you'd like to contribute to our community…"
-                className={`min-h-[140px] bg-white border-gray-200 focus:border-[#0B1F5E] focus:ring-[#0B1F5E]/20 rounded-xl resize-none text-sm leading-relaxed p-4 ${errors.motivation ? 'border-red-400' : ''}`}
+                className={`min-h-[140px] bg-white border-gray-200 focus:border-[#0B1F5E] rounded-xl resize-none text-sm leading-relaxed p-4 ${errors.motivation ? 'border-red-400' : ''}`}
               />
               <div className="flex items-center justify-between mt-2">
                 {errors.motivation
@@ -370,13 +537,11 @@ export default function JoinUs() {
             {/* Terms checkbox */}
             <label className="flex items-start gap-4 cursor-pointer group">
               <div className="relative mt-0.5 flex-shrink-0">
-                <input
-                  type="checkbox"
-                  {...register('agreeToTerms')}
-                  className="sr-only peer"
-                />
+                <input type="checkbox" {...register('agreeToTerms')} className="sr-only peer" />
                 <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
-                  agreeToTerms ? 'bg-[#0B1F5E] border-[#0B1F5E]' : 'bg-white border-gray-300 group-hover:border-[#0B1F5E]/50'
+                  agreeToTerms
+                    ? 'bg-[#0B1F5E] border-[#0B1F5E]'
+                    : 'bg-white border-gray-300 group-hover:border-[#0B1F5E]/50'
                 } ${errors.agreeToTerms ? 'border-red-400' : ''}`}>
                   {agreeToTerms && (
                     <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
@@ -402,7 +567,8 @@ export default function JoinUs() {
                 <span className="text-[#D6B98C] text-xs font-bold">i</span>
               </div>
               <p className="text-xs text-gray-600 leading-relaxed">
-                After submission, our team reviews your application within <strong>2–3 business days</strong>. We may reach out for a brief conversation before finalising your membership.
+                Submitting this form creates your Journey Association account and sends your application for review.
+                Our team typically responds within <strong>2–3 business days</strong>.
               </p>
             </div>
 
@@ -416,15 +582,22 @@ export default function JoinUs() {
               {loading ? (
                 <span className="flex items-center gap-2">
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  Submitting Application…
+                  Creating account & submitting…
                 </span>
               ) : (
                 <span className="flex items-center gap-2">
-                  Submit Application
+                  Create Account & Apply
                   <ChevronRight className="w-5 h-5" />
                 </span>
               )}
             </Button>
+
+            <p className="text-center text-xs text-gray-400">
+              Already have an account?{' '}
+              <Link to="/login" className="text-[#0B1F5E] font-medium hover:underline">
+                Sign in instead
+              </Link>
+            </p>
           </div>
         </form>
       </main>
