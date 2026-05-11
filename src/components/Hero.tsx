@@ -166,7 +166,7 @@ const Hero = () => {
                         {line}
                         {lineIndex < lines.length - 1 && <br />}
                         {lineIndex === lines.length - 1 && isTyping && (
-                          <span className="typewriter-cursor-new">|</span>
+                          <span className="typewriter-cursor-new" />
                         )}
                       </span>
                     ));
