@@ -1,5 +1,5 @@
 import { apiFetch } from '@/lib/apiFetch';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import type { DragEndEvent } from '@dnd-kit/core';
@@ -19,7 +19,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import {
   Plus, Pencil, Trash2, MapPin, RefreshCw, Settings, Globe, Save,
-  ImageIcon, Search, Check, Link as LinkIcon, Eye, EyeOff, ArrowUp, ArrowDown, X, GripVertical,
+  ImageIcon, Search, Check, Link as LinkIcon, Eye, EyeOff, ArrowUp, ArrowDown, X, GripVertical, Upload,
   Mountain, Waves, Coffee, Map, Compass, Camera, Bike, Car, Plane, Ship,
   Tent, Flame, Sun, Moon, Star, Heart, Music, Book, TreePine, Fish,
   Anchor, Zap, Wind, Cloud, Umbrella, Leaf, Utensils, ShoppingBag,
@@ -92,23 +92,50 @@ function MediaPickerDialog({
   onOpenChange: (v: boolean) => void;
   onSelect: (url: string) => void;
 }) {
-  const [tab, setTab]         = useState<'builtin' | 'library' | 'url'>('builtin');
-  const [search, setSearch]   = useState('');
+  const { toast } = useToast();
+  const [tab, setTab]           = useState<'builtin' | 'library' | 'url'>('builtin');
+  const [search, setSearch]     = useState('');
   const [selected, setSelected] = useState('');
   const [urlInput, setUrlInput] = useState('');
-  const [media, setMedia]     = useState<MediaFile[]>([]);
+  const [media, setMedia]       = useState<MediaFile[]>([]);
   const [loadingMedia, setLoadingMedia] = useState(false);
+  const [isUploading, setIsUploading]   = useState(false);
+  const uploadRef = useRef<HTMLInputElement>(null);
+
+  function loadLibrary() {
+    setLoadingMedia(true);
+    apiFetch('/api/admin/media', { credentials: 'include' })
+      .then(r => r.json())
+      .then(d => { setMedia(Array.isArray(d) ? d : (d.media ?? [])); })
+      .catch(() => {})
+      .finally(() => setLoadingMedia(false));
+  }
 
   useEffect(() => {
-    if (open && tab === 'library' && media.length === 0) {
-      setLoadingMedia(true);
-      apiFetch('/api/admin/media', { credentials: 'include' })
-        .then(r => r.json())
-        .then(d => { setMedia(Array.isArray(d) ? d : (d.media ?? [])); })
-        .catch(() => {})
-        .finally(() => setLoadingMedia(false));
-    }
+    if (open && tab === 'library' && media.length === 0) loadLibrary();
   }, [open, tab]);
+
+  async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    setIsUploading(true);
+    let ok = 0, fail = 0;
+    for (const file of Array.from(files)) {
+      const fd = new FormData();
+      fd.append('file', file);
+      try {
+        const res = await apiFetch('/api/admin/media', { method: 'POST', body: fd, credentials: 'include' });
+        res.ok ? ok++ : fail++;
+      } catch { fail++; }
+    }
+    setIsUploading(false);
+    if (uploadRef.current) uploadRef.current.value = '';
+    if (ok > 0) {
+      toast({ title: `${ok} image${ok > 1 ? 's' : ''} uploaded` });
+      loadLibrary();
+    }
+    if (fail > 0) toast({ title: `${fail} upload${fail > 1 ? 's' : ''} failed`, variant: 'destructive' });
+  }
 
   function confirm() {
     const url = tab === 'url' ? urlInput : selected;
@@ -150,16 +177,41 @@ function MediaPickerDialog({
           ))}
         </div>
 
-        {/* Search */}
+        {/* Hidden upload input */}
+        <input
+          ref={uploadRef}
+          type="file"
+          accept="image/*"
+          multiple
+          className="hidden"
+          onChange={handleUpload}
+        />
+
+        {/* Search + upload button row */}
         {tab !== 'url' && (
-          <div className="relative shrink-0">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder="Search images…"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              className="pl-9"
-            />
+          <div className="flex gap-2 shrink-0">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Search images…"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                className="pl-9"
+              />
+            </div>
+            {tab === 'library' && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={isUploading}
+                onClick={() => uploadRef.current?.click()}
+                className="shrink-0 gap-2"
+              >
+                <Upload className="w-4 h-4" />
+                {isUploading ? 'Uploading…' : 'Upload'}
+              </Button>
+            )}
           </div>
         )}
 
@@ -201,10 +253,22 @@ function MediaPickerDialog({
                 Loading media library…
               </div>
             ) : filteredMedia.length === 0 ? (
-              <div className="text-center py-16 text-muted-foreground">
-                <ImageIcon className="w-12 h-12 mx-auto mb-3 opacity-30" />
+              <div className="text-center py-16 text-muted-foreground flex flex-col items-center gap-3">
+                <ImageIcon className="w-12 h-12 opacity-30" />
                 <p>{search ? 'No images match your search.' : 'No images in your media library yet.'}</p>
-                <p className="text-sm mt-1">Upload images in the Media Library section.</p>
+                {!search && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={isUploading}
+                    onClick={() => uploadRef.current?.click()}
+                    className="gap-2"
+                  >
+                    <Upload className="w-4 h-4" />
+                    {isUploading ? 'Uploading…' : 'Upload Your First Image'}
+                  </Button>
+                )}
               </div>
             ) : (
               <div className="grid grid-cols-3 gap-3 p-1">
