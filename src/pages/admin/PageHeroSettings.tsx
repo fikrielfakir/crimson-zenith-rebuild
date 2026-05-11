@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { apiFetch } from "@/lib/apiFetch";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { useToast } from "@/hooks/use-toast";
-import { Save, Eye, ExternalLink, Image, Video, Palette, AlertCircle } from "lucide-react";
+import { Save, Eye, ExternalLink, Image, Video, Palette, AlertCircle, Upload, X, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const PAGE_CONFIGS = [
@@ -28,7 +28,7 @@ const PAGE_CONFIGS = [
     previewUrl: "/contact",
     defaultTitle: "Contact Us",
     defaultSubtitle: "Have questions about your next adventure? Our friendly team is here to help.",
-    defaultImage: "/attached_assets/generated_images/Essaouira_coastal_fortifications_07abbfb6.png",
+    defaultImage: "",
   },
   {
     key: "volunteers",
@@ -36,7 +36,7 @@ const PAGE_CONFIGS = [
     previewUrl: "/talents/volunteers/spontaneous",
     defaultTitle: "Spontaneous Volunteers",
     defaultSubtitle: "Make a difference during your Morocco journey.",
-    defaultImage: "/attached_assets/generated_images/Al_Hoceima_coastal_view_9e4e9e0c.png",
+    defaultImage: "",
   },
   {
     key: "blog",
@@ -44,7 +44,7 @@ const PAGE_CONFIGS = [
     previewUrl: "/news",
     defaultTitle: "Blog",
     defaultSubtitle: "Stay updated with the latest adventure tips, safety guidelines, and stories.",
-    defaultImage: "/attached_assets/generated_images/Atlas_Mountain_Sunrise_9a8b7c6d.png",
+    defaultImage: "",
   },
   {
     key: "projects",
@@ -52,7 +52,7 @@ const PAGE_CONFIGS = [
     previewUrl: "/projects",
     defaultTitle: "Our Projects",
     defaultSubtitle: "Making a difference through meaningful initiatives.",
-    defaultImage: "/attached_assets/generated_images/Fes_medina_and_tanneries_3e9a2ff0.png",
+    defaultImage: "",
   },
   {
     key: "discover",
@@ -91,6 +91,119 @@ const DEFAULT_FORM: HeroFormData = {
   subtitle: "",
 };
 
+function MediaUploadField({
+  mediaType,
+  value,
+  onChange,
+  accept,
+  placeholder,
+}: {
+  mediaType: "image" | "video";
+  value: string;
+  onChange: (url: string) => void;
+  accept: string;
+  placeholder: string;
+}) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
+  const [uploading, setUploading] = useState(false);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const maxSizeMB = mediaType === "video" ? 200 : 10;
+    if (file.size > maxSizeMB * 1024 * 1024) {
+      toast({
+        title: "File too large",
+        description: `Maximum file size is ${maxSizeMB}MB.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("type", mediaType);
+
+      const res = await apiFetch("/api/admin/cms/page-hero-upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || "Upload failed");
+      }
+
+      const data = await res.json();
+      onChange(data.url);
+      toast({
+        title: "Uploaded",
+        description: `${mediaType === "image" ? "Image" : "Video"} uploaded successfully.`,
+      });
+    } catch (err: any) {
+      toast({
+        title: "Upload failed",
+        description: err.message || "Could not upload file.",
+        variant: "destructive",
+      });
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  };
+
+  return (
+    <div className="space-y-2">
+      <div className="flex gap-2">
+        <Input
+          placeholder={placeholder}
+          value={value}
+          onChange={e => onChange(e.target.value)}
+          className="flex-1 font-mono text-xs"
+        />
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          disabled={uploading}
+          onClick={() => fileRef.current?.click()}
+          title={`Upload ${mediaType}`}
+        >
+          {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+        </Button>
+        {value && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={() => onChange("")}
+            title="Clear"
+          >
+            <X className="w-4 h-4" />
+          </Button>
+        )}
+      </div>
+      <input
+        ref={fileRef}
+        type="file"
+        accept={accept}
+        className="hidden"
+        onChange={handleFileChange}
+      />
+      {uploading && (
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <Loader2 className="w-3 h-3 animate-spin" />
+          Uploading {mediaType}…
+        </div>
+      )}
+    </div>
+  );
+}
+
 function PageHeroForm({ pageKey, config, isLanding }: {
   pageKey: string;
   config: typeof PAGE_CONFIGS[number];
@@ -109,7 +222,7 @@ function PageHeroForm({ pageKey, config, isLanding }: {
         if (data) {
           setForm({
             backgroundType: data.backgroundType || data.background_type || "image",
-            backgroundImageUrl: data.backgroundImageUrl || data.background_image_url || data.backgroundImageUrl || "",
+            backgroundImageUrl: data.backgroundImageUrl || data.background_image_url || "",
             backgroundVideoUrl: data.backgroundVideoUrl || data.background_video_url || "",
             overlayOpacity: data.overlayOpacity ?? data.backgroundOverlayOpacity ?? 50,
             title: data.title || "",
@@ -127,7 +240,7 @@ function PageHeroForm({ pageKey, config, isLanding }: {
       const endpoint = isLanding
         ? "/api/admin/cms/hero"
         : `/api/admin/cms/page-hero/${pageKey}`;
-      const method = "PUT";
+
       const payload = isLanding
         ? {
             backgroundType: form.backgroundType,
@@ -144,7 +257,7 @@ function PageHeroForm({ pageKey, config, isLanding }: {
           };
 
       const res = await apiFetch(endpoint, {
-        method,
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
         credentials: "include",
@@ -163,7 +276,11 @@ function PageHeroForm({ pageKey, config, isLanding }: {
   };
 
   if (loading) {
-    return <div className="p-8 text-center text-muted-foreground">Loading…</div>;
+    return (
+      <div className="flex items-center justify-center h-32 text-muted-foreground">
+        <Loader2 className="w-5 h-5 animate-spin mr-2" /> Loading…
+      </div>
+    );
   }
 
   return (
@@ -178,12 +295,12 @@ function PageHeroForm({ pageKey, config, isLanding }: {
         </div>
       )}
 
-      {config.note === "city-detail" && (
+      {(config as any).note === "city-detail" && (
         <div className="flex items-start gap-3 p-4 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800">
           <AlertCircle className="w-5 h-5 text-amber-500 mt-0.5 shrink-0" />
           <div className="text-sm text-amber-800 dark:text-amber-200">
             <p className="font-semibold mb-1">City Detail — global override</p>
-            <p>When Background Type is set to <strong>Video</strong>, all city detail pages will show the configured video instead of the city's own photo. For Image or Gradient types, each city uses its own photo.</p>
+            <p>When Background Type is set to <strong>Video</strong>, all city detail pages will show the configured video instead of the city's own photo.</p>
           </div>
         </div>
       )}
@@ -194,7 +311,7 @@ function PageHeroForm({ pageKey, config, isLanding }: {
             <CardTitle className="text-base flex items-center gap-2">
               <Palette className="w-4 h-4" /> Background
             </CardTitle>
-            <CardDescription>Choose the background type and source</CardDescription>
+            <CardDescription>Choose the background type and upload or link media</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-1.5">
@@ -222,26 +339,55 @@ function PageHeroForm({ pageKey, config, isLanding }: {
 
             {form.backgroundType === "image" && !isLanding && (
               <div className="space-y-1.5">
-                <Label>Image URL</Label>
-                <Input
-                  placeholder={config.defaultImage || "https://example.com/image.jpg"}
+                <Label className="flex items-center gap-1.5">
+                  <Image className="w-3.5 h-3.5" /> Background Image
+                </Label>
+                <MediaUploadField
+                  mediaType="image"
                   value={form.backgroundImageUrl}
-                  onChange={e => setForm(f => ({ ...f, backgroundImageUrl: e.target.value }))}
+                  onChange={url => setForm(f => ({ ...f, backgroundImageUrl: url }))}
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  placeholder="https://example.com/hero.jpg or upload ↑"
                 />
-                <p className="text-xs text-muted-foreground">Direct URL to image. Leave blank to use the default.</p>
+                <p className="text-xs text-muted-foreground">
+                  Upload an image file (JPG, PNG, WebP · max 10 MB) or paste a direct URL. Leave blank to use the page default.
+                </p>
+                {form.backgroundImageUrl && !form.backgroundImageUrl.startsWith("data:") && (
+                  <div className="mt-2 rounded-lg overflow-hidden border aspect-video bg-black/5">
+                    <img
+                      src={form.backgroundImageUrl}
+                      alt="Preview"
+                      className="w-full h-full object-cover"
+                      onError={e => { (e.target as HTMLImageElement).style.display = "none"; }}
+                    />
+                  </div>
+                )}
+                {form.backgroundImageUrl && form.backgroundImageUrl.startsWith("data:") && (
+                  <div className="mt-2 rounded-lg overflow-hidden border aspect-video bg-black/5">
+                    <img
+                      src={form.backgroundImageUrl}
+                      alt="Preview"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
               </div>
             )}
 
             {form.backgroundType === "video" && (
               <div className="space-y-1.5">
-                <Label>Video URL</Label>
-                <Input
-                  placeholder="https://example.com/hero.mp4"
+                <Label className="flex items-center gap-1.5">
+                  <Video className="w-3.5 h-3.5" /> Background Video
+                </Label>
+                <MediaUploadField
+                  mediaType="video"
                   value={form.backgroundVideoUrl}
-                  onChange={e => setForm(f => ({ ...f, backgroundVideoUrl: e.target.value }))}
+                  onChange={url => setForm(f => ({ ...f, backgroundVideoUrl: url }))}
+                  accept="video/mp4,video/webm,video/ogg"
+                  placeholder="https://example.com/hero.mp4 or upload ↑"
                 />
                 <p className="text-xs text-muted-foreground">
-                  Direct URL to an MP4 or WebM file. Supports Cloudinary, Bunny CDN, or any direct video URL.
+                  Upload an MP4 or WebM file (max 200 MB) or paste a direct video URL. Video plays automatically, muted, on loop.
                 </p>
                 {form.backgroundVideoUrl && (
                   <div className="mt-2 rounded-lg overflow-hidden border aspect-video bg-black/10">
@@ -323,7 +469,7 @@ export default function PageHeroSettings() {
       <div>
         <h1 className="text-3xl font-bold">Page Hero Settings</h1>
         <p className="text-muted-foreground mt-1">
-          Manage hero backgrounds (image, video, gradient) for each page. Video backgrounds play automatically, muted, on loop.
+          Upload or link background images and videos for each page's hero section.
         </p>
       </div>
 

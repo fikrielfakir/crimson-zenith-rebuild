@@ -12,6 +12,7 @@ use App\Models\SeoSettings;
 use App\Models\AboutSettings;
 use App\Models\DiscoverSettings;
 use App\Models\FocusItem;
+use App\Models\PageHeroSetting;
 use App\Models\TeamMember;
 use App\Models\LandingTestimonial;
 use App\Models\SiteStat;
@@ -62,6 +63,24 @@ class CmsController extends Controller
     public function discoverSettings()
     {
         return response()->json(DiscoverSettings::firstOrCreate(['id' => 'default']));
+    }
+
+    public function pageHero(string $page)
+    {
+        $setting = PageHeroSetting::where('page_key', $page)->first();
+        if (!$setting) {
+            return response()->json((object) []);
+        }
+
+        return response()->json([
+            'page_key'           => $setting->page_key,
+            'backgroundType'     => $setting->background_type,
+            'backgroundImageUrl' => $setting->background_image_url,
+            'backgroundVideoUrl' => $setting->background_video_url,
+            'overlayOpacity'     => $setting->overlay_opacity,
+            'title'              => $setting->title,
+            'subtitle'           => $setting->subtitle,
+        ]);
     }
 
     public function focusItems()

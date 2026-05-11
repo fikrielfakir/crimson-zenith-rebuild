@@ -11,6 +11,7 @@ use App\Models\PresidentMessageSettings;
 use App\Models\AboutSettings;
 use App\Models\DiscoverSettings;
 use App\Models\MediaAsset;
+use App\Models\PageHeroSetting;
 use App\Models\FocusItem;
 use App\Models\TeamMember;
 use App\Models\LandingTestimonial;
@@ -68,6 +69,62 @@ class CmsAdminController extends Controller
         $settings = DiscoverSettings::firstOrCreate(['id' => 'default']);
         $settings->update(array_merge($request->except(['id']), ['updated_by' => $request->user()->id]));
         return response()->json($settings->fresh());
+    }
+
+    public function updatePageHero(Request $request, string $page)
+    {
+        $allowed = ['landing', 'contact', 'volunteers', 'blog', 'projects', 'discover', 'city-detail'];
+        if (!in_array($page, $allowed)) {
+            return response()->json(['message' => 'Invalid page key'], 422);
+        }
+
+        $setting = PageHeroSetting::firstOrCreate(['page_key' => $page]);
+        $setting->update(array_merge(
+            $request->only([
+                'background_type', 'backgroundType',
+                'background_image_url', 'backgroundImageUrl',
+                'background_video_url', 'backgroundVideoUrl',
+                'overlay_opacity', 'overlayOpacity',
+                'title', 'subtitle',
+            ]),
+            ['updated_by' => $request->user()?->id]
+        ));
+
+        $fresh = $setting->fresh();
+        return response()->json([
+            'page_key'             => $fresh->page_key,
+            'backgroundType'       => $fresh->background_type,
+            'backgroundImageUrl'   => $fresh->background_image_url,
+            'backgroundVideoUrl'   => $fresh->background_video_url,
+            'overlayOpacity'       => $fresh->overlay_opacity,
+            'title'                => $fresh->title,
+            'subtitle'             => $fresh->subtitle,
+        ]);
+    }
+
+    public function uploadPageHeroMedia(Request $request)
+    {
+        if (!$request->hasFile('file')) {
+            return response()->json(['message' => 'No file provided'], 422);
+        }
+
+        $file     = $request->file('file');
+        $mime     = $file->getMimeType() ?? 'application/octet-stream';
+        $ext      = $file->getClientOriginalExtension() ?: 'bin';
+        $id       = (string) Str::uuid();
+        $filename = $id . '.' . $ext;
+
+        // Store in public/uploads/hero-media/ so Vite serves it statically
+        $targetDir = public_path('uploads/hero-media');
+        if (!is_dir($targetDir)) {
+            mkdir($targetDir, 0755, true);
+        }
+        $file->move($targetDir, $filename);
+
+        return response()->json([
+            'url' => '/uploads/hero-media/' . $filename,
+            'id'  => $id,
+        ], 201);
     }
 
     public function uploadMedia(Request $request)

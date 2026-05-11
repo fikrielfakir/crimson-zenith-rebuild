@@ -127,6 +127,7 @@ Route::prefix('cms')->group(function () {
     Route::get('/stats',             [\App\Http\Controllers\CmsController::class, 'stats']);
     Route::get('/media/{id}',        [\App\Http\Controllers\CmsController::class, 'media']);
     Route::get('/discover',          [\App\Http\Controllers\CmsController::class, 'discoverSettings']);
+    Route::get('/page-hero/{page}',  [\App\Http\Controllers\CmsController::class, 'pageHero']);
 });
 
 Route::get('/landing', [\App\Http\Controllers\LandingController::class, 'index']);
@@ -275,6 +276,10 @@ Route::prefix('admin')->middleware(['admin'])->group(function () {
     Route::put('/cms/about',                   [\App\Http\Controllers\Admin\CmsAdminController::class, 'updateAbout']);
     Route::put('/cms/discover',                [\App\Http\Controllers\Admin\CmsAdminController::class, 'updateDiscover']);
     Route::post('/cms/media',                  [\App\Http\Controllers\Admin\CmsAdminController::class, 'uploadMedia']);
+
+    // Page Hero Settings (per-page background image/video)
+    Route::post('/cms/page-hero-upload',       [\App\Http\Controllers\Admin\CmsAdminController::class, 'uploadPageHeroMedia']);
+    Route::put('/cms/page-hero/{page}',        [\App\Http\Controllers\Admin\CmsAdminController::class, 'updatePageHero']);
 
     // CMS focus items (dedicated CRUD used by FocusAreasManagement page)
     Route::get('/cms/focus-items',                  [\App\Http\Controllers\Admin\FocusItemController::class, 'index']);
