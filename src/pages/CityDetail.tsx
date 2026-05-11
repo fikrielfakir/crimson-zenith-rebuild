@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation, Link, useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { moroccoCities } from "@/lib/citiesData";
@@ -107,16 +108,43 @@ const CityDetail = () => {
 
   const otherCities = allCities.filter(c => c.slug !== city.slug).slice(0, 3);
 
+  const { data: pageHeroData } = useQuery({
+    queryKey: ["page-hero", "city-detail"],
+    queryFn: async () => {
+      try {
+        const res = await apiFetch("/api/cms/page-hero/city-detail");
+        if (!res.ok) return null;
+        return res.json();
+      } catch { return null; }
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const heroBgType: string = pageHeroData?.backgroundType || "image";
+  const heroVideoUrl: string = pageHeroData?.backgroundVideoUrl || "";
+  const isVideoHero = heroBgType === "video" && !!heroVideoUrl;
+
   return (
     <div className="min-h-screen bg-background">
       <section className="relative w-full h-screen overflow-hidden">
-        <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-105 transition-transform duration-700 ease-out"
-          style={{ 
-            backgroundImage: `url(${city.image})`,
-            backgroundAttachment: 'fixed'
-          }}
-        />
+        {isVideoHero ? (
+          <video
+            className="absolute inset-0 w-full h-full object-cover"
+            autoPlay loop muted playsInline
+            style={{ filter: "brightness(0.65)" }}
+          >
+            <source src={heroVideoUrl} type="video/mp4" />
+            <source src={heroVideoUrl} type="video/webm" />
+          </video>
+        ) : (
+          <div
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-105 transition-transform duration-700 ease-out"
+            style={{
+              backgroundImage: `url(${city.image})`,
+              backgroundAttachment: 'fixed'
+            }}
+          />
+        )}
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/80" />
         <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-black/30" />
         

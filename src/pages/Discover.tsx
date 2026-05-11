@@ -1,9 +1,10 @@
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { ArrowRight, Home, ChevronRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
+import PageHero from "@/components/PageHero";
 import { useQuery } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/apiFetch";
 import { moroccoCities } from "@/lib/citiesData";
@@ -82,50 +83,14 @@ const Discover = () => {
       <Header />
 
       <main className="relative">
-        {/* Hero Section */}
-        <section className="relative py-20 overflow-hidden" style={{ paddingTop: '15rem' }}>
-          <div
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-            style={{
-              backgroundImage: `url('${settings?.hero_bg_image ?? ''}')`,
-              transform: `translateY(${scrollY * 0.3}px)`,
-              filter: 'brightness(0.6) contrast(1.1) saturate(1.2)',
-            }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/50" />
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-transparent to-primary/20" />
-
-          <div className="relative container mx-auto px-6">
-            <nav className={`mb-8 transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
-              <ol className="flex items-center space-x-2 text-sm">
-                <li>
-                  <Link
-                    to="/"
-                    className="flex items-center text-white/90 hover:text-white transition-colors bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-full border border-white/20 hover:border-white/40"
-                  >
-                    <Home className="w-4 h-4 mr-1.5" />
-                    Home
-                  </Link>
-                </li>
-                <li className="flex items-center">
-                  <ChevronRight className="w-4 h-4 mx-2 text-white/50" />
-                  <span className="text-white font-semibold bg-white/15 backdrop-blur-sm px-3 py-1.5 rounded-full border border-white/30 shadow-lg">
-                    Discover
-                  </span>
-                </li>
-              </ol>
-            </nav>
-
-            <div className={`transition-all duration-700 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-4 drop-shadow-2xl">
-                {settings?.hero_title}
-              </h1>
-              <p className="text-lg md:text-xl text-white/95 max-w-2xl leading-relaxed drop-shadow-lg">
-                {settings?.hero_subtitle}
-              </p>
-            </div>
-          </div>
-        </section>
+        <PageHero
+          pageKey="discover"
+          scrollY={scrollY}
+          breadcrumbs={[{ label: "Discover" }]}
+          defaultTitle={settings?.hero_title || "Discover Morocco"}
+          defaultSubtitle={settings?.hero_subtitle || "Explore the wonders of the Kingdom — from ancient medinas to snow-capped peaks."}
+          defaultImage={settings?.hero_bg_image || ""}
+        />
 
         {/* Introduction Section */}
         <section className="py-24 bg-gradient-to-b from-background to-muted/20">

@@ -1429,6 +1429,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Page Hero Settings (per-page: contact, volunteers, blog, projects, discover, city-detail)
+  app.get('/api/cms/page-hero/:pageKey', async (req, res) => {
+    try {
+      const settings = await storage.getPageHeroSettings(req.params.pageKey);
+      res.json(settings || null);
+    } catch (error) {
+      console.error("Error fetching page hero settings:", error);
+      res.status(500).json({ message: "Failed to fetch page hero settings" });
+    }
+  });
+
+  app.put('/api/admin/cms/page-hero/:pageKey', isAuthenticated, isAdmin, async (req: any, res) => {
+    try {
+      const userId = req.user?.id;
+      const settings = await storage.upsertPageHeroSettings(req.params.pageKey, req.body, userId);
+      res.json(settings);
+    } catch (error) {
+      console.error("Error updating page hero settings:", error);
+      res.status(500).json({ message: "Failed to update page hero settings" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

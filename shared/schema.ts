@@ -358,6 +358,7 @@ export const heroSettings = mysqlTable("hero_settings", {
   secondaryButtonLink: varchar("secondary_button_link", { length: 500 }).default("/clubs"),
   backgroundType: varchar("background_type", { length: 20 }).default("image"),
   backgroundMediaId: int("background_media_id").references(() => mediaAssets.id),
+  backgroundVideoUrl: varchar("background_video_url", { length: 1000 }),
   backgroundOverlayColor: varchar("background_overlay_color", { length: 50 }).default("rgba(26, 54, 93, 0.7)"),
   backgroundOverlayOpacity: int("background_overlay_opacity").default(70),
   titleFontSize: varchar("title_font_size", { length: 50 }).default("65px"),
@@ -368,6 +369,21 @@ export const heroSettings = mysqlTable("hero_settings", {
   typewriterTexts: json("typewriter_texts").default(sql`'[]'`),
   updatedBy: varchar("updated_by", { length: 255 }).references(() => users.id),
   updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Per-page hero settings table
+export const pageHeroSettings = mysqlTable("page_hero_settings", {
+  pageKey: varchar("page_key", { length: 50 }).primaryKey(),
+  title: varchar("title", { length: 255 }),
+  subtitle: text("subtitle"),
+  backgroundType: varchar("background_type", { length: 20 }).default("image"),
+  backgroundImageUrl: varchar("background_image_url", { length: 1000 }),
+  backgroundVideoUrl: varchar("background_video_url", { length: 1000 }),
+  overlayColor: varchar("overlay_color", { length: 50 }).default("#000000"),
+  overlayOpacity: int("overlay_opacity").default(50),
+  isActive: boolean("is_active").default(true),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  updatedBy: varchar("updated_by", { length: 255 }).references(() => users.id),
 });
 
 // Landing page sections table - stores all sections configuration
@@ -792,5 +808,7 @@ export type Partner = typeof partners.$inferSelect;
 export type InsertPartner = typeof partners.$inferInsert;
 export type BlogPost = typeof blogPosts.$inferSelect;
 export type InsertBlogPost = typeof blogPosts.$inferInsert;
+export type PageHeroSetting = typeof pageHeroSettings.$inferSelect;
+export type InsertPageHeroSetting = typeof pageHeroSettings.$inferInsert;
 export type BookingTicket = typeof bookingTickets.$inferSelect;
 export type InsertBookingTicket = typeof bookingTickets.$inferInsert;

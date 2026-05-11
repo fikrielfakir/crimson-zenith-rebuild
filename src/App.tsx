@@ -66,6 +66,7 @@ import FocusAreasManagement from "./pages/admin/FocusAreasManagement";
 import TeamMembersManagement from "./pages/admin/TeamMembersManagement";
 import TestimonialsManagement from "./pages/admin/TestimonialsManagement";
 import CitiesManagement from "./pages/admin/CitiesManagement";
+import PageHeroSettings from "./pages/admin/PageHeroSettings";
 import JoinUs from "./pages/JoinUs";
 import ClubDetail from "./pages/ClubDetail";
 import ActivityDetail from "./pages/ActivityDetail";
@@ -313,6 +314,11 @@ const App = () => (
           <Route path="/admin/customization/partners" element={
             <ProtectedRoute>
               <div className="p-6"><h1 className="text-3xl font-bold">Partners Section - Coming Soon</h1></div>
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/customization/page-heroes" element={
+            <ProtectedRoute>
+              <PageHeroSettings />
             </ProtectedRoute>
           } />
           

@@ -12,13 +12,12 @@ import {
   TrendingUp,
   Filter,
   Download,
-  Mail,
-  Home,
-  ChevronRight
+  Mail
 } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import PageHero from "@/components/PageHero";
 
 interface Article {
   id: number;
@@ -149,49 +148,14 @@ const News = () => {
       <Header />
       
       <main className="relative">
-        <section className="relative py-20 overflow-hidden" style={{ paddingTop: '15rem' }}>
-          <div 
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-            style={{
-              backgroundImage: `url('/attached_assets/generated_images/Atlas_Mountain_Sunrise_9a8b7c6d.png')`,
-              transform: `translateY(${scrollY * 0.3}px)`,
-              filter: 'brightness(0.6) contrast(1.1) saturate(1.2)',
-            }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/50" />
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-transparent to-primary/20" />
-
-          <div className="relative container mx-auto px-6">
-            <nav className={`mb-8 transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
-              <ol className="flex items-center space-x-2 text-sm">
-                <li>
-                  <Link 
-                    to="/" 
-                    className="flex items-center text-white/90 hover:text-white transition-colors bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-full border border-white/20 hover:border-white/40"
-                  >
-                    <Home className="w-4 h-4 mr-1.5" />
-                    Home
-                  </Link>
-                </li>
-                <li className="flex items-center">
-                  <ChevronRight className="w-4 h-4 mx-2 text-white/50" />
-                  <span className="text-white font-semibold bg-white/15 backdrop-blur-sm px-3 py-1.5 rounded-full border border-white/30 shadow-lg">
-                    Blog
-                  </span>
-                </li>
-              </ol>
-            </nav>
-
-            <div className={`transition-all duration-700 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-4 drop-shadow-2xl">
-                Blog
-              </h1>
-              <p className="text-lg md:text-xl text-white/95 max-w-2xl leading-relaxed drop-shadow-lg">
-                Stay updated with the latest adventure tips, safety guidelines, member spotlights, and gear reviews.
-              </p>
-            </div>
-          </div>
-        </section>
+        <PageHero
+          pageKey="blog"
+          scrollY={scrollY}
+          breadcrumbs={[{ label: "Blog" }]}
+          defaultTitle="Blog"
+          defaultSubtitle="Stay updated with the latest adventure tips, safety guidelines, member spotlights, and gear reviews."
+          defaultImage="/attached_assets/generated_images/Atlas_Mountain_Sunrise_9a8b7c6d.png"
+        />
 
         <section className="py-8 bg-muted/50">
           <div className="container mx-auto px-4">

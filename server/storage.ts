@@ -79,6 +79,9 @@ import {
   galleryItems,
   type GalleryItem,
   type InsertGalleryItem,
+  pageHeroSettings,
+  type PageHeroSetting,
+  type InsertPageHeroSetting,
 } from "../shared/schema.js";
 import { db } from "./db";
 import { eq, and, desc, asc, count, sql } from "drizzle-orm";
@@ -175,6 +178,9 @@ export interface IStorage {
   
   getThemeSettings(): Promise<ThemeSettings | undefined>;
   updateThemeSettings(settings: Partial<InsertThemeSettings>, userId?: string): Promise<ThemeSettings>;
+
+  getPageHeroSettings(pageKey: string): Promise<PageHeroSetting | undefined>;
+  upsertPageHeroSettings(pageKey: string, data: Partial<InsertPageHeroSetting>, userId?: string): Promise<PageHeroSetting>;
   
   getMediaAssets(): Promise<MediaAsset[]>;
   getMediaAsset(id: number): Promise<MediaAsset | undefined>;
@@ -1311,6 +1317,27 @@ export class DatabaseStorage implements IStorage {
   // Partners operations
   async getPartners(): Promise<Partner[]> {
     return await db.select().from(partners).where(eq(partners.isActive, true)).orderBy(asc(partners.ordering));
+  }
+
+  async getPageHeroSettings(pageKey: string): Promise<PageHeroSetting | undefined> {
+    const [row] = await db.select().from(pageHeroSettings).where(eq(pageHeroSettings.pageKey, pageKey));
+    return row;
+  }
+
+  async upsertPageHeroSettings(pageKey: string, data: Partial<InsertPageHeroSetting>, userId?: string): Promise<PageHeroSetting> {
+    const existing = await this.getPageHeroSettings(pageKey);
+    if (existing) {
+      await db
+        .update(pageHeroSettings)
+        .set({ ...data, updatedBy: userId, updatedAt: new Date() })
+        .where(eq(pageHeroSettings.pageKey, pageKey));
+    } else {
+      await db
+        .insert(pageHeroSettings)
+        .values({ ...data, pageKey, updatedBy: userId } as InsertPageHeroSetting);
+    }
+    const [row] = await db.select().from(pageHeroSettings).where(eq(pageHeroSettings.pageKey, pageKey));
+    return row;
   }
 
   async getPartner(id: number): Promise<Partner | undefined> {

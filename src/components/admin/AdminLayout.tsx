@@ -94,7 +94,8 @@ const navigationItems: NavigationItem[] = [
       { label: 'Impact Section', href: '/admin/customization/impact' },
       { label: 'Team Members', href: '/admin/customization/team' },
       { label: 'Testimonials', href: '/admin/customization/testimonials' },
-      { label: 'Partners', href: '/admin/customization/partners' }
+      { label: 'Partners', href: '/admin/customization/partners' },
+      { label: 'Page Heroes', href: '/admin/customization/page-heroes' }
     ]
   },
   { label: 'Analytics', icon: BarChart3, href: '/admin/analytics' },

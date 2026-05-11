@@ -108,7 +108,7 @@ const Hero = () => {
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden font-sans">
       {/* Background Image or Video */}
       {heroSettings?.backgroundType === "video" &&
-      heroSettings?.backgroundMediaId ? (
+      (heroSettings?.backgroundMediaId || heroSettings?.backgroundVideoUrl) ? (
         <video
           className="absolute inset-0 w-full h-full object-cover"
           autoPlay
@@ -116,7 +116,13 @@ const Hero = () => {
           muted
           playsInline
         >
-          <source src={backgroundUrl} type="video/mp4" />
+          <source
+            src={heroSettings.backgroundVideoUrl || backgroundUrl}
+            type="video/mp4"
+          />
+          {heroSettings.backgroundVideoUrl && (
+            <source src={heroSettings.backgroundVideoUrl} type="video/webm" />
+          )}
         </video>
       ) : (
         <div
