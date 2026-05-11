@@ -96,6 +96,9 @@ const GLOBAL_CSS = `
   @keyframes twinkBright{ 0%,100%{opacity:.4;filter:blur(.5px)} 50%{opacity:1;filter:blur(0)} }
   @keyframes dashScroll { to { stroke-dashoffset:-24 } }
   @keyframes pulseRing  { 0%,100%{opacity:.06} 50%{opacity:.14} }
+  @keyframes auroraShift{ 0%{opacity:0;transform:translateX(-12%) skewX(-8deg)} 35%{opacity:1} 65%{opacity:.7} 100%{opacity:0;transform:translateX(16%) skewX(-8deg)} }
+  @keyframes gridPulse  { 0%,100%{opacity:.045} 50%{opacity:.09} }
+  @keyframes centerPulse{ 0%,100%{opacity:.12;transform:translate(-50%,-50%) scale(1)} 50%{opacity:.26;transform:translate(-50%,-50%) scale(1.06)} }
 `;
 
 /* ─── stable random seeds ────────────────────────────────────────────── */
@@ -106,15 +109,16 @@ function seededRand(seed: number) {
 
 /* ─── star field ─────────────────────────────────────────────────────── */
 function StarField() {
-  const stars = useMemo(() => Array.from({ length:160 }, (_, i) => ({
+  const stars = useMemo(() => Array.from({ length:240 }, (_, i) => ({
     id: i,
     x: seededRand(i * 3.1) * 100,
     y: seededRand(i * 7.7) * 100,
-    size: seededRand(i * 2.3) < 0.65 ? seededRand(i * 5.1) * 1.1 + 0.3 : seededRand(i * 9.9) * 2.6 + 1,
-    bright: seededRand(i * 4.4) > 0.88,
-    twinkle: seededRand(i * 6.6) > 0.55,
-    dur: seededRand(i * 8.2) * 4 + 3,
-    delay: seededRand(i * 1.9) * 7,
+    size: seededRand(i * 2.3) < 0.60 ? seededRand(i * 5.1) * 1.2 + 0.25 : seededRand(i * 9.9) * 3.2 + 1,
+    bright: seededRand(i * 4.4) > 0.82,
+    twinkle: seededRand(i * 6.6) > 0.40,
+    color: seededRand(i * 11.3) > 0.88 ? "#e0c8ff" : seededRand(i * 11.3) > 0.76 ? "#c8e8ff" : "#d6eeff",
+    dur: seededRand(i * 8.2) * 5 + 2.5,
+    delay: seededRand(i * 1.9) * 9,
   })), []);
 
   return (
@@ -124,9 +128,9 @@ function StarField() {
           position:"absolute", left:`${s.x}%`, top:`${s.y}%`,
           width:s.size, height:s.size, borderRadius:"50%",
           background: s.bright
-            ? "radial-gradient(circle, #d6eeff 0%, rgba(120,195,255,0.55) 60%, transparent 100%)"
-            : "rgba(190,218,255,0.62)",
-          boxShadow: s.bright ? `0 0 ${s.size*3.5}px rgba(120,195,255,0.55)` : "none",
+            ? `radial-gradient(circle, ${s.color} 0%, rgba(120,195,255,0.55) 60%, transparent 100%)`
+            : "rgba(190,218,255,0.58)",
+          boxShadow: s.bright ? `0 0 ${s.size*4}px rgba(160,210,255,0.6)` : "none",
           animation: s.twinkle
             ? `${s.bright ? "twinkBright" : "twinkle"} ${s.dur}s ${s.delay}s infinite ease-in-out`
             : "none",
@@ -141,19 +145,62 @@ function NebulaBlobs() {
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none" style={{ zIndex:2 }}>
       {[
-        { left:"-8%",  top:"15%",  w:"52%", h:"65%", bg:"radial-gradient(circle, rgba(29,78,216,0.065) 0%, rgba(0,40,140,0.03) 45%, transparent 70%)", ax:[-22,18,-22], ay:[-10,14,-10], dur:32 },
-        { left:"55%",  top:"20%",  w:"48%", h:"60%", bg:"radial-gradient(circle, rgba(0,100,220,0.055) 0%, rgba(0,40,180,0.025) 50%, transparent 70%)", ax:[18,-12,18], ay:[12,-18,12], dur:38 },
-        { left:"25%",  top:"-18%", w:"50%", h:"65%", bg:"radial-gradient(circle, rgba(96,140,255,0.04) 0%, transparent 70%)", ax:[0,0,0], ay:[0,0,0], dur:28, scl:[1,1.08,1] },
+        { left:"-10%", top:"10%",  w:"58%", h:"70%", bg:"radial-gradient(circle, rgba(29,78,216,0.13) 0%, rgba(0,40,140,0.06) 45%, transparent 70%)",   ax:[-22,18,-22], ay:[-10,14,-10], dur:32 },
+        { left:"52%",  top:"15%",  w:"55%", h:"65%", bg:"radial-gradient(circle, rgba(0,100,220,0.11) 0%, rgba(0,40,180,0.05) 50%, transparent 70%)",     ax:[18,-12,18],  ay:[12,-18,12],  dur:38 },
+        { left:"20%",  top:"-22%", w:"60%", h:"70%", bg:"radial-gradient(circle, rgba(96,140,255,0.09) 0%, transparent 70%)",                              ax:[0,0,0],      ay:[0,0,0],      dur:28, scl:[1,1.10,1] },
+        { left:"-5%",  top:"55%",  w:"40%", h:"50%", bg:"radial-gradient(circle, rgba(120,60,220,0.07) 0%, rgba(80,20,180,0.03) 50%, transparent 70%)",   ax:[10,-8,10],   ay:[-6,10,-6],   dur:42 },
+        { left:"65%",  top:"50%",  w:"45%", h:"55%", bg:"radial-gradient(circle, rgba(0,180,220,0.06) 0%, rgba(0,100,200,0.03) 50%, transparent 70%)",    ax:[-14,10,-14], ay:[8,-12,8],    dur:36 },
+        { left:"30%",  top:"30%",  w:"42%", h:"42%", bg:"radial-gradient(circle, rgba(60,100,255,0.05) 0%, transparent 65%)",                              ax:[5,-5,5],     ay:[-4,6,-4],    dur:24, scl:[1,1.06,1] },
       ].map((b, i) => (
         <motion.div key={i}
           style={{
             position:"absolute", left:b.left, top:b.top, width:b.w, height:b.h,
-            background:b.bg, filter:"blur(35px)",
+            background:b.bg, filter:"blur(40px)",
           }}
           animate={{ x:b.ax, y:b.ay, scale:(b as any).scl ?? [1,1,1] }}
           transition={{ duration:b.dur, repeat:Infinity, ease:"easeInOut" }}
         />
       ))}
+    </div>
+  );
+}
+
+/* ─── aurora light ribbons ───────────────────────────────────────────── */
+function AuroraEffect() {
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none" style={{ zIndex:3 }}>
+      {[
+        { top:"8%",  left:"5%",  w:"55%", h:"18%", bg:"linear-gradient(90deg, transparent 0%, rgba(59,130,246,0.10) 30%, rgba(99,102,241,0.14) 55%, rgba(139,92,246,0.08) 75%, transparent 100%)", dur:14, delay:0 },
+        { top:"18%", left:"35%", w:"50%", h:"14%", bg:"linear-gradient(90deg, transparent 0%, rgba(0,200,255,0.07) 25%, rgba(59,130,246,0.11) 55%, rgba(99,102,241,0.07) 80%, transparent 100%)", dur:18, delay:5 },
+        { top:"72%", left:"-5%", w:"60%", h:"16%", bg:"linear-gradient(90deg, transparent 0%, rgba(120,60,220,0.08) 30%, rgba(59,130,246,0.10) 60%, transparent 100%)", dur:22, delay:9 },
+      ].map((a, i) => (
+        <div key={i} style={{
+          position:"absolute", top:a.top, left:a.left, width:a.w, height:a.h,
+          background:a.bg, filter:"blur(22px)", borderRadius:"50%",
+          animation:`auroraShift ${a.dur}s ${a.delay}s infinite ease-in-out`,
+        }}/>
+      ))}
+    </div>
+  );
+}
+
+/* ─── cosmic perspective grid ────────────────────────────────────────── */
+function CosmicGrid() {
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none" style={{ zIndex:2 }}>
+      <div style={{
+        position:"absolute", bottom:"-10%", left:"-20%", right:"-20%", height:"55%",
+        backgroundImage:[
+          "linear-gradient(to right, rgba(37,99,235,0.08) 1px, transparent 1px)",
+          "linear-gradient(to bottom, rgba(37,99,235,0.08) 1px, transparent 1px)",
+        ].join(", "),
+        backgroundSize:"80px 60px",
+        transform:"perspective(600px) rotateX(68deg)",
+        transformOrigin:"bottom center",
+        maskImage:"radial-gradient(ellipse 80% 60% at 50% 100%, rgba(0,0,0,0.55) 0%, transparent 80%)",
+        WebkitMaskImage:"radial-gradient(ellipse 80% 60% at 50% 100%, rgba(0,0,0,0.55) 0%, transparent 80%)",
+        animation:"gridPulse 6s infinite ease-in-out",
+      }}/>
     </div>
   );
 }
@@ -268,21 +315,37 @@ function OrbitalSVG({ sceneW, slotAssignments }: {
 function VolumetricBloom() {
   return (
     <div className="absolute inset-0 pointer-events-none" style={{ zIndex:4 }}>
-      {/* wide atmospheric bloom */}
+      {/* outer atmospheric haze */}
       <div style={{
         position:"absolute", left:"50%", top:"50%",
         transform:"translate(-50%,-50%)",
-        width:"70%", height:"80%",
-        background:"radial-gradient(ellipse, rgba(29,78,216,0.10) 0%, rgba(15,40,120,0.04) 45%, transparent 70%)",
-        filter:"blur(20px)",
+        width:"90%", height:"100%",
+        background:"radial-gradient(ellipse, rgba(29,78,216,0.08) 0%, rgba(10,25,80,0.04) 50%, transparent 72%)",
+        filter:"blur(30px)",
       }}/>
-      {/* tight center glow */}
+      {/* wide bloom ring */}
       <div style={{
         position:"absolute", left:"50%", top:"50%",
         transform:"translate(-50%,-50%)",
-        width:"28%", height:"35%",
-        background:"radial-gradient(ellipse, rgba(59,130,246,0.16) 0%, rgba(37,99,235,0.06) 60%, transparent 100%)",
-        filter:"blur(12px)",
+        width:"65%", height:"75%",
+        background:"radial-gradient(ellipse, rgba(37,99,235,0.14) 0%, rgba(15,40,120,0.06) 45%, transparent 70%)",
+        filter:"blur(22px)",
+      }}/>
+      {/* tight center glow — animated pulse */}
+      <div style={{
+        position:"absolute", left:"50%", top:"50%",
+        width:"32%", height:"40%",
+        background:"radial-gradient(ellipse, rgba(59,130,246,0.26) 0%, rgba(37,99,235,0.10) 55%, transparent 100%)",
+        filter:"blur(14px)",
+        animation:"centerPulse 5s infinite ease-in-out",
+      }}/>
+      {/* inner hot spot */}
+      <div style={{
+        position:"absolute", left:"50%", top:"50%",
+        transform:"translate(-50%,-50%)",
+        width:"14%", height:"18%",
+        background:"radial-gradient(ellipse, rgba(147,197,253,0.22) 0%, rgba(59,130,246,0.12) 60%, transparent 100%)",
+        filter:"blur(8px)",
       }}/>
     </div>
   );
@@ -536,11 +599,29 @@ function GlassCard({ item, slot, isCenter, isFlying, onClick }: CardProps) {
                 style={{ position:"absolute", inset:0, borderRadius:17, pointerEvents:"none" }}
                 animate={{ boxShadow:[
                   "inset 0 0 0 1.5px rgba(120,200,255,0.0)",
-                  "inset 0 0 0 1.5px rgba(120,200,255,0.55)",
+                  "inset 0 0 0 1.5px rgba(120,200,255,0.65)",
                   "inset 0 0 0 1.5px rgba(120,200,255,0.0)",
                 ]}}
-                transition={{ duration:1.4, repeat:Infinity }}
+                transition={{ duration:1.2, repeat:Infinity }}
               />
+            )}
+
+            {/* click-to-center label */}
+            {!isCenter && !slot.blur && hovered && (
+              <motion.div
+                initial={{ opacity:0, y:4 }} animate={{ opacity:1, y:0 }}
+                style={{
+                  position:"absolute", top:10, left:"50%", transform:"translateX(-50%)",
+                  background:"rgba(37,99,235,0.82)", backdropFilter:"blur(10px)",
+                  borderRadius:20, padding:"3px 10px",
+                  border:"1px solid rgba(120,195,255,0.40)",
+                  fontSize:9, fontWeight:700, color:"#dbeafe",
+                  letterSpacing:"0.08em", whiteSpace:"nowrap",
+                  boxShadow:"0 0 14px rgba(37,99,235,0.50)",
+                  pointerEvents:"none",
+                }}>
+                ↗ CLICK TO VIEW
+              </motion.div>
             )}
           </div>
 
@@ -972,11 +1053,16 @@ export default function Gallery() {
 
       {/* ── IMMERSIVE 3-D SCENE ───────────────────────────────────── */}
       <section className="relative select-none overflow-hidden"
-        style={{ background:"linear-gradient(180deg,#040d21 0%,#071739 48%,#040d21 100%)", minHeight:SCENE_H+100 }}>
+        style={{
+          background:"radial-gradient(ellipse 120% 90% at 50% 45%, #071a4a 0%, #04112e 30%, #02080e 68%, #010610 100%)",
+          minHeight:SCENE_H+100,
+        }}>
 
         {/* layered background environment */}
         <StarField/>
+        <CosmicGrid/>
         <NebulaBlobs/>
+        <AuroraEffect/>
         <AmbientDust/>
         <VolumetricBloom/>
 
