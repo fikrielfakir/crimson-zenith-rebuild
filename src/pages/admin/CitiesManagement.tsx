@@ -1,6 +1,10 @@
 import { apiFetch } from '@/lib/apiFetch';
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import type { DragEndEvent } from '@dnd-kit/core';
+import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,7 +19,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import {
   Plus, Pencil, Trash2, MapPin, RefreshCw, Settings, Globe, Save,
-  ImageIcon, Search, Check, Link as LinkIcon, Eye, EyeOff, ArrowUp, ArrowDown, X,
+  ImageIcon, Search, Check, Link as LinkIcon, Eye, EyeOff, ArrowUp, ArrowDown, X, GripVertical,
   Mountain, Waves, Coffee, Map, Compass, Camera, Bike, Car, Plane, Ship,
   Tent, Flame, Sun, Moon, Star, Heart, Music, Book, TreePine, Fish,
   Anchor, Zap, Wind, Cloud, Umbrella, Leaf, Utensils, ShoppingBag,
@@ -421,6 +425,31 @@ function IconPickerDialog({
   );
 }
 
+/* ─────────────────── SortableCard ─────────────────── */
+function SortableCard({ id, children }: { id: string; children: (handle: React.ReactNode) => React.ReactNode }) {
+  const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({ id });
+  return (
+    <div
+      ref={setNodeRef}
+      style={{ transform: CSS.Transform.toString(transform), transition, zIndex: isDragging ? 10 : undefined }}
+      className={isDragging ? 'opacity-50 shadow-lg' : ''}
+    >
+      {children(
+        <button
+          ref={setActivatorNodeRef}
+          type="button"
+          {...listeners}
+          {...attributes}
+          className="touch-none cursor-grab active:cursor-grabbing text-muted-foreground/30 hover:text-muted-foreground transition-colors shrink-0 mt-1"
+          tabIndex={-1}
+        >
+          <GripVertical className="w-4 h-4" />
+        </button>
+      )}
+    </div>
+  );
+}
+
 /* ─────────────────── empty city ─────────────────── */
 const emptyCity: Omit<City, 'id'> = {
   name: '', slug: '', title: '', description: '', image: '',
@@ -537,6 +566,16 @@ export default function CitiesManagement() {
   }
   function updateDish(i: number, key: string, val: string) {
     setForm((p: any) => { const d = [...(p.dishes ?? [])]; d[i] = { ...d[i], [key]: val }; return { ...p, dishes: d }; });
+  }
+
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
+
+  function handleDragEnd(key: string, prefix: string, event: DragEndEvent) {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIndex = parseInt(String(active.id).replace(`${prefix}-`, ''));
+    const newIndex = parseInt(String(over.id).replace(`${prefix}-`, ''));
+    setForm((p: any) => ({ ...p, [key]: arrayMove(p[key] ?? [], oldIndex, newIndex) }));
   }
 
   function addHighlight(section: 'main' | 'culture') {
@@ -996,33 +1035,38 @@ export default function CitiesManagement() {
               <div className="flex items-center justify-between">
                 <Label>Highlights</Label>
               </div>
-              <div className="space-y-2">
-                {(form.highlights ?? []).map((h: HighlightItem, i: number) => (
-                  <div key={i} className="flex gap-2 items-start p-3 border rounded-lg bg-card">
-                    <div className="flex-1 space-y-2">
-                      <Input
-                        value={h.text}
-                        onChange={e => updateHighlight('main', i, 'text', e.target.value)}
-                        placeholder="e.g. Historic Kasbah"
-                      />
-                      <div className="flex items-center gap-2">
-                        {h.image
-                          ? <img src={h.image} alt="" className="w-10 h-10 object-cover rounded border" />
-                          : <div className="w-10 h-10 rounded border bg-muted flex items-center justify-center shrink-0"><ImageIcon className="w-4 h-4 text-muted-foreground" /></div>
-                        }
-                        <button type="button" onClick={() => setHlPickerFor({ section: 'main', idx: i })} className="text-xs text-muted-foreground border rounded px-2 py-1 hover:bg-muted transition-colors">
-                          {h.image ? 'Change Image' : '+ Image'}
-                        </button>
-                        {h.image && <button type="button" onClick={() => updateHighlight('main', i, 'image', '')} className="text-xs text-destructive hover:underline">Remove</button>}
-                      </div>
-                    </div>
-                    <button type="button" onClick={() => removeHighlight('main', i)} className="text-muted-foreground hover:text-destructive mt-1 shrink-0"><X className="w-4 h-4" /></button>
+              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={e => handleDragEnd('highlights', 'hl-main', e)}>
+                <SortableContext items={(form.highlights ?? []).map((_: any, i: number) => `hl-main-${i}`)} strategy={verticalListSortingStrategy}>
+                  <div className="space-y-2">
+                    {(form.highlights ?? []).map((h: HighlightItem, i: number) => (
+                      <SortableCard key={`hl-main-${i}`} id={`hl-main-${i}`}>
+                        {handle => (
+                          <div className="flex gap-2 items-start p-3 border rounded-lg bg-card">
+                            {handle}
+                            <div className="flex-1 space-y-2">
+                              <Input value={h.text} onChange={e => updateHighlight('main', i, 'text', e.target.value)} placeholder="e.g. Historic Kasbah" />
+                              <div className="flex items-center gap-2">
+                                {h.image
+                                  ? <img src={h.image} alt="" className="w-10 h-10 object-cover rounded border shrink-0" />
+                                  : <div className="w-10 h-10 rounded border bg-muted flex items-center justify-center shrink-0"><ImageIcon className="w-4 h-4 text-muted-foreground" /></div>
+                                }
+                                <button type="button" onClick={() => setHlPickerFor({ section: 'main', idx: i })} className="text-xs text-muted-foreground border rounded px-2 py-1 hover:bg-muted transition-colors">
+                                  {h.image ? 'Change Image' : '+ Image'}
+                                </button>
+                                {h.image && <button type="button" onClick={() => updateHighlight('main', i, 'image', '')} className="text-xs text-destructive hover:underline">Remove</button>}
+                              </div>
+                            </div>
+                            <button type="button" onClick={() => removeHighlight('main', i)} className="text-muted-foreground hover:text-destructive mt-1 shrink-0"><X className="w-4 h-4" /></button>
+                          </div>
+                        )}
+                      </SortableCard>
+                    ))}
+                    <button type="button" onClick={() => addHighlight('main')} className="w-full border-dashed border-2 rounded-lg py-3 text-muted-foreground hover:text-foreground hover:border-primary text-sm transition-colors flex items-center justify-center gap-2">
+                      <Plus className="w-4 h-4" /> Add Highlight
+                    </button>
                   </div>
-                ))}
-                <button type="button" onClick={() => addHighlight('main')} className="w-full border-dashed border-2 rounded-lg py-3 text-muted-foreground hover:text-foreground hover:border-primary text-sm transition-colors flex items-center justify-center gap-2">
-                  <Plus className="w-4 h-4" /> Add Highlight
-                </button>
-              </div>
+                </SortableContext>
+              </DndContext>
             </div>
 
             {/* Culture */}
@@ -1038,33 +1082,38 @@ export default function CitiesManagement() {
               </div>
               <div className="space-y-3">
                 <Label>Highlights</Label>
-                <div className="space-y-2">
-                  {(form.cultureHighlights ?? []).map((h: HighlightItem, i: number) => (
-                    <div key={i} className="flex gap-2 items-start p-3 border rounded-lg bg-card">
-                      <div className="flex-1 space-y-2">
-                        <Input
-                          value={h.text}
-                          onChange={e => updateHighlight('culture', i, 'text', e.target.value)}
-                          placeholder="e.g. Ancient Medina"
-                        />
-                        <div className="flex items-center gap-2">
-                          {h.image
-                            ? <img src={h.image} alt="" className="w-10 h-10 object-cover rounded border" />
-                            : <div className="w-10 h-10 rounded border bg-muted flex items-center justify-center shrink-0"><ImageIcon className="w-4 h-4 text-muted-foreground" /></div>
-                          }
-                          <button type="button" onClick={() => setHlPickerFor({ section: 'culture', idx: i })} className="text-xs text-muted-foreground border rounded px-2 py-1 hover:bg-muted transition-colors">
-                            {h.image ? 'Change Image' : '+ Image'}
-                          </button>
-                          {h.image && <button type="button" onClick={() => updateHighlight('culture', i, 'image', '')} className="text-xs text-destructive hover:underline">Remove</button>}
-                        </div>
-                      </div>
-                      <button type="button" onClick={() => removeHighlight('culture', i)} className="text-muted-foreground hover:text-destructive mt-1 shrink-0"><X className="w-4 h-4" /></button>
+                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={e => handleDragEnd('cultureHighlights', 'hl-culture', e)}>
+                  <SortableContext items={(form.cultureHighlights ?? []).map((_: any, i: number) => `hl-culture-${i}`)} strategy={verticalListSortingStrategy}>
+                    <div className="space-y-2">
+                      {(form.cultureHighlights ?? []).map((h: HighlightItem, i: number) => (
+                        <SortableCard key={`hl-culture-${i}`} id={`hl-culture-${i}`}>
+                          {handle => (
+                            <div className="flex gap-2 items-start p-3 border rounded-lg bg-card">
+                              {handle}
+                              <div className="flex-1 space-y-2">
+                                <Input value={h.text} onChange={e => updateHighlight('culture', i, 'text', e.target.value)} placeholder="e.g. Ancient Medina" />
+                                <div className="flex items-center gap-2">
+                                  {h.image
+                                    ? <img src={h.image} alt="" className="w-10 h-10 object-cover rounded border shrink-0" />
+                                    : <div className="w-10 h-10 rounded border bg-muted flex items-center justify-center shrink-0"><ImageIcon className="w-4 h-4 text-muted-foreground" /></div>
+                                  }
+                                  <button type="button" onClick={() => setHlPickerFor({ section: 'culture', idx: i })} className="text-xs text-muted-foreground border rounded px-2 py-1 hover:bg-muted transition-colors">
+                                    {h.image ? 'Change Image' : '+ Image'}
+                                  </button>
+                                  {h.image && <button type="button" onClick={() => updateHighlight('culture', i, 'image', '')} className="text-xs text-destructive hover:underline">Remove</button>}
+                                </div>
+                              </div>
+                              <button type="button" onClick={() => removeHighlight('culture', i)} className="text-muted-foreground hover:text-destructive mt-1 shrink-0"><X className="w-4 h-4" /></button>
+                            </div>
+                          )}
+                        </SortableCard>
+                      ))}
+                      <button type="button" onClick={() => addHighlight('culture')} className="w-full border-dashed border-2 rounded-lg py-3 text-muted-foreground hover:text-foreground hover:border-primary text-sm transition-colors flex items-center justify-center gap-2">
+                        <Plus className="w-4 h-4" /> Add Culture Highlight
+                      </button>
                     </div>
-                  ))}
-                  <button type="button" onClick={() => addHighlight('culture')} className="w-full border-dashed border-2 rounded-lg py-3 text-muted-foreground hover:text-foreground hover:border-primary text-sm transition-colors flex items-center justify-center gap-2">
-                    <Plus className="w-4 h-4" /> Add Culture Highlight
-                  </button>
-                </div>
+                  </SortableContext>
+                </DndContext>
               </div>
             </div>
 
@@ -1077,48 +1126,66 @@ export default function CitiesManagement() {
               </div>
               <div className="space-y-3">
                 <Label>Dishes</Label>
-                <div className="space-y-2">
-                  {(form.dishes ?? []).map((dish: CuisineDish, i: number) => (
-                    <div key={i} className="flex gap-2 items-start p-3 border rounded-lg bg-card">
-                      <div className="flex-1 space-y-2">
-                        <Input value={dish.name} onChange={e => updateDish(i, 'name', e.target.value)} placeholder="Dish name (e.g. Tagine)" />
-                        <Textarea rows={2} value={dish.description} onChange={e => updateDish(i, 'description', e.target.value)} placeholder="Short description…" />
-                      </div>
-                      <button type="button" onClick={() => removeDish(i)} className="text-muted-foreground hover:text-destructive mt-1 shrink-0"><X className="w-4 h-4" /></button>
+                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={e => handleDragEnd('dishes', 'dish', e)}>
+                  <SortableContext items={(form.dishes ?? []).map((_: any, i: number) => `dish-${i}`)} strategy={verticalListSortingStrategy}>
+                    <div className="space-y-2">
+                      {(form.dishes ?? []).map((dish: CuisineDish, i: number) => (
+                        <SortableCard key={`dish-${i}`} id={`dish-${i}`}>
+                          {handle => (
+                            <div className="flex gap-2 items-start p-3 border rounded-lg bg-card">
+                              {handle}
+                              <div className="flex-1 space-y-2">
+                                <Input value={dish.name} onChange={e => updateDish(i, 'name', e.target.value)} placeholder="Dish name (e.g. Tagine)" />
+                                <Textarea rows={2} value={dish.description} onChange={e => updateDish(i, 'description', e.target.value)} placeholder="Short description…" />
+                              </div>
+                              <button type="button" onClick={() => removeDish(i)} className="text-muted-foreground hover:text-destructive mt-1 shrink-0"><X className="w-4 h-4" /></button>
+                            </div>
+                          )}
+                        </SortableCard>
+                      ))}
+                      <button type="button" onClick={addDish} className="w-full border-dashed border-2 rounded-lg py-3 text-muted-foreground hover:text-foreground hover:border-primary text-sm transition-colors flex items-center justify-center gap-2">
+                        <Plus className="w-4 h-4" /> Add Dish
+                      </button>
                     </div>
-                  ))}
-                  <button type="button" onClick={addDish} className="w-full border-dashed border-2 rounded-lg py-3 text-muted-foreground hover:text-foreground hover:border-primary text-sm transition-colors flex items-center justify-center gap-2">
-                    <Plus className="w-4 h-4" /> Add Dish
-                  </button>
-                </div>
+                  </SortableContext>
+                </DndContext>
               </div>
             </div>
 
             {/* Activities */}
             <div className="border rounded-xl p-4 space-y-3 bg-muted/30">
               <h3 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">Activities</h3>
-              <div className="space-y-2">
-                {(form.activities ?? []).map((act: CityActivity, i: number) => (
-                  <div key={i} className="p-3 border rounded-lg bg-card space-y-2">
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setIconPickerFor(i)}
-                        className="shrink-0 w-10 h-10 rounded-lg border bg-muted flex items-center justify-center hover:border-primary transition-colors"
-                        title="Choose icon"
-                      >
-                        {renderLucideIcon(act.icon)}
-                      </button>
-                      <Input value={act.name} onChange={e => updateActivity(i, 'name', e.target.value)} placeholder="Activity name" className="flex-1" />
-                      <button type="button" onClick={() => removeActivity(i)} className="text-muted-foreground hover:text-destructive shrink-0"><X className="w-4 h-4" /></button>
-                    </div>
-                    <Textarea rows={2} value={act.description} onChange={e => updateActivity(i, 'description', e.target.value)} placeholder="Description…" />
+              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={e => handleDragEnd('activities', 'act', e)}>
+                <SortableContext items={(form.activities ?? []).map((_: any, i: number) => `act-${i}`)} strategy={verticalListSortingStrategy}>
+                  <div className="space-y-2">
+                    {(form.activities ?? []).map((act: CityActivity, i: number) => (
+                      <SortableCard key={`act-${i}`} id={`act-${i}`}>
+                        {handle => (
+                          <div className="p-3 border rounded-lg bg-card space-y-2">
+                            <div className="flex items-center gap-2">
+                              {handle}
+                              <button
+                                type="button"
+                                onClick={() => setIconPickerFor(i)}
+                                className="shrink-0 w-10 h-10 rounded-lg border bg-muted flex items-center justify-center hover:border-primary transition-colors"
+                                title="Choose icon"
+                              >
+                                {renderLucideIcon(act.icon)}
+                              </button>
+                              <Input value={act.name} onChange={e => updateActivity(i, 'name', e.target.value)} placeholder="Activity name" className="flex-1" />
+                              <button type="button" onClick={() => removeActivity(i)} className="text-muted-foreground hover:text-destructive shrink-0"><X className="w-4 h-4" /></button>
+                            </div>
+                            <Textarea rows={2} value={act.description} onChange={e => updateActivity(i, 'description', e.target.value)} placeholder="Description…" />
+                          </div>
+                        )}
+                      </SortableCard>
+                    ))}
+                    <button type="button" onClick={addActivity} className="w-full border-dashed border-2 rounded-lg py-3 text-muted-foreground hover:text-foreground hover:border-primary text-sm transition-colors flex items-center justify-center gap-2">
+                      <Plus className="w-4 h-4" /> Add Activity
+                    </button>
                   </div>
-                ))}
-                <button type="button" onClick={addActivity} className="w-full border-dashed border-2 rounded-lg py-3 text-muted-foreground hover:text-foreground hover:border-primary text-sm transition-colors flex items-center justify-center gap-2">
-                  <Plus className="w-4 h-4" /> Add Activity
-                </button>
-              </div>
+                </SortableContext>
+              </DndContext>
             </div>
 
             {/* Best Time */}
