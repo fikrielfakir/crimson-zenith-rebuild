@@ -28,6 +28,10 @@ import {
   Lock,
   Eye,
   EyeOff,
+  Clock,
+  XCircle,
+  FileText,
+  RefreshCw,
 } from 'lucide-react';
 
 // ─── Schemas ──────────────────────────────────────────────────────────────────
@@ -93,6 +97,8 @@ export default function JoinUs() {
   const [selectedClub, setSelectedClub]         = useState('');
   const [showPassword, setShowPassword]         = useState(false);
   const [showConfirm, setShowConfirm]           = useState(false);
+  const [existingApplication, setExistingApplication] = useState<any | null>(null);
+  const [appCheckLoading, setAppCheckLoading]   = useState(false);
 
   const {
     register,
@@ -128,6 +134,33 @@ export default function JoinUs() {
       .catch(() => setClubs([]))
       .finally(() => setClubsLoading(false));
   }, []);
+
+  // Check if authenticated user already has an application
+  const checkExistingApplication = async () => {
+    if (!isAuthenticated) return;
+    setAppCheckLoading(true);
+    try {
+      const res = await fetch('/api/user/applications', {
+        credentials: 'include',
+        headers: { Accept: 'application/json' },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const apps = Array.isArray(data) ? data : [];
+        if (apps.length > 0) {
+          setExistingApplication(apps[0]);
+        }
+      }
+    } catch {
+      // ignore — just show the form
+    } finally {
+      setAppCheckLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    checkExistingApplication();
+  }, [isAuthenticated]);
 
   const toggleInterest = (interest: string) => {
     const next = selectedInterests.includes(interest)
@@ -190,6 +223,31 @@ export default function JoinUs() {
     }
   };
 
+  // ── Application status config ────────────────────────────────────────────────
+  const statusConfig: Record<string, { label: string; color: string; bg: string; border: string; icon: React.ReactNode }> = {
+    pending: {
+      label: 'Under Review',
+      color: 'text-amber-700',
+      bg: 'bg-amber-50',
+      border: 'border-amber-200',
+      icon: <Clock className="w-6 h-6 text-amber-500" />,
+    },
+    approved: {
+      label: 'Approved',
+      color: 'text-green-700',
+      bg: 'bg-green-50',
+      border: 'border-green-200',
+      icon: <CheckCircle2 className="w-6 h-6 text-green-500" />,
+    },
+    rejected: {
+      label: 'Not Approved',
+      color: 'text-red-700',
+      bg: 'bg-red-50',
+      border: 'border-red-200',
+      icon: <XCircle className="w-6 h-6 text-red-400" />,
+    },
+  };
+
   // ── Main form ───────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-[#FAF8F5] flex flex-col">
@@ -239,7 +297,147 @@ export default function JoinUs() {
         </div>
       </section>
 
-      {/* Form */}
+      {/* Existing application status — shown instead of form when user already applied */}
+      {isAuthenticated && (appCheckLoading || existingApplication) && (
+        <main className="container mx-auto px-4 py-14 max-w-2xl flex-1">
+          {appCheckLoading ? (
+            <div className="flex flex-col items-center justify-center py-20 text-gray-400">
+              <Loader2 className="w-8 h-8 animate-spin mb-3" />
+              <p className="text-sm">Checking your application…</p>
+            </div>
+          ) : existingApplication && (() => {
+            const status = existingApplication.status ?? 'pending';
+            const cfg = statusConfig[status] ?? statusConfig.pending;
+            const submittedDate = existingApplication.submittedAt
+              ? new Date(existingApplication.submittedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+              : null;
+            const reviewedDate = existingApplication.reviewedAt
+              ? new Date(existingApplication.reviewedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+              : null;
+
+            return (
+              <div className="space-y-5">
+                {/* Status card */}
+                <div className={`rounded-2xl border-2 ${cfg.border} ${cfg.bg} p-8 text-center space-y-4`}>
+                  <div className="flex justify-center">{cfg.icon}</div>
+                  <div>
+                    <h2 className="text-xl font-bold text-[#0B1F5E] font-['Poppins'] mb-1">
+                      Your Application is {cfg.label}
+                    </h2>
+                    <p className={`text-sm font-medium ${cfg.color}`}>
+                      {status === 'pending' && 'Our team is reviewing your application. We\'ll be in touch within 2–3 business days.'}
+                      {status === 'approved' && 'Congratulations! You are now a member of The Journey Association.'}
+                      {status === 'rejected' && 'Unfortunately, your application was not approved at this time.'}
+                    </p>
+                  </div>
+
+                  <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-semibold ${cfg.bg} ${cfg.color} border ${cfg.border}`}>
+                    {cfg.icon && <span className="scale-75">{cfg.icon}</span>}
+                    {cfg.label}
+                  </div>
+                </div>
+
+                {/* Application details */}
+                <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm space-y-4">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-8 h-8 rounded-full bg-[#0B1F5E] flex items-center justify-center">
+                      <FileText className="w-4 h-4 text-white" />
+                    </div>
+                    <h3 className="font-semibold text-[#0B1F5E] font-['Poppins']">Application Details</h3>
+                  </div>
+
+                  <div className="grid sm:grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <p className="text-gray-400 text-xs mb-0.5">Full Name</p>
+                      <p className="font-medium text-gray-800">{existingApplication.applicantName || '—'}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-400 text-xs mb-0.5">Email</p>
+                      <p className="font-medium text-gray-800">{existingApplication.email || '—'}</p>
+                    </div>
+                    {existingApplication.phone && (
+                      <div>
+                        <p className="text-gray-400 text-xs mb-0.5">Phone</p>
+                        <p className="font-medium text-gray-800">{existingApplication.phone}</p>
+                      </div>
+                    )}
+                    {existingApplication.preferredClub && (
+                      <div>
+                        <p className="text-gray-400 text-xs mb-0.5">Preferred Club</p>
+                        <p className="font-medium text-gray-800">{existingApplication.preferredClub}</p>
+                      </div>
+                    )}
+                    {submittedDate && (
+                      <div>
+                        <p className="text-gray-400 text-xs mb-0.5">Submitted</p>
+                        <p className="font-medium text-gray-800">{submittedDate}</p>
+                      </div>
+                    )}
+                    {reviewedDate && (
+                      <div>
+                        <p className="text-gray-400 text-xs mb-0.5">Reviewed On</p>
+                        <p className="font-medium text-gray-800">{reviewedDate}</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {existingApplication.interests && existingApplication.interests.length > 0 && (
+                    <div>
+                      <p className="text-gray-400 text-xs mb-2">Interests</p>
+                      <div className="flex flex-wrap gap-2">
+                        {existingApplication.interests.map((i: string) => (
+                          <span key={i} className="px-3 py-1 bg-[#0B1F5E]/8 text-[#0B1F5E] rounded-full text-xs font-medium border border-[#0B1F5E]/15">
+                            {i}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {existingApplication.reviewNotes && (
+                    <div className={`rounded-xl p-4 border ${cfg.border} ${cfg.bg}`}>
+                      <p className="text-xs text-gray-500 mb-1 font-medium">Note from our team</p>
+                      <p className="text-sm text-gray-700">{existingApplication.reviewNotes}</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Actions */}
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Button
+                    onClick={checkExistingApplication}
+                    variant="outline"
+                    className="flex-1 h-12 rounded-xl border-gray-200 text-gray-600 hover:border-[#0B1F5E] hover:text-[#0B1F5E]"
+                  >
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                    Refresh Status
+                  </Button>
+                  <Button
+                    onClick={() => navigate('/profile?tab=application')}
+                    className="flex-1 h-12 rounded-xl font-semibold"
+                    style={{ background: 'linear-gradient(135deg, #0B1F5E 0%, #1a3485 100%)' }}
+                  >
+                    View Full Details
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </div>
+
+                {status === 'rejected' && (
+                  <p className="text-center text-sm text-gray-500">
+                    Have questions?{' '}
+                    <Link to="/contact" className="text-[#0B1F5E] font-medium hover:underline">
+                      Contact us
+                    </Link>
+                  </p>
+                )}
+              </div>
+            );
+          })()}
+        </main>
+      )}
+
+      {/* Form — only shown when user has no existing application */}
+      {(!isAuthenticated || (!appCheckLoading && !existingApplication)) && (
       <main className="container mx-auto px-4 py-14 max-w-2xl flex-1">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
 
@@ -546,6 +744,7 @@ export default function JoinUs() {
           </div>
         </form>
       </main>
+      )}
 
       <Footer />
     </div>
