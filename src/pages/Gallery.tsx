@@ -12,6 +12,7 @@ import Footer from "@/components/Footer";
 const PanoramaOverlay = lazy(() => import("@/components/PanoramaOverlay"));
 
 /* ─── types ──────────────────────────────────────────────────────────── */
+interface TourStop { yaw: number; pitch: number; label: string; targetId: number; }
 interface GalleryItem {
   id: number; type: string; url: string; title: string;
   location?: string; photographer?: string; tags?: string[];
@@ -19,6 +20,7 @@ interface GalleryItem {
   aspect?: "portrait" | "landscape";
   panoramaUrl?: string;
   has360?: boolean;
+  hotspots?: TourStop[];
 }
 
 /* ─── static data ────────────────────────────────────────────────────── */
@@ -29,14 +31,22 @@ const STATIC_GALLERY: GalleryItem[] = [
     photographer:"Sarah M.", tags:["mountain","landscape"], category:"mountain", likes:128,
     description:"Breathtaking peaks rising above the clouds over the High Atlas range.",
     has360: true,
-    panoramaUrl: "https://photo-sphere-viewer-data.netlify.app/assets/sphere.jpg" },
+    panoramaUrl: "https://photo-sphere-viewer-data.netlify.app/assets/sphere.jpg",
+    hotspots: [
+      { yaw: 0.80, pitch: 0,    label: "Sahara Desert",  targetId: 2 },
+      { yaw: -1.05, pitch: -0.14, label: "Todra Gorge", targetId: 7 },
+    ] },
   { id:2, type:"photo", aspect:"landscape",
     url:"https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=800&q=90",
     title:"Sahara Desert", location:"Merzouga, Morocco",
     photographer:"Ahmed K.", tags:["desert","sahara"], category:"desert", likes:95,
     description:"Golden hour illuminating the endless dunes of the Sahara.",
     has360: true,
-    panoramaUrl: "https://photo-sphere-viewer-data.netlify.app/assets/sphere-small.jpg" },
+    panoramaUrl: "https://photo-sphere-viewer-data.netlify.app/assets/sphere-small.jpg",
+    hotspots: [
+      { yaw: 0.52, pitch: 0.09, label: "High Atlas Mountains", targetId: 1 },
+      { yaw: -0.78, pitch: -0.09, label: "Todra Gorge",        targetId: 7 },
+    ] },
   { id:3, type:"photo", aspect:"portrait",
     url:"https://images.unsplash.com/photo-1548696056-01a4a7b4e9e7?w=800&q=90",
     title:"Blue Streets", location:"Chefchaouen, Morocco",
@@ -63,7 +73,11 @@ const STATIC_GALLERY: GalleryItem[] = [
     photographer:"Hassan M.", tags:["gorge","adventure"], category:"adventure", likes:88,
     description:"Towering limestone walls carving through the heart of the Atlas.",
     has360: true,
-    panoramaUrl: "https://photo-sphere-viewer-data.netlify.app/assets/sphere.jpg" },
+    panoramaUrl: "https://photo-sphere-viewer-data.netlify.app/assets/sphere.jpg",
+    hotspots: [
+      { yaw: 1.05, pitch: 0,    label: "High Atlas Mountains", targetId: 1 },
+      { yaw: -0.60, pitch: -0.08, label: "Sahara Desert",      targetId: 2 },
+    ] },
   { id:8, type:"photo", aspect:"portrait",
     url:"https://images.unsplash.com/photo-1552665945-afd7c01898f9?w=800&q=90",
     title:"Fes Medina", location:"Fès, Morocco",
@@ -1393,13 +1407,18 @@ export default function Gallery() {
 
       <FullscreenModal item={selected} onClose={closeItem} onPrev={prevItem} onNext={nextItem}/>
 
-      {/* ── 360° PANORAMA OVERLAY (lazy-loaded) ──────────────────── */}
+      {/* ── 360° PANORAMA OVERLAY (lazy-loaded, virtual tour) ───────── */}
       <Suspense fallback={null}>
         {panoramaItem && (
           <PanoramaOverlay
             panoramaUrl={panoramaItem.panoramaUrl!}
             title={panoramaItem.title}
             location={panoramaItem.location}
+            hotspots={panoramaItem.hotspots}
+            onNavigate={(targetId) => {
+              const next = galleryItems.find(it => it.id === targetId && it.panoramaUrl);
+              if (next) setPanoramaItem(next);
+            }}
             onClose={() => setPanoramaItem(null)}
           />
         )}

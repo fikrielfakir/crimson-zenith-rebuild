@@ -37,7 +37,8 @@ import { useToast } from '@/hooks/use-toast';
 import {
   Images, Upload, Star, StarOff, Pencil, Trash2,
   Search, Plus, Loader2, ImageIcon, X, CloudUpload,
-  LayoutGrid, List, Eye, MapPin, User, Tag,
+  LayoutGrid, List, Eye, MapPin, User, Tag, Globe,
+  ScanLine, Info,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -50,6 +51,8 @@ interface GalleryItem {
   photographer: string | null;
   description: string | null;
   image_url: string;
+  panorama_url: string | null;
+  has_360: boolean;
   is_featured: boolean;
   sort_order: number;
   aspect: 'landscape' | 'portrait';
@@ -61,6 +64,7 @@ interface GalleryResponse {
   items: GalleryItem[];
   total: number;
   featured_count: number;
+  count_360: number;
 }
 
 type ViewMode = 'grid' | 'list';
@@ -82,6 +86,8 @@ const BLANK_FORM = {
   photographer: '',
   description: '',
   image_url: '',
+  panorama_url: '',
+  has_360: false,
   is_featured: false,
   aspect: 'landscape' as 'landscape' | 'portrait',
 };
@@ -133,6 +139,91 @@ async function toggleFeatured(id: number): Promise<GalleryItem> {
   });
   if (!res.ok) throw new Error('Failed to toggle featured');
   return res.json();
+}
+
+/* ─── panorama uploader ──────────────────────────────────────────────── */
+function PanoramaUploader({ value, onChange }: { value: string; onChange: (url: string) => void }) {
+  const [dragging, setDragging] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
+
+  const handleFile = useCallback(async (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      toast({ title: 'Only image files are supported', variant: 'destructive' });
+      return;
+    }
+    setUploading(true);
+    try {
+      const form = new FormData();
+      form.append('file', file);
+      form.append('alt', file.name.replace(/\.[^.]+$/, ''));
+      const res = await apiFetch('/api/admin/media', { method: 'POST', credentials: 'include', body: form });
+      if (!res.ok) throw new Error('Upload failed');
+      const data = await res.json();
+      onChange(data.fileUrl || data.url || '');
+      toast({ title: '360° panorama uploaded' });
+    } catch {
+      toast({ title: 'Upload failed', variant: 'destructive' });
+    } finally {
+      setUploading(false);
+    }
+  }, [onChange, toast]);
+
+  const onDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault(); setDragging(false);
+    const file = e.dataTransfer.files[0]; if (file) handleFile(file);
+  }, [handleFile]);
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center gap-2 p-2.5 rounded-lg border bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800">
+        <Globe className="h-4 w-4 text-blue-500 shrink-0" />
+        <p className="text-xs text-blue-700 dark:text-blue-300">
+          Use an equirectangular (2:1 ratio) image — max 4096×2048px for best performance.
+        </p>
+      </div>
+      {value ? (
+        <div className="relative rounded-lg overflow-hidden border bg-muted" style={{ height: 120 }}>
+          <img src={value} alt="panorama preview" className="w-full h-full object-cover" style={{ filter: 'brightness(0.75)' }} />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="text-white font-bold text-sm bg-black/50 px-3 py-1 rounded-full">360° Preview</span>
+          </div>
+          <button type="button" onClick={() => onChange('')}
+            className="absolute top-2 right-2 bg-destructive text-white rounded-full p-1 hover:opacity-90">
+            <X className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      ) : (
+        <div
+          onDrop={onDrop}
+          onDragOver={e => { e.preventDefault(); setDragging(true); }}
+          onDragLeave={() => setDragging(false)}
+          onClick={() => inputRef.current?.click()}
+          className={cn(
+            'border-2 border-dashed rounded-lg flex flex-col items-center justify-center gap-2 cursor-pointer transition-colors',
+            dragging ? 'border-blue-400 bg-blue-50/30' : 'border-muted-foreground/25 hover:border-blue-400/50 hover:bg-muted/50'
+          )}
+          style={{ height: 110 }}
+        >
+          {uploading ? (
+            <Loader2 className="h-7 w-7 animate-spin text-blue-400" />
+          ) : (
+            <>
+              <Globe className="h-7 w-7 text-blue-400" />
+              <p className="text-sm text-muted-foreground">Drop 360° equirectangular image here</p>
+            </>
+          )}
+        </div>
+      )}
+      <input ref={inputRef} type="file" accept="image/*" className="hidden"
+        onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f); }} />
+      <div className="flex gap-2 items-center">
+        <span className="text-xs text-muted-foreground">Or paste URL:</span>
+        <Input placeholder="https://…" value={value} onChange={e => onChange(e.target.value)} className="flex-1 h-8 text-sm" />
+      </div>
+    </div>
+  );
 }
 
 /* ─── image uploader ─────────────────────────────────────────────────── */
@@ -236,14 +327,16 @@ function ItemFormDialog({
   const [form, setForm] = useState<typeof BLANK_FORM>(
     item
       ? {
-          title:        item.title,
-          location:     item.location || '',
-          category:     item.category || 'cultural',
-          photographer: item.photographer || '',
-          description:  item.description || '',
-          image_url:    item.image_url,
-          is_featured:  item.is_featured,
-          aspect:       item.aspect,
+          title:         item.title,
+          location:      item.location || '',
+          category:      item.category || 'cultural',
+          photographer:  item.photographer || '',
+          description:   item.description || '',
+          image_url:     item.image_url,
+          panorama_url:  item.panorama_url || '',
+          has_360:       item.has_360 ?? false,
+          is_featured:   item.is_featured,
+          aspect:        item.aspect,
         }
       : BLANK_FORM
   );
@@ -255,14 +348,16 @@ function ItemFormDialog({
       setForm(
         item
           ? {
-              title:        item.title,
-              location:     item.location || '',
-              category:     item.category || 'cultural',
-              photographer: item.photographer || '',
-              description:  item.description || '',
-              image_url:    item.image_url,
-              is_featured:  item.is_featured,
-              aspect:       item.aspect,
+              title:         item.title,
+              location:      item.location || '',
+              category:      item.category || 'cultural',
+              photographer:  item.photographer || '',
+              description:   item.description || '',
+              image_url:     item.image_url,
+              panorama_url:  item.panorama_url || '',
+              has_360:       item.has_360 ?? false,
+              is_featured:   item.is_featured,
+              aspect:        item.aspect,
             }
           : BLANK_FORM
       );
@@ -385,6 +480,38 @@ function ItemFormDialog({
             />
           </div>
 
+          {/* ── 360° panorama section ── */}
+          <div className="rounded-xl border-2 border-dashed border-blue-200 dark:border-blue-800 p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center">
+                  <Globe className="h-4 w-4 text-white" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold">360° Panorama View</p>
+                  <p className="text-xs text-muted-foreground">Optional — enables immersive virtual tour on this image</p>
+                </div>
+              </div>
+              <Switch
+                checked={form.has_360}
+                onCheckedChange={v => setForm(f => ({ ...f, has_360: v, panorama_url: v ? f.panorama_url : '' }))}
+              />
+            </div>
+
+            {form.has_360 && (
+              <div className="space-y-1.5 pt-1">
+                <Label className="flex items-center gap-1.5">
+                  <Globe className="h-3.5 w-3.5 text-blue-500" />
+                  360° Equirectangular Image
+                </Label>
+                <PanoramaUploader
+                  value={form.panorama_url}
+                  onChange={url => setForm(f => ({ ...f, panorama_url: url }))}
+                />
+              </div>
+            )}
+          </div>
+
           <div className="flex items-center gap-3 p-3 rounded-lg border bg-muted/30">
             <Star className="h-4 w-4 text-yellow-500" />
             <div className="flex-1">
@@ -412,26 +539,62 @@ function ItemFormDialog({
 
 /* ─── preview dialog ─────────────────────────────────────────────────── */
 function PreviewDialog({ item, onClose }: { item: GalleryItem | null; onClose: () => void }) {
+  const [show360, setShow360] = useState(false);
+
+  useEffect(() => { if (!item) setShow360(false); }, [item]);
+
   return (
-    <Dialog open={!!item} onOpenChange={v => { if (!v) onClose(); }}>
+    <Dialog open={!!item} onOpenChange={v => { if (!v) { setShow360(false); onClose(); } }}>
       <DialogContent className="max-w-3xl p-0 overflow-hidden">
         {item && (
           <>
             <div className="relative bg-black" style={{ maxHeight: '65vh' }}>
-              <img
-                src={item.image_url}
-                alt={item.title}
-                className="w-full object-contain"
-                style={{ maxHeight: '65vh' }}
-              />
-              {item.is_featured && (
+              {show360 && item.panorama_url ? (
+                <div style={{ height: '65vh' }}>
+                  <iframe
+                    src={`https://photo-sphere-viewer-data.netlify.app/assets/sphere-iframe.html?url=${encodeURIComponent(item.panorama_url)}`}
+                    className="w-full h-full border-0"
+                    title="360° preview"
+                    onError={() => setShow360(false)}
+                  />
+                </div>
+              ) : (
+                <img
+                  src={item.image_url}
+                  alt={item.title}
+                  className="w-full object-contain"
+                  style={{ maxHeight: '65vh' }}
+                />
+              )}
+              {item.is_featured && !show360 && (
                 <Badge className="absolute top-3 left-3 bg-yellow-500 text-black">
                   <Star className="h-3 w-3 mr-1" /> Featured
                 </Badge>
               )}
+              {item.has_360 && item.panorama_url && (
+                <button
+                  onClick={() => setShow360(v => !v)}
+                  className={cn(
+                    'absolute top-3 right-3 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all',
+                    show360
+                      ? 'bg-white text-black hover:bg-gray-100'
+                      : 'bg-gradient-to-r from-blue-600 to-cyan-500 text-white hover:opacity-90'
+                  )}
+                >
+                  <Globe className="h-3.5 w-3.5" />
+                  {show360 ? 'View Photo' : 'View 360°'}
+                </button>
+              )}
             </div>
             <div className="p-5">
-              <h2 className="text-xl font-bold mb-1">{item.title}</h2>
+              <div className="flex items-start justify-between gap-3 mb-1">
+                <h2 className="text-xl font-bold">{item.title}</h2>
+                {item.has_360 && (
+                  <Badge className="bg-gradient-to-r from-blue-600 to-cyan-500 text-white gap-1 shrink-0">
+                    <Globe className="h-3 w-3" /> 360° Tour
+                  </Badge>
+                )}
+              </div>
               <div className="flex flex-wrap gap-3 text-sm text-muted-foreground mb-3">
                 {item.location && (
                   <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{item.location}</span>
@@ -489,6 +652,7 @@ export default function GalleryManagement() {
   const items         = data?.items ?? [];
   const total         = data?.total ?? 0;
   const featuredCount = data?.featured_count ?? 0;
+  const count360      = data?.count_360 ?? items.filter(i => i.has_360).length;
 
   const openAdd  = () => { setEditItem(null); setFormOpen(true); };
   const openEdit = (item: GalleryItem) => { setEditItem(item); setFormOpen(true); };
@@ -512,11 +676,12 @@ export default function GalleryManagement() {
       </div>
 
       {/* ── stats row ── */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
         {[
-          { label: 'Total Images', value: total, icon: ImageIcon, color: 'text-blue-500' },
-          { label: 'Featured',     value: featuredCount, icon: Star, color: 'text-yellow-500' },
-          { label: 'Categories',   value: CATEGORIES.length - 1, icon: Tag, color: 'text-purple-500' },
+          { label: 'Total Images', value: total,              icon: ImageIcon, color: 'text-blue-500' },
+          { label: 'Featured',     value: featuredCount,      icon: Star,      color: 'text-yellow-500' },
+          { label: '360° Views',   value: count360,           icon: Globe,     color: 'text-cyan-500' },
+          { label: 'Categories',   value: CATEGORIES.length - 1, icon: Tag,   color: 'text-purple-500' },
         ].map(s => (
           <Card key={s.label}>
             <CardContent className="pt-5 pb-4 flex items-center gap-3">
@@ -633,6 +798,12 @@ export default function GalleryManagement() {
                   </Badge>
                 )}
 
+                {item.has_360 && (
+                  <Badge className="absolute bottom-2 left-2 bg-gradient-to-r from-blue-600 to-cyan-500 text-white text-xs px-1.5 py-0.5 gap-1">
+                    <Globe className="h-2.5 w-2.5" /> 360°
+                  </Badge>
+                )}
+
                 <button
                   onClick={() => featuredMut.mutate(item.id)}
                   className="absolute top-2 right-2 p-1 rounded-full bg-black/40 text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/60"
@@ -692,6 +863,11 @@ export default function GalleryManagement() {
                     <p className="font-medium text-sm truncate">{item.title}</p>
                     {item.is_featured && (
                       <Badge className="bg-yellow-500 text-black text-xs shrink-0">Featured</Badge>
+                    )}
+                    {item.has_360 && (
+                      <Badge className="bg-gradient-to-r from-blue-600 to-cyan-500 text-white text-xs shrink-0 gap-1">
+                        <Globe className="h-2.5 w-2.5" /> 360°
+                      </Badge>
                     )}
                   </div>
                   <div className="flex items-center gap-3 mt-0.5 text-xs text-muted-foreground">
