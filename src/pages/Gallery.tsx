@@ -8,6 +8,7 @@ import {
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import MetaverseBackground from "@/components/MetaverseBackground";
 
 const PanoramaOverlay = lazy(() => import("@/components/PanoramaOverlay"));
 
@@ -874,8 +875,9 @@ export default function Gallery() {
   const [centerIdx,    setCenterIdx]    = useState(0);
   const [flyingFrom,   setFlyingFrom]   = useState<number|null>(null);
   const [sceneW,       setSceneW]       = useState(1200);
-  const [mouseIdle,    setMouseIdle]    = useState(true);
-  const [panoramaItem, setPanoramaItem] = useState<GalleryItem|null>(null);
+  const [mouseIdle,      setMouseIdle]      = useState(true);
+  const [panoramaItem,   setPanoramaItem]   = useState<GalleryItem|null>(null);
+  const [overlayOpacity, setOverlayOpacity] = useState(0.72);
 
   /* Z-axis dolly from scroll wheel */
   const sceneZ  = useMotionValue(0);
@@ -945,7 +947,16 @@ export default function Gallery() {
   }, []);
 
   useEffect(() => {
-    const h = () => setScrollY(window.scrollY);
+    const h = () => {
+      const y = window.scrollY;
+      setScrollY(y);
+      const gallerySection = document.getElementById("gallery-scene-section");
+      if (gallerySection) {
+        const bottom = gallerySection.getBoundingClientRect().bottom;
+        const progress = Math.max(0, Math.min(1, 1 - bottom / window.innerHeight));
+        setOverlayOpacity(0.72 + progress * 0.20);
+      }
+    };
     window.addEventListener("scroll", h, { passive:true });
     return () => window.removeEventListener("scroll", h);
   }, []);
@@ -1047,9 +1058,24 @@ export default function Gallery() {
   };
 
   return (
-    <div className="min-h-screen" style={{ background:"#040d21" }}>
+    <div className="min-h-screen" style={{ background:"transparent", position:"relative" }}>
       {/* inject CSS keyframes */}
       <style>{GLOBAL_CSS}</style>
+
+      {/* ── z-index 0: 360° metaverse background sphere ───────────── */}
+      <MetaverseBackground paused={!!panoramaItem} />
+
+      {/* ── z-index 1: radial dark overlay (scroll-responsive) ────── */}
+      <div style={{
+        position:"fixed", inset:0, zIndex:1, pointerEvents:"none",
+        background:`radial-gradient(ellipse at center, rgba(2,11,30,0.45) 0%, rgba(2,11,30,${overlayOpacity}) 60%, rgba(2,11,30,0.88) 100%)`,
+        transition:"background 0.3s ease",
+      }}/>
+
+      {/* ── z-index 2: particle field already inside scene section ── */}
+
+      {/* ── z-index 10+: all page content ───────────────────────── */}
+      <div style={{ position:"relative", zIndex:10 }}>
 
       <Header/>
 
@@ -1137,9 +1163,9 @@ export default function Gallery() {
       </section>
 
       {/* ── IMMERSIVE 3-D SCENE ───────────────────────────────────── */}
-      <section className="relative select-none overflow-hidden"
+      <section id="gallery-scene-section" className="relative select-none overflow-hidden"
         style={{
-          background:"radial-gradient(ellipse 120% 90% at 50% 45%, #071a4a 0%, #04112e 30%, #02080e 68%, #010610 100%)",
+          background:"radial-gradient(ellipse 120% 90% at 50% 45%, rgba(7,26,74,0.55) 0%, rgba(4,17,46,0.55) 30%, rgba(2,8,14,0.60) 68%, rgba(1,6,16,0.65) 100%)",
           minHeight:SCENE_H+100,
         }}>
 
@@ -1428,6 +1454,7 @@ export default function Gallery() {
       </Suspense>
 
       <Footer/>
+      </div>{/* end z-index:10 content wrapper */}
     </div>
   );
 }
