@@ -83,6 +83,161 @@ export default defineConfig(({ mode }: { mode: string }) => ({
   plugins: [
     react(),
     {
+      // Local media library — handles all /api/admin/media CRUD without Laravel:
+      //   GET    /api/admin/media       → list from public/uploads/media-index.json
+      //   POST   /api/admin/media       → save FormData OR base64-JSON file, update index
+      //   DELETE /api/admin/media/:id   → remove file + index entry
+      name: "handle-local-media-library",
+      configureServer(server) {
+        server.middlewares.use(async (req: any, res: any, next: any) => {
+          const url: string = req.url ?? "";
+
+          // ── helpers ──────────────────────────────────────────────────────
+          const fs = await import("fs/promises");
+          const path = await import("path");
+          const crypto = await import("crypto");
+          const uploadsDir = path.resolve(__dirname, "public/uploads");
+          const indexFile = path.join(uploadsDir, "media-index.json");
+
+          async function readIndex(): Promise<any[]> {
+            try {
+              const raw = await fs.readFile(indexFile, "utf-8");
+              return JSON.parse(raw);
+            } catch { return []; }
+          }
+          async function writeIndex(items: any[]) {
+            await fs.mkdir(uploadsDir, { recursive: true });
+            await fs.writeFile(indexFile, JSON.stringify(items, null, 2));
+          }
+
+          // ── GET /api/admin/media ─────────────────────────────────────────
+          if (req.method === "GET" && url === "/api/admin/media") {
+            const items = await readIndex();
+            res.statusCode = 200;
+            res.setHeader("Content-Type", "application/json");
+            res.end(JSON.stringify(items));
+            return;
+          }
+
+          // ── DELETE /api/admin/media/:id ───────────────────────────────────
+          if (req.method === "DELETE" && url.startsWith("/api/admin/media/")) {
+            const idStr = url.replace("/api/admin/media/", "").split("?")[0];
+            const id = parseInt(idStr, 10);
+            const items = await readIndex();
+            const entry = items.find((x: any) => x.id === id);
+            if (entry) {
+              // Remove the physical file
+              try {
+                const filePath = path.join(uploadsDir, entry.fileName);
+                await fs.unlink(filePath);
+              } catch { /* file may already be gone */ }
+              await writeIndex(items.filter((x: any) => x.id !== id));
+            }
+            res.statusCode = 200;
+            res.setHeader("Content-Type", "application/json");
+            res.end(JSON.stringify({ message: "Deleted" }));
+            return;
+          }
+
+          // ── POST /api/admin/media  (FormData upload) ──────────────────────
+          if (req.method === "POST" && url === "/api/admin/media") {
+            const contentType: string = req.headers["content-type"] ?? "";
+            const boundary = contentType.split("boundary=")[1];
+            if (!boundary) {
+              res.statusCode = 400;
+              res.setHeader("Content-Type", "application/json");
+              res.end(JSON.stringify({ message: "Missing multipart boundary" }));
+              return;
+            }
+
+            try {
+              const chunks: Buffer[] = [];
+              for await (const chunk of req) chunks.push(chunk);
+              const body = Buffer.concat(chunks);
+
+              // Parse the multipart body to extract the first file
+              const boundaryBuf = Buffer.from("--" + boundary);
+              const parts: Buffer[] = [];
+              let pos = 0;
+              while (pos < body.length) {
+                const idx = body.indexOf(boundaryBuf, pos);
+                if (idx === -1) break;
+                const start = idx + boundaryBuf.length;
+                if (body[start] === 0x2d && body[start + 1] === 0x2d) break; // --boundary--
+                const nextIdx = body.indexOf(boundaryBuf, start);
+                if (nextIdx === -1) break;
+                parts.push(body.slice(start, nextIdx));
+                pos = nextIdx;
+              }
+
+              let fileBuffer: Buffer | null = null;
+              let fileName = "upload";
+              let mimeType = "application/octet-stream";
+
+              for (const part of parts) {
+                // Find header/body separator (\r\n\r\n)
+                const sep = part.indexOf("\r\n\r\n");
+                if (sep === -1) continue;
+                const headerStr = part.slice(0, sep).toString();
+                const fileData = part.slice(sep + 4, part.lastIndexOf("\r\n"));
+
+                if (!headerStr.includes('name="file"')) continue;
+
+                const nameMatch = headerStr.match(/filename="([^"]+)"/);
+                if (nameMatch) fileName = nameMatch[1];
+                const ctMatch = headerStr.match(/Content-Type:\s*([^\r\n]+)/i);
+                if (ctMatch) mimeType = ctMatch[1].trim();
+                fileBuffer = fileData;
+                break;
+              }
+
+              if (!fileBuffer) {
+                res.statusCode = 400;
+                res.setHeader("Content-Type", "application/json");
+                res.end(JSON.stringify({ message: "No file found in upload" }));
+                return;
+              }
+
+              const ext = fileName.split(".").pop()?.replace("jpeg", "jpg") ?? "jpg";
+              const id = crypto.randomUUID();
+              const savedName = `${id}.${ext}`;
+              await fs.mkdir(uploadsDir, { recursive: true });
+              await fs.writeFile(path.join(uploadsDir, savedName), fileBuffer);
+
+              // Update index
+              const items = await readIndex();
+              const nextId = items.length > 0 ? Math.max(...items.map((x: any) => x.id)) + 1 : 1;
+              const entry = {
+                id: nextId,
+                fileName: savedName,
+                fileType: mimeType,
+                fileSize: fileBuffer.length,
+                fileUrl: `/uploads/${savedName}`,
+                thumbnailUrl: `/uploads/${savedName}`,
+                altText: null,
+                createdAt: new Date().toISOString(),
+              };
+              items.push(entry);
+              await writeIndex(items);
+
+              res.statusCode = 201;
+              res.setHeader("Content-Type", "application/json");
+              res.end(JSON.stringify(entry));
+              console.log(`[local-media] Saved ${savedName} (${fileBuffer.length} bytes)`);
+            } catch (err) {
+              console.error("[local-media] Upload error:", err);
+              res.statusCode = 500;
+              res.setHeader("Content-Type", "application/json");
+              res.end(JSON.stringify({ message: "Upload failed" }));
+            }
+            return;
+          }
+
+          next();
+        });
+      },
+    },
+    {
       // Intercept POST /api/admin/cms/media — the production endpoint is
       // broken (missing DB columns). Handle uploads locally instead:
       //   1. Decode the base64 imageData from the JSON body
@@ -121,9 +276,29 @@ export default defineConfig(({ mode }: { mode: string }) => ({
             const id = crypto.randomUUID();
             const filename = `${id}.${ext}`;
             const uploadsDir = path.resolve(__dirname, "public/uploads");
+            const indexFile = path.join(uploadsDir, "media-index.json");
 
             await fs.mkdir(uploadsDir, { recursive: true });
             await fs.writeFile(path.join(uploadsDir, filename), binary);
+
+            // Also register in the media library index
+            try {
+              let items: any[] = [];
+              try { items = JSON.parse(await fs.readFile(indexFile, "utf-8")); } catch {}
+              const nextId = items.length > 0 ? Math.max(...items.map((x: any) => x.id)) + 1 : 1;
+              const altName: string = body.alt ?? filename;
+              items.push({
+                id: nextId,
+                fileName: filename,
+                fileType: mime,
+                fileSize: binary.length,
+                fileUrl: `/uploads/${filename}`,
+                thumbnailUrl: `/uploads/${filename}`,
+                altText: altName,
+                createdAt: new Date().toISOString(),
+              });
+              await fs.writeFile(indexFile, JSON.stringify(items, null, 2));
+            } catch {}
 
             const url = `/uploads/${filename}`;
             res.statusCode = 201;
