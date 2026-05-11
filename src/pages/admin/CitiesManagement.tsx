@@ -60,17 +60,6 @@ interface DiscoverSettings {
   cta_button_link: string;
 }
 
-const defaultDiscoverSettings: DiscoverSettings = {
-  hero_title: 'Discover',
-  hero_subtitle: "Embark on a journey through Morocco's most enchanting destinations. From ancient medinas to coastal paradises, discover the soul of this magnificent country.",
-  hero_bg_image: '/attached_assets/generated_images/Fes_medina_and_tanneries_3e9a2ff0.png',
-  intro_heading: 'Morocco, a melting pot of dynasties and cultures',
-  intro_description: "From the northern coastal cities touching the Mediterranean to the ancient imperial cities steeped in history, Morocco offers an incredible tapestry of experiences. Each city tells its own unique story, shaped by centuries of diverse cultural influences, from Berber traditions to Arab, Andalusian, and European heritage. Discover the soul of Morocco through its most captivating cities, where ancient medinas meet modern vitality, and every street corner reveals a new chapter in this nation's rich cultural narrative.",
-  cta_heading: 'Ready to Start Your Journey?',
-  cta_description: 'Join us to explore these magnificent cities and create unforgettable memories in Morocco.',
-  cta_button_text: 'JOIN THE JOURNEY',
-  cta_button_link: '/join-us',
-};
 
 const emptyCity: Omit<City, 'id' | 'createdAt' | 'updatedAt'> = {
   name: '', slug: '', title: '', description: '', image: '',
@@ -114,7 +103,7 @@ export default function CitiesManagement() {
     },
   });
 
-  const currentDiscover: DiscoverSettings = discoverForm ?? discoverData ?? defaultDiscoverSettings;
+  const currentDiscover: DiscoverSettings = discoverForm ?? discoverData ?? {} as DiscoverSettings;
 
   function openCreate() {
     setEditing(null);
@@ -242,7 +231,7 @@ export default function CitiesManagement() {
   }
 
   function setDiscoverField(key: keyof DiscoverSettings, value: string) {
-    setDiscoverForm(prev => ({ ...(prev ?? defaultDiscoverSettings), [key]: value }));
+    setDiscoverForm(prev => ({ ...(prev ?? discoverData ?? {} as DiscoverSettings), [key]: value }));
   }
 
   return (

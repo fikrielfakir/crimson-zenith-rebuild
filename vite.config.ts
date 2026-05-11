@@ -26,14 +26,11 @@ const PROD_API = "https://api.thejourney-ma.org";
 const LOCAL_API = "http://localhost:8000";
 
 const localProxyOptions = {
-  target: PROD_API,
+  target: LOCAL_API,
   changeOrigin: true,
   secure: false,
   configure: (proxy: any) => {
     proxy.on("proxyRes", patchCookies);
-    proxy.on("proxyReq", (proxyReq: any) => {
-      proxyReq.setHeader("Origin", "http://localhost:5000");
-    });
     proxy.on("error", (err: any, _req: any, res: any) => {
       console.error("[local-proxy] Laravel API unavailable:", err.message);
       if (res && !res.headersSent) {
@@ -65,6 +62,8 @@ export default defineConfig(({ mode }: { mode: string }) => ({
     proxy: {
       "/api/admin":    localProxyOptions,
       "/api/payments": localProxyOptions,
+      "/api/cities":   localProxyOptions,
+      "/api/cms":      localProxyOptions,
       "/api":          proxyOptions,
       "/sanctum":      proxyOptions,
       "/storage":      proxyOptions,

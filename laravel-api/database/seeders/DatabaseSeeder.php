@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
             ClubsSeeder::class,
             EventsSeeder::class,
             CmsSeeder::class,
+            DiscoverPageSeeder::class,
         ]);
     }
 }
