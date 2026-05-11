@@ -1,14 +1,30 @@
 import { Button } from "@/components/ui/button";
 import { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { useHeroSettings } from "@/hooks/useCMS";
 import { useAuth } from "@/hooks/useAuth";
+import { apiFetch } from "@/lib/apiFetch";
 import heroBackground from "@/assets/hero-bg.jpg";
 
 const Hero = () => {
   const { data: heroSettings, isLoading } = useHeroSettings();
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
+
+  // Read locally-saved page hero overrides (background type + video URL)
+  const { data: localHero } = useQuery({
+    queryKey: ["page-hero", "landing"],
+    queryFn: async () => {
+      try {
+        const res = await apiFetch("/api/cms/page-hero/landing");
+        if (!res.ok) return null;
+        const data = await res.json();
+        return Object.keys(data).length > 0 ? data : null;
+      } catch { return null; }
+    },
+    staleTime: 5 * 60 * 1000,
+  });
 
   const defaultTaglines = [
     { text: "Where Adventure Meets\nTransformation", twoLines: true },
@@ -66,6 +82,11 @@ const Hero = () => {
     ? `/api/cms/media/${heroSettings.backgroundMediaId}`
     : heroBackground;
 
+  // Local overrides take precedence for background type, image, and video URL
+  const effectiveBgType: string = localHero?.backgroundType || heroSettings?.backgroundType || "image";
+  const effectiveVideoUrl: string = localHero?.backgroundVideoUrl || heroSettings?.backgroundVideoUrl || "";
+  const effectiveImageUrl: string = localHero?.backgroundImageUrl || "";
+
   const overlayColor =
     heroSettings?.backgroundOverlayColor || "rgba(26, 54, 93, 0.7)";
   const title = heroSettings?.title || "Where Adventure Meets\nTransformation";
@@ -106,9 +127,8 @@ const Hero = () => {
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden font-sans">
-      {/* Background Image or Video */}
-      {heroSettings?.backgroundType === "video" &&
-      (heroSettings?.backgroundMediaId || heroSettings?.backgroundVideoUrl) ? (
+      {/* Background Image or Video — uses local page-hero override when set */}
+      {effectiveBgType === "video" && effectiveVideoUrl ? (
         <video
           className="absolute inset-0 w-full h-full object-cover"
           autoPlay
@@ -116,18 +136,13 @@ const Hero = () => {
           muted
           playsInline
         >
-          <source
-            src={heroSettings.backgroundVideoUrl || backgroundUrl}
-            type="video/mp4"
-          />
-          {heroSettings.backgroundVideoUrl && (
-            <source src={heroSettings.backgroundVideoUrl} type="video/webm" />
-          )}
+          <source src={effectiveVideoUrl} type="video/mp4" />
+          <source src={effectiveVideoUrl} type="video/webm" />
         </video>
       ) : (
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: `url(${backgroundUrl})` }}
+          style={{ backgroundImage: `url(${effectiveImageUrl || backgroundUrl})` }}
         />
       )}
 

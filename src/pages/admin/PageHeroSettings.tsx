@@ -215,11 +215,10 @@ function PageHeroForm({ pageKey, config, isLanding }: {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const endpoint = isLanding ? "/api/cms/hero" : `/api/cms/page-hero/${pageKey}`;
-    apiFetch(endpoint)
+    apiFetch(`/api/cms/page-hero/${pageKey}`)
       .then(r => r.ok ? r.json() : null)
       .then(data => {
-        if (data) {
+        if (data && Object.keys(data).length > 0) {
           setForm({
             backgroundType: data.backgroundType || data.background_type || "image",
             backgroundImageUrl: data.backgroundImageUrl || data.background_image_url || "",
@@ -232,31 +231,21 @@ function PageHeroForm({ pageKey, config, isLanding }: {
       })
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, [pageKey, isLanding]);
+  }, [pageKey]);
 
   const handleSave = async () => {
     setSaving(true);
     try {
-      const endpoint = isLanding
-        ? "/api/admin/cms/hero"
-        : `/api/admin/cms/page-hero/${pageKey}`;
+      const payload = {
+        backgroundType: form.backgroundType,
+        backgroundImageUrl: form.backgroundImageUrl,
+        backgroundVideoUrl: form.backgroundVideoUrl,
+        overlayOpacity: form.overlayOpacity,
+        title: form.title || null,
+        subtitle: form.subtitle || null,
+      };
 
-      const payload = isLanding
-        ? {
-            backgroundType: form.backgroundType,
-            backgroundVideoUrl: form.backgroundVideoUrl,
-            backgroundOverlayOpacity: form.overlayOpacity,
-          }
-        : {
-            backgroundType: form.backgroundType,
-            backgroundImageUrl: form.backgroundImageUrl,
-            backgroundVideoUrl: form.backgroundVideoUrl,
-            overlayOpacity: form.overlayOpacity,
-            title: form.title || null,
-            subtitle: form.subtitle || null,
-          };
-
-      const res = await apiFetch(endpoint, {
+      const res = await apiFetch(`/api/admin/cms/page-hero/${pageKey}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -337,7 +326,7 @@ function PageHeroForm({ pageKey, config, isLanding }: {
               </Select>
             </div>
 
-            {form.backgroundType === "image" && !isLanding && (
+            {form.backgroundType === "image" && (
               <div className="space-y-1.5">
                 <Label className="flex items-center gap-1.5">
                   <Image className="w-3.5 h-3.5" /> Background Image
