@@ -65,6 +65,7 @@ import PresidentMessageSettings from "./pages/admin/PresidentMessageSettings";
 import FocusAreasManagement from "./pages/admin/FocusAreasManagement";
 import TeamMembersManagement from "./pages/admin/TeamMembersManagement";
 import TestimonialsManagement from "./pages/admin/TestimonialsManagement";
+import PartnersManagement from "./pages/admin/PartnersManagement";
 import CitiesManagement from "./pages/admin/CitiesManagement";
 import PageHeroSettings from "./pages/admin/PageHeroSettings";
 import JoinUs from "./pages/JoinUs";
@@ -313,7 +314,7 @@ const App = () => (
           } />
           <Route path="/admin/customization/partners" element={
             <ProtectedRoute>
-              <div className="p-6"><h1 className="text-3xl font-bold">Partners Section - Coming Soon</h1></div>
+              <PartnersManagement />
             </ProtectedRoute>
           } />
           <Route path="/admin/customization/page-heroes" element={
