@@ -1,15 +1,28 @@
 import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { 
   Heart, 
   Users, 
   MapPin, 
   Clock,
   CheckCircle2,
-  ArrowRight
+  ArrowRight,
+  Loader2,
+  CheckCircle,
+  AlertCircle,
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -28,8 +41,19 @@ interface Opportunity {
   status: string;
 }
 
+interface ApplyForm {
+  name: string;
+  email: string;
+  phone: string;
+  message: string;
+}
+
 const VolunteersSpontaneous = () => {
   const [scrollY, setScrollY] = useState(0);
+  const [selected, setSelected] = useState<Opportunity | null>(null);
+  const [form, setForm] = useState<ApplyForm>({ name: '', email: '', phone: '', message: '' });
+  const [submitted, setSubmitted] = useState(false);
+  const [serverError, setServerError] = useState('');
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
@@ -46,6 +70,52 @@ const VolunteersSpontaneous = () => {
       return data.data ?? data;
     },
   });
+
+  const applyMutation = useMutation({
+    mutationFn: async (payload: ApplyForm & { opportunityTitle: string }) => {
+      const res = await fetch('/api/applications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({
+          applicantName: payload.name,
+          email: payload.email,
+          phone: payload.phone || undefined,
+          motivation: `[Volunteer Opportunity: ${payload.opportunityTitle}]\n\n${payload.message}`,
+          interests: ['volunteering'],
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Submission failed');
+      return data;
+    },
+    onSuccess: () => {
+      setSubmitted(true);
+      setServerError('');
+    },
+    onError: (err: Error) => {
+      setServerError(err.message);
+    },
+  });
+
+  const openDialog = (opp: Opportunity) => {
+    setSelected(opp);
+    setSubmitted(false);
+    setServerError('');
+    setForm({ name: '', email: '', phone: '', message: '' });
+  };
+
+  const closeDialog = () => {
+    setSelected(null);
+    setSubmitted(false);
+    setServerError('');
+    applyMutation.reset();
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selected) return;
+    applyMutation.mutate({ ...form, opportunityTitle: selected.title });
+  };
 
   const benefits = [
     "Make a meaningful impact in Moroccan communities",
@@ -108,7 +178,9 @@ const VolunteersSpontaneous = () => {
             </div>
 
             {isLoading ? (
-              <div className="flex justify-center py-16"><div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div>
+              <div className="flex justify-center py-16">
+                <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+              </div>
             ) : opportunities.length === 0 ? (
               <div className="text-center py-16 text-muted-foreground">
                 <Users className="h-12 w-12 mx-auto mb-4 opacity-30" />
@@ -116,49 +188,68 @@ const VolunteersSpontaneous = () => {
                 <p className="mt-2">Check back soon for new volunteer calls.</p>
               </div>
             ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
-              {opportunities.map((opportunity) => (
-                <Card key={opportunity.id} className="group hover:shadow-2xl transition-all duration-300">
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between mb-4">
-                      <Badge 
-                        variant={opportunity.urgency === 'high' ? 'destructive' : opportunity.urgency === 'medium' ? 'default' : 'secondary'}
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+                {opportunities.map((opportunity) => (
+                  <Card key={opportunity.id} className="group hover:shadow-2xl transition-all duration-300">
+                    <CardContent className="p-6">
+                      <div className="flex items-start justify-between mb-4">
+                        <Badge 
+                          variant={opportunity.urgency === 'high' ? 'destructive' : opportunity.urgency === 'medium' ? 'default' : 'secondary'}
+                        >
+                          {opportunity.urgency.charAt(0).toUpperCase() + opportunity.urgency.slice(1)} Priority
+                        </Badge>
+                        <Heart className="w-5 h-5 text-muted-foreground hover:text-destructive hover:fill-destructive cursor-pointer transition-colors" />
+                      </div>
+
+                      <h3 className="text-2xl font-bold mb-3 group-hover:text-primary transition-colors">
+                        {opportunity.title}
+                      </h3>
+
+                      <div className="space-y-2 mb-4 text-sm text-muted-foreground">
+                        {opportunity.location && (
+                          <div className="flex items-center gap-2">
+                            <MapPin className="w-4 h-4" />
+                            <span>{opportunity.location}</span>
+                          </div>
+                        )}
+                        {opportunity.duration && (
+                          <div className="flex items-center gap-2">
+                            <Clock className="w-4 h-4" />
+                            <span>{opportunity.duration}</span>
+                          </div>
+                        )}
+                        <div className="flex items-center gap-2">
+                          <Users className="w-4 h-4" />
+                          <span>{opportunity.current_participants}/{opportunity.max_participants} volunteers</span>
+                        </div>
+                      </div>
+
+                      {opportunity.description && (
+                        <p className="text-muted-foreground mb-4 line-clamp-3">{opportunity.description}</p>
+                      )}
+
+                      {opportunity.skills && opportunity.skills.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mb-6">
+                          {opportunity.skills.map((skill, idx) => (
+                            <Badge key={idx} variant="outline" className="text-xs">{skill}</Badge>
+                          ))}
+                        </div>
+                      )}
+
+                      <Button
+                        className="w-full group-hover:scale-105 transition-transform"
+                        onClick={() => openDialog(opportunity)}
+                        disabled={opportunity.current_participants >= opportunity.max_participants}
                       >
-                        {opportunity.urgency.charAt(0).toUpperCase() + opportunity.urgency.slice(1)} Priority
-                      </Badge>
-                      <Heart className="w-5 h-5 text-muted-foreground hover:text-destructive hover:fill-destructive cursor-pointer transition-colors" />
-                    </div>
-
-                    <h3 className="text-2xl font-bold mb-3 group-hover:text-primary transition-colors">
-                      {opportunity.title}
-                    </h3>
-
-                    <div className="space-y-2 mb-4 text-sm text-muted-foreground">
-                      {opportunity.location && <div className="flex items-center gap-2"><MapPin className="w-4 h-4" /><span>{opportunity.location}</span></div>}
-                      {opportunity.duration && <div className="flex items-center gap-2"><Clock className="w-4 h-4" /><span>{opportunity.duration}</span></div>}
-                      <div className="flex items-center gap-2">
-                        <Users className="w-4 h-4" />
-                        <span>{opportunity.current_participants}/{opportunity.max_participants} volunteers</span>
-                      </div>
-                    </div>
-
-                    {opportunity.description && <p className="text-muted-foreground mb-4">{opportunity.description}</p>}
-
-                    {opportunity.skills && opportunity.skills.length > 0 && (
-                      <div className="flex flex-wrap gap-2 mb-6">
-                        {opportunity.skills.map((skill, idx) => (
-                          <Badge key={idx} variant="outline" className="text-xs">{skill}</Badge>
-                        ))}
-                      </div>
-                    )}
-
-                    <Button className="w-full group-hover:scale-105 transition-transform">
-                      Apply Now <ArrowRight className="ml-2 w-4 h-4" />
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                        {opportunity.current_participants >= opportunity.max_participants
+                          ? 'Position Filled'
+                          : <>Apply Now <ArrowRight className="ml-2 w-4 h-4" /></>
+                        }
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             )}
           </div>
         </section>
@@ -198,6 +289,98 @@ const VolunteersSpontaneous = () => {
           </div>
         </section>
       </main>
+
+      {/* Apply Dialog */}
+      <Dialog open={!!selected} onOpenChange={(open) => { if (!open) closeDialog(); }}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="text-xl">
+              {submitted ? 'Application Submitted!' : `Apply — ${selected?.title}`}
+            </DialogTitle>
+            {!submitted && (
+              <DialogDescription>
+                Fill in your details below and we'll be in touch to confirm your spot.
+              </DialogDescription>
+            )}
+          </DialogHeader>
+
+          {submitted ? (
+            <div className="flex flex-col items-center py-8 text-center gap-4">
+              <CheckCircle className="w-16 h-16 text-green-500" />
+              <p className="text-lg font-semibold">Thank you for applying!</p>
+              <p className="text-muted-foreground text-sm max-w-xs">
+                Your application for <span className="font-medium text-foreground">{selected?.title}</span> has been received. We'll contact you at the email you provided.
+              </p>
+              <Button className="mt-2 w-full" onClick={closeDialog}>Close</Button>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-4 pt-2">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="col-span-2 space-y-1.5">
+                  <Label htmlFor="apply-name">Full Name <span className="text-destructive">*</span></Label>
+                  <Input
+                    id="apply-name"
+                    placeholder="Your full name"
+                    value={form.name}
+                    onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                    required
+                  />
+                </div>
+                <div className="col-span-2 space-y-1.5">
+                  <Label htmlFor="apply-email">Email <span className="text-destructive">*</span></Label>
+                  <Input
+                    id="apply-email"
+                    type="email"
+                    placeholder="your@email.com"
+                    value={form.email}
+                    onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+                    required
+                  />
+                </div>
+                <div className="col-span-2 space-y-1.5">
+                  <Label htmlFor="apply-phone">Phone (optional)</Label>
+                  <Input
+                    id="apply-phone"
+                    type="tel"
+                    placeholder="+212 6xx xxx xxx"
+                    value={form.phone}
+                    onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
+                  />
+                </div>
+                <div className="col-span-2 space-y-1.5">
+                  <Label htmlFor="apply-message">Why do you want to join? (optional)</Label>
+                  <Textarea
+                    id="apply-message"
+                    placeholder="Tell us a bit about yourself and your motivation..."
+                    rows={4}
+                    value={form.message}
+                    onChange={e => setForm(f => ({ ...f, message: e.target.value }))}
+                  />
+                </div>
+              </div>
+
+              {serverError && (
+                <div className="flex items-start gap-2 text-sm text-destructive bg-destructive/10 rounded-md p-3">
+                  <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                  <span>{serverError}</span>
+                </div>
+              )}
+
+              <div className="flex gap-3 pt-1">
+                <Button type="button" variant="outline" className="flex-1" onClick={closeDialog}>
+                  Cancel
+                </Button>
+                <Button type="submit" className="flex-1" disabled={applyMutation.isPending}>
+                  {applyMutation.isPending
+                    ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Submitting…</>
+                    : 'Submit Application'
+                  }
+                </Button>
+              </div>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
       
       <Footer />
     </div>
