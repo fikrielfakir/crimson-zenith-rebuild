@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -11,12 +12,27 @@ import {
   MapPin,
   Globe,
   Linkedin,
-  Mail,
-  Phone,
   CheckCircle2
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+
+interface Expert {
+  id: number;
+  name: string;
+  title: string | null;
+  location: string | null;
+  image: string | null;
+  expertise: string[] | null;
+  rating: number;
+  projects_count: number;
+  years_experience: number;
+  languages: string[] | null;
+  bio: string | null;
+  achievements: string[] | null;
+  certifications: string[] | null;
+  is_available: boolean;
+}
 
 const TalentsExperts = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -24,109 +40,21 @@ const TalentsExperts = () => {
 
   useEffect(() => {
     setIsVisible(true);
-    
-    const handleScroll = () => {
-      setScrollY(window.scrollY);
-    };
-    
+    const handleScroll = () => setScrollY(window.scrollY);
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const experts = [
-    {
-      id: 1,
-      name: "Dr. Amina Benali",
-      title: "Sustainable Tourism Consultant",
-      location: "Marrakech, Morocco",
-      image: "/api/placeholder/200/200",
-      expertise: ["Ecotourism", "Community Development", "Cultural Heritage"],
-      rating: 5.0,
-      projects: 48,
-      years: 15,
-      languages: ["English", "French", "Arabic"],
-      bio: "Leading expert in sustainable tourism with over 15 years of experience developing eco-friendly tourism initiatives across North Africa.",
-      achievements: [
-        "UNESCO Heritage Tourism Award 2022",
-        "Advisor to Ministry of Tourism",
-        "Published 12 research papers on sustainable tourism"
-      ],
-      certifications: [
-        "Certified Sustainable Tourism Professional",
-        "PhD in Environmental Management"
-      ],
-      available: true
+  const { data: experts = [], isLoading } = useQuery<Expert[]>({
+    queryKey: ['experts-public'],
+    queryFn: async () => {
+      const res = await fetch('/api/experts?status=published&per_page=50');
+      if (!res.ok) return [];
+      const data = await res.json();
+      return data.data ?? data;
     },
-    {
-      id: 2,
-      name: "Hassan El Khoury",
-      title: "Mountain Guide & Safety Expert",
-      location: "Imlil, High Atlas",
-      image: "/api/placeholder/200/200",
-      expertise: ["Mountain Guiding", "Safety Training", "First Aid"],
-      rating: 4.9,
-      projects: 156,
-      years: 20,
-      languages: ["English", "French", "Arabic", "Berber"],
-      bio: "Master mountain guide with two decades of experience in the Atlas Mountains. Specialist in high-altitude trekking and wilderness safety.",
-      achievements: [
-        "Rescued 23 climbers in emergency situations",
-        "Trained over 200 professional guides",
-        "First Moroccan to summit K2"
-      ],
-      certifications: [
-        "IFMGA International Mountain Guide",
-        "Wilderness First Responder"
-      ],
-      available: false
-    },
-    {
-      id: 3,
-      name: "Fatima Zahra",
-      title: "Cultural Heritage Specialist",
-      location: "Fes, Morocco",
-      image: "/api/placeholder/200/200",
-      expertise: ["Historical Sites", "Traditional Crafts", "Heritage Conservation"],
-      rating: 4.8,
-      projects: 34,
-      years: 12,
-      languages: ["English", "French", "Arabic"],
-      bio: "Passionate about preserving Morocco's rich cultural heritage. Expertise in traditional architecture and artisan craftsmanship.",
-      achievements: [
-        "Restored 5 historical riads in Fes medina",
-        "UNESCO consultant for heritage sites",
-        "Published author on Moroccan architecture"
-      ],
-      certifications: [
-        "Master's in Heritage Conservation",
-        "Certified Heritage Guide"
-      ],
-      available: true
-    },
-    {
-      id: 4,
-      name: "Omar Benjelloun",
-      title: "Adventure Sports Coordinator",
-      location: "Dakhla, Morocco",
-      image: "/api/placeholder/200/200",
-      expertise: ["Kitesurfing", "Water Sports", "Event Management"],
-      rating: 4.9,
-      projects: 89,
-      years: 10,
-      languages: ["English", "Spanish", "French", "Arabic"],
-      bio: "Elite kitesurfing instructor and adventure tourism entrepreneur. Pioneered Morocco's kitesurfing industry in Dakhla.",
-      achievements: [
-        "IKO Master Instructor Trainer",
-        "Organized 15 international competitions",
-        "Built Morocco's largest kite school"
-      ],
-      certifications: [
-        "IKO Level 3 Instructor Trainer",
-        "Event Management Professional"
-      ],
-      available: true
-    }
-  ];
+  });
+
 
   return (
     <div className="min-h-screen bg-background">
@@ -215,18 +143,27 @@ const TalentsExperts = () => {
         {/* Experts Grid */}
         <section className="py-20 bg-background">
           <div className="container mx-auto px-6">
+            {isLoading ? (
+              <div className="flex justify-center py-16"><div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div>
+            ) : experts.length === 0 ? (
+              <div className="text-center py-16 text-muted-foreground max-w-md mx-auto">
+                <Award className="h-12 w-12 mx-auto mb-4 opacity-30" />
+                <p className="text-xl font-medium">No experts listed yet</p>
+                <p className="mt-2">Our expert profiles are coming soon.</p>
+              </div>
+            ) : (
             <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
               {experts.map((expert) => (
                 <Card key={expert.id} className="hover:shadow-2xl transition-all duration-300">
                   <CardContent className="p-8">
                     <div className="flex gap-6 mb-6">
                       <div className="relative">
-                        <img 
-                          src={expert.image} 
-                          alt={expert.name}
-                          className="w-24 h-24 rounded-full object-cover"
-                        />
-                        {expert.available && (
+                        {expert.image ? (
+                          <img src={expert.image} alt={expert.name} className="w-24 h-24 rounded-full object-cover" />
+                        ) : (
+                          <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center text-primary text-2xl font-bold">{expert.name.charAt(0)}</div>
+                        )}
+                        {expert.is_available && (
                           <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 border-4 border-white rounded-full" />
                         )}
                       </div>
@@ -243,10 +180,10 @@ const TalentsExperts = () => {
                             <span className="font-semibold">{expert.rating}</span>
                           </div>
                           <div className="text-muted-foreground">
-                            {expert.projects} projects
+                            {expert.projects_count} projects
                           </div>
                           <div className="text-muted-foreground">
-                            {expert.years} years exp.
+                            {expert.years_experience} years exp.
                           </div>
                         </div>
                       </div>
@@ -256,44 +193,47 @@ const TalentsExperts = () => {
                       {expert.bio}
                     </p>
 
-                    <div className="mb-4">
-                      <h4 className="font-semibold mb-2 text-sm">Expertise</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {expert.expertise.map((skill, idx) => (
-                          <Badge key={idx} variant="secondary">
-                            {skill}
-                          </Badge>
-                        ))}
+                    {expert.expertise && expert.expertise.length > 0 && (
+                      <div className="mb-4">
+                        <h4 className="font-semibold mb-2 text-sm">Expertise</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {expert.expertise.map((skill, idx) => (
+                            <Badge key={idx} variant="secondary">{skill}</Badge>
+                          ))}
+                        </div>
                       </div>
-                    </div>
+                    )}
 
-                    <div className="mb-4">
-                      <h4 className="font-semibold mb-2 text-sm">Languages</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {expert.languages.map((lang, idx) => (
-                          <Badge key={idx} variant="outline" className="text-xs">
-                            <Globe className="w-3 h-3 mr-1" />
-                            {lang}
-                          </Badge>
-                        ))}
+                    {expert.languages && expert.languages.length > 0 && (
+                      <div className="mb-4">
+                        <h4 className="font-semibold mb-2 text-sm">Languages</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {expert.languages.map((lang, idx) => (
+                            <Badge key={idx} variant="outline" className="text-xs">
+                              <Globe className="w-3 h-3 mr-1" />{lang}
+                            </Badge>
+                          ))}
+                        </div>
                       </div>
-                    </div>
+                    )}
 
-                    <div className="mb-6">
-                      <h4 className="font-semibold mb-2 text-sm">Key Achievements</h4>
-                      <ul className="space-y-1">
-                        {expert.achievements.map((achievement, idx) => (
-                          <li key={idx} className="flex items-start gap-2 text-sm text-muted-foreground">
-                            <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-                            <span>{achievement}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
+                    {expert.achievements && expert.achievements.length > 0 && (
+                      <div className="mb-6">
+                        <h4 className="font-semibold mb-2 text-sm">Key Achievements</h4>
+                        <ul className="space-y-1">
+                          {expert.achievements.map((achievement, idx) => (
+                            <li key={idx} className="flex items-start gap-2 text-sm text-muted-foreground">
+                              <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                              <span>{achievement}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
 
                     <div className="flex gap-3">
-                      <Button className="flex-1" disabled={!expert.available}>
-                        {expert.available ? 'Contact Expert' : 'Currently Unavailable'}
+                      <Button className="flex-1" disabled={!expert.is_available}>
+                        {expert.is_available ? 'Contact Expert' : 'Currently Unavailable'}
                       </Button>
                       <Button variant="outline" size="icon">
                         <Linkedin className="w-4 h-4" />
@@ -303,6 +243,7 @@ const TalentsExperts = () => {
                 </Card>
               ))}
             </div>
+            )}
           </div>
         </section>
 

@@ -9,7 +9,27 @@ import DonateDrawer from "@/components/DonateDrawer";
 import { ArrowRight, MapPin, Users, Calendar, Target, Filter, ArrowUp, ChevronLeft, Mail, Leaf, GraduationCap, Palmtree, Heart, Building } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import PageHero from "@/components/PageHero";
+
+interface Project {
+  id: number;
+  title: string;
+  description: string;
+  category: string;
+  status: string;
+  location: string;
+  image: string | null;
+  progress: number;
+  funding_goal: number | null;
+  current_funding: number | null;
+  participants_count: number;
+  impact_people: number;
+  impact_description: string | null;
+  is_featured: boolean;
+  is_published: boolean;
+  achievements: string[];
+}
 
 const Projects = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -31,123 +51,20 @@ const Projects = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const { data: projectsData = [], isLoading } = useQuery<Project[]>({
+    queryKey: ['projects-public'],
+    queryFn: async () => {
+      const res = await fetch('/api/projects');
+      if (!res.ok) throw new Error('Failed to fetch projects');
+      const data = await res.json();
+      return data.data ?? data;
+    },
+  });
+
   const categories = ["All", "Environment", "Education", "Culture", "Community", "Tourism"];
 
-  const highlightedProjects = [
-    {
-      id: 1,
-      title: "Atlas Mountain Clean-Up Drive",
-      description: "Large-scale environmental initiative to preserve the natural beauty of the Atlas Mountains.",
-      category: "Environment",
-      status: "Ongoing",
-      progress: 75,
-      image: "/attached_assets/generated_images/Fes_medina_and_tanneries_3e9a2ff0.png",
-      funding: "75% funded",
-      location: "Atlas Mountains"
-    },
-    {
-      id: 2,
-      title: "Youth Digital Skills Training",
-      description: "Empowering Moroccan youth with modern digital and entrepreneurship skills.",
-      category: "Education",
-      status: "Ongoing",
-      progress: 60,
-      image: "/attached_assets/generated_images/Tangier_city_aerial_view_03330006.png",
-      funding: "60% funded",
-      location: "Tangier"
-    },
-    {
-      id: 3,
-      title: "Heritage Sites Restoration",
-      description: "Preserving Morocco's rich architectural heritage for future generations.",
-      category: "Culture",
-      status: "Completed",
-      progress: 100,
-      image: "/attached_assets/generated_images/Chefchaouen_blue_streets_272376ab.png",
-      funding: "Fully funded",
-      location: "Chefchaouen"
-    },
-    {
-      id: 4,
-      title: "Coastal Tourism Development",
-      description: "Sustainable tourism initiatives supporting local coastal communities.",
-      category: "Tourism",
-      status: "Upcoming",
-      progress: 30,
-      image: "/attached_assets/generated_images/Essaouira_coastal_fortifications_07abbfb6.png",
-      funding: "30% funded",
-      location: "Essaouira"
-    }
-  ];
-
-  const allProjects = [
-    {
-      id: 1,
-      title: "Sustainable Tourism Initiative",
-      description: "Partnering with local communities to develop eco-friendly tourism experiences that preserve Morocco's natural beauty.",
-      category: "Tourism",
-      status: "Active",
-      location: "Atlas Mountains",
-      participants: 45,
-      impact: { people: 150, co2: "2.5 tons", sites: 5 },
-      image: "/attached_assets/generated_images/Fes_medina_and_tanneries_3e9a2ff0.png",
-    },
-    {
-      id: 2,
-      title: "Youth Education Program",
-      description: "Educational workshops and mentorship for Moroccan youth in tourism and hospitality.",
-      category: "Education",
-      status: "Active",
-      location: "Tangier",
-      participants: 120,
-      impact: { people: 250, co2: "0", sites: 3 },
-      image: "/attached_assets/generated_images/Tangier_city_aerial_view_03330006.png",
-    },
-    {
-      id: 3,
-      title: "Coastal Conservation",
-      description: "Beach cleanup and marine protection along Morocco's Mediterranean coast.",
-      category: "Environment",
-      status: "Active",
-      location: "Al Hoceima",
-      participants: 80,
-      impact: { people: 100, co2: "5 tons", sites: 8 },
-      image: "/attached_assets/generated_images/Al_Hoceima_coastal_view_9e4e9e0c.png",
-    },
-    {
-      id: 4,
-      title: "Artisan Marketplace",
-      description: "Digital platforms for local artisans to showcase traditional crafts.",
-      category: "Community",
-      status: "Planning",
-      location: "Chefchaouen",
-      participants: 35,
-      impact: { people: 80, co2: "0", sites: 2 },
-      image: "/attached_assets/generated_images/Chefchaouen_blue_streets_272376ab.png",
-    },
-    {
-      id: 5,
-      title: "Cultural Heritage Documentation",
-      description: "Preserving Morocco's cultural heritage through digital archiving.",
-      category: "Culture",
-      status: "Active",
-      location: "Multiple Cities",
-      participants: 25,
-      impact: { people: 200, co2: "0", sites: 15 },
-      image: "/attached_assets/generated_images/Tetouan_medina_panorama_b1f6dcbc.png",
-    },
-    {
-      id: 6,
-      title: "Community Wellness Centers",
-      description: "Health and sports facilities in underserved communities.",
-      category: "Community",
-      status: "Planning",
-      location: "Rural Areas",
-      participants: 60,
-      impact: { people: 300, co2: "0", sites: 4 },
-      image: "/attached_assets/generated_images/Essaouira_coastal_fortifications_07abbfb6.png",
-    }
-  ];
+  const highlightedProjects = projectsData.filter(p => p.is_featured).slice(0, 4);
+  const allProjects = projectsData;
 
   const successStories = [
     {
@@ -232,6 +149,11 @@ const Projects = () => {
               </p>
             </div>
 
+            {isLoading ? (
+              <div className="flex justify-center py-16"><div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div>
+            ) : highlightedProjects.length === 0 ? (
+              <div className="text-center py-10 text-muted-foreground">No featured projects yet.</div>
+            ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {highlightedProjects.map((project, index) => (
                 <Card 
@@ -242,11 +164,11 @@ const Projects = () => {
                   style={{ transitionDelay: `${index * 100}ms` }}
                 >
                   <div className="relative h-48 overflow-hidden">
-                    <img
-                      src={project.image}
-                      alt={project.title}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                    />
+                    {project.image ? (
+                      <img src={project.image} alt={project.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                    ) : (
+                      <div className="w-full h-full bg-primary/10 flex items-center justify-center"><Building className="w-12 h-12 text-primary/40" /></div>
+                    )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
                     <Badge className={`absolute top-3 right-3 ${getStatusColor(project.status)} border font-medium`}>
                       {project.status}
@@ -271,9 +193,9 @@ const Projects = () => {
                     <div className="space-y-2">
                       <div className="flex justify-between text-xs font-medium">
                         <span>Progress</span>
-                        <span className="text-primary">{project.progress}%</span>
+                        <span className="text-primary">{project.progress ?? 0}%</span>
                       </div>
-                      <Progress value={project.progress} className="h-2" />
+                      <Progress value={project.progress ?? 0} className="h-2" />
                     </div>
 
                     <Button className="w-full mt-2 rounded-full text-sm group/btn">
@@ -284,6 +206,7 @@ const Projects = () => {
                 </Card>
               ))}
             </div>
+            )}
           </div>
         </section>
 
@@ -319,18 +242,27 @@ const Projects = () => {
         {/* Detailed Projects Grid */}
         <section className="py-20 bg-background">
           <div className="container mx-auto px-6">
+            {isLoading ? (
+              <div className="flex justify-center py-16"><div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div>
+            ) : filteredProjects.length === 0 ? (
+              <div className="text-center py-16 text-muted-foreground max-w-md mx-auto">
+                <Building className="h-12 w-12 mx-auto mb-4 opacity-30" />
+                <p className="text-xl font-medium">{selectedCategory !== 'All' ? `No ${selectedCategory} projects yet` : 'No projects available'}</p>
+                <p className="mt-2">Check back soon for updates.</p>
+              </div>
+            ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredProjects.map((project, index) => (
+              {filteredProjects.map((project) => (
                 <Card 
                   key={project.id}
                   className="overflow-hidden group hover:shadow-2xl transition-all duration-500 border-border/50 hover:border-primary/30"
                 >
                   <div className="relative h-56 overflow-hidden">
-                    <img
-                      src={project.image}
-                      alt={project.title}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                    />
+                    {project.image ? (
+                      <img src={project.image} alt={project.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                    ) : (
+                      <div className="w-full h-full bg-primary/10 flex items-center justify-center"><Building className="w-12 h-12 text-primary/40" /></div>
+                    )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
                   </div>
 
@@ -357,18 +289,18 @@ const Projects = () => {
                     <div className="grid grid-cols-3 gap-2 py-3 border-y border-border">
                       <div className="text-center">
                         <Users className="w-5 h-5 text-primary mx-auto mb-1" />
-                        <p className="text-xs font-semibold">{project.impact.people}</p>
+                        <p className="text-xs font-semibold">{project.impact_people ?? 0}</p>
                         <p className="text-xs text-muted-foreground">People</p>
                       </div>
                       <div className="text-center">
-                        <Leaf className="w-5 h-5 text-green-600 mx-auto mb-1" />
-                        <p className="text-xs font-semibold">{project.impact.co2}</p>
-                        <p className="text-xs text-muted-foreground">CO₂ Saved</p>
+                        <Users className="w-5 h-5 text-green-600 mx-auto mb-1" />
+                        <p className="text-xs font-semibold">{project.participants_count ?? 0}</p>
+                        <p className="text-xs text-muted-foreground">Participants</p>
                       </div>
                       <div className="text-center">
-                        <Building className="w-5 h-5 text-amber-600 mx-auto mb-1" />
-                        <p className="text-xs font-semibold">{project.impact.sites}</p>
-                        <p className="text-xs text-muted-foreground">Sites</p>
+                        <Target className="w-5 h-5 text-amber-600 mx-auto mb-1" />
+                        <p className="text-xs font-semibold">{project.progress ?? 0}%</p>
+                        <p className="text-xs text-muted-foreground">Progress</p>
                       </div>
                     </div>
 
@@ -380,6 +312,7 @@ const Projects = () => {
                 </Card>
               ))}
             </div>
+            )}
           </div>
         </section>
 

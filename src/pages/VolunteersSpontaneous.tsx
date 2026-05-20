@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Link } from "react-router-dom";
 import { 
   Heart, 
   Users, 
@@ -15,20 +15,37 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PageHero from "@/components/PageHero";
 
+interface Opportunity {
+  id: number;
+  title: string;
+  location: string | null;
+  duration: string | null;
+  max_participants: number;
+  current_participants: number;
+  description: string | null;
+  skills: string[] | null;
+  urgency: 'high' | 'medium' | 'low';
+  status: string;
+}
+
 const VolunteersSpontaneous = () => {
-  const [isVisible, setIsVisible] = useState(false);
   const [scrollY, setScrollY] = useState(0);
 
   useEffect(() => {
-    setIsVisible(true);
-    
-    const handleScroll = () => {
-      setScrollY(window.scrollY);
-    };
-    
+    const handleScroll = () => setScrollY(window.scrollY);
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const { data: opportunities = [], isLoading } = useQuery<Opportunity[]>({
+    queryKey: ['volunteer-opportunities-public'],
+    queryFn: async () => {
+      const res = await fetch('/api/volunteer-opportunities?status=published&per_page=50');
+      if (!res.ok) return [];
+      const data = await res.json();
+      return data.data ?? data;
+    },
+  });
 
   const benefits = [
     "Make a meaningful impact in Moroccan communities",
@@ -37,39 +54,6 @@ const VolunteersSpontaneous = () => {
     "Flexible scheduling to fit your travel plans",
     "Free training and support materials",
     "Certificate of volunteer service"
-  ];
-
-  const opportunities = [
-    {
-      id: 1,
-      title: "Trail Maintenance - Atlas Mountains",
-      location: "Imlil, High Atlas",
-      duration: "1-3 days",
-      participants: "8/12 volunteers",
-      description: "Help maintain hiking trails and support local guides in the High Atlas region.",
-      skills: ["Physical fitness", "Teamwork", "Outdoor experience"],
-      urgency: "High"
-    },
-    {
-      id: 2,
-      title: "Beach Cleanup - Essaouira",
-      location: "Essaouira Beach",
-      duration: "Half day",
-      participants: "15/20 volunteers",
-      description: "Join our coastal conservation effort to keep Morocco's beaches pristine.",
-      skills: ["Commitment", "Environmental awareness"],
-      urgency: "Medium"
-    },
-    {
-      id: 3,
-      title: "Community Garden Project",
-      location: "Marrakech",
-      duration: "Flexible",
-      participants: "5/10 volunteers",
-      description: "Support local communities in creating sustainable urban gardens.",
-      skills: ["Gardening", "Community engagement"],
-      urgency: "Low"
-    }
   ];
 
   return (
@@ -123,15 +107,24 @@ const VolunteersSpontaneous = () => {
               </p>
             </div>
 
+            {isLoading ? (
+              <div className="flex justify-center py-16"><div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div>
+            ) : opportunities.length === 0 ? (
+              <div className="text-center py-16 text-muted-foreground">
+                <Users className="h-12 w-12 mx-auto mb-4 opacity-30" />
+                <p className="text-xl font-medium">No opportunities available right now</p>
+                <p className="mt-2">Check back soon for new volunteer calls.</p>
+              </div>
+            ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
               {opportunities.map((opportunity) => (
                 <Card key={opportunity.id} className="group hover:shadow-2xl transition-all duration-300">
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between mb-4">
                       <Badge 
-                        variant={opportunity.urgency === 'High' ? 'destructive' : opportunity.urgency === 'Medium' ? 'default' : 'secondary'}
+                        variant={opportunity.urgency === 'high' ? 'destructive' : opportunity.urgency === 'medium' ? 'default' : 'secondary'}
                       >
-                        {opportunity.urgency} Priority
+                        {opportunity.urgency.charAt(0).toUpperCase() + opportunity.urgency.slice(1)} Priority
                       </Badge>
                       <Heart className="w-5 h-5 text-muted-foreground hover:text-destructive hover:fill-destructive cursor-pointer transition-colors" />
                     </div>
@@ -141,40 +134,32 @@ const VolunteersSpontaneous = () => {
                     </h3>
 
                     <div className="space-y-2 mb-4 text-sm text-muted-foreground">
-                      <div className="flex items-center gap-2">
-                        <MapPin className="w-4 h-4" />
-                        <span>{opportunity.location}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Clock className="w-4 h-4" />
-                        <span>{opportunity.duration}</span>
-                      </div>
+                      {opportunity.location && <div className="flex items-center gap-2"><MapPin className="w-4 h-4" /><span>{opportunity.location}</span></div>}
+                      {opportunity.duration && <div className="flex items-center gap-2"><Clock className="w-4 h-4" /><span>{opportunity.duration}</span></div>}
                       <div className="flex items-center gap-2">
                         <Users className="w-4 h-4" />
-                        <span>{opportunity.participants}</span>
+                        <span>{opportunity.current_participants}/{opportunity.max_participants} volunteers</span>
                       </div>
                     </div>
 
-                    <p className="text-muted-foreground mb-4">
-                      {opportunity.description}
-                    </p>
+                    {opportunity.description && <p className="text-muted-foreground mb-4">{opportunity.description}</p>}
 
-                    <div className="flex flex-wrap gap-2 mb-6">
-                      {opportunity.skills.map((skill, idx) => (
-                        <Badge key={idx} variant="outline" className="text-xs">
-                          {skill}
-                        </Badge>
-                      ))}
-                    </div>
+                    {opportunity.skills && opportunity.skills.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mb-6">
+                        {opportunity.skills.map((skill, idx) => (
+                          <Badge key={idx} variant="outline" className="text-xs">{skill}</Badge>
+                        ))}
+                      </div>
+                    )}
 
                     <Button className="w-full group-hover:scale-105 transition-transform">
-                      Apply Now
-                      <ArrowRight className="ml-2 w-4 h-4" />
+                      Apply Now <ArrowRight className="ml-2 w-4 h-4" />
                     </Button>
                   </CardContent>
                 </Card>
               ))}
             </div>
+            )}
           </div>
         </section>
 

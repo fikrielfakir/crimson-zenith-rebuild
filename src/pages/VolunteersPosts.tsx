@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -17,145 +18,45 @@ import {
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
+interface VolunteerPost {
+  id: number;
+  title: string;
+  location: string | null;
+  type: string | null;
+  duration: string | null;
+  commitment: string | null;
+  start_date: string | null;
+  deadline: string | null;
+  description: string | null;
+  responsibilities: string[] | null;
+  requirements: string[] | null;
+  benefits: string[] | null;
+  category: string | null;
+  status: string;
+}
+
 const VolunteersPosts = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [scrollY, setScrollY] = useState(0);
 
   useEffect(() => {
     setIsVisible(true);
-    
-    const handleScroll = () => {
-      setScrollY(window.scrollY);
-    };
-    
+    const handleScroll = () => setScrollY(window.scrollY);
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const posts = [
-    {
-      id: 1,
-      title: "Community Tourism Coordinator",
-      location: "Chefchaouen, Rif Mountains",
-      type: "Long-term",
-      duration: "6 months",
-      commitment: "Full-time",
-      startDate: "March 2025",
-      deadline: "January 15, 2025",
-      description: "Lead community-based tourism initiatives in the beautiful blue city. Work with local artisans and guides to develop sustainable tourism experiences.",
-      responsibilities: [
-        "Coordinate with local communities",
-        "Develop tourism programs",
-        "Train local guides",
-        "Organize cultural events"
-      ],
-      requirements: [
-        "Fluent in English and French",
-        "Experience in tourism or community development",
-        "Cultural sensitivity",
-        "Strong organizational skills"
-      ],
-      benefits: [
-        "Accommodation provided",
-        "Monthly stipend",
-        "Cultural immersion",
-        "Professional development"
-      ],
-      category: "Tourism"
+  const { data: posts = [], isLoading } = useQuery<VolunteerPost[]>({
+    queryKey: ['volunteer-posts-public'],
+    queryFn: async () => {
+      const res = await fetch('/api/volunteer-posts?status=published&per_page=50');
+      if (!res.ok) return [];
+      const data = await res.json();
+      return data.data ?? data;
     },
-    {
-      id: 2,
-      title: "Environmental Education Volunteer",
-      location: "Al Hoceima National Park",
-      type: "Medium-term",
-      duration: "3 months",
-      commitment: "Part-time",
-      startDate: "February 2025",
-      deadline: "December 30, 2024",
-      description: "Support environmental education programs in Morocco's stunning coastal national park. Help raise awareness about marine conservation.",
-      responsibilities: [
-        "Conduct educational workshops",
-        "Create awareness materials",
-        "Assist in research projects",
-        "Organize beach cleanups"
-      ],
-      requirements: [
-        "Background in environmental science",
-        "Good communication skills",
-        "Passion for conservation",
-        "Basic Arabic helpful"
-      ],
-      benefits: [
-        "Shared accommodation",
-        "Training provided",
-        "Certificate of service",
-        "Network opportunities"
-      ],
-      category: "Environment"
-    },
-    {
-      id: 3,
-      title: "Digital Skills Trainer",
-      location: "Tangier",
-      type: "Short-term",
-      duration: "1 month",
-      commitment: "Full-time",
-      startDate: "January 2025",
-      deadline: "December 20, 2024",
-      description: "Teach digital literacy and online marketing skills to local youth and entrepreneurs looking to expand their businesses.",
-      responsibilities: [
-        "Conduct training sessions",
-        "Develop course materials",
-        "Mentor participants",
-        "Assess progress"
-      ],
-      requirements: [
-        "Digital marketing expertise",
-        "Teaching experience",
-        "English proficiency",
-        "Patient and adaptive"
-      ],
-      benefits: [
-        "Accommodation support",
-        "Local transport",
-        "Cultural activities",
-        "Recommendation letter"
-      ],
-      category: "Education"
-    },
-    {
-      id: 4,
-      title: "Sustainable Agriculture Advisor",
-      location: "Ouarzazate Region",
-      type: "Long-term",
-      duration: "12 months",
-      commitment: "Full-time",
-      startDate: "April 2025",
-      deadline: "February 1, 2025",
-      description: "Support local farmers in implementing sustainable agricultural practices and improving crop yields in the desert region.",
-      responsibilities: [
-        "Provide technical guidance",
-        "Organize farmer workshops",
-        "Monitor project progress",
-        "Document best practices"
-      ],
-      requirements: [
-        "Agriculture or agronomy degree",
-        "2+ years field experience",
-        "Willingness to work rurally",
-        "French or Arabic speaking"
-      ],
-      benefits: [
-        "Full room and board",
-        "Monthly allowance",
-        "Transport provided",
-        "Professional references"
-      ],
-      category: "Agriculture"
-    }
-  ];
+  });
 
-  const getCategoryColor = (category: string) => {
+  const getCategoryColor = (category: string | null) => {
     switch (category) {
       case "Tourism": return "bg-primary";
       case "Environment": return "bg-green-500";
@@ -164,6 +65,7 @@ const VolunteersPosts = () => {
       default: return "bg-gray-500";
     }
   };
+
 
   return (
     <div className="min-h-screen bg-background">
@@ -245,6 +147,15 @@ const VolunteersPosts = () => {
         {/* Posts Grid */}
         <section className="py-20 bg-background">
           <div className="container mx-auto px-6">
+            {isLoading ? (
+              <div className="flex justify-center py-16"><div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div>
+            ) : posts.length === 0 ? (
+              <div className="text-center py-16 text-muted-foreground max-w-md mx-auto">
+                <Briefcase className="h-12 w-12 mx-auto mb-4 opacity-30" />
+                <p className="text-xl font-medium">No volunteer posts available</p>
+                <p className="mt-2">Check back soon for new structured volunteer positions.</p>
+              </div>
+            ) : (
             <div className="grid gap-8 max-w-5xl mx-auto">
               {posts.map((post) => (
                 <Card key={post.id} className="hover:shadow-2xl transition-all duration-300">
@@ -276,14 +187,14 @@ const VolunteersPosts = () => {
                         </div>
                       </div>
                       <div className="flex flex-col items-end gap-2">
-                        <div className="text-sm">
+                        {post.start_date && <div className="text-sm">
                           <div className="text-muted-foreground">Starts</div>
-                          <div className="font-semibold">{post.startDate}</div>
-                        </div>
-                        <div className="text-sm">
+                          <div className="font-semibold">{new Date(post.start_date).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })}</div>
+                        </div>}
+                        {post.deadline && <div className="text-sm">
                           <div className="text-muted-foreground">Apply by</div>
-                          <div className="font-semibold text-destructive">{post.deadline}</div>
-                        </div>
+                          <div className="font-semibold text-destructive">{new Date(post.deadline).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</div>
+                        </div>}
                       </div>
                     </div>
 
@@ -292,39 +203,45 @@ const VolunteersPosts = () => {
                     </p>
 
                     <div className="grid md:grid-cols-3 gap-6 mb-6">
-                      <div>
-                        <h4 className="font-semibold mb-2 text-sm uppercase tracking-wide">Responsibilities</h4>
-                        <ul className="space-y-1 text-sm text-muted-foreground">
-                          {post.responsibilities.map((item, idx) => (
-                            <li key={idx} className="flex items-start gap-2">
-                              <span className="text-primary mt-1">•</span>
-                              <span>{item}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                      <div>
-                        <h4 className="font-semibold mb-2 text-sm uppercase tracking-wide">Requirements</h4>
-                        <ul className="space-y-1 text-sm text-muted-foreground">
-                          {post.requirements.map((item, idx) => (
-                            <li key={idx} className="flex items-start gap-2">
-                              <span className="text-primary mt-1">•</span>
-                              <span>{item}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                      <div>
-                        <h4 className="font-semibold mb-2 text-sm uppercase tracking-wide">Benefits</h4>
-                        <ul className="space-y-1 text-sm text-muted-foreground">
-                          {post.benefits.map((item, idx) => (
-                            <li key={idx} className="flex items-start gap-2">
-                              <span className="text-primary mt-1">•</span>
-                              <span>{item}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
+                      {post.responsibilities && post.responsibilities.length > 0 && (
+                        <div>
+                          <h4 className="font-semibold mb-2 text-sm uppercase tracking-wide">Responsibilities</h4>
+                          <ul className="space-y-1 text-sm text-muted-foreground">
+                            {post.responsibilities.map((item, idx) => (
+                              <li key={idx} className="flex items-start gap-2">
+                                <span className="text-primary mt-1">•</span>
+                                <span>{item}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      {post.requirements && post.requirements.length > 0 && (
+                        <div>
+                          <h4 className="font-semibold mb-2 text-sm uppercase tracking-wide">Requirements</h4>
+                          <ul className="space-y-1 text-sm text-muted-foreground">
+                            {post.requirements.map((item, idx) => (
+                              <li key={idx} className="flex items-start gap-2">
+                                <span className="text-primary mt-1">•</span>
+                                <span>{item}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      {post.benefits && post.benefits.length > 0 && (
+                        <div>
+                          <h4 className="font-semibold mb-2 text-sm uppercase tracking-wide">Benefits</h4>
+                          <ul className="space-y-1 text-sm text-muted-foreground">
+                            {post.benefits.map((item, idx) => (
+                              <li key={idx} className="flex items-start gap-2">
+                                <span className="text-primary mt-1">•</span>
+                                <span>{item}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
                     </div>
 
                     <div className="flex gap-3">
@@ -340,6 +257,7 @@ const VolunteersPosts = () => {
                 </Card>
               ))}
             </div>
+            )}
           </div>
         </section>
 

@@ -88,6 +88,13 @@ import VolunteersPosts from "./pages/VolunteersPosts";
 import TalentsExperts from "./pages/TalentsExperts";
 import WorkOffers from "./pages/WorkOffers";
 
+// Talents & Projects admin pages
+import VolunteerOpportunitiesAdmin from "./pages/admin/VolunteerOpportunitiesAdmin";
+import VolunteerPostsAdmin from "./pages/admin/VolunteerPostsAdmin";
+import ExpertsAdmin from "./pages/admin/ExpertsAdmin";
+import WorkOffersAdmin from "./pages/admin/WorkOffersAdmin";
+import ProjectsAdmin from "./pages/admin/ProjectsAdmin";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -332,6 +339,33 @@ const App = () => (
           <Route path="/admin/cities" element={
             <ProtectedRoute>
               <CitiesManagement />
+            </ProtectedRoute>
+          } />
+
+          {/* Talents & Projects Admin Routes */}
+          <Route path="/admin/talents/opportunities" element={
+            <ProtectedRoute>
+              <VolunteerOpportunitiesAdmin />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/talents/posts" element={
+            <ProtectedRoute>
+              <VolunteerPostsAdmin />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/talents/experts" element={
+            <ProtectedRoute>
+              <ExpertsAdmin />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/talents/work-offers" element={
+            <ProtectedRoute>
+              <WorkOffersAdmin />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/projects" element={
+            <ProtectedRoute>
+              <ProjectsAdmin />
             </ProtectedRoute>
           } />
 

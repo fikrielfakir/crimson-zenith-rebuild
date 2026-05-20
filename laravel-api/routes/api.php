@@ -142,6 +142,13 @@ Route::get('/landing', [\App\Http\Controllers\LandingController::class, 'index']
 Route::get('/news',       [\App\Http\Controllers\BlogController::class, 'index']);
 Route::get('/news/{slug}',[\App\Http\Controllers\BlogController::class, 'show']);
 
+// Public Talents & Projects
+Route::get('/volunteer-opportunities', [\App\Http\Controllers\Admin\VolunteerOpportunityController::class, 'index']);
+Route::get('/volunteer-posts',         [\App\Http\Controllers\Admin\VolunteerPostController::class, 'index']);
+Route::get('/experts',                 [\App\Http\Controllers\Admin\ExpertController::class, 'index']);
+Route::get('/work-offers',             [\App\Http\Controllers\Admin\WorkOfferController::class, 'index']);
+Route::get('/projects',                [\App\Http\Controllers\Admin\ProjectController::class, 'index']);
+
 /*
 |--------------------------------------------------------------------------
 | Contact / Applications / Payments (public + optional auth)
@@ -322,4 +329,40 @@ Route::prefix('admin')->middleware(['admin'])->group(function () {
     Route::put('/cities/{id}',                 [\App\Http\Controllers\Admin\CityAdminController::class, 'update']);
     Route::delete('/cities/{id}',              [\App\Http\Controllers\Admin\CityAdminController::class, 'destroy']);
     Route::post('/cities/bulk-reorder',        [\App\Http\Controllers\Admin\CityAdminController::class, 'bulkReorder']);
+
+    // Volunteer Opportunities (Spontaneous)
+    Route::get('/volunteer-opportunities',         [\App\Http\Controllers\Admin\VolunteerOpportunityController::class, 'index']);
+    Route::post('/volunteer-opportunities',        [\App\Http\Controllers\Admin\VolunteerOpportunityController::class, 'store']);
+    Route::get('/volunteer-opportunities/{id}',    [\App\Http\Controllers\Admin\VolunteerOpportunityController::class, 'show']);
+    Route::put('/volunteer-opportunities/{id}',    [\App\Http\Controllers\Admin\VolunteerOpportunityController::class, 'update']);
+    Route::delete('/volunteer-opportunities/{id}', [\App\Http\Controllers\Admin\VolunteerOpportunityController::class, 'destroy']);
+
+    // Volunteer Posts
+    Route::get('/volunteer-posts',         [\App\Http\Controllers\Admin\VolunteerPostController::class, 'index']);
+    Route::post('/volunteer-posts',        [\App\Http\Controllers\Admin\VolunteerPostController::class, 'store']);
+    Route::get('/volunteer-posts/{id}',    [\App\Http\Controllers\Admin\VolunteerPostController::class, 'show']);
+    Route::put('/volunteer-posts/{id}',    [\App\Http\Controllers\Admin\VolunteerPostController::class, 'update']);
+    Route::delete('/volunteer-posts/{id}', [\App\Http\Controllers\Admin\VolunteerPostController::class, 'destroy']);
+
+    // Experts
+    Route::get('/experts',         [\App\Http\Controllers\Admin\ExpertController::class, 'index']);
+    Route::post('/experts',        [\App\Http\Controllers\Admin\ExpertController::class, 'store']);
+    Route::get('/experts/{id}',    [\App\Http\Controllers\Admin\ExpertController::class, 'show']);
+    Route::put('/experts/{id}',    [\App\Http\Controllers\Admin\ExpertController::class, 'update']);
+    Route::delete('/experts/{id}', [\App\Http\Controllers\Admin\ExpertController::class, 'destroy']);
+
+    // Work Offers
+    Route::get('/work-offers',         [\App\Http\Controllers\Admin\WorkOfferController::class, 'index']);
+    Route::post('/work-offers',        [\App\Http\Controllers\Admin\WorkOfferController::class, 'store']);
+    Route::get('/work-offers/{id}',    [\App\Http\Controllers\Admin\WorkOfferController::class, 'show']);
+    Route::put('/work-offers/{id}',    [\App\Http\Controllers\Admin\WorkOfferController::class, 'update']);
+    Route::delete('/work-offers/{id}', [\App\Http\Controllers\Admin\WorkOfferController::class, 'destroy']);
+
+    // Projects
+    Route::get('/projects',                    [\App\Http\Controllers\Admin\ProjectController::class, 'index']);
+    Route::post('/projects',                   [\App\Http\Controllers\Admin\ProjectController::class, 'store']);
+    Route::get('/projects/{id}',               [\App\Http\Controllers\Admin\ProjectController::class, 'show']);
+    Route::put('/projects/{id}',               [\App\Http\Controllers\Admin\ProjectController::class, 'update']);
+    Route::delete('/projects/{id}',            [\App\Http\Controllers\Admin\ProjectController::class, 'destroy']);
+    Route::post('/projects/{id}/toggle-featured', [\App\Http\Controllers\Admin\ProjectController::class, 'toggleFeatured']);
 });

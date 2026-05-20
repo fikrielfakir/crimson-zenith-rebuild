@@ -100,6 +100,17 @@ const navigationItems: NavigationItem[] = [
       { label: 'Page Heroes', href: '/admin/customization/page-heroes' }
     ]
   },
+  {
+    label: 'Talents',
+    icon: Users,
+    children: [
+      { label: 'Volunteer Opportunities', href: '/admin/talents/opportunities' },
+      { label: 'Volunteer Posts', href: '/admin/talents/posts' },
+      { label: 'Experts', href: '/admin/talents/experts' },
+      { label: 'Work Offers', href: '/admin/talents/work-offers' },
+    ]
+  },
+  { label: 'Projects', icon: Building, href: '/admin/projects' },
   { label: 'Analytics', icon: BarChart3, href: '/admin/analytics' },
   {
     label: 'Settings',

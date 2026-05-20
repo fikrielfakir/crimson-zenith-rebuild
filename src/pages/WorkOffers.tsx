@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -10,13 +11,28 @@ import {
   MapPin, 
   DollarSign,
   Clock,
-  Users,
   ArrowRight,
   Building2,
   Heart
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+
+interface WorkOffer {
+  id: number;
+  title: string;
+  company: string | null;
+  location: string | null;
+  type: string | null;
+  salary: string | null;
+  experience_level: string | null;
+  description: string | null;
+  responsibilities: string[] | null;
+  requirements: string[] | null;
+  benefits: string[] | null;
+  category: string | null;
+  created_at: string;
+}
 
 const WorkOffers = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -25,197 +41,21 @@ const WorkOffers = () => {
 
   useEffect(() => {
     setIsVisible(true);
-    
-    const handleScroll = () => {
-      setScrollY(window.scrollY);
-    };
-    
+    const handleScroll = () => setScrollY(window.scrollY);
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const jobs = [
-    {
-      id: 1,
-      title: "Senior Tour Operations Manager",
-      company: "Journey Association",
-      location: "Marrakech, Morocco",
-      type: "Full-time",
-      salary: "Competitive",
-      experience: "5+ years",
-      posted: "2 days ago",
-      description: "Lead our tour operations team and develop innovative travel experiences across Morocco. Perfect for someone passionate about sustainable tourism.",
-      responsibilities: [
-        "Oversee daily tour operations",
-        "Develop new tour packages",
-        "Manage tour guide team",
-        "Ensure quality standards"
-      ],
-      requirements: [
-        "5+ years in tour operations",
-        "Strong leadership skills",
-        "Fluent in English and French",
-        "Knowledge of Moroccan tourism"
-      ],
-      benefits: [
-        "Health insurance",
-        "Performance bonuses",
-        "Travel opportunities",
-        "Professional development"
-      ],
-      category: "Management"
+  const { data: jobs = [], isLoading } = useQuery<WorkOffer[]>({
+    queryKey: ['work-offers-public'],
+    queryFn: async () => {
+      const res = await fetch('/api/work-offers?status=published&per_page=50');
+      if (!res.ok) return [];
+      const data = await res.json();
+      return data.data ?? data;
     },
-    {
-      id: 2,
-      title: "Mountain Trekking Guide",
-      company: "Atlas Adventures",
-      location: "Imlil, High Atlas",
-      type: "Full-time",
-      salary: "MAD 8,000 - 12,000/month",
-      experience: "3+ years",
-      posted: "1 week ago",
-      description: "Join our team of professional mountain guides. Lead trekking expeditions in the stunning Atlas Mountains.",
-      responsibilities: [
-        "Guide trekking groups safely",
-        "Provide cultural insights",
-        "Ensure client satisfaction",
-        "Maintain safety standards"
-      ],
-      requirements: [
-        "Certified mountain guide",
-        "First aid certification",
-        "Excellent physical fitness",
-        "Multiple language skills"
-      ],
-      benefits: [
-        "Equipment provided",
-        "Accommodation support",
-        "Training opportunities",
-        "Seasonal bonuses"
-      ],
-      category: "Guiding"
-    },
-    {
-      id: 3,
-      title: "Digital Marketing Specialist",
-      company: "Morocco Tourism Board",
-      location: "Casablanca, Morocco",
-      type: "Full-time",
-      salary: "MAD 10,000 - 15,000/month",
-      experience: "2+ years",
-      posted: "3 days ago",
-      description: "Drive our digital marketing initiatives to promote Morocco as a premier travel destination worldwide.",
-      responsibilities: [
-        "Manage social media campaigns",
-        "Create content strategy",
-        "Analyze marketing metrics",
-        "Coordinate with agencies"
-      ],
-      requirements: [
-        "Digital marketing experience",
-        "SEO/SEM knowledge",
-        "Creative content creation",
-        "Data analysis skills"
-      ],
-      benefits: [
-        "Remote work options",
-        "Health coverage",
-        "Learning budget",
-        "Team retreats"
-      ],
-      category: "Marketing"
-    },
-    {
-      id: 4,
-      title: "Hospitality Coordinator",
-      company: "Riad Heritage Group",
-      location: "Fes, Morocco",
-      type: "Full-time",
-      salary: "MAD 7,000 - 10,000/month",
-      experience: "2+ years",
-      posted: "5 days ago",
-      description: "Coordinate operations across our collection of traditional riads. Ensure exceptional guest experiences.",
-      responsibilities: [
-        "Oversee riad operations",
-        "Train hospitality staff",
-        "Handle guest relations",
-        "Maintain quality standards"
-      ],
-      requirements: [
-        "Hospitality background",
-        "Customer service excellence",
-        "Multilingual abilities",
-        "Cultural sensitivity"
-      ],
-      benefits: [
-        "Accommodation benefits",
-        "Meal allowances",
-        "Career progression",
-        "Staff discounts"
-      ],
-      category: "Hospitality"
-    },
-    {
-      id: 5,
-      title: "Surf Instructor",
-      company: "Taghazout Surf School",
-      location: "Taghazout, Morocco",
-      type: "Seasonal",
-      salary: "MAD 6,000 - 9,000/month",
-      experience: "1+ years",
-      posted: "1 day ago",
-      description: "Teach surfing to students of all levels in Morocco's premier surf destination. Season runs October to April.",
-      responsibilities: [
-        "Conduct surf lessons",
-        "Ensure ocean safety",
-        "Maintain equipment",
-        "Promote surf culture"
-      ],
-      requirements: [
-        "Surf instructor certification",
-        "Strong swimming skills",
-        "English proficiency",
-        "Positive attitude"
-      ],
-      benefits: [
-        "Free accommodation",
-        "Equipment access",
-        "Flexible schedule",
-        "Beach lifestyle"
-      ],
-      category: "Sports"
-    },
-    {
-      id: 6,
-      title: "Cultural Heritage Officer",
-      company: "UNESCO Morocco Office",
-      location: "Rabat, Morocco",
-      type: "Contract",
-      salary: "Competitive",
-      experience: "4+ years",
-      posted: "1 week ago",
-      description: "Support preservation and promotion of Morocco's UNESCO World Heritage Sites. 12-month renewable contract.",
-      responsibilities: [
-        "Monitor heritage sites",
-        "Coordinate conservation",
-        "Develop educational programs",
-        "Liaise with stakeholders"
-      ],
-      requirements: [
-        "Heritage management degree",
-        "UNESCO experience preferred",
-        "Research capabilities",
-        "Report writing skills"
-      ],
-      benefits: [
-        "International exposure",
-        "Competitive package",
-        "Professional network",
-        "Meaningful impact"
-      ],
-      category: "Conservation"
-    }
-  ];
+  });
+
 
   const filteredJobs = selectedType === "all" 
     ? jobs 
@@ -332,6 +172,15 @@ const WorkOffers = () => {
         {/* Jobs Grid */}
         <section className="py-20 bg-background">
           <div className="container mx-auto px-6">
+            {isLoading ? (
+              <div className="flex justify-center py-16"><div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div>
+            ) : filteredJobs.length === 0 ? (
+              <div className="text-center py-16 text-muted-foreground max-w-md mx-auto">
+                <Briefcase className="h-12 w-12 mx-auto mb-4 opacity-30" />
+                <p className="text-xl font-medium">No work offers available</p>
+                <p className="mt-2">{selectedType !== 'all' ? 'Try a different filter.' : 'Check back soon for new opportunities.'}</p>
+              </div>
+            ) : (
             <div className="grid gap-6 max-w-5xl mx-auto">
               {filteredJobs.map((job) => (
                 <Card key={job.id} className="hover:shadow-2xl transition-all duration-300">
@@ -339,11 +188,10 @@ const WorkOffers = () => {
                     <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-4">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
-                          <Badge className={`${getTypeColor(job.type)} text-white`}>
+                          <Badge className={`${getTypeColor(job.type ?? '')} text-white`}>
                             {job.type}
                           </Badge>
-                          <Badge variant="outline">{job.category}</Badge>
-                          <span className="text-xs text-muted-foreground">{job.posted}</span>
+                          {job.category && <Badge variant="outline">{job.category}</Badge>}
                         </div>
                         <h3 className="text-2xl font-bold mb-1 hover:text-primary transition-colors cursor-pointer">
                           {job.title}
@@ -361,10 +209,10 @@ const WorkOffers = () => {
                             <DollarSign className="w-4 h-4" />
                             <span>{job.salary}</span>
                           </div>
-                          <div className="flex items-center gap-1">
+                          {job.experience_level && <div className="flex items-center gap-1">
                             <Clock className="w-4 h-4" />
-                            <span>{job.experience}</span>
-                          </div>
+                            <span>{job.experience_level}</span>
+                          </div>}
                         </div>
                       </div>
                       <Button variant="ghost" size="icon" className="self-start">
@@ -377,30 +225,36 @@ const WorkOffers = () => {
                     </p>
 
                     <div className="grid md:grid-cols-3 gap-4 mb-6 text-sm">
-                      <div>
-                        <h4 className="font-semibold mb-2 uppercase tracking-wide text-xs">Key Duties</h4>
-                        <ul className="space-y-1 text-muted-foreground">
-                          {job.responsibilities.slice(0, 3).map((item, idx) => (
-                            <li key={idx}>• {item}</li>
-                          ))}
-                        </ul>
-                      </div>
-                      <div>
-                        <h4 className="font-semibold mb-2 uppercase tracking-wide text-xs">Requirements</h4>
-                        <ul className="space-y-1 text-muted-foreground">
-                          {job.requirements.slice(0, 3).map((item, idx) => (
-                            <li key={idx}>• {item}</li>
-                          ))}
-                        </ul>
-                      </div>
-                      <div>
-                        <h4 className="font-semibold mb-2 uppercase tracking-wide text-xs">Benefits</h4>
-                        <ul className="space-y-1 text-muted-foreground">
-                          {job.benefits.slice(0, 3).map((item, idx) => (
-                            <li key={idx}>• {item}</li>
-                          ))}
-                        </ul>
-                      </div>
+                      {job.responsibilities && job.responsibilities.length > 0 && (
+                        <div>
+                          <h4 className="font-semibold mb-2 uppercase tracking-wide text-xs">Key Duties</h4>
+                          <ul className="space-y-1 text-muted-foreground">
+                            {job.responsibilities.slice(0, 3).map((item, idx) => (
+                              <li key={idx}>• {item}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      {job.requirements && job.requirements.length > 0 && (
+                        <div>
+                          <h4 className="font-semibold mb-2 uppercase tracking-wide text-xs">Requirements</h4>
+                          <ul className="space-y-1 text-muted-foreground">
+                            {job.requirements.slice(0, 3).map((item, idx) => (
+                              <li key={idx}>• {item}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      {job.benefits && job.benefits.length > 0 && (
+                        <div>
+                          <h4 className="font-semibold mb-2 uppercase tracking-wide text-xs">Benefits</h4>
+                          <ul className="space-y-1 text-muted-foreground">
+                            {job.benefits.slice(0, 3).map((item, idx) => (
+                              <li key={idx}>• {item}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
                     </div>
 
                     <div className="flex gap-3">
@@ -416,6 +270,7 @@ const WorkOffers = () => {
                 </Card>
               ))}
             </div>
+            )}
           </div>
         </section>
 
@@ -427,7 +282,6 @@ const WorkOffers = () => {
               backgroundSize: '40px 40px'
             }} />
           </div>
-
           <div className="container mx-auto px-6 relative z-10">
             <div className="max-w-3xl mx-auto text-center text-white">
               <Briefcase className="w-16 h-16 mx-auto mb-6 opacity-80" />
