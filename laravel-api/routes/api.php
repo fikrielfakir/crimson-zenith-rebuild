@@ -128,6 +128,8 @@ Route::prefix('cms')->group(function () {
     Route::get('/media/{id}',        [\App\Http\Controllers\CmsController::class, 'media']);
     Route::get('/discover',          [\App\Http\Controllers\CmsController::class, 'discoverSettings']);
     Route::get('/page-hero/{page}',  [\App\Http\Controllers\CmsController::class, 'pageHero']);
+    Route::get('/partners',          [\App\Http\Controllers\CmsController::class, 'partners']);
+    Route::get('/partner-settings',  [\App\Http\Controllers\CmsController::class, 'partnerSettings']);
 });
 
 Route::get('/landing', [\App\Http\Controllers\LandingController::class, 'index']);
@@ -280,6 +282,8 @@ Route::prefix('admin')->middleware(['admin'])->group(function () {
     // Page Hero Settings (per-page background image/video)
     Route::post('/cms/page-hero-upload',       [\App\Http\Controllers\Admin\CmsAdminController::class, 'uploadPageHeroMedia']);
     Route::put('/cms/page-hero/{page}',        [\App\Http\Controllers\Admin\CmsAdminController::class, 'updatePageHero']);
+    Route::get('/cms/partner-settings',        [\App\Http\Controllers\Admin\CmsAdminController::class, 'getPartnerSettings']);
+    Route::put('/cms/partner-settings',        [\App\Http\Controllers\Admin\CmsAdminController::class, 'updatePartnerSettings']);
 
     // CMS focus items (dedicated CRUD used by FocusAreasManagement page)
     Route::get('/cms/focus-items',                  [\App\Http\Controllers\Admin\FocusItemController::class, 'index']);

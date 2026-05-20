@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
+import { Separator } from '@/components/ui/separator';
 import {
   Dialog,
   DialogContent,
@@ -26,7 +27,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Pencil, Trash2, Handshake, ExternalLink, Globe } from 'lucide-react';
+import { Plus, Pencil, Trash2, Handshake, ExternalLink, Globe, Save, Eye, EyeOff } from 'lucide-react';
 
 interface Partner {
   id: number;
@@ -38,6 +39,13 @@ interface Partner {
   is_active: boolean;
 }
 
+interface PartnerSettings {
+  id: string;
+  title: string;
+  subtitle: string;
+  is_active: boolean;
+}
+
 type PartnerForm = {
   name: string;
   logo_id: string;
@@ -46,11 +54,19 @@ type PartnerForm = {
   is_active: boolean;
 };
 
+/* ── API helpers ─────────────────────────────────────────── */
+
 async function fetchPartners(): Promise<Partner[]> {
   const res = await apiFetch('/api/admin/cms/stats?type=partners', { credentials: 'include' });
   if (!res.ok) throw new Error('Failed to fetch partners');
   const data = await res.json();
   return data.partners ?? [];
+}
+
+async function fetchPartnerSettings(): Promise<PartnerSettings> {
+  const res = await apiFetch('/api/admin/cms/partner-settings', { credentials: 'include' });
+  if (!res.ok) throw new Error('Failed to fetch partner settings');
+  return res.json();
 }
 
 async function savePartner(item: Partial<Partner> & { id?: number }): Promise<void> {
@@ -71,13 +87,19 @@ async function deletePartner(id: number): Promise<void> {
   if (!res.ok) throw new Error('Failed to delete partner');
 }
 
-const emptyForm: PartnerForm = {
-  name: '',
-  logo_id: '',
-  website_url: '',
-  description: '',
-  is_active: true,
-};
+async function savePartnerSettings(data: Partial<PartnerSettings>): Promise<void> {
+  const res = await apiFetch('/api/admin/cms/partner-settings', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Failed to save section settings');
+}
+
+/* ── Sub-components ──────────────────────────────────────── */
+
+const emptyForm: PartnerForm = { name: '', logo_id: '', website_url: '', description: '', is_active: true };
 
 function LogoPreview({ src, name }: { src?: string; name: string }) {
   if (src && (src.startsWith('http') || src.startsWith('/'))) {
@@ -97,20 +119,42 @@ function LogoPreview({ src, name }: { src?: string; name: string }) {
   );
 }
 
+/* ── Main component ──────────────────────────────────────── */
+
 export default function PartnersManagement() {
   const [showForm, setShowForm] = useState(false);
   const [editingItem, setEditingItem] = useState<Partner | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [form, setForm] = useState<PartnerForm>(emptyForm);
+  const [sectionForm, setSectionForm] = useState<{ title: string; subtitle: string; is_active: boolean } | null>(null);
 
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
+  /* ── Queries ── */
   const { data: partners = [], isLoading } = useQuery({
     queryKey: ['admin-partners'],
     queryFn: fetchPartners,
   });
 
+  const { data: sectionSettings, isLoading: settingsLoading } = useQuery({
+    queryKey: ['admin-partner-settings'],
+    queryFn: fetchPartnerSettings,
+    onSuccess: (data) => {
+      if (!sectionForm) {
+        setSectionForm({ title: data.title, subtitle: data.subtitle, is_active: data.is_active });
+      }
+    },
+  });
+
+  /* initialize sectionForm once data arrives if not yet set */
+  const currentSection = sectionForm ?? {
+    title: sectionSettings?.title ?? 'Our Partners & Supporters',
+    subtitle: sectionSettings?.subtitle ?? 'Associates & Clients',
+    is_active: sectionSettings?.is_active ?? true,
+  };
+
+  /* ── Mutations ── */
   const saveMutation = useMutation({
     mutationFn: savePartner,
     onSuccess: () => {
@@ -135,6 +179,18 @@ export default function PartnersManagement() {
     },
   });
 
+  const settingsMutation = useMutation({
+    mutationFn: savePartnerSettings,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-partner-settings'] });
+      toast({ title: 'Section settings saved' });
+    },
+    onError: (err: Error) => {
+      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+    },
+  });
+
+  /* ── Handlers ── */
   const handleEdit = (item: Partner) => {
     setEditingItem(item);
     setForm({
@@ -153,29 +209,28 @@ export default function PartnersManagement() {
     setForm(emptyForm);
   };
 
-  const handleSave = () => {
+  const handleSavePartner = () => {
     if (!form.name.trim()) {
       toast({ title: 'Validation error', description: 'Partner name is required', variant: 'destructive' });
       return;
     }
-    const payload = {
-      ...form,
-      ...(editingItem ? { id: editingItem.id } : {}),
-    };
-    saveMutation.mutate(payload);
+    saveMutation.mutate(editingItem ? { ...form, id: editingItem.id } : form);
+  };
+
+  const handleSaveSettings = () => {
+    settingsMutation.mutate(currentSection);
   };
 
   const activeCount = partners.filter((p) => p.is_active).length;
 
   return (
-    <div className="space-y-6">
-      {/* Page Header */}
+    <div className="space-y-8">
+
+      {/* ── Page header ── */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Partners</h1>
-          <p className="text-muted-foreground mt-1">
-            Manage partner organisations displayed on the landing page
-          </p>
+          <p className="text-muted-foreground mt-1">Manage the Partners & Supporters section on the landing page</p>
         </div>
         <Button onClick={() => setShowForm(true)}>
           <Plus className="mr-2 h-4 w-4" />
@@ -183,8 +238,83 @@ export default function PartnersManagement() {
         </Button>
       </div>
 
-      {/* Stats row */}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+      {/* ── Section header settings ── */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Section Header</CardTitle>
+          <CardDescription>Control the title, subtitle and visibility of the partners section</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-5">
+          {settingsLoading ? (
+            <div className="text-sm text-muted-foreground py-4">Loading settings…</div>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="sec-subtitle">Eyebrow / Subtitle</Label>
+                  <Input
+                    id="sec-subtitle"
+                    value={currentSection.subtitle}
+                    onChange={(e) => setSectionForm({ ...currentSection, subtitle: e.target.value })}
+                    placeholder="Associates & Clients"
+                  />
+                  <p className="text-xs text-muted-foreground">Small uppercase label shown above the main title</p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="sec-title">Main Title</Label>
+                  <Input
+                    id="sec-title"
+                    value={currentSection.title}
+                    onChange={(e) => setSectionForm({ ...currentSection, title: e.target.value })}
+                    placeholder="Our Partners & Supporters"
+                  />
+                  <p className="text-xs text-muted-foreground">Large heading shown on the section</p>
+                </div>
+              </div>
+
+              <Separator />
+
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Switch
+                    id="sec-active"
+                    checked={currentSection.is_active}
+                    onCheckedChange={(v) => setSectionForm({ ...currentSection, is_active: v })}
+                  />
+                  <div>
+                    <Label htmlFor="sec-active" className="cursor-pointer">
+                      {currentSection.is_active ? (
+                        <span className="flex items-center gap-1.5 text-green-700"><Eye className="h-4 w-4" /> Section visible on site</span>
+                      ) : (
+                        <span className="flex items-center gap-1.5 text-muted-foreground"><EyeOff className="h-4 w-4" /> Section hidden from site</span>
+                      )}
+                    </Label>
+                    <p className="text-xs text-muted-foreground mt-0.5">Hiding the section removes it from the landing page entirely</p>
+                  </div>
+                </div>
+                <Button onClick={handleSaveSettings} disabled={settingsMutation.isPending}>
+                  <Save className="mr-2 h-4 w-4" />
+                  {settingsMutation.isPending ? 'Saving…' : 'Save Settings'}
+                </Button>
+              </div>
+
+              {/* Live preview strip */}
+              <div className="rounded-lg border bg-[#112250] p-5 text-center space-y-1">
+                <p className="text-xs font-semibold uppercase tracking-widest text-white/70">
+                  {currentSection.subtitle || 'Eyebrow text'}
+                </p>
+                <p className="text-xl font-bold text-white">
+                  {currentSection.title || 'Main title'}
+                </p>
+                <p className="text-xs text-white/50 mt-1">↑ Live preview of section header</p>
+              </div>
+            </>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* ── Stats ── */}
+      <div className="grid grid-cols-3 gap-4">
         <Card>
           <CardContent className="pt-6">
             <div className="text-2xl font-bold">{partners.length}</div>
@@ -205,12 +335,12 @@ export default function PartnersManagement() {
         </Card>
       </div>
 
-      {/* Partners Table */}
+      {/* ── Partners table ── */}
       <Card>
         <CardHeader>
-          <CardTitle>All Partners</CardTitle>
+          <CardTitle>Partner Logos</CardTitle>
           <CardDescription>
-            {partners.length} partner{partners.length !== 1 ? 's' : ''} · ordered by display position
+            {partners.length} partner{partners.length !== 1 ? 's' : ''} · shown in the scrolling carousel
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -256,24 +386,24 @@ export default function PartnersManagement() {
                           className="flex items-center gap-1 text-blue-600 hover:underline text-sm"
                         >
                           <ExternalLink className="h-3 w-3 shrink-0" />
-                          <span className="truncate max-w-[140px]">{partner.website_url.replace(/^https?:\/\//, '')}</span>
+                          <span className="truncate max-w-[140px]">
+                            {partner.website_url.replace(/^https?:\/\//, '')}
+                          </span>
                         </a>
                       ) : (
                         <span className="text-muted-foreground">—</span>
                       )}
                     </TableCell>
-                    <TableCell className="max-w-[200px] truncate text-muted-foreground text-sm">
+                    <TableCell className="max-w-[180px] truncate text-muted-foreground text-sm">
                       {partner.description || '—'}
                     </TableCell>
                     <TableCell className="text-muted-foreground text-sm">#{partner.ordering}</TableCell>
                     <TableCell>
-                      <span
-                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
-                          partner.is_active
-                            ? 'bg-green-50 text-green-700 ring-1 ring-green-600/20'
-                            : 'bg-gray-50 text-gray-600 ring-1 ring-gray-400/20'
-                        }`}
-                      >
+                      <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
+                        partner.is_active
+                          ? 'bg-green-50 text-green-700 ring-1 ring-green-600/20'
+                          : 'bg-gray-50 text-gray-600 ring-1 ring-gray-400/20'
+                      }`}>
                         {partner.is_active ? 'Visible' : 'Hidden'}
                       </span>
                     </TableCell>
@@ -295,20 +425,19 @@ export default function PartnersManagement() {
         </CardContent>
       </Card>
 
-      {/* Add / Edit Dialog */}
+      {/* ── Add / Edit Dialog ── */}
       <Dialog open={showForm} onOpenChange={(open) => { if (!open) handleClose(); }}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle>{editingItem ? 'Edit Partner' : 'Add Partner'}</DialogTitle>
             <DialogDescription>
               {editingItem
-                ? 'Update partner details shown on the landing page'
-                : 'Add a new partner organisation to the landing page'}
+                ? 'Update partner details shown in the carousel'
+                : 'Add a new partner to the scrolling carousel on the landing page'}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-2">
-            {/* Name */}
             <div className="space-y-2">
               <Label htmlFor="p-name">Partner Name *</Label>
               <Input
@@ -319,7 +448,6 @@ export default function PartnersManagement() {
               />
             </div>
 
-            {/* Logo URL */}
             <div className="space-y-2">
               <Label htmlFor="p-logo">Logo URL</Label>
               <Input
@@ -335,15 +463,12 @@ export default function PartnersManagement() {
                     src={form.logo_id}
                     alt="Logo preview"
                     className="h-8 max-w-[120px] object-contain"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).style.display = 'none';
-                    }}
+                    onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                   />
                 </div>
               )}
             </div>
 
-            {/* Website URL */}
             <div className="space-y-2">
               <Label htmlFor="p-website">Website URL</Label>
               <Input
@@ -355,7 +480,6 @@ export default function PartnersManagement() {
               />
             </div>
 
-            {/* Description */}
             <div className="space-y-2">
               <Label htmlFor="p-desc">Description</Label>
               <Textarea
@@ -367,7 +491,6 @@ export default function PartnersManagement() {
               />
             </div>
 
-            {/* Visibility */}
             <div className="flex items-center space-x-2">
               <Switch
                 id="p-active"
@@ -379,23 +502,21 @@ export default function PartnersManagement() {
           </div>
 
           <div className="flex justify-end gap-2 pt-2">
-            <Button variant="outline" onClick={handleClose}>
-              Cancel
-            </Button>
-            <Button onClick={handleSave} disabled={saveMutation.isPending}>
+            <Button variant="outline" onClick={handleClose}>Cancel</Button>
+            <Button onClick={handleSavePartner} disabled={saveMutation.isPending}>
               {saveMutation.isPending ? 'Saving…' : editingItem ? 'Save Changes' : 'Add Partner'}
             </Button>
           </div>
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation */}
+      {/* ── Delete Confirmation ── */}
       <AlertDialog open={deletingId !== null} onOpenChange={(open) => !open && setDeletingId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Remove partner?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently remove the partner from the landing page. This action cannot be undone.
+              This will permanently remove the partner from the carousel. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

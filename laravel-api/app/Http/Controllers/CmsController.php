@@ -17,6 +17,8 @@ use App\Models\TeamMember;
 use App\Models\LandingTestimonial;
 use App\Models\SiteStat;
 use App\Models\MediaAsset;
+use App\Models\Partner;
+use App\Models\PartnerSettings;
 
 class CmsController extends Controller
 {
@@ -103,6 +105,20 @@ class CmsController extends Controller
     public function stats()
     {
         return response()->json(SiteStat::where('is_active', true)->orderBy('ordering')->get());
+    }
+
+    public function partners()
+    {
+        return response()->json(Partner::where('is_active', true)->orderBy('ordering')->get());
+    }
+
+    public function partnerSettings()
+    {
+        $settings = PartnerSettings::firstOrCreate(
+            ['id' => 'default'],
+            ['title' => 'Our Partners & Supporters', 'subtitle' => 'Associates & Clients', 'is_active' => true]
+        );
+        return response()->json($settings);
     }
 
     public function media($id)

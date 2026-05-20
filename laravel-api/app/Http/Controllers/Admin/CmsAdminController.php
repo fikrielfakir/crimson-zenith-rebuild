@@ -17,6 +17,7 @@ use App\Models\TeamMember;
 use App\Models\LandingTestimonial;
 use App\Models\SiteStat;
 use App\Models\Partner;
+use App\Models\PartnerSettings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -174,6 +175,25 @@ class CmsAdminController extends Controller
             'imageUrl' => $imageData,
             'id'       => $asset->id,
         ], 201);
+    }
+
+    public function getPartnerSettings()
+    {
+        $settings = PartnerSettings::firstOrCreate(
+            ['id' => 'default'],
+            ['title' => 'Our Partners & Supporters', 'subtitle' => 'Associates & Clients', 'is_active' => true]
+        );
+        return response()->json($settings);
+    }
+
+    public function updatePartnerSettings(Request $request)
+    {
+        $settings = PartnerSettings::firstOrCreate(['id' => 'default']);
+        $settings->update(array_merge(
+            $request->only(['title', 'subtitle', 'is_active', 'background_color']),
+            ['updated_by' => $request->user()?->id]
+        ));
+        return response()->json($settings->fresh());
     }
 
     public function getCmsStat(Request $request)
