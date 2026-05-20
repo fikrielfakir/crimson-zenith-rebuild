@@ -3,6 +3,10 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Link } from "react-router-dom";
 import { 
   Home, 
@@ -12,7 +16,9 @@ import {
   MapPin,
   Globe,
   Linkedin,
-  CheckCircle2
+  CheckCircle2,
+  Mail,
+  Send
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -39,6 +45,9 @@ interface Expert {
 const TalentsExperts = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [scrollY, setScrollY] = useState(0);
+  const [contactExpert, setContactExpert] = useState<Expert | null>(null);
+  const [contactForm, setContactForm] = useState({ name: '', email: '', message: '' });
+  const [contactSent, setContactSent] = useState(false);
 
   useEffect(() => {
     setIsVisible(true);
@@ -57,6 +66,25 @@ const TalentsExperts = () => {
     },
   });
 
+  function openContact(expert: Expert) {
+    setContactExpert(expert);
+    setContactForm({ name: '', email: '', message: '' });
+    setContactSent(false);
+  }
+
+  function handleSendContact() {
+    if (!contactExpert) return;
+    const subject = encodeURIComponent(`Enquiry from ${contactForm.name}`);
+    const body = encodeURIComponent(
+      `Name: ${contactForm.name}\nEmail: ${contactForm.email}\n\n${contactForm.message}`
+    );
+    if (contactExpert.contact_email) {
+      window.open(`mailto:${contactExpert.contact_email}?subject=${subject}&body=${body}`, '_blank');
+    }
+    setContactSent(true);
+  }
+
+  const canSend = contactForm.name.trim() && contactForm.email.trim() && contactForm.message.trim();
 
   return (
     <div className="min-h-screen bg-background">
@@ -65,7 +93,6 @@ const TalentsExperts = () => {
       <main className="relative">
         {/* Hero Section with Background Image */}
         <section className="relative py-20 overflow-hidden" style={{ paddingTop: '15rem' }}>
-          {/* Background Image with Parallax */}
           <div 
             className="absolute inset-0 bg-cover bg-center bg-no-repeat"
             style={{
@@ -74,14 +101,10 @@ const TalentsExperts = () => {
               filter: 'brightness(0.6) contrast(1.1) saturate(1.2)',
             }}
           />
-
-          {/* Gradient Overlay for Better Text Readability */}
           <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/50" />
           <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-transparent to-primary/20" />
 
-          {/* Content */}
           <div className="relative container mx-auto px-6">
-            {/* Breadcrumb Navigation */}
             <nav className={`mb-8 transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
               <ol className="flex items-center space-x-2 text-sm">
                 <li>
@@ -106,7 +129,6 @@ const TalentsExperts = () => {
               </ol>
             </nav>
 
-            {/* Main Heading */}
             <div className={`transition-all duration-700 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-4 drop-shadow-2xl">
                 Our Experts
@@ -234,15 +256,14 @@ const TalentsExperts = () => {
                     )}
 
                     <div className="flex gap-3">
-                      {expert.is_available && expert.contact_email ? (
-                        <a href={`mailto:${expert.contact_email}`} className="flex-1">
-                          <Button className="w-full">Contact Expert</Button>
-                        </a>
-                      ) : (
-                        <Button className="flex-1" disabled={!expert.is_available}>
-                          {expert.is_available ? 'Contact Expert' : 'Currently Unavailable'}
-                        </Button>
-                      )}
+                      <Button
+                        className="flex-1"
+                        disabled={!expert.is_available}
+                        onClick={() => expert.is_available && openContact(expert)}
+                      >
+                        <Mail className="w-4 h-4 mr-2" />
+                        {expert.is_available ? 'Contact Expert' : 'Currently Unavailable'}
+                      </Button>
                       {expert.linkedin_url ? (
                         <a href={expert.linkedin_url} target="_blank" rel="noopener noreferrer">
                           <Button variant="outline" size="icon" title="View LinkedIn profile">
@@ -290,7 +311,82 @@ const TalentsExperts = () => {
           </div>
         </section>
       </main>
-      
+
+      {/* Contact Expert Modal */}
+      <Dialog open={!!contactExpert} onOpenChange={(open) => !open && setContactExpert(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Mail className="w-5 h-5 text-primary" />
+              Contact {contactExpert?.name}
+            </DialogTitle>
+          </DialogHeader>
+
+          {contactSent ? (
+            <div className="text-center py-6 space-y-3">
+              <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+                <CheckCircle2 className="w-8 h-8 text-green-600" />
+              </div>
+              <p className="font-semibold text-lg">Message ready to send!</p>
+              <p className="text-muted-foreground text-sm">Your email client has opened with the message pre-filled. Send it to get in touch with {contactExpert?.name}.</p>
+              <Button className="mt-2 w-full" onClick={() => setContactExpert(null)}>Done</Button>
+            </div>
+          ) : (
+            <div className="space-y-4 mt-2">
+              {contactExpert && (
+                <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                  {contactExpert.image ? (
+                    <img src={contactExpert.image} alt={contactExpert.name} className="w-10 h-10 rounded-full object-cover" />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">{contactExpert.name.charAt(0)}</div>
+                  )}
+                  <div>
+                    <p className="font-semibold text-sm">{contactExpert.name}</p>
+                    <p className="text-xs text-muted-foreground">{contactExpert.title}</p>
+                  </div>
+                </div>
+              )}
+              <div className="space-y-1.5">
+                <Label>Your Name</Label>
+                <Input
+                  placeholder="Your full name"
+                  value={contactForm.name}
+                  onChange={e => setContactForm(f => ({ ...f, name: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Your Email</Label>
+                <Input
+                  type="email"
+                  placeholder="your@email.com"
+                  value={contactForm.email}
+                  onChange={e => setContactForm(f => ({ ...f, email: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Message</Label>
+                <Textarea
+                  rows={4}
+                  placeholder="Describe your project or question…"
+                  value={contactForm.message}
+                  onChange={e => setContactForm(f => ({ ...f, message: e.target.value }))}
+                />
+              </div>
+              <div className="flex gap-2 pt-1">
+                <Button variant="outline" className="flex-1" onClick={() => setContactExpert(null)}>Cancel</Button>
+                <Button className="flex-1" disabled={!canSend} onClick={handleSendContact}>
+                  <Send className="w-4 h-4 mr-2" />
+                  Send Message
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground text-center">
+                This will open your email client with the message pre-filled.
+              </p>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
       <Footer />
     </div>
   );
