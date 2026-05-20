@@ -54,7 +54,47 @@ class CmsAdminController extends Controller
     public function updatePresidentMessage(Request $request)
     {
         $settings = PresidentMessageSettings::firstOrCreate(['id' => 'default']);
-        $settings->update(array_merge($request->except(['id']), ['updated_by' => $request->user()->id]));
+
+        // Map camelCase frontend keys → snake_case DB columns
+        $map = [
+            'isActive'           => 'is_active',
+            'presidentName'      => 'president_name',
+            'presidentRole'      => 'president_role',
+            'photoId'            => 'photo_id',
+            'signatureId'        => 'signature_id',
+            'backgroundImageId'  => 'background_image_id',
+            'backgroundColor'    => 'background_color',
+            'backgroundGradient' => 'background_gradient',
+            'titleFontFamily'    => 'title_font_family',
+            'titleFontSize'      => 'title_font_size',
+            'titleColor'         => 'title_color',
+            'titleAlignment'     => 'title_alignment',
+            'nameFontFamily'     => 'name_font_family',
+            'nameFontSize'       => 'name_font_size',
+            'nameColor'          => 'name_color',
+            'roleFontFamily'     => 'role_font_family',
+            'roleFontSize'       => 'role_font_size',
+            'roleColor'          => 'role_color',
+            'messageFontFamily'  => 'message_font_family',
+            'messageFontSize'    => 'message_font_size',
+            'messageColor'       => 'message_color',
+            'quoteFontSize'      => 'quote_font_size',
+            'quoteColor'         => 'quote_color',
+            'imagePosition'      => 'image_position',
+            'imageAlignment'     => 'image_alignment',
+            'imageWidth'         => 'image_width',
+            'sectionPadding'     => 'section_padding',
+            'contentGap'         => 'content_gap',
+        ];
+
+        $data = [];
+        foreach ($request->except(['id']) as $key => $value) {
+            $dbKey = $map[$key] ?? $key;
+            $data[$dbKey] = $value;
+        }
+        $data['updated_by'] = $request->user()?->id;
+
+        $settings->update($data);
         return response()->json($settings->fresh());
     }
 
