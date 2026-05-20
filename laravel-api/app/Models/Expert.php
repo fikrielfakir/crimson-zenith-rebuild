@@ -7,9 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class Expert extends Model
 {
     protected $fillable = [
-        'name', 'title', 'location', 'image', 'expertise', 'rating',
-        'projects_count', 'years_experience', 'languages', 'bio',
-        'achievements', 'certifications', 'is_available', 'status',
+        'name', 'title', 'location', 'image', 'linkedin_url', 'contact_email',
+        'expertise', 'rating', 'projects_count', 'years_experience', 'languages',
+        'bio', 'achievements', 'certifications', 'is_available', 'status',
     ];
 
     protected $casts = [

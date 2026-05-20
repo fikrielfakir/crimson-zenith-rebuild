@@ -22,6 +22,8 @@ interface Expert {
   title: string | null;
   location: string | null;
   image: string | null;
+  linkedin_url: string | null;
+  contact_email: string | null;
   expertise: string[] | null;
   rating: number;
   projects_count: number;
@@ -36,8 +38,8 @@ interface Expert {
 }
 
 const emptyForm = {
-  name: '', title: '', location: '', image: '', expertise: '',
-  rating: 5.0, projects_count: 0, years_experience: 0, languages: '',
+  name: '', title: '', location: '', image: '', linkedin_url: '', contact_email: '',
+  expertise: '', rating: 5.0, projects_count: 0, years_experience: 0, languages: '',
   bio: '', achievements: '', certifications: '',
   is_available: true, status: 'draft' as const,
 };
@@ -114,6 +116,7 @@ export default function ExpertsAdmin() {
     setEditing(e);
     setForm({
       name: e.name, title: e.title ?? '', location: e.location ?? '', image: e.image ?? '',
+      linkedin_url: e.linkedin_url ?? '', contact_email: e.contact_email ?? '',
       expertise: (e.expertise ?? []).join(', '), rating: e.rating,
       projects_count: e.projects_count, years_experience: e.years_experience,
       languages: (e.languages ?? []).join(', '), bio: e.bio ?? '',
@@ -212,14 +215,16 @@ export default function ExpertsAdmin() {
               <div className="space-y-1.5"><Label>Title</Label><Input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="Mountain Guide & Ecologist" /></div>
               <div className="space-y-1.5"><Label>Location</Label><Input value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} placeholder="Agadir" /></div>
               <div className="space-y-1.5"><Label>Profile Image URL</Label><Input value={form.image} onChange={e => setForm(f => ({ ...f, image: e.target.value }))} placeholder="https://…" /></div>
+              <div className="space-y-1.5"><Label>Contact Email</Label><Input type="email" value={form.contact_email} onChange={e => setForm(f => ({ ...f, contact_email: e.target.value }))} placeholder="expert@example.com" /></div>
+              <div className="col-span-2 space-y-1.5"><Label>LinkedIn URL</Label><Input value={form.linkedin_url} onChange={e => setForm(f => ({ ...f, linkedin_url: e.target.value }))} placeholder="https://linkedin.com/in/username" /></div>
               <div className="space-y-1.5"><Label>Rating (0–5)</Label><Input type="number" min={0} max={5} step={0.1} value={form.rating} onChange={e => setForm(f => ({ ...f, rating: +e.target.value }))} /></div>
               <div className="space-y-1.5"><Label>Projects</Label><Input type="number" min={0} value={form.projects_count} onChange={e => setForm(f => ({ ...f, projects_count: +e.target.value }))} /></div>
               <div className="space-y-1.5"><Label>Years Experience</Label><Input type="number" min={0} value={form.years_experience} onChange={e => setForm(f => ({ ...f, years_experience: +e.target.value }))} /></div>
-              <div className="space-y-1.5"><Label>Expertise (comma-separated)</Label><Input value={form.expertise} onChange={e => setForm(f => ({ ...f, expertise: e.target.value }))} placeholder="Ecology, Trekking, Photography" /></div>
-              <div className="space-y-1.5"><Label>Languages (comma-separated)</Label><Input value={form.languages} onChange={e => setForm(f => ({ ...f, languages: e.target.value }))} placeholder="Arabic, French, English" /></div>
               <div className="space-y-1.5"><Label>Status</Label>
                 <Select value={form.status} onValueChange={v => setForm(f => ({ ...f, status: v as any }))}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="draft">Draft</SelectItem><SelectItem value="published">Published</SelectItem></SelectContent></Select>
               </div>
+              <div className="space-y-1.5"><Label>Expertise (comma-separated)</Label><Input value={form.expertise} onChange={e => setForm(f => ({ ...f, expertise: e.target.value }))} placeholder="Ecology, Trekking, Photography" /></div>
+              <div className="space-y-1.5"><Label>Languages (comma-separated)</Label><Input value={form.languages} onChange={e => setForm(f => ({ ...f, languages: e.target.value }))} placeholder="Arabic, French, English" /></div>
               <div className="col-span-2 flex items-center gap-3">
                 <Switch checked={form.is_available} onCheckedChange={v => setForm(f => ({ ...f, is_available: v }))} />
                 <Label>Available for projects</Label>

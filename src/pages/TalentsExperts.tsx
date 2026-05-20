@@ -23,6 +23,8 @@ interface Expert {
   title: string | null;
   location: string | null;
   image: string | null;
+  linkedin_url: string | null;
+  contact_email: string | null;
   expertise: string[] | null;
   rating: number;
   projects_count: number;
@@ -232,12 +234,26 @@ const TalentsExperts = () => {
                     )}
 
                     <div className="flex gap-3">
-                      <Button className="flex-1" disabled={!expert.is_available}>
-                        {expert.is_available ? 'Contact Expert' : 'Currently Unavailable'}
-                      </Button>
-                      <Button variant="outline" size="icon">
-                        <Linkedin className="w-4 h-4" />
-                      </Button>
+                      {expert.is_available && expert.contact_email ? (
+                        <a href={`mailto:${expert.contact_email}`} className="flex-1">
+                          <Button className="w-full">Contact Expert</Button>
+                        </a>
+                      ) : (
+                        <Button className="flex-1" disabled={!expert.is_available}>
+                          {expert.is_available ? 'Contact Expert' : 'Currently Unavailable'}
+                        </Button>
+                      )}
+                      {expert.linkedin_url ? (
+                        <a href={expert.linkedin_url} target="_blank" rel="noopener noreferrer">
+                          <Button variant="outline" size="icon" title="View LinkedIn profile">
+                            <Linkedin className="w-4 h-4" />
+                          </Button>
+                        </a>
+                      ) : (
+                        <Button variant="outline" size="icon" disabled title="No LinkedIn profile">
+                          <Linkedin className="w-4 h-4" />
+                        </Button>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
