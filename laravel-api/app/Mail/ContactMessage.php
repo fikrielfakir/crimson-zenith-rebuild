@@ -6,6 +6,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Queue\SerializesModels;
 
 class ContactMessage extends Mailable
@@ -15,15 +16,15 @@ class ContactMessage extends Mailable
     public function __construct(
         public string $senderName,
         public string $senderEmail,
-        public string $subject,
+        public string $messageSubject,
         public string $body,
     ) {}
 
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Contact Form: ' . $this->subject,
-            replyTo: [new \Illuminate\Mail\Mailables\Address($this->senderEmail, $this->senderName)],
+            subject: 'Contact Form: ' . $this->messageSubject,
+            replyTo: [new Address($this->senderEmail, $this->senderName)],
         );
     }
 

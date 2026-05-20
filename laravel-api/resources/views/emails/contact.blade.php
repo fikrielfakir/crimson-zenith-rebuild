@@ -38,11 +38,11 @@
       </div>
       <div class="meta-row">
         <span class="meta-label">Subject:</span>
-        <span class="meta-value">{{ $subject }}</span>
+        <span class="meta-value">{{ $messageSubject }}</span>
       </div>
     </div>
 
-    <p class="subject-line">{{ $subject }}</p>
+    <p class="subject-line">{{ $messageSubject }}</p>
 
     <div class="message-body">{{ $body }}</div>
 

@@ -269,6 +269,13 @@ Route::prefix('admin')->middleware(['admin'])->group(function () {
     Route::put('/settings/seo',                [\App\Http\Controllers\Admin\SettingsController::class, 'updateSeo']);
     Route::put('/settings/contact',            [\App\Http\Controllers\Admin\SettingsController::class, 'updateContact']);
 
+    // Contact submissions inbox
+    Route::get('/contact-submissions',                        [\App\Http\Controllers\ContactController::class, 'index']);
+    Route::get('/contact-submissions/unread-count',           [\App\Http\Controllers\ContactController::class, 'unreadCount']);
+    Route::get('/contact-submissions/{contactSubmission}',    [\App\Http\Controllers\ContactController::class, 'show']);
+    Route::put('/contact-submissions/{contactSubmission}',    [\App\Http\Controllers\ContactController::class, 'update']);
+    Route::delete('/contact-submissions/{contactSubmission}', [\App\Http\Controllers\ContactController::class, 'destroy']);
+
     // CMS (admin write)
     Route::put('/cms/hero',                    [\App\Http\Controllers\Admin\CmsAdminController::class, 'updateHero']);
     Route::put('/cms/theme',                   [\App\Http\Controllers\Admin\CmsAdminController::class, 'updateTheme']);
