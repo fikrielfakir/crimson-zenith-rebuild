@@ -114,61 +114,30 @@ const navigationItems: NavigationItem[] = [
   { label: 'System', icon: Server, href: '/admin/system' }
 ];
 
-export function AdminLayout({ children }: { children: React.ReactNode }) {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
-    const saved = localStorage.getItem('admin-sidebar-collapsed');
-    return saved ? JSON.parse(saved) : false;
-  });
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [expandedItems, setExpandedItems] = useState<string[]>([]);
-  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
-    const saved = localStorage.getItem('admin-theme');
-    return (saved as 'light' | 'dark') || 'light';
-  });
+interface SidebarContentProps {
+  sidebarCollapsed: boolean;
+  setSidebarCollapsed: (v: boolean) => void;
+  expandedItems: string[];
+  toggleExpand: (label: string) => void;
+  isMobile?: boolean;
+  onMobileClose?: () => void;
+  onLogout: () => void;
+  currentPath: string;
+}
 
-  useEffect(() => {
-    localStorage.setItem('admin-sidebar-collapsed', JSON.stringify(sidebarCollapsed));
-  }, [sidebarCollapsed]);
+function SidebarContent({
+  sidebarCollapsed,
+  setSidebarCollapsed,
+  expandedItems,
+  toggleExpand,
+  isMobile = false,
+  onMobileClose,
+  onLogout,
+  currentPath,
+}: SidebarContentProps) {
+  const isActive = (href: string) => currentPath === href;
 
-  useEffect(() => {
-    localStorage.setItem('admin-theme', theme);
-    document.documentElement.classList.toggle('dark', theme === 'dark');
-  }, [theme]);
-
-  const toggleExpand = (label: string) => {
-    setExpandedItems(prev =>
-      prev.includes(label) ? prev.filter(item => item !== label) : [...prev, label]
-    );
-  };
-
-  const isActive = (href: string) => location.pathname === href;
-
-  const handleLogout = async () => {
-    try {
-      const { apiFetch } = await import('@/lib/apiFetch');
-      const { clearAdminToken } = await import('@/lib/tokenStore');
-      await apiFetch('/api/admin/logout', { method: 'POST' }).catch(() => null);
-      clearAdminToken();
-      toast({ title: 'Logged out successfully' });
-      navigate('/admin/login');
-    } catch (error) {
-      toast({ title: 'Error logging out', variant: 'destructive' });
-    }
-  };
-
-  const generateBreadcrumbs = () => {
-    const paths = location.pathname.split('/').filter(Boolean);
-    return paths.map((path, index) => {
-      const href = '/' + paths.slice(0, index + 1).join('/');
-      const label = path.charAt(0).toUpperCase() + path.slice(1).replace(/-/g, ' ');
-      return { label, href, isLast: index === paths.length - 1 };
-    });
-  };
-
-  const SidebarContent = ({ isMobile = false }: { isMobile?: boolean }) => (
+  return (
     <div className="flex h-full flex-col">
       <div className="flex h-16 items-center justify-between border-b px-4">
         <Link to="/admin" className="flex items-center space-x-2">
@@ -216,12 +185,12 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                   </Button>
                   {isExpanded && !sidebarCollapsed && (
                     <div className="ml-9 mt-1 space-y-1">
-                      {item.children.map((child) => (
+                      {item.children!.map((child) => (
                         <Link key={child.href} to={child.href}>
                           <Button
                             variant={isActive(child.href) ? "secondary" : "ghost"}
                             className="w-full justify-start"
-                            onClick={() => isMobile && setMobileMenuOpen(false)}
+                            onClick={() => isMobile && onMobileClose?.()}
                           >
                             {child.label}
                           </Button>
@@ -241,7 +210,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                     "w-full justify-start",
                     sidebarCollapsed && "justify-center px-2"
                   )}
-                  onClick={() => isMobile && setMobileMenuOpen(false)}
+                  onClick={() => isMobile && onMobileClose?.()}
                 >
                   <Icon className={cn("h-5 w-5", !sidebarCollapsed && "mr-3")} />
                   {!sidebarCollapsed && <span>{item.label}</span>}
@@ -268,7 +237,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
         <Button
           variant="outline"
           className={cn("w-full", sidebarCollapsed && "px-2")}
-          onClick={handleLogout}
+          onClick={onLogout}
         >
           <LogOut className={cn("h-4 w-4", !sidebarCollapsed && "mr-2")} />
           {!sidebarCollapsed && <span>Logout</span>}
@@ -276,8 +245,70 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       </div>
     </div>
   );
+}
+
+export function AdminLayout({ children }: { children: React.ReactNode }) {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    const saved = localStorage.getItem('admin-sidebar-collapsed');
+    return saved ? JSON.parse(saved) : false;
+  });
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [expandedItems, setExpandedItems] = useState<string[]>([]);
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    const saved = localStorage.getItem('admin-theme');
+    return (saved as 'light' | 'dark') || 'light';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('admin-sidebar-collapsed', JSON.stringify(sidebarCollapsed));
+  }, [sidebarCollapsed]);
+
+  useEffect(() => {
+    localStorage.setItem('admin-theme', theme);
+    document.documentElement.classList.toggle('dark', theme === 'dark');
+  }, [theme]);
+
+  const toggleExpand = (label: string) => {
+    setExpandedItems(prev =>
+      prev.includes(label) ? prev.filter(item => item !== label) : [...prev, label]
+    );
+  };
+
+  const handleLogout = async () => {
+    try {
+      const { apiFetch } = await import('@/lib/apiFetch');
+      const { clearAdminToken } = await import('@/lib/tokenStore');
+      await apiFetch('/api/admin/logout', { method: 'POST' }).catch(() => null);
+      clearAdminToken();
+      toast({ title: 'Logged out successfully' });
+      navigate('/admin/login');
+    } catch (error) {
+      toast({ title: 'Error logging out', variant: 'destructive' });
+    }
+  };
+
+  const generateBreadcrumbs = () => {
+    const paths = location.pathname.split('/').filter(Boolean);
+    return paths.map((path, index) => {
+      const href = '/' + paths.slice(0, index + 1).join('/');
+      const label = path.charAt(0).toUpperCase() + path.slice(1).replace(/-/g, ' ');
+      return { label, href, isLast: index === paths.length - 1 };
+    });
+  };
 
   const breadcrumbs = generateBreadcrumbs();
+
+  const sharedSidebarProps = {
+    sidebarCollapsed,
+    setSidebarCollapsed,
+    expandedItems,
+    toggleExpand,
+    onLogout: handleLogout,
+    currentPath: location.pathname,
+  };
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -288,13 +319,17 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
           sidebarCollapsed ? "w-16" : "w-64"
         )}
       >
-        <SidebarContent />
+        <SidebarContent {...sharedSidebarProps} />
       </aside>
 
       {/* Mobile Sidebar */}
       <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
         <SheetContent side="left" className="w-64 p-0">
-          <SidebarContent isMobile />
+          <SidebarContent
+            {...sharedSidebarProps}
+            isMobile
+            onMobileClose={() => setMobileMenuOpen(false)}
+          />
         </SheetContent>
       </Sheet>
 
