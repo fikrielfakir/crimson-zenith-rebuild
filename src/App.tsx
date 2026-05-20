@@ -66,6 +66,7 @@ import FocusAreasManagement from "./pages/admin/FocusAreasManagement";
 import TeamMembersManagement from "./pages/admin/TeamMembersManagement";
 import TestimonialsManagement from "./pages/admin/TestimonialsManagement";
 import PartnersManagement from "./pages/admin/PartnersManagement";
+import ContactSubmissions from "./pages/admin/ContactSubmissions";
 import CitiesManagement from "./pages/admin/CitiesManagement";
 import PageHeroSettings from "./pages/admin/PageHeroSettings";
 import JoinUs from "./pages/JoinUs";
@@ -225,6 +226,11 @@ const App = () => (
           <Route path="/admin/applications" element={
             <ProtectedRoute>
               <ApplicationsManagement />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/contact-submissions" element={
+            <ProtectedRoute>
+              <ContactSubmissions />
             </ProtectedRoute>
           } />
           <Route path="/admin/join-config" element={

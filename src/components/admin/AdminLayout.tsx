@@ -24,6 +24,7 @@ import {
   Palette,
   MapPin,
   Images,
+  Inbox,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -72,6 +73,7 @@ const navigationItems: NavigationItem[] = [
   { label: 'Cities', icon: MapPin, href: '/admin/cities' },
   { label: 'Bookings', icon: Ticket, href: '/admin/bookings' },
   { label: 'Applications', icon: FileText, href: '/admin/applications' },
+  { label: 'Contact Inbox', icon: Inbox, href: '/admin/contact-submissions' },
   {
     label: 'Content',
     icon: FileEdit,
