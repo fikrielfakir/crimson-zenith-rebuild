@@ -462,15 +462,15 @@ const EventsActivitiesCalendar = () => {
                     const dateStr = event.startDate || event.eventDate;
                     const imgSrc  = event.image || 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80';
                     const effectiveStatus = getEffectiveStatus(event);
-                    const isLastPassed = effectiveStatus === 'completed' && String(event.id) === String(lastPassedEventId) && statusFilter === 'All';
+                    const isPast = effectiveStatus === 'completed';
                     return (
                       <Card
                         key={event.id}
                         className="border-none overflow-hidden"
-                        style={{ backgroundColor: '#FFFFFF', boxShadow: '0 4px 12px rgba(0,0,0,0.06)', borderRadius: '16px', transition: 'transform 0.25s, box-shadow 0.25s', cursor: 'pointer', opacity: isLastPassed ? 0.45 : 1, filter: isLastPassed ? 'grayscale(40%)' : 'none' }}
-                        onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.01)'; e.currentTarget.style.boxShadow = '0 8px 20px rgba(0,0,0,0.12)'; }}
-                        onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.06)'; }}
-                        onClick={() => navigate(`/book?event=${event.id}`)}
+                        style={{ backgroundColor: '#FFFFFF', boxShadow: '0 4px 12px rgba(0,0,0,0.06)', borderRadius: '16px', transition: 'transform 0.25s, box-shadow 0.25s', cursor: isPast ? 'not-allowed' : 'pointer', opacity: isPast ? 0.5 : 1, filter: isPast ? 'grayscale(50%)' : 'none' }}
+                        onMouseEnter={e => { if (!isPast) { e.currentTarget.style.transform = 'scale(1.01)'; e.currentTarget.style.boxShadow = '0 8px 20px rgba(0,0,0,0.12)'; } }}
+                        onMouseLeave={e => { if (!isPast) { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.06)'; } }}
+                        onClick={() => { if (!isPast) navigate(`/book?event=${event.id}`); }}
                       >
                         {/* Image */}
                         <div className="relative" style={{ width: '100%', height: '200px' }}>
@@ -578,12 +578,13 @@ const EventsActivitiesCalendar = () => {
                             </div>
                             <Button
                               className="font-['Poppins'] font-medium"
-                              style={{ backgroundColor: '#D4B26A', color: '#FFFFFF', borderRadius: '10px', padding: '8px 18px', fontSize: '13px', transition: 'background-color 0.25s' }}
-                              onClick={e => { e.stopPropagation(); navigate(`/book?event=${event.id}`); }}
-                              onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#C9A758'; }}
-                              onMouseLeave={e => { e.currentTarget.style.backgroundColor = '#D4B26A'; }}
+                              disabled={isPast}
+                              style={{ backgroundColor: isPast ? '#D1D5DB' : '#D4B26A', color: isPast ? '#9CA3AF' : '#FFFFFF', borderRadius: '10px', padding: '8px 18px', fontSize: '13px', transition: 'background-color 0.25s', cursor: isPast ? 'not-allowed' : 'pointer' }}
+                              onClick={e => { e.stopPropagation(); if (!isPast) navigate(`/book?event=${event.id}`); }}
+                              onMouseEnter={e => { if (!isPast) e.currentTarget.style.backgroundColor = '#C9A758'; }}
+                              onMouseLeave={e => { if (!isPast) e.currentTarget.style.backgroundColor = '#D4B26A'; }}
                             >
-                              {effectiveStatus === 'completed' ? 'View Details' : 'Book Now'}
+                              {isPast ? 'Event Ended' : 'Book Now'}
                             </Button>
                           </div>
                         </div>
