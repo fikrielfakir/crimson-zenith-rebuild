@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Calendar as CalendarIcon, MapPin, Clock, Heart, Share2, Building2, CheckCircle2, Radio, Timer, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import CalendarComponent from "react-calendar";
@@ -463,7 +464,7 @@ const EventsActivitiesCalendar = () => {
                     const imgSrc  = event.image || 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80';
                     const effectiveStatus = getEffectiveStatus(event);
                     const isPast = effectiveStatus === 'completed';
-                    return (
+                    const cardEl = (
                       <Card
                         key={event.id}
                         className="border-none overflow-hidden"
@@ -590,6 +591,21 @@ const EventsActivitiesCalendar = () => {
                         </div>
                       </Card>
                     );
+                    if (isPast) {
+                      return (
+                        <TooltipProvider key={event.id} delayDuration={100}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div>{cardEl}</div>
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="font-['Inter'] text-sm px-3 py-2">
+                              This event has ended
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      );
+                    }
+                    return cardEl;
                   })}
                 </div>
 
