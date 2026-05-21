@@ -92,7 +92,7 @@ const TalentsExperts = () => {
       
       <main className="relative">
         {/* Hero Section with Background Image */}
-        <section className="relative py-20 overflow-hidden" style={{ paddingTop: '15rem' }}>
+        <section className="relative pt-24 pb-16 md:pt-52 md:pb-14 overflow-hidden">
           <div 
             className="absolute inset-0 bg-cover bg-center bg-no-repeat"
             style={{
@@ -130,10 +130,10 @@ const TalentsExperts = () => {
             </nav>
 
             <div className={`transition-all duration-700 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-4 drop-shadow-2xl">
+              <h1 className="text-3xl md:text-5xl lg:text-7xl font-bold text-white mb-3 md:mb-4 drop-shadow-2xl">
                 Our Experts
               </h1>
-              <p className="text-lg md:text-xl text-white/95 max-w-2xl leading-relaxed drop-shadow-lg">
+              <p className="text-base md:text-lg lg:text-xl text-white/95 max-w-2xl leading-relaxed drop-shadow-lg">
                 Meet our network of seasoned professionals. From mountain guides to cultural specialists, connect with Morocco's finest experts for your projects and adventures.
               </p>
             </div>
@@ -143,22 +143,22 @@ const TalentsExperts = () => {
         {/* Stats Section */}
         <section className="py-16 bg-muted/50">
           <div className="container mx-auto px-6">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto text-center">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 max-w-4xl mx-auto text-center">
               <div>
-                <div className="text-4xl font-bold text-primary mb-2">50+</div>
+                <div className="text-3xl md:text-4xl font-bold text-primary mb-1 md:mb-2">50+</div>
                 <div className="text-sm text-muted-foreground">Expert Professionals</div>
               </div>
               <div>
-                <div className="text-4xl font-bold text-primary mb-2">500+</div>
-                <div className="text-sm text-muted-foreground">Projects Completed</div>
+                <div className="text-3xl md:text-4xl font-bold text-primary mb-1 md:mb-2">500+</div>
+                <div className="text-xs md:text-sm text-muted-foreground">Projects Completed</div>
               </div>
               <div>
-                <div className="text-4xl font-bold text-primary mb-2">15+</div>
-                <div className="text-sm text-muted-foreground">Years Average Experience</div>
+                <div className="text-3xl md:text-4xl font-bold text-primary mb-1 md:mb-2">15+</div>
+                <div className="text-xs md:text-sm text-muted-foreground">Years Average Experience</div>
               </div>
               <div>
-                <div className="text-4xl font-bold text-primary mb-2">4.9</div>
-                <div className="text-sm text-muted-foreground">Average Rating</div>
+                <div className="text-3xl md:text-4xl font-bold text-primary mb-1 md:mb-2">4.9</div>
+                <div className="text-xs md:text-sm text-muted-foreground">Average Rating</div>
               </div>
             </div>
           </div>
@@ -179,20 +179,20 @@ const TalentsExperts = () => {
             <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
               {experts.map((expert) => (
                 <Card key={expert.id} className="hover:shadow-2xl transition-all duration-300">
-                  <CardContent className="p-8">
-                    <div className="flex gap-6 mb-6">
-                      <div className="relative">
+                  <CardContent className="p-4 md:p-8">
+                    <div className="flex gap-3 md:gap-6 mb-4 md:mb-6">
+                      <div className="relative flex-shrink-0">
                         {expert.image ? (
-                          <img src={expert.image} alt={expert.name} className="w-24 h-24 rounded-full object-cover" />
+                          <img src={expert.image} alt={expert.name} className="w-16 h-16 md:w-24 md:h-24 rounded-full object-cover" />
                         ) : (
-                          <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center text-primary text-2xl font-bold">{expert.name.charAt(0)}</div>
+                          <div className="w-16 h-16 md:w-24 md:h-24 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xl md:text-2xl font-bold">{expert.name.charAt(0)}</div>
                         )}
                         {expert.is_available && (
-                          <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 border-4 border-white rounded-full" />
+                          <div className="absolute -bottom-1 -right-1 w-5 h-5 md:w-6 md:h-6 bg-green-500 border-4 border-white rounded-full" />
                         )}
                       </div>
-                      <div className="flex-1">
-                        <h3 className="text-2xl font-bold mb-1">{expert.name}</h3>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-xl md:text-2xl font-bold mb-1 truncate">{expert.name}</h3>
                         <p className="text-primary font-semibold mb-2">{expert.title}</p>
                         <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
                           <MapPin className="w-4 h-4" />
