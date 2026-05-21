@@ -457,13 +457,27 @@ img {
    ═══════════════════════════════════════════════════════════════ */
 
 /* ── 1. Global font & direction ─────────────────────────────── */
-:root[dir="rtl"],
 html[dir="rtl"] {
   direction: rtl;
   text-align: right;
+  font-family: 'NeoSansArabic', Arial, sans-serif !important;
 }
 
+/*
+  Force NeoSans Arabic on all visible text elements.
+  Uses explicit type-selector :not() chains (CSS Level 3 compatible)
+  instead of :not(svg *) to avoid selector parsing failures in some engines.
+  SVG shape elements are excluded so Lucide icons stay intact.
+*/
 html[dir="rtl"] body,
+html[dir="rtl"] div,
+html[dir="rtl"] section,
+html[dir="rtl"] article,
+html[dir="rtl"] aside,
+html[dir="rtl"] header,
+html[dir="rtl"] footer,
+html[dir="rtl"] main,
+html[dir="rtl"] nav,
 html[dir="rtl"] h1,
 html[dir="rtl"] h2,
 html[dir="rtl"] h3,
@@ -476,11 +490,21 @@ html[dir="rtl"] a,
 html[dir="rtl"] button,
 html[dir="rtl"] input,
 html[dir="rtl"] textarea,
+html[dir="rtl"] select,
 html[dir="rtl"] label,
 html[dir="rtl"] li,
+html[dir="rtl"] ul,
+html[dir="rtl"] ol,
 html[dir="rtl"] td,
-html[dir="rtl"] th {
-  font-family: 'NeoSansArabic', 'Arial', sans-serif !important;
+html[dir="rtl"] th,
+html[dir="rtl"] caption,
+html[dir="rtl"] blockquote,
+html[dir="rtl"] strong,
+html[dir="rtl"] em,
+html[dir="rtl"] small,
+html[dir="rtl"] figcaption,
+html[dir="rtl"] [class] {
+  font-family: 'NeoSansArabic', Arial, sans-serif !important;
   letter-spacing: 0 !important;
 }
 
