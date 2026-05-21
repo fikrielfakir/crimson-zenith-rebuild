@@ -262,10 +262,10 @@ const ActivityDetail = () => {
 
             {/* Main Heading */}
             <div className={`transition-all duration-700 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'} mb-8`}>
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-4 drop-shadow-2xl">
+              <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-4 drop-shadow-2xl">
                 {activity.title}
               </h1>
-              <p className="text-lg md:text-xl text-white/95 max-w-2xl leading-relaxed drop-shadow-lg">
+              <p className="text-base md:text-xl text-white/95 max-w-2xl leading-relaxed drop-shadow-lg">
                 {activity.description}
               </p>
             </div>
@@ -332,7 +332,7 @@ const ActivityDetail = () => {
           <div className="lg:col-span-2">
             {/* Image Gallery */}
             <div className="mb-8">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {activity.images.map((image, index) => (
                   <div key={index} className="relative overflow-hidden rounded-lg aspect-video">
                     <img 
@@ -347,11 +347,13 @@ const ActivityDetail = () => {
 
             {/* Tabs */}
             <Tabs defaultValue="overview" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
+              <div className="overflow-x-auto">
+              <TabsList className="grid w-full grid-cols-3 min-w-[280px]">
                 <TabsTrigger value="overview">Overview</TabsTrigger>
                 <TabsTrigger value="itinerary">Itinerary</TabsTrigger>
                 <TabsTrigger value="included">What's Included</TabsTrigger>
               </TabsList>
+              </div>
               
               <TabsContent value="overview" className="space-y-6">
                 <div>

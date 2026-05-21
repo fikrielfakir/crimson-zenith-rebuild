@@ -1080,7 +1080,7 @@ export default function Gallery() {
       <Header/>
 
       {/* ── HERO ─────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden" style={{ paddingTop:"15rem", paddingBottom:"3.5rem" }}>
+      <section className="relative overflow-hidden pt-24 pb-12 md:pt-60 md:pb-14">
         <div className="absolute inset-0"
           style={{ background:"linear-gradient(180deg, rgba(4,13,33,0.18) 0%, rgba(4,13,33,0.72) 100%)" }}/>
         <div className="relative container mx-auto px-6">
@@ -1102,7 +1102,7 @@ export default function Gallery() {
             </ol>
           </nav>
           <motion.h1
-            className="text-5xl md:text-7xl font-bold text-white mb-4"
+            className="text-3xl md:text-5xl lg:text-7xl font-bold text-white mb-3 md:mb-4"
             style={{ textShadow:"0 0 70px rgba(59,130,246,0.42)" }}
             initial={{ opacity:0, y:24 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.75 }}>
             Gallery
@@ -1156,11 +1156,53 @@ export default function Gallery() {
         </div>
       </section>
 
-      {/* ── IMMERSIVE 3-D SCENE ───────────────────────────────────── */}
+      {/* ── MOBILE GRID (< 640 px) ───────────────────────────────── */}
+      {sceneW > 0 && sceneW < 640 && (
+        <section className="py-6 px-4" style={{ background:"rgba(4,13,33,0.97)" }}>
+          <div className="grid grid-cols-2 gap-3">
+            {filtered.map((item) => (
+              <div key={item.id}
+                className="relative overflow-hidden rounded-xl cursor-pointer group"
+                style={{ aspectRatio: item.aspect === "portrait" ? "3/4" : "4/3" }}
+                onClick={() => setSelected(item)}
+              >
+                <img src={item.url} alt={item.title}
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  onError={e => { (e.target as HTMLImageElement).src = `https://placehold.co/400x300/0a1f5c/4a9eff?text=${encodeURIComponent(item.title)}`; }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-2">
+                  <p className="text-white text-xs font-semibold line-clamp-1">{item.title}</p>
+                  {item.location && <p className="text-white/60 text-[10px] line-clamp-1">{item.location}</p>}
+                </div>
+                {item.has360 && (
+                  <div className="absolute top-2 right-2"><Badge360 small /></div>
+                )}
+              </div>
+            ))}
+          </div>
+          {/* mobile prev/next */}
+          <div className="flex justify-center gap-4 mt-6">
+            <button onClick={goPrev}
+              className="w-11 h-11 rounded-full flex items-center justify-center"
+              style={{ background:"rgba(10,30,80,0.80)", border:"1px solid rgba(100,170,255,0.30)" }}>
+              <ChevronLeft className="w-5 h-5 text-white"/>
+            </button>
+            <button onClick={goNext}
+              className="w-11 h-11 rounded-full flex items-center justify-center"
+              style={{ background:"rgba(10,30,80,0.80)", border:"1px solid rgba(100,170,255,0.30)" }}>
+              <ChevronRight className="w-5 h-5 text-white"/>
+            </button>
+          </div>
+        </section>
+      )}
+
+      {/* ── IMMERSIVE 3-D SCENE (≥ 640 px) ──────────────────────── */}
       <section id="gallery-scene-section" className="relative select-none overflow-hidden"
         style={{
           background:"radial-gradient(ellipse 120% 90% at 50% 45%, rgba(7,26,74,0.55) 0%, rgba(4,17,46,0.55) 30%, rgba(2,8,14,0.60) 68%, rgba(1,6,16,0.65) 100%)",
-          minHeight:SCENE_H+100,
+          minHeight: sceneW < 640 ? 0 : SCENE_H+100,
+          display: sceneW > 0 && sceneW < 640 ? "none" : undefined,
         }}>
 
         {/* layered background environment */}

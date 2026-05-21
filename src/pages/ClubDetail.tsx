@@ -285,13 +285,13 @@ const ClubDetail = () => {
                     </div>
                   )}
                 </div>
-                <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-4 drop-shadow-2xl">
+                <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-4 drop-shadow-2xl">
                   {club.name}
                 </h1>
-                <p className="text-lg md:text-xl text-white/95 max-w-3xl leading-relaxed drop-shadow-lg mb-6">
+                <p className="text-base md:text-xl text-white/95 max-w-3xl leading-relaxed drop-shadow-lg mb-6">
                   {club.description}
                 </p>
-                <div className="flex items-center gap-6 text-white/90 mb-8">
+                <div className="flex flex-wrap items-center gap-3 text-white/90 mb-8">
                   <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full border border-white/20">
                     <MapPin className="w-5 h-5" />
                     <span className="font-medium">{club.location}</span>
@@ -422,7 +422,7 @@ const ClubDetail = () => {
               <CardContent>
                 <div 
                   ref={mapContainer} 
-                  className="w-full h-[400px] rounded-lg overflow-hidden border"
+                  className="w-full h-[250px] sm:h-[400px] rounded-lg overflow-hidden border"
                 />
                 <p className="mt-4 text-sm text-muted-foreground flex items-center gap-2">
                   <MapPin className="w-4 h-4" />

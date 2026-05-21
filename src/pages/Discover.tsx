@@ -93,10 +93,10 @@ const Discover = () => {
         />
 
         {/* Introduction Section */}
-        <section className="py-24 bg-gradient-to-b from-background to-muted/20">
+        <section className="py-12 md:py-24 bg-gradient-to-b from-background to-muted/20">
           <div className="container mx-auto px-6">
             <div className={`max-w-4xl mx-auto text-center transition-all duration-1000 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
-              <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-8 leading-tight">
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6 md:mb-8 leading-tight">
                 {settings?.intro_heading}
               </h2>
               <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
@@ -114,18 +114,18 @@ const Discover = () => {
                 key={city.id}
                 className={`flex flex-col ${
                   index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'
-                } gap-10 md:gap-16 items-center mb-32 last:mb-16 transition-all duration-700`}
+                } gap-8 md:gap-16 items-center mb-12 md:mb-32 last:mb-6 md:last:mb-16 transition-all duration-700`}
               >
                 <div className="w-full md:w-1/2">
                   <div className="relative overflow-hidden rounded-3xl shadow-2xl group">
                     <img
                       src={city.image}
                       alt={city.name}
-                      className="w-full h-[450px] md:h-[500px] object-cover transition-all duration-700 group-hover:scale-110"
+                      className="w-full h-[240px] sm:h-[340px] md:h-[500px] object-cover transition-all duration-700 group-hover:scale-110"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500" />
                     <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500">
-                      <h3 className="text-5xl font-bold text-white drop-shadow-2xl">{city.name}</h3>
+                      <h3 className="text-3xl md:text-5xl font-bold text-white drop-shadow-2xl">{city.name}</h3>
                     </div>
                     <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-primary/30 to-transparent rounded-bl-full" />
                   </div>
@@ -133,8 +133,8 @@ const Discover = () => {
 
                 <div className="w-full md:w-1/2 space-y-6">
                   <div className="space-y-3">
-                    <h3 className="text-5xl md:text-6xl font-bold text-foreground tracking-tight">{city.name}</h3>
-                    <p className="text-xl md:text-2xl text-primary font-semibold italic border-l-4 border-primary pl-4">
+                    <h3 className="text-3xl md:text-5xl lg:text-6xl font-bold text-foreground tracking-tight">{city.name}</h3>
+                    <p className="text-lg md:text-xl lg:text-2xl text-primary font-semibold italic border-l-4 border-primary pl-4">
                       {city.title}
                     </p>
                   </div>
@@ -151,7 +151,7 @@ const Discover = () => {
                   </div>
                   <Button
                     asChild
-                    className="mt-8 bg-gradient-to-r from-[#1a9b8e] to-[#158074] hover:from-[#158074] hover:to-[#0f5f56] text-white px-10 py-7 rounded-full text-base font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 group border-2 border-[#1a9b8e]/20"
+                    className="mt-6 md:mt-8 bg-gradient-to-r from-[#1a9b8e] to-[#158074] hover:from-[#158074] hover:to-[#0f5f56] text-white px-8 py-4 md:px-10 md:py-7 rounded-full text-base font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 group border-2 border-[#1a9b8e]/20"
                   >
                     <Link to={`/discover/cities?city=${city.slug}`}>
                       DISCOVER MORE
@@ -177,15 +177,15 @@ const Discover = () => {
           </div>
           <div className="container mx-auto px-6 relative z-10">
             <div className="max-w-3xl mx-auto text-center text-white">
-              <h2 className="text-4xl md:text-5xl font-bold mb-6 drop-shadow-lg">
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6 drop-shadow-lg">
                 {settings?.cta_heading}
               </h2>
-              <p className="text-lg md:text-xl mb-10 text-white/90 leading-relaxed">
+              <p className="text-base md:text-lg lg:text-xl mb-8 md:mb-10 text-white/90 leading-relaxed">
                 {settings?.cta_description}
               </p>
               <Button
                 asChild
-                className="bg-white text-primary hover:bg-white/90 px-12 py-7 rounded-full text-lg font-bold shadow-2xl hover:shadow-3xl transition-all duration-300 group"
+                className="bg-white text-primary hover:bg-white/90 px-8 py-4 md:px-12 md:py-7 rounded-full text-base md:text-lg font-bold shadow-2xl hover:shadow-3xl transition-all duration-300 group"
               >
                 <Link to={settings?.cta_button_link ?? '/join-us'}>
                   {settings?.cta_button_text}

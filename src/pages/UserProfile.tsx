@@ -712,7 +712,7 @@ const UserProfile = () => {
                   </div>
                   
                   {/* Action Buttons */}
-                  <div className="flex gap-3">
+                  <div className="flex flex-wrap gap-3">
                     <Button 
                       variant="outline" 
                       onClick={() => setIsEditing(!isEditing)}
@@ -756,37 +756,38 @@ const UserProfile = () => {
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
         <Tabs defaultValue={initialTab} className="w-full">
-          <TabsList className="bg-white shadow-sm rounded-xl p-1 mb-6 flex-wrap h-auto gap-1">
-            <TabsTrigger value="overview" className="data-[state=active]:bg-[hsl(227,65%,19%)] data-[state=active]:text-white rounded-lg px-4 py-2">
-              <User className="w-4 h-4 mr-2" />
-              Overview
+          <div className="overflow-x-auto pb-1">
+          <TabsList className="bg-white shadow-sm rounded-xl p-1 mb-6 flex flex-wrap h-auto gap-1 w-full min-w-[320px]">
+            <TabsTrigger value="overview" className="data-[state=active]:bg-[hsl(227,65%,19%)] data-[state=active]:text-white rounded-lg px-3 py-2 text-sm">
+              <User className="w-4 h-4 sm:mr-2 shrink-0" />
+              <span className="hidden sm:inline">Overview</span>
             </TabsTrigger>
-            <TabsTrigger value="clubs" className="data-[state=active]:bg-[hsl(227,65%,19%)] data-[state=active]:text-white rounded-lg px-4 py-2">
-              <Users className="w-4 h-4 mr-2" />
-              My Clubs
+            <TabsTrigger value="clubs" className="data-[state=active]:bg-[hsl(227,65%,19%)] data-[state=active]:text-white rounded-lg px-3 py-2 text-sm">
+              <Users className="w-4 h-4 sm:mr-2 shrink-0" />
+              <span className="hidden sm:inline">My Clubs</span>
             </TabsTrigger>
-            <TabsTrigger value="events" className="data-[state=active]:bg-[hsl(227,65%,19%)] data-[state=active]:text-white rounded-lg px-4 py-2">
-              <Calendar className="w-4 h-4 mr-2" />
-              Events
+            <TabsTrigger value="events" className="data-[state=active]:bg-[hsl(227,65%,19%)] data-[state=active]:text-white rounded-lg px-3 py-2 text-sm">
+              <Calendar className="w-4 h-4 sm:mr-2 shrink-0" />
+              <span className="hidden sm:inline">Events</span>
             </TabsTrigger>
-            <TabsTrigger value="bookings" className="data-[state=active]:bg-[hsl(227,65%,19%)] data-[state=active]:text-white rounded-lg px-4 py-2">
-              <CreditCard className="w-4 h-4 mr-2" />
-              Bookings
+            <TabsTrigger value="bookings" className="data-[state=active]:bg-[hsl(227,65%,19%)] data-[state=active]:text-white rounded-lg px-3 py-2 text-sm">
+              <CreditCard className="w-4 h-4 sm:mr-2 shrink-0" />
+              <span className="hidden sm:inline">Bookings</span>
             </TabsTrigger>
-            <TabsTrigger value="favorites" className="data-[state=active]:bg-[hsl(227,65%,19%)] data-[state=active]:text-white rounded-lg px-4 py-2">
-              <Heart className="w-4 h-4 mr-2" />
-              My Favorites
+            <TabsTrigger value="favorites" className="data-[state=active]:bg-[hsl(227,65%,19%)] data-[state=active]:text-white rounded-lg px-3 py-2 text-sm">
+              <Heart className="w-4 h-4 sm:mr-2 shrink-0" />
+              <span className="hidden sm:inline">Favorites</span>
               {favoriteIds.size > 0 && (
-                <span className="ml-1.5 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-semibold">
+                <span className="ml-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-semibold">
                   {favoriteIds.size}
                 </span>
               )}
             </TabsTrigger>
-            <TabsTrigger value="application" className="data-[state=active]:bg-[hsl(227,65%,19%)] data-[state=active]:text-white rounded-lg px-4 py-2">
-              <ClipboardList className="w-4 h-4 mr-2" />
-              My Application
+            <TabsTrigger value="application" className="data-[state=active]:bg-[hsl(227,65%,19%)] data-[state=active]:text-white rounded-lg px-3 py-2 text-sm">
+              <ClipboardList className="w-4 h-4 sm:mr-2 shrink-0" />
+              <span className="hidden sm:inline">Application</span>
               {userApplications.length > 0 && (
-                <span className={`ml-1.5 text-xs rounded-full w-5 h-5 flex items-center justify-center font-semibold ${
+                <span className={`ml-1 text-xs rounded-full w-4 h-4 flex items-center justify-center font-semibold ${
                   userApplications[0]?.status === 'approved' ? 'bg-green-500 text-white' :
                   userApplications[0]?.status === 'rejected' ? 'bg-red-500 text-white' :
                   'bg-amber-400 text-white'
@@ -795,15 +796,16 @@ const UserProfile = () => {
                 </span>
               )}
             </TabsTrigger>
-            <TabsTrigger value="activity" className="data-[state=active]:bg-[hsl(227,65%,19%)] data-[state=active]:text-white rounded-lg px-4 py-2">
-              <Activity className="w-4 h-4 mr-2" />
-              Activity
+            <TabsTrigger value="activity" className="data-[state=active]:bg-[hsl(227,65%,19%)] data-[state=active]:text-white rounded-lg px-3 py-2 text-sm">
+              <Activity className="w-4 h-4 sm:mr-2 shrink-0" />
+              <span className="hidden sm:inline">Activity</span>
             </TabsTrigger>
-            <TabsTrigger value="settings" className="data-[state=active]:bg-[hsl(227,65%,19%)] data-[state=active]:text-white rounded-lg px-4 py-2">
-              <Settings className="w-4 h-4 mr-2" />
-              Settings
+            <TabsTrigger value="settings" className="data-[state=active]:bg-[hsl(227,65%,19%)] data-[state=active]:text-white rounded-lg px-3 py-2 text-sm">
+              <Settings className="w-4 h-4 sm:mr-2 shrink-0" />
+              <span className="hidden sm:inline">Settings</span>
             </TabsTrigger>
           </TabsList>
+          </div>
           
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6">

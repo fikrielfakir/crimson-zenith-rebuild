@@ -9,6 +9,7 @@ import {
   ChevronDown,
   ChevronRight,
   Heart,
+  X,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import logoAtj from "@/assets/logo-atj.png";
@@ -18,6 +19,13 @@ import useEmblaCarousel from "embla-carousel-react";
 import DonateDrawer from "./DonateDrawer";
 import { useAuth } from "@/hooks/useAuth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 interface DropdownItem {
   label: string;
@@ -486,14 +494,14 @@ const TopNavbar = ({
       <div
         className={`container mx-auto px-6 transition-all duration-300 ${isScrolled ? "py-0" : "py-3"}`}
       >
-        <div className="flex items-center justify-end gap-4">
-          {/* Language Switcher */}
+        <div className="flex items-center justify-end gap-2 md:gap-4">
+          {/* Language Switcher — hidden on mobile */}
           {showLanguageSwitcher && (
             <Button
               variant="ghost"
               size="sm"
               onClick={toggleLanguage}
-              className="px-3 py-2 text-xs flex items-center gap-1 rounded-button font-body"
+              className="hidden sm:flex px-3 py-2 text-xs items-center gap-1 rounded-button font-body"
               style={{ color: textColor }}
             >
               <Globe className="h-4 w-4" />
@@ -501,13 +509,13 @@ const TopNavbar = ({
             </Button>
           )}
 
-          {/* Dark Mode Toggle */}
+          {/* Dark Mode Toggle — hidden on mobile */}
           {showDarkModeToggle && (
             <Button
               variant="ghost"
               size="sm"
               onClick={toggleDarkMode}
-              className="px-2 py-2 rounded-button"
+              className="hidden sm:flex px-2 py-2 rounded-button"
               style={{ color: textColor }}
             >
               {isDarkMode ? (
@@ -521,9 +529,9 @@ const TopNavbar = ({
           {/* Login Button / Profile Avatar */}
           {showLoginButton && (
             isAuthenticated && user ? (
-              <Link 
-                to="/profile" 
-                className="flex items-center gap-2 px-3 py-2 text-xs rounded-button font-body hover:opacity-80 transition-opacity"
+              <Link
+                to="/profile"
+                className="flex items-center gap-2 px-2 sm:px-3 py-2 text-xs rounded-button font-body hover:opacity-80 transition-opacity"
                 style={{ color: textColor }}
               >
                 <Avatar className="h-8 w-8 border-2 border-white/30">
@@ -539,12 +547,12 @@ const TopNavbar = ({
                 asChild
                 variant="ghost"
                 size="sm"
-                className="px-3 py-2 text-xs flex items-center gap-1 rounded-button font-body"
+                className="px-2 sm:px-3 py-2 text-xs flex items-center gap-1 rounded-button font-body"
                 style={{ color: textColor }}
               >
                 <Link to="/login">
                   <User className="h-4 w-4" />
-                  {loginButtonText}
+                  <span className="hidden sm:inline">{loginButtonText}</span>
                 </Link>
               </Button>
             )
@@ -657,6 +665,7 @@ const BottomNavbar = ({
   hoverColor: string;
   navHeight: number;
 }) => {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const midpoint = Math.ceil(navigationLinks.length / 2);
   const leftLinks = navigationLinks.slice(0, midpoint);
   const rightLinks = navigationLinks.slice(midpoint);
@@ -678,7 +687,7 @@ const BottomNavbar = ({
         className="container mx-auto px-6"
         style={{ paddingTop: "1.5rem", paddingBottom: "1.5rem" }}
       >
-        <div className="grid grid-cols-3 md:grid-cols-[1fr_auto_1fr] items-center gap-12">
+        <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4 md:gap-12">
           {/* Left Section - Navigation */}
           <div className="hidden md:flex items-center justify-end">
             <nav
@@ -951,7 +960,9 @@ const BottomNavbar = ({
           {/* Mobile menu button */}
           <Button
             variant="ghost"
-            className="col-start-3 justify-self-end md:hidden text-white p-2"
+            onClick={() => setMobileMenuOpen(true)}
+            className="col-start-3 justify-self-end md:hidden text-white p-2 min-w-[44px] min-h-[44px]"
+            aria-label="Open navigation menu"
           >
             <Menu className="w-6 h-6" />
           </Button>
@@ -968,6 +979,145 @@ const BottomNavbar = ({
           <div className="flex-1 h-px bg-white/25"></div>
         </div>
       </div>
+
+      {/* ── Mobile Navigation Drawer ── */}
+      <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+        <SheetContent side="left" className="w-[85vw] max-w-sm p-0 flex flex-col bg-[#112250]">
+          {/* Drawer header */}
+          <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
+            {logoType === "image" ? (
+              <img src={logoUrl} alt="Logo" className="h-10 w-auto object-contain" />
+            ) : (
+              <span className="text-white font-bold text-lg">{logoText}</span>
+            )}
+            <button
+              onClick={() => setMobileMenuOpen(false)}
+              className="text-white/70 hover:text-white transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+              aria-label="Close menu"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Drawer nav links */}
+          <nav className="flex-1 overflow-y-auto px-4 py-3">
+            <Accordion type="multiple" className="w-full">
+              {navigationLinks.map((link, index) => {
+                const isDiscover = link.label === "Discover" && !link.isExternal;
+                const isTalents = link.label === "Talents" && !link.isExternal;
+                const hasDropdown = isDiscover || isTalents || (link.hasDropdown && link.dropdownItems);
+
+                if (isDiscover) {
+                  return (
+                    <AccordionItem key={index} value={`link-${index}`} className="border-b border-white/10">
+                      <AccordionTrigger className="text-white/90 hover:text-white text-sm font-medium py-3 hover:no-underline">
+                        {link.label}
+                      </AccordionTrigger>
+                      <AccordionContent className="pb-2">
+                        <div className="flex flex-col gap-1 pl-3">
+                          {moroccoCities.slice(0, 8).map((city) => (
+                            <Link
+                              key={city.id}
+                              to={{ pathname: "/discover/cities", search: `?city=${city.slug}` }}
+                              onClick={() => setMobileMenuOpen(false)}
+                              className="block px-3 py-2 text-white/70 hover:text-white hover:bg-white/5 rounded-lg text-sm transition-colors"
+                            >
+                              {city.name}
+                            </Link>
+                          ))}
+                          <Link
+                            to="/discover"
+                            onClick={() => setMobileMenuOpen(false)}
+                            className="block px-3 py-2 text-[#D8C18D] hover:text-white text-sm font-medium transition-colors"
+                          >
+                            See all destinations →
+                          </Link>
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+                  );
+                }
+
+                if (isTalents) {
+                  return (
+                    <AccordionItem key={index} value={`link-${index}`} className="border-b border-white/10">
+                      <AccordionTrigger className="text-white/90 hover:text-white text-sm font-medium py-3 hover:no-underline">
+                        {link.label}
+                      </AccordionTrigger>
+                      <AccordionContent className="pb-2">
+                        <div className="flex flex-col gap-1 pl-3">
+                          <Link to="/talents/volunteers/spontaneous" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 text-white/70 hover:text-white hover:bg-white/5 rounded-lg text-sm transition-colors">Spontaneous Volunteers</Link>
+                          <Link to="/talents/volunteers/posts" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 text-white/70 hover:text-white hover:bg-white/5 rounded-lg text-sm transition-colors">Volunteer Posts</Link>
+                          <Link to="/talents/experts" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 text-white/70 hover:text-white hover:bg-white/5 rounded-lg text-sm transition-colors">Our Experts</Link>
+                          <Link to="/talents/work-offers" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 text-white/70 hover:text-white hover:bg-white/5 rounded-lg text-sm transition-colors">Work Offers</Link>
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+                  );
+                }
+
+                if (link.hasDropdown && link.dropdownItems && link.dropdownItems.length > 0) {
+                  return (
+                    <AccordionItem key={index} value={`link-${index}`} className="border-b border-white/10">
+                      <AccordionTrigger className="text-white/90 hover:text-white text-sm font-medium py-3 hover:no-underline">
+                        {link.label}
+                      </AccordionTrigger>
+                      <AccordionContent className="pb-2">
+                        <div className="flex flex-col gap-1 pl-3">
+                          {link.dropdownItems.map((item, i) => (
+                            <Link
+                              key={i}
+                              to={item.url}
+                              onClick={() => setMobileMenuOpen(false)}
+                              className="block px-3 py-2 text-white/70 hover:text-white hover:bg-white/5 rounded-lg text-sm transition-colors"
+                            >
+                              {item.label}
+                            </Link>
+                          ))}
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+                  );
+                }
+
+                return link.isExternal ? (
+                  <a
+                    key={index}
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center py-3 text-white/90 hover:text-white text-sm font-medium border-b border-white/10 transition-colors"
+                  >
+                    {link.label}
+                  </a>
+                ) : (
+                  <Link
+                    key={index}
+                    to={link.url}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center py-3 text-white/90 hover:text-white text-sm font-medium border-b border-white/10 transition-colors"
+                  >
+                    {link.label}
+                  </Link>
+                );
+              })}
+            </Accordion>
+          </nav>
+
+          {/* Drawer footer — Login + Language */}
+          <div className="px-5 py-4 border-t border-white/10 flex flex-col gap-3">
+            <Link
+              to="/login"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center gap-2 text-white/80 hover:text-white text-sm transition-colors"
+            >
+              <User className="w-4 h-4" />
+              Login / Profile
+            </Link>
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };

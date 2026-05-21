@@ -174,17 +174,17 @@ const News = () => {
                 ))}
               </div>
               
-              <div className="flex items-center gap-4">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                   <Input 
                     placeholder="Search articles..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 w-64"
+                    className="pl-10 w-full sm:w-64"
                   />
                 </div>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" className="min-h-[44px]">
                   <Filter className="w-4 h-4 mr-2" />
                   Filters
                 </Button>

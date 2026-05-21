@@ -183,27 +183,30 @@ const ClubProfileEdit = () => {
       
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
+        <div className="flex flex-wrap items-center gap-3 mb-8">
           <Button 
             variant="ghost" 
             onClick={() => navigate(`/club/${clubId}`)}
+            className="shrink-0"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Club
           </Button>
-          <div>
-            <h1 className="text-3xl font-bold">Edit Club Profile</h1>
-            <p className="text-muted-foreground">Update your club's information and settings</p>
+          <div className="min-w-0">
+            <h1 className="text-2xl sm:text-3xl font-bold">Edit Club Profile</h1>
+            <p className="text-muted-foreground text-sm sm:text-base">Update your club's information and settings</p>
           </div>
         </div>
 
         <Tabs defaultValue="basic" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <div className="overflow-x-auto">
+          <TabsList className="grid w-full grid-cols-4 min-w-[360px]">
             <TabsTrigger value="basic">Basic Info</TabsTrigger>
             <TabsTrigger value="contact">Contact</TabsTrigger>
-            <TabsTrigger value="social">Social Media</TabsTrigger>
+            <TabsTrigger value="social">Social</TabsTrigger>
             <TabsTrigger value="gallery">Gallery</TabsTrigger>
           </TabsList>
+          </div>
           
           <TabsContent value="basic" className="space-y-6">
             <Card>
@@ -440,14 +443,14 @@ const ClubProfileEdit = () => {
         <div className="sticky bottom-4 mt-8">
           <Card className="border-2 border-primary/20">
             <CardContent className="p-4">
-              <div className="flex justify-between items-center">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
                 <div>
                   <h3 className="font-semibold">Save Changes</h3>
                   <p className="text-sm text-muted-foreground">
                     Make sure all information is accurate before saving.
                   </p>
                 </div>
-                <Button onClick={handleSave} size="lg">
+                <Button onClick={handleSave} size="lg" className="w-full sm:w-auto">
                   <Save className="w-4 h-4 mr-2" />
                   Save Club Profile
                 </Button>

@@ -210,11 +210,11 @@ const CityDetail = () => {
               </div>
             </div>
             
-            <h1 className="text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-black text-white mb-6 tracking-tight leading-none animate-fade-in opacity-0 [animation-delay:600ms] [animation-fill-mode:forwards]" style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>
+            <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-black text-white mb-6 tracking-tight leading-none animate-fade-in opacity-0 [animation-delay:600ms] [animation-fill-mode:forwards]" style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>
               {city.name}
             </h1>
             
-            <p className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl text-secondary font-light italic tracking-wide mb-8 animate-fade-in opacity-0 [animation-delay:800ms] [animation-fill-mode:forwards]" style={{ fontFamily: 'Georgia, Cambria, serif', textShadow: '0 4px 20px rgba(0,0,0,0.5)' }}>
+            <p className="text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl text-secondary font-light italic tracking-wide mb-8 animate-fade-in opacity-0 [animation-delay:800ms] [animation-fill-mode:forwards]" style={{ fontFamily: 'Georgia, Cambria, serif', textShadow: '0 4px 20px rgba(0,0,0,0.5)' }}>
               {city.title}
             </p>
 

@@ -99,13 +99,13 @@ const Events = () => {
 
       <section className="py-6 bg-muted/50">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-            <div className="flex gap-4">
-              <Button variant="outline" size="sm">
+          <div className="flex flex-col md:flex-row gap-3 md:gap-4 items-start md:items-center justify-between">
+            <div className="flex flex-wrap gap-2">
+              <Button variant="outline" size="sm" className="min-h-[44px]">
                 <Filter className="w-4 h-4 mr-2" />
                 Filters
               </Button>
-              <select className="px-3 py-2 border rounded-button text-sm font-body">
+              <select className="px-3 py-2 border rounded-button text-sm font-body min-h-[44px]">
                 <option>All Categories</option>
                 <option>Trekking</option>
                 <option>Photography</option>
@@ -113,7 +113,7 @@ const Events = () => {
                 <option>Water Sports</option>
                 <option>Climbing</option>
               </select>
-              <select className="px-3 py-2 border rounded-button text-sm font-body">
+              <select className="px-3 py-2 border rounded-button text-sm font-body min-h-[44px]">
                 <option>All Difficulties</option>
                 <option>Easy</option>
                 <option>Moderate</option>
@@ -176,16 +176,16 @@ const Events = () => {
             {!loading && !error && events.length > 0 && (
               <div className="space-y-6">
                 {events.map((event) => (
-                  <Card key={event.id} className="hover:shadow-glow transition-all duration-300">
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                  <Card key={event.id} className="hover:shadow-glow transition-all duration-300 overflow-hidden">
+                    <div className="grid grid-cols-1 md:grid-cols-4">
                       <div className="md:col-span-1">
                         <img 
                           src={getImage(event)} 
                           alt={event.title}
-                          className="w-full h-48 md:h-full object-cover rounded-l-card"
+                          className="w-full h-48 md:h-full object-cover rounded-t-card md:rounded-tr-none md:rounded-l-card"
                         />
                       </div>
-                      <div className="md:col-span-3 p-6">
+                      <div className="md:col-span-3 p-4 md:p-6">
                         <div className="flex flex-wrap items-start gap-4 mb-4">
                           <div className="flex-1">
                             <div className="flex items-center gap-3 mb-2">

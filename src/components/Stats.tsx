@@ -46,24 +46,24 @@ const Stats = () => {
           </p>
         </div>
         
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
           {statistics.map((stat, index) => (
             <Card 
               key={stat.label} 
               className="bg-white/10 border-white/20 backdrop-blur-sm hover:bg-white/20 transition-all duration-300 animate-scale-in"
               style={{ animationDelay: `${index * 0.1}s` }}
             >
-              <CardContent className="p-6 text-center">
-                <div className="w-12 h-12 mx-auto mb-4 bg-white/20 rounded-full flex items-center justify-center">
-                  <stat.icon className="w-6 h-6 text-white" />
+              <CardContent className="p-4 md:p-6 text-center">
+                <div className="w-10 h-10 md:w-12 md:h-12 mx-auto mb-3 md:mb-4 bg-white/20 rounded-full flex items-center justify-center">
+                  <stat.icon className="w-5 h-5 md:w-6 md:h-6 text-white" />
                 </div>
-                <div className="text-3xl md:text-4xl font-bold text-white mb-2 font-heading">
+                <div className="text-2xl md:text-4xl font-bold text-white mb-1 md:mb-2 font-heading">
                   {stat.value}
                 </div>
-                <div className="text-lg font-semibold text-white mb-1 font-heading">
+                <div className="text-base md:text-lg font-semibold text-white mb-1 font-heading">
                   {stat.label}
                 </div>
-                <p className="text-sm text-primary-foreground/70 font-body">
+                <p className="text-xs md:text-sm text-primary-foreground/70 font-body leading-snug">
                   {stat.description}
                 </p>
               </CardContent>
