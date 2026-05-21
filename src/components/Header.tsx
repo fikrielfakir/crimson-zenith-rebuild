@@ -503,7 +503,7 @@ const TopNavbar = ({
 
   return (
     <div
-      className="w-full bg-transparent transition-all duration-300 overflow-hidden"
+      className="w-full bg-transparent transition-all duration-300 overflow-hidden max-md:!max-h-[10px]"
       style={
         isScrolled
           ? { maxHeight: "65px", opacity: "0", height: "65px" }
