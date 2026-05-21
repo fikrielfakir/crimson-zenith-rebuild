@@ -1,8 +1,10 @@
 import logo from "@/assets/logo.png";
 import { Facebook, Instagram, Twitter, Mail } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const Footer = () => {
+  const { t } = useTranslation();
   const currentYear = new Date().getFullYear();
 
   return (
@@ -16,35 +18,34 @@ const Footer = () => {
               <span className="text-2xl font-bold font-heading">The Journey</span>
             </div>
             <p className="text-primary-foreground/80 leading-relaxed mb-6 max-w-md font-body">
-              Experience Morocco's soul through sustainable journeys. We create authentic connections 
-              between travelers and local communities while preserving cultural heritage.
+              {t("footer.tagline")}
             </p>
             <div className="flex gap-4">
-              <a 
-                href="https://www.facebook.com/moroccoactivities" 
-                target="_blank" 
+              <a
+                href="https://www.facebook.com/moroccoactivities"
+                target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors cursor-pointer"
               >
                 <Facebook className="w-5 h-5" />
               </a>
-              <a 
-                href="https://www.instagram.com/moroccoactivities" 
-                target="_blank" 
+              <a
+                href="https://www.instagram.com/moroccoactivities"
+                target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors cursor-pointer"
               >
                 <Instagram className="w-5 h-5" />
               </a>
-              <a 
-                href="https://twitter.com/moroccoactivities" 
-                target="_blank" 
+              <a
+                href="https://twitter.com/moroccoactivities"
+                target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors cursor-pointer"
               >
                 <Twitter className="w-5 h-5" />
               </a>
-              <a 
+              <a
                 href="mailto:info@moroccoactivities.com"
                 className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors cursor-pointer"
               >
@@ -52,37 +53,37 @@ const Footer = () => {
               </a>
             </div>
           </div>
-          
+
           {/* Quick Links */}
           <div>
-            <h3 className="text-lg font-semibold mb-6 font-heading">Quick Links</h3>
+            <h3 className="text-lg font-semibold mb-6 font-heading">{t("footer.quickLinks")}</h3>
             <ul className="space-y-3">
               <li>
                 <a href="#about" className="text-primary-foreground/80 hover:text-white transition-colors">
-                  About Us
+                  {t("footer.aboutUs")}
                 </a>
               </li>
               <li>
                 <a href="#events" className="text-primary-foreground/80 hover:text-white transition-colors">
-                  Events
+                  {t("footer.events")}
                 </a>
               </li>
               <li>
                 <a href="#clubs" className="text-primary-foreground/80 hover:text-white transition-colors">
-                  Our Clubs
+                  {t("footer.ourClubs")}
                 </a>
               </li>
               <li>
                 <a href="#contact" className="text-primary-foreground/80 hover:text-white transition-colors">
-                  Contact
+                  {t("footer.contact")}
                 </a>
               </li>
             </ul>
           </div>
-          
+
           {/* Contact Info */}
           <div>
-            <h3 className="text-lg font-semibold mb-6">Contact</h3>
+            <h3 className="text-lg font-semibold mb-6">{t("footer.contact")}</h3>
             <div className="space-y-3 text-primary-foreground/80">
               <p>+212 686 777 888</p>
               <p>info@thejourney-ma.com</p>
@@ -90,21 +91,21 @@ const Footer = () => {
             </div>
           </div>
         </div>
-        
+
         {/* Bottom Bar */}
         <div className="border-t border-white/20 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-primary-foreground/70 text-sm">
-            © {currentYear} The Journey Association. All rights reserved.
+            © {currentYear} The Journey Association. {t("footer.allRightsReserved")}
           </p>
           <div className="flex gap-6 text-sm text-primary-foreground/70">
             <Link to="/privacy-policy" className="hover:text-white transition-colors">
-              Privacy Policy
+              {t("footer.privacyPolicy")}
             </Link>
             <Link to="/terms-of-service" className="hover:text-white transition-colors">
-              Terms of Service
+              {t("footer.termsOfService")}
             </Link>
             <Link to="/cookie-policy" className="hover:text-white transition-colors">
-              Cookie Policy
+              {t("footer.cookiePolicy")}
             </Link>
           </div>
         </div>

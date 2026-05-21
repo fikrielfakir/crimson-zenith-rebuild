@@ -5,8 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Phone, Mail, MapPin, MessageCircle, Headset, CheckCircle, AlertCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const Contact = () => {
+  const { t } = useTranslation();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -20,26 +22,26 @@ const Contact = () => {
   const contactOptions = [
     {
       icon: MessageCircle,
-      title: "Chat to support",
-      subtitle: "Speak to our friendly team.",
+      title: t("contact.chatSupport"),
+      subtitle: t("contact.chatSupportSub"),
       contact: "info@thejourney-ma.com",
     },
     {
       icon: Headset,
-      title: "Chat to Select",
-      subtitle: "Talk to get advice.",
+      title: t("contact.chatToSelect"),
+      subtitle: t("contact.chatToSelectSub"),
       contact: "Contact with chatbot",
     },
     {
       icon: MapPin,
-      title: "Visit us",
-      subtitle: "Visit our office.",
+      title: t("contact.visitUs"),
+      subtitle: t("contact.visitUsSub"),
       contact: "Rabat Bouregreg, Morocco",
     },
     {
       icon: Phone,
-      title: "Call us",
-      subtitle: "Mon–Fri from 8am to 5pm.",
+      title: t("contact.callUs"),
+      subtitle: t("contact.callUsSub"),
       contact: "+212 686 777 888",
     },
   ];
@@ -47,11 +49,11 @@ const Contact = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!agreed) {
-      setError("Please agree to the privacy policy before sending.");
+      setError(t("contact.errorPolicy"));
       return;
     }
     if (!firstName || !email || !message) {
-      setError("Please fill in your name, email, and message.");
+      setError(t("contact.errorRequired"));
       return;
     }
 
@@ -85,7 +87,7 @@ const Contact = () => {
       setMessage("");
       setAgreed(false);
     } catch (err: any) {
-      setError(err?.message ?? 'Failed to send message. Please try again.');
+      setError(err?.message ?? t("contact.errorGeneric"));
     } finally {
       setLoading(false);
     }
@@ -95,35 +97,21 @@ const Contact = () => {
     <section id="contact" className="py-20 bg-white dark:bg-background scroll-mt-32">
       <div className="container mx-auto px-4" style={{ maxWidth: '1100px' }}>
         <div className="grid lg:grid-cols-2 gap-10 items-start">
-          <div 
+          <div
             className="bg-white dark:bg-card"
-            style={{
-              border: '1px solid #E4E4E4',
-              borderRadius: '12px',
-              padding: '24px',
-              boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.05)',
-            }}
+            style={{ border: '1px solid #E4E4E4', borderRadius: '12px', padding: '24px', boxShadow: '0px 4px 10px rgba(0,0,0,0.05)' }}
           >
             <div className="space-y-5">
               {contactOptions.map((option, index) => (
                 <div key={index} className="flex items-start gap-4">
-                  <div 
-                    className="w-12 h-12 flex items-center justify-center flex-shrink-0 rounded-lg"
-                    style={{ backgroundColor: '#1B1B1B' }}
-                  >
+                  <div className="w-12 h-12 flex items-center justify-center flex-shrink-0 rounded-lg" style={{ backgroundColor: '#1B1B1B' }}>
                     <option.icon className="w-5 h-5 text-white" strokeWidth={2} />
                   </div>
                   <div className="flex-1">
-                    <h3 
-                      className="font-semibold mb-1"
-                      style={{ fontSize: '15px', color: '#222', letterSpacing: '0.5px' }}
-                    >
+                    <h3 className="font-semibold mb-1" style={{ fontSize: '15px', color: '#222', letterSpacing: '0.5px' }}>
                       {option.title}
                     </h3>
-                    <p 
-                      className="mb-1"
-                      style={{ fontSize: '13px', color: '#666', lineHeight: '1.6' }}
-                    >
+                    <p className="mb-1" style={{ fontSize: '13px', color: '#666', lineHeight: '1.6' }}>
                       {option.subtitle}
                     </p>
                     <p style={{ fontSize: '13px', color: '#444', fontWeight: '500' }}>
@@ -135,35 +123,23 @@ const Contact = () => {
             </div>
           </div>
 
-          <div 
+          <div
             className="bg-white dark:bg-card"
-            style={{
-              border: '1px solid #E4E4E4',
-              borderRadius: '12px',
-              padding: '32px',
-              boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.05)',
-            }}
+            style={{ border: '1px solid #E4E4E4', borderRadius: '12px', padding: '32px', boxShadow: '0px 4px 10px rgba(0,0,0,0.05)' }}
           >
-            <h2 
-              className="font-semibold mb-2"
-              style={{ fontSize: '24px', color: '#222', fontFamily: 'Georgia, serif', letterSpacing: '0.5px' }}
-            >
-              Contact us
+            <h2 className="font-semibold mb-2" style={{ fontSize: '24px', color: '#222', fontFamily: 'Georgia, serif', letterSpacing: '0.5px' }}>
+              {t("contact.title")}
             </h2>
-            <p 
-              className="mb-6"
-              style={{ fontSize: '14px', color: '#666', lineHeight: '1.6' }}
-            >
-              Our friendly team would love to hear from you.
+            <p className="mb-6" style={{ fontSize: '14px', color: '#666', lineHeight: '1.6' }}>
+              {t("contact.subtitle")}
             </p>
 
             {success ? (
               <div className="flex flex-col items-center justify-center py-8 text-center gap-3">
                 <CheckCircle className="w-12 h-12 text-green-500" />
-                <h3 className="text-lg font-semibold">Message sent!</h3>
-                <p className="text-sm text-muted-foreground">We'll get back to you as soon as possible.</p>
+                <h3 className="text-lg font-semibold">{t("contact.success")}</h3>
                 <Button variant="outline" size="sm" onClick={() => setSuccess(false)} className="mt-2">
-                  Send another message
+                  {t("contact.send")}
                 </Button>
               </div>
             ) : (
@@ -171,10 +147,10 @@ const Contact = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block mb-2" style={{ fontSize: '13px', fontWeight: '500', color: '#333' }}>
-                      First name
+                      {t("contact.firstName")}
                     </label>
-                    <Input 
-                      placeholder="First name"
+                    <Input
+                      placeholder={t("contact.firstName")}
                       value={firstName}
                       onChange={e => setFirstName(e.target.value)}
                       required
@@ -183,10 +159,10 @@ const Contact = () => {
                   </div>
                   <div>
                     <label className="block mb-2" style={{ fontSize: '13px', fontWeight: '500', color: '#333' }}>
-                      Last name
+                      {t("contact.lastName")}
                     </label>
-                    <Input 
-                      placeholder="Last name"
+                    <Input
+                      placeholder={t("contact.lastName")}
                       value={lastName}
                       onChange={e => setLastName(e.target.value)}
                       style={{ height: '48px', borderRadius: '8px', border: '1px solid #E4E4E4', padding: '12px', fontSize: '14px' }}
@@ -196,9 +172,9 @@ const Contact = () => {
 
                 <div>
                   <label className="block mb-2" style={{ fontSize: '13px', fontWeight: '500', color: '#333' }}>
-                    Email
+                    {t("contact.email")}
                   </label>
-                  <Input 
+                  <Input
                     type="email"
                     placeholder="you@company.com"
                     value={email}
@@ -210,11 +186,11 @@ const Contact = () => {
 
                 <div>
                   <label className="block mb-2" style={{ fontSize: '13px', fontWeight: '500', color: '#333' }}>
-                    Phone number
+                    {t("contact.phone")}
                   </label>
-                  <Input 
+                  <Input
                     type="tel"
-                    placeholder="+1 (555) 000-0000"
+                    placeholder="+212 6XX XXX XXX"
                     value={phone}
                     onChange={e => setPhone(e.target.value)}
                     style={{ height: '48px', borderRadius: '8px', border: '1px solid #E4E4E4', padding: '12px', fontSize: '14px' }}
@@ -223,10 +199,10 @@ const Contact = () => {
 
                 <div>
                   <label className="block mb-2" style={{ fontSize: '13px', fontWeight: '500', color: '#333' }}>
-                    Message
+                    {t("contact.message")}
                   </label>
-                  <Textarea 
-                    placeholder="Leave us a message..."
+                  <Textarea
+                    placeholder={t("contact.messagePlaceholder")}
                     value={message}
                     onChange={e => setMessage(e.target.value)}
                     required
@@ -241,11 +217,8 @@ const Contact = () => {
                     checked={agreed}
                     onCheckedChange={(v) => setAgreed(v as boolean)}
                   />
-                  <label 
-                    htmlFor="privacy"
-                    style={{ fontSize: '13px', color: '#555', lineHeight: '1.6', cursor: 'pointer' }}
-                  >
-                    You agree to our friendly privacy policy.
+                  <label htmlFor="privacy" style={{ fontSize: '13px', color: '#555', lineHeight: '1.6', cursor: 'pointer' }}>
+                    {t("contact.agreePolicy")}
                   </label>
                 </div>
 
@@ -256,22 +229,15 @@ const Contact = () => {
                   </div>
                 )}
 
-                <Button 
+                <Button
                   type="submit"
                   className="w-full transition-all duration-300"
                   disabled={loading}
-                  style={{
-                    height: '50px',
-                    backgroundColor: '#1B1B1B',
-                    color: 'white',
-                    fontSize: '15px',
-                    fontWeight: '600',
-                    borderRadius: '8px',
-                  }}
+                  style={{ height: '50px', backgroundColor: '#1B1B1B', color: 'white', fontSize: '15px', fontWeight: '600', borderRadius: '8px' }}
                   onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#333333'; }}
                   onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#1B1B1B'; }}
                 >
-                  {loading ? 'Sending…' : 'Send message'}
+                  {loading ? t("contact.sending") : t("contact.send")}
                 </Button>
               </form>
             )}

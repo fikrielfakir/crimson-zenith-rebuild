@@ -1,0 +1,186 @@
+{
+  "nav": {
+    "discover": "Discover",
+    "activities": "Activities",
+    "projects": "Projects",
+    "clubs": "Clubs",
+    "gallery": "Gallery",
+    "blog": "Blog",
+    "talents": "Talents",
+    "contact": "Contact",
+    "login": "Log In",
+    "register": "Register",
+    "donate": "Donate",
+    "joinUs": "Join Us",
+    "volunteers": "Volunteers",
+    "workOffers": "Work Offers",
+    "home": "Home",
+    "topCities": "Top Cities Morocco",
+    "events": "Events",
+    "news": "News"
+  },
+  "lang": {
+    "en": "English",
+    "fr": "Français",
+    "ar": "العربية",
+    "es": "Español"
+  },
+  "footer": {
+    "tagline": "Experience Morocco's soul through sustainable journeys. We create authentic connections between travelers and local communities while preserving cultural heritage.",
+    "quickLinks": "Quick Links",
+    "contact": "Contact",
+    "aboutUs": "About Us",
+    "events": "Events",
+    "ourClubs": "Our Clubs",
+    "allRightsReserved": "All rights reserved.",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfService": "Terms of Service",
+    "cookiePolicy": "Cookie Policy"
+  },
+  "hero": {
+    "taglines": [
+      "Where Adventure Meets\nTransformation",
+      "Where Journey Meets\nDiscovery",
+      "Where Exploration Meets\nInspiration",
+      "Where Travel Meets\nPurpose",
+      "Journey Within,\nExplore Without",
+      "Where Journeys Become\nTransformations"
+    ],
+    "exploreEvents": "Explore Events",
+    "joinUs": "Join Us",
+    "scrollDown": "Scroll down"
+  },
+  "about": {
+    "tourism": "Tourism",
+    "tourismDesc": "Experience Morocco's most breathtaking landscapes through sustainable adventures and responsible travel.",
+    "culture": "Culture",
+    "cultureDesc": "Discover the rich heritage and traditions of Morocco through authentic experiences.",
+    "entertainment": "Entertainment",
+    "entertainmentDesc": "Experience vibrant festivals, music, and cultural performances across the Kingdom."
+  },
+  "stats": {
+    "title": "Our Impact",
+    "subtitle": "Making a positive impact through sustainable tourism and community engagement",
+    "participants": "Participants",
+    "participantsDesc": "Adventure seekers joined our community",
+    "tripsPlanned": "Trips Planned",
+    "tripsPlannedDesc": "Unforgettable journeys across Morocco",
+    "collaborations": "Cultural Collaborations",
+    "collaborationsDesc": "Partnerships with local artisans",
+    "projects": "Community Projects",
+    "projectsDesc": "Sustainable impact initiatives"
+  },
+  "contact": {
+    "title": "Contact Us",
+    "subtitle": "Have questions about your next adventure?",
+    "description": "We're here to help you plan the perfect Moroccan journey.",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "email": "Email",
+    "phone": "Phone",
+    "message": "Message",
+    "messagePlaceholder": "Tell us about your trip, questions or interests…",
+    "send": "Send Message",
+    "sending": "Sending…",
+    "success": "Message sent successfully! We'll get back to you soon.",
+    "errorRequired": "Please fill in your name, email, and message.",
+    "errorPolicy": "Please agree to the privacy policy before sending.",
+    "errorGeneric": "Failed to send message. Please try again.",
+    "agreePolicy": "I agree to the privacy policy",
+    "chatSupport": "Chat to support",
+    "chatSupportSub": "Speak to our friendly team.",
+    "chatToSelect": "Chat to Select",
+    "chatToSelectSub": "Talk to get advice.",
+    "visitUs": "Visit us",
+    "visitUsSub": "Visit our office.",
+    "callUs": "Call us",
+    "callUsSub": "Mon–Fri from 8am to 5pm."
+  },
+  "common": {
+    "learnMore": "Learn More",
+    "bookNow": "Book Now",
+    "viewAll": "View All",
+    "search": "Search",
+    "loading": "Loading…",
+    "error": "Something went wrong",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "close": "Close",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "seeMore": "See More",
+    "noResults": "No results found",
+    "required": "Required"
+  },
+  "discover": {
+    "title": "Discover Morocco",
+    "subtitle": "Explore the wonders of the Kingdom",
+    "searchPlaceholder": "Search cities, clubs, events…",
+    "filterAll": "All",
+    "exploreCity": "Explore"
+  },
+  "clubs": {
+    "title": "Our Clubs",
+    "subtitle": "Join local communities across Morocco's most fascinating cities",
+    "members": "members",
+    "joinClub": "Join Club",
+    "viewDetails": "View Details"
+  },
+  "events": {
+    "title": "Events & Activities",
+    "subtitle": "Discover upcoming experiences across Morocco",
+    "bookTickets": "Book Tickets",
+    "free": "Free",
+    "upcoming": "Upcoming",
+    "past": "Past"
+  },
+  "news": {
+    "title": "Latest News",
+    "subtitle": "Stories from Morocco's adventure and cultural scene",
+    "readMore": "Read More",
+    "publishedOn": "Published on"
+  },
+  "joinUs": {
+    "title": "Join Our Adventure Community",
+    "subtitle": "Become part of Morocco's most vibrant network",
+    "personalInfo": "Personal Information",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "email": "Email Address",
+    "phone": "Phone Number",
+    "motivation": "Tell Us About Yourself",
+    "motivationLabel": "Why do you want to join?",
+    "motivationHint": "Minimum 50 characters",
+    "submit": "Submit Application",
+    "successTitle": "Application Submitted!",
+    "successMessage": "Thank you for your interest. We'll review your application and get back to you soon."
+  },
+  "projects": {
+    "title": "Our Projects",
+    "subtitle": "Community initiatives making a real difference across Morocco",
+    "donate": "Support this project",
+    "progress": "Progress",
+    "goal": "Goal"
+  },
+  "gallery": {
+    "title": "Gallery",
+    "subtitle": "Morocco's culture and adventure in photos"
+  },
+  "book": {
+    "overview": "Overview",
+    "highlights": "Highlights",
+    "included": "What's Included",
+    "schedule": "Schedule",
+    "reviews": "Reviews",
+    "price": "Price",
+    "perPerson": "per person",
+    "bookNow": "Book Now",
+    "selectDate": "Select Date",
+    "selectParticipants": "Number of Participants",
+    "totalPrice": "Total Price"
+  }
+}

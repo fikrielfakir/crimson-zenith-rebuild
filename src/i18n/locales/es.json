@@ -1,0 +1,186 @@
+{
+  "nav": {
+    "discover": "Descubrir",
+    "activities": "Actividades",
+    "projects": "Proyectos",
+    "clubs": "Clubes",
+    "gallery": "Galería",
+    "blog": "Blog",
+    "talents": "Talentos",
+    "contact": "Contacto",
+    "login": "Iniciar sesión",
+    "register": "Registrarse",
+    "donate": "Donar",
+    "joinUs": "Únete",
+    "volunteers": "Voluntarios",
+    "workOffers": "Ofertas de trabajo",
+    "home": "Inicio",
+    "topCities": "Principales ciudades de Marruecos",
+    "events": "Eventos",
+    "news": "Noticias"
+  },
+  "lang": {
+    "en": "English",
+    "fr": "Français",
+    "ar": "العربية",
+    "es": "Español"
+  },
+  "footer": {
+    "tagline": "Vive el alma de Marruecos a través de viajes sostenibles. Creamos conexiones auténticas entre viajeros y comunidades locales mientras preservamos el patrimonio cultural.",
+    "quickLinks": "Enlaces rápidos",
+    "contact": "Contacto",
+    "aboutUs": "Sobre nosotros",
+    "events": "Eventos",
+    "ourClubs": "Nuestros clubes",
+    "allRightsReserved": "Todos los derechos reservados.",
+    "privacyPolicy": "Política de privacidad",
+    "termsOfService": "Términos de servicio",
+    "cookiePolicy": "Política de cookies"
+  },
+  "hero": {
+    "taglines": [
+      "Donde la Aventura Se Encuentra\ncon la Transformación",
+      "Donde el Viaje Se Encuentra\ncon el Descubrimiento",
+      "Donde la Exploración Se Encuentra\ncon la Inspiración",
+      "Donde el Viaje Se Encuentra\ncon el Propósito",
+      "Viaje Interior,\nExploración Exterior",
+      "Donde los Viajes Se Convierten\nen Transformaciones"
+    ],
+    "exploreEvents": "Explorar Eventos",
+    "joinUs": "Únete",
+    "scrollDown": "Desplazar hacia abajo"
+  },
+  "about": {
+    "tourism": "Turismo",
+    "tourismDesc": "Descubre los paisajes más impresionantes de Marruecos a través de aventuras sostenibles y viajes responsables.",
+    "culture": "Cultura",
+    "cultureDesc": "Descubre el rico patrimonio y las tradiciones de Marruecos a través de experiencias auténticas.",
+    "entertainment": "Entretenimiento",
+    "entertainmentDesc": "Vive festivales vibrantes, música y actuaciones culturales por todo el Reino."
+  },
+  "stats": {
+    "title": "Nuestro Impacto",
+    "subtitle": "Generando un impacto positivo a través del turismo sostenible y el compromiso comunitario",
+    "participants": "Participantes",
+    "participantsDesc": "Aventureros que se unieron a nuestra comunidad",
+    "tripsPlanned": "Viajes planificados",
+    "tripsPlannedDesc": "Viajes inolvidables por Marruecos",
+    "collaborations": "Colaboraciones culturales",
+    "collaborationsDesc": "Asociaciones con artesanos locales",
+    "projects": "Proyectos comunitarios",
+    "projectsDesc": "Iniciativas de impacto sostenible"
+  },
+  "contact": {
+    "title": "Contáctanos",
+    "subtitle": "¿Tienes preguntas sobre tu próxima aventura?",
+    "description": "Estamos aquí para ayudarte a planificar el viaje marroquí perfecto.",
+    "firstName": "Nombre",
+    "lastName": "Apellido",
+    "email": "Correo electrónico",
+    "phone": "Teléfono",
+    "message": "Mensaje",
+    "messagePlaceholder": "Cuéntanos sobre tu viaje, preguntas o intereses…",
+    "send": "Enviar mensaje",
+    "sending": "Enviando…",
+    "success": "¡Mensaje enviado con éxito! Te responderemos pronto.",
+    "errorRequired": "Por favor completa tu nombre, correo y mensaje.",
+    "errorPolicy": "Por favor acepta la política de privacidad antes de enviar.",
+    "errorGeneric": "Error al enviar el mensaje. Por favor inténtalo de nuevo.",
+    "agreePolicy": "Acepto la política de privacidad",
+    "chatSupport": "Chat de soporte",
+    "chatSupportSub": "Habla con nuestro amable equipo.",
+    "chatToSelect": "Chat de selección",
+    "chatToSelectSub": "Obtén asesoramiento.",
+    "visitUs": "Visítanos",
+    "visitUsSub": "Visita nuestra oficina.",
+    "callUs": "Llámanos",
+    "callUsSub": "Lun–Vie de 8am a 5pm."
+  },
+  "common": {
+    "learnMore": "Saber más",
+    "bookNow": "Reservar",
+    "viewAll": "Ver todo",
+    "search": "Buscar",
+    "loading": "Cargando…",
+    "error": "Algo salió mal",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "previous": "Anterior",
+    "close": "Cerrar",
+    "submit": "Enviar",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "seeMore": "Ver más",
+    "noResults": "No se encontraron resultados",
+    "required": "Obligatorio"
+  },
+  "discover": {
+    "title": "Descubre Marruecos",
+    "subtitle": "Explora las maravillas del Reino",
+    "searchPlaceholder": "Buscar ciudades, clubes, eventos…",
+    "filterAll": "Todos",
+    "exploreCity": "Explorar"
+  },
+  "clubs": {
+    "title": "Nuestros Clubes",
+    "subtitle": "Únete a comunidades locales en las ciudades más fascinantes de Marruecos",
+    "members": "miembros",
+    "joinClub": "Unirse al club",
+    "viewDetails": "Ver detalles"
+  },
+  "events": {
+    "title": "Eventos y Actividades",
+    "subtitle": "Descubre próximas experiencias en todo Marruecos",
+    "bookTickets": "Reservar entradas",
+    "free": "Gratis",
+    "upcoming": "Próximos",
+    "past": "Pasados"
+  },
+  "news": {
+    "title": "Últimas noticias",
+    "subtitle": "Historias de la escena de aventura y cultura de Marruecos",
+    "readMore": "Leer más",
+    "publishedOn": "Publicado el"
+  },
+  "joinUs": {
+    "title": "Únete a Nuestra Comunidad de Aventura",
+    "subtitle": "Sé parte de la red más vibrante de Marruecos",
+    "personalInfo": "Información personal",
+    "firstName": "Nombre",
+    "lastName": "Apellido",
+    "email": "Correo electrónico",
+    "phone": "Número de teléfono",
+    "motivation": "Cuéntanos sobre ti",
+    "motivationLabel": "¿Por qué quieres unirte?",
+    "motivationHint": "Mínimo 50 caracteres",
+    "submit": "Enviar solicitud",
+    "successTitle": "¡Solicitud enviada!",
+    "successMessage": "Gracias por tu interés. Revisaremos tu solicitud y te contactaremos pronto."
+  },
+  "projects": {
+    "title": "Nuestros Proyectos",
+    "subtitle": "Iniciativas comunitarias que generan un impacto real en Marruecos",
+    "donate": "Apoya este proyecto",
+    "progress": "Progreso",
+    "goal": "Meta"
+  },
+  "gallery": {
+    "title": "Galería",
+    "subtitle": "La cultura y la aventura marroquí en fotos"
+  },
+  "book": {
+    "overview": "Descripción",
+    "highlights": "Aspectos destacados",
+    "included": "Qué está incluido",
+    "schedule": "Programa",
+    "reviews": "Reseñas",
+    "price": "Precio",
+    "perPerson": "por persona",
+    "bookNow": "Reservar",
+    "selectDate": "Seleccionar fecha",
+    "selectParticipants": "Número de participantes",
+    "totalPrice": "Precio total"
+  }
+}

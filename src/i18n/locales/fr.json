@@ -1,0 +1,186 @@
+{
+  "nav": {
+    "discover": "Découvrir",
+    "activities": "Activités",
+    "projects": "Projets",
+    "clubs": "Clubs",
+    "gallery": "Galerie",
+    "blog": "Blog",
+    "talents": "Talents",
+    "contact": "Contact",
+    "login": "Se connecter",
+    "register": "S'inscrire",
+    "donate": "Faire un don",
+    "joinUs": "Nous rejoindre",
+    "volunteers": "Bénévoles",
+    "workOffers": "Offres d'emploi",
+    "home": "Accueil",
+    "topCities": "Meilleures villes du Maroc",
+    "events": "Événements",
+    "news": "Actualités"
+  },
+  "lang": {
+    "en": "English",
+    "fr": "Français",
+    "ar": "العربية",
+    "es": "Español"
+  },
+  "footer": {
+    "tagline": "Vivez l'âme du Maroc à travers des voyages durables. Nous créons des liens authentiques entre voyageurs et communautés locales tout en préservant le patrimoine culturel.",
+    "quickLinks": "Liens rapides",
+    "contact": "Contact",
+    "aboutUs": "À propos",
+    "events": "Événements",
+    "ourClubs": "Nos clubs",
+    "allRightsReserved": "Tous droits réservés.",
+    "privacyPolicy": "Politique de confidentialité",
+    "termsOfService": "Conditions d'utilisation",
+    "cookiePolicy": "Politique de cookies"
+  },
+  "hero": {
+    "taglines": [
+      "Là où l'Aventure Rencontre\nla Transformation",
+      "Là où le Voyage Rencontre\nla Découverte",
+      "Là où l'Exploration Rencontre\nl'Inspiration",
+      "Là où le Voyage Rencontre\nle But",
+      "Voyage Intérieur,\nExploration Extérieure",
+      "Là où les Voyages Deviennent\ndes Transformations"
+    ],
+    "exploreEvents": "Explorer les événements",
+    "joinUs": "Nous rejoindre",
+    "scrollDown": "Défiler vers le bas"
+  },
+  "about": {
+    "tourism": "Tourisme",
+    "tourismDesc": "Découvrez les paysages les plus époustouflants du Maroc à travers des aventures durables et un voyage responsable.",
+    "culture": "Culture",
+    "cultureDesc": "Découvrez le riche patrimoine et les traditions du Maroc à travers des expériences authentiques.",
+    "entertainment": "Divertissement",
+    "entertainmentDesc": "Vivez des festivals vibrants, de la musique et des spectacles culturels à travers le Royaume."
+  },
+  "stats": {
+    "title": "Notre Impact",
+    "subtitle": "Un impact positif à travers le tourisme durable et l'engagement communautaire",
+    "participants": "Participants",
+    "participantsDesc": "Aventuriers ayant rejoint notre communauté",
+    "tripsPlanned": "Voyages organisés",
+    "tripsPlannedDesc": "Aventures inoubliables à travers le Maroc",
+    "collaborations": "Collaborations culturelles",
+    "collaborationsDesc": "Partenariats avec des artisans locaux",
+    "projects": "Projets communautaires",
+    "projectsDesc": "Initiatives à impact durable"
+  },
+  "contact": {
+    "title": "Contactez-nous",
+    "subtitle": "Des questions sur votre prochaine aventure ?",
+    "description": "Nous sommes là pour vous aider à planifier le voyage marocain parfait.",
+    "firstName": "Prénom",
+    "lastName": "Nom de famille",
+    "email": "Adresse e-mail",
+    "phone": "Téléphone",
+    "message": "Message",
+    "messagePlaceholder": "Parlez-nous de votre voyage, questions ou centres d'intérêt…",
+    "send": "Envoyer le message",
+    "sending": "Envoi en cours…",
+    "success": "Message envoyé avec succès ! Nous vous répondrons bientôt.",
+    "errorRequired": "Veuillez remplir votre nom, e-mail et message.",
+    "errorPolicy": "Veuillez accepter la politique de confidentialité avant d'envoyer.",
+    "errorGeneric": "Échec de l'envoi. Veuillez réessayer.",
+    "agreePolicy": "J'accepte la politique de confidentialité",
+    "chatSupport": "Chat d'assistance",
+    "chatSupportSub": "Parlez à notre équipe sympathique.",
+    "chatToSelect": "Chat de sélection",
+    "chatToSelectSub": "Obtenez des conseils.",
+    "visitUs": "Rendez-nous visite",
+    "visitUsSub": "Visitez notre bureau.",
+    "callUs": "Appelez-nous",
+    "callUsSub": "Lun–Ven de 8h à 17h."
+  },
+  "common": {
+    "learnMore": "En savoir plus",
+    "bookNow": "Réserver",
+    "viewAll": "Tout voir",
+    "search": "Rechercher",
+    "loading": "Chargement…",
+    "error": "Une erreur est survenue",
+    "back": "Retour",
+    "next": "Suivant",
+    "previous": "Précédent",
+    "close": "Fermer",
+    "submit": "Soumettre",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "seeMore": "Voir plus",
+    "noResults": "Aucun résultat trouvé",
+    "required": "Obligatoire"
+  },
+  "discover": {
+    "title": "Découvrir le Maroc",
+    "subtitle": "Explorez les merveilles du Royaume",
+    "searchPlaceholder": "Rechercher des villes, clubs, événements…",
+    "filterAll": "Tous",
+    "exploreCity": "Explorer"
+  },
+  "clubs": {
+    "title": "Nos Clubs",
+    "subtitle": "Rejoignez des communautés locales dans les villes les plus fascinantes du Maroc",
+    "members": "membres",
+    "joinClub": "Rejoindre le club",
+    "viewDetails": "Voir les détails"
+  },
+  "events": {
+    "title": "Événements & Activités",
+    "subtitle": "Découvrez les prochaines expériences à travers le Maroc",
+    "bookTickets": "Réserver des billets",
+    "free": "Gratuit",
+    "upcoming": "À venir",
+    "past": "Passés"
+  },
+  "news": {
+    "title": "Dernières actualités",
+    "subtitle": "Histoires de la scène aventure et culturelle du Maroc",
+    "readMore": "Lire la suite",
+    "publishedOn": "Publié le"
+  },
+  "joinUs": {
+    "title": "Rejoignez Notre Communauté d'Aventure",
+    "subtitle": "Faites partie du réseau le plus dynamique du Maroc",
+    "personalInfo": "Informations personnelles",
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "email": "Adresse e-mail",
+    "phone": "Numéro de téléphone",
+    "motivation": "Parlez-nous de vous",
+    "motivationLabel": "Pourquoi voulez-vous nous rejoindre ?",
+    "motivationHint": "Minimum 50 caractères",
+    "submit": "Soumettre la candidature",
+    "successTitle": "Candidature soumise !",
+    "successMessage": "Merci pour votre intérêt. Nous examinerons votre candidature et vous recontacterons bientôt."
+  },
+  "projects": {
+    "title": "Nos Projets",
+    "subtitle": "Initiatives communautaires faisant une vraie différence à travers le Maroc",
+    "donate": "Soutenir ce projet",
+    "progress": "Progression",
+    "goal": "Objectif"
+  },
+  "gallery": {
+    "title": "Galerie",
+    "subtitle": "La culture et l'aventure marocaine en photos"
+  },
+  "book": {
+    "overview": "Aperçu",
+    "highlights": "Points forts",
+    "included": "Ce qui est inclus",
+    "schedule": "Programme",
+    "reviews": "Avis",
+    "price": "Prix",
+    "perPerson": "par personne",
+    "bookNow": "Réserver",
+    "selectDate": "Sélectionner une date",
+    "selectParticipants": "Nombre de participants",
+    "totalPrice": "Prix total"
+  }
+}

@@ -1,55 +1,57 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Users, MapPin, Calendar, Heart } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const Stats = () => {
+  const { t } = useTranslation();
+
   const statistics = [
     {
       icon: Users,
       value: "1,200+",
-      label: "Participants",
-      description: "Adventure seekers joined our community",
+      labelKey: "stats.participants",
+      descKey: "stats.participantsDesc",
     },
     {
       icon: MapPin,
       value: "500+",
-      label: "Trips Planned", 
-      description: "Unforgettable journeys across Morocco",
+      labelKey: "stats.tripsPlanned",
+      descKey: "stats.tripsPlannedDesc",
     },
     {
       icon: Calendar,
       value: "50+",
-      label: "Cultural Collaborations",
-      description: "Partnerships with local artisans",
+      labelKey: "stats.collaborations",
+      descKey: "stats.collaborationsDesc",
     },
     {
       icon: Heart,
       value: "10+",
-      label: "Community Projects",
-      description: "Sustainable impact initiatives",
+      labelKey: "stats.projects",
+      descKey: "stats.projectsDesc",
     },
   ];
 
   return (
     <section id="stats" className="py-20 bg-primary text-primary-foreground relative overflow-hidden scroll-mt-32">
-      {/* Background Pattern */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute inset-0 bg-gradient-to-br from-primary-glow/20 to-transparent" />
       </div>
-      
+
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center mb-16 animate-fade-in">
           <h2 className="text-4xl md:text-5xl font-bold mb-6 font-heading">
-            Our Impact
+            {t("stats.title")}
           </h2>
           <p className="text-xl text-primary-foreground/80 max-w-2xl mx-auto font-body">
-            Making a positive impact through sustainable tourism and community engagement
+            {t("stats.subtitle")}
           </p>
         </div>
-        
+
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
           {statistics.map((stat, index) => (
-            <Card 
-              key={stat.label} 
+            <Card
+              key={stat.labelKey}
               className="bg-white/10 border-white/20 backdrop-blur-sm hover:bg-white/20 transition-all duration-300 animate-scale-in"
               style={{ animationDelay: `${index * 0.1}s` }}
             >
@@ -60,12 +62,12 @@ const Stats = () => {
                 <div className="text-2xl md:text-4xl font-bold text-white mb-1 md:mb-2 font-heading">
                   {stat.value}
                 </div>
-                <div className="text-base md:text-lg font-semibold text-white mb-1 font-heading">
-                  {stat.label}
+                <div className="text-sm md:text-base font-semibold text-white mb-1 font-heading">
+                  {t(stat.labelKey)}
                 </div>
-                <p className="text-xs md:text-sm text-primary-foreground/70 font-body leading-snug">
-                  {stat.description}
-                </p>
+                <div className="text-xs md:text-sm text-primary-foreground/70 font-body">
+                  {t(stat.descKey)}
+                </div>
               </CardContent>
             </Card>
           ))}

@@ -6,10 +6,12 @@ import { useHeroSettings } from "@/hooks/useCMS";
 import { useAuth } from "@/hooks/useAuth";
 import { apiFetch } from "@/lib/apiFetch";
 import heroBackground from "@/assets/hero-bg.jpg";
+import { useTranslation } from "react-i18next";
 
 const Hero = () => {
   const { data: heroSettings, isLoading } = useHeroSettings();
   const { isAuthenticated } = useAuth();
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   // Read locally-saved page hero overrides (background type + video URL)
@@ -26,23 +28,17 @@ const Hero = () => {
     staleTime: 5 * 60 * 1000,
   });
 
-  const defaultTaglines = [
+  const i18nTaglines = (t("hero.taglines", { returnObjects: true }) as string[]).map(
+    (text) => ({ text, twoLines: true })
+  );
+
+  const defaultTaglines = i18nTaglines.length > 0 ? i18nTaglines : [
     { text: "Where Adventure Meets\nTransformation", twoLines: true },
     { text: "Where Journey Meets\nDiscovery", twoLines: true },
     { text: "Where Exploration Meets\nInspiration", twoLines: true },
     { text: "Where Travel Meets\nPurpose", twoLines: true },
     { text: "Journey Within,\nExplore Without", twoLines: true },
     { text: "Where Journeys Become\nTransformations", twoLines: true },
-    { text: "Adventure Towards\nInner Discovery", twoLines: true },
-    { text: "Where Soul Meets\nAdventure", twoLines: true },
-    { text: "Discover. Transform.\nJourney.", twoLines: true },
-    { text: "Explore Beyond\nthe Horizon", twoLines: true },
-    { text: "Journey Towards\nSelf-Discovery", twoLines: true },
-    { text: "Where Dreams Meet\nAdventure", twoLines: true },
-    { text: "Your Path to\nExtraordinary Journeys", twoLines: true },
-    { text: "Creating Meaningful\nAdventures", twoLines: true },
-    { text: "Where Travelers Become\nExplorers", twoLines: true },
-    { text: "Exceptional Journeys for\nExtraordinary People", twoLines: true },
   ];
 
   const taglines =

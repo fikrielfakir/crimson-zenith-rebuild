@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useState, useEffect, useCallback } from "react";
 import {
-  Globe,
   Moon,
   Sun,
   User,
@@ -11,6 +10,8 @@ import {
   Heart,
   X,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "./LanguageSwitcher";
 import { Link } from "react-router-dom";
 import logoAtj from "@/assets/logo-atj.png";
 import { useNavbarSettings } from "@/hooks/useCMS";
@@ -459,8 +460,6 @@ const DropdownRenderer = ({
 const TopNavbar = ({
   isDarkMode,
   toggleDarkMode,
-  currentLanguage,
-  toggleLanguage,
   isScrolled,
   showLanguageSwitcher,
   showDarkModeToggle,
@@ -477,8 +476,6 @@ const TopNavbar = ({
 }: {
   isDarkMode: boolean;
   toggleDarkMode: () => void;
-  currentLanguage: string;
-  toggleLanguage: () => void;
   isScrolled: boolean;
   showLanguageSwitcher: boolean;
   showDarkModeToggle: boolean;
@@ -516,16 +513,7 @@ const TopNavbar = ({
         <div className="flex items-center justify-end gap-2 md:gap-4">
           {/* Language Switcher — hidden on mobile */}
           {showLanguageSwitcher && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={toggleLanguage}
-              className="hidden sm:flex px-3 py-2 text-xs items-center gap-1 rounded-button font-body"
-              style={{ color: textColor }}
-            >
-              <Globe className="h-4 w-4" />
-              {currentLanguage}
-            </Button>
+            <LanguageSwitcher textColor={textColor} className="hidden sm:flex" />
           )}
 
           {/* Dark Mode Toggle — hidden on mobile */}
@@ -1273,20 +1261,20 @@ const BottomNavbar = ({
 // Header Container (Corrected Dual Navigation Layout)
 const Header = () => {
   const { data: navbarSettings } = useNavbarSettings();
+  const { t } = useTranslation();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [currentLanguage, setCurrentLanguage] = useState("EN");
   const [isDonateDrawerOpen, setIsDonateDrawerOpen] = useState(false);
 
   const defaultNavigationLinks: NavLink[] = [
-    { label: "Discover", url: "/discover" },
-    { label: "Activities", url: "/#events" },
-    { label: "Projects", url: "/projects" },
-    { label: "Clubs", url: "/#clubs" },
-    { label: "Gallery", url: "/gallery" },
-    { label: "Blog", url: "/news" },
-    { label: "Talents", url: "/talents" },
-    { label: "Contact", url: "/contact" },
+    { label: t("nav.discover"), url: "/discover" },
+    { label: t("nav.activities"), url: "/#events" },
+    { label: t("nav.projects"), url: "/projects" },
+    { label: t("nav.clubs"), url: "/#clubs" },
+    { label: t("nav.gallery"), url: "/gallery" },
+    { label: t("nav.blog"), url: "/news" },
+    { label: t("nav.talents"), url: "/talents" },
+    { label: t("nav.contact"), url: "/contact" },
   ];
 
   const navigationLinks =
@@ -1301,7 +1289,7 @@ const Header = () => {
     Array.isArray(navbarSettings.availableLanguages) &&
     navbarSettings.availableLanguages.length > 0
       ? (navbarSettings.availableLanguages as string[])
-      : ["EN", "FR", "AR"];
+      : ["EN", "FR", "AR", "ES"];
 
   useEffect(() => {
     const handleScroll = () => {
@@ -1316,12 +1304,6 @@ const Header = () => {
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode);
     document.documentElement.classList.toggle("dark");
-  };
-
-  const toggleLanguage = () => {
-    const currentIndex = availableLanguages.indexOf(currentLanguage);
-    const nextIndex = (currentIndex + 1) % availableLanguages.length;
-    setCurrentLanguage(availableLanguages[nextIndex]);
   };
 
   const logoUrl =
@@ -1373,8 +1355,6 @@ const Header = () => {
         <TopNavbar
           isDarkMode={isDarkMode}
           toggleDarkMode={toggleDarkMode}
-          currentLanguage={currentLanguage}
-          toggleLanguage={toggleLanguage}
           isScrolled={isScrolled}
           showLanguageSwitcher={navbarSettings?.showLanguageSwitcher !== false}
           showDarkModeToggle={navbarSettings?.showDarkModeToggle !== false}
