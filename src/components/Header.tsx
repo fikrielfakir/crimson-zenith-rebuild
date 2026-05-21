@@ -967,18 +967,19 @@ const BottomNavbar = ({
             {/* Compact login icon — mobile only */}
             <Link
               to={isAuthenticated && user ? "/profile" : "/login"}
-              className="sm:hidden flex items-center justify-center text-white p-2 min-w-[44px] min-h-[44px] rounded-button hover:opacity-80 transition-opacity"
+              className="sm:hidden flex items-center justify-center text-white rounded-button hover:opacity-80 transition-opacity"
+              style={{ width: 28, height: 28 }}
               aria-label={isAuthenticated ? "Profile" : "Login"}
             >
               {isAuthenticated && user ? (
-                <Avatar className="h-7 w-7 border-2 border-white/30">
+                <Avatar className="h-5 w-5 border border-white/30">
                   <AvatarImage src={user.profileImageUrl || ""} />
-                  <AvatarFallback className="bg-[hsl(227,65%,19%)] text-white text-[10px]">
+                  <AvatarFallback className="bg-[hsl(227,65%,19%)] text-white text-[9px]">
                     {user.firstName?.[0] || user.email?.[0]?.toUpperCase() || 'U'}
                   </AvatarFallback>
                 </Avatar>
               ) : (
-                <User className="w-5 h-5" />
+                <User className="w-4 h-4" />
               )}
             </Link>
 
@@ -986,18 +987,16 @@ const BottomNavbar = ({
             {showDonateButton && (
               <button
                 onClick={onDonateClick}
-                className="sm:hidden flex items-center justify-center min-w-[44px] min-h-[44px] rounded-full transition-all duration-300 hover:scale-105"
+                className="sm:hidden flex items-center justify-center rounded-full transition-all duration-300 hover:scale-105"
                 aria-label="Donate"
                 style={{
                   background: "linear-gradient(90deg, #d45151 0%, #c04040 100%)",
                   boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
-                  width: "36px",
-                  height: "36px",
-                  minWidth: "44px",
-                  minHeight: "44px",
+                  width: "28px",
+                  height: "28px",
                 }}
               >
-                <Heart className="w-4 h-4 text-white" fill="white" />
+                <Heart className="w-3 h-3 text-white" fill="white" />
               </button>
             )}
 
