@@ -692,7 +692,7 @@ const BottomNavbar = ({
         className="container mx-auto px-6"
         style={{ paddingTop: "1.5rem", paddingBottom: "1.5rem" }}
       >
-        <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4 md:gap-12">
+        <div className="navbar-main-grid grid grid-cols-[1fr_auto_1fr] items-center gap-4 md:gap-12">
           {/* Left Section - Navigation */}
           <div className="hidden md:flex items-center justify-end">
             <nav
@@ -808,7 +808,7 @@ const BottomNavbar = ({
           </div>
 
           {/* Center Section - Logo */}
-          <div className="col-start-2 justify-self-center flex items-center justify-center">
+          <div className="navbar-logo-container col-start-2 justify-self-center flex items-center justify-center">
             <Link
               to={logoLink}
               className="flex flex-col items-center navbar-logo-link"

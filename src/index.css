@@ -373,9 +373,24 @@ img {
   height: auto;
 }
 
-/* ── Navbar logo: on mobile reset the large upward float so the
-   logo stays inside the bar and is visually centred ──────────── */
+/* ── Navbar logo: on mobile use absolute centering so the logo
+   always sits at exactly 50% regardless of icon widths ──────── */
 @media (max-width: 767px) {
+  /* Make the grid container a positioning context */
+  .navbar-main-grid {
+    position: relative !important;
+  }
+
+  /* Absolutely centre the logo column */
+  .navbar-logo-container {
+    position: absolute !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    /* remove grid placement so it doesn't push other columns */
+    grid-column: unset !important;
+  }
+
+  /* Reset the large desktop upward-float on the link itself */
   .navbar-logo-link {
     bottom: 0 !important;
     height: auto !important;
