@@ -526,12 +526,12 @@ const TopNavbar = ({
             </Button>
           )}
 
-          {/* Login Button / Profile Avatar */}
+          {/* Login Button / Profile Avatar — hidden on mobile (shown in bottom nav instead) */}
           {showLoginButton && (
             isAuthenticated && user ? (
               <Link
                 to="/profile"
-                className="flex items-center gap-2 px-2 sm:px-3 py-2 text-xs rounded-button font-body hover:opacity-80 transition-opacity"
+                className="hidden sm:flex items-center gap-2 px-2 sm:px-3 py-2 text-xs rounded-button font-body hover:opacity-80 transition-opacity"
                 style={{ color: textColor }}
               >
                 <Avatar className="h-8 w-8 border-2 border-white/30">
@@ -547,7 +547,7 @@ const TopNavbar = ({
                 asChild
                 variant="ghost"
                 size="sm"
-                className="px-2 sm:px-3 py-2 text-xs flex items-center gap-1 rounded-button font-body"
+                className="px-2 sm:px-3 py-2 text-xs hidden sm:flex items-center gap-1 rounded-button font-body"
                 style={{ color: textColor }}
               >
                 <Link to="/login">
@@ -558,11 +558,11 @@ const TopNavbar = ({
             )
           )}
 
-          {/* Donate Button */}
+          {/* Donate Button — hidden on mobile (shown in bottom nav instead) */}
           {showJoinButton && (
             <Button
               onClick={onDonateClick}
-              className="text-white font-medium flex items-center gap-2 border-0 cursor-pointer transition-all duration-300 ease-in-out hover:scale-[1.03]"
+              className="text-white font-medium hidden sm:flex items-center gap-2 border-0 cursor-pointer transition-all duration-300 ease-in-out hover:scale-[1.03]"
               style={{
                 background: "linear-gradient(90deg, #d45151 0%, #c04040 100%)",
                 fontSize: "16px",
@@ -653,6 +653,8 @@ const BottomNavbar = ({
   textColor,
   hoverColor,
   navHeight,
+  onDonateClick,
+  showDonateButton,
 }: {
   isScrolled: boolean;
   navigationLinks: NavLink[];
@@ -664,8 +666,11 @@ const BottomNavbar = ({
   textColor: string;
   hoverColor: string;
   navHeight: number;
+  onDonateClick: () => void;
+  showDonateButton?: boolean;
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { user, isAuthenticated } = useAuth();
   const midpoint = Math.ceil(navigationLinks.length / 2);
   const leftLinks = navigationLinks.slice(0, midpoint);
   const rightLinks = navigationLinks.slice(midpoint);
@@ -957,15 +962,55 @@ const BottomNavbar = ({
             </nav>
           </div>
 
-          {/* Mobile menu button */}
-          <Button
-            variant="ghost"
-            onClick={() => setMobileMenuOpen(true)}
-            className="col-start-3 justify-self-end md:hidden text-white p-2 min-w-[44px] min-h-[44px]"
-            aria-label="Open navigation menu"
-          >
-            <Menu className="w-6 h-6" />
-          </Button>
+          {/* Mobile right actions: login + donate + hamburger */}
+          <div className="col-start-3 justify-self-end flex items-center gap-1">
+            {/* Compact login icon — mobile only */}
+            <Link
+              to={isAuthenticated && user ? "/profile" : "/login"}
+              className="sm:hidden flex items-center justify-center text-white p-2 min-w-[44px] min-h-[44px] rounded-button hover:opacity-80 transition-opacity"
+              aria-label={isAuthenticated ? "Profile" : "Login"}
+            >
+              {isAuthenticated && user ? (
+                <Avatar className="h-7 w-7 border-2 border-white/30">
+                  <AvatarImage src={user.profileImageUrl || ""} />
+                  <AvatarFallback className="bg-[hsl(227,65%,19%)] text-white text-[10px]">
+                    {user.firstName?.[0] || user.email?.[0]?.toUpperCase() || 'U'}
+                  </AvatarFallback>
+                </Avatar>
+              ) : (
+                <User className="w-5 h-5" />
+              )}
+            </Link>
+
+            {/* Compact donate button — mobile only */}
+            {showDonateButton && (
+              <button
+                onClick={onDonateClick}
+                className="sm:hidden flex items-center justify-center min-w-[44px] min-h-[44px] rounded-full transition-all duration-300 hover:scale-105"
+                aria-label="Donate"
+                style={{
+                  background: "linear-gradient(90deg, #d45151 0%, #c04040 100%)",
+                  boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
+                  width: "36px",
+                  height: "36px",
+                  minWidth: "44px",
+                  minHeight: "44px",
+                }}
+              >
+                <Heart className="w-4 h-4 text-white" fill="white" />
+              </button>
+            )}
+
+            {/* Hamburger — mobile/tablet only */}
+            <Button
+              variant="ghost"
+              onClick={() => setMobileMenuOpen(true)}
+              className="md:hidden text-white p-2 min-w-[44px] min-h-[44px]"
+              aria-label="Open navigation menu"
+            >
+              <Menu className="w-6 h-6" />
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -1105,8 +1150,18 @@ const BottomNavbar = ({
             </Accordion>
           </nav>
 
-          {/* Drawer footer — Login + Language */}
+          {/* Drawer footer — Donate + Login */}
           <div className="px-5 py-4 border-t border-white/10 flex flex-col gap-3">
+            {showDonateButton && (
+              <button
+                onClick={() => { setMobileMenuOpen(false); onDonateClick(); }}
+                className="flex items-center justify-center gap-2 w-full py-3 rounded-full text-white font-medium text-sm transition-all duration-300 hover:opacity-90"
+                style={{ background: "linear-gradient(90deg, #d45151 0%, #c04040 100%)" }}
+              >
+                <Heart className="w-4 h-4" fill="white" />
+                Donate
+              </button>
+            )}
             <Link
               to="/login"
               onClick={() => setMobileMenuOpen(false)}
@@ -1254,6 +1309,8 @@ const Header = () => {
           textColor={textColor}
           hoverColor={hoverColor}
           navHeight={navHeight}
+          onDonateClick={() => setIsDonateDrawerOpen(true)}
+          showDonateButton={navbarSettings?.showJoinButton !== false}
         />
       </header>
 
