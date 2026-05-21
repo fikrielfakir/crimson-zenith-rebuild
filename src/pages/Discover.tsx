@@ -133,7 +133,7 @@ const Discover = () => {
 
                 <div className="w-full md:w-1/2 space-y-6">
                   <div className="space-y-3">
-                    <h3 className="text-3xl md:text-5xl lg:text-6xl font-bold text-foreground tracking-tight">{city.name}</h3>
+                    <h3 className="text-2xl md:text-4xl lg:text-6xl font-bold text-foreground tracking-tight">{city.name}</h3>
                     <p className="text-lg md:text-xl lg:text-2xl text-primary font-semibold italic border-l-4 border-primary pl-4">
                       {city.title}
                     </p>

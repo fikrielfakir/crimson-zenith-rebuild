@@ -189,7 +189,7 @@ export default function ApplicationsManagement() {
             </div>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="overflow-x-auto">
           {isLoading ? (
             <div className="flex items-center justify-center p-8">
               <div className="text-muted-foreground">Loading applications...</div>

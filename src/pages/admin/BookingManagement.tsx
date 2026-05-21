@@ -605,7 +605,7 @@ export default function BookingManagement() {
           <CardTitle>All Bookings</CardTitle>
           <CardDescription>View and manage event bookings</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="overflow-x-auto">
           <div className="flex flex-col md:flex-row gap-4 mb-4">
             <div className="relative flex-1">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />

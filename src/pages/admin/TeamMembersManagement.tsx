@@ -149,7 +149,7 @@ export default function TeamMembersManagement() {
           <CardTitle>Team</CardTitle>
           <CardDescription>{members.length} member{members.length !== 1 ? 's' : ''}</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="overflow-x-auto">
           {isLoading ? (
             <div className="flex items-center justify-center py-8 text-muted-foreground">Loading...</div>
           ) : members.length === 0 ? (

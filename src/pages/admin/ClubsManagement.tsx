@@ -342,7 +342,7 @@ export default function ClubsManagement() {
 
       {/* Table View */}
       {viewMode === 'table' && (
-        <div className="border rounded-lg">
+        <div className="border rounded-lg overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>

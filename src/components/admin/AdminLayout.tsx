@@ -437,7 +437,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
         {/* Main Content */}
         <main className="flex-1 overflow-y-auto">
           <ScrollArea className="h-full">
-            <div className="container mx-auto p-6 max-w-7xl">
+            <div className="container mx-auto p-3 sm:p-6 max-w-7xl">
               {children}
             </div>
           </ScrollArea>

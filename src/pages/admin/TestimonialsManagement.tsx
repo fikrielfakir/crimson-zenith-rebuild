@@ -160,7 +160,7 @@ export default function TestimonialsManagement() {
           <CardTitle>All Testimonials</CardTitle>
           <CardDescription>{testimonials.length} testimonial{testimonials.length !== 1 ? 's' : ''}</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="overflow-x-auto">
           {isLoading ? (
             <div className="flex items-center justify-center py-8 text-muted-foreground">Loading...</div>
           ) : testimonials.length === 0 ? (

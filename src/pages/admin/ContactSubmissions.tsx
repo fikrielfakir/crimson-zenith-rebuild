@@ -507,7 +507,7 @@ export default function ContactSubmissions() {
             {isLoading ? 'Loading…' : `${total} message${total !== 1 ? 's' : ''}${search ? ` matching "${search}"` : ''}${statusFilter !== 'all' ? ` — ${STATUS_CONFIG[statusFilter as Status]?.label ?? statusFilter}` : ''}`}
           </CardDescription>
         </CardHeader>
-        <CardContent className="p-0">
+        <CardContent className="p-0 overflow-x-auto">
           {isLoading ? (
             <div className="flex items-center justify-center py-16 text-muted-foreground">
               <div className="text-center space-y-3">

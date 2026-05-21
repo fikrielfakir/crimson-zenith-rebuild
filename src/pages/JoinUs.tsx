@@ -235,7 +235,7 @@ export default function JoinUs() {
               <Sparkles className="w-4 h-4 text-[#D6B98C]" />
               <span className="text-white/90 text-sm font-medium">Open Applications</span>
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-5 leading-tight font-['Poppins']">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-5 leading-tight font-['Poppins']">
               Join Our Adventure<br />
               <span style={{ color: '#D6B98C' }}>Community</span>
             </h1>
@@ -244,7 +244,7 @@ export default function JoinUs() {
             </p>
           </div>
 
-          <div className="grid grid-cols-3 gap-4 max-w-lg mx-auto mt-12">
+          <div className="grid grid-cols-3 gap-2 sm:gap-4 max-w-lg mx-auto mt-12">
             {[
               { value: '1,200+', label: 'Members' },
               { value: '24',     label: 'Active Clubs' },

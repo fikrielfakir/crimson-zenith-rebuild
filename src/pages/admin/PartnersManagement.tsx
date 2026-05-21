@@ -1,5 +1,5 @@
 import { apiFetch } from '@/lib/apiFetch';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -27,7 +27,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Pencil, Trash2, Handshake, ExternalLink, Globe, Save, Eye, EyeOff } from 'lucide-react';
+import { Plus, Pencil, Trash2, Handshake, ExternalLink, Globe, Save, Eye, EyeOff, Upload, Loader2 } from 'lucide-react';
 
 interface Partner {
   id: number;
@@ -127,6 +127,8 @@ export default function PartnersManagement() {
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [form, setForm] = useState<PartnerForm>(emptyForm);
   const [sectionForm, setSectionForm] = useState<{ title: string; subtitle: string; is_active: boolean } | null>(null);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const logoFileRef = useRef<HTMLInputElement>(null);
 
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -219,6 +221,33 @@ export default function PartnersManagement() {
 
   const handleSaveSettings = () => {
     settingsMutation.mutate(currentSection);
+  };
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingLogo(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await apiFetch('/api/admin/media', {
+        method: 'POST',
+        credentials: 'include',
+        body: formData,
+      });
+      if (!res.ok) throw new Error('Upload failed');
+      const data = await res.json();
+      const fileUrl: string = data.fileUrl ?? data.url ?? data.thumbnailUrl ?? '';
+      if (fileUrl) {
+        setForm(f => ({ ...f, logo_id: fileUrl }));
+        toast({ title: 'Logo uploaded', description: 'Logo saved and URL filled in automatically.' });
+      }
+    } catch (err) {
+      toast({ title: 'Upload failed', description: (err as Error).message, variant: 'destructive' });
+    } finally {
+      setUploadingLogo(false);
+      if (logoFileRef.current) logoFileRef.current.value = '';
+    }
   };
 
   const activeCount = partners.filter((p) => p.is_active).length;
@@ -344,6 +373,7 @@ export default function PartnersManagement() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          <div className="overflow-x-auto">
           {isLoading ? (
             <div className="flex items-center justify-center py-12 text-muted-foreground">
               <div className="text-center space-y-2">
@@ -422,6 +452,7 @@ export default function PartnersManagement() {
               </TableBody>
             </Table>
           )}
+          </div>
         </CardContent>
       </Card>
 
@@ -449,20 +480,54 @@ export default function PartnersManagement() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="p-logo">Logo URL</Label>
+              <Label>Logo</Label>
+
+              {/* Upload button */}
+              <div className="flex items-center gap-2">
+                <input
+                  ref={logoFileRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleLogoUpload}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={uploadingLogo}
+                  onClick={() => logoFileRef.current?.click()}
+                  className="flex items-center gap-2"
+                >
+                  {uploadingLogo
+                    ? <><Loader2 className="h-4 w-4 animate-spin" /> Uploading…</>
+                    : <><Upload className="h-4 w-4" /> Upload image</>
+                  }
+                </Button>
+                <span className="text-xs text-muted-foreground">PNG, JPG, SVG, WebP</span>
+              </div>
+
+              {/* Or paste URL */}
+              <div className="flex items-center gap-2">
+                <div className="h-px flex-1 bg-border" />
+                <span className="text-xs text-muted-foreground px-1">or paste URL</span>
+                <div className="h-px flex-1 bg-border" />
+              </div>
               <Input
                 id="p-logo"
                 value={form.logo_id}
                 onChange={(e) => setForm({ ...form, logo_id: e.target.value })}
                 placeholder="https://example.com/logo.png"
               />
+
+              {/* Preview */}
               {form.logo_id && (
-                <div className="flex items-center gap-3 p-2 rounded-md border bg-gray-50">
-                  <span className="text-xs text-muted-foreground">Preview:</span>
+                <div className="flex items-center gap-3 p-3 rounded-md border bg-gray-50">
+                  <span className="text-xs text-muted-foreground shrink-0">Preview:</span>
                   <img
                     src={form.logo_id}
                     alt="Logo preview"
-                    className="h-8 max-w-[120px] object-contain"
+                    className="h-10 max-w-[160px] object-contain"
                     onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                   />
                 </div>
