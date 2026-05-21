@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- ─── Primary SEO ─────────────────────────────────────────────────── -->
+    <title>Crimson Zenith | Morocco's Premier Sports & Cultural Network</title>
+    <meta name="description" content="Crimson Zenith connects Morocco's clubs, events, and cultural activities. Discover festivals, book tickets, join clubs across Casablanca, Fez, Marrakech and more." />
+    <meta name="keywords" content="Morocco clubs, Moroccan events, sports Morocco, cultural activities Morocco, Fez club, Casablanca events, Marrakech activities, Gnaoua festival, Timitar festival" />
+    <meta name="author" content="Crimson Zenith" />
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    <link rel="canonical" href="https://crimsonzenith.ma/" />
+
+    <!-- ─── Geo / Language ───────────────────────────────────────────────── -->
+    <meta name="geo.region" content="MA" />
+    <meta name="geo.placename" content="Morocco" />
+    <meta name="language" content="English" />
+    <meta name="revisit-after" content="7 days" />
+
+    <!-- ─── Open Graph (Facebook, LinkedIn, WhatsApp, Yandex) ───────────── -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://crimsonzenith.ma/" />
+    <meta property="og:site_name" content="Crimson Zenith" />
+    <meta property="og:title" content="Crimson Zenith | Morocco's Premier Sports & Cultural Network" />
+    <meta property="og:description" content="Discover Morocco's best clubs, events, and cultural activities. Book tickets, join clubs, and explore festivals across Morocco." />
+    <meta property="og:image" content="https://crimsonzenith.ma/og-image.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Crimson Zenith - Morocco's Sports & Cultural Network" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:locale:alternate" content="fr_MA" />
+    <meta property="og:locale:alternate" content="ar_MA" />
+
+    <!-- ─── Twitter / X Card ────────────────────────────────────────────── -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@CrimsonZenithMA" />
+    <meta name="twitter:creator" content="@CrimsonZenithMA" />
+    <meta name="twitter:title" content="Crimson Zenith | Morocco's Premier Sports & Cultural Network" />
+    <meta name="twitter:description" content="Discover Morocco's best clubs, events, and cultural activities. Book tickets, join clubs, and explore festivals." />
+    <meta name="twitter:image" content="https://crimsonzenith.ma/og-image.jpg" />
+    <meta name="twitter:image:alt" content="Crimson Zenith Morocco" />
+
+    <!-- ─── Google Search Console Verification ──────────────────────────── -->
+    <!-- Replace with your actual verification token from Google Search Console -->
+    <meta name="google-site-verification" content="REPLACE_WITH_GOOGLE_VERIFICATION_TOKEN" />
+
+    <!-- ─── Bing / Yahoo Webmaster Verification ─────────────────────────── -->
+    <!-- Replace with your actual token from Bing Webmaster Tools -->
+    <meta name="msvalidate.01" content="REPLACE_WITH_BING_VERIFICATION_TOKEN" />
+
+    <!-- ─── Yandex Webmaster Verification ───────────────────────────────── -->
+    <!-- Replace with your actual token from Yandex Webmaster -->
+    <meta name="yandex-verification" content="REPLACE_WITH_YANDEX_VERIFICATION_TOKEN" />
+
+    <!-- ─── Structured Data / JSON-LD (Google Rich Results) ─────────────── -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Crimson Zenith",
+      "url": "https://crimsonzenith.ma",
+      "logo": "https://crimsonzenith.ma/logo.png",
+      "description": "Morocco's premier platform for sports clubs, cultural events, and community activities.",
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "MA",
+        "addressRegion": "Morocco"
+      },
+      "sameAs": [
+        "https://www.facebook.com/CrimsonZenith",
+        "https://www.instagram.com/CrimsonZenith",
+        "https://twitter.com/CrimsonZenithMA"
+      ],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "customer support",
+        "availableLanguage": ["English", "French", "Arabic"]
+      }
+    }
+    </script>
+
+    <!-- ─── Website Search Action (Google Sitelinks Searchbox) ──────────── -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "url": "https://crimsonzenith.ma/",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://crimsonzenith.ma/discover?q={search_term_string}"
+        },
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+
+    <!-- ─── Favicons ─────────────────────────────────────────────────────── -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#DC143C" />
+
+    <!-- ─── Performance / Preconnect ────────────────────────────────────── -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+    <link rel="dns-prefetch" href="https://mc.yandex.ru" />
+
+    <!-- ─── Google Analytics 4 (replace GA_MEASUREMENT_ID) ─────────────── -->
+    <!-- 
+    <script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'GA_MEASUREMENT_ID');
+    </script>
+    -->
+
+    <!-- ─── Yandex.Metrica (replace XXXXXXXX with your counter ID) ──────── -->
+    <!-- 
+    <script type="text/javascript">
+      (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+      m[i].l=1*new Date();
+      for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+      k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+      (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+      ym(XXXXXXXX, "init", { clickmap:true, trackLinks:true, accurateTrackBounce:true });
+    </script>
+    <noscript><div><img src="https://mc.yandex.ru/watch/XXXXXXXX" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+    -->
+  </head>
+  <body>
+    <noscript>
+      <div style="padding:20px;text-align:center;font-family:sans-serif;">
+        Crimson Zenith requires JavaScript to run. Please enable it in your browser settings.
+      </div>
+    </noscript>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

@@ -1,4 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
+import SEOHead from "@/components/SEOHead";
+import { routeSEO } from "@/lib/seo.config";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
@@ -66,6 +68,7 @@ const Clubs = () => {
 
   return (
     <div className="min-h-screen bg-black">
+      <SEOHead {...routeSEO["/clubs"]} />
       <Header />
       
       {/* Main Content */}

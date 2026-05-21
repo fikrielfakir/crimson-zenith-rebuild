@@ -1,3 +1,5 @@
+import SEOHead from "@/components/SEOHead";
+import { routeSEO } from "@/lib/seo.config";
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -213,6 +215,7 @@ export default function JoinUs() {
   // ── Main form ───────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-[#FAF8F5] flex flex-col">
+      <SEOHead {...routeSEO["/join-us"]} />
       <Header />
 
       {/* Hero */}

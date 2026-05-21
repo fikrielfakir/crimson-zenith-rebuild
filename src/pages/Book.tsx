@@ -30,6 +30,8 @@ import {
   ZoomIn
 } from "lucide-react";
 import { Label } from "@/components/ui/label";
+import SEOHead from "@/components/SEOHead";
+import { routeSEO } from "@/lib/seo.config";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import maplibregl from "maplibre-gl";
@@ -360,6 +362,7 @@ const Book = () => {
 
   return (
     <div className="min-h-screen bg-white">
+      <SEOHead {...routeSEO["/book"]} />
       <Header />
 
       {/* Hero Section */}

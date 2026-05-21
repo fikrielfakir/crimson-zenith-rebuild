@@ -1,3 +1,5 @@
+import SEOHead from "@/components/SEOHead";
+import { routeSEO } from "@/lib/seo.config";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -125,6 +127,7 @@ const Projects = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead {...routeSEO["/projects"]} />
       <Header />
       
       <main className="relative">

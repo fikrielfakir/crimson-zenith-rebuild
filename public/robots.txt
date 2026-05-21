@@ -1,14 +1,77 @@
+# robots.txt — The Journey Association (https://thejourney-ma.org)
+# Controls how search engine crawlers index the site.
+
+# ── Google ────────────────────────────────────────────────────────────────────
 User-agent: Googlebot
 Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /error/
+Disallow: /payment-success
+Disallow: /payment-fail
 
-User-agent: Bingbot
+User-agent: Googlebot-Image
+Allow: /public/
+Allow: /uploads/
+
+# ── Bing / Yahoo (Bingbot powers both) ───────────────────────────────────────
+User-agent: bingbot
 Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /error/
+Disallow: /payment-success
+Disallow: /payment-fail
 
+# Yahoo (Slurp fallback — Bing covers Yahoo)
+User-agent: Slurp
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /error/
+
+# ── Yandex ────────────────────────────────────────────────────────────────────
+User-agent: YandexBot
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /error/
+Disallow: /payment-success
+Disallow: /payment-fail
+Crawl-delay: 2
+
+User-agent: YandexImages
+Allow: /public/
+Allow: /uploads/
+
+# ── DuckDuckGo ────────────────────────────────────────────────────────────────
+User-agent: DuckDuckBot
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+
+# ── Social crawlers ───────────────────────────────────────────────────────────
 User-agent: Twitterbot
 Allow: /
 
 User-agent: facebookexternalhit
 Allow: /
 
+User-agent: LinkedInBot
+Allow: /
+
+User-agent: WhatsApp
+Allow: /
+
+# ── Global fallback ───────────────────────────────────────────────────────────
 User-agent: *
 Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /error/
+Disallow: /payment-success
+Disallow: /payment-fail
+
+# ── Sitemaps ──────────────────────────────────────────────────────────────────
+Sitemap: https://thejourney-ma.org/sitemap.xml
+Sitemap: https://thejourney-ma.org/sitemap-news.xml

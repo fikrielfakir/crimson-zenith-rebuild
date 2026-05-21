@@ -15,6 +15,8 @@ import {
   Mail
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import SEOHead from "@/components/SEOHead";
+import { routeSEO } from "@/lib/seo.config";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PageHero from "@/components/PageHero";
@@ -145,6 +147,7 @@ const News = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead {...routeSEO["/news"]} />
       <Header />
       
       <main className="relative">
