@@ -518,7 +518,15 @@ html[dir="rtl"] .flex-row {
   flex-direction: row-reverse;
 }
 
+html[dir="rtl"] .sm\:flex-row {
+  flex-direction: row-reverse;
+}
+
 html[dir="rtl"] .md\:flex-row {
+  flex-direction: row-reverse;
+}
+
+html[dir="rtl"] .lg\:flex-row {
   flex-direction: row-reverse;
 }
 

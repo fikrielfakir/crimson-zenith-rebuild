@@ -10,6 +10,7 @@ import noEventsImage from "@/assets/no-events.png";
 import "react-calendar/dist/Calendar.css";
 import "./EventsActivitiesCalendar.css";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 
 interface Event {
   id: number | string;
@@ -127,6 +128,8 @@ const EventsActivitiesCalendar = () => {
   });
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
   const eventsPerPage = 2;
 
   const toggleFavorite = (e: React.MouseEvent, eventId: string | number) => {
@@ -317,7 +320,7 @@ const EventsActivitiesCalendar = () => {
   useEffect(() => { setCurrentPage(0); }, [statusFilter, selectedDate]);
 
   return (
-    <section className="bg-white">
+    <section className="bg-white" dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="mx-auto px-4 sm:px-6 lg:px-10 py-16 lg:py-20" style={{ maxWidth: '1200px' }}>
 
         {/* Header */}
@@ -359,7 +362,7 @@ const EventsActivitiesCalendar = () => {
 
           {/* Calendar Panel */}
           <div className="w-full lg:w-[32%] lg:flex-shrink-0">
-            <div className="events-activities-calendar">
+            <div className="events-activities-calendar" dir="ltr">
               <Card className="border-none mb-4" style={{ backgroundColor: '#FFFFFF', boxShadow: 'none', padding: '20px', borderRadius: '12px' }}>
                 <CalendarComponent
                   onChange={handleDateChange}
@@ -483,13 +486,13 @@ const EventsActivitiesCalendar = () => {
                             onError={e => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80'; }}
                           />
 
-                          {/* Status badge — top left */}
-                          <div className="absolute" style={{ top: '12px', left: '12px' }}>
+                          {/* Status badge — top start (left in LTR, right in RTL) */}
+                          <div className="absolute" style={{ top: '12px', [isRTL ? 'right' : 'left']: '12px' }}>
                             <StatusBadge status={effectiveStatus} />
                           </div>
 
-                          {/* Action icons — top right */}
-                          <div className="absolute flex gap-2" style={{ top: '12px', right: '12px' }}>
+                          {/* Action icons — top end (right in LTR, left in RTL) */}
+                          <div className="absolute flex gap-2" style={{ top: '12px', [isRTL ? 'left' : 'right']: '12px' }}>
                             <button
                               onClick={e => toggleFavorite(e, event.id)}
                               className="p-2 rounded-full bg-white/90 backdrop-blur-sm hover:bg-white"

@@ -25,6 +25,7 @@ import {
   MapPin,
   Images,
   Inbox,
+  Languages,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -110,6 +111,7 @@ const navigationItems: NavigationItem[] = [
       { label: 'Work Offers', href: '/admin/talents/work-offers' },
     ]
   },
+  { label: 'Translations', icon: Languages, href: '/admin/translations' },
   { label: 'Projects', icon: Building, href: '/admin/projects' },
   { label: 'Analytics', icon: BarChart3, href: '/admin/analytics' },
   {
@@ -446,3 +448,5 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
+
+export default AdminLayout;

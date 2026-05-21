@@ -1451,6 +1451,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ── Content Translations ─────────────────────────────────────────────────
+
+  // Public: get all translations for a single entity
+  app.get('/api/translations/:entityType/:entityId', async (req, res) => {
+    try {
+      const { entityType, entityId } = req.params;
+      const translations = await storage.getTranslations(entityType, entityId);
+      res.json(translations);
+    } catch (error) {
+      console.error("Error fetching translations:", error);
+      res.status(500).json({ message: "Failed to fetch translations" });
+    }
+  });
+
+  // Public: get all translations for an entity type (optionally filtered by ids= query param)
+  app.get('/api/translations/:entityType', async (req, res) => {
+    try {
+      const { entityType } = req.params;
+      const ids = req.query.ids ? String(req.query.ids).split(",") : undefined;
+      const translations = await storage.getTranslationsForType(entityType, ids);
+      res.json(translations);
+    } catch (error) {
+      console.error("Error fetching translations for type:", error);
+      res.status(500).json({ message: "Failed to fetch translations" });
+    }
+  });
+
+  // Admin: create or update a translation
+  app.post('/api/admin/translations', isAuthenticated, isAdmin, async (req: any, res) => {
+    try {
+      const { entityType, entityId, field, language, value } = req.body;
+      if (!entityType || !entityId || !field || !language || !value) {
+        return res.status(400).json({ message: "Missing required fields: entityType, entityId, field, language, value" });
+      }
+      const translation = await storage.upsertTranslation({ entityType, entityId, field, language, value });
+      res.json(translation);
+    } catch (error) {
+      console.error("Error upserting translation:", error);
+      res.status(500).json({ message: "Failed to save translation" });
+    }
+  });
+
+  // Admin: delete a translation
+  app.delete('/api/admin/translations/:id', isAuthenticated, isAdmin, async (req: any, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deleteTranslation(id);
+      res.json({ message: "Deleted" });
+    } catch (error) {
+      console.error("Error deleting translation:", error);
+      res.status(500).json({ message: "Failed to delete translation" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

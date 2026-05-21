@@ -1,0 +1,208 @@
+```txt
+I need you to fix the RTL (Arabic) version of my landing page so it matches the UX quality, spacing, alignment, and visual hierarchy of the English LTR version.
+
+Current issue:
+When switching the site direction from LTR to RTL, the Arabic version becomes visually broken:
+- sections lose alignment
+- spacing becomes inconsistent
+- cards and grids are not mirrored correctly
+- text positioning feels unbalanced
+- components keep LTR behavior
+- overlays and gradients are misplaced
+- calendars/maps/sliders are not responsive in RTL
+- typography hierarchy differs from English version
+
+Goal:
+Make the Arabic RTL version visually identical in quality and structure to the English version while preserving Arabic reading flow.
+
+IMPORTANT:
+Do NOT simply apply `direction: rtl`.
+I need a full UX/UI RTL adaptation section by section.
+
+--------------------------------------------------
+GLOBAL RTL FIXES
+--------------------------------------------------
+
+1. Apply proper RTL layout handling:
+- use:
+  direction: rtl;
+  unicode-bidi: embed;
+
+2. Mirror layouts correctly:
+- reverse flex rows
+- reverse grids when needed
+- move icons/buttons/navigation logically
+- maintain equal spacing
+
+3. Keep visual balance:
+- preserve same paddings/margins as English version
+- avoid compressed Arabic text
+- maintain same component heights
+
+5. Ensure:
+- line-height for Arabic is larger
+- font-weight is adjusted
+- headings keep same visual dominance
+
+6. Fix responsive behavior:
+- all sections must work perfectly on:
+  - desktop
+  - tablet
+  - mobile
+
+--------------------------------------------------
+SECTION-BY-SECTION FIXES
+--------------------------------------------------
+
+========================
+1. HERO SECTION
+========================
+
+Issues:
+- Arabic heading alignment feels off
+- CTA buttons positioning inconsistent
+- background overlay not centered
+- navbar spacing broken in RTL
+
+Fix:
+- mirror navbar layout correctly
+- align Arabic text naturally to center/right
+- keep hero content vertically centered
+- preserve exact spacing from English version
+- ensure buttons stack/alignment match English UX
+- decorative pattern must stay centered
+
+Expected UX:
+Premium modern tourism landing page with balanced Arabic typography.
+
+========================
+2. PRESIDENT SECTION
+========================
+
+Issues:
+- image and text alignment broken
+- RTL stacking inconsistent
+- spacing between portrait and content too large
+
+Fix:
+- place image on correct RTL side
+- align text block properly
+- keep same visual weight as English version
+- maintain balanced whitespace
+
+========================
+3. FOCUS / SERVICES CARDS
+========================
+
+Issues:
+- cards order not mirrored correctly
+- text overlays misaligned
+- hover effects inconsistent
+
+Fix:
+- reverse cards order for RTL
+- keep overlays readable
+- preserve same hover animations
+- keep equal card widths/heights
+
+========================
+4. CLUBS / MAP SECTION
+========================
+
+Issues:
+- filters/sidebar remain LTR
+- map/content overlap broken
+- gradients misplaced
+- section loses structure in Arabic
+
+Fix:
+- move filters/sidebar to correct RTL side
+- preserve centered map focus
+- fix overlay positioning
+- maintain clean spacing hierarchy
+- ensure mobile responsiveness
+
+========================
+5. EVENTS & CALENDAR
+========================
+
+Issues:
+- calendar alignment broken
+- event cards misplaced
+- spacing inconsistent
+- filters/tabs not mirrored
+
+Fix:
+- fully support RTL calendar layout
+- reverse navigation arrows
+- align event cards correctly
+- preserve same desktop/tablet/mobile UX
+
+========================
+6. IMPACT / STATS SECTION
+========================
+
+Issues:
+- statistic cards spacing inconsistent
+- icons/text alignment broken
+
+Fix:
+- keep cards perfectly symmetrical
+- preserve equal spacing
+- align numbers + labels correctly in RTL
+
+========================
+7. TESTIMONIALS
+========================
+
+Issues:
+- quotes/icons misplaced
+- card alignment inconsistent
+- text readability weak
+
+Fix:
+- mirror testimonial layout properly
+- keep quote icon on correct side
+- improve Arabic readability
+- preserve same carousel/card UX
+
+========================
+8. PARTNERS SECTION
+========================
+
+Issues:
+- logos spacing inconsistent
+- slider direction feels wrong
+
+Fix:
+- support RTL slider behavior
+- keep logos evenly distributed
+- maintain same animation smoothness
+
+========================
+9. CONTACT SECTION
+========================
+
+Issues:
+- form fields alignment broken
+- labels inconsistent
+- contact info/cards not mirrored
+
+Fix:
+- align labels and inputs for Arabic
+- preserve modern spacing
+- reverse layout correctly
+- maintain accessibility and responsiveness
+
+========================
+10. FOOTER
+========================
+
+Issues:
+- columns alignment inconsistent
+- social icons placement wrong
+- spacing differs from English version
+
+Fix:
+- mirror footer columns correctly
+- align links naturall

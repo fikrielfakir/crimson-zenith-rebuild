@@ -64,7 +64,8 @@ const STYLE_DEFAULTS = {
 };
 
 const PresidentMessageDynamic = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
   const [settings, setSettings] = useState<PresidentMessageSettings | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -125,6 +126,20 @@ const PresidentMessageDynamic = () => {
 
   const messageParagraphs = s.message.split('\n\n').filter(p => p.trim());
 
+  /*
+   * In RTL, flex-direction:row naturally flows R→L (first item on RIGHT).
+   * So to keep imagePosition consistent (physical left/right), we need:
+   *   LTR + imageLeft  → row          LTR + imageRight → row-reverse
+   *   RTL + imageLeft  → row-reverse  RTL + imageRight → row
+   * We inject via <style> so the media query (md:) still applies and we
+   * bypass the global RTL CSS-flip on .md:flex-row classes.
+   */
+  const presidentFlexDir = (isRTL === (s.imagePosition === 'right')) ? 'row' : 'row-reverse';
+
+  const titleAlign = isRTL ? 'right' : (s.titleAlignment as 'left' | 'center' | 'right');
+  const accentMarginLeft = titleAlign === 'center' ? 'auto' : isRTL ? 'auto' : undefined;
+  const accentMarginRight = titleAlign === 'center' ? 'auto' : isRTL ? 0 : undefined;
+
   return (
     <section
       id="president-message"
@@ -134,19 +149,21 @@ const PresidentMessageDynamic = () => {
         padding: s.sectionPadding,
       }}
     >
-      {/* Inject responsive width for the image wrapper */}
+      {/* Inject responsive styles — bypasses global RTL class-flip for this section */}
       <style dangerouslySetInnerHTML={{ __html: `
         @media (min-width: 768px) {
           .president-img-wrapper { width: ${s.imageWidth} !important; flex-shrink: 0; }
+          .president-content-row { flex-direction: ${presidentFlexDir} !important; }
         }
         @media (max-width: 767px) {
           .president-img-wrapper { width: 100% !important; max-width: 100% !important; }
+          .president-content-row { flex-direction: column !important; }
         }
       `}} />
 
       <div className="container mx-auto px-4">
         <div 
-          className={`flex flex-col ${s.imagePosition === 'right' ? 'md:flex-row-reverse' : 'md:flex-row'} items-center`}
+          className="president-content-row flex flex-col items-center"
           style={{ gap: "clamp(24px, 4vw, " + s.contentGap + ")" }}
         >
           {/* Image Section */}
@@ -207,7 +224,7 @@ const PresidentMessageDynamic = () => {
                     color: s.titleColor,
                     fontWeight: 700,
                     textShadow: "0px 2px 8px rgba(0,0,0,0.3)",
-                    textAlign: s.titleAlignment as any,
+                    textAlign: titleAlign,
                   }}
                 >
                   {s.title}
@@ -216,8 +233,8 @@ const PresidentMessageDynamic = () => {
                   className="w-24 h-1 rounded-full mb-8"
                   style={{ 
                     background: s.roleColor,
-                    marginLeft: s.titleAlignment === 'center' ? 'auto' : undefined,
-                    marginRight: s.titleAlignment === 'center' ? 'auto' : undefined,
+                    marginLeft: accentMarginLeft,
+                    marginRight: accentMarginRight,
                   }}
                 />
               </div>

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
+import { useTranslatedList } from "@/hooks/useContentTranslation";
 import { Plus, Minus, Locate, ChevronUp, ChevronDown, Search, Home, MapPin, Building2, Info } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Club } from "../../shared/schema";
@@ -105,15 +106,13 @@ const ClubsWithMap = () => {
     },
   });
 
-  const clubs: Club[] =
+  const rawClubs: Club[] =
     clubsResponse?.clubs?.map((club: any, index: number) => {
-      // Generate coordinates based on club's city
       const clubCoords = generateClubCoordinates(club.location, index);
-
       return {
         id: club.id,
         name: club.name,
-        slug: club.slug || generateSlug(club.name), // Use slug from database or generate fallback
+        slug: club.slug || generateSlug(club.name),
         description: club.description,
         location: club.location,
         memberCount: club.member_count,
@@ -130,6 +129,8 @@ const ClubsWithMap = () => {
         updatedAt: club.updated_at ? new Date(club.updated_at) : undefined,
       };
     }) || [];
+
+  const clubs = useTranslatedList(rawClubs, "club", ["name", "description", "location"]);
 
   const filteredClubs =
     selectedCity === "All Cities"
@@ -977,7 +978,7 @@ const ClubsWithMap = () => {
                               e.currentTarget.style.transform = "scale(1)";
                             }}
                           >
-                            More Details
+                            {t('clubs.viewClub')}
                           </button>
                         </div>
                       </div>

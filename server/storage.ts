@@ -29,6 +29,9 @@ import {
   presidentMessageSettings,
   partnerSettings,
   partners,
+  contentTranslations,
+  type ContentTranslation,
+  type InsertContentTranslation,
   type User,
   type UpsertUser,
   type Club,
@@ -264,6 +267,12 @@ export interface IStorage {
   updateGalleryItem(id: number, item: Partial<InsertGalleryItem>): Promise<GalleryItem>;
   deleteGalleryItem(id: number): Promise<void>;
   toggleGalleryItemFeatured(id: number): Promise<GalleryItem>;
+
+  // Content translations operations
+  getTranslations(entityType: string, entityId: string): Promise<ContentTranslation[]>;
+  getTranslationsForType(entityType: string, entityIds?: string[]): Promise<ContentTranslation[]>;
+  upsertTranslation(data: InsertContentTranslation): Promise<ContentTranslation>;
+  deleteTranslation(id: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1355,6 +1364,51 @@ export class DatabaseStorage implements IStorage {
 
   async deletePartner(id: number): Promise<void> {
     await db.delete(partners).where(eq(partners.id, id));
+  }
+
+  // Content Translations
+  async getTranslations(entityType: string, entityId: string): Promise<ContentTranslation[]> {
+    return db.select().from(contentTranslations)
+      .where(and(
+        eq(contentTranslations.entityType, entityType),
+        eq(contentTranslations.entityId, entityId)
+      ))
+      .orderBy(asc(contentTranslations.language), asc(contentTranslations.field));
+  }
+
+  async getTranslationsForType(entityType: string, entityIds?: string[]): Promise<ContentTranslation[]> {
+    if (entityIds && entityIds.length > 0) {
+      const { inArray } = await import("drizzle-orm");
+      return db.select().from(contentTranslations)
+        .where(and(
+          eq(contentTranslations.entityType, entityType),
+          inArray(contentTranslations.entityId, entityIds)
+        ));
+    }
+    return db.select().from(contentTranslations)
+      .where(eq(contentTranslations.entityType, entityType));
+  }
+
+  async upsertTranslation(data: InsertContentTranslation): Promise<ContentTranslation> {
+    const existing = await db.select().from(contentTranslations)
+      .where(and(
+        eq(contentTranslations.entityType, data.entityType),
+        eq(contentTranslations.entityId, data.entityId),
+        eq(contentTranslations.field, data.field),
+        eq(contentTranslations.language, data.language)
+      ));
+    if (existing.length > 0) {
+      await db.update(contentTranslations)
+        .set({ value: data.value, updatedAt: new Date() })
+        .where(eq(contentTranslations.id, existing[0].id));
+      const [row] = await db.select().from(contentTranslations).where(eq(contentTranslations.id, existing[0].id));
+      return row;
+    }
+    return this.insertAndFetch<ContentTranslation>(contentTranslations, data);
+  }
+
+  async deleteTranslation(id: number): Promise<void> {
+    await db.delete(contentTranslations).where(eq(contentTranslations.id, id));
   }
 }
 

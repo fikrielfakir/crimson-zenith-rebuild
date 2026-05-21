@@ -750,7 +750,27 @@ export const blogPostsRelations = relations(blogPosts, ({ one }) => ({
   }),
 }));
 
+// Content Translations table — stores per-language overrides for DB entity fields
+export const contentTranslations = pgTable(
+  "content_translations",
+  {
+    id: serial("id").primaryKey(),
+    entityType: varchar("entity_type", { length: 100 }).notNull(),
+    entityId: varchar("entity_id", { length: 255 }).notNull(),
+    field: varchar("field", { length: 100 }).notNull(),
+    language: varchar("language", { length: 10 }).notNull(),
+    value: text("value").notNull(),
+    createdAt: timestamp("created_at").defaultNow(),
+    updatedAt: timestamp("updated_at").defaultNow(),
+  },
+  (table) => [
+    index("idx_content_trans_lookup").on(table.entityType, table.entityId, table.language),
+  ]
+);
+
 // Type exports
+export type ContentTranslation = typeof contentTranslations.$inferSelect;
+export type InsertContentTranslation = typeof contentTranslations.$inferInsert;
 export type GalleryItem = typeof galleryItems.$inferSelect;
 export type InsertGalleryItem = typeof galleryItems.$inferInsert;
 export type UpsertUser = typeof users.$inferInsert;

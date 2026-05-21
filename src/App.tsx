@@ -94,6 +94,7 @@ import VolunteerPostsAdmin from "./pages/admin/VolunteerPostsAdmin";
 import ExpertsAdmin from "./pages/admin/ExpertsAdmin";
 import WorkOffersAdmin from "./pages/admin/WorkOffersAdmin";
 import ProjectsAdmin from "./pages/admin/ProjectsAdmin";
+import TranslationsManagement from "./pages/admin/TranslationsManagement";
 
 const queryClient = new QueryClient();
 
@@ -366,6 +367,11 @@ const App = () => (
           <Route path="/admin/projects" element={
             <ProtectedRoute>
               <ProjectsAdmin />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/translations" element={
+            <ProtectedRoute>
+              <TranslationsManagement />
             </ProtectedRoute>
           } />
 
