@@ -122,20 +122,27 @@ const PresidentMessageDynamic = () => {
         padding: settings.sectionPadding,
       }}
     >
+      {/* Inject responsive width for the image wrapper */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        @media (min-width: 768px) {
+          .president-img-wrapper { width: ${settings.imageWidth} !important; flex-shrink: 0; }
+        }
+        @media (max-width: 767px) {
+          .president-img-wrapper { width: 100% !important; max-width: 100% !important; }
+        }
+      `}} />
+
       <div className="container mx-auto px-4">
         <div 
           className={`flex flex-col ${settings.imagePosition === 'right' ? 'md:flex-row-reverse' : 'md:flex-row'} items-center`}
-          style={{ gap: settings.contentGap }}
+          style={{ gap: "clamp(24px, 4vw, " + settings.contentGap + ")" }}
         >
           {/* Image Section */}
-          <div 
-            className="w-full flex"
-            style={{ 
-              width: settings.imageWidth,
-              justifyContent: settings.imageAlignment,
-            }}
+          <div
+            className="president-img-wrapper w-full flex"
+            style={{ justifyContent: settings.imageAlignment }}
           >
-            <div className="relative group max-w-full">
+            <div className="relative group max-w-full w-full">
               <div 
                 className="absolute inset-0 bg-gradient-to-br from-secondary/30 to-secondary/10 rounded-lg transform rotate-3 group-hover:rotate-6 transition-transform duration-300"
               />
@@ -143,7 +150,7 @@ const PresidentMessageDynamic = () => {
                 <img
                   src={photoUrl}
                   alt={settings.presidentName}
-                  className="w-full h-[500px] object-cover transition-transform duration-300 group-hover:scale-105"
+                  className="w-full h-[300px] sm:h-[400px] md:h-[500px] object-cover transition-transform duration-300 group-hover:scale-105"
                   style={{
                     filter: "brightness(1.05) contrast(1.1)"
                   }}

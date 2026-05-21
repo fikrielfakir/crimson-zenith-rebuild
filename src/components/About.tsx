@@ -28,16 +28,19 @@ const About = () => {
     <section
       id="discover"
       className="relative w-full scroll-mt-32"
-      style={{ height: "600px" }}
     >
       {/* Three Cards Section - Full Width */}
-      <div className="relative w-full h-full flex overflow-hidden">
+      <div className="relative w-full flex flex-col sm:flex-row overflow-hidden">
         {focuses.map((focus, index) => (
           <div
             key={focus.title}
-            className="relative flex-1 group cursor-pointer"
+            className="relative flex-1 group cursor-pointer h-[220px] sm:h-[400px] md:h-[600px]"
             style={{
               borderRight:
+                index < focuses.length - 1
+                  ? "3px solid rgba(255, 255, 255, 0.9)"
+                  : "none",
+              borderBottom:
                 index < focuses.length - 1
                   ? "3px solid rgba(255, 255, 255, 0.9)"
                   : "none",
@@ -130,12 +133,12 @@ const About = () => {
         />
 
         {/* Center Text Section - Title & Subtitle positioned above cards */}
-        <div className="absolute top-0 left-0 right-0 text-center pt-12 pb-6 z-10 pointer-events-none">
+        <div className="absolute top-0 left-0 right-0 text-center pt-6 sm:pt-10 md:pt-12 pb-6 z-10 pointer-events-none">
           <h2
-            className="font-bold mb-3"
+            className="font-bold mb-2 sm:mb-3"
             style={{
               fontFamily: "Poppins, sans-serif",
-              fontSize: "48px",
+              fontSize: "clamp(24px, 6vw, 48px)",
               fontWeight: 700,
               color: "#FFFFFF",
               textShadow: "0px 2px 8px rgba(0,0,0,0.3)",
@@ -147,14 +150,14 @@ const About = () => {
             className="mx-auto"
             style={{
               fontFamily: "Poppins, sans-serif",
-              fontSize: "22px",
+              fontSize: "clamp(13px, 3vw, 22px)",
               fontWeight: 400,
               color: "#FFFFFF",
               letterSpacing: "0.5px",
-              maxWidth: "75%",
+              maxWidth: "85%",
             }}
           >
-            Sustainable Tourism, Culture, and Entertainmenta
+            Sustainable Tourism, Culture, and Entertainment
           </p>
         </div>
       </div>
