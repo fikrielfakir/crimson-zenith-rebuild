@@ -1,0 +1,18 @@
+{
+  "landing": {
+    "backgroundType": "video",
+    "backgroundImageUrl": "",
+    "backgroundVideoUrl": "/uploads/hero-media/9af5f85f-62c3-4ce1-9bbe-7542442c46c5.mp4",
+    "overlayOpacity": 50,
+    "title": null,
+    "subtitle": null
+  },
+  "contact": {
+    "backgroundType": "video",
+    "backgroundImageUrl": "",
+    "backgroundVideoUrl": "/uploads/hero-media/8d0debaf-c70c-4546-9de4-2d0cb37119c0.mp4",
+    "overlayOpacity": 60,
+    "title": null,
+    "subtitle": null
+  }
+}
