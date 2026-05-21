@@ -51,6 +51,7 @@
     "scrollDown": "Desplazar hacia abajo"
   },
   "about": {
+    "ourFocus": "Nuestro Enfoque",
     "tourism": "Turismo",
     "tourismDesc": "Descubre los paisajes más impresionantes de Marruecos a través de aventuras sostenibles y viajes responsables.",
     "culture": "Cultura",
@@ -127,8 +128,26 @@
     "title": "Nuestros Clubes",
     "subtitle": "Únete a comunidades locales en las ciudades más fascinantes de Marruecos",
     "members": "miembros",
+    "membersCount": "{{count}} Miembros",
     "joinClub": "Unirse al club",
-    "viewDetails": "Ver detalles"
+    "viewDetails": "Ver detalles",
+    "loading": "Cargando clubes...",
+    "searchCity": "Buscar ciudad...",
+    "allCities": "Todas las ciudades",
+    "viewClub": "Ver club"
+  },
+  "testimonials": {
+    "title": "Historias de miembros",
+    "subtitle": "Escucha a nuestra comunidad de aventureros y entusiastas de la cultura"
+  },
+  "president": {
+    "title": "Una palabra del presidente",
+    "greeting": "Queridos amigos y compañeros viajeros,",
+    "body1": "Es con gran placer y orgullo que les doy la bienvenida a The Journey Association. Nuestra misión es crear vías sostenibles para el turismo, la cultura y el desarrollo comunitario en todo Marruecos.",
+    "body2": "Junto con nuestros socios, clubes y miembros dedicados, estamos construyendo puentes entre culturas, protegiendo nuestros tesoros naturales y culturales, y garantizando que los beneficios del turismo lleguen a cada rincón de nuestro amado Marruecos.",
+    "quote": "Juntos creamos un impacto duradero.",
+    "name": "Dr. Aderahim Azrkan",
+    "role": "Presidente, The Journey Association"
   },
   "events": {
     "title": "Eventos y Actividades",

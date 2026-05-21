@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface PresidentMessageSettings {
   isActive: boolean;
@@ -34,13 +35,7 @@ interface PresidentMessageSettings {
   contentGap: string;
 }
 
-const DEFAULT_SETTINGS: PresidentMessageSettings = {
-  isActive: true,
-  title: 'A word from the president',
-  presidentName: 'Dr. Aderahim Azrkan',
-  presidentRole: 'President, The Journey Association',
-  message: `Dear Friends and Fellow Travelers,\n\nIt is with great pleasure and pride that I welcome you to The Journey Association. Our mission is to create sustainable pathways for tourism, culture, and community development across Morocco. We believe that tourism is not just about visiting beautiful places—it's about creating meaningful connections, preserving our heritage, and empowering local communities.\n\nTogether with our partners, clubs, and dedicated members, we are building bridges between cultures, protecting our natural and cultural treasures, and ensuring that the benefits of tourism reach every corner of our beloved Morocco. Your participation and support make all the difference in achieving our vision of a sustainable and prosperous future.`,
-  quote: 'Together, we create lasting impact.',
+const STYLE_DEFAULTS = {
   photoId: null,
   signatureId: null,
   backgroundImageId: null,
@@ -69,8 +64,19 @@ const DEFAULT_SETTINGS: PresidentMessageSettings = {
 };
 
 const PresidentMessageDynamic = () => {
-  const [settings, setSettings] = useState<PresidentMessageSettings>(DEFAULT_SETTINGS);
+  const { t } = useTranslation();
+  const [settings, setSettings] = useState<PresidentMessageSettings | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  const getDefaultSettings = (): PresidentMessageSettings => ({
+    isActive: true,
+    title: t('president.title'),
+    presidentName: t('president.name'),
+    presidentRole: t('president.role'),
+    message: `${t('president.greeting')}\n\n${t('president.body1')}\n\n${t('president.body2')}`,
+    quote: t('president.quote'),
+    ...STYLE_DEFAULTS,
+  });
 
   useEffect(() => {
     const loadSettings = async () => {
@@ -79,11 +85,13 @@ const PresidentMessageDynamic = () => {
         if (response.ok) {
           const data = await response.json();
           if (data) {
-            setSettings({ ...DEFAULT_SETTINGS, ...data });
+            setSettings({ ...getDefaultSettings(), ...data });
+            return;
           }
         }
       } catch (error) {
         console.error('Error loading president message settings:', error);
+        setSettings(getDefaultSettings());
       } finally {
         setIsLoading(false);
       }
@@ -91,27 +99,31 @@ const PresidentMessageDynamic = () => {
     loadSettings();
   }, []);
 
-  if (isLoading || !settings.isActive) {
+  const activeSettings = settings ?? getDefaultSettings();
+
+  if (isLoading || !activeSettings.isActive) {
     return null;
   }
 
-  const photoUrl = settings.photoId 
-    ? `/api/cms/media/${settings.photoId}`
+  const s = activeSettings;
+
+  const photoUrl = s.photoId
+    ? `/api/cms/media/${s.photoId}`
     : '/attached_assets/527458761_17954306891994519_4667490874676487214_n_1762796640998.jpg';
 
-  const signatureUrl = settings.signatureId ? `/api/cms/media/${settings.signatureId}` : null;
+  const signatureUrl = s.signatureId ? `/api/cms/media/${s.signatureId}` : null;
 
-  const backgroundStyle = settings.backgroundImageId
+  const backgroundStyle = s.backgroundImageId
     ? {
-        backgroundImage: `url(/api/cms/media/${settings.backgroundImageId})`,
+        backgroundImage: `url(/api/cms/media/${s.backgroundImageId})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }
     : {
-        background: settings.backgroundGradient || settings.backgroundColor,
+        background: s.backgroundGradient || s.backgroundColor,
       };
 
-  const messageParagraphs = settings.message.split('\n\n').filter(p => p.trim());
+  const messageParagraphs = s.message.split('\n\n').filter(p => p.trim());
 
   return (
     <section
@@ -119,13 +131,13 @@ const PresidentMessageDynamic = () => {
       className="relative w-full scroll-mt-32"
       style={{ 
         ...backgroundStyle,
-        padding: settings.sectionPadding,
+        padding: s.sectionPadding,
       }}
     >
       {/* Inject responsive width for the image wrapper */}
       <style dangerouslySetInnerHTML={{ __html: `
         @media (min-width: 768px) {
-          .president-img-wrapper { width: ${settings.imageWidth} !important; flex-shrink: 0; }
+          .president-img-wrapper { width: ${s.imageWidth} !important; flex-shrink: 0; }
         }
         @media (max-width: 767px) {
           .president-img-wrapper { width: 100% !important; max-width: 100% !important; }
@@ -134,13 +146,13 @@ const PresidentMessageDynamic = () => {
 
       <div className="container mx-auto px-4">
         <div 
-          className={`flex flex-col ${settings.imagePosition === 'right' ? 'md:flex-row-reverse' : 'md:flex-row'} items-center`}
-          style={{ gap: "clamp(24px, 4vw, " + settings.contentGap + ")" }}
+          className={`flex flex-col ${s.imagePosition === 'right' ? 'md:flex-row-reverse' : 'md:flex-row'} items-center`}
+          style={{ gap: "clamp(24px, 4vw, " + s.contentGap + ")" }}
         >
           {/* Image Section */}
           <div
             className="president-img-wrapper w-full flex"
-            style={{ justifyContent: settings.imageAlignment }}
+            style={{ justifyContent: s.imageAlignment }}
           >
             <div className="relative group max-w-full w-full">
               <div 
@@ -149,38 +161,34 @@ const PresidentMessageDynamic = () => {
               <div className="relative overflow-hidden rounded-lg shadow-2xl">
                 <img
                   src={photoUrl}
-                  alt={settings.presidentName}
+                  alt={s.presidentName}
                   className="w-full h-[300px] sm:h-[400px] md:h-[500px] object-cover transition-transform duration-300 group-hover:scale-105"
-                  style={{
-                    filter: "brightness(1.05) contrast(1.1)"
-                  }}
+                  style={{ filter: "brightness(1.05) contrast(1.1)" }}
                 />
                 <div 
                   className="absolute bottom-0 left-0 right-0 p-6"
-                  style={{
-                    background: "linear-gradient(to top, rgba(17, 34, 80, 0.95), transparent)"
-                  }}
+                  style={{ background: "linear-gradient(to top, rgba(17, 34, 80, 0.95), transparent)" }}
                 >
                   <h3
                     className="font-bold"
                     style={{
-                      fontFamily: `${settings.nameFontFamily}, sans-serif`,
-                      fontSize: settings.nameFontSize,
-                      color: settings.nameColor,
+                      fontFamily: `${s.nameFontFamily}, sans-serif`,
+                      fontSize: s.nameFontSize,
+                      color: s.nameColor,
                       textShadow: "0 2px 8px rgba(0,0,0,0.5)"
                     }}
                   >
-                    {settings.presidentName}
+                    {s.presidentName}
                   </h3>
                   <p
                     style={{
-                      fontFamily: `${settings.roleFontFamily}, sans-serif`,
-                      fontSize: settings.roleFontSize,
-                      color: settings.roleColor,
+                      fontFamily: `${s.roleFontFamily}, sans-serif`,
+                      fontSize: s.roleFontSize,
+                      color: s.roleColor,
                       fontWeight: 500
                     }}
                   >
-                    {settings.presidentRole}
+                    {s.presidentRole}
                   </p>
                 </div>
               </div>
@@ -194,22 +202,22 @@ const PresidentMessageDynamic = () => {
                 <h2
                   className="font-bold mb-4"
                   style={{
-                    fontFamily: `${settings.titleFontFamily}, sans-serif`,
-                    fontSize: settings.titleFontSize,
-                    color: settings.titleColor,
+                    fontFamily: `${s.titleFontFamily}, sans-serif`,
+                    fontSize: s.titleFontSize,
+                    color: s.titleColor,
                     fontWeight: 700,
                     textShadow: "0px 2px 8px rgba(0,0,0,0.3)",
-                    textAlign: settings.titleAlignment as any,
+                    textAlign: s.titleAlignment as any,
                   }}
                 >
-                  {settings.title}
+                  {s.title}
                 </h2>
                 <div 
                   className="w-24 h-1 rounded-full mb-8"
                   style={{ 
-                    background: settings.roleColor,
-                    marginLeft: settings.titleAlignment === 'center' ? 'auto' : undefined,
-                    marginRight: settings.titleAlignment === 'center' ? 'auto' : undefined,
+                    background: s.roleColor,
+                    marginLeft: s.titleAlignment === 'center' ? 'auto' : undefined,
+                    marginRight: s.titleAlignment === 'center' ? 'auto' : undefined,
                   }}
                 />
               </div>
@@ -220,9 +228,9 @@ const PresidentMessageDynamic = () => {
                     key={index}
                     className="leading-relaxed"
                     style={{
-                      fontFamily: `${settings.messageFontFamily}, sans-serif`,
-                      fontSize: settings.messageFontSize,
-                      color: settings.messageColor,
+                      fontFamily: `${s.messageFontFamily}, sans-serif`,
+                      fontSize: s.messageFontSize,
+                      color: s.messageColor,
                       lineHeight: '1.75',
                       opacity: index === 0 ? 0.95 : 0.9,
                     }}
@@ -230,18 +238,18 @@ const PresidentMessageDynamic = () => {
                   />
                 ))}
 
-                {settings.quote && (
+                {s.quote && (
                   <div className="pt-4">
                     <p
                       className="italic"
                       style={{
-                        fontFamily: `${settings.messageFontFamily}, sans-serif`,
-                        fontSize: settings.quoteFontSize,
-                        color: settings.quoteColor,
+                        fontFamily: `${s.messageFontFamily}, sans-serif`,
+                        fontSize: s.quoteFontSize,
+                        color: s.quoteColor,
                         fontWeight: 500
                       }}
                     >
-                      "{settings.quote}"
+                      "{s.quote}"
                     </p>
                   </div>
                 )}

@@ -1,7 +1,10 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Star, Quote } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const Testimonials = () => {
+  const { t } = useTranslation();
+
   const testimonials = [
     {
       name: "Aisha",
@@ -42,10 +45,10 @@ const Testimonials = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-16 animate-fade-in">
           <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
-            Member Stories
+            {t("testimonials.title")}
           </h2>
           <p className="text-xl text-muted-foreground">
-            Hear from our community of adventurers and culture enthusiasts
+            {t("testimonials.subtitle")}
           </p>
         </div>
         

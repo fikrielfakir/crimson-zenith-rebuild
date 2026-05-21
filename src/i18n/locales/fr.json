@@ -51,6 +51,7 @@
     "scrollDown": "Défiler vers le bas"
   },
   "about": {
+    "ourFocus": "Notre Focus",
     "tourism": "Tourisme",
     "tourismDesc": "Découvrez les paysages les plus époustouflants du Maroc à travers des aventures durables et un voyage responsable.",
     "culture": "Culture",
@@ -127,8 +128,26 @@
     "title": "Nos Clubs",
     "subtitle": "Rejoignez des communautés locales dans les villes les plus fascinantes du Maroc",
     "members": "membres",
+    "membersCount": "{{count}} Membres",
     "joinClub": "Rejoindre le club",
-    "viewDetails": "Voir les détails"
+    "viewDetails": "Voir les détails",
+    "loading": "Chargement des clubs...",
+    "searchCity": "Rechercher une ville...",
+    "allCities": "Toutes les villes",
+    "viewClub": "Voir le club"
+  },
+  "testimonials": {
+    "title": "Témoignages",
+    "subtitle": "Écoutez notre communauté d'aventuriers et d'amateurs de culture"
+  },
+  "president": {
+    "title": "Un mot du président",
+    "greeting": "Chers amis et compagnons de voyage,",
+    "body1": "C'est avec grand plaisir et fierté que je vous souhaite la bienvenue à l'Association The Journey. Notre mission est de créer des voies durables pour le tourisme, la culture et le développement communautaire à travers le Maroc.",
+    "body2": "Avec nos partenaires, nos clubs et nos membres dévoués, nous construisons des ponts entre les cultures, protégeons nos trésors naturels et culturels, et veillons à ce que les bénéfices du tourisme atteignent chaque coin de notre beau Maroc.",
+    "quote": "Ensemble, nous créons un impact durable.",
+    "name": "Dr. Aderahim Azrkan",
+    "role": "Président, The Journey Association"
   },
   "events": {
     "title": "Événements & Activités",

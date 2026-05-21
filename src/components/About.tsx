@@ -84,7 +84,7 @@ const About = () => {
             className="font-bold mb-2 sm:mb-3"
             style={{ fontFamily: "Poppins, sans-serif", fontSize: "clamp(24px,6vw,48px)", fontWeight: 700, color: "#FFFFFF", textShadow: "0px 2px 8px rgba(0,0,0,0.3)" }}
           >
-            {t("about.tourism") && "Our focus"}
+            {t("about.ourFocus")}
           </h2>
           <p
             className="mx-auto"

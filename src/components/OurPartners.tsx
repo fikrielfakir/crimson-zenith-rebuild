@@ -164,10 +164,11 @@ const OurPartners = () => {
           </h2>
         </div>
 
-        {/* Carousel */}
+        {/* Carousel — always LTR so auto-scroll direction is unaffected by RTL */}
         <div
           className="overflow-hidden pb-8"
           style={{ minHeight: "200px" }}
+          dir="ltr"
           ref={emblaRef}
           onMouseEnter={onMouseEnter}
           onMouseLeave={onMouseLeave}

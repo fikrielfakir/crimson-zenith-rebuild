@@ -51,6 +51,7 @@
     "scrollDown": "Scroll down"
   },
   "about": {
+    "ourFocus": "Our Focus",
     "tourism": "Tourism",
     "tourismDesc": "Experience Morocco's most breathtaking landscapes through sustainable adventures and responsible travel.",
     "culture": "Culture",
@@ -127,8 +128,26 @@
     "title": "Our Clubs",
     "subtitle": "Join local communities across Morocco's most fascinating cities",
     "members": "members",
+    "membersCount": "{{count}} Members",
     "joinClub": "Join Club",
-    "viewDetails": "View Details"
+    "viewDetails": "View Details",
+    "loading": "Loading clubs...",
+    "searchCity": "Search city...",
+    "allCities": "All Cities",
+    "viewClub": "View Club"
+  },
+  "testimonials": {
+    "title": "Member Stories",
+    "subtitle": "Hear from our community of adventurers and culture enthusiasts"
+  },
+  "president": {
+    "title": "A word from the president",
+    "greeting": "Dear Friends and Fellow Travelers,",
+    "body1": "It is with great pleasure and pride that I welcome you to The Journey Association. Our mission is to create sustainable pathways for tourism, culture, and community development across Morocco. We believe that tourism is not just about visiting beautiful places—it's about creating meaningful connections, preserving our heritage, and empowering local communities.",
+    "body2": "Together with our partners, clubs, and dedicated members, we are building bridges between cultures, protecting our natural and cultural treasures, and ensuring that the benefits of tourism reach every corner of our beloved Morocco. Your participation and support make all the difference in achieving our vision of a sustainable and prosperous future.",
+    "quote": "Together, we create lasting impact.",
+    "name": "Dr. Aderahim Azrkan",
+    "role": "President, The Journey Association"
   },
   "events": {
     "title": "Events & Activities",

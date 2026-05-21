@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { Plus, Minus, Locate, ChevronUp, ChevronDown, Search, Home, MapPin, Building2, Info } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Club } from "../../shared/schema";
@@ -63,6 +64,8 @@ const generateSlug = (name: string): string => {
 };
 
 const ClubsWithMap = () => {
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
   const [selectedCity, setSelectedCity] = useState("All Cities");
   const [selectedClubId, setSelectedClubId] = useState<number | null>(null);
   const [hoveredClubId, setHoveredClubId] = useState<number | null>(null);
@@ -373,7 +376,7 @@ const ClubsWithMap = () => {
       >
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
-          <p className="text-white text-lg">Loading clubs...</p>
+          <p className="text-white text-lg">{t('clubs.loading')}</p>
         </div>
       </section>
     );
@@ -455,7 +458,7 @@ const ClubsWithMap = () => {
               marginBottom: "8px",
             }}
           >
-            Our Clubs
+            {t('clubs.title')}
           </h2>
           <p
             className="mx-auto subtitle-text"
@@ -468,19 +471,19 @@ const ClubsWithMap = () => {
               textShadow: "0 2px 6px rgba(0, 0, 0, 0.3)",
             }}
           >
-            Join local communities across Morocco's most fascinating cities
+            {t('clubs.subtitle')}
           </p>
         </div>
 
-        {/* Sidebar (Cities List) - Left Side, with Search Bar and Scroll Arrows */}
+        {/* Sidebar (Cities List) - Left/Right Side based on RTL */}
         <div
           className="absolute top-1/2 sidebar-cities city-list-container"
           style={{
-            left: "80px",
+            [isRTL ? 'right' : 'left']: "80px",
             transform: "translateY(-50%)",
             display: "flex",
             flexDirection: "column",
-            alignItems: "flex-start",
+            alignItems: isRTL ? "flex-end" : "flex-start",
             gap: "16px",
             background: "transparent",
             fontFamily: "Poppins, sans-serif",
@@ -491,7 +494,7 @@ const ClubsWithMap = () => {
             <Search 
               style={{ 
                 position: "absolute", 
-                left: "12px", 
+                [isRTL ? 'right' : 'left']: "12px", 
                 top: "50%", 
                 transform: "translateY(-50%)",
                 color: "#ffffff",
@@ -502,11 +505,11 @@ const ClubsWithMap = () => {
             />
             <input
               type="text"
-              placeholder="Search city..."
+              placeholder={t('clubs.searchCity')}
               value={searchQuery}
               onChange={(e) => {
                 setSearchQuery(e.target.value);
-                setCityScrollIndex(0); // Reset scroll when searching
+                setCityScrollIndex(0);
               }}
               style={{
                 width: "100%",
@@ -514,13 +517,15 @@ const ClubsWithMap = () => {
                 borderRadius: "8px",
                 background: "rgba(255, 255, 255, 0.15)",
                 border: "1px solid rgba(255, 255, 255, 0.25)",
-                paddingLeft: "36px",
-                paddingRight: "12px",
+                [isRTL ? 'paddingRight' : 'paddingLeft']: "36px",
+                [isRTL ? 'paddingLeft' : 'paddingRight']: "12px",
                 fontFamily: "Poppins, sans-serif",
                 fontSize: "14px",
                 color: "#ffffff",
                 outline: "none",
                 transition: "all 0.3s ease",
+                direction: isRTL ? 'rtl' : 'ltr',
+                textAlign: isRTL ? 'right' : 'left',
               }}
               onFocus={(e) => {
                 e.currentTarget.style.border = "1px solid #DAC391";
@@ -589,19 +594,20 @@ const ClubsWithMap = () => {
                 <motion.button
                   key={city.name}
                   onClick={() => handleCitySelect(city.name)}
-                  className="relative block text-left w-full group"
+                  className={`relative block ${isRTL ? 'text-right' : 'text-left'} w-full group`}
                   style={{
                     fontSize: "18px",
                     fontWeight: isActive ? 700 : 400,
                     color: isActive ? "#ffffff" : "#c8c8c8",
                     fontFamily: "Poppins, sans-serif",
-                    borderLeft: isActive
+                    [isRTL ? 'borderRight' : 'borderLeft']: isActive
                       ? "3px solid #DAC391"
                       : "3px solid transparent",
+                    [isRTL ? 'borderLeft' : 'borderRight']: "none",
                     borderTop: "none",
-                    borderRight: "none",
                     borderBottom: "none",
-                    paddingLeft: "16px",
+                    [isRTL ? 'paddingRight' : 'paddingLeft']: "16px",
+                    [isRTL ? 'paddingLeft' : 'paddingRight']: "0",
                     transition: "all 0.2s ease-in-out",
                     textShadow: isActive
                       ? "0 2px 4px rgba(0, 0, 0, 0.3)"
@@ -663,8 +669,8 @@ const ClubsWithMap = () => {
           )}
         </div>
 
-        {/* Map Controls (Zoom / Locate) - Right Center */}
-        <div className="absolute right-8 top-1/2 transform -translate-y-1/2 flex flex-col gap-3 map-controls">
+        {/* Map Controls (Zoom / Locate) - Right/Left Center based on RTL */}
+        <div className={`absolute ${isRTL ? 'left-8' : 'right-8'} top-1/2 transform -translate-y-1/2 flex flex-col gap-3 map-controls`}>
           <button
             onClick={() => {
               if (map.current) {
