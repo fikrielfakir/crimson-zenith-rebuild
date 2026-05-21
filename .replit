@@ -26,7 +26,7 @@ args = "Dev Server"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Laravel API"
+args = "API Server"
 
 [[workflows.workflow]]
 name = "Dev Server"
@@ -41,13 +41,13 @@ args = "npm run dev"
 waitForPort = 5000
 
 [[workflows.workflow]]
-name = "Laravel API"
+name = "API Server"
 author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd laravel-api && php artisan config:clear && php artisan serve --host=0.0.0.0 --port=8000"
-waitForPort = 8000
+args = "npm run dev:server"
+waitForPort = 3001
 
 [workflows.workflow.metadata]
 outputType = "console"
@@ -58,7 +58,7 @@ externalPort = 3001
 
 [[ports]]
 localPort = 5000
-externalPort = 80
+externalPort = 5000
 
 [[ports]]
 localPort = 5001

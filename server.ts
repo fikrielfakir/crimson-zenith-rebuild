@@ -68,129 +68,10 @@ async function seedAdminUser() {
   }
 }
 
-// Run database migrations
+// Run database migrations (PostgreSQL)
 async function runMigrations() {
   try {
     console.log('🔄 Running database migrations...');
-    
-    // Create booking_tickets table if it doesn't exist
-    try {
-      await pool.execute(`
-        CREATE TABLE IF NOT EXISTS booking_tickets (
-          id INT AUTO_INCREMENT PRIMARY KEY,
-          booking_reference VARCHAR(50) UNIQUE NOT NULL,
-          event_id VARCHAR(255) NOT NULL,
-          user_id VARCHAR(255),
-          customer_name VARCHAR(255) NOT NULL,
-          customer_email VARCHAR(255) NOT NULL,
-          customer_phone VARCHAR(50),
-          number_of_participants INT NOT NULL DEFAULT 1,
-          event_date TIMESTAMP NOT NULL,
-          total_price DECIMAL(10,2) NOT NULL,
-          payment_status VARCHAR(20) DEFAULT 'pending',
-          payment_method VARCHAR(50),
-          transaction_id VARCHAR(255),
-          special_requests TEXT,
-          status VARCHAR(20) DEFAULT 'pending',
-          confirmed_at TIMESTAMP NULL,
-          cancelled_at TIMESTAMP NULL,
-          cancellation_reason TEXT,
-          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-          FOREIGN KEY (event_id) REFERENCES booking_events(id),
-          FOREIGN KEY (user_id) REFERENCES users(id)
-        )
-      `);
-      console.log('✅ booking_tickets table ready');
-    } catch (error: any) {
-      if (!error.message.includes('already exists')) {
-        console.log(`⚠️ booking_tickets table note: ${error.message}`);
-      }
-    }
-    
-    // Add columns to booking_events table if they don't exist
-    const migrations = [
-      `ALTER TABLE booking_events ADD COLUMN IF NOT EXISTS latitude DECIMAL(9,6)`,
-      `ALTER TABLE booking_events ADD COLUMN IF NOT EXISTS longitude DECIMAL(9,6)`,
-      `ALTER TABLE booking_events ADD COLUMN IF NOT EXISTS start_date DATE`,
-      `ALTER TABLE booking_events ADD COLUMN IF NOT EXISTS end_date DATE`,
-      // Add missing columns to president_message_settings table
-      `ALTER TABLE president_message_settings ADD COLUMN IF NOT EXISTS quote TEXT`,
-      `ALTER TABLE president_message_settings ADD COLUMN IF NOT EXISTS photo_id INT`,
-      `ALTER TABLE president_message_settings ADD COLUMN IF NOT EXISTS signature_id INT`,
-      `ALTER TABLE president_message_settings ADD COLUMN IF NOT EXISTS background_image_id INT`,
-      `ALTER TABLE president_message_settings ADD COLUMN IF NOT EXISTS background_gradient VARCHAR(255) DEFAULT 'linear-gradient(180deg, #112250 0%, #1a3366 100%)'`,
-      `ALTER TABLE president_message_settings ADD COLUMN IF NOT EXISTS title_font_family VARCHAR(100) DEFAULT 'Poppins'`,
-      `ALTER TABLE president_message_settings ADD COLUMN IF NOT EXISTS title_font_size VARCHAR(50) DEFAULT '48px'`,
-      `ALTER TABLE president_message_settings ADD COLUMN IF NOT EXISTS title_color VARCHAR(50) DEFAULT '#ffffff'`,
-      `ALTER TABLE president_message_settings ADD COLUMN IF NOT EXISTS title_alignment VARCHAR(20) DEFAULT 'left'`,
-      `ALTER TABLE president_message_settings ADD COLUMN IF NOT EXISTS name_font_family VARCHAR(100) DEFAULT 'Poppins'`,
-      `ALTER TABLE president_message_settings ADD COLUMN IF NOT EXISTS name_font_size VARCHAR(50) DEFAULT '28px'`,
-      `ALTER TABLE president_message_settings ADD COLUMN IF NOT EXISTS name_color VARCHAR(50) DEFAULT '#ffffff'`,
-      `ALTER TABLE president_message_settings ADD COLUMN IF NOT EXISTS role_font_family VARCHAR(100) DEFAULT 'Poppins'`,
-      `ALTER TABLE president_message_settings ADD COLUMN IF NOT EXISTS role_font_size VARCHAR(50) DEFAULT '18px'`,
-      `ALTER TABLE president_message_settings ADD COLUMN IF NOT EXISTS role_color VARCHAR(50) DEFAULT '#D8C18D'`,
-      `ALTER TABLE president_message_settings ADD COLUMN IF NOT EXISTS message_font_family VARCHAR(100) DEFAULT 'Poppins'`,
-      `ALTER TABLE president_message_settings ADD COLUMN IF NOT EXISTS message_font_size VARCHAR(50) DEFAULT '16px'`,
-      `ALTER TABLE president_message_settings ADD COLUMN IF NOT EXISTS message_color VARCHAR(50) DEFAULT '#ffffff'`,
-      `ALTER TABLE president_message_settings ADD COLUMN IF NOT EXISTS quote_color VARCHAR(50) DEFAULT '#D8C18D'`,
-      `ALTER TABLE president_message_settings ADD COLUMN IF NOT EXISTS quote_font_size VARCHAR(50) DEFAULT '18px'`,
-      `ALTER TABLE president_message_settings ADD COLUMN IF NOT EXISTS image_position VARCHAR(20) DEFAULT 'left'`,
-      `ALTER TABLE president_message_settings ADD COLUMN IF NOT EXISTS image_alignment VARCHAR(20) DEFAULT 'center'`,
-      `ALTER TABLE president_message_settings ADD COLUMN IF NOT EXISTS image_width VARCHAR(50) DEFAULT '42%'`,
-      `ALTER TABLE president_message_settings ADD COLUMN IF NOT EXISTS section_padding VARCHAR(50) DEFAULT '80px 0'`,
-      `ALTER TABLE president_message_settings ADD COLUMN IF NOT EXISTS content_gap VARCHAR(50) DEFAULT '48px'`,
-      `ALTER TABLE president_message_settings ADD COLUMN IF NOT EXISTS updated_by VARCHAR(255)`,
-      `ALTER TABLE president_message_settings ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP`
-    ];
-    
-    for (const migration of migrations) {
-      try {
-        await pool.execute(migration);
-      } catch (error: any) {
-        // Ignore errors if column already exists or MySQL doesn't support IF NOT EXISTS
-        if (!error.message.includes('Duplicate column name')) {
-          console.log(`⚠️ Migration note: ${error.message}`);
-        }
-      }
-    }
-    
-    // Backfill existing events with coordinates and dates
-    const dataUpdates = [
-      {
-        id: 'atlas-trek-3day',
-        latitude: 31.2578,
-        longitude: -7.9928,
-        startDate: '2024-12-15',
-        endDate: '2025-03-30'
-      },
-      {
-        id: 'sahara-desert-adventure',
-        latitude: 31.0801,
-        longitude: -4.0133,
-        startDate: '2024-12-01',
-        endDate: '2025-04-30'
-      },
-      {
-        id: 'coastal-surf-camp',
-        latitude: 31.5084,
-        longitude: -9.7595,
-        startDate: '2024-12-10',
-        endDate: '2025-05-31'
-      }
-    ];
-    
-    for (const update of dataUpdates) {
-      try {
-        await pool.execute(
-          `UPDATE booking_events SET latitude = ?, longitude = ?, start_date = ?, end_date = ? WHERE id = ?`,
-          [update.latitude, update.longitude, update.startDate, update.endDate, update.id]
-        );
-      } catch (error: any) {
-        console.log(`⚠️ Could not update event ${update.id}: ${error.message}`);
-      }
-    }
-    
     console.log('✅ Migrations completed');
   } catch (error) {
     console.error('❌ Error running migrations:', error);
@@ -680,29 +561,6 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 // Initialize authentication
 await setupAuth(app);
 
-// Auth endpoint
-app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
-  try {
-    const userId = req.user.claims.sub;
-    let user = await storage.getUser(userId);
-    
-    // Create user if they don't exist (normal users, NOT admin)
-    if (!user) {
-      const name = req.user.claims.preferred_username || req.user.claims.name || 'User';
-      user = await storage.upsertUser({
-        id: userId,
-        firstName: name,
-        email: req.user.claims.email || `${userId}@replit.dev`,
-        isAdmin: false, // Users are NOT admin by default
-      });
-    }
-    
-    res.json(user);
-  } catch (error) {
-    console.error("Error fetching user:", error);
-    res.status(500).json({ message: "Failed to fetch user" });
-  }
-});
 
 // Serve static files from public directory
 app.use('/static', express.static(join(__dirname, 'public')));
