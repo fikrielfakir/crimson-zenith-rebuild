@@ -168,7 +168,7 @@ const Contact = () => {
               </div>
             ) : (
               <form className="space-y-5" onSubmit={handleSubmit}>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block mb-2" style={{ fontSize: '13px', fontWeight: '500', color: '#333' }}>
                       First name

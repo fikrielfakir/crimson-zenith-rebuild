@@ -811,7 +811,7 @@ const BottomNavbar = ({
           <div className="col-start-2 justify-self-center flex items-center justify-center">
             <Link
               to={logoLink}
-              className="flex flex-col items-center"
+              className="flex flex-col items-center navbar-logo-link"
               style={{
                 position: "relative",
                 bottom: `${logoSize * 0.7}px`,

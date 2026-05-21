@@ -357,3 +357,54 @@ All colors MUST be HSL.
     }
   }
 }
+
+/* ── Global mobile baseline ───────────────────────────────────── */
+html, body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* ── Navbar logo: on mobile reset the large upward float so the
+   logo stays inside the bar and is visually centred ──────────── */
+@media (max-width: 767px) {
+  .navbar-logo-link {
+    bottom: 0 !important;
+    height: auto !important;
+  }
+  .navbar-logo-link img {
+    height: 56px !important;
+    margin: 0 !important;
+  }
+}
+
+/* ── President section: clamp the title size on small screens ── */
+@media (max-width: 767px) {
+  #president-message h2 {
+    font-size: clamp(1.5rem, 7vw, 2rem) !important;
+  }
+  #president-message {
+    padding: 40px 0 !important;
+  }
+}
+
+/* ── Partners heading: scale down on mobile ──────────────────── */
+@media (max-width: 767px) {
+  #partners h2 {
+    font-size: clamp(1.5rem, 7vw, 2rem) !important;
+  }
+}
+
+/* ── Contact: ensure email / long words wrap ─────────────────── */
+.contact-info-text {
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
