@@ -36,7 +36,7 @@ interface DropdownItem {
   description?: string;
 }
 
-type DropdownDisplayType = 'simple-list' | 'list-with-images' | 'carousel';
+type DropdownDisplayType = "simple-list" | "list-with-images" | "carousel";
 
 interface NavLink {
   label: string;
@@ -219,7 +219,7 @@ const TalentsDropdown = () => {
 // Dynamic Dropdown Renderer Component (for new custom dropdowns)
 const DropdownRenderer = ({
   items,
-  type = 'simple-list',
+  type = "simple-list",
   title,
 }: {
   items?: DropdownItem[];
@@ -258,7 +258,7 @@ const DropdownRenderer = ({
   if (!items || items.length === 0) return null;
 
   // Carousel Type
-  if (type === 'carousel') {
+  if (type === "carousel") {
     return (
       <div className="absolute left-0 top-full mt-2 w-[700px] max-w-[90vw] bg-white/95 dark:bg-card/95 backdrop-blur-sm rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 border border-border/20">
         <div className="p-6">
@@ -272,14 +272,21 @@ const DropdownRenderer = ({
             <div className="overflow-hidden" ref={emblaRef}>
               <div className="flex gap-4">
                 {items.map((item, idx) => {
-                  const LinkComponent = item.isExternal ? 'a' : Link;
+                  const LinkComponent = item.isExternal ? "a" : Link;
                   const linkProps = item.isExternal
-                    ? { href: item.url, target: '_blank', rel: 'noopener noreferrer' }
+                    ? {
+                        href: item.url,
+                        target: "_blank",
+                        rel: "noopener noreferrer",
+                      }
                     : { to: item.url };
 
                   return (
                     <div key={idx} className="flex-[0_0_32%] min-w-0">
-                      <LinkComponent {...linkProps as any} className="block group/card">
+                      <LinkComponent
+                        {...(linkProps as any)}
+                        className="block group/card"
+                      >
                         <div className="relative h-32 rounded-lg overflow-hidden transition-all duration-300 ease-in-out group-hover/card:scale-105 group-hover/card:shadow-xl">
                           {item.imageUrl ? (
                             <>
@@ -295,7 +302,9 @@ const DropdownRenderer = ({
                                   {item.label}
                                 </h3>
                                 {item.description && (
-                                  <p className="text-white/90 text-xs mt-1">{item.description}</p>
+                                  <p className="text-white/90 text-xs mt-1">
+                                    {item.description}
+                                  </p>
                                 )}
                               </div>
                             </>
@@ -336,7 +345,11 @@ const DropdownRenderer = ({
           </div>
 
           {items.length > 3 && (
-            <div className="flex justify-center gap-2 mt-4" role="tablist" aria-label="Carousel navigation">
+            <div
+              className="flex justify-center gap-2 mt-4"
+              role="tablist"
+              aria-label="Carousel navigation"
+            >
               {Array.from({ length: items.length }).map((_, index) => (
                 <button
                   key={index}
@@ -357,7 +370,7 @@ const DropdownRenderer = ({
   }
 
   // List with Images Type
-  if (type === 'list-with-images') {
+  if (type === "list-with-images") {
     return (
       <div className="absolute left-0 top-full mt-2 w-80 bg-white/95 dark:bg-card/95 backdrop-blur-sm rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 border border-border/20">
         <div className="p-4">
@@ -368,15 +381,19 @@ const DropdownRenderer = ({
           )}
           <div className="flex flex-col gap-2">
             {items.map((item, idx) => {
-              const LinkComponent = item.isExternal ? 'a' : Link;
+              const LinkComponent = item.isExternal ? "a" : Link;
               const linkProps = item.isExternal
-                ? { href: item.url, target: '_blank', rel: 'noopener noreferrer' }
+                ? {
+                    href: item.url,
+                    target: "_blank",
+                    rel: "noopener noreferrer",
+                  }
                 : { to: item.url };
 
               return (
                 <LinkComponent
                   key={idx}
-                  {...linkProps as any}
+                  {...(linkProps as any)}
                   className="flex items-center gap-3 px-3 py-2 text-foreground hover:bg-secondary/10 rounded-lg transition-colors group"
                 >
                   {item.imageUrl && (
@@ -392,7 +409,9 @@ const DropdownRenderer = ({
                   <div className="flex-1">
                     <div className="font-medium text-sm">{item.label}</div>
                     {item.description && (
-                      <div className="text-xs text-muted-foreground">{item.description}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {item.description}
+                      </div>
                     )}
                   </div>
                 </LinkComponent>
@@ -415,15 +434,15 @@ const DropdownRenderer = ({
         )}
         <div className="flex flex-col gap-1">
           {items.map((item, idx) => {
-            const LinkComponent = item.isExternal ? 'a' : Link;
+            const LinkComponent = item.isExternal ? "a" : Link;
             const linkProps = item.isExternal
-              ? { href: item.url, target: '_blank', rel: 'noopener noreferrer' }
+              ? { href: item.url, target: "_blank", rel: "noopener noreferrer" }
               : { to: item.url };
 
             return (
               <LinkComponent
                 key={idx}
-                {...linkProps as any}
+                {...(linkProps as any)}
                 className="block px-4 py-3 text-foreground hover:bg-secondary/10 rounded-lg transition-colors font-medium text-sm"
               >
                 {item.label}
@@ -527,8 +546,8 @@ const TopNavbar = ({
           )}
 
           {/* Login Button / Profile Avatar — hidden on mobile (shown in bottom nav instead) */}
-          {showLoginButton && (
-            isAuthenticated && user ? (
+          {showLoginButton &&
+            (isAuthenticated && user ? (
               <Link
                 to="/profile"
                 className="hidden sm:flex items-center gap-2 px-2 sm:px-3 py-2 text-xs rounded-button font-body hover:opacity-80 transition-opacity"
@@ -537,7 +556,9 @@ const TopNavbar = ({
                 <Avatar className="h-8 w-8 border-2 border-white/30">
                   <AvatarImage src={user.profileImageUrl || ""} />
                   <AvatarFallback className="bg-[hsl(227,65%,19%)] text-white text-xs">
-                    {user.firstName?.[0] || user.email?.[0]?.toUpperCase() || 'U'}
+                    {user.firstName?.[0] ||
+                      user.email?.[0]?.toUpperCase() ||
+                      "U"}
                   </AvatarFallback>
                 </Avatar>
                 <span className="hidden sm:inline">Profile</span>
@@ -555,8 +576,7 @@ const TopNavbar = ({
                   <span className="hidden sm:inline">{loginButtonText}</span>
                 </Link>
               </Button>
-            )
-          )}
+            ))}
 
           {/* Donate Button — hidden on mobile (shown in bottom nav instead) */}
           {showJoinButton && (
@@ -763,10 +783,14 @@ const BottomNavbar = ({
                         {link.label}
                         <ChevronDown className="w-3 h-3 transition-transform group-hover:rotate-180 duration-300" />
                       </span>
-                      <DropdownRenderer 
-                        items={link.dropdownItems} 
-                        type={link.dropdownType || 'simple-list'}
-                        title={link.dropdownType === 'carousel' ? link.label.toUpperCase() : undefined}
+                      <DropdownRenderer
+                        items={link.dropdownItems}
+                        type={link.dropdownType || "simple-list"}
+                        title={
+                          link.dropdownType === "carousel"
+                            ? link.label.toUpperCase()
+                            : undefined
+                        }
                       />
                     </div>
                   );
@@ -918,10 +942,14 @@ const BottomNavbar = ({
                         {link.label}
                         <ChevronDown className="w-3 h-3 transition-transform group-hover:rotate-180 duration-300" />
                       </span>
-                      <DropdownRenderer 
-                        items={link.dropdownItems} 
-                        type={link.dropdownType || 'simple-list'}
-                        title={link.dropdownType === 'carousel' ? link.label.toUpperCase() : undefined}
+                      <DropdownRenderer
+                        items={link.dropdownItems}
+                        type={link.dropdownType || "simple-list"}
+                        title={
+                          link.dropdownType === "carousel"
+                            ? link.label.toUpperCase()
+                            : undefined
+                        }
                       />
                     </div>
                   );
@@ -978,7 +1006,9 @@ const BottomNavbar = ({
                 <Avatar className="h-5 w-5 border border-white/30">
                   <AvatarImage src={user.profileImageUrl || ""} />
                   <AvatarFallback className="bg-[hsl(227,65%,19%)] text-white text-[9px]">
-                    {user.firstName?.[0] || user.email?.[0]?.toUpperCase() || 'U'}
+                    {user.firstName?.[0] ||
+                      user.email?.[0]?.toUpperCase() ||
+                      "U"}
                   </AvatarFallback>
                 </Avatar>
               ) : (
@@ -993,7 +1023,8 @@ const BottomNavbar = ({
                 className="sm:hidden flex items-center justify-center rounded-full transition-all duration-300 hover:scale-105"
                 aria-label="Donate"
                 style={{
-                  background: "linear-gradient(90deg, #d45151 0%, #c04040 100%)",
+                  background:
+                    "linear-gradient(90deg, #d45151 0%, #c04040 100%)",
                   boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
                   width: "28px",
                   height: "28px",
@@ -1029,11 +1060,18 @@ const BottomNavbar = ({
 
       {/* ── Mobile Navigation Drawer ── */}
       <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-        <SheetContent side="left" className="w-[85vw] max-w-sm p-0 flex flex-col bg-[#112250]">
+        <SheetContent
+          side="left"
+          className="w-[85vw] max-w-sm p-0 flex flex-col bg-[#112250]"
+        >
           {/* Drawer header */}
           <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
             {logoType === "image" ? (
-              <img src={logoUrl} alt="Logo" className="h-10 w-auto object-contain" />
+              <img
+                src={logoUrl}
+                alt="Logo"
+                className="h-10 w-auto object-contain"
+              />
             ) : (
               <span className="text-white font-bold text-lg">{logoText}</span>
             )}
@@ -1050,13 +1088,21 @@ const BottomNavbar = ({
           <nav className="flex-1 overflow-y-auto px-4 py-3">
             <Accordion type="multiple" className="w-full">
               {navigationLinks.map((link, index) => {
-                const isDiscover = link.label === "Discover" && !link.isExternal;
+                const isDiscover =
+                  link.label === "Discover" && !link.isExternal;
                 const isTalents = link.label === "Talents" && !link.isExternal;
-                const hasDropdown = isDiscover || isTalents || (link.hasDropdown && link.dropdownItems);
+                const hasDropdown =
+                  isDiscover ||
+                  isTalents ||
+                  (link.hasDropdown && link.dropdownItems);
 
                 if (isDiscover) {
                   return (
-                    <AccordionItem key={index} value={`link-${index}`} className="border-b border-white/10">
+                    <AccordionItem
+                      key={index}
+                      value={`link-${index}`}
+                      className="border-b border-white/10"
+                    >
                       <AccordionTrigger className="text-white/90 hover:text-white text-sm font-medium py-3 hover:no-underline">
                         {link.label}
                       </AccordionTrigger>
@@ -1065,7 +1111,10 @@ const BottomNavbar = ({
                           {moroccoCities.slice(0, 8).map((city) => (
                             <Link
                               key={city.id}
-                              to={{ pathname: "/discover/cities", search: `?city=${city.slug}` }}
+                              to={{
+                                pathname: "/discover/cities",
+                                search: `?city=${city.slug}`,
+                              }}
                               onClick={() => setMobileMenuOpen(false)}
                               className="block px-3 py-2 text-white/70 hover:text-white hover:bg-white/5 rounded-lg text-sm transition-colors"
                             >
@@ -1087,25 +1136,61 @@ const BottomNavbar = ({
 
                 if (isTalents) {
                   return (
-                    <AccordionItem key={index} value={`link-${index}`} className="border-b border-white/10">
+                    <AccordionItem
+                      key={index}
+                      value={`link-${index}`}
+                      className="border-b border-white/10"
+                    >
                       <AccordionTrigger className="text-white/90 hover:text-white text-sm font-medium py-3 hover:no-underline">
                         {link.label}
                       </AccordionTrigger>
                       <AccordionContent className="pb-2">
                         <div className="flex flex-col gap-1 pl-3">
-                          <Link to="/talents/volunteers/spontaneous" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 text-white/70 hover:text-white hover:bg-white/5 rounded-lg text-sm transition-colors">Spontaneous Volunteers</Link>
-                          <Link to="/talents/volunteers/posts" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 text-white/70 hover:text-white hover:bg-white/5 rounded-lg text-sm transition-colors">Volunteer Posts</Link>
-                          <Link to="/talents/experts" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 text-white/70 hover:text-white hover:bg-white/5 rounded-lg text-sm transition-colors">Our Experts</Link>
-                          <Link to="/talents/work-offers" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 text-white/70 hover:text-white hover:bg-white/5 rounded-lg text-sm transition-colors">Work Offers</Link>
+                          <Link
+                            to="/talents/volunteers/spontaneous"
+                            onClick={() => setMobileMenuOpen(false)}
+                            className="block px-3 py-2 text-white/70 hover:text-white hover:bg-white/5 rounded-lg text-sm transition-colors"
+                          >
+                            Spontaneous Volunteers
+                          </Link>
+                          <Link
+                            to="/talents/volunteers/posts"
+                            onClick={() => setMobileMenuOpen(false)}
+                            className="block px-3 py-2 text-white/70 hover:text-white hover:bg-white/5 rounded-lg text-sm transition-colors"
+                          >
+                            Volunteer Posts
+                          </Link>
+                          <Link
+                            to="/talents/experts"
+                            onClick={() => setMobileMenuOpen(false)}
+                            className="block px-3 py-2 text-white/70 hover:text-white hover:bg-white/5 rounded-lg text-sm transition-colors"
+                          >
+                            Our Experts
+                          </Link>
+                          <Link
+                            to="/talents/work-offers"
+                            onClick={() => setMobileMenuOpen(false)}
+                            className="block px-3 py-2 text-white/70 hover:text-white hover:bg-white/5 rounded-lg text-sm transition-colors"
+                          >
+                            Work Offers
+                          </Link>
                         </div>
                       </AccordionContent>
                     </AccordionItem>
                   );
                 }
 
-                if (link.hasDropdown && link.dropdownItems && link.dropdownItems.length > 0) {
+                if (
+                  link.hasDropdown &&
+                  link.dropdownItems &&
+                  link.dropdownItems.length > 0
+                ) {
                   return (
-                    <AccordionItem key={index} value={`link-${index}`} className="border-b border-white/10">
+                    <AccordionItem
+                      key={index}
+                      value={`link-${index}`}
+                      className="border-b border-white/10"
+                    >
                       <AccordionTrigger className="text-white/90 hover:text-white text-sm font-medium py-3 hover:no-underline">
                         {link.label}
                       </AccordionTrigger>
@@ -1156,9 +1241,15 @@ const BottomNavbar = ({
           <div className="px-5 py-4 border-t border-white/10 flex flex-col gap-3">
             {showDonateButton && (
               <button
-                onClick={() => { setMobileMenuOpen(false); onDonateClick(); }}
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onDonateClick();
+                }}
                 className="flex items-center justify-center gap-2 w-full py-3 rounded-full text-white font-medium text-sm transition-all duration-300 hover:opacity-90"
-                style={{ background: "linear-gradient(90deg, #d45151 0%, #c04040 100%)" }}
+                style={{
+                  background:
+                    "linear-gradient(90deg, #d45151 0%, #c04040 100%)",
+                }}
               >
                 <Heart className="w-4 h-4" fill="white" />
                 Donate
