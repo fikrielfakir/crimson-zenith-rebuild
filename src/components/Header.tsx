@@ -689,8 +689,11 @@ const BottomNavbar = ({
       </div>
 
       <div
-        className="container mx-auto px-6"
-        style={{ paddingTop: "1.5rem", paddingBottom: "1.5rem" }}
+        className="container mx-auto px-6 transition-all duration-300"
+        style={{
+          paddingTop: isScrolled ? "0.4rem" : "1.5rem",
+          paddingBottom: isScrolled ? "0.4rem" : "1.5rem",
+        }}
       >
         <div className="navbar-main-grid grid grid-cols-[1fr_auto_1fr] items-center gap-4 md:gap-12">
           {/* Left Section - Navigation */}
