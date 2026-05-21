@@ -423,3 +423,139 @@ img {
   word-break: break-word;
   overflow-wrap: break-word;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   NeoSans Arabic — @font-face declarations
+   ═══════════════════════════════════════════════════════════════ */
+@font-face {
+  font-family: 'NeoSansArabic';
+  src: url('/fonts/NeoSansArabicRegular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'NeoSansArabic';
+  src: url('/fonts/NeoSansArabicMedium.woff') format('woff');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'NeoSansArabic';
+  src: url('/fonts/NeoSansArabicBold.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   RTL — Arabic layout & typography
+   Applied when i18next switches to AR and sets dir="rtl" on <html>
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── 1. Global font & direction ─────────────────────────────── */
+:root[dir="rtl"],
+html[dir="rtl"] {
+  direction: rtl;
+  text-align: right;
+}
+
+html[dir="rtl"] body,
+html[dir="rtl"] h1,
+html[dir="rtl"] h2,
+html[dir="rtl"] h3,
+html[dir="rtl"] h4,
+html[dir="rtl"] h5,
+html[dir="rtl"] h6,
+html[dir="rtl"] p,
+html[dir="rtl"] span,
+html[dir="rtl"] a,
+html[dir="rtl"] button,
+html[dir="rtl"] input,
+html[dir="rtl"] textarea,
+html[dir="rtl"] label,
+html[dir="rtl"] li,
+html[dir="rtl"] td,
+html[dir="rtl"] th {
+  font-family: 'NeoSansArabic', 'Arial', sans-serif !important;
+  letter-spacing: 0 !important;
+}
+
+/* ── 2. Flex row direction flip ─────────────────────────────── */
+html[dir="rtl"] .flex:not(.flex-col):not(.flex-col-reverse) {
+  flex-direction: row-reverse;
+}
+
+/* Preserve intentional flex-col layouts */
+html[dir="rtl"] .flex.flex-col {
+  flex-direction: column;
+}
+
+/* ── 3. Text alignment ───────────────────────────────────────── */
+html[dir="rtl"] .text-left   { text-align: right; }
+html[dir="rtl"] .text-center { text-align: center; }
+
+/* ── 4. Margin & padding mirroring ─────────────────────────── */
+html[dir="rtl"] .ml-auto  { margin-left: unset;  margin-right: auto; }
+html[dir="rtl"] .mr-auto  { margin-right: unset; margin-left: auto; }
+html[dir="rtl"] .ml-1  { margin-left: unset;  margin-right: 0.25rem; }
+html[dir="rtl"] .ml-2  { margin-left: unset;  margin-right: 0.5rem; }
+html[dir="rtl"] .ml-3  { margin-left: unset;  margin-right: 0.75rem; }
+html[dir="rtl"] .ml-4  { margin-left: unset;  margin-right: 1rem; }
+html[dir="rtl"] .ml-6  { margin-left: unset;  margin-right: 1.5rem; }
+html[dir="rtl"] .ml-8  { margin-left: unset;  margin-right: 2rem; }
+html[dir="rtl"] .mr-1  { margin-right: unset; margin-left: 0.25rem; }
+html[dir="rtl"] .mr-2  { margin-right: unset; margin-left: 0.5rem; }
+html[dir="rtl"] .mr-3  { margin-right: unset; margin-left: 0.75rem; }
+html[dir="rtl"] .mr-4  { margin-right: unset; margin-left: 1rem; }
+html[dir="rtl"] .mr-6  { margin-right: unset; margin-left: 1.5rem; }
+html[dir="rtl"] .mr-8  { margin-right: unset; margin-left: 2rem; }
+
+/* ── 5. Border radius flip (left/right) ─────────────────────── */
+html[dir="rtl"] .rounded-l-lg  { border-radius: 0 0.5rem 0.5rem 0; }
+html[dir="rtl"] .rounded-r-lg  { border-radius: 0.5rem 0 0 0.5rem; }
+html[dir="rtl"] .rounded-l-md  { border-radius: 0 0.375rem 0.375rem 0; }
+html[dir="rtl"] .rounded-r-md  { border-radius: 0.375rem 0 0 0.375rem; }
+
+/* ── 6. Absolute positioned elements ────────────────────────── */
+html[dir="rtl"] .left-0  { left: unset;  right: 0; }
+html[dir="rtl"] .right-0 { right: unset; left: 0; }
+html[dir="rtl"] .left-4  { left: unset;  right: 1rem; }
+html[dir="rtl"] .right-4 { right: unset; left: 1rem; }
+html[dir="rtl"] .left-6  { left: unset;  right: 1.5rem; }
+html[dir="rtl"] .right-6 { right: unset; left: 1.5rem; }
+html[dir="rtl"] .left-8  { left: unset;  right: 2rem; }
+html[dir="rtl"] .right-8 { right: unset; left: 2rem; }
+
+/* ── 7. Hero typewriter — keep centered in RTL ───────────────── */
+html[dir="rtl"] .hero-text-wrapper,
+html[dir="rtl"] .hero-line {
+  text-align: center;
+  direction: rtl;
+}
+
+/* ── 8. About cards — left-label flip ───────────────────────── */
+html[dir="rtl"] .absolute.bottom-6.left-8 {
+  left: unset;
+  right: 2rem;
+  text-align: right;
+}
+
+/* ── 9. Navigation dropdown — flip open direction ───────────── */
+html[dir="rtl"] [data-radix-popper-content-wrapper] {
+  direction: rtl;
+}
+
+/* ── 10. Input placeholder alignment ────────────────────────── */
+html[dir="rtl"] input::placeholder,
+html[dir="rtl"] textarea::placeholder {
+  text-align: right;
+}
+
+/* ── 11. Scrollbar stays on the left in RTL ─────────────────── */
+html[dir="rtl"] {
+  overflow-x: hidden;
+}
