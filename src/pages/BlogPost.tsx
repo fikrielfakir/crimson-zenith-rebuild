@@ -179,7 +179,7 @@ const BlogPost = () => {
                 {article.category}
               </Badge>
             )}
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 font-heading leading-tight">
+            <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold text-white mb-4 font-heading leading-tight">
               {article.title}
             </h1>
             <div className="flex flex-wrap items-center gap-6 text-white/80">
@@ -216,8 +216,8 @@ const BlogPost = () => {
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
             <div className="lg:col-span-3">
               <div className="max-w-3xl">
-                <div className="flex items-center justify-between mb-8 pb-6 border-b">
-                  <div className="flex items-center gap-4">
+                <div className="flex flex-wrap items-center justify-between gap-3 mb-8 pb-6 border-b">
+                  <div className="flex flex-wrap items-center gap-3">
                     <Button 
                       variant="outline" 
                       size="sm"
@@ -254,7 +254,7 @@ const BlogPost = () => {
 
                 {article.content && (
                   <div 
-                    className="prose prose-lg max-w-none font-body"
+                    className="prose prose-lg max-w-none font-body prose-img:max-w-full prose-img:h-auto prose-img:rounded-lg"
                     dangerouslySetInnerHTML={{ __html: article.content }}
                   />
                 )}
