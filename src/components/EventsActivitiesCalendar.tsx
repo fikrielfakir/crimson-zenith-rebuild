@@ -318,7 +318,7 @@ const EventsActivitiesCalendar = () => {
 
   return (
     <section className="bg-white">
-      <div className="mx-auto" style={{ maxWidth: '1200px', paddingTop: '80px', paddingBottom: '80px', paddingLeft: '40px', paddingRight: '40px' }}>
+      <div className="mx-auto px-4 sm:px-6 lg:px-10 py-16 lg:py-20" style={{ maxWidth: '1200px' }}>
 
         {/* Header */}
         <div className="text-center" style={{ marginBottom: '40px' }}>
@@ -355,10 +355,10 @@ const EventsActivitiesCalendar = () => {
         </div>
 
         {/* Main grid */}
-        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '40px' }}>
+        <div className="flex flex-col lg:flex-row items-start gap-8 lg:gap-10">
 
           {/* Calendar Panel */}
-          <div style={{ width: '32%', flexShrink: 0 }}>
+          <div className="w-full lg:w-[32%] lg:flex-shrink-0">
             <div className="events-activities-calendar">
               <Card className="border-none mb-4" style={{ backgroundColor: '#FFFFFF', boxShadow: 'none', padding: '20px', borderRadius: '12px' }}>
                 <CalendarComponent
@@ -418,7 +418,7 @@ const EventsActivitiesCalendar = () => {
                   { value: totalEvents, label: 'Total Events' },
                   { value: cities,      label: 'Cities' },
                 ].map(({ value, label }) => (
-                  <div key={label} className="text-center" style={{ backgroundColor: '#F9F9F9', borderRadius: '10px', width: '140px', height: '70px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '12px' }}>
+                  <div key={label} className="text-center flex-1" style={{ backgroundColor: '#F9F9F9', borderRadius: '10px', minHeight: '70px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '12px' }}>
                     <div className="font-['Inter'] font-bold" style={{ fontSize: '24px', color: '#0A0A0A' }}>{value}</div>
                     <div className="font-['Inter']" style={{ fontSize: '13px', color: '#757575' }}>{label}</div>
                   </div>
@@ -458,7 +458,7 @@ const EventsActivitiesCalendar = () => {
               </div>
             ) : (
               <>
-                <div className="grid grid-cols-2 gap-6" style={{ marginBottom: '24px' }}>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6" style={{ marginBottom: '24px' }}>
                   {displayedEvents.map((event) => {
                     const dateStr = event.startDate || event.eventDate;
                     const imgSrc  = event.image || 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80';
