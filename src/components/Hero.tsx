@@ -202,7 +202,7 @@ const Hero = () => {
             >
               {primaryButtonText}
             </Button>
-            <Link to={secondaryButtonLink}>
+            <Link to={secondaryButtonLink} className="w-full sm:w-auto">
               <Button
                 variant="outline"
                 className="w-full sm:w-auto text-white border-white/70 hover:bg-white/10 hover:border-white hover:backdrop-blur-sm text-base px-10 py-4 h-14 rounded-button font-medium transition-all duration-300 bg-transparent/10 backdrop-blur-sm border-2 hover:scale-105"

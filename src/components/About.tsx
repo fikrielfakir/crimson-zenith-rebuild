@@ -34,16 +34,13 @@ const About = () => {
         {focuses.map((focus, index) => (
           <div
             key={focus.title}
-            className="relative flex-1 group cursor-pointer h-[220px] sm:h-[400px] md:h-[600px]"
+            className={`relative flex-1 group cursor-pointer h-[220px] sm:h-[400px] md:h-[600px]`}
             style={{
               borderRight:
                 index < focuses.length - 1
                   ? "3px solid rgba(255, 255, 255, 0.9)"
                   : "none",
-              borderBottom:
-                index < focuses.length - 1
-                  ? "3px solid rgba(255, 255, 255, 0.9)"
-                  : "none",
+              borderBottom: "none",
               borderRadius:
                 index === 0
                   ? "8px 0 0 8px"
