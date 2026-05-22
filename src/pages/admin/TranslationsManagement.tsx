@@ -128,39 +128,48 @@ export default function TranslationsManagement() {
 
   const entityConfig = ENTITY_CONFIGS[activeEntityType];
 
+  function extractArray(d: any): any[] {
+    if (Array.isArray(d)) return d;
+    if (d && Array.isArray(d.data)) return d.data;
+    if (d && Array.isArray(d.events)) return d.events;
+    if (d && Array.isArray(d.posts)) return d.posts;
+    if (d && Array.isArray(d.partners)) return d.partners;
+    return [];
+  }
+
   const { data: clubs = [] } = useQuery<any[]>({
     queryKey: ["/api/clubs"],
-    queryFn: () => fetch("/api/clubs").then((r) => r.json()),
+    queryFn: () => fetch("/api/clubs").then((r) => r.json()).then(extractArray),
     enabled: activeEntityType === "club",
   });
   const { data: events = [] } = useQuery<any[]>({
     queryKey: ["/api/events"],
-    queryFn: () => fetch("/api/events").then((r) => r.json()),
+    queryFn: () => fetch("/api/events").then((r) => r.json()).then(extractArray),
     enabled: activeEntityType === "event",
   });
   const { data: blogPosts = [] } = useQuery<any[]>({
     queryKey: ["/api/news"],
-    queryFn: () => fetch("/api/news").then((r) => r.json()),
+    queryFn: () => fetch("/api/news").then((r) => r.json()).then(extractArray),
     enabled: activeEntityType === "blog_post",
   });
   const { data: testimonials = [] } = useQuery<any[]>({
     queryKey: ["/api/cms/testimonials"],
-    queryFn: () => fetch("/api/cms/testimonials").then((r) => r.json()),
+    queryFn: () => fetch("/api/cms/testimonials").then((r) => r.json()).then(extractArray),
     enabled: activeEntityType === "testimonial",
   });
   const { data: focusItems = [] } = useQuery<any[]>({
     queryKey: ["/api/cms/focus-items"],
-    queryFn: () => fetch("/api/cms/focus-items").then((r) => r.json()),
+    queryFn: () => fetch("/api/cms/focus-items").then((r) => r.json()).then(extractArray),
     enabled: activeEntityType === "focus_item",
   });
   const { data: teamMembers = [] } = useQuery<any[]>({
     queryKey: ["/api/cms/team-members"],
-    queryFn: () => fetch("/api/cms/team-members").then((r) => r.json()),
+    queryFn: () => fetch("/api/cms/team-members").then((r) => r.json()).then(extractArray),
     enabled: activeEntityType === "team_member",
   });
   const { data: partners = [] } = useQuery<any[]>({
     queryKey: ["/api/cms/partners"],
-    queryFn: () => fetch("/api/cms/partners").then((r) => r.json()),
+    queryFn: () => fetch("/api/cms/partners").then((r) => r.json()).then(extractArray),
     enabled: activeEntityType === "partner",
   });
 

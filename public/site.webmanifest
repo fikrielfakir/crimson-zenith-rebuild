@@ -1,0 +1,16 @@
+{
+  "name": "The Journey Association",
+  "short_name": "Journey",
+  "description": "Morocco's network of adventure and cultural clubs",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1a1a2e",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "48x48",
+      "type": "image/x-icon"
+    }
+  ]
+}
