@@ -126,7 +126,11 @@ export default function EventsManagement() {
   const [viewingEvent, setViewingEvent] = useState<any>(null);
   const [showForm, setShowForm] = useState(false);
   const [selectedEventType, setSelectedEventType] = useState<'club' | 'association' | null>(null);
-  
+  const [activeLangTab, setActiveLangTab] = useState<'fr' | 'ar' | 'es'>('fr');
+  const [translations, setTranslations] = useState<Record<string, Record<string, string>>>({
+    fr: {}, ar: {}, es: {},
+  });
+
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -173,6 +177,15 @@ export default function EventsManagement() {
     if (editingEvent && editingEvent.id && editingEvent.id !== '') {
       setShowForm(true);
       setSelectedEventType(editingEvent.isAssociationEvent ? 'association' : 'club');
+      if (editingEvent.translations && typeof editingEvent.translations === 'object') {
+        setTranslations({
+          fr: editingEvent.translations.fr ?? {},
+          ar: editingEvent.translations.ar ?? {},
+          es: editingEvent.translations.es ?? {},
+        });
+      } else {
+        setTranslations({ fr: {}, ar: {}, es: {} });
+      }
       form.reset({
         title: editingEvent.title || '',
         description: editingEvent.description || '',
@@ -272,6 +285,7 @@ export default function EventsManagement() {
         notIncluded: data.notIncluded || null,
         importantInfo: data.importantInfo || null,
         status: data.status,
+        translations,
       };
 
       const response = await apiFetch(url, {
@@ -287,6 +301,7 @@ export default function EventsManagement() {
       setEditingEvent(null);
       setShowForm(false);
       setSelectedEventType(null);
+      setTranslations({ fr: {}, ar: {}, es: {} });
       form.reset();
     },
     onError: (error: Error) => {
@@ -365,6 +380,7 @@ export default function EventsManagement() {
     setShowForm(false);
     setEditingEvent(null);
     setSelectedEventType(null);
+    setTranslations({ fr: {}, ar: {}, es: {} });
     form.reset();
   };
 
@@ -765,6 +781,109 @@ export default function EventsManagement() {
                       </FormItem>
                     )}
                   />
+
+                  {/* ── Translations Section ─────────────────────────── */}
+                  <div className="border rounded-lg overflow-hidden">
+                    <div className="bg-muted px-4 py-3 border-b">
+                      <h3 className="font-semibold text-sm">Translations</h3>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Provide translations for the key content fields. Leave blank to fall back to English.
+                      </p>
+                    </div>
+                    {/* Language tabs */}
+                    <div className="flex border-b">
+                      {(['fr', 'ar', 'es'] as const).map(lang => (
+                        <button
+                          key={lang}
+                          type="button"
+                          onClick={() => setActiveLangTab(lang)}
+                          className={`flex-1 py-2 text-sm font-medium transition-colors ${
+                            activeLangTab === lang
+                              ? 'bg-background border-b-2 border-primary text-primary'
+                              : 'text-muted-foreground hover:text-foreground'
+                          }`}
+                        >
+                          {lang === 'fr' ? '🇫🇷 French' : lang === 'ar' ? '🇲🇦 Arabic' : '🇪🇸 Spanish'}
+                        </button>
+                      ))}
+                    </div>
+                    {/* Translation fields */}
+                    <div className="p-4 space-y-4" dir={activeLangTab === 'ar' ? 'rtl' : 'ltr'}>
+                      <div className="space-y-1.5">
+                        <Label>Title</Label>
+                        <Input
+                          value={translations[activeLangTab]?.title ?? ''}
+                          onChange={e => setTranslations(prev => ({ ...prev, [activeLangTab]: { ...prev[activeLangTab], title: e.target.value } }))}
+                          placeholder="Translated title"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label>Description</Label>
+                        <Textarea
+                          rows={3}
+                          value={translations[activeLangTab]?.description ?? ''}
+                          onChange={e => setTranslations(prev => ({ ...prev, [activeLangTab]: { ...prev[activeLangTab], description: e.target.value } }))}
+                          placeholder="Translated description"
+                        />
+                      </div>
+                      <div className="grid md:grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                          <Label>Location</Label>
+                          <Input
+                            value={translations[activeLangTab]?.location ?? ''}
+                            onChange={e => setTranslations(prev => ({ ...prev, [activeLangTab]: { ...prev[activeLangTab], location: e.target.value } }))}
+                            placeholder="Translated location"
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label>Location Details</Label>
+                          <Input
+                            value={translations[activeLangTab]?.locationDetails ?? ''}
+                            onChange={e => setTranslations(prev => ({ ...prev, [activeLangTab]: { ...prev[activeLangTab], locationDetails: e.target.value } }))}
+                            placeholder="Translated location details"
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label>Highlights</Label>
+                        <Textarea
+                          rows={3}
+                          value={translations[activeLangTab]?.highlights ?? ''}
+                          onChange={e => setTranslations(prev => ({ ...prev, [activeLangTab]: { ...prev[activeLangTab], highlights: e.target.value } }))}
+                          placeholder="One highlight per line"
+                        />
+                      </div>
+                      <div className="grid md:grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                          <Label>What's Included</Label>
+                          <Textarea
+                            rows={3}
+                            value={translations[activeLangTab]?.included ?? ''}
+                            onChange={e => setTranslations(prev => ({ ...prev, [activeLangTab]: { ...prev[activeLangTab], included: e.target.value } }))}
+                            placeholder="One item per line"
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label>What's Not Included</Label>
+                          <Textarea
+                            rows={3}
+                            value={translations[activeLangTab]?.notIncluded ?? ''}
+                            onChange={e => setTranslations(prev => ({ ...prev, [activeLangTab]: { ...prev[activeLangTab], notIncluded: e.target.value } }))}
+                            placeholder="One item per line"
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label>Important Information</Label>
+                        <Textarea
+                          rows={3}
+                          value={translations[activeLangTab]?.importantInfo ?? ''}
+                          onChange={e => setTranslations(prev => ({ ...prev, [activeLangTab]: { ...prev[activeLangTab], importantInfo: e.target.value } }))}
+                          placeholder="Translated important info"
+                        />
+                      </div>
+                    </div>
+                  </div>
 
                   <FormField
                     control={form.control}

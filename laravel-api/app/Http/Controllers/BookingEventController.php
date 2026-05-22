@@ -4,10 +4,41 @@ namespace App\Http\Controllers;
 
 use App\Models\BookingEvent;
 use App\Models\EventReview;
+use App\Models\EventTranslation;
 use Illuminate\Http\Request;
 
 class BookingEventController extends Controller
 {
+    /**
+     * Merge locale-specific translation fields over the base English output.
+     * Falls back to English for any missing field.
+     */
+    private function applyTranslation(array $output, string $eventId, string $locale): array
+    {
+        if ($locale === 'en' || !in_array($locale, ['fr', 'ar', 'es'])) {
+            return $output;
+        }
+
+        $t = EventTranslation::where('event_id', $eventId)
+            ->where('locale', $locale)
+            ->first();
+
+        if (!$t) return $output;
+
+        $toStr = fn($v) => is_array($v) ? implode("\n", array_filter($v)) : $v;
+
+        if ($t->title)          $output['title']          = $t->title;
+        if ($t->description)    $output['description']    = $t->description;
+        if ($t->location)       $output['location']       = $t->location;
+        if ($t->location_details) $output['locationDetails'] = $t->location_details;
+        if ($t->highlights)     $output['highlights']     = $toStr($t->highlights);
+        if ($t->included)       $output['included']       = $toStr($t->included);
+        if ($t->not_included)   $output['notIncluded']    = $toStr($t->not_included);
+        if ($t->important_info) $output['importantInfo']  = $t->important_info;
+
+        return $output;
+    }
+
     private function mapOutput(BookingEvent $e): array
     {
         $toStr = function ($v): ?string {
@@ -58,6 +89,8 @@ class BookingEventController extends Controller
 
     public function index(Request $request)
     {
+        $locale = $request->input('lang', 'en');
+
         $query = BookingEvent::query()
             ->where('is_active', true)
             ->where('status', '!=', 'cancelled');
@@ -77,13 +110,18 @@ class BookingEventController extends Controller
         $events = $query
             ->orderBy('start_date', 'asc')
             ->get()
-            ->map(fn($e) => $this->mapOutput($e));
+            ->map(function ($e) use ($locale) {
+                $out = $this->mapOutput($e);
+                return $this->applyTranslation($out, $e->id, $locale);
+            });
 
         return response()->json(['events' => $events, 'total' => $events->count()]);
     }
 
-    public function show($id)
+    public function show(Request $request, $id)
     {
+        $locale = $request->input('lang', 'en');
+
         $event = BookingEvent::where('id', $id)
             ->where('is_active', true)
             ->first();
@@ -94,7 +132,10 @@ class BookingEventController extends Controller
                 ->firstOrFail();
         }
 
-        return response()->json(['event' => $this->mapOutput($event)]);
+        $out = $this->mapOutput($event);
+        $out = $this->applyTranslation($out, $event->id, $locale);
+
+        return response()->json(['event' => $out]);
     }
 
     public function reviews($id)
@@ -130,7 +171,6 @@ class BookingEventController extends Controller
             'review'    => $request->input('review'),
         ]);
 
-        // Recompute average rating and review count
         $avg   = EventReview::where('event_id', $id)->avg('rating');
         $count = EventReview::where('event_id', $id)->count();
 

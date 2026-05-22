@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\BookingEvent;
+use App\Models\EventTranslation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -13,10 +14,6 @@ class BookingEventAdminController extends Controller
     // Helpers
     // ------------------------------------------------------------------ //
 
-    /**
-     * Convert a textarea string (one item per line) into a JSON-ready array.
-     * If the value is already an array, return it unchanged.
-     */
     private function toArray(mixed $value): array
     {
         if (is_array($value)) return array_values(array_filter($value));
@@ -24,9 +21,6 @@ class BookingEventAdminController extends Controller
         return array_values(array_filter(array_map('trim', explode("\n", (string) $value))));
     }
 
-    /**
-     * Map the camelCase frontend payload to snake_case DB columns.
-     */
     private function mapInput(Request $request): array
     {
         $r = $request;
@@ -60,11 +54,47 @@ class BookingEventAdminController extends Controller
         ], fn($v) => $v !== null);
     }
 
-    /**
-     * Map a BookingEvent model to the camelCase shape the frontend expects.
-     */
+    /** Save / update translations for a given event ID. */
+    private function saveTranslations(string $eventId, array $translations): void
+    {
+        $locales = ['fr', 'ar', 'es'];
+        foreach ($locales as $locale) {
+            $data = $translations[$locale] ?? [];
+            if (empty(array_filter($data))) continue;
+
+            EventTranslation::updateOrCreate(
+                ['event_id' => $eventId, 'locale' => $locale],
+                [
+                    'title'            => $data['title']           ?? null,
+                    'description'      => $data['description']     ?? null,
+                    'location'         => $data['location']        ?? null,
+                    'location_details' => $data['locationDetails'] ?? null,
+                    'highlights'       => $data['highlights']      ? $this->toArray($data['highlights']) : null,
+                    'included'         => $data['included']        ? $this->toArray($data['included'])   : null,
+                    'not_included'     => $data['notIncluded']     ? $this->toArray($data['notIncluded']): null,
+                    'important_info'   => $data['importantInfo']   ?? null,
+                ]
+            );
+        }
+    }
+
     private function mapOutput(BookingEvent $event): array
     {
+        $translations = EventTranslation::where('event_id', $event->id)
+            ->get()
+            ->keyBy('locale')
+            ->map(fn($t) => [
+                'title'           => $t->title,
+                'description'     => $t->description,
+                'location'        => $t->location,
+                'locationDetails' => $t->location_details,
+                'highlights'      => is_array($t->highlights) ? implode("\n", $t->highlights) : ($t->highlights ?? ''),
+                'included'        => is_array($t->included)   ? implode("\n", $t->included)   : ($t->included   ?? ''),
+                'notIncluded'     => is_array($t->not_included) ? implode("\n", $t->not_included) : ($t->not_included ?? ''),
+                'importantInfo'   => $t->important_info,
+            ])
+            ->toArray();
+
         return [
             'id'                 => $event->id,
             'title'              => $event->title,
@@ -93,6 +123,7 @@ class BookingEventAdminController extends Controller
             'isActive'           => (bool) $event->is_active,
             'createdAt'          => $event->created_at,
             'updatedAt'          => $event->updated_at,
+            'translations'       => $translations,
         ];
     }
 
@@ -139,6 +170,10 @@ class BookingEventAdminController extends Controller
 
         $event = BookingEvent::create($data);
 
+        if ($request->has('translations')) {
+            $this->saveTranslations($event->id, $request->input('translations', []));
+        }
+
         return response()->json($this->mapOutput($event->fresh()), 201);
     }
 
@@ -150,6 +185,10 @@ class BookingEventAdminController extends Controller
         unset($data['id']);
 
         $event->update($data);
+
+        if ($request->has('translations')) {
+            $this->saveTranslations($event->id, $request->input('translations', []));
+        }
 
         return response()->json($this->mapOutput($event->fresh()));
     }

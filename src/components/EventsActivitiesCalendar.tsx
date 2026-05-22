@@ -41,6 +41,7 @@ interface Event {
 
 /* ─── Status config ─────────────────────────────────────────────── */
 const STATUS_CONFIG: Record<string, {
+  labelKey: string;
   label: string;
   bg: string;
   text: string;
@@ -50,6 +51,7 @@ const STATUS_CONFIG: Record<string, {
   pulse: boolean;
 }> = {
   upcoming: {
+    labelKey: 'events.calendar.statusUpcoming',
     label: 'Upcoming',
     bg: '#EFF6FF',
     text: '#1D4ED8',
@@ -59,6 +61,7 @@ const STATUS_CONFIG: Record<string, {
     pulse: false,
   },
   ongoing: {
+    labelKey: 'events.calendar.statusOngoing',
     label: 'Ongoing',
     bg: '#F0FDF4',
     text: '#15803D',
@@ -68,6 +71,7 @@ const STATUS_CONFIG: Record<string, {
     pulse: true,
   },
   completed: {
+    labelKey: 'events.calendar.statusCompleted',
     label: 'Completed',
     bg: '#F9FAFB',
     text: '#6B7280',
@@ -79,6 +83,7 @@ const STATUS_CONFIG: Record<string, {
 };
 
 const StatusBadge = ({ status }: { status: string }) => {
+  const { t } = useTranslation();
   const key = (status || '').toLowerCase();
   const cfg = STATUS_CONFIG[key];
   if (!cfg) return null;
@@ -102,7 +107,7 @@ const StatusBadge = ({ status }: { status: string }) => {
       ) : (
         <Icon size={11} strokeWidth={2.5} />
       )}
-      {cfg.label}
+      {t(cfg.labelKey, { defaultValue: cfg.label })}
     </span>
   );
 };
@@ -128,7 +133,7 @@ const EventsActivitiesCalendar = () => {
   });
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
   const eventsPerPage = 2;
 
@@ -139,10 +144,13 @@ const EventsActivitiesCalendar = () => {
       const next = new Set(prev);
       if (next.has(id)) {
         next.delete(id);
-        toast({ title: 'Removed from favorites' });
+        toast({ title: t('events.calendar.removedFromFavorites') });
       } else {
         next.add(id);
-        toast({ title: 'Added to favorites', description: 'Event saved to your favorites.' });
+        toast({
+          title: t('events.calendar.addedToFavorites'),
+          description: t('events.calendar.favoriteSaved'),
+        });
       }
       localStorage.setItem(FAVORITES_KEY, JSON.stringify([...next]));
       return next;
@@ -154,7 +162,7 @@ const EventsActivitiesCalendar = () => {
     const url = `${window.location.origin}/book?event=${event.id}`;
     const shareData = {
       title: event.title,
-      text: `Check out this event: ${event.title} — ${event.location}`,
+      text: `${t('events.calendar.shareText')} ${event.title} — ${event.location}`,
       url,
     };
     try {
@@ -162,14 +170,14 @@ const EventsActivitiesCalendar = () => {
         await navigator.share(shareData);
       } else {
         await navigator.clipboard.writeText(url);
-        toast({ title: 'Link copied!', description: 'Event link copied to clipboard.' });
+        toast({ title: t('events.calendar.linkCopied'), description: t('events.calendar.linkCopiedDesc') });
       }
     } catch {
       try {
         await navigator.clipboard.writeText(url);
-        toast({ title: 'Link copied!', description: 'Event link copied to clipboard.' });
+        toast({ title: t('events.calendar.linkCopied'), description: t('events.calendar.linkCopiedDesc') });
       } catch {
-        toast({ title: 'Could not share', description: 'Please copy the URL manually.', variant: 'destructive' });
+        toast({ title: t('events.calendar.shareError'), description: t('events.calendar.shareErrorDesc'), variant: 'destructive' });
       }
     }
   };
@@ -178,7 +186,8 @@ const EventsActivitiesCalendar = () => {
     const fetchEvents = async () => {
       try {
         setLoading(true);
-        const response = await fetch('/api/booking/events');
+        const lang = i18n.language || 'en';
+        const response = await fetch(`/api/booking/events?lang=${lang}`);
         const data = await response.json();
         const raw: any[] = Array.isArray(data) ? data : (data.events || []);
 
@@ -217,7 +226,7 @@ const EventsActivitiesCalendar = () => {
       }
     };
     fetchEvents();
-  }, []);
+  }, [i18n.language]);
 
   const handleDateChange = (value: any) => {
     if (value instanceof Date) {
@@ -231,20 +240,22 @@ const EventsActivitiesCalendar = () => {
     setCurrentPage(0);
   };
 
+  const locale = i18n.language || 'en';
+
   const formatEventDate = (eventDate: string, endDate?: string) => {
     const start = new Date(eventDate);
-    if (!endDate) return start.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    if (!endDate) return start.toLocaleDateString(locale, { month: 'short', day: 'numeric', year: 'numeric' });
     const end = new Date(endDate);
     if (start.toDateString() === end.toDateString())
-      return start.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-    return `${start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+      return start.toLocaleDateString(locale, { month: 'short', day: 'numeric', year: 'numeric' });
+    return `${start.toLocaleDateString(locale, { month: 'short', day: 'numeric' })} – ${end.toLocaleDateString(locale, { month: 'short', day: 'numeric', year: 'numeric' })}`;
   };
 
   const formatEventTime = (eventDate: string, endDate?: string) => {
     const start = new Date(eventDate);
-    if (!endDate) return start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    if (!endDate) return start.toLocaleTimeString(locale, { hour: 'numeric', minute: '2-digit', hour12: true });
     const end = new Date(endDate);
-    return `${start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })} – ${end.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}`;
+    return `${start.toLocaleTimeString(locale, { hour: 'numeric', minute: '2-digit', hour12: true })} – ${end.toLocaleTimeString(locale, { hour: 'numeric', minute: '2-digit', hour12: true })}`;
   };
 
   /* Determine effective status: auto-classify past events as completed */
@@ -269,7 +280,7 @@ const EventsActivitiesCalendar = () => {
     .sort((a, b) => {
       const da = new Date(a.endDate || a.startDate || a.eventDate || '').getTime();
       const db = new Date(b.endDate || b.startDate || b.eventDate || '').getTime();
-      return db - da; // descending — most recent first
+      return db - da;
     });
   const lastPassedEventId = allPastEvents[0]?.id ?? null;
 
@@ -277,15 +288,12 @@ const EventsActivitiesCalendar = () => {
   const filteredEvents = events.filter((event) => {
     const effectiveStatus = getEffectiveStatus(event);
 
-    /* Status filter */
     if (statusFilter !== 'All') {
       if (effectiveStatus !== statusFilter.toLowerCase()) return false;
     } else {
-      /* In "All" view: hide completed events except the single most-recent one */
       if (effectiveStatus === 'completed' && String(event.id) !== String(lastPassedEventId)) return false;
     }
 
-    /* Date filter — only active when a date has been explicitly picked */
     if (selectedDate) {
       const dateToUse = event.startDate || event.eventDate;
       if (!dateToUse) return false;
@@ -326,10 +334,10 @@ const EventsActivitiesCalendar = () => {
         {/* Header */}
         <div className="text-center" style={{ marginBottom: '40px' }}>
           <h2 className="font-['Poppins'] font-bold" style={{ fontSize: '38px', lineHeight: '1.3', color: '#0A0A0A', marginBottom: '12px' }}>
-            Events & Activities <span style={{ color: '#D4B26A' }}>Calendar</span>
+            {t('events.calendar.title')} <span style={{ color: '#D4B26A' }}>{t('events.calendar.titleHighlight')}</span>
           </h2>
           <p className="font-['Inter']" style={{ fontSize: '16px', color: '#666A73' }}>
-            Discover upcoming adventures and cultural experiences across Morocco
+            {t('events.calendar.subtitle')}
           </p>
         </div>
 
@@ -351,7 +359,7 @@ const EventsActivitiesCalendar = () => {
                 }}
               >
                 {cfg && <span className="inline-block w-2 h-2 rounded-full" style={{ backgroundColor: cfg.dot }} />}
-                {f}
+                {t(`events.calendar.filter${f}`, { defaultValue: f })}
               </button>
             );
           })}
@@ -393,9 +401,11 @@ const EventsActivitiesCalendar = () => {
                   <div className="flex items-center gap-2">
                     <CalendarIcon className="w-4 h-4" style={{ color: '#1D4ED8' }} />
                     <div>
-                      <div className="font-['Inter']" style={{ fontSize: '11px', color: '#1D4ED8', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Filtered by date</div>
+                      <div className="font-['Inter']" style={{ fontSize: '11px', color: '#1D4ED8', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                        {t('events.calendar.filteredByDate')}
+                      </div>
                       <div className="font-['Inter']" style={{ fontSize: '13px', fontWeight: 700, color: '#1E40AF' }}>
-                        {selectedDate.toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}
+                        {selectedDate.toLocaleDateString(locale, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}
                       </div>
                     </div>
                   </div>
@@ -407,10 +417,12 @@ const EventsActivitiesCalendar = () => {
                 <div className="mb-4" style={{ backgroundColor: '#F9EBD0', borderRadius: '10px', padding: '12px 16px' }}>
                   <div className="flex items-center gap-2 mb-1">
                     <CalendarIcon className="w-4 h-4" style={{ color: '#555555' }} />
-                    <span className="font-['Inter'] uppercase" style={{ fontSize: '12px', color: '#555555', fontWeight: 500 }}>All dates shown</span>
+                    <span className="font-['Inter'] uppercase" style={{ fontSize: '12px', color: '#555555', fontWeight: 500 }}>
+                      {t('events.calendar.allDatesShown')}
+                    </span>
                   </div>
                   <div className="font-['Inter']" style={{ fontSize: '13px', color: '#888', lineHeight: '1.4' }}>
-                    Click a date to filter events
+                    {t('events.calendar.clickToFilter')}
                   </div>
                 </div>
               )}
@@ -418,8 +430,8 @@ const EventsActivitiesCalendar = () => {
               {/* Stats */}
               <div className="flex gap-3">
                 {[
-                  { value: totalEvents, label: 'Total Events' },
-                  { value: cities,      label: 'Cities' },
+                  { value: totalEvents, label: t('events.calendar.totalEvents') },
+                  { value: cities,      label: t('events.calendar.cities') },
                 ].map(({ value, label }) => (
                   <div key={label} className="text-center flex-1" style={{ backgroundColor: '#F9F9F9', borderRadius: '10px', minHeight: '70px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '12px' }}>
                     <div className="font-['Inter'] font-bold" style={{ fontSize: '24px', color: '#0A0A0A' }}>{value}</div>
@@ -436,18 +448,18 @@ const EventsActivitiesCalendar = () => {
             {loading ? (
               <div className="text-center py-12">
                 <div className="inline-block animate-spin rounded-full h-10 w-10 border-4 border-[#D4B26A] border-t-transparent mb-3" />
-                <p className="font-['Inter'] text-gray-500">Loading events...</p>
+                <p className="font-['Inter'] text-gray-500">{t('events.calendar.loading')}</p>
               </div>
             ) : sortedEvents.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12">
                 <img src={noEventsImage} alt="No events" style={{ height: '260px', width: 'auto', maxWidth: '100%' }} />
                 <h3 className="font-['Poppins'] font-semibold" style={{ fontSize: '22px', color: '#0A0A0A', marginTop: '16px', marginBottom: '8px' }}>
-                  No Events Found
+                  {t('events.calendar.noEventsFound')}
                 </h3>
                 <p className="font-['Inter']" style={{ fontSize: '15px', color: '#666A73', maxWidth: '360px', textAlign: 'center', lineHeight: '1.6' }}>
                   {selectedDate
-                    ? 'No events on this date. Try a different date or clear the filter.'
-                    : 'No events match the selected filter.'}
+                    ? t('events.calendar.noEventsDate')
+                    : t('events.calendar.noEventsFilter')}
                 </p>
                 {(selectedDate || statusFilter !== 'All') && (
                   <button
@@ -455,7 +467,7 @@ const EventsActivitiesCalendar = () => {
                     className="mt-4 px-5 py-2 rounded-full text-sm font-semibold font-['Inter'] border transition-colors"
                     style={{ backgroundColor: '#111f50', color: '#fff', border: 'none' }}
                   >
-                    Show All Events
+                    {t('events.calendar.showAll')}
                   </button>
                 )}
               </div>
@@ -534,9 +546,9 @@ const EventsActivitiesCalendar = () => {
                               }}
                             >
                               {event.isAssociationEvent ? (
-                                <><CalendarIcon className="w-3 h-3" />Journey Association</>
+                                <><CalendarIcon className="w-3 h-3" />{t('events.calendar.journeyAssociation')}</>
                               ) : (
-                                <><Building2 className="w-3 h-3" />{event.clubName || 'Club Event'}</>
+                                <><Building2 className="w-3 h-3" />{event.clubName || t('events.calendar.clubEvent')}</>
                               )}
                             </Badge>
                           </div>
@@ -578,7 +590,7 @@ const EventsActivitiesCalendar = () => {
                           {/* Price + Button */}
                           <div className="flex items-center justify-between">
                             <div className="font-['Poppins'] font-bold" style={{ fontSize: '16px', color: '#D4B26A' }}>
-                              {event.price ? `${event.price} MAD` : 'Free'}
+                              {event.price ? `${event.price} MAD` : t('events.calendar.free')}
                             </div>
                             <Button
                               className="font-['Poppins'] font-medium"
@@ -588,7 +600,7 @@ const EventsActivitiesCalendar = () => {
                               onMouseEnter={e => { if (!isPast) e.currentTarget.style.backgroundColor = '#C9A758'; }}
                               onMouseLeave={e => { if (!isPast) e.currentTarget.style.backgroundColor = '#D4B26A'; }}
                             >
-                              {isPast ? 'Event Ended' : 'Book Now'}
+                              {isPast ? t('events.calendar.eventEnded') : t('events.calendar.bookNow')}
                             </Button>
                           </div>
                         </div>
@@ -602,7 +614,7 @@ const EventsActivitiesCalendar = () => {
                               <div>{cardEl}</div>
                             </TooltipTrigger>
                             <TooltipContent side="top" className="font-['Inter'] text-sm px-3 py-2">
-                              This event has ended
+                              {t('events.calendar.eventHasEnded')}
                             </TooltipContent>
                           </Tooltip>
                         </TooltipProvider>
