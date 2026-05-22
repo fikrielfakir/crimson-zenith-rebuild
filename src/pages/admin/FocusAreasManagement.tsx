@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
 import { Plus, Pencil, Trash2, GripVertical, Image as ImageIcon, Target, Users, Lightbulb, Heart, Globe } from 'lucide-react';
+import { TranslateDialog } from '@/components/admin/TranslateDialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 
@@ -334,6 +335,15 @@ export default function FocusAreasManagement() {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
+                          <TranslateDialog
+                            entityType="focus_item"
+                            entityId={item.id}
+                            entityLabel={item.title}
+                            fields={[
+                              { key: 'title', label: 'Title' },
+                              { key: 'description', label: 'Description', multiline: true },
+                            ]}
+                          />
                           <Button
                             variant="ghost"
                             size="sm"

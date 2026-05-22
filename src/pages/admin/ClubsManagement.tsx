@@ -24,6 +24,7 @@ import {
   FileText,
   UserCheck,
 } from 'lucide-react';
+import { TranslateDialog } from '@/components/admin/TranslateDialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -442,6 +443,17 @@ export default function ClubsManagement() {
                       </Badge>
                     </TableCell>
                     <TableCell>
+                      <div className="flex items-center justify-end gap-1">
+                      <TranslateDialog
+                        entityType="club"
+                        entityId={club.id}
+                        entityLabel={club.name}
+                        fields={[
+                          { key: 'name', label: 'Name' },
+                          { key: 'description', label: 'Description', multiline: true },
+                          { key: 'location', label: 'Location' },
+                        ]}
+                      />
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="icon">
@@ -489,6 +501,7 @@ export default function ClubsManagement() {
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))

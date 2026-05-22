@@ -28,6 +28,7 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
 import { Plus, Pencil, Trash2, Handshake, ExternalLink, Globe, Save, Eye, EyeOff, Upload, Loader2 } from 'lucide-react';
+import { TranslateDialog } from '@/components/admin/TranslateDialog';
 
 interface Partner {
   id: number;
@@ -439,6 +440,15 @@ export default function PartnersManagement() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-1">
+                        <TranslateDialog
+                          entityType="partner"
+                          entityId={partner.id}
+                          entityLabel={partner.name}
+                          fields={[
+                            { key: 'name', label: 'Name' },
+                            { key: 'description', label: 'Description', multiline: true },
+                          ]}
+                        />
                         <Button variant="ghost" size="sm" onClick={() => handleEdit(partner)}>
                           <Pencil className="h-4 w-4" />
                         </Button>

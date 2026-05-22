@@ -28,6 +28,7 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
 import { Plus, Pencil, Trash2, Star, MessageSquare } from 'lucide-react';
+import { TranslateDialog } from '@/components/admin/TranslateDialog';
 
 interface Testimonial {
   id: number;
@@ -208,6 +209,16 @@ export default function TestimonialsManagement() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
+                        <TranslateDialog
+                          entityType="testimonial"
+                          entityId={item.id}
+                          entityLabel={item.name}
+                          fields={[
+                            { key: 'name', label: 'Name' },
+                            { key: 'role', label: 'Role' },
+                            { key: 'feedback', label: 'Feedback', multiline: true },
+                          ]}
+                        />
                         <Button variant="ghost" size="sm" onClick={() => handleEdit(item)}>
                           <Pencil className="h-4 w-4" />
                         </Button>

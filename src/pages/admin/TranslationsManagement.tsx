@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiFetch } from "@/lib/apiFetch";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -100,16 +101,6 @@ interface Translation {
   value: string;
 }
 
-async function apiRequest(method: string, url: string, body?: any) {
-  const res = await fetch(url, {
-    method,
-    headers: { "Content-Type": "application/json" },
-    body: body ? JSON.stringify(body) : undefined,
-    credentials: "include",
-  });
-  if (!res.ok) throw new Error(await res.text());
-  return res.json();
-}
 
 export default function TranslationsManagement() {
   const { toast } = useToast();
@@ -138,37 +129,37 @@ export default function TranslationsManagement() {
 
   const { data: clubs = [] } = useQuery<any[]>({
     queryKey: ["/api/clubs"],
-    queryFn: () => fetch("/api/clubs").then((r) => r.json()).then(extractArray),
+    queryFn: () => apiFetch("/api/clubs").then((r) => r.json()).then(extractArray),
     enabled: activeEntityType === "club",
   });
   const { data: events = [] } = useQuery<any[]>({
     queryKey: ["/api/events"],
-    queryFn: () => fetch("/api/events").then((r) => r.json()).then(extractArray),
+    queryFn: () => apiFetch("/api/events").then((r) => r.json()).then(extractArray),
     enabled: activeEntityType === "event",
   });
   const { data: blogPosts = [] } = useQuery<any[]>({
     queryKey: ["/api/news"],
-    queryFn: () => fetch("/api/news").then((r) => r.json()).then(extractArray),
+    queryFn: () => apiFetch("/api/news").then((r) => r.json()).then(extractArray),
     enabled: activeEntityType === "blog_post",
   });
   const { data: testimonials = [] } = useQuery<any[]>({
     queryKey: ["/api/cms/testimonials"],
-    queryFn: () => fetch("/api/cms/testimonials").then((r) => r.json()).then(extractArray),
+    queryFn: () => apiFetch("/api/cms/testimonials").then((r) => r.json()).then(extractArray),
     enabled: activeEntityType === "testimonial",
   });
   const { data: focusItems = [] } = useQuery<any[]>({
     queryKey: ["/api/cms/focus-items"],
-    queryFn: () => fetch("/api/cms/focus-items").then((r) => r.json()).then(extractArray),
+    queryFn: () => apiFetch("/api/cms/focus-items").then((r) => r.json()).then(extractArray),
     enabled: activeEntityType === "focus_item",
   });
   const { data: teamMembers = [] } = useQuery<any[]>({
     queryKey: ["/api/cms/team-members"],
-    queryFn: () => fetch("/api/cms/team-members").then((r) => r.json()).then(extractArray),
+    queryFn: () => apiFetch("/api/cms/team-members").then((r) => r.json()).then(extractArray),
     enabled: activeEntityType === "team_member",
   });
   const { data: partners = [] } = useQuery<any[]>({
     queryKey: ["/api/cms/partners"],
-    queryFn: () => fetch("/api/cms/partners").then((r) => r.json()).then(extractArray),
+    queryFn: () => apiFetch("/api/cms/partners").then((r) => r.json()).then(extractArray),
     enabled: activeEntityType === "partner",
   });
 
@@ -195,7 +186,7 @@ export default function TranslationsManagement() {
   const { data: entityTranslations = [] } = useQuery<Translation[]>({
     queryKey: ["/api/translations", editingEntity?.entityType, editingEntity?.id],
     queryFn: () =>
-      fetch(
+      apiFetch(
         `/api/translations/${editingEntity!.entityType}/${editingEntity!.id}`
       ).then((r) => r.json()),
     enabled: !!editingEntity,
@@ -208,7 +199,14 @@ export default function TranslationsManagement() {
       field: string;
       language: string;
       value: string;
-    }) => apiRequest("POST", "/api/admin/translations", data),
+    }) => {
+      const res = await apiFetch("/api/admin/translations", {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      return res.json();
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: [

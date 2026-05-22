@@ -27,6 +27,7 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
 import { Plus, Pencil, Trash2, Users } from 'lucide-react';
+import { TranslateDialog } from '@/components/admin/TranslateDialog';
 
 interface TeamMember {
   id: number;
@@ -186,6 +187,16 @@ export default function TeamMembersManagement() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
+                        <TranslateDialog
+                          entityType="team_member"
+                          entityId={member.id}
+                          entityLabel={member.name}
+                          fields={[
+                            { key: 'name', label: 'Name' },
+                            { key: 'role', label: 'Role' },
+                            { key: 'bio', label: 'Bio', multiline: true },
+                          ]}
+                        />
                         <Button variant="ghost" size="sm" onClick={() => handleEdit(member)}>
                           <Pencil className="h-4 w-4" />
                         </Button>

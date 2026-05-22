@@ -12,6 +12,7 @@ import {
   FileText,
   Loader2,
 } from 'lucide-react';
+import { TranslateDialog } from '@/components/admin/TranslateDialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -335,33 +336,45 @@ export default function NewsManagement() {
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem>
-                          <Eye className="mr-2 h-4 w-4" />
-                          View Post
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => setEditingPost(post)}>
-                          <Edit className="mr-2 h-4 w-4" />
-                          Edit Post
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                          className="text-destructive"
-                          onClick={() => setDeletingPostId(post.id)}
-                        >
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Delete Post
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    <div className="flex items-center justify-end gap-1">
+                      <TranslateDialog
+                        entityType="blog_post"
+                        entityId={post.id}
+                        entityLabel={post.title}
+                        fields={[
+                          { key: 'title', label: 'Title' },
+                          { key: 'excerpt', label: 'Excerpt', multiline: true },
+                          { key: 'content', label: 'Content', multiline: true },
+                        ]}
+                      />
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon">
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem>
+                            <Eye className="mr-2 h-4 w-4" />
+                            View Post
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => setEditingPost(post)}>
+                            <Edit className="mr-2 h-4 w-4" />
+                            Edit Post
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            className="text-destructive"
+                            onClick={() => setDeletingPostId(post.id)}
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete Post
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
