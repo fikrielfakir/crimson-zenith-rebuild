@@ -351,13 +351,9 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Header */}
         <header className="flex h-16 items-center gap-4 border-b bg-background px-4 lg:px-6">
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setMobileMenuOpen(true)}>
-                <Menu className="h-5 w-5" />
-              </Button>
-            </SheetTrigger>
-          </Sheet>
+          <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setMobileMenuOpen(true)}>
+            <Menu className="h-5 w-5" />
+          </Button>
 
           {/* Breadcrumbs */}
           <Breadcrumb className="hidden md:flex">
