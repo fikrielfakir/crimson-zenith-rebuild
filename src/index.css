@@ -514,26 +514,38 @@ html[dir="rtl"] [class] {
   direction class) are left alone to avoid breaking icon-label pairs,
   carousels, and other inline-flex patterns that should stay LTR.
 */
+/* Non-responsive flex-row class — always flip in RTL */
 html[dir="rtl"] .flex-row {
   flex-direction: row-reverse;
 }
 
-html[dir="rtl"] .sm\:flex-row {
-  flex-direction: row-reverse;
-}
-
-html[dir="rtl"] .md\:flex-row {
-  flex-direction: row-reverse;
-}
-
-html[dir="rtl"] .lg\:flex-row {
-  flex-direction: row-reverse;
-}
-
-/* Preserve intentional flex-col layouts */
+/* Preserve intentional flex-col layouts (mobile-first stacking) */
 html[dir="rtl"] .flex.flex-col,
 html[dir="rtl"] .flex-col {
   flex-direction: column;
+}
+
+/*
+  At the lg breakpoint, lg:flex-row must override the flex-col column rule
+  above. Use !important + media query so specificity is not an issue, and
+  the layout becomes row-reverse (RTL natural order) side-by-side at desktop.
+*/
+@media (min-width: 1024px) {
+  html[dir="rtl"] .lg\:flex-row {
+    flex-direction: row-reverse !important;
+  }
+}
+
+@media (min-width: 768px) {
+  html[dir="rtl"] .md\:flex-row {
+    flex-direction: row-reverse !important;
+  }
+}
+
+@media (min-width: 640px) {
+  html[dir="rtl"] .sm\:flex-row {
+    flex-direction: row-reverse !important;
+  }
 }
 
 /* Explicit no-flip helper — add this class to any flex container that must stay LTR */
