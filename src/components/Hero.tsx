@@ -41,10 +41,8 @@ const Hero = () => {
     { text: "Where Journeys Become\nTransformations", twoLines: true },
   ];
 
-  const taglines =
-    heroSettings?.typewriterTexts && heroSettings.typewriterTexts.length > 0
-      ? heroSettings.typewriterTexts
-      : defaultTaglines;
+  const dbTitles = Array.isArray(heroSettings?.title) ? heroSettings.title as {text: string; twoLines?: boolean}[] : [];
+  const taglines = dbTitles.length > 0 ? dbTitles : defaultTaglines;
 
   const [currentTaglineIndex, setCurrentTaglineIndex] = useState(0);
   const [displayedText, setDisplayedText] = useState("");

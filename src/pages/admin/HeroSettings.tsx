@@ -71,16 +71,13 @@ export default function HeroSettings() {
       if (response.ok) {
         const data = await response.json();
         if (data) {
-          // Typewriter texts / taglines
-          if (Array.isArray(data.typewriterTexts) && data.typewriterTexts.length > 0) {
+          // title is now a JSON array of {text, twoLines} objects
+          if (Array.isArray(data.title) && data.title.length > 0) {
             setTaglines(
-              data.typewriterTexts.map((t: any) =>
+              data.title.map((t: any) =>
                 typeof t === 'string' ? { text: t, twoLines: false } : { text: t.text ?? '', twoLines: !!t.twoLines }
               )
             );
-          } else if (data.title) {
-            // Fallback: use static title as first entry
-            setTaglines([{ text: data.title, twoLines: data.title.includes('\n') }]);
           }
 
           setSubtitle(data.subtitle ?? '');
@@ -120,10 +117,9 @@ export default function HeroSettings() {
     try {
       // Build JSON payload — no FormData, so all fields are reliably sent
       const payload = {
-        title: taglines[0]?.text ?? '',          // backward-compat static title
+        title: taglines.filter(t => t.text.trim()),  // JSON array of {text, twoLines}
         subtitle,
         enableTypewriter: true,
-        typewriterTexts: taglines.filter(t => t.text.trim()),
         primaryButtonText,
         primaryButtonLink,
         secondaryButtonText,

@@ -346,7 +346,7 @@ export const navbarSettings = pgTable("navbar_settings", {
 // Hero settings table
 export const heroSettings = pgTable("hero_settings", {
   id: varchar("id", { length: 255 }).primaryKey().default("default"),
-  title: text("title").notNull().default("Where Adventure Meets\nTransformation"),
+  title: jsonb("title").default(sql`'[]'::jsonb`),
   subtitle: text("subtitle").notNull().default("Experience Morocco's soul through sustainable journeys. Discover culture, embrace adventure, and create lasting connections with local communities."),
   primaryButtonText: varchar("primary_button_text", { length: 100 }).default("Start Your Journey"),
   primaryButtonLink: varchar("primary_button_link", { length: 500 }).default("/discover"),
@@ -369,7 +369,6 @@ export const heroSettings = pgTable("hero_settings", {
   heroHeight: varchar("hero_height", { length: 20 }).default("600"),
   contentMaxWidth: varchar("content_max_width", { length: 20 }).default("800"),
   enableTypewriter: boolean("enable_typewriter").default(true),
-  typewriterTexts: jsonb("typewriter_texts").default(sql`'[]'::jsonb`),
   updatedBy: varchar("updated_by", { length: 255 }).references(() => users.id),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
