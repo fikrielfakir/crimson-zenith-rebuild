@@ -62,3 +62,15 @@ export async function apiFetch(
 
   return fetch(url, init);
 }
+
+/**
+ * Resolve a media asset ID to a URL via the API proxy.
+ * Always use this instead of constructing media URLs manually.
+ *
+ * @example
+ *   <img src={getMediaUrl(settings.backgroundImageId) ?? '/placeholder.jpg'} />
+ */
+export function getMediaUrl(id: number | null | undefined): string | null {
+  if (!id) return null;
+  return `/api/media/${id}`;
+}

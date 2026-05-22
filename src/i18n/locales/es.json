@@ -237,5 +237,81 @@
     "selectDate": "Seleccionar fecha",
     "selectParticipants": "Número de participantes",
     "totalPrice": "Precio total"
+  },
+  "team": {
+    "title": "Nuestro Equipo",
+    "subtitle": "Conoce a las personas detrás de The Journey Association",
+    "viewProfile": "Ver perfil",
+    "sendEmail": "Enviar correo",
+    "loading": "Cargando equipo…",
+    "noMembers": "No se encontraron miembros.",
+    "department": "Departamento",
+    "location": "Ubicación"
+  },
+  "partners": {
+    "title": "Nuestros Socios",
+    "subtitle": "Organizaciones y patrocinadores que hacen posible nuestra misión",
+    "visitWebsite": "Visitar sitio web",
+    "loading": "Cargando socios…",
+    "noPartners": "No se encontraron socios.",
+    "categories": {
+      "sponsor": "Patrocinadores",
+      "partner": "Socios",
+      "media": "Socios de medios",
+      "ngo": "ONGs"
+    }
+  },
+  "focusAreas": {
+    "title": "Nuestras Áreas de Enfoque",
+    "subtitle": "Los pilares de nuestra misión en todo Marruecos",
+    "loading": "Cargando…",
+    "learnMore": "Saber más"
+  },
+  "pageHero": {
+    "home": "Inicio",
+    "breadcrumb": {
+      "home": "Inicio"
+    },
+    "pages": {
+      "landing": "Inicio",
+      "clubs": "Clubes",
+      "events": "Eventos",
+      "about": "Quiénes somos",
+      "contact": "Contacto",
+      "gallery": "Galería",
+      "news": "Noticias",
+      "discover": "Descubrir",
+      "join-us": "Únete",
+      "projects": "Proyectos",
+      "volunteers": "Voluntarios"
+    }
+  },
+  "impact": {
+    "title": "Nuestro Impacto",
+    "subtitle": "Cifras que reflejan nuestro compromiso con las comunidades de Marruecos",
+    "loading": "Cargando estadísticas…",
+    "liveData": "Datos en vivo",
+    "members": "Miembros activos",
+    "events": "Eventos organizados",
+    "clubs": "Clubes asociados",
+    "projects": "Proyectos comunitarios"
+  },
+  "volunteers": {
+    "title": "Voluntariado",
+    "subtitle": "Marca la diferencia en las comunidades marroquíes",
+    "opportunities": "Oportunidades",
+    "posts": "Publicaciones de voluntariado",
+    "workOffers": "Ofertas de trabajo",
+    "experts": "Nuestros expertos",
+    "apply": "Aplicar ahora",
+    "loading": "Cargando…",
+    "deadline": "Fecha límite",
+    "duration": "Duración",
+    "location": "Ubicación",
+    "urgency": {
+      "high": "Urgente",
+      "medium": "Normal",
+      "low": "Flexible"
+    }
   }
 }

@@ -1,0 +1,735 @@
+Copy🤖 AI Agent Rebuild Prompt — Crimson Zenith Landing Page Sections
+Project: The Journey Association — Full-Stack CMS-Driven Website
+
+🏗️ ARCHITECTURE OVERVIEW
+You are rebuilding all 11 customizable landing page sections for a React + Laravel full-stack web application. The system is a CMS-driven website where every section is dynamically configurable from an admin panel. The frontend is React + TypeScript + TailwindCSS + shadcn/ui, connected to a Laravel REST API backend.
+Tech Stack
+LayerTechnologyFrontendReact 18 + TypeScript + ViteRoutingReact Router v6State/DataTanStack Query (React Query)UI Libraryshadcn/ui + Radix UIStylingTailwindCSS + CSS Variablesi18nreact-i18next (Arabic/French/English)BackendLaravel 11 (PHP) REST APIAuthHMAC token-based (admin) + JWT (user)MediaLaravel storage with /api/media/{id} endpoint
+API Base Patterns
+GET  /api/cms/{section}          → public read of section settings
+PUT  /api/admin/cms/{section}    → admin write (auth + admin middleware)
+GET  /api/{resource}             → public list (clubs, events, etc.)
+POST /api/admin/{resource}       → admin CRUD
+
+📐 SHARED COMPONENT PATTERNS
+Every section MUST follow these patterns:
+1. Data Fetching Hook Pattern
+tsx// hooks/useCMS.ts — each section has its own hook
+export function useHeroSettings() {
+  return useQuery({
+    queryKey: ['cms', 'hero'],
+    queryFn: async () => {
+      const res = await apiFetch('/api/cms/hero');
+      if (!res.ok) throw new Error('Failed');
+      return res.json();
+    },
+    staleTime: 5 * 60 * 1000, // 5 min cache
+  });
+}
+2. Media URL Helper
+tsx// Always resolve media IDs to URLs via this helper:
+export function getMediaUrl(id: number | null | undefined): string | null {
+  if (!id) return null;
+  return `/api/media/${id}`;
+}
+3. Section Design Interface (shared across ALL sections)
+tsxinterface SectionDesign {
+  colors?: {
+    background?: string;
+    text?: string;
+    accent?: string;
+    gradient?: string;
+  };
+  typography?: {
+    headingFont?: string;
+    bodyFont?: string;
+    headingSize?: string;
+  };
+  spacing?: { padding?: string; margin?: string; gap?: string };
+  layout?: {
+    containerWidth?: string;
+    columns?: number;
+    alignment?: 'left' | 'center' | 'right';
+    direction?: 'row' | 'column';
+  };
+  effects?: {
+    borderRadius?: string;
+    shadow?: string;
+    animation?: string;
+  };
+}
+4. i18n Translation Pattern
+tsxconst { t } = useTranslation();
+// Use translation keys for all visible text:
+// t('hero.title'), t('clubs.heading'), etc.
+// All text fields should fall back to a default if translation missing
+5. Loading + Error State Pattern
+tsximport { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { ErrorState } from "@/components/ui/error-state";
+
+if (isLoading) return <LoadingSpinner message="Loading..." size="lg" className="py-12" />;
+if (error) return <ErrorState message="Failed to load." onRetry={refetch} />;
+
+🔧 SECTION-BY-SECTION REBUILD SPECIFICATION
+
+1. 🔵 NAVBAR SETTINGS
+Admin Page: src/pages/admin/NavbarSettings.tsx
+API: GET/PUT /api/cms/navbar
+Frontend Component: src/components/Header.tsx
+Data Model:
+tsinterface NavbarSettings {
+  logoId: number | null;           // media ID for logo image
+  logoText: string;                // fallback text logo
+  logoUrl: string;                 // link destination
+  backgroundColor: string;         // e.g. "rgba(0,0,0,0.9)"
+  textColor: string;
+  accentColor: string;
+  isSticky: boolean;
+  showLanguageSwitcher: boolean;
+  showAuthButtons: boolean;
+  navLinks: NavLink[];             // ordered array of nav items
+  ctaButtonText: string;
+  ctaButtonLink: string;
+  ctaButtonStyle: 'filled' | 'outlined' | 'ghost';
+}
+
+interface NavLink {
+  id: string;
+  label: string;
+  href: string;
+  isVisible: boolean;
+  order: number;
+  openInNewTab: boolean;
+  children?: NavLink[];            // dropdown support
+}
+Features to implement:
+
+Sticky/transparent-to-solid scroll transition
+Mobile hamburger menu with slide-in drawer
+Active route highlighting
+Language switcher dropdown (AR/FR/EN)
+Auth-aware buttons (show Login vs Profile based on auth state)
+Logo fallback: if logoId is null, render logoText as styled text
+Dropdown menus for nested children nav links
+CTA button renders with configurable style variant
+
+Admin Panel UI must include:
+
+Drag-and-drop reorder for navLinks
+Live preview of navbar as settings change
+Color pickers for background/text/accent
+Toggle switches for isSticky, showLanguageSwitcher, showAuthButtons
+Add/remove/edit individual nav links including nested children
+
+
+2. 🟡 HERO SECTION
+Admin Page: src/pages/admin/HeroSettings.tsx
+API: GET/PUT /api/cms/hero + GET/PUT /api/admin/cms/page-hero/landing
+Frontend Component: src/components/Hero.tsx
+Data Model:
+tsinterface HeroSettings {
+  backgroundType: 'image' | 'video' | 'gradient';
+  backgroundImageId: number | null;
+  backgroundVideoUrl: string | null;
+  overlayColor: string;           // e.g. "rgba(0,0,0,0.5)"
+  overlayOpacity: number;          // 0–1
+  title: string;
+  subtitle: string;
+  typewriterTexts: Array<{ text: string; twoLines: boolean }>;
+  typewriterSpeed: number;         // ms per character
+  ctaPrimaryText: string;
+  ctaPrimaryLink: string;
+  ctaSecondaryText: string;
+  ctaSecondaryLink: string;
+  showScrollIndicator: boolean;
+  minHeight: string;              // e.g. "100vh"
+  contentAlignment: 'left' | 'center' | 'right';
+  parallaxEnabled: boolean;
+}
+Features to implement:
+
+Typewriter animation cycling through typewriterTexts array with configurable speed
+Video background support (autoplay, muted, loop) when backgroundType === 'video'
+Parallax scroll effect on background when parallaxEnabled
+Overlay with configurable color + opacity applied over background
+Two CTA buttons (primary filled, secondary outlined)
+Animated scroll indicator arrow
+Mobile-responsive: stack CTAs vertically on small screens
+Fade-in animation on mount with staggered text reveals
+
+Admin Panel UI must include:
+
+Background type radio selector (image / video / gradient)
+Media upload widget for background image (connects to /api/admin/cms/media)
+Video URL input field shown only when type = video
+Gradient color stops builder shown only when type = gradient
+Typewriter texts CRUD: add/remove/reorder text entries
+Dual CTA button configuration
+Live hero preview panel
+
+
+3. 🟢 ABOUT PRESIDENT
+Admin Page: src/pages/admin/PresidentMessageSettings.tsx
+API: GET/PUT /api/cms/president-message
+Frontend Component: src/components/PresidentMessageDynamic.tsx
+Data Model:
+tsinterface PresidentMessageSettings {
+  isActive: boolean;
+  title: string;
+  presidentName: string;
+  presidentRole: string;
+  message: string;                 // Rich text / HTML
+  quote: string;
+  photoId: number | null;
+  signatureId: number | null;
+  backgroundImageId: number | null;
+  backgroundColor: string;         // default: '#112250'
+  backgroundGradient: string;
+  // Typography overrides (all font families / sizes / colors)
+  titleFontFamily: string;
+  titleFontSize: string;
+  titleColor: string;
+  titleAlignment: 'left' | 'center' | 'right';
+  nameFontFamily: string;
+  nameFontSize: string;
+  nameColor: string;
+  roleFontFamily: string;
+  roleFontSize: string;
+  roleColor: string;
+  messageFontFamily: string;
+  messageFontSize: string;
+  messageColor: string;
+  quoteFontSize: string;
+  quoteColor: string;
+  // Layout
+  imagePosition: 'left' | 'right';
+  imageAlignment: 'top' | 'center' | 'bottom';
+  imageWidth: string;              // e.g. "320px"
+  sectionPadding: string;
+  contentGap: string;
+}
+Features to implement:
+
+Two-column layout: president photo on one side, message on other (configurable via imagePosition)
+Animated quote block with decorative large quotation marks
+President signature image below message (optional, from signatureId)
+Background: use backgroundImageId if set, else CSS gradient backgroundGradient
+All typography (font, size, color) applied inline from settings
+Section hidden completely when isActive === false
+Fade-in + slide-up entrance animation
+
+Admin Panel UI must include:
+
+Rich text editor for message field (use TipTap or Quill)
+Media pickers for photo, signature, background image (reuse ImageUpload component)
+Comprehensive typography panel: font family dropdowns (Google Fonts), size sliders, color pickers
+Layout controls: image position toggle (left/right), alignment, width
+Live preview that applies all style settings in real time
+Active/inactive toggle
+
+
+4. 🔴 FOCUS AREAS
+Admin Page: src/pages/admin/FocusAreasManagement.tsx
+API: GET/POST/PUT/DELETE /api/admin/cms/focus-items + POST /api/admin/cms/focus-items/bulk-reorder
+Frontend Component: new src/components/FocusAreas.tsx
+Data Model:
+tsinterface FocusItem {
+  id: number;
+  title: string;
+  description: string;
+  iconName: string;          // Lucide icon name e.g. "Compass", "Mountain"
+  imageId: number | null;
+  accentColor: string;       // hex color for icon + border accent
+  linkUrl: string | null;    // optional CTA link
+  order: number;
+  isActive: boolean;
+}
+
+interface FocusAreasSectionSettings {
+  title: string;
+  subtitle: string;
+  layout: 'grid' | 'masonry' | 'carousel';
+  columns: 2 | 3 | 4;
+  cardStyle: 'elevated' | 'flat' | 'bordered' | 'image-bg';
+  showIcons: boolean;
+  showImages: boolean;
+  items: FocusItem[];
+}
+Features to implement:
+
+Dynamic icon rendering from Lucide icon library using iconName string
+Three layout modes: CSS Grid, Masonry (CSS columns), horizontal Carousel (Embla)
+Card style variants: elevated (shadow), flat, bordered, image-background with overlay
+Per-card accent color applied to icon, border, and hover glow
+Staggered entrance animations (each card fades in with increasing delay)
+Optional hover effect: card lifts + border glows with accent color
+Link support: entire card clickable if linkUrl set
+
+Admin Panel UI must include:
+
+Full CRUD table for focus items with inline editing
+Drag-and-drop reorder (saves to /bulk-reorder endpoint)
+Icon picker: searchable Lucide icon grid
+Color picker per item for accentColor
+Image uploader per item
+Section-level settings: layout, columns, card style selectors
+Bulk actions: activate/deactivate selected items
+
+
+5. 🟠 CLUBS SHOWCASE
+Admin Page: src/pages/admin/ClubsManagement.tsx
+API: GET /api/clubs (public) + full CRUD at /api/admin/clubs
+Frontend Component: src/components/Clubs.tsx
+Data Model:
+tsinterface Club {
+  id: number;
+  name: string;
+  slug: string;
+  description: string;
+  city: string;
+  citySlug: string;
+  coverImageId: number | null;
+  logoId: number | null;
+  memberCount: number;
+  isActive: boolean;
+  isFeatured: boolean;
+  category: string;
+  tags: string[];
+}
+
+interface ClubsShowcaseSettings {
+  title: string;
+  subtitle: string;
+  maxDisplayed: number;          // how many clubs to show
+  showFeaturedOnly: boolean;
+  filterByCity: string | null;
+  layout: 'grid' | 'list' | 'map';
+  showMemberCount: boolean;
+  showCityBadge: boolean;
+  ctaText: string;               // "View All Clubs" button text
+}
+Features to implement:
+
+Grid of club cards with cover image, logo overlay, name, city badge, member count
+Filter bar: filter by city, category, search
+Featured clubs highlighted with special badge/border
+Club card links to /clubs/{slug} detail page
+"View All Clubs" CTA at bottom
+Empty state when no clubs match filter
+Club card hover: image scale + overlay with brief description + "Join" button
+Lazy image loading with placeholder skeleton
+
+Relation to Events: Each club card can show upcoming event count badge fetched from /api/clubs/{id}/events (show "N upcoming events" label).
+Admin Panel UI must include:
+
+Data table with sortable columns (name, city, members, status)
+Featured toggle per club
+Bulk activate/deactivate
+Approval workflow: pending → approved/rejected
+Image upload for cover + logo (reuse ImageUpload component)
+Club form with all fields including tags multi-select
+
+
+6. 🟣 EVENTS SHOWCASE
+Admin Page: src/pages/admin/EventsManagement.tsx
+API: GET /api/booking/events (public) + CRUD at /api/admin/booking-events
+Frontend Component: src/components/SmartEventCalendar.tsx + src/components/EventCalendar.tsx
+Data Model:
+tsinterface BookingEvent {
+  id: number;
+  title: string;
+  slug: string;
+  description: string;
+  startDate: string;             // ISO 8601
+  endDate: string;
+  location: string;
+  cityId: number | null;
+  coverImageId: number | null;
+  capacity: number;
+  ticketsRemaining: number;
+  price: number;                 // 0 = free
+  currency: string;              // 'MAD'
+  clubId: number | null;         // related club
+  category: string;
+  tags: string[];
+  isFeatured: boolean;
+  status: 'draft' | 'published' | 'cancelled' | 'completed';
+}
+
+interface EventsShowcaseSettings {
+  title: string;
+  subtitle: string;
+  viewMode: 'grid' | 'list' | 'calendar' | 'timeline';
+  maxEvents: number;
+  showUpcomingOnly: boolean;
+  showPastEvents: boolean;
+  filterByClub: number | null;
+  showTicketCount: boolean;
+  showPrice: boolean;
+  showCalendarToggle: boolean;   // let user switch between grid and calendar
+}
+Features to implement:
+
+Three view modes: Card Grid, List view, full Calendar (month/week/day)
+Calendar view with events plotted on dates, clickable for detail modal
+Event card: image, title, date+time, location, price badge (free/paid), capacity indicator
+"Tickets Remaining" progress bar on card
+Club-linked events show club logo/name
+Upcoming vs past events tabs
+Event detail modal (no page navigation): full description, booking CTA
+Link to booking: "Book Now" button → /book/{id}
+
+Relation to Clubs: Show club name + logo on event cards when clubId is set. Clicking club name links to /clubs/{slug}.
+Admin Panel UI must include:
+
+Calendar view for managing events (drag to reschedule)
+Rich event form: dates, capacity, pricing, category, cover image
+Status management workflow (draft → published → cancelled)
+Ticket/booking tracking summary per event
+Bulk operations: publish/unpublish selected
+
+
+7. ⚪ IMPACT SECTION (Stats)
+Admin Page: src/pages/admin/LandingManagement.tsx (stats subsection)
+API: GET/POST /api/admin/cms/stats
+Frontend Component: src/components/Stats.tsx
+Data Model:
+tsinterface StatItem {
+  id: string;
+  icon: string;               // Lucide icon name
+  value: string;              // e.g. "1,200+"
+  label: string;              // e.g. "Active Members"
+  description: string;        // subtext
+  accentColor: string;
+  animateCountUp: boolean;    // whether to animate counting up on scroll
+  order: number;
+}
+
+interface ImpactSectionSettings {
+  title: string;
+  subtitle: string;
+  backgroundType: 'solid' | 'gradient' | 'image';
+  backgroundColor: string;
+  backgroundGradient: string;
+  backgroundImageId: number | null;
+  textColor: string;
+  accentColor: string;
+  layout: '2-col' | '3-col' | '4-col' | 'horizontal-scroll';
+  showDividers: boolean;
+  stats: StatItem[];
+}
+Features to implement:
+
+Animated count-up numbers when section enters viewport (IntersectionObserver)
+Configurable grid columns (2/3/4)
+Dynamic icon rendering from Lucide
+Separator dividers between stats (configurable)
+Background: solid color, gradient, or image with overlay
+Entrance animation: each stat card fades+slides in with stagger delay
+Horizontal scroll mode for mobile-first compact layout
+
+Admin Panel UI must include:
+
+Drag-and-drop CRUD list for stat items
+Icon picker (searchable Lucide grid)
+Toggle for count-up animation per item
+Background type selector + color pickers
+
+
+8. 🔵 TEAM MEMBERS
+Admin Page: src/pages/admin/TeamMembersManagement.tsx
+API: GET/POST/PUT/DELETE /api/admin/cms/stats (type='team') — uses same stats endpoint
+Frontend Component: src/components/OurTeam.tsx
+Data Model:
+tsinterface TeamMember {
+  id: string;
+  name: string;
+  role: string;
+  bio: string;
+  photoId: number | null;
+  email: string | null;
+  linkedinUrl: string | null;
+  twitterUrl: string | null;
+  location: string;
+  department: string;
+  isActive: boolean;
+  order: number;
+}
+
+interface TeamSectionSettings {
+  title: string;
+  subtitle: string;
+  layout: 'grid' | 'list' | 'featured-first';
+  columns: 2 | 3 | 4;
+  cardStyle: 'photo-top' | 'photo-left' | 'circular-photo' | 'minimal';
+  showSocials: boolean;
+  showLocation: boolean;
+  showEmail: boolean;
+  groupByDepartment: boolean;
+}
+Features to implement:
+
+Circular avatar images with fallback initials avatar (colored by name hash)
+Social links displayed as icon buttons (LinkedIn, Twitter, Email)
+Department grouping when groupByDepartment is true (accordion or tab groups)
+Card variants: photo-top (standard), photo-left (horizontal), circular (centered), minimal (text-only)
+Hover: reveal full bio in overlay
+Featured-first layout: first member shown large (2 columns), rest in grid
+
+Relation to Clubs: If a team member has clubId, show their associated club badge on their card.
+Admin Panel UI must include:
+
+CRUD table with avatar thumbnails
+Photo uploader per member (reuse ImageUpload)
+Department field for grouping
+Drag-and-drop reorder
+Show/hide individual members without deleting
+
+
+9. 🟡 TESTIMONIALS
+Admin Page: src/pages/admin/TestimonialsManagement.tsx
+API: GET/POST/PUT/DELETE /api/admin/cms/stats (type='testimonial')
+Frontend Component: src/components/Testimonials.tsx
+Data Model:
+tsinterface Testimonial {
+  id: string;
+  name: string;
+  role: string;
+  organization: string;
+  feedback: string;
+  avatarId: number | null;
+  rating: number;              // 1–5
+  date: string;
+  clubId: number | null;        // related club (if member testimonial)
+  eventId: number | null;       // related event (if event testimonial)
+  isActive: boolean;
+  isFeatured: boolean;
+  order: number;
+}
+
+interface TestimonialsSectionSettings {
+  title: string;
+  subtitle: string;
+  displayMode: 'grid' | 'carousel' | 'masonry' | 'featured-quote';
+  autoPlay: boolean;
+  autoPlaySpeed: number;
+  showRating: boolean;
+  showDate: boolean;
+  showOrganization: boolean;
+  showRelatedBadge: boolean;    // show club/event badge
+  maxDisplay: number;
+}
+Features to implement:
+
+Auto-playing carousel (Embla) with pause on hover
+Star rating display (filled/empty stars)
+Quote decorative marks styling
+Avatar with fallback initials
+"Related to" badge showing club or event name when clubId/eventId is set (cross-reference)
+Masonry grid layout mode
+Featured quote mode: shows one large quote prominently above grid
+Keyboard navigation on carousel
+
+Relation to Clubs & Events: Badge links back to the relevant /clubs/{slug} or /events/{id} detail page.
+Admin Panel UI must include:
+
+Full CRUD table with star rating display
+Featured toggle
+Club/Event relation selectors (dropdowns populated from API)
+Avatar uploader
+Auto-play settings
+
+
+10. 🟢 PARTNERS
+Admin Page: src/pages/admin/PartnersManagement.tsx
+API: GET/PUT /api/admin/cms/partner-settings + partner logo CRUD
+Frontend Component: src/components/OurPartners.tsx
+Data Model:
+tsinterface Partner {
+  id: number;
+  name: string;
+  logoId: number | null;          // media ID
+  websiteUrl: string | null;
+  description: string | null;
+  category: 'sponsor' | 'partner' | 'media' | 'ngo';
+  ordering: number;
+  isActive: boolean;
+  isFeatured: boolean;
+}
+
+interface PartnerSettings {
+  title: string;
+  subtitle: string;
+  isActive: boolean;
+  displayMode: 'logo-scroll' | 'grid' | 'list-with-desc';
+  autoScrollSpeed: number;
+  showNames: boolean;
+  showCategories: boolean;
+  groupByCategory: boolean;
+  backgroundColor: string;
+  patternOverlay: boolean;        // Moroccan geometric pattern SVG overlay
+}
+Features to implement:
+
+Auto-scrolling logo ticker (Embla AutoScroll) — infinite loop, pause on hover
+Moroccan geometric SVG pattern as decorative background overlay
+Grid mode: logos in responsive grid, hover shows description tooltip
+List-with-description mode: logo + name + description cards
+Category tabs when groupByCategory is true
+Logo click opens partner website in new tab
+Fallback: if no logoId, show styled text name
+
+Admin Panel UI must include:
+
+Logo uploader per partner
+Category selector
+Drag-and-drop reorder
+Bulk activate/deactivate
+Section settings: display mode, scroll speed, show/hide options
+
+
+11. 🟠 PAGE HEROES
+Admin Page: src/pages/admin/PageHeroSettings.tsx
+API: GET/PUT /api/admin/cms/page-hero/{page} + POST /api/admin/cms/page-hero-upload
+Frontend Component: src/components/PageHero.tsx
+Managed Pages (each has its own hero config):
+landing, clubs, events, about, contact, gallery, news, discover, join-us, projects, volunteers
+Data Model:
+tsinterface PageHeroSettings {
+  pageKey: string;
+  title: string | null;
+  subtitle: string | null;
+  backgroundType: 'image' | 'video' | 'gradient' | null;
+  backgroundImageUrl: string | null;   // full URL returned from API
+  backgroundVideoUrl: string | null;
+  overlayColor: string;
+  overlayOpacity: number;              // 0–1
+  isActive: boolean;
+  textAlignment: 'left' | 'center' | 'right';
+  minHeight: string;
+  showBreadcrumbs: boolean;
+  breadcrumbStyle: 'default' | 'pills' | 'minimal';
+}
+PageHero Component Props:
+tsxinterface PageHeroProps {
+  pageKey: string;           // used to fetch the right settings
+  scrollY: number;           // for parallax
+  breadcrumbs: { label: string; href?: string }[];
+  defaultTitle: string;      // fallback if API returns null
+  defaultSubtitle: string;
+  defaultImage?: string;     // fallback if no background configured
+  children?: React.ReactNode; // extra content inside hero
+}
+Features to implement:
+
+Fetches settings for pageKey from /api/cms/page-hero/{pageKey}
+Falls back to defaults if API returns empty or null
+Parallax effect: background moves at 40% scroll speed (using scrollY prop)
+Breadcrumb rendering with Home icon + ChevronRight separators
+Three breadcrumb styles: default (links), pills (badge-style), minimal (text)
+Video hero: autoplay, muted, loop, poster fallback image
+Gradient hero: configurable CSS gradient
+Text alignment applied to title + subtitle container
+
+Admin Panel UI must include:
+
+Page selector (dropdown of all managed pages)
+Background type tabs: Image / Video / Gradient
+Drag-and-drop media upload for background image
+Video URL input
+Gradient builder (two color stops)
+Overlay controls: color picker + opacity slider
+Text alignment selector
+Active/inactive toggle per page
+Live preview showing how the hero looks on the selected page
+
+
+🔗 CROSS-SECTION FEATURE INTEGRATIONS
+These features connect multiple sections together — implement all of them:
+A. Club-Event-Testimonial Chain
+
+Events show their host club logo/name (Club Showcase → Events Showcase)
+Testimonials show a club badge or event badge when linked (Testimonials → Clubs/Events)
+Team members show their associated club when assigned (Team Members → Clubs)
+
+B. Stats Driven by Real Data
+
+Impact Section stats can be set to "live" mode: fetch real counts from API
+
+Members count: GET /api/admin/stats → memberCount
+Events count: GET /api/admin/stats → eventCount
+Clubs count: GET /api/admin/stats → clubCount
+
+
+Static mode: use manually entered values from CMS
+
+C. Admin Sidebar Navigation
+The sidebar (already shown in the screenshot) lists all sections. Each item links to its admin page. The admin sidebar AdminLayout.tsx must route to:
+/admin/navbar          → NavbarSettings
+/admin/hero            → HeroSettings
+/admin/president       → PresidentMessageSettings
+/admin/focus-areas     → FocusAreasManagement
+/admin/clubs           → ClubsManagement
+/admin/events          → EventsManagement
+/admin/impact          → LandingManagement (stats tab)
+/admin/team            → TeamMembersManagement
+/admin/testimonials    → TestimonialsManagement
+/admin/partners        → PartnersManagement
+/admin/page-heroes     → PageHeroSettings
+D. Media Library Reuse
+All image/media pickers across all 11 admin pages MUST use the shared ImageUpload component (src/components/admin/ImageUpload.tsx) which:
+
+Uploads to /api/admin/media (multipart/form-data)
+Returns { id, url } — store the id in settings, resolve URL via getMediaUrl(id)
+Shows upload progress + preview thumbnail
+Supports click-to-replace existing media
+
+E. Translation Support
+All text fields in ALL sections must support multilingual content:
+
+Admin pages show the TranslateDialog component (src/components/admin/TranslateDialog.tsx)
+Clicking translate opens a dialog with AR/FR/EN tabs
+Translations saved to /api/admin/translations
+Frontend reads translations via useTranslatedContent() hook
+
+
+🎨 DESIGN SYSTEM CONSTANTS
+css/* Color tokens used throughout — respect these */
+--primary: #112250         /* Deep navy */
+--primary-glow: #1a3366
+--accent: #C9A35B          /* Moroccan gold */
+--accent-light: #D8C18D
+--background: #0a0a0a      /* Near-black */
+--foreground: #ffffff
+--muted: #6b7280
+--border: rgba(255,255,255,0.1)
+
+/* Typography */
+--font-display: 'Poppins'  /* headings */
+--font-body: 'Inter'       /* body text */
+
+📦 DELIVERABLES CHECKLIST
+For each of the 11 sections, deliver:
+
+ Frontend Component (src/components/{SectionName}.tsx)
+ CMS Hook (src/hooks/useCMS.ts — add new hook for section)
+ Admin Page (src/pages/admin/{SectionName}Management.tsx or Settings.tsx)
+ TypeScript types (add to src/types/admin.ts)
+ i18n keys (add to translation JSON files)
+ API route (add to laravel-api/routes/api.php if new endpoint needed)
+ Laravel Controller (if new endpoint: app/Http/Controllers/Admin/)
+ Laravel Model + Migration (if new database table needed)
+
+
+⚠️ CRITICAL REQUIREMENTS
+
+Never hardcode content — all text, images, colors come from API
+All sections are independently toggleable (isActive flag hides section completely)
+Loading skeletons — show skeleton UI while data fetches (not just spinner)
+Mobile-first — every section must be fully responsive down to 375px
+RTL support — layout must flip correctly for Arabic (dir="rtl")
+Error boundaries — wrap each section so one failing section doesn't break page
+Optimistic updates — admin saves should feel instant (update UI before API confirms)
+Section order — homepage renders sections in order defined by admin (draggable in LandingManagement)
+SEO — each section with significant content contributes to <SEOHead> meta tags
+Performance — lazy-load images, defer off-screen sections with IntersectionObserver

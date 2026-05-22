@@ -237,5 +237,81 @@
     "selectDate": "Select Date",
     "selectParticipants": "Number of Participants",
     "totalPrice": "Total Price"
+  },
+  "team": {
+    "title": "Our Team",
+    "subtitle": "Meet the people behind The Journey Association",
+    "viewProfile": "View Profile",
+    "sendEmail": "Send Email",
+    "loading": "Loading team…",
+    "noMembers": "No team members found.",
+    "department": "Department",
+    "location": "Location"
+  },
+  "partners": {
+    "title": "Our Partners",
+    "subtitle": "Organizations and sponsors who make our mission possible",
+    "visitWebsite": "Visit Website",
+    "loading": "Loading partners…",
+    "noPartners": "No partners found.",
+    "categories": {
+      "sponsor": "Sponsors",
+      "partner": "Partners",
+      "media": "Media Partners",
+      "ngo": "NGOs"
+    }
+  },
+  "focusAreas": {
+    "title": "Our Focus Areas",
+    "subtitle": "The pillars of our mission across Morocco",
+    "loading": "Loading focus areas…",
+    "learnMore": "Learn More"
+  },
+  "pageHero": {
+    "home": "Home",
+    "breadcrumb": {
+      "home": "Home"
+    },
+    "pages": {
+      "landing": "Home",
+      "clubs": "Clubs",
+      "events": "Events",
+      "about": "About Us",
+      "contact": "Contact",
+      "gallery": "Gallery",
+      "news": "News",
+      "discover": "Discover",
+      "join-us": "Join Us",
+      "projects": "Projects",
+      "volunteers": "Volunteers"
+    }
+  },
+  "impact": {
+    "title": "Our Impact",
+    "subtitle": "Numbers that reflect our commitment to Morocco's communities",
+    "loading": "Loading stats…",
+    "liveData": "Live data",
+    "members": "Active Members",
+    "events": "Events Organized",
+    "clubs": "Partner Clubs",
+    "projects": "Community Projects"
+  },
+  "volunteers": {
+    "title": "Volunteer with Us",
+    "subtitle": "Make a difference in Moroccan communities",
+    "opportunities": "Opportunities",
+    "posts": "Volunteer Posts",
+    "workOffers": "Work Offers",
+    "experts": "Our Experts",
+    "apply": "Apply Now",
+    "loading": "Loading…",
+    "deadline": "Deadline",
+    "duration": "Duration",
+    "location": "Location",
+    "urgency": {
+      "high": "Urgent",
+      "medium": "Normal",
+      "low": "Flexible"
+    }
   }
 }

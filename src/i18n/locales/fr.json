@@ -237,5 +237,81 @@
     "selectDate": "Sélectionner une date",
     "selectParticipants": "Nombre de participants",
     "totalPrice": "Prix total"
+  },
+  "team": {
+    "title": "Notre Équipe",
+    "subtitle": "Rencontrez les personnes derrière The Journey Association",
+    "viewProfile": "Voir le profil",
+    "sendEmail": "Envoyer un e-mail",
+    "loading": "Chargement de l'équipe…",
+    "noMembers": "Aucun membre trouvé.",
+    "department": "Département",
+    "location": "Lieu"
+  },
+  "partners": {
+    "title": "Nos Partenaires",
+    "subtitle": "Organisations et sponsors qui rendent notre mission possible",
+    "visitWebsite": "Visiter le site",
+    "loading": "Chargement des partenaires…",
+    "noPartners": "Aucun partenaire trouvé.",
+    "categories": {
+      "sponsor": "Sponsors",
+      "partner": "Partenaires",
+      "media": "Partenaires médias",
+      "ngo": "ONG"
+    }
+  },
+  "focusAreas": {
+    "title": "Nos Domaines d'Action",
+    "subtitle": "Les piliers de notre mission à travers le Maroc",
+    "loading": "Chargement…",
+    "learnMore": "En savoir plus"
+  },
+  "pageHero": {
+    "home": "Accueil",
+    "breadcrumb": {
+      "home": "Accueil"
+    },
+    "pages": {
+      "landing": "Accueil",
+      "clubs": "Clubs",
+      "events": "Événements",
+      "about": "À propos",
+      "contact": "Contact",
+      "gallery": "Galerie",
+      "news": "Actualités",
+      "discover": "Découvrir",
+      "join-us": "Nous rejoindre",
+      "projects": "Projets",
+      "volunteers": "Bénévoles"
+    }
+  },
+  "impact": {
+    "title": "Notre Impact",
+    "subtitle": "Des chiffres qui reflètent notre engagement envers les communautés marocaines",
+    "loading": "Chargement des statistiques…",
+    "liveData": "Données en direct",
+    "members": "Membres actifs",
+    "events": "Événements organisés",
+    "clubs": "Clubs partenaires",
+    "projects": "Projets communautaires"
+  },
+  "volunteers": {
+    "title": "Rejoindre comme bénévole",
+    "subtitle": "Faites une différence dans les communautés marocaines",
+    "opportunities": "Opportunités",
+    "posts": "Postes de bénévolat",
+    "workOffers": "Offres d'emploi",
+    "experts": "Nos experts",
+    "apply": "Postuler",
+    "loading": "Chargement…",
+    "deadline": "Date limite",
+    "duration": "Durée",
+    "location": "Lieu",
+    "urgency": {
+      "high": "Urgent",
+      "medium": "Normal",
+      "low": "Flexible"
+    }
   }
 }
