@@ -32,7 +32,7 @@ const Hero = () => {
     (text) => ({ text, twoLines: true })
   );
 
-  const defaultTaglines = i18nTaglines.length > 0 ? i18nTaglines : [
+  const hardcodedFallbacks = [
     { text: "Where Adventure Meets\nTransformation", twoLines: true },
     { text: "Where Journey Meets\nDiscovery", twoLines: true },
     { text: "Where Exploration Meets\nInspiration", twoLines: true },
@@ -41,14 +41,21 @@ const Hero = () => {
     { text: "Where Journeys Become\nTransformations", twoLines: true },
   ];
 
-  // title from Laravel is a JSON array; typewriterTexts is an alias kept for compat
+  // title from DB as a JSON array; typewriterTexts is an alias kept for compat
   const dbTitles: { text: string; twoLines?: boolean }[] =
     Array.isArray(heroSettings?.title) && heroSettings.title.length > 0
       ? heroSettings.title
       : Array.isArray(heroSettings?.typewriterTexts) && heroSettings.typewriterTexts.length > 0
         ? heroSettings.typewriterTexts
         : [];
-  const taglines = dbTitles.length > 0 ? dbTitles : defaultTaglines;
+
+  // i18n translations take priority — they update per language.
+  // DB titles are a fallback for when no translation is provided.
+  const taglines = i18nTaglines.length > 0
+    ? i18nTaglines
+    : dbTitles.length > 0
+      ? dbTitles
+      : hardcodedFallbacks;
 
   const [currentTaglineIndex, setCurrentTaglineIndex] = useState(0);
   const [displayedText, setDisplayedText] = useState("");
