@@ -37,35 +37,41 @@ interface TeamMember {
   email?: string;
   phone?: string;
   ordering: number;
-  is_active: boolean;
+  isActive: boolean;
 }
+
+const QUERY_KEY = ['admin-team-members'] as const;
 
 async function fetchTeamMembers(): Promise<TeamMember[]> {
-  const res = await apiFetch('/api/admin/cms/stats?type=team', { credentials: 'include' });
+  const res = await apiFetch('/api/cms/team-members');
   if (!res.ok) throw new Error('Failed to fetch team members');
-  const data = await res.json();
-  return data.teamMembers ?? [];
+  return res.json();
 }
 
-async function saveTeamMember(member: Partial<TeamMember> & { id?: number }): Promise<void> {
-  const res = await apiFetch('/api/admin/cms/stats', {
+async function createTeamMember(member: Omit<TeamMember, 'id' | 'ordering'>): Promise<TeamMember> {
+  const res = await apiFetch('/api/admin/cms/team-members', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-    body: JSON.stringify({ type: 'team', items: [member] }),
+    body: JSON.stringify(member),
   });
-  if (!res.ok) throw new Error('Failed to save team member');
+  if (!res.ok) throw new Error('Failed to create team member');
+  return res.json();
+}
+
+async function updateTeamMember(id: number, member: Partial<TeamMember>): Promise<TeamMember> {
+  const res = await apiFetch(`/api/admin/cms/team-members/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(member),
+  });
+  if (!res.ok) throw new Error('Failed to update team member');
+  return res.json();
 }
 
 async function deleteTeamMember(id: number): Promise<void> {
-  const res = await apiFetch(`/api/admin/cms/stats/team/${id}`, {
-    method: 'DELETE',
-    credentials: 'include',
-  });
+  const res = await apiFetch(`/api/admin/cms/team-members/${id}`, { method: 'DELETE' });
   if (!res.ok) throw new Error('Failed to delete team member');
 }
 
-const emptyForm = { name: '', role: '', bio: '', email: '', phone: '', is_active: true };
+const emptyForm = { name: '', role: '', bio: '', email: '', phone: '', isActive: true };
 
 export default function TeamMembersManagement() {
   const [showForm, setShowForm] = useState(false);
@@ -77,32 +83,38 @@ export default function TeamMembersManagement() {
   const { toast } = useToast();
 
   const { data: members = [], isLoading } = useQuery({
-    queryKey: ['admin-team-members'],
+    queryKey: QUERY_KEY,
     queryFn: fetchTeamMembers,
   });
 
-  const saveMutation = useMutation({
-    mutationFn: saveTeamMember,
+  const createMutation = useMutation({
+    mutationFn: createTeamMember,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-team-members'] });
-      toast({ title: `Team member ${editingMember ? 'updated' : 'created'} successfully` });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEY });
+      toast({ title: 'Team member added' });
       handleClose();
     },
-    onError: (err: Error) => {
-      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+    onError: (err: Error) => toast({ title: 'Error', description: err.message, variant: 'destructive' }),
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, ...data }: { id: number } & Partial<TeamMember>) => updateTeamMember(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEY });
+      toast({ title: 'Team member updated' });
+      handleClose();
     },
+    onError: (err: Error) => toast({ title: 'Error', description: err.message, variant: 'destructive' }),
   });
 
   const deleteMutation = useMutation({
     mutationFn: deleteTeamMember,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-team-members'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEY });
       toast({ title: 'Team member deleted' });
       setDeletingId(null);
     },
-    onError: (err: Error) => {
-      toast({ title: 'Error', description: err.message, variant: 'destructive' });
-    },
+    onError: (err: Error) => toast({ title: 'Error', description: err.message, variant: 'destructive' }),
   });
 
   const handleEdit = (member: TeamMember) => {
@@ -113,7 +125,7 @@ export default function TeamMembersManagement() {
       bio: member.bio ?? '',
       email: member.email ?? '',
       phone: member.phone ?? '',
-      is_active: member.is_active,
+      isActive: member.isActive,
     });
     setShowForm(true);
   };
@@ -126,11 +138,17 @@ export default function TeamMembersManagement() {
 
   const handleSave = () => {
     if (!form.name.trim() || !form.role.trim()) {
-      toast({ title: 'Error', description: 'Name and role are required', variant: 'destructive' });
+      toast({ title: 'Validation error', description: 'Name and role are required', variant: 'destructive' });
       return;
     }
-    saveMutation.mutate(editingMember ? { ...form, id: editingMember.id } : form);
+    if (editingMember) {
+      updateMutation.mutate({ id: editingMember.id, ...form });
+    } else {
+      createMutation.mutate(form);
+    }
   };
+
+  const isPending = createMutation.isPending || updateMutation.isPending;
 
   return (
     <div className="space-y-6">
@@ -152,7 +170,7 @@ export default function TeamMembersManagement() {
         </CardHeader>
         <CardContent className="overflow-x-auto">
           {isLoading ? (
-            <div className="flex items-center justify-center py-8 text-muted-foreground">Loading...</div>
+            <div className="flex items-center justify-center py-8 text-muted-foreground">Loading…</div>
           ) : members.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
@@ -178,11 +196,11 @@ export default function TeamMembersManagement() {
                     <TableCell className="text-muted-foreground">{member.email ?? '—'}</TableCell>
                     <TableCell>
                       <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
-                        member.is_active
+                        member.isActive
                           ? 'bg-green-50 text-green-700 ring-1 ring-green-600/20'
                           : 'bg-gray-50 text-gray-700 ring-1 ring-gray-600/20'
                       }`}>
-                        {member.is_active ? 'Active' : 'Inactive'}
+                        {member.isActive ? 'Active' : 'Inactive'}
                       </span>
                     </TableCell>
                     <TableCell className="text-right">
@@ -224,37 +242,37 @@ export default function TeamMembersManagement() {
 
           <div className="space-y-4 py-2">
             <div className="space-y-2">
-              <Label htmlFor="name">Name *</Label>
-              <Input id="name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Full name" />
+              <Label htmlFor="tm-name">Name *</Label>
+              <Input id="tm-name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Full name" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="role">Role *</Label>
-              <Input id="role" value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} placeholder="e.g., President, Treasurer" />
+              <Label htmlFor="tm-role">Role *</Label>
+              <Input id="tm-role" value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} placeholder="e.g., President, Treasurer" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="bio">Bio</Label>
-              <Textarea id="bio" value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} rows={3} placeholder="Short biography..." />
+              <Label htmlFor="tm-bio">Bio</Label>
+              <Textarea id="tm-bio" value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} rows={3} placeholder="Short biography…" />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="name@example.com" />
+                <Label htmlFor="tm-email">Email</Label>
+                <Input id="tm-email" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="name@example.com" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="phone">Phone</Label>
-                <Input id="phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="+212 600 000000" />
+                <Label htmlFor="tm-phone">Phone</Label>
+                <Input id="tm-phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="+212 600 000000" />
               </div>
             </div>
             <div className="flex items-center space-x-2">
-              <Switch id="is_active" checked={form.is_active} onCheckedChange={(v) => setForm({ ...form, is_active: v })} />
-              <Label htmlFor="is_active">Visible on site</Label>
+              <Switch id="tm-active" checked={form.isActive} onCheckedChange={(v) => setForm({ ...form, isActive: v })} />
+              <Label htmlFor="tm-active">Visible on site</Label>
             </div>
           </div>
 
           <div className="flex justify-end gap-2">
             <Button variant="outline" onClick={handleClose}>Cancel</Button>
-            <Button onClick={handleSave} disabled={saveMutation.isPending}>
-              {saveMutation.isPending ? 'Saving...' : 'Save'}
+            <Button onClick={handleSave} disabled={isPending}>
+              {isPending ? 'Saving…' : 'Save'}
             </Button>
           </div>
         </DialogContent>
@@ -274,7 +292,7 @@ export default function TeamMembersManagement() {
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={() => deletingId !== null && deleteMutation.mutate(deletingId)}
             >
-              {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
+              {deleteMutation.isPending ? 'Deleting…' : 'Delete'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

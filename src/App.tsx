@@ -63,6 +63,7 @@ import NavbarSettings from "./pages/admin/NavbarSettings";
 import HeroSettings from "./pages/admin/HeroSettings";
 import PresidentMessageSettings from "./pages/admin/PresidentMessageSettings";
 import FocusAreasManagement from "./pages/admin/FocusAreasManagement";
+import ImpactManagement from "./pages/admin/ImpactManagement";
 import TeamMembersManagement from "./pages/admin/TeamMembersManagement";
 import TestimonialsManagement from "./pages/admin/TestimonialsManagement";
 import PartnersManagement from "./pages/admin/PartnersManagement";
@@ -303,17 +304,17 @@ const App = () => (
           } />
           <Route path="/admin/customization/clubs" element={
             <ProtectedRoute>
-              <div className="p-6"><h1 className="text-3xl font-bold">Clubs Section - Coming Soon</h1></div>
+              <ClubsManagement />
             </ProtectedRoute>
           } />
           <Route path="/admin/customization/events" element={
             <ProtectedRoute>
-              <div className="p-6"><h1 className="text-3xl font-bold">Events Section - Coming Soon</h1></div>
+              <EventsManagement />
             </ProtectedRoute>
           } />
           <Route path="/admin/customization/impact" element={
             <ProtectedRoute>
-              <div className="p-6"><h1 className="text-3xl font-bold">Impact Section - Coming Soon</h1></div>
+              <ImpactManagement />
             </ProtectedRoute>
           } />
           <Route path="/admin/customization/testimonials" element={

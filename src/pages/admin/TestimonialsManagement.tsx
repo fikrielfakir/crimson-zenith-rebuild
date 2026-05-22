@@ -36,37 +36,43 @@ interface Testimonial {
   role?: string;
   feedback: string;
   rating: number;
-  is_approved: boolean;
-  is_active: boolean;
+  isApproved: boolean;
+  isActive: boolean;
   ordering: number;
 }
 
+const QUERY_KEY = ['admin-testimonials'] as const;
+
 async function fetchTestimonials(): Promise<Testimonial[]> {
-  const res = await apiFetch('/api/admin/cms/stats?type=testimonials', { credentials: 'include' });
+  const res = await apiFetch('/api/admin/cms/testimonials');
   if (!res.ok) throw new Error('Failed to fetch testimonials');
-  const data = await res.json();
-  return data.testimonials ?? [];
+  return res.json();
 }
 
-async function saveTestimonial(item: Partial<Testimonial> & { id?: number }): Promise<void> {
-  const res = await apiFetch('/api/admin/cms/stats', {
+async function createTestimonial(item: Omit<Testimonial, 'id' | 'ordering'>): Promise<Testimonial> {
+  const res = await apiFetch('/api/admin/cms/testimonials', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-    body: JSON.stringify({ type: 'testimonials', items: [item] }),
+    body: JSON.stringify(item),
   });
-  if (!res.ok) throw new Error('Failed to save testimonial');
+  if (!res.ok) throw new Error('Failed to create testimonial');
+  return res.json();
+}
+
+async function updateTestimonial(id: number, item: Partial<Testimonial>): Promise<Testimonial> {
+  const res = await apiFetch(`/api/admin/cms/testimonials/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(item),
+  });
+  if (!res.ok) throw new Error('Failed to update testimonial');
+  return res.json();
 }
 
 async function deleteTestimonial(id: number): Promise<void> {
-  const res = await apiFetch(`/api/admin/cms/stats/testimonials/${id}`, {
-    method: 'DELETE',
-    credentials: 'include',
-  });
+  const res = await apiFetch(`/api/admin/cms/testimonials/${id}`, { method: 'DELETE' });
   if (!res.ok) throw new Error('Failed to delete testimonial');
 }
 
-const emptyForm = { name: '', role: '', feedback: '', rating: 5, is_approved: true, is_active: true };
+const emptyForm = { name: '', role: '', feedback: '', rating: 5, isApproved: true, isActive: true };
 
 function StarRating({ value }: { value: number }) {
   return (
@@ -88,32 +94,38 @@ export default function TestimonialsManagement() {
   const { toast } = useToast();
 
   const { data: testimonials = [], isLoading } = useQuery({
-    queryKey: ['admin-testimonials'],
+    queryKey: QUERY_KEY,
     queryFn: fetchTestimonials,
   });
 
-  const saveMutation = useMutation({
-    mutationFn: saveTestimonial,
+  const createMutation = useMutation({
+    mutationFn: createTestimonial,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-testimonials'] });
-      toast({ title: `Testimonial ${editingItem ? 'updated' : 'created'} successfully` });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEY });
+      toast({ title: 'Testimonial added' });
       handleClose();
     },
-    onError: (err: Error) => {
-      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+    onError: (err: Error) => toast({ title: 'Error', description: err.message, variant: 'destructive' }),
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, ...data }: { id: number } & Partial<Testimonial>) => updateTestimonial(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEY });
+      toast({ title: 'Testimonial updated' });
+      handleClose();
     },
+    onError: (err: Error) => toast({ title: 'Error', description: err.message, variant: 'destructive' }),
   });
 
   const deleteMutation = useMutation({
     mutationFn: deleteTestimonial,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-testimonials'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEY });
       toast({ title: 'Testimonial deleted' });
       setDeletingId(null);
     },
-    onError: (err: Error) => {
-      toast({ title: 'Error', description: err.message, variant: 'destructive' });
-    },
+    onError: (err: Error) => toast({ title: 'Error', description: err.message, variant: 'destructive' }),
   });
 
   const handleEdit = (item: Testimonial) => {
@@ -123,8 +135,8 @@ export default function TestimonialsManagement() {
       role: item.role ?? '',
       feedback: item.feedback,
       rating: item.rating,
-      is_approved: item.is_approved,
-      is_active: item.is_active,
+      isApproved: item.isApproved,
+      isActive: item.isActive,
     });
     setShowForm(true);
   };
@@ -137,11 +149,17 @@ export default function TestimonialsManagement() {
 
   const handleSave = () => {
     if (!form.name.trim() || !form.feedback.trim()) {
-      toast({ title: 'Error', description: 'Name and feedback are required', variant: 'destructive' });
+      toast({ title: 'Validation error', description: 'Name and feedback are required', variant: 'destructive' });
       return;
     }
-    saveMutation.mutate(editingItem ? { ...form, id: editingItem.id } : form);
+    if (editingItem) {
+      updateMutation.mutate({ id: editingItem.id, ...form });
+    } else {
+      createMutation.mutate(form);
+    }
   };
+
+  const isPending = createMutation.isPending || updateMutation.isPending;
 
   return (
     <div className="space-y-6">
@@ -163,7 +181,7 @@ export default function TestimonialsManagement() {
         </CardHeader>
         <CardContent className="overflow-x-auto">
           {isLoading ? (
-            <div className="flex items-center justify-center py-8 text-muted-foreground">Loading...</div>
+            <div className="flex items-center justify-center py-8 text-muted-foreground">Loading…</div>
           ) : testimonials.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
@@ -192,18 +210,18 @@ export default function TestimonialsManagement() {
                     <TableCell>
                       <div className="flex flex-col gap-1">
                         <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
-                          item.is_approved
+                          item.isApproved
                             ? 'bg-green-50 text-green-700 ring-1 ring-green-600/20'
                             : 'bg-yellow-50 text-yellow-700 ring-1 ring-yellow-600/20'
                         }`}>
-                          {item.is_approved ? 'Approved' : 'Pending'}
+                          {item.isApproved ? 'Approved' : 'Pending'}
                         </span>
                         <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
-                          item.is_active
+                          item.isActive
                             ? 'bg-blue-50 text-blue-700 ring-1 ring-blue-600/20'
                             : 'bg-gray-50 text-gray-700 ring-1 ring-gray-600/20'
                         }`}>
-                          {item.is_active ? 'Visible' : 'Hidden'}
+                          {item.isActive ? 'Visible' : 'Hidden'}
                         </span>
                       </div>
                     </TableCell>
@@ -255,7 +273,7 @@ export default function TestimonialsManagement() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="t-feedback">Feedback *</Label>
-              <Textarea id="t-feedback" value={form.feedback} onChange={(e) => setForm({ ...form, feedback: e.target.value })} rows={4} placeholder="Their testimonial text..." />
+              <Textarea id="t-feedback" value={form.feedback} onChange={(e) => setForm({ ...form, feedback: e.target.value })} rows={4} placeholder="Their testimonial text…" />
             </div>
             <div className="space-y-2">
               <Label>Rating</Label>
@@ -274,11 +292,11 @@ export default function TestimonialsManagement() {
             </div>
             <div className="flex items-center gap-6">
               <div className="flex items-center space-x-2">
-                <Switch id="t-approved" checked={form.is_approved} onCheckedChange={(v) => setForm({ ...form, is_approved: v })} />
+                <Switch id="t-approved" checked={form.isApproved} onCheckedChange={(v) => setForm({ ...form, isApproved: v })} />
                 <Label htmlFor="t-approved">Approved</Label>
               </div>
               <div className="flex items-center space-x-2">
-                <Switch id="t-active" checked={form.is_active} onCheckedChange={(v) => setForm({ ...form, is_active: v })} />
+                <Switch id="t-active" checked={form.isActive} onCheckedChange={(v) => setForm({ ...form, isActive: v })} />
                 <Label htmlFor="t-active">Visible on site</Label>
               </div>
             </div>
@@ -286,8 +304,8 @@ export default function TestimonialsManagement() {
 
           <div className="flex justify-end gap-2">
             <Button variant="outline" onClick={handleClose}>Cancel</Button>
-            <Button onClick={handleSave} disabled={saveMutation.isPending}>
-              {saveMutation.isPending ? 'Saving...' : 'Save'}
+            <Button onClick={handleSave} disabled={isPending}>
+              {isPending ? 'Saving…' : 'Save'}
             </Button>
           </div>
         </DialogContent>
@@ -307,7 +325,7 @@ export default function TestimonialsManagement() {
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={() => deletingId !== null && deleteMutation.mutate(deletingId)}
             >
-              {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
+              {deleteMutation.isPending ? 'Deleting…' : 'Delete'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
