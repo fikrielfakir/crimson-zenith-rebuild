@@ -66,6 +66,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { format } from 'date-fns';
 import { ImageUpload } from '@/components/admin/ImageUpload';
+import { TranslateDialog } from '@/components/admin/TranslateDialog';
 
 /** Convert any date string to MySQL-compatible datetime: '2026-06-15 08:00:00' */
 function toMySQLDatetime(value: string | null | undefined): string | null {
@@ -1082,6 +1083,19 @@ export default function EventsManagement() {
                     </div>
                   </TableCell>
                   <TableCell>
+                    <div className="flex items-center justify-end gap-1">
+                    <TranslateDialog
+                      entityType="event"
+                      entityId={event.id}
+                      entityLabel={event.title}
+                      fields={[
+                        { key: 'title', label: 'Title' },
+                        { key: 'description', label: 'Description', multiline: true },
+                        { key: 'location', label: 'Location' },
+                        { key: 'highlights', label: 'Highlights', multiline: true },
+                        { key: 'importantInfo', label: 'Important Info', multiline: true },
+                      ]}
+                    />
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon">
@@ -1116,6 +1130,7 @@ export default function EventsManagement() {
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))

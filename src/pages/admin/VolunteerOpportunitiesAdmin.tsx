@@ -14,6 +14,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useToast } from '@/hooks/use-toast';
 import { Plus, MoreHorizontal, Pencil, Trash2, Search, RefreshCw, Users, MapPin, Clock, AlertTriangle } from 'lucide-react';
+import { TranslateDialog } from '@/components/admin/TranslateDialog';
 
 interface Opportunity {
   id: number;
@@ -196,13 +197,24 @@ export default function VolunteerOpportunitiesAdmin() {
                     </TableCell>
                     <TableCell><Badge variant={o.status === 'published' ? 'default' : 'secondary'}>{o.status}</Badge></TableCell>
                     <TableCell className="text-right pr-6">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button></DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => openEdit(o)}><Pencil className="mr-2 h-4 w-4" />Edit</DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => setDeletingId(o.id)} className="text-destructive"><Trash2 className="mr-2 h-4 w-4" />Delete</DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      <div className="flex items-center justify-end gap-1">
+                        <TranslateDialog
+                          entityType="volunteer_opportunity"
+                          entityId={o.id}
+                          entityLabel={o.title}
+                          fields={[
+                            { key: 'title', label: 'Title' },
+                            { key: 'description', label: 'Description', multiline: true },
+                          ]}
+                        />
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button></DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => openEdit(o)}><Pencil className="mr-2 h-4 w-4" />Edit</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setDeletingId(o.id)} className="text-destructive"><Trash2 className="mr-2 h-4 w-4" />Delete</DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}

@@ -14,6 +14,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useToast } from '@/hooks/use-toast';
 import { Plus, MoreHorizontal, Pencil, Trash2, Search, RefreshCw, FileText, MapPin, Calendar } from 'lucide-react';
+import { TranslateDialog } from '@/components/admin/TranslateDialog';
 
 interface VolunteerPost {
   id: number;
@@ -206,13 +207,27 @@ export default function VolunteerPostsAdmin() {
                     </TableCell>
                     <TableCell><Badge variant={p.status === 'published' ? 'default' : 'secondary'}>{p.status}</Badge></TableCell>
                     <TableCell className="text-right pr-6">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button></DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => openEdit(p)}><Pencil className="mr-2 h-4 w-4" />Edit</DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => setDeletingId(p.id)} className="text-destructive"><Trash2 className="mr-2 h-4 w-4" />Delete</DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      <div className="flex items-center justify-end gap-1">
+                        <TranslateDialog
+                          entityType="volunteer_post"
+                          entityId={p.id}
+                          entityLabel={p.title}
+                          fields={[
+                            { key: 'title', label: 'Title' },
+                            { key: 'description', label: 'Description', multiline: true },
+                            { key: 'responsibilities', label: 'Responsibilities', multiline: true },
+                            { key: 'requirements', label: 'Requirements', multiline: true },
+                            { key: 'benefits', label: 'Benefits', multiline: true },
+                          ]}
+                        />
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button></DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => openEdit(p)}><Pencil className="mr-2 h-4 w-4" />Edit</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setDeletingId(p.id)} className="text-destructive"><Trash2 className="mr-2 h-4 w-4" />Delete</DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}

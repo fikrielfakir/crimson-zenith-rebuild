@@ -17,6 +17,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
+import { TranslateDialog } from '@/components/admin/TranslateDialog';
 import {
   Plus, Pencil, Trash2, MapPin, RefreshCw, Settings, Globe, Save,
   ImageIcon, Search, Check, Link as LinkIcon, Eye, EyeOff, ArrowUp, ArrowDown, X, GripVertical, Upload,
@@ -1061,6 +1062,17 @@ export default function CitiesManagement() {
 
                           <div className="flex-1" />
 
+                          {/* translate */}
+                          <TranslateDialog
+                            entityType="city"
+                            entityId={city.id}
+                            entityLabel={city.name}
+                            fields={[
+                              { key: 'name', label: 'Name' },
+                              { key: 'title', label: 'Title' },
+                              { key: 'description', label: 'Description', multiline: true },
+                            ]}
+                          />
                           {/* edit */}
                           <Button size="sm" variant="outline" onClick={() => openEdit(city)} className="h-8 gap-1.5">
                             <Pencil className="w-3.5 h-3.5" />
