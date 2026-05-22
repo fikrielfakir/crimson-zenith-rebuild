@@ -81,7 +81,7 @@ const Hero = () => {
   // Local overrides take precedence for background type, image, and video URL
   const effectiveBgType: string = localHero?.backgroundType || heroSettings?.backgroundType || "image";
   const effectiveVideoUrl: string = localHero?.backgroundVideoUrl || heroSettings?.backgroundVideoUrl || "";
-  const effectiveImageUrl: string = localHero?.backgroundImageUrl || "";
+  const effectiveImageUrl: string = localHero?.backgroundImageUrl || heroSettings?.backgroundImageUrl || "";
 
   const overlayColor =
     heroSettings?.backgroundOverlayColor || "rgba(26, 54, 93, 0.7)";
