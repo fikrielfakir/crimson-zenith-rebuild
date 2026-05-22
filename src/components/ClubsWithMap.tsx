@@ -401,23 +401,28 @@ const ClubsWithMap = () => {
         }}
       />
 
-      {/* Left Gradient Overlay (30% width, fades right) */}
+      {/* Gradient Overlay — panel side (dark edge → transparent centre) */}
       <div
-        className="absolute top-0 left-0 h-full z-10 pointer-events-none gradient-left"
+        className="absolute top-0 h-full z-10 pointer-events-none gradient-left"
         style={{
           width: "35%",
-          background:
-            "linear-gradient(90deg, rgba(11, 26, 82, 0.95) 0%, rgba(11, 26, 82, 0.3) 70%, transparent 100%)",
+          // In RTL the panel is on the right, so anchor this overlay to the right
+          // and use 270 ° so it darkens from the right edge inward.
+          ...(isRTL
+            ? { right: 0, background: "linear-gradient(270deg, rgba(11, 26, 82, 0.95) 0%, rgba(11, 26, 82, 0.3) 70%, transparent 100%)" }
+            : { left:  0, background: "linear-gradient(90deg,  rgba(11, 26, 82, 0.95) 0%, rgba(11, 26, 82, 0.3) 70%, transparent 100%)" }),
         }}
       />
 
-      {/* Right Gradient Overlay (30% width, fades left) */}
+      {/* Gradient Overlay — opposite edge */}
       <div
-        className="absolute top-0 right-0 h-full z-10 pointer-events-none gradient-right"
+        className="absolute top-0 h-full z-10 pointer-events-none gradient-right"
         style={{
           width: "35%",
-          background:
-            "linear-gradient(270deg, rgba(11, 26, 82, 0.9) 0%, rgba(11, 26, 82, 0.3) 70%, transparent 100%)",
+          // Mirror of the above
+          ...(isRTL
+            ? { left:  0, background: "linear-gradient(90deg,  rgba(11, 26, 82, 0.9) 0%, rgba(11, 26, 82, 0.3) 70%, transparent 100%)" }
+            : { right: 0, background: "linear-gradient(270deg, rgba(11, 26, 82, 0.9) 0%, rgba(11, 26, 82, 0.3) 70%, transparent 100%)" }),
         }}
       />
 
