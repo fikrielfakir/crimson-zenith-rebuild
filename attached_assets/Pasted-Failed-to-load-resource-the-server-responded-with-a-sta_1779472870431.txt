@@ -1,0 +1,35 @@
+Failed to load resource: the server responded with a status of 404 (Not Found)Understand this error
+chunk-X6AQVMS3.js?v=64a11255:428 Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+(anonymous) @ chunk-X6AQVMS3.js?v=64a11255:428
+commitHookEffectListMount @ chunk-GG6IGNHI.js?v=64a11255:16963
+commitPassiveMountOnFiber @ chunk-GG6IGNHI.js?v=64a11255:18206
+commitPassiveMountEffects_complete @ chunk-GG6IGNHI.js?v=64a11255:18179
+commitPassiveMountEffects_begin @ chunk-GG6IGNHI.js?v=64a11255:18169
+commitPassiveMountEffects @ chunk-GG6IGNHI.js?v=64a11255:18159
+flushPassiveEffectsImpl @ chunk-GG6IGNHI.js?v=64a11255:19543
+flushPassiveEffects @ chunk-GG6IGNHI.js?v=64a11255:19500
+commitRootImpl @ chunk-GG6IGNHI.js?v=64a11255:19469
+commitRoot @ chunk-GG6IGNHI.js?v=64a11255:19330
+performSyncWorkOnRoot @ chunk-GG6IGNHI.js?v=64a11255:18948
+flushSyncCallbacks @ chunk-GG6IGNHI.js?v=64a11255:9166
+(anonymous) @ chunk-GG6IGNHI.js?v=64a11255:18677Understand this warning
+apiFetch.ts:63  GET http://192.168.56.1:5000/api/translations/hero_tagline/0 404 (Not Found)
+(anonymous) @ apiFetch.ts:63
+(anonymous) @ TranslateDialog.tsx:56
+(anonymous) @ TranslateDialog.tsx:74
+callCallback2 @ chunk-GG6IGNHI.js?v=64a11255:3680
+invokeGuardedCallbackDev @ chunk-GG6IGNHI.js?v=64a11255:3705
+invokeGuardedCallback @ chunk-GG6IGNHI.js?v=64a11255:3739
+invokeGuardedCallbackAndCatchFirstError @ chunk-GG6IGNHI.js?v=64a11255:3742
+executeDispatch @ chunk-GG6IGNHI.js?v=64a11255:7046
+processDispatchQueueItemsInOrder @ chunk-GG6IGNHI.js?v=64a11255:7066
+processDispatchQueue @ chunk-GG6IGNHI.js?v=64a11255:7075
+dispatchEventsForPlugins @ chunk-GG6IGNHI.js?v=64a11255:7083
+(anonymous) @ chunk-GG6IGNHI.js?v=64a11255:7206
+batchedUpdates$1 @ chunk-GG6IGNHI.js?v=64a11255:18966
+batchedUpdates @ chunk-GG6IGNHI.js?v=64a11255:3585
+dispatchEventForPluginEventSystem @ chunk-GG6IGNHI.js?v=64a11255:7205
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-GG6IGNHI.js?v=64a11255:5484
+dispatchEvent @ chunk-GG6IGNHI.js?v=64a11255:5478
+dispatchDiscreteEvent @ chunk-GG6IGNHI.js?v=64a11255:5455Understand this error
+apiFetch.ts:63  POST http://192.168.56.1:5000/api/admin/translations 404 (Not Found)
