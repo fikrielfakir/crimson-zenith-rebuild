@@ -8,6 +8,8 @@ import ar from "./locales/ar.json";
 import es from "./locales/es.json";
 
 const applyDir = (lng: string) => {
+  // Admin panel manages its own direction independently — don't interfere
+  if (window.location.pathname.startsWith("/admin")) return;
   const isRTL = lng === "ar";
   document.documentElement.setAttribute("dir", isRTL ? "rtl" : "ltr");
   document.documentElement.setAttribute("lang", lng);

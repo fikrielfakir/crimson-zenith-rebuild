@@ -26,6 +26,8 @@ import {
   Images,
   Inbox,
   Languages,
+  Globe,
+  Check,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -44,6 +46,13 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+
+const ADMIN_LANGUAGES = [
+  { code: 'en', flag: '🇬🇧', label: 'English', dir: 'ltr' as const },
+  { code: 'fr', flag: '🇫🇷', label: 'Français', dir: 'ltr' as const },
+  { code: 'ar', flag: '🇲🇦', label: 'العربية', dir: 'rtl' as const },
+  { code: 'es', flag: '🇪🇸', label: 'Español', dir: 'ltr' as const },
+];
 
 interface NavigationItem {
   label: string;
@@ -266,6 +275,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
+
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     const saved = localStorage.getItem('admin-sidebar-collapsed');
     return saved ? JSON.parse(saved) : false;
@@ -276,6 +286,29 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     const saved = localStorage.getItem('admin-theme');
     return (saved as 'light' | 'dark') || 'light';
   });
+
+  // Admin-specific language — fully independent from public site language
+  const [adminLang, setAdminLang] = useState<string>(() => {
+    return localStorage.getItem('tja_admin_language') || 'en';
+  });
+
+  const currentAdminLang = ADMIN_LANGUAGES.find((l) => l.code === adminLang) ?? ADMIN_LANGUAGES[0];
+
+  // Apply admin direction to <html> while admin is mounted; restore public direction on unmount
+  useEffect(() => {
+    localStorage.setItem('tja_admin_language', adminLang);
+    const isRTL = adminLang === 'ar';
+    document.documentElement.setAttribute('dir', isRTL ? 'rtl' : 'ltr');
+    document.documentElement.setAttribute('lang', adminLang);
+
+    return () => {
+      // Restore public site language direction when leaving admin
+      const publicLang = localStorage.getItem('tja_language') || 'en';
+      const publicRTL = publicLang === 'ar';
+      document.documentElement.setAttribute('dir', publicRTL ? 'rtl' : 'ltr');
+      document.documentElement.setAttribute('lang', publicLang);
+    };
+  }, [adminLang]);
 
   useEffect(() => {
     localStorage.setItem('admin-sidebar-collapsed', JSON.stringify(sidebarCollapsed));
@@ -326,7 +359,11 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div
+      className="flex h-screen overflow-hidden"
+      dir={currentAdminLang.dir}
+      lang={adminLang}
+    >
       {/* Desktop Sidebar */}
       <aside
         className={cn(
@@ -392,6 +429,46 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             <Bell className="h-5 w-5" />
             <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full" />
           </Button>
+
+          {/* Admin Language Switcher */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="flex items-center gap-1.5 px-2 text-xs font-medium"
+                title="Admin interface language"
+              >
+                <Globe className="h-4 w-4 shrink-0" />
+                <span className="hidden sm:inline">{currentAdminLang.flag}</span>
+                <span className="hidden sm:inline uppercase">{currentAdminLang.code}</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="min-w-[160px] z-[200]">
+              <DropdownMenuLabel className="text-xs text-muted-foreground pb-1">
+                Admin interface language
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {ADMIN_LANGUAGES.map((lang) => (
+                <DropdownMenuItem
+                  key={lang.code}
+                  onClick={() => setAdminLang(lang.code)}
+                  className="flex items-center justify-between gap-2 cursor-pointer"
+                >
+                  <span className="flex items-center gap-2">
+                    <span>{lang.flag}</span>
+                    <span>{lang.label}</span>
+                    {lang.dir === 'rtl' && (
+                      <span className="text-[10px] text-muted-foreground border rounded px-1">RTL</span>
+                    )}
+                  </span>
+                  {adminLang === lang.code && (
+                    <Check className="h-3.5 w-3.5 text-primary shrink-0" />
+                  )}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
 
           {/* Theme Toggle */}
           <Button
