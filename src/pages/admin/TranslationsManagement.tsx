@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import AdminLayout from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -289,8 +288,7 @@ export default function TranslationsManagement() {
   };
 
   return (
-    <AdminLayout>
-      <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6">
         <div className="flex items-center gap-3">
           <Languages className="w-8 h-8 text-primary" />
           <div>
@@ -454,7 +452,6 @@ export default function TranslationsManagement() {
             )}
           </DialogContent>
         </Dialog>
-      </div>
-    </AdminLayout>
+    </div>
   );
 }
