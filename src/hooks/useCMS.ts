@@ -81,37 +81,37 @@ export interface NavbarSettings {
   updatedAt: Date;
 }
 
+export interface HeroTitleEntry {
+  text: string;
+  twoLines: boolean;
+}
+
 export interface HeroSettings {
   id: string;
-  backgroundType: "image" | "video" | "gradient";
-  backgroundImageId: number | null;
-  backgroundMediaId: number | null;
-  backgroundVideoUrl: string | null;
-  overlayColor: string;
-  backgroundOverlayColor: string;
-  overlayOpacity: number;
-  backgroundOverlayOpacity: number;
-  title: string;
+  title: HeroTitleEntry[];
   subtitle: string;
+  primaryButtonText: string;
+  primaryButtonLink: string;
+  secondaryButtonText: string;
+  secondaryButtonLink: string;
+  showPrimaryButton: boolean;
+  showSecondaryButton: boolean;
+  backgroundType: "image" | "video" | "gradient";
+  backgroundMediaId: number | null;
+  backgroundImageUrl: string | null;
+  backgroundVideoUrl: string | null;
+  backgroundOverlayColor: string;
+  backgroundOverlayOpacity: number;
   titleFontSize: string;
   titleColor: string;
+  titleAlignment: "left" | "center" | "right";
   subtitleFontSize: string;
   subtitleColor: string;
-  typewriterTexts: Array<{ text: string; twoLines: boolean }>;
-  typewriterSpeed: number;
+  subtitleAlignment: "left" | "center" | "right";
+  heroHeight: string;
+  contentMaxWidth: string;
   enableTypewriter: boolean;
-  primaryButtonText: string;
-  ctaPrimaryText: string;
-  primaryButtonLink: string;
-  ctaPrimaryLink: string;
-  secondaryButtonText: string;
-  ctaSecondaryText: string;
-  secondaryButtonLink: string;
-  ctaSecondaryLink: string;
-  showScrollIndicator: boolean;
-  minHeight: string;
-  contentAlignment: "left" | "center" | "right";
-  parallaxEnabled: boolean;
+  typewriterTexts: HeroTitleEntry[];
   updatedAt: Date;
 }
 

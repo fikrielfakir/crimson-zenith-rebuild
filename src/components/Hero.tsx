@@ -41,7 +41,13 @@ const Hero = () => {
     { text: "Where Journeys Become\nTransformations", twoLines: true },
   ];
 
-  const dbTitles = Array.isArray(heroSettings?.title) ? heroSettings.title as {text: string; twoLines?: boolean}[] : [];
+  // title from Laravel is a JSON array; typewriterTexts is an alias kept for compat
+  const dbTitles: { text: string; twoLines?: boolean }[] =
+    Array.isArray(heroSettings?.title) && heroSettings.title.length > 0
+      ? heroSettings.title
+      : Array.isArray(heroSettings?.typewriterTexts) && heroSettings.typewriterTexts.length > 0
+        ? heroSettings.typewriterTexts
+        : [];
   const taglines = dbTitles.length > 0 ? dbTitles : defaultTaglines;
 
   const [currentTaglineIndex, setCurrentTaglineIndex] = useState(0);

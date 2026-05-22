@@ -564,6 +564,7 @@ await setupAuth(app);
 
 // Serve static files from public directory
 app.use('/static', express.static(join(__dirname, 'public')));
+app.use('/uploads', express.static(join(__dirname, 'public/uploads')));
 
 // In production, serve the built frontend files
 if (process.env.NODE_ENV === 'production') {

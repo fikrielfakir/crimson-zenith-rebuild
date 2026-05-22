@@ -24,7 +24,49 @@ class CmsController extends Controller
 {
     public function hero()
     {
-        return response()->json(HeroSettings::firstOrCreate(['id' => 'default']));
+        $settings = HeroSettings::firstOrCreate(['id' => 'default']);
+        return response()->json($this->heroToCamel($settings));
+    }
+
+    private function heroToCamel(HeroSettings $s): array
+    {
+        $title = $s->title;
+        // Ensure title is always an array of {text, twoLines} objects
+        if (empty($title)) {
+            $title = [];
+        } elseif (is_string($title)) {
+            $title = [['text' => $title, 'twoLines' => str_contains($title, "\n")]];
+        }
+
+        return [
+            'id'                      => $s->id,
+            'title'                   => $title,
+            'subtitle'                => $s->subtitle,
+            'primaryButtonText'       => $s->primary_button_text,
+            'primaryButtonLink'       => $s->primary_button_link,
+            'secondaryButtonText'     => $s->secondary_button_text,
+            'secondaryButtonLink'     => $s->secondary_button_link,
+            'showPrimaryButton'       => (bool) ($s->show_primary_button ?? true),
+            'showSecondaryButton'     => (bool) ($s->show_secondary_button ?? true),
+            'backgroundType'          => $s->background_type,
+            'backgroundMediaId'       => $s->background_media_id,
+            'backgroundImageUrl'      => $s->background_image_url,
+            'backgroundVideoUrl'      => $s->background_video_url,
+            'backgroundOverlayColor'  => $s->background_overlay_color,
+            'backgroundOverlayOpacity'=> $s->background_overlay_opacity,
+            'titleFontSize'           => $s->title_font_size,
+            'titleColor'              => $s->title_color,
+            'titleAlignment'          => $s->title_alignment ?? 'center',
+            'subtitleFontSize'        => $s->subtitle_font_size,
+            'subtitleColor'           => $s->subtitle_color,
+            'subtitleAlignment'       => $s->subtitle_alignment ?? 'center',
+            'heroHeight'              => $s->hero_height ?? '600',
+            'contentMaxWidth'         => $s->content_max_width ?? '800',
+            'enableTypewriter'        => (bool) $s->enable_typewriter,
+            'typewriterTexts'         => $title,
+            'updatedBy'               => $s->updated_by,
+            'updatedAt'               => $s->updated_at,
+        ];
     }
 
     public function theme()

@@ -23,7 +23,7 @@ function patchCookies(proxyRes: any) {
 }
 
 const PROD_API = "https://api.thejourney-ma.org";
-const LOCAL_API = "http://localhost:8000";
+const LOCAL_API = "http://localhost:3001";
 
 const localProxyOptions = {
   target: PROD_API,
@@ -356,44 +356,9 @@ export default defineConfig(({ mode }: { mode: string }) => ({
               return;
             }
 
-            // Fall back to fetching from production
-            const prodRes = await fetch(`${PROD_API}/api/media/${id}`, {
-              headers: {
-                Accept: "application/json",
-                Origin: "https://thejourney-ma.org",
-                Referer: "https://thejourney-ma.org/",
-              },
-            });
-
-            if (!prodRes.ok) {
-              res.statusCode = prodRes.status;
-              res.end();
-              return;
-            }
-
-            const data = await prodRes.json();
-            const dataUrl: string = data.url || data.file_url || "";
-            const b64Match = dataUrl.match(/^data:([^;]+);base64,(.+)$/s);
-            if (b64Match) {
-              const mime = b64Match[1];
-              const binary = Buffer.from(b64Match[2], "base64");
-              res.statusCode = 200;
-              res.setHeader("Content-Type", mime);
-              res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
-              res.end(binary);
-              return;
-            }
-
-            if (dataUrl.startsWith("http")) {
-              res.statusCode = 302;
-              res.setHeader("Location", dataUrl);
-              res.end();
-              return;
-            }
-
-            res.statusCode = 200;
-            res.setHeader("Content-Type", "application/json");
-            res.end(JSON.stringify(data));
+            // Not found locally — let the proxy forward to the local API
+            next();
+            return;
           } catch (err) {
             console.error("[serve-media-binary] Error:", err);
             next();
@@ -538,65 +503,6 @@ export default defineConfig(({ mode }: { mode: string }) => ({
           }
 
           next();
-        });
-      },
-    },
-    {
-      // Intercept POST /api/register to inject the missing `name` field
-      // that the production DB requires. This fixes signup without needing
-      // any changes on the production server.
-      name: "fix-register-name-field",
-      configureServer(server) {
-        server.middlewares.use(async (req: any, res: any, next: any) => {
-          if (req.method !== "POST" || req.url !== "/api/register") {
-            return next();
-          }
-
-          try {
-            // Read the full request body
-            const chunks: Buffer[] = [];
-            for await (const chunk of req) chunks.push(chunk);
-            const raw = Buffer.concat(chunks).toString();
-            const body = JSON.parse(raw);
-
-            // Inject `name` so the production DB constraint is satisfied
-            if (!body.name) {
-              body.name = `${body.firstName || ""} ${body.lastName || ""}`.trim();
-            }
-
-            // Forward to production API with the patched body
-            const prodRes = await fetch(`${PROD_API}/api/register`, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Accept: "application/json",
-                Origin: "https://thejourney-ma.org",
-                Referer: "https://thejourney-ma.org/",
-              },
-              body: JSON.stringify(body),
-            });
-
-            const responseText = await prodRes.text();
-
-            // Relay status + headers + body back to the browser
-            res.statusCode = prodRes.status;
-            res.setHeader("Content-Type", "application/json");
-
-            // Patch any Set-Cookie headers from the production response
-            const setCookie = prodRes.headers.get("set-cookie");
-            if (setCookie) {
-              const patched = setCookie
-                .replace(/;\s*Secure/gi, "")
-                .replace(/;\s*Domain=[^;]*/gi, "; Domain=localhost")
-                .replace(/;\s*SameSite=None/gi, "; SameSite=Lax");
-              res.setHeader("Set-Cookie", patched);
-            }
-
-            res.end(responseText);
-          } catch (err) {
-            console.error("[fix-register] Error intercepting /api/register:", err);
-            next();
-          }
         });
       },
     },

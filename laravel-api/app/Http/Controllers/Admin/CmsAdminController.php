@@ -26,8 +26,44 @@ class CmsAdminController extends Controller
     public function updateHero(Request $request)
     {
         $settings = HeroSettings::firstOrCreate(['id' => 'default']);
-        $settings->update(array_merge($request->except(['id']), ['updated_by' => $request->user()->id]));
-        return response()->json($settings->fresh());
+
+        $map = [
+            'title'                    => 'title',
+            'subtitle'                 => 'subtitle',
+            'primaryButtonText'        => 'primary_button_text',
+            'primaryButtonLink'        => 'primary_button_link',
+            'secondaryButtonText'      => 'secondary_button_text',
+            'secondaryButtonLink'      => 'secondary_button_link',
+            'showPrimaryButton'        => 'show_primary_button',
+            'showSecondaryButton'      => 'show_secondary_button',
+            'backgroundType'           => 'background_type',
+            'backgroundMediaId'        => 'background_media_id',
+            'backgroundImageUrl'       => 'background_image_url',
+            'backgroundVideoUrl'       => 'background_video_url',
+            'backgroundOverlayColor'   => 'background_overlay_color',
+            'backgroundOverlayOpacity' => 'background_overlay_opacity',
+            'titleFontSize'            => 'title_font_size',
+            'titleColor'               => 'title_color',
+            'titleAlignment'           => 'title_alignment',
+            'subtitleFontSize'         => 'subtitle_font_size',
+            'subtitleColor'            => 'subtitle_color',
+            'subtitleAlignment'        => 'subtitle_alignment',
+            'heroHeight'               => 'hero_height',
+            'contentMaxWidth'          => 'content_max_width',
+            'enableTypewriter'         => 'enable_typewriter',
+        ];
+
+        $data = ['updated_by' => $request->user()->id];
+        foreach ($map as $camel => $snake) {
+            if ($request->has($camel)) {
+                $data[$snake] = $request->input($camel);
+            }
+        }
+
+        $settings->update($data);
+
+        // Return camelCase via public controller helper
+        return response()->json(app(\App\Http\Controllers\CmsController::class)->hero()->getData(true));
     }
 
     public function updateTheme(Request $request)
