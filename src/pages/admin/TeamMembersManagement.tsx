@@ -214,6 +214,7 @@ export default function TeamMembersManagement() {
                             { key: 'role', label: 'Role' },
                             { key: 'bio', label: 'Bio', multiline: true },
                           ]}
+                          sourceValues={{ name: member.name, role: member.role, bio: member.bio ?? '' }}
                         />
                         <Button variant="ghost" size="sm" onClick={() => handleEdit(member)}>
                           <Pencil className="h-4 w-4" />

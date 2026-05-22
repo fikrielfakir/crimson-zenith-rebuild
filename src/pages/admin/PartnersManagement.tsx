@@ -401,6 +401,7 @@ export default function PartnersManagement() {
                             { key: 'name', label: 'Name' },
                             { key: 'description', label: 'Description', multiline: true },
                           ]}
+                          sourceValues={{ name: partner.name, description: partner.description ?? '' }}
                         />
                         <Button variant="ghost" size="sm" onClick={() => handleEdit(partner)}>
                           <Pencil className="h-4 w-4" />

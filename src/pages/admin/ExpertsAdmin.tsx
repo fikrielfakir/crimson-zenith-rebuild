@@ -276,6 +276,7 @@ export default function ExpertsAdmin() {
                             { key: 'title', label: 'Title' },
                             { key: 'bio', label: 'Bio', multiline: true },
                           ]}
+                          sourceValues={{ name: e.name, title: e.title ?? '', bio: (e as any).bio ?? '' }}
                         />
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button></DropdownMenuTrigger>

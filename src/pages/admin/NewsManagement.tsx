@@ -346,6 +346,7 @@ export default function NewsManagement() {
                           { key: 'excerpt', label: 'Excerpt', multiline: true },
                           { key: 'content', label: 'Content', multiline: true },
                         ]}
+                        sourceValues={{ title: post.title, excerpt: (post as any).excerpt ?? '', content: (post as any).content ?? '' }}
                       />
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>

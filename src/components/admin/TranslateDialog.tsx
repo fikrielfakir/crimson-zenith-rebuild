@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Languages, Loader2 } from 'lucide-react';
+import { Languages, Loader2, Wand2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -41,12 +41,26 @@ interface Props {
   entityId: string | number;
   entityLabel: string;
   fields: TranslateField[];
+  sourceValues?: Record<string, string>;
 }
 
-export function TranslateDialog({ entityType, entityId, entityLabel, fields }: Props) {
+async function translateText(text: string, targetLang: string): Promise<string> {
+  if (!text.trim()) return '';
+  const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|${targetLang}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const data = await res.json();
+  if (data.responseStatus !== 200) {
+    throw new Error(data.responseDetails || 'Translation failed');
+  }
+  return data.responseData.translatedText as string;
+}
+
+export function TranslateDialog({ entityType, entityId, entityLabel, fields, sourceValues }: Props) {
   const [open, setOpen] = useState(false);
   const [drafts, setDrafts] = useState<Record<string, Record<string, string>>>({});
   const [loading, setLoading] = useState(false);
+  const [translatingLang, setTranslatingLang] = useState<string | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -72,6 +86,38 @@ export function TranslateDialog({ entityType, entityId, entityLabel, fields }: P
   function handleOpen() {
     setOpen(true);
     loadTranslations();
+  }
+
+  async function autoTranslate(langCode: string) {
+    if (!sourceValues) return;
+    setTranslatingLang(langCode);
+    try {
+      const results: Record<string, string> = {};
+      for (const f of fields) {
+        const src = sourceValues[f.key];
+        if (src?.trim()) {
+          results[f.key] = await translateText(src, langCode);
+        }
+      }
+      setDrafts((prev) => ({
+        ...prev,
+        [langCode]: { ...(prev[langCode] ?? {}), ...results },
+      }));
+      const langLabel = LANGUAGES.find((l) => l.code === langCode)?.label ?? langCode;
+      toast({ title: `Auto-translated to ${langLabel}` });
+    } catch (e: any) {
+      toast({ title: 'Auto-translate failed', description: e.message, variant: 'destructive' });
+    } finally {
+      setTranslatingLang(null);
+    }
+  }
+
+  async function autoTranslateAll() {
+    if (!sourceValues) return;
+    for (const lang of LANGUAGES) {
+      await autoTranslate(lang.code);
+    }
+    toast({ title: 'All languages translated' });
   }
 
   const saveMutation = useMutation({
@@ -123,6 +169,8 @@ export function TranslateDialog({ entityType, entityId, entityLabel, fields }: P
     }));
   }
 
+  const isTranslatingAll = translatingLang !== null && LANGUAGES.every((l) => l.code === translatingLang || drafts[l.code]);
+
   return (
     <>
       <Button variant="ghost" size="sm" onClick={handleOpen} title="Manage translations">
@@ -137,6 +185,28 @@ export function TranslateDialog({ entityType, entityId, entityLabel, fields }: P
               Translate: {entityLabel}
             </DialogTitle>
           </DialogHeader>
+
+          {sourceValues && (
+            <div className="flex items-center justify-between rounded-lg border bg-muted/40 px-4 py-2">
+              <span className="text-sm text-muted-foreground">
+                Auto-translate all fields from English source
+              </span>
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={translatingLang !== null}
+                onClick={autoTranslateAll}
+                className="gap-1.5"
+              >
+                {translatingLang !== null ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Wand2 className="h-4 w-4" />
+                )}
+                Auto Translate All
+              </Button>
+            </div>
+          )}
 
           {loading ? (
             <div className="flex items-center justify-center py-10">
@@ -154,6 +224,25 @@ export function TranslateDialog({ entityType, entityId, entityLabel, fields }: P
 
               {LANGUAGES.map((lang) => (
                 <TabsContent key={lang.code} value={lang.code} className="space-y-4 mt-4">
+                  {sourceValues && (
+                    <div className="flex justify-end">
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        disabled={translatingLang !== null}
+                        onClick={() => autoTranslate(lang.code)}
+                        className="gap-1.5 h-8 text-xs"
+                      >
+                        {translatingLang === lang.code ? (
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                        ) : (
+                          <Wand2 className="h-3 w-3" />
+                        )}
+                        Auto Translate {lang.label}
+                      </Button>
+                    </div>
+                  )}
+
                   {fields.map((f) => (
                     <div key={f.key} className="space-y-1">
                       <Label>{f.label}</Label>

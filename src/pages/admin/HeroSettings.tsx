@@ -306,6 +306,7 @@ export default function HeroSettings() {
                       entityId={i}
                       entityLabel={`Title ${i + 1}`}
                       fields={[{ key: 'text', label: 'Title text' }]}
+                      sourceValues={{ text: tagline.text }}
                     />
                     <Button
                       variant="ghost"
@@ -348,6 +349,7 @@ export default function HeroSettings() {
                   entityId="subtitle"
                   entityLabel="Hero Subtitle"
                   fields={[{ key: 'subtitle', label: 'Subtitle', multiline: true }]}
+                  sourceValues={{ subtitle }}
                 />
               </div>
               {subtitle.trim() && (

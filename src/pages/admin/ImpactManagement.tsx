@@ -233,6 +233,7 @@ export default function ImpactManagement() {
                             { key: 'label', label: 'Label' },
                             { key: 'value', label: 'Value' },
                           ]}
+                          sourceValues={{ label: stat.label, value: stat.value }}
                         />
                         <Button variant="ghost" size="sm" onClick={() => handleEdit(stat)}>
                           <Pencil className="h-4 w-4" />

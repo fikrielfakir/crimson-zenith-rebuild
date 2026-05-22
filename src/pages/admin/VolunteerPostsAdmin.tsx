@@ -219,6 +219,13 @@ export default function VolunteerPostsAdmin() {
                             { key: 'requirements', label: 'Requirements', multiline: true },
                             { key: 'benefits', label: 'Benefits', multiline: true },
                           ]}
+                          sourceValues={{
+                            title: p.title,
+                            description: p.description ?? '',
+                            responsibilities: Array.isArray(p.responsibilities) ? p.responsibilities.join('\n') : (p.responsibilities ?? ''),
+                            requirements: Array.isArray(p.requirements) ? p.requirements.join('\n') : (p.requirements ?? ''),
+                            benefits: (p as any).benefits ?? '',
+                          }}
                         />
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button></DropdownMenuTrigger>

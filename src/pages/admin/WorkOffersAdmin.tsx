@@ -193,6 +193,13 @@ export default function WorkOffersAdmin() {
                             { key: 'requirements', label: 'Requirements', multiline: true },
                             { key: 'benefits', label: 'Benefits', multiline: true },
                           ]}
+                          sourceValues={{
+                            title: o.title,
+                            description: o.description ?? '',
+                            responsibilities: Array.isArray(o.responsibilities) ? o.responsibilities.join('\n') : (o.responsibilities ?? ''),
+                            requirements: Array.isArray(o.requirements) ? o.requirements.join('\n') : (o.requirements ?? ''),
+                            benefits: (o as any).benefits ?? '',
+                          }}
                         />
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button></DropdownMenuTrigger>

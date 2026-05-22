@@ -222,6 +222,7 @@ export default function ProjectsAdmin() {
                             { key: 'title', label: 'Title' },
                             { key: 'description', label: 'Description', multiline: true },
                           ]}
+                          sourceValues={{ title: p.title, description: p.description ?? '' }}
                         />
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button></DropdownMenuTrigger>

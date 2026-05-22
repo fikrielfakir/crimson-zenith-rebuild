@@ -1095,6 +1095,13 @@ export default function EventsManagement() {
                         { key: 'highlights', label: 'Highlights', multiline: true },
                         { key: 'importantInfo', label: 'Important Info', multiline: true },
                       ]}
+                      sourceValues={{
+                        title: event.title,
+                        description: (event as any).description ?? '',
+                        location: (event as any).location ?? '',
+                        highlights: Array.isArray((event as any).highlights) ? (event as any).highlights.join('\n') : ((event as any).highlights ?? ''),
+                        importantInfo: (event as any).importantInfo ?? (event as any).important_info ?? '',
+                      }}
                     />
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>

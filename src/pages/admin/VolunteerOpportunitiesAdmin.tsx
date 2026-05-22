@@ -206,6 +206,7 @@ export default function VolunteerOpportunitiesAdmin() {
                             { key: 'title', label: 'Title' },
                             { key: 'description', label: 'Description', multiline: true },
                           ]}
+                          sourceValues={{ title: o.title, description: o.description ?? '' }}
                         />
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button></DropdownMenuTrigger>

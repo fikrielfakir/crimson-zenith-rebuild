@@ -1072,6 +1072,7 @@ export default function CitiesManagement() {
                               { key: 'title', label: 'Title' },
                               { key: 'description', label: 'Description', multiline: true },
                             ]}
+                            sourceValues={{ name: city.name, title: (city as any).title ?? '', description: (city as any).description ?? '' }}
                           />
                           {/* edit */}
                           <Button size="sm" variant="outline" onClick={() => openEdit(city)} className="h-8 gap-1.5">

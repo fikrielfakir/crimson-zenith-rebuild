@@ -343,6 +343,7 @@ export default function FocusAreasManagement() {
                               { key: 'title', label: 'Title' },
                               { key: 'description', label: 'Description', multiline: true },
                             ]}
+                            sourceValues={{ title: item.title, description: item.description ?? '' }}
                           />
                           <Button
                             variant="ghost"

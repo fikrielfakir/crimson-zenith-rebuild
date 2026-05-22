@@ -236,6 +236,7 @@ export default function TestimonialsManagement() {
                             { key: 'role', label: 'Role' },
                             { key: 'feedback', label: 'Feedback', multiline: true },
                           ]}
+                          sourceValues={{ name: item.name, role: item.role ?? '', feedback: item.feedback }}
                         />
                         <Button variant="ghost" size="sm" onClick={() => handleEdit(item)}>
                           <Pencil className="h-4 w-4" />

@@ -453,6 +453,7 @@ export default function ClubsManagement() {
                           { key: 'description', label: 'Description', multiline: true },
                           { key: 'location', label: 'Location' },
                         ]}
+                        sourceValues={{ name: club.name, description: (club as any).description ?? '', location: (club as any).location ?? '' }}
                       />
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
