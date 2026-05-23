@@ -7,7 +7,7 @@ import bcrypt from 'bcryptjs';
 import { storage } from './server/storage.js';
 import { setupAuth, isAuthenticated, isAdmin } from './server/replitAuth.js';
 import { db, pool } from './server/db.js';
-import { eq, asc, desc, or, like, count, sql } from 'drizzle-orm';
+import { eq, asc, desc, or, like, count, sql, and } from 'drizzle-orm';
 import { 
   users, 
   clubs, 
@@ -18,7 +18,8 @@ import {
   mediaAssets,
   seoSettings as seoSettingsTable,
   contactSettings as contactSettingsTable,
-  themeSettings as themeSettingsTable
+  themeSettings as themeSettingsTable,
+  contentTranslations
 } from './shared/schema.js';
 import { sendBookingConfirmationEmail, sendBookingApprovedEmail } from './server/emailService.js';
 
@@ -3786,6 +3787,108 @@ app.delete('/api/admin/cms/stats/:id', isAdmin, async (req, res) => {
   } catch (error) {
     console.error('❌ Error deleting site stat:', error);
     res.status(500).json({ error: 'Failed to delete site stat' });
+  }
+});
+
+// ── Translations ─────────────────────────────────────────────────────────────
+
+// GET /api/translations/:entityType — all translations for an entity type
+app.get('/api/translations/:entityType', async (req, res) => {
+  try {
+    const { entityType } = req.params;
+    const rows = await db
+      .select()
+      .from(contentTranslations)
+      .where(eq(contentTranslations.entityType, entityType));
+    res.json(rows.map(r => ({
+      id: r.id,
+      entityType: r.entityType,
+      entityId: r.entityId,
+      field: r.field,
+      language: r.language,
+      value: r.value,
+    })));
+  } catch (err) {
+    console.error('❌ Error fetching translations:', err);
+    res.status(500).json({ error: 'Failed to fetch translations' });
+  }
+});
+
+// GET /api/translations/:entityType/:entityId — translations for one entity
+app.get('/api/translations/:entityType/:entityId', async (req, res) => {
+  try {
+    const { entityType, entityId } = req.params;
+    const rows = await db
+      .select()
+      .from(contentTranslations)
+      .where(
+        and(
+          eq(contentTranslations.entityType, entityType),
+          eq(contentTranslations.entityId, entityId)
+        )
+      );
+    res.json(rows.map(r => ({
+      id: r.id,
+      entityType: r.entityType,
+      entityId: r.entityId,
+      field: r.field,
+      language: r.language,
+      value: r.value,
+    })));
+  } catch (err) {
+    console.error('❌ Error fetching translations:', err);
+    res.status(500).json({ error: 'Failed to fetch translations' });
+  }
+});
+
+// POST /api/admin/translations — upsert a single translation
+app.post('/api/admin/translations', isAdmin, async (req, res) => {
+  try {
+    const { entityType, entityId, field, language, value } = req.body;
+    if (!entityType || !entityId || !field || !language || !value) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    const existing = await db
+      .select()
+      .from(contentTranslations)
+      .where(
+        and(
+          eq(contentTranslations.entityType, entityType),
+          eq(contentTranslations.entityId, String(entityId)),
+          eq(contentTranslations.field, field),
+          eq(contentTranslations.language, language)
+        )
+      )
+      .limit(1);
+
+    let row;
+    if (existing.length > 0) {
+      const updated = await db
+        .update(contentTranslations)
+        .set({ value, updatedAt: new Date() })
+        .where(eq(contentTranslations.id, existing[0].id))
+        .returning();
+      row = updated[0];
+    } else {
+      const inserted = await db
+        .insert(contentTranslations)
+        .values({ entityType, entityId: String(entityId), field, language, value })
+        .returning();
+      row = inserted[0];
+    }
+
+    res.status(201).json({
+      id: row.id,
+      entityType: row.entityType,
+      entityId: row.entityId,
+      field: row.field,
+      language: row.language,
+      value: row.value,
+    });
+  } catch (err) {
+    console.error('❌ Error saving translation:', err);
+    res.status(500).json({ error: 'Failed to save translation' });
   }
 });
 

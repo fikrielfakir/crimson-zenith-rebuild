@@ -63,6 +63,8 @@ export default defineConfig(({ mode }: { mode: string }) => ({
       ? { clientPort: 443, protocol: "wss" }
       : true,
     proxy: {
+      "/api/admin/translations": { target: LOCAL_API, changeOrigin: true },
+      "/api/translations":       { target: LOCAL_API, changeOrigin: true },
       "/api/admin":       localProxyOptions,
       "/api/payments":    localProxyOptions,
       "/api/cities":      localProxyOptions,
