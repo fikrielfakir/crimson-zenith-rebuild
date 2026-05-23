@@ -3407,6 +3407,17 @@ app.get('/api/admin/cms/media', isAdmin, async (req, res) => {
   }
 });
 
+// About Settings - Public endpoint
+app.get('/api/cms/about', async (req, res) => {
+  try {
+    const settings = await storage.getAboutSettings();
+    res.json(settings ?? {});
+  } catch (error) {
+    console.error('❌ Error fetching about settings:', error);
+    res.status(500).json({ error: 'Failed to fetch about settings' });
+  }
+});
+
 // About Settings - Admin endpoints
 app.get('/api/admin/cms/about', isAdmin, async (req, res) => {
   try {

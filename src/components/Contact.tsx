@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Phone, Mail, MapPin, MessageCircle, Headset, CheckCircle, AlertCircle } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useQuery } from "@tanstack/react-query";
 
 const Contact = () => {
   const { t } = useTranslation();
@@ -19,12 +20,26 @@ const Contact = () => {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const { data: contactSettings } = useQuery<any>({
+    queryKey: ["cms-contact"],
+    queryFn: async () => {
+      const res = await fetch("/api/cms/contact", { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to fetch contact settings");
+      return res.json();
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const contactEmail = contactSettings?.email ?? "info@thejourney-ma.com";
+  const contactPhone = contactSettings?.phone ?? "+212 686 777 888";
+  const contactAddress = contactSettings?.officeAddress ?? "Rabat Bouregreg, Morocco";
+
   const contactOptions = [
     {
       icon: MessageCircle,
       title: t("contact.chatSupport"),
       subtitle: t("contact.chatSupportSub"),
-      contact: "info@thejourney-ma.com",
+      contact: contactEmail,
     },
     {
       icon: Headset,
@@ -36,13 +51,13 @@ const Contact = () => {
       icon: MapPin,
       title: t("contact.visitUs"),
       subtitle: t("contact.visitUsSub"),
-      contact: "Rabat Bouregreg, Morocco",
+      contact: contactAddress,
     },
     {
       icon: Phone,
       title: t("contact.callUs"),
       subtitle: t("contact.callUsSub"),
-      contact: "+212 686 777 888",
+      contact: contactPhone,
     },
   ];
 

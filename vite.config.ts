@@ -55,6 +55,12 @@ const proxyOptions = {
 };
 
 export default defineConfig(({ mode }: { mode: string }) => ({
+  optimizeDeps: {
+    esbuildOptions: {
+      sourcemap: false,
+      logOverride: { "invalid-source-map": "silent" },
+    },
+  },
   server: {
     host: "0.0.0.0",
     port: 5000,
