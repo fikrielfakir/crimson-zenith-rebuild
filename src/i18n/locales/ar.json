@@ -360,7 +360,8 @@
       "auth": "المصادقة",
       "cookies": "ملفات تعريف الارتباط",
       "system": "النظام",
-      "logout": "تسجيل الخروج"
+      "logout": "تسجيل الخروج",
+      "contactSettings": "إعدادات التواصل"
     },
     "header": {
       "searchPlaceholder": "بحث… (Cmd+K)",

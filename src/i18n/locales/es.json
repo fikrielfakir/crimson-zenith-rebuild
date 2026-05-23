@@ -360,7 +360,8 @@
       "auth": "Autenticación",
       "cookies": "Cookies",
       "system": "Sistema",
-      "logout": "Cerrar sesión"
+      "logout": "Cerrar sesión",
+      "contactSettings": "Ajustes de contacto"
     },
     "header": {
       "searchPlaceholder": "Buscar… (Cmd+K)",

@@ -360,7 +360,8 @@
       "auth": "Auth",
       "cookies": "Cookies",
       "system": "System",
-      "logout": "Logout"
+      "logout": "Logout",
+      "contactSettings": "Contact Settings"
     },
     "header": {
       "searchPlaceholder": "Search… (Cmd+K)",

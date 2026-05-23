@@ -96,6 +96,7 @@ import ExpertsAdmin from "./pages/admin/ExpertsAdmin";
 import WorkOffersAdmin from "./pages/admin/WorkOffersAdmin";
 import ProjectsAdmin from "./pages/admin/ProjectsAdmin";
 import TranslationsManagement from "./pages/admin/TranslationsManagement";
+import ContactSettings from "./pages/admin/ContactSettings";
 
 const queryClient = new QueryClient();
 
@@ -335,6 +336,11 @@ const App = () => (
           <Route path="/admin/customization/page-heroes" element={
             <ProtectedRoute>
               <PageHeroSettings />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/customization/contact" element={
+            <ProtectedRoute>
+              <ContactSettings />
             </ProtectedRoute>
           } />
           

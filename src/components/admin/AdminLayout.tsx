@@ -109,6 +109,7 @@ const navigationItems: NavigationItem[] = [
       { labelKey: 'admin.nav.testimonials', href: '/admin/customization/testimonials' },
       { labelKey: 'admin.nav.partners', href: '/admin/customization/partners' },
       { labelKey: 'admin.nav.pageHeroes', href: '/admin/customization/page-heroes' },
+      { labelKey: 'admin.nav.contactSettings', href: '/admin/customization/contact' },
     ],
   },
   {

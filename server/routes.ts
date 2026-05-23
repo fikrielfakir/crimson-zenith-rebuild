@@ -1505,6 +1505,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin: read i18n locale JSON keys for a given section
+  app.get('/api/admin/i18n/:section', isAuthenticated, isAdmin, async (req: any, res) => {
+    try {
+      const { section } = req.params;
+      const fs = await import('fs/promises');
+      const path = await import('path');
+      const LANGS = ['en', 'fr', 'ar', 'es'];
+      const result: Record<string, any> = {};
+      for (const lang of LANGS) {
+        const file = path.resolve(process.cwd(), `src/i18n/locales/${lang}.json`);
+        try {
+          const raw = JSON.parse(await fs.readFile(file, 'utf-8'));
+          result[lang] = raw[section] ?? {};
+        } catch { result[lang] = {}; }
+      }
+      res.json(result);
+    } catch (error) {
+      console.error("Error reading i18n section:", error);
+      res.status(500).json({ message: "Failed to read translations" });
+    }
+  });
+
+  // Admin: update i18n locale JSON keys for a given section
+  app.put('/api/admin/i18n/:section', isAuthenticated, isAdmin, async (req: any, res) => {
+    try {
+      const { section } = req.params;
+      const updates: Record<string, Record<string, string>> = req.body; // { en: {key: val}, fr: {...}, ... }
+      const fs = await import('fs/promises');
+      const path = await import('path');
+      const LANGS = ['en', 'fr', 'ar', 'es'];
+      for (const lang of LANGS) {
+        if (!updates[lang]) continue;
+        const file = path.resolve(process.cwd(), `src/i18n/locales/${lang}.json`);
+        try {
+          const raw = JSON.parse(await fs.readFile(file, 'utf-8'));
+          raw[section] = { ...(raw[section] ?? {}), ...updates[lang] };
+          await fs.writeFile(file, JSON.stringify(raw, null, 2) + '\n', 'utf-8');
+        } catch (e) {
+          console.error(`Error updating ${lang}.json:`, e);
+        }
+      }
+      res.json({ message: "Translations updated" });
+    } catch (error) {
+      console.error("Error updating i18n section:", error);
+      res.status(500).json({ message: "Failed to update translations" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
