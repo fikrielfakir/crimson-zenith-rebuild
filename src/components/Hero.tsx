@@ -7,12 +7,14 @@ import { useAuth } from "@/hooks/useAuth";
 import { apiFetch } from "@/lib/apiFetch";
 import heroBackground from "@/assets/hero-bg.jpg";
 import { useTranslation } from "react-i18next";
+import { useCmsTranslations } from "@/hooks/useCmsTranslations";
 
 const Hero = () => {
   const { data: heroSettings, isLoading } = useHeroSettings();
   const { isAuthenticated } = useAuth();
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const tr = useCmsTranslations('hero_settings');
 
   // Read locally-saved page hero overrides (background type + video URL)
   const { data: localHero } = useQuery({
@@ -100,8 +102,11 @@ const Hero = () => {
   const subtitle =
     heroSettings?.subtitle ||
     "Experience Morocco's soul through sustainable journeys. Discover culture, embrace adventure, and create lasting connections with local communities.";
-  const primaryButtonText =
-    heroSettings?.primaryButtonText || "Start Your Journey";
+  const primaryButtonText = tr(
+    'primary_button',
+    'primaryButtonText',
+    heroSettings?.primaryButtonText || "Start Your Journey"
+  );
   const primaryButtonLink = heroSettings?.primaryButtonLink || "/join";
 
   const handlePrimaryClick = useCallback(async () => {
@@ -123,8 +128,11 @@ const Hero = () => {
     }
     navigate(primaryButtonLink);
   }, [isAuthenticated, primaryButtonLink, navigate]);
-  const secondaryButtonText =
-    heroSettings?.secondaryButtonText || "Explore Clubs";
+  const secondaryButtonText = tr(
+    'secondary_button',
+    'secondaryButtonText',
+    heroSettings?.secondaryButtonText || "Explore Clubs"
+  );
   const secondaryButtonLink = heroSettings?.secondaryButtonLink || "/clubs";
   const titleFontSize = heroSettings?.titleFontSize || "65px";
   const titleColor = heroSettings?.titleColor || "#ffffff";

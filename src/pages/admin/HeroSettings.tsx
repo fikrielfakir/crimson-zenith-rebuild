@@ -378,7 +378,16 @@ export default function HeroSettings() {
                   <div className="grid grid-cols-2 gap-4 pl-6">
                     <div className="space-y-2">
                       <Label>Button Text</Label>
-                      <Input value={primaryButtonText} onChange={(e) => setPrimaryButtonText(e.target.value)} />
+                      <div className="flex gap-2 items-start">
+                        <Input value={primaryButtonText} onChange={(e) => setPrimaryButtonText(e.target.value)} className="flex-1" />
+                        <TranslateDialog
+                          entityType="hero_settings"
+                          entityId="primary_button"
+                          entityLabel="Primary Button Text"
+                          fields={[{ key: 'primaryButtonText', label: 'Button Text' }]}
+                          sourceValues={{ primaryButtonText }}
+                        />
+                      </div>
                     </div>
                     <div className="space-y-2">
                       <Label>Button Link</Label>
@@ -396,7 +405,16 @@ export default function HeroSettings() {
                   <div className="grid grid-cols-2 gap-4 pl-6">
                     <div className="space-y-2">
                       <Label>Button Text</Label>
-                      <Input value={secondaryButtonText} onChange={(e) => setSecondaryButtonText(e.target.value)} />
+                      <div className="flex gap-2 items-start">
+                        <Input value={secondaryButtonText} onChange={(e) => setSecondaryButtonText(e.target.value)} className="flex-1" />
+                        <TranslateDialog
+                          entityType="hero_settings"
+                          entityId="secondary_button"
+                          entityLabel="Secondary Button Text"
+                          fields={[{ key: 'secondaryButtonText', label: 'Button Text' }]}
+                          sourceValues={{ secondaryButtonText }}
+                        />
+                      </div>
                     </div>
                     <div className="space-y-2">
                       <Label>Button Link</Label>

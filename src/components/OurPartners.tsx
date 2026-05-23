@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import AutoScroll from "embla-carousel-auto-scroll";
+import { useTranslation } from "react-i18next";
+import { useCmsTranslations } from "@/hooks/useCmsTranslations";
 
 interface Partner {
   id: number;
@@ -58,6 +60,8 @@ const FALLBACK_PARTNERS: Partner[] = Array.from({ length: 6 }, (_, i) => ({
 }));
 
 const OurPartners = () => {
+  const { i18n } = useTranslation();
+  const tr = useCmsTranslations('partner_settings');
   const [partners, setPartners] = useState<Partner[]>([]);
   const [settings, setSettings] = useState<PartnerSettings>({
     title: 'Our Partners & Supporters',
@@ -148,7 +152,7 @@ const OurPartners = () => {
               textShadow: "0 2px 4px rgba(0,0,0,0.2)",
             }}
           >
-            {settings.subtitle}
+            {tr('subtitle', 'subtitle', settings.subtitle)}
           </p>
           <h2
             className="font-bold"
@@ -160,7 +164,7 @@ const OurPartners = () => {
               textShadow: "0 2px 8px rgba(0,0,0,0.3)",
             }}
           >
-            {settings.title}
+            {tr('title', 'title', settings.title)}
           </h2>
         </div>
 

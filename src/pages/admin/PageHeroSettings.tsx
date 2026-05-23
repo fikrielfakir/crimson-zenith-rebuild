@@ -11,6 +11,7 @@ import { Slider } from "@/components/ui/slider";
 import { useToast } from "@/hooks/use-toast";
 import { Save, Eye, ExternalLink, Image, Video, Palette, AlertCircle, Upload, X, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { TranslateDialog } from "@/components/admin/TranslateDialog";
 
 const PAGE_CONFIGS = [
   {
@@ -406,20 +407,40 @@ function PageHeroForm({ pageKey, config, isLanding }: {
             <CardContent className="space-y-4">
               <div className="space-y-1.5">
                 <Label>Title</Label>
-                <Input
-                  placeholder={config.defaultTitle}
-                  value={form.title}
-                  onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
-                />
+                <div className="flex gap-2 items-start">
+                  <Input
+                    placeholder={config.defaultTitle}
+                    value={form.title}
+                    onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
+                    className="flex-1"
+                  />
+                  <TranslateDialog
+                    entityType="page_hero"
+                    entityId={pageKey}
+                    entityLabel={`${config.label} Page Hero Title`}
+                    fields={[{ key: 'title', label: 'Title' }]}
+                    sourceValues={{ title: form.title || config.defaultTitle }}
+                  />
+                </div>
               </div>
               <div className="space-y-1.5">
                 <Label>Subtitle</Label>
-                <Textarea
-                  placeholder={config.defaultSubtitle}
-                  value={form.subtitle}
-                  onChange={e => setForm(f => ({ ...f, subtitle: e.target.value }))}
-                  rows={3}
-                />
+                <div className="flex gap-2 items-start">
+                  <Textarea
+                    placeholder={config.defaultSubtitle}
+                    value={form.subtitle}
+                    onChange={e => setForm(f => ({ ...f, subtitle: e.target.value }))}
+                    rows={3}
+                    className="flex-1"
+                  />
+                  <TranslateDialog
+                    entityType="page_hero"
+                    entityId={`${pageKey}_subtitle`}
+                    entityLabel={`${config.label} Page Hero Subtitle`}
+                    fields={[{ key: 'subtitle', label: 'Subtitle', multiline: true }]}
+                    sourceValues={{ subtitle: form.subtitle || config.defaultSubtitle }}
+                  />
+                </div>
               </div>
             </CardContent>
           </Card>

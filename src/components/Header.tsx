@@ -15,6 +15,7 @@ import LanguageSwitcher from "./LanguageSwitcher";
 import { Link } from "react-router-dom";
 import logoAtj from "@/assets/logo-atj.png";
 import { useNavbarSettings } from "@/hooks/useCMS";
+import { useCmsTranslations } from "@/hooks/useCmsTranslations";
 import { moroccoCities } from "@/lib/citiesData";
 import useEmblaCarousel from "embla-carousel-react";
 import DonateDrawer from "./DonateDrawer";
@@ -1262,6 +1263,8 @@ const BottomNavbar = ({
 const Header = () => {
   const { data: navbarSettings } = useNavbarSettings();
   const { t } = useTranslation();
+  const trNavbar = useCmsTranslations('navbar_settings');
+  const trNavLink = useCmsTranslations('navbar_link');
   const [isScrolled, setIsScrolled] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isDonateDrawerOpen, setIsDonateDrawerOpen] = useState(false);
@@ -1281,7 +1284,10 @@ const Header = () => {
     navbarSettings?.navigationLinks &&
     Array.isArray(navbarSettings.navigationLinks) &&
     navbarSettings.navigationLinks.length > 0
-      ? (navbarSettings.navigationLinks as NavLink[])
+      ? (navbarSettings.navigationLinks as NavLink[]).map((link) => ({
+          ...link,
+          label: trNavLink(link.url, 'label', link.label),
+        }))
       : defaultNavigationLinks;
 
   const availableLanguages =
@@ -1359,10 +1365,10 @@ const Header = () => {
           showLanguageSwitcher={navbarSettings?.showLanguageSwitcher !== false}
           showDarkModeToggle={navbarSettings?.showDarkModeToggle !== false}
           showLoginButton={navbarSettings?.showLoginButton !== false}
-          loginButtonText={navbarSettings?.loginButtonText || "Login"}
+          loginButtonText={trNavbar('login_button', 'loginButtonText', navbarSettings?.loginButtonText || "Login")}
           loginButtonLink={navbarSettings?.loginButtonLink || "/login"}
           showJoinButton={navbarSettings?.showJoinButton !== false}
-          joinButtonText={navbarSettings?.joinButtonText || "Donate"}
+          joinButtonText={trNavbar('join_button', 'joinButtonText', navbarSettings?.joinButtonText || "Donate")}
           joinButtonLink={navbarSettings?.joinButtonLink || "/join"}
           joinButtonStyle={navbarSettings?.joinButtonStyle || "secondary"}
           onDonateClick={() => setIsDonateDrawerOpen(true)}

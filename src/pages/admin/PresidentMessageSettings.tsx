@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { Save, Upload, Eye, Image as ImageIcon } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { TranslateDialog } from '@/components/admin/TranslateDialog';
 
 const FONT_FAMILIES = [
   'Inter',
@@ -301,45 +302,84 @@ export default function PresidentMessageSettings() {
             <CardContent className="space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="section-title">Section Title</Label>
-                <Input
-                  id="section-title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="A word from the president"
-                />
+                <div className="flex gap-2 items-start">
+                  <Input
+                    id="section-title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder="A word from the president"
+                    className="flex-1"
+                  />
+                  <TranslateDialog
+                    entityType="president_message"
+                    entityId="title"
+                    entityLabel="Section Title"
+                    fields={[{ key: 'title', label: 'Section Title' }]}
+                    sourceValues={{ title }}
+                  />
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="president-name">President Name</Label>
-                  <Input
-                    id="president-name"
-                    value={presidentName}
-                    onChange={(e) => setPresidentName(e.target.value)}
-                    placeholder="Dr. Aderahim Azrkan"
-                  />
+                  <div className="flex gap-2 items-start">
+                    <Input
+                      id="president-name"
+                      value={presidentName}
+                      onChange={(e) => setPresidentName(e.target.value)}
+                      placeholder="Dr. Aderahim Azrkan"
+                      className="flex-1"
+                    />
+                    <TranslateDialog
+                      entityType="president_message"
+                      entityId="presidentName"
+                      entityLabel="President Name"
+                      fields={[{ key: 'presidentName', label: 'President Name' }]}
+                      sourceValues={{ presidentName }}
+                    />
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="president-role">President Role/Title</Label>
-                  <Input
-                    id="president-role"
-                    value={presidentRole}
-                    onChange={(e) => setPresidentRole(e.target.value)}
-                    placeholder="President, The Journey Association"
-                  />
+                  <div className="flex gap-2 items-start">
+                    <Input
+                      id="president-role"
+                      value={presidentRole}
+                      onChange={(e) => setPresidentRole(e.target.value)}
+                      placeholder="President, The Journey Association"
+                      className="flex-1"
+                    />
+                    <TranslateDialog
+                      entityType="president_message"
+                      entityId="presidentRole"
+                      entityLabel="President Role"
+                      fields={[{ key: 'presidentRole', label: 'President Role' }]}
+                      sourceValues={{ presidentRole }}
+                    />
+                  </div>
                 </div>
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="message">Message (Rich Text)</Label>
-                <Textarea
-                  id="message"
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  placeholder="Enter the president's message here..."
-                  rows={10}
-                  className="font-mono"
-                />
+                <div className="flex gap-2 items-start">
+                  <Textarea
+                    id="message"
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    placeholder="Enter the president's message here..."
+                    rows={10}
+                    className="font-mono flex-1"
+                  />
+                  <TranslateDialog
+                    entityType="president_message"
+                    entityId="message"
+                    entityLabel="President Message"
+                    fields={[{ key: 'message', label: 'Message', multiline: true }]}
+                    sourceValues={{ message }}
+                  />
+                </div>
                 <p className="text-xs text-muted-foreground">
                   You can use HTML formatting for rich text (e.g., &lt;strong&gt;, &lt;em&gt;, &lt;p&gt;)
                 </p>
@@ -347,12 +387,22 @@ export default function PresidentMessageSettings() {
 
               <div className="space-y-2">
                 <Label htmlFor="quote">Optional Quote</Label>
-                <Input
-                  id="quote"
-                  value={quote}
-                  onChange={(e) => setQuote(e.target.value)}
-                  placeholder="Together, we create lasting impact."
-                />
+                <div className="flex gap-2 items-start">
+                  <Input
+                    id="quote"
+                    value={quote}
+                    onChange={(e) => setQuote(e.target.value)}
+                    placeholder="Together, we create lasting impact."
+                    className="flex-1"
+                  />
+                  <TranslateDialog
+                    entityType="president_message"
+                    entityId="quote"
+                    entityLabel="President Quote"
+                    fields={[{ key: 'quote', label: 'Quote' }]}
+                    sourceValues={{ quote }}
+                  />
+                </div>
                 <p className="text-xs text-muted-foreground">
                   An inspirational quote to display at the end of the message
                 </p>

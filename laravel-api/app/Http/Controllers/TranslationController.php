@@ -7,6 +7,20 @@ use Illuminate\Http\Request;
 
 class TranslationController extends Controller
 {
+    public function byType(string $entityType)
+    {
+        $translations = Translation::where('entity_type', $entityType)->get();
+
+        return response()->json($translations->map(fn ($t) => [
+            'id'         => $t->id,
+            'entityType' => $t->entity_type,
+            'entityId'   => $t->entity_id,
+            'field'      => $t->field,
+            'language'   => $t->language,
+            'value'      => $t->value,
+        ]));
+    }
+
     public function index(string $entityType, string $entityId)
     {
         $translations = Translation::where('entity_type', $entityType)

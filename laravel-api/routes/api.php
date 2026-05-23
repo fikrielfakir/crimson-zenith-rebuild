@@ -139,6 +139,7 @@ Route::get('/landing', [\App\Http\Controllers\LandingController::class, 'index']
 | Translations (public read, admin write)
 |--------------------------------------------------------------------------
 */
+Route::get('/translations/{entityType}',           [\App\Http\Controllers\TranslationController::class, 'byType']);
 Route::get('/translations/{entityType}/{entityId}', [\App\Http\Controllers\TranslationController::class, 'index']);
 Route::prefix('admin')->middleware(['admin'])->group(function () {
     Route::post('/translations', [\App\Http\Controllers\TranslationController::class, 'store']);

@@ -2,6 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { Home, ChevronRight } from "lucide-react";
 import { apiFetch } from "@/lib/apiFetch";
+import { useTranslation } from "react-i18next";
+import { useCmsTranslations } from "@/hooks/useCmsTranslations";
 
 export interface PageHeroBreadcrumb {
   label: string;
@@ -38,6 +40,7 @@ export default function PageHero({
   defaultImage,
   children,
 }: PageHeroProps) {
+  const tr = useCmsTranslations('page_hero');
   const { data: settings } = useQuery<PageHeroSettings | null>({
     queryKey: ["page-hero", pageKey],
     queryFn: async () => {
@@ -58,8 +61,8 @@ export default function PageHero({
   const backgroundVideoUrl = settings?.backgroundVideoUrl || "";
   const overlayOpacity = ((settings?.overlayOpacity ?? 50) / 100).toFixed(2);
   const overlayColor = settings?.overlayColor || "#000000";
-  const title = settings?.title || defaultTitle;
-  const subtitle = settings?.subtitle || defaultSubtitle;
+  const title = tr(pageKey, 'title', settings?.title || defaultTitle);
+  const subtitle = tr(`${pageKey}_subtitle`, 'subtitle', settings?.subtitle || defaultSubtitle);
   const isVideo = backgroundType === "video" && backgroundVideoUrl;
 
   return (

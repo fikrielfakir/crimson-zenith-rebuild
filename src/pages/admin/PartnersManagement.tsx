@@ -274,21 +274,41 @@ export default function PartnersManagement() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="sec-subtitle">Eyebrow / Subtitle</Label>
-                  <Input
-                    id="sec-subtitle"
-                    value={section.subtitle}
-                    onChange={(e) => setSectionDraft({ ...section, subtitle: e.target.value })}
-                    placeholder="Associates & Clients"
-                  />
+                  <div className="flex gap-2 items-start">
+                    <Input
+                      id="sec-subtitle"
+                      value={section.subtitle}
+                      onChange={(e) => setSectionDraft({ ...section, subtitle: e.target.value })}
+                      placeholder="Associates & Clients"
+                      className="flex-1"
+                    />
+                    <TranslateDialog
+                      entityType="partner_settings"
+                      entityId="subtitle"
+                      entityLabel="Partners Section Subtitle"
+                      fields={[{ key: 'subtitle', label: 'Eyebrow / Subtitle' }]}
+                      sourceValues={{ subtitle: section.subtitle }}
+                    />
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="sec-title">Main Title</Label>
-                  <Input
-                    id="sec-title"
-                    value={section.title}
-                    onChange={(e) => setSectionDraft({ ...section, title: e.target.value })}
-                    placeholder="Our Partners & Supporters"
-                  />
+                  <div className="flex gap-2 items-start">
+                    <Input
+                      id="sec-title"
+                      value={section.title}
+                      onChange={(e) => setSectionDraft({ ...section, title: e.target.value })}
+                      placeholder="Our Partners & Supporters"
+                      className="flex-1"
+                    />
+                    <TranslateDialog
+                      entityType="partner_settings"
+                      entityId="title"
+                      entityLabel="Partners Section Title"
+                      fields={[{ key: 'title', label: 'Main Title' }]}
+                      sourceValues={{ title: section.title }}
+                    />
+                  </div>
                 </div>
               </div>
 

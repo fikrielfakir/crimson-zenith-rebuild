@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useCmsTranslations } from '@/hooks/useCmsTranslations';
 
 interface PresidentMessageSettings {
   isActive: boolean;
@@ -68,6 +69,7 @@ const PresidentMessageDynamic = () => {
   const isRTL = i18n.language === 'ar';
   const [settings, setSettings] = useState<PresidentMessageSettings | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const tr = useCmsTranslations('president_message');
 
   const getDefaultSettings = (): PresidentMessageSettings => ({
     isActive: true,
@@ -108,6 +110,12 @@ const PresidentMessageDynamic = () => {
 
   const s = activeSettings;
 
+  const displayTitle = tr('title', 'title', s.title);
+  const displayPresidentName = tr('presidentName', 'presidentName', s.presidentName);
+  const displayPresidentRole = tr('presidentRole', 'presidentRole', s.presidentRole);
+  const displayMessage = tr('message', 'message', s.message);
+  const displayQuote = tr('quote', 'quote', s.quote);
+
   const photoUrl = s.photoId
     ? `/api/cms/media/${s.photoId}`
     : '/attached_assets/527458761_17954306891994519_4667490874676487214_n_1762796640998.jpg';
@@ -124,7 +132,7 @@ const PresidentMessageDynamic = () => {
         background: s.backgroundGradient || s.backgroundColor,
       };
 
-  const messageParagraphs = s.message.split('\n\n').filter(p => p.trim());
+  const messageParagraphs = displayMessage.split('\n\n').filter((p: string) => p.trim());
 
   /*
    * In RTL, flex-direction:row naturally flows R→L (first item on RIGHT).
@@ -178,7 +186,7 @@ const PresidentMessageDynamic = () => {
               <div className="relative overflow-hidden rounded-lg shadow-2xl">
                 <img
                   src={photoUrl}
-                  alt={s.presidentName}
+                  alt={displayPresidentName}
                   className="w-full h-[300px] sm:h-[400px] md:h-[500px] object-cover transition-transform duration-300 group-hover:scale-105"
                   style={{ filter: "brightness(1.05) contrast(1.1)" }}
                 />
@@ -195,7 +203,7 @@ const PresidentMessageDynamic = () => {
                       textShadow: "0 2px 8px rgba(0,0,0,0.5)"
                     }}
                   >
-                    {s.presidentName}
+                    {displayPresidentName}
                   </h3>
                   <p
                     style={{
@@ -205,7 +213,7 @@ const PresidentMessageDynamic = () => {
                       fontWeight: 500
                     }}
                   >
-                    {s.presidentRole}
+                    {displayPresidentRole}
                   </p>
                 </div>
               </div>
@@ -227,7 +235,7 @@ const PresidentMessageDynamic = () => {
                     textAlign: titleAlign,
                   }}
                 >
-                  {s.title}
+                  {displayTitle}
                 </h2>
                 <div 
                   className="w-24 h-1 rounded-full mb-8"
@@ -255,7 +263,7 @@ const PresidentMessageDynamic = () => {
                   />
                 ))}
 
-                {s.quote && (
+                {displayQuote && (
                   <div className="pt-4">
                     <p
                       className="italic"
@@ -266,7 +274,7 @@ const PresidentMessageDynamic = () => {
                         fontWeight: 500
                       }}
                     >
-                      "{s.quote}"
+                      "{displayQuote}"
                     </p>
                   </div>
                 )}

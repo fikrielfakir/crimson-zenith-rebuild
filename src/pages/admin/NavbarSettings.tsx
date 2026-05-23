@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { useNavbarSettings, useUpdateNavbarSettings } from '@/hooks/useCMS';
 import { Save, Plus, Trash2, GripVertical, Eye, Upload, Link as LinkIcon } from 'lucide-react';
+import { TranslateDialog } from '@/components/admin/TranslateDialog';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { ErrorState } from '@/components/ui/error-state';
 import {
@@ -131,11 +132,21 @@ function SortableNavLink({
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-2">
             <Label>Label</Label>
-            <Input
-              value={link.label}
-              onChange={(e) => onUpdate(index, 'label', e.target.value)}
-              placeholder="Link Label"
-            />
+            <div className="flex gap-2 items-start">
+              <Input
+                value={link.label}
+                onChange={(e) => onUpdate(index, 'label', e.target.value)}
+                placeholder="Link Label"
+                className="flex-1"
+              />
+              <TranslateDialog
+                entityType="navbar_link"
+                entityId={link.url || String(index)}
+                entityLabel={link.label || `Nav Link ${index + 1}`}
+                fields={[{ key: 'label', label: 'Link Label' }]}
+                sourceValues={{ label: link.label }}
+              />
+            </div>
           </div>
           <div className="space-y-2">
             <Label>URL</Label>
@@ -764,7 +775,16 @@ export default function NavbarSettings() {
                     <div className="grid grid-cols-2 gap-4 pl-6">
                       <div className="space-y-2">
                         <Label>Button Text</Label>
-                        <Input value={loginButtonText} onChange={(e) => setLoginButtonText(e.target.value)} />
+                        <div className="flex gap-2 items-start">
+                          <Input value={loginButtonText} onChange={(e) => setLoginButtonText(e.target.value)} className="flex-1" />
+                          <TranslateDialog
+                            entityType="navbar_settings"
+                            entityId="login_button"
+                            entityLabel="Login Button Text"
+                            fields={[{ key: 'loginButtonText', label: 'Button Text' }]}
+                            sourceValues={{ loginButtonText }}
+                          />
+                        </div>
                       </div>
                       <div className="space-y-2">
                         <Label>Button Link</Label>
@@ -783,7 +803,16 @@ export default function NavbarSettings() {
                     <div className="grid grid-cols-2 gap-4 pl-6">
                       <div className="space-y-2">
                         <Label>Button Text</Label>
-                        <Input value={joinButtonText} onChange={(e) => setJoinButtonText(e.target.value)} />
+                        <div className="flex gap-2 items-start">
+                          <Input value={joinButtonText} onChange={(e) => setJoinButtonText(e.target.value)} className="flex-1" />
+                          <TranslateDialog
+                            entityType="navbar_settings"
+                            entityId="join_button"
+                            entityLabel="Join/Donate Button Text"
+                            fields={[{ key: 'joinButtonText', label: 'Button Text' }]}
+                            sourceValues={{ joinButtonText }}
+                          />
+                        </div>
                       </div>
                       <div className="space-y-2">
                         <Label>Button Link</Label>
