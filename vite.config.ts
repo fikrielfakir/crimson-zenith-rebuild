@@ -22,11 +22,11 @@ function patchCookies(proxyRes: any) {
   );
 }
 
-const PROD_API = "https://api.thejourney-ma.org";
+const LARAVEL_API = "https://api.thejourney-ma.org";
 const LOCAL_API = "http://localhost:3001";
 
-const localProxyOptions = {
-  target: PROD_API,
+const proxyOptions = {
+  target: LARAVEL_API,
   changeOrigin: true,
   secure: true,
   headers: {
@@ -36,30 +36,20 @@ const localProxyOptions = {
   configure: (proxy: any) => {
     proxy.on("proxyRes", patchCookies);
     proxy.on("error", (err: any, _req: any, res: any) => {
-      console.error("[local-proxy] Laravel API unavailable:", err.message);
+      console.error("[proxy] Laravel API unavailable:", err.message);
       if (res && !res.headersSent) {
         res.writeHead(503, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ message: "Local API unavailable — please wait and try again." }));
+        res.end(JSON.stringify({ message: "Laravel API unavailable — please wait and try again." }));
       }
     });
   },
 };
 
-const proxyOptions = {
-  target: PROD_API,
-  changeOrigin: true,
-  secure: true,
-  headers: {
-    Origin: "https://thejourney-ma.org",
-    Referer: "https://thejourney-ma.org/",
-  },
-  configure: (proxy: any) => {
-    proxy.on("proxyRes", patchCookies);
-  },
-};
+const localProxyOptions = proxyOptions;
 
 export default defineConfig(({ mode }: { mode: string }) => ({
   optimizeDeps: {
+    exclude: ["core-js"],
     esbuildOptions: {
       sourcemap: false,
       logOverride: { "invalid-source-map": "silent" },
@@ -69,6 +59,9 @@ export default defineConfig(({ mode }: { mode: string }) => ({
     host: "0.0.0.0",
     port: 5000,
     allowedHosts: true as const,
+    hmr: process.env.REPL_SLUG
+      ? { clientPort: 443, protocol: "wss" }
+      : true,
     proxy: {
       "/api/admin":       localProxyOptions,
       "/api/payments":    localProxyOptions,
