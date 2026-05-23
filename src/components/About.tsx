@@ -1,35 +1,100 @@
 import { useTranslation } from "react-i18next";
+import { useQuery } from "@tanstack/react-query";
+
+const FALLBACK_ITEMS = [
+  {
+    title: null,
+    titleKey: "about.tourism",
+    description: null,
+    descKey: "about.tourismDesc",
+    imageUrl: "https://images.unsplash.com/photo-1682687220742-aba13b6e50ba?auto=format&fit=crop&q=80&w=1200",
+    showBirds: true,
+  },
+  {
+    title: null,
+    titleKey: "about.culture",
+    description: null,
+    descKey: "about.cultureDesc",
+    imageUrl: "/images/culture.png",
+    showBirds: false,
+  },
+  {
+    title: null,
+    titleKey: "about.entertainment",
+    description: null,
+    descKey: "about.entertainmentDesc",
+    imageUrl: "/images/entertainment.png",
+    showBirds: false,
+  },
+];
+
+interface FocusItem {
+  id: number;
+  title: string;
+  description: string;
+  image_url?: string;
+  imageUrl?: string;
+  is_active?: boolean;
+  isActive?: boolean;
+  ordering: number;
+}
+
+interface SectionSettings {
+  title: string;
+  subtitle: string;
+  isActive: boolean;
+}
 
 const About = () => {
   const { t } = useTranslation();
 
-  const focuses = [
-    {
-      titleKey: "about.tourism",
-      descKey: "about.tourismDesc",
-      bgImage: "https://images.unsplash.com/photo-1682687220742-aba13b6e50ba?auto=format&fit=crop&q=80&w=1200",
-      showBirds: true,
+  const { data: rawItems } = useQuery({
+    queryKey: ["cms", "focus-items"],
+    queryFn: async () => {
+      const res = await fetch("/api/cms/focus-items");
+      if (!res.ok) throw new Error("Failed to fetch focus items");
+      return res.json();
     },
-    {
-      titleKey: "about.culture",
-      descKey: "about.cultureDesc",
-      bgImage: "/images/culture.png",
-      showBirds: false,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const { data: sectionData } = useQuery<SectionSettings>({
+    queryKey: ["cms", "focus-section"],
+    queryFn: async () => {
+      const res = await fetch("/api/cms/focus-section");
+      if (!res.ok) throw new Error("Failed to fetch section settings");
+      return res.json();
     },
-    {
-      titleKey: "about.entertainment",
-      descKey: "about.entertainmentDesc",
-      bgImage: "/images/entertainment.png",
-      showBirds: false,
-    },
-  ];
+    staleTime: 5 * 60 * 1000,
+  });
+
+  // Production API returns a plain array with snake_case; admin API wraps in {items:[]} with camelCase
+  const rawArray: FocusItem[] = Array.isArray(rawItems)
+    ? rawItems
+    : (rawItems?.items ?? []);
+
+  const apiItems = rawArray.filter((i) => i.is_active !== false && i.isActive !== false);
+
+  const focuses = apiItems.length > 0
+    ? apiItems.map((item, idx) => ({
+        title: item.title,
+        titleKey: null,
+        description: item.description,
+        descKey: null,
+        imageUrl: item.imageUrl || item.image_url || FALLBACK_ITEMS[idx % FALLBACK_ITEMS.length]?.imageUrl || "",
+        showBirds: idx === 0,
+      }))
+    : FALLBACK_ITEMS;
+
+  const sectionTitle = sectionData?.title || t("about.ourFocus");
+  const sectionSubtitle = sectionData?.subtitle || `${t("about.tourism")}, ${t("about.culture")}, ${t("about.entertainment")}`;
 
   return (
     <section id="discover" className="relative w-full scroll-mt-32">
       <div className="relative w-full flex flex-col sm:flex-row overflow-hidden">
         {focuses.map((focus, index) => (
           <div
-            key={focus.titleKey}
+            key={focus.titleKey ?? String(index)}
             className="relative flex-1 group cursor-pointer h-[220px] sm:h-[400px] md:h-[600px]"
             style={{
               borderRight: index < focuses.length - 1 ? "3px solid rgba(255,255,255,0.9)" : "none",
@@ -39,7 +104,7 @@ const About = () => {
             }}
           >
             <div className="absolute inset-0 transition-transform duration-300 ease-in-out group-hover:scale-105">
-              <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${focus.bgImage})` }} />
+              <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${focus.imageUrl})` }} />
               <div
                 className="absolute inset-0 transition-opacity duration-500 opacity-0 group-hover:opacity-100"
                 style={{ background: "linear-gradient(to top, rgba(90,70,30,0.8), rgba(40,30,20,0.3))" }}
@@ -62,13 +127,13 @@ const About = () => {
                 className="font-bold transition-all duration-500"
                 style={{ fontFamily: "Poppins, sans-serif", fontSize: "26px", color: "#FFFFFF", textShadow: "0 2px 6px rgba(0,0,0,0.5)" }}
               >
-                {t(focus.titleKey)}
+                {focus.title ?? (focus.titleKey ? t(focus.titleKey) : '')}
               </h3>
               <p
                 className="max-w-xs opacity-0 max-h-0 group-hover:opacity-100 group-hover:max-h-40 transition-all duration-500 overflow-hidden transform translate-y-4 group-hover:translate-y-0 mt-2"
                 style={{ fontFamily: "Poppins, sans-serif", fontSize: "16px", color: "#E8D8AA", lineHeight: "22px" }}
               >
-                {t(focus.descKey)}
+                {focus.description ?? (focus.descKey ? t(focus.descKey) : '')}
               </p>
             </div>
           </div>
@@ -84,13 +149,13 @@ const About = () => {
             className="font-bold mb-2 sm:mb-3"
             style={{ fontFamily: "Poppins, sans-serif", fontSize: "clamp(24px,6vw,48px)", fontWeight: 700, color: "#FFFFFF", textShadow: "0px 2px 8px rgba(0,0,0,0.3)" }}
           >
-            {t("about.ourFocus")}
+            {sectionTitle}
           </h2>
           <p
             className="mx-auto"
             style={{ fontFamily: "Poppins, sans-serif", fontSize: "clamp(13px,3vw,22px)", fontWeight: 400, color: "#FFFFFF", letterSpacing: "0.5px", maxWidth: "85%" }}
           >
-            {`${t("about.tourism")}, ${t("about.culture")}, ${t("about.entertainment")}`}
+            {sectionSubtitle}
           </p>
         </div>
       </div>

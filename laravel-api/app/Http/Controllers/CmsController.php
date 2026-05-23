@@ -19,6 +19,7 @@ use App\Models\SiteStat;
 use App\Models\MediaAsset;
 use App\Models\Partner;
 use App\Models\PartnerSettings;
+use App\Models\FocusSectionSettings;
 
 class CmsController extends Controller
 {
@@ -107,6 +108,27 @@ class CmsController extends Controller
     public function discoverSettings()
     {
         return response()->json(DiscoverSettings::firstOrCreate(['id' => 'default']));
+    }
+
+    public function focusSection()
+    {
+        try {
+            $s = FocusSectionSettings::firstOrCreate(
+                ['id' => 'default'],
+                ['title' => 'Our Focus', 'subtitle' => 'Tourism, Culture, Entertainment']
+            );
+            return response()->json([
+                'title'    => $s->title,
+                'subtitle' => $s->subtitle,
+                'isActive' => (bool) $s->is_active,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'title'    => 'Our Focus',
+                'subtitle' => 'Tourism, Culture, Entertainment',
+                'isActive' => true,
+            ]);
+        }
     }
 
     public function pageHero(string $page)

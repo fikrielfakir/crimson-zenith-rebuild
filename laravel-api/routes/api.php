@@ -121,7 +121,8 @@ Route::prefix('cms')->group(function () {
     Route::get('/contact',           [\App\Http\Controllers\CmsController::class, 'contact']);
     Route::get('/seo',               [\App\Http\Controllers\CmsController::class, 'seo']);
     Route::get('/about',             [\App\Http\Controllers\CmsController::class, 'about']);
-    Route::get('/focus-items',       [\App\Http\Controllers\CmsController::class, 'focusItems']);
+    Route::get('/focus-items',         [\App\Http\Controllers\CmsController::class, 'focusItems']);
+    Route::get('/focus-section',       [\App\Http\Controllers\CmsController::class, 'focusSection']);
     Route::get('/team-members',      [\App\Http\Controllers\CmsController::class, 'teamMembers']);
     Route::get('/testimonials',      [\App\Http\Controllers\CmsController::class, 'testimonials']);
     Route::get('/stats',             [\App\Http\Controllers\CmsController::class, 'stats']);
@@ -309,6 +310,10 @@ Route::prefix('admin')->middleware(['admin'])->group(function () {
     Route::put('/cms/page-hero/{page}',        [\App\Http\Controllers\Admin\CmsAdminController::class, 'updatePageHero']);
     Route::get('/cms/partner-settings',        [\App\Http\Controllers\Admin\CmsAdminController::class, 'getPartnerSettings']);
     Route::put('/cms/partner-settings',        [\App\Http\Controllers\Admin\CmsAdminController::class, 'updatePartnerSettings']);
+
+    // Focus section settings
+    Route::get('/cms/focus-section',               [\App\Http\Controllers\Admin\FocusItemController::class, 'getSection']);
+    Route::put('/cms/focus-section',               [\App\Http\Controllers\Admin\FocusItemController::class, 'updateSection']);
 
     // CMS focus items (dedicated CRUD used by FocusAreasManagement page)
     Route::get('/cms/focus-items',                  [\App\Http\Controllers\Admin\FocusItemController::class, 'index']);
