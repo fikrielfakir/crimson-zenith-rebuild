@@ -335,7 +335,7 @@ class CmsAdminController extends Controller
         return [
             'id'          => $p->id,
             'name'        => $p->name,
-            'logoUrl'     => $p->logo_id,
+            'logoUrl'     => $p->logo_url,
             'websiteUrl'  => $p->website_url,
             'description' => $p->description,
             'ordering'    => $p->ordering,
@@ -353,8 +353,8 @@ class CmsAdminController extends Controller
     {
         $validated = $request->validate([
             'name'        => 'required|string|max:255',
-            'logoUrl'     => 'nullable|string|max:1000',
-            'websiteUrl'  => 'nullable|url|max:500',
+            'logoUrl'     => 'nullable|string|max:2000',
+            'websiteUrl'  => 'nullable|string|max:500',
             'description' => 'nullable|string|max:1000',
             'isActive'    => 'boolean',
         ]);
@@ -363,7 +363,7 @@ class CmsAdminController extends Controller
 
         $partner = Partner::create([
             'name'        => $validated['name'],
-            'logo_id'     => $validated['logoUrl'] ?? null,
+            'logo_url'    => $validated['logoUrl'] ?? null,
             'website_url' => $validated['websiteUrl'] ?? null,
             'description' => $validated['description'] ?? null,
             'ordering'    => $maxOrder + 1,
@@ -380,8 +380,8 @@ class CmsAdminController extends Controller
 
         $validated = $request->validate([
             'name'        => 'sometimes|string|max:255',
-            'logoUrl'     => 'nullable|string|max:1000',
-            'websiteUrl'  => 'nullable|url|max:500',
+            'logoUrl'     => 'nullable|string|max:2000',
+            'websiteUrl'  => 'nullable|string|max:500',
             'description' => 'nullable|string|max:1000',
             'isActive'    => 'boolean',
             'ordering'    => 'integer|min:0',
@@ -389,7 +389,7 @@ class CmsAdminController extends Controller
 
         $map = [
             'name'        => 'name',
-            'logoUrl'     => 'logo_id',
+            'logoUrl'     => 'logo_url',
             'websiteUrl'  => 'website_url',
             'description' => 'description',
             'isActive'    => 'is_active',

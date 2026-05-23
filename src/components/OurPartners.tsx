@@ -7,7 +7,7 @@ import { useCmsTranslations } from "@/hooks/useCmsTranslations";
 interface Partner {
   id: number;
   name: string;
-  logo_id?: string;
+  logo_url?: string;
   website_url?: string;
   description?: string;
   ordering: number;
@@ -171,10 +171,10 @@ const OurPartners = () => {
         >
           <div className="flex gap-8">
             {loopedPartners.map((partner, index) => {
-              const isRealUrl = partner.logo_id &&
-                (partner.logo_id.startsWith('/') ||
-                  (partner.logo_id.startsWith('http') && !partner.logo_id.includes('via.placeholder.com')));
-              const logo = isRealUrl ? partner.logo_id! : makeSvgPlaceholder(partner.name);
+              const isRealUrl = partner.logo_url &&
+                (partner.logo_url.startsWith('/') ||
+                  partner.logo_url.startsWith('http'));
+              const logo = isRealUrl ? partner.logo_url! : makeSvgPlaceholder(partner.name);
 
               const card = (
                 <div
