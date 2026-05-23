@@ -6,5 +6,13 @@
     "field": "subtitle",
     "language": "ar",
     "value": "تجربة روح المغرب"
+  },
+  {
+    "id": 1779535385677,
+    "entityType": "president_message",
+    "entityId": "title",
+    "field": "title",
+    "language": "ar",
+    "value": "كلمة الرئيس"
   }
 ]

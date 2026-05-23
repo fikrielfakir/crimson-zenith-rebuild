@@ -154,7 +154,7 @@ export function TranslateDialog({ entityType, entityId, entityLabel, fields, sou
     }
     try {
       await Promise.all(tasks.map((t) => saveMutation.mutateAsync(t)));
-      queryClient.invalidateQueries({ queryKey: [`/api/translations/${entityType}`] });
+      queryClient.invalidateQueries({ queryKey: ['cms-translations', entityType] });
       toast({ title: 'Translations saved' });
       setOpen(false);
     } catch (e: any) {
