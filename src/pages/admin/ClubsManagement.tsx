@@ -1,6 +1,7 @@
 import { apiFetch } from '@/lib/apiFetch';
 import { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Skeleton } from '@/components/ui/skeleton';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Link } from 'react-router-dom';
@@ -180,7 +181,7 @@ export default function ClubsManagement() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['clubs', { search, statusFilter, page, perPage }],
     queryFn: () => fetchClubs({
       search,
@@ -365,9 +366,20 @@ export default function ClubsManagement() {
             </TableHeader>
             <TableBody>
               {isLoading ? (
+                Array.from({ length: 6 }).map((_, i) => (
+                  <TableRow key={`sk-${i}`}>
+                    {Array.from({ length: 9 }).map((_, j) => (
+                      <TableCell key={j}><Skeleton className="h-4 w-full rounded" /></TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : isError ? (
                 <TableRow>
-                  <TableCell colSpan={9} className="text-center py-8">
-                    <Loader2 className="h-6 w-6 animate-spin mx-auto" />
+                  <TableCell colSpan={9} className="py-12 text-center">
+                    <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                      <p className="text-sm font-medium text-foreground">Failed to load clubs</p>
+                      <button onClick={() => refetch()} className="text-xs text-primary underline">Retry</button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ) : data?.clubs?.length === 0 ? (
@@ -515,8 +527,10 @@ export default function ClubsManagement() {
       {/* Map View */}
       {viewMode === 'map' && (
         isLoading ? (
+          <Skeleton className="h-64 w-full rounded-lg" />
+        ) : isError ? (
           <div className="flex items-center justify-center h-64 border rounded-lg">
-            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            <p className="text-sm text-muted-foreground">Map unavailable — <button onClick={() => refetch()} className="text-primary underline">retry</button></p>
           </div>
         ) : (
           <ClubsMap clubs={data?.clubs ?? []} />

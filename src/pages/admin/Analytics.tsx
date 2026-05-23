@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
+import { AdminPageError } from '@/components/admin/AdminPageShell';
 import {
   LineChart,
   Line,
@@ -35,7 +36,7 @@ async function fetchAnalytics(period: string) {
 export default function Analytics() {
   const [period, setPeriod] = useState('30days');
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['analytics', period],
     queryFn: () => fetchAnalytics(period),
   });
@@ -47,9 +48,21 @@ export default function Analytics() {
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <Skeleton className="h-12 w-64" />
-        <Skeleton className="h-96 w-full" />
+        <Skeleton className="h-9 w-48 rounded-lg" />
+        <Skeleton className="h-10 w-full rounded-lg" />
+        <Skeleton className="h-80 w-full rounded-lg" />
+        <Skeleton className="h-80 w-full rounded-lg" />
       </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <AdminPageError
+        title="Failed to load analytics"
+        message="Could not fetch analytics data from the server. Check your connection and try again."
+        onRetry={refetch}
+      />
     );
   }
 

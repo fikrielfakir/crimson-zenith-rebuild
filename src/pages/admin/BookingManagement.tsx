@@ -2,6 +2,7 @@ import { apiFetch } from '@/lib/apiFetch';
 import { generateTicketPDF } from '@/lib/generateTicketPDF';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -430,7 +431,7 @@ export default function BookingManagement() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['bookings'],
     queryFn: fetchBookings,
   });
@@ -630,8 +631,15 @@ export default function BookingManagement() {
           </div>
 
           {isLoading ? (
-            <div className="flex items-center justify-center p-8">
-              <div className="text-muted-foreground">Loading bookings...</div>
+            <div className="space-y-2 py-2">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <Skeleton key={i} className="h-12 w-full rounded-lg" />
+              ))}
+            </div>
+          ) : isError ? (
+            <div className="flex flex-col items-center gap-2 py-12 text-center text-muted-foreground">
+              <p className="text-sm font-medium text-foreground">Failed to load bookings</p>
+              <button onClick={() => refetch()} className="text-xs text-primary underline">Retry</button>
             </div>
           ) : filteredBookings.length === 0 ? (
             <div className="flex flex-col items-center justify-center p-8 text-center">

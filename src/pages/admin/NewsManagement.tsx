@@ -1,6 +1,7 @@
 import { apiFetch } from '@/lib/apiFetch';
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Search,
   Plus,
@@ -105,7 +106,7 @@ export default function NewsManagement() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['admin-news', { search, statusFilter, categoryFilter, page, perPage }],
     queryFn: () => fetchPosts({
       search,
@@ -288,9 +289,20 @@ export default function NewsManagement() {
           </TableHeader>
           <TableBody>
             {isLoading ? (
+              Array.from({ length: 6 }).map((_, i) => (
+                <TableRow key={`sk-${i}`}>
+                  {Array.from({ length: 8 }).map((_, j) => (
+                    <TableCell key={j}><Skeleton className="h-4 w-full rounded" /></TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : isError ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-8">
-                  <Loader2 className="h-6 w-6 animate-spin mx-auto" />
+                <TableCell colSpan={8} className="py-12 text-center">
+                  <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                    <p className="text-sm font-medium text-foreground">Failed to load posts</p>
+                    <button onClick={() => refetch()} className="text-xs text-primary underline">Retry</button>
+                  </div>
                 </TableCell>
               </TableRow>
             ) : posts.length === 0 ? (

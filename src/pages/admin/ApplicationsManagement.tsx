@@ -1,6 +1,7 @@
 import { apiFetch } from '@/lib/apiFetch';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -40,7 +41,7 @@ export default function ApplicationsManagement() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [search, setSearch] = useState('');
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['applications', statusFilter, search],
     queryFn: () => fetchApplications(statusFilter, search),
   });
@@ -191,8 +192,15 @@ export default function ApplicationsManagement() {
         </CardHeader>
         <CardContent className="overflow-x-auto">
           {isLoading ? (
-            <div className="flex items-center justify-center p-8">
-              <div className="text-muted-foreground">Loading applications...</div>
+            <div className="space-y-2 py-2">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Skeleton key={i} className="h-14 w-full rounded-lg" />
+              ))}
+            </div>
+          ) : isError ? (
+            <div className="flex flex-col items-center gap-2 py-12 text-center text-muted-foreground">
+              <p className="text-sm font-medium text-foreground">Failed to load applications</p>
+              <button onClick={() => refetch()} className="text-xs text-primary underline">Retry</button>
             </div>
           ) : applications.length === 0 ? (
             <div className="flex flex-col items-center justify-center p-8 text-center">

@@ -1,6 +1,7 @@
 import { apiFetch } from '@/lib/apiFetch';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
+import { AdminPageHeader, AdminStatsSkeleton, AdminPageError } from '@/components/admin/AdminPageShell';
 import { Link } from 'react-router-dom';
 import {
   Users,
@@ -75,22 +76,22 @@ async function fetchChartsData() {
 
 export default function AdminDashboard() {
   const { t } = useTranslation();
-  const { data: stats, isLoading: statsLoading } = useQuery({
+  const { data: stats, isLoading: statsLoading, isError: statsError, refetch: refetchStats } = useQuery({
     queryKey: ['dashboardStats'],
     queryFn: fetchDashboardStats,
   });
 
-  const { data: activity, isLoading: activityLoading } = useQuery({
+  const { data: activity, isLoading: activityLoading, isError: activityError } = useQuery({
     queryKey: ['recentActivity'],
     queryFn: fetchRecentActivity,
   });
 
-  const { data: upcomingEvents, isLoading: eventsLoading } = useQuery({
+  const { data: upcomingEvents, isLoading: eventsLoading, isError: eventsError } = useQuery({
     queryKey: ['upcomingEvents'],
     queryFn: fetchUpcomingEvents,
   });
 
-  const { data: chartsData, isLoading: chartsLoading } = useQuery({
+  const { data: chartsData, isLoading: chartsLoading, isError: chartsError } = useQuery({
     queryKey: ['chartsData'],
     queryFn: fetchChartsData,
   });
@@ -135,12 +136,29 @@ export default function AdminDashboard() {
   if (statsLoading) {
     return (
       <div className="space-y-6">
-        <h1 className="text-3xl font-bold">{t('admin.dashboard.title')}</h1>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {[1, 2, 3, 4].map((i) => (
-            <Skeleton key={i} className="h-32" />
-          ))}
+        <AdminPageHeader title={t('admin.dashboard.title')} />
+        <AdminStatsSkeleton count={4} />
+        <div className="grid gap-4 md:grid-cols-2">
+          <Skeleton className="h-80 w-full rounded-lg" />
+          <Skeleton className="h-80 w-full rounded-lg" />
         </div>
+        <div className="grid gap-4 md:grid-cols-3">
+          <Skeleton className="h-64 w-full rounded-lg md:col-span-2" />
+          <Skeleton className="h-64 w-full rounded-lg" />
+        </div>
+      </div>
+    );
+  }
+
+  if (statsError) {
+    return (
+      <div className="space-y-6">
+        <AdminPageHeader title={t('admin.dashboard.title')} />
+        <AdminPageError
+          title="Failed to load dashboard"
+          message="Could not fetch dashboard data from the server. Check your connection and try again."
+          onRetry={() => refetchStats()}
+        />
       </div>
     );
   }
@@ -195,7 +213,11 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             {chartsLoading ? (
-              <Skeleton className="h-80 w-full" />
+              <Skeleton className="h-80 w-full rounded-lg" />
+            ) : chartsError ? (
+              <div className="flex h-80 items-center justify-center text-sm text-muted-foreground">
+                Chart data unavailable
+              </div>
             ) : (
               <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={chartsData?.userGrowth || []}>
@@ -218,7 +240,11 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             {chartsLoading ? (
-              <Skeleton className="h-80 w-full" />
+              <Skeleton className="h-80 w-full rounded-lg" />
+            ) : chartsError ? (
+              <div className="flex h-80 items-center justify-center text-sm text-muted-foreground">
+                Chart data unavailable
+              </div>
             ) : (
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={chartsData?.revenue || []}>
@@ -250,11 +276,13 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             {activityLoading ? (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {[1, 2, 3].map((i) => (
-                  <Skeleton key={i} className="h-16" />
+                  <Skeleton key={i} className="h-14 w-full rounded-lg" />
                 ))}
               </div>
+            ) : activityError ? (
+              <p className="text-sm text-muted-foreground text-center py-6">Activity unavailable</p>
             ) : (
               <div className="space-y-4">
                 {activity?.slice(0, 5).map((item) => (
@@ -289,11 +317,13 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             {eventsLoading ? (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {[1, 2, 3].map((i) => (
-                  <Skeleton key={i} className="h-16" />
+                  <Skeleton key={i} className="h-14 w-full rounded-lg" />
                 ))}
               </div>
+            ) : eventsError ? (
+              <p className="text-sm text-muted-foreground text-center py-6">Events unavailable</p>
             ) : (
               <div className="space-y-4">
                 {upcomingEvents?.slice(0, 5).map((event) => (
