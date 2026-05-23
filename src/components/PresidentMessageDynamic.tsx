@@ -76,6 +76,7 @@ const STYLE_DEFAULTS = {
 const PresidentMessageDynamic = () => {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
+  const lang = (i18n.language || 'en').split('-')[0];
   const [settings, setSettings] = useState<PresidentMessageSettings | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const tr = useCmsTranslations('president_message');
@@ -119,11 +120,13 @@ const PresidentMessageDynamic = () => {
 
   const s = activeSettings;
 
-  const displayTitle = tr('title', 'title', s.title);
-  const displayPresidentName = tr('presidentName', 'presidentName', s.presidentName);
-  const displayPresidentRole = tr('presidentRole', 'presidentRole', s.presidentRole);
-  const displayMessage = tr('message', 'message', s.message);
-  const displayQuote = tr('quote', 'quote', s.quote);
+  const displayTitle = tr('title', 'title', lang !== 'en' ? t('president.title') : s.title);
+  const displayPresidentName = tr('presidentName', 'presidentName', lang !== 'en' ? t('president.name') : s.presidentName);
+  const displayPresidentRole = tr('presidentRole', 'presidentRole', lang !== 'en' ? t('president.role') : s.presidentRole);
+  const displayMessage = tr('message', 'message', lang !== 'en'
+    ? `${t('president.greeting')}\n\n${t('president.body1')}\n\n${t('president.body2')}`
+    : s.message);
+  const displayQuote = tr('quote', 'quote', lang !== 'en' ? t('president.quote') : s.quote);
 
   const photoUrl = s.photoId
     ? `/api/cms/media/${s.photoId}`

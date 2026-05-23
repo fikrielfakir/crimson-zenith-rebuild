@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
+import { useCmsTranslations } from "@/hooks/useCmsTranslations";
 
 const FALLBACK_ITEMS = [
   {
@@ -46,7 +47,9 @@ interface SectionSettings {
 }
 
 const About = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = (i18n.language || 'en').split('-')[0];
+  const tr = useCmsTranslations('focus_item');
 
   const { data: rawItems } = useQuery({
     queryKey: ["cms", "focus-items"],
@@ -77,17 +80,21 @@ const About = () => {
 
   const focuses = apiItems.length > 0
     ? apiItems.map((item, idx) => ({
-        title: item.title,
+        title: tr(String(item.id), 'title', item.title),
         titleKey: null,
-        description: item.description,
+        description: tr(String(item.id), 'description', item.description),
         descKey: null,
         imageUrl: item.imageUrl || item.image_url || FALLBACK_ITEMS[idx % FALLBACK_ITEMS.length]?.imageUrl || "",
         showBirds: idx === 0,
       }))
     : FALLBACK_ITEMS;
 
-  const sectionTitle = sectionData?.title || t("about.ourFocus");
-  const sectionSubtitle = sectionData?.subtitle || `${t("about.tourism")}, ${t("about.culture")}, ${t("about.entertainment")}`;
+  const sectionTitle = lang !== 'en'
+    ? t("about.ourFocus")
+    : (sectionData?.title || t("about.ourFocus"));
+  const sectionSubtitle = lang !== 'en'
+    ? `${t("about.tourism")}, ${t("about.culture")}, ${t("about.entertainment")}`
+    : (sectionData?.subtitle || `${t("about.tourism")}, ${t("about.culture")}, ${t("about.entertainment")}`);
 
   return (
     <section id="discover" className="relative w-full scroll-mt-32">

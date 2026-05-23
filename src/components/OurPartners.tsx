@@ -60,7 +60,8 @@ const FALLBACK_PARTNERS: Partner[] = Array.from({ length: 6 }, (_, i) => ({
 }));
 
 const OurPartners = () => {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = (i18n.language || 'en').split('-')[0];
   const tr = useCmsTranslations('partner_settings');
   const [partners, setPartners] = useState<Partner[]>([]);
   const [settings, setSettings] = useState<PartnerSettings>({
@@ -152,7 +153,7 @@ const OurPartners = () => {
               textShadow: "0 2px 4px rgba(0,0,0,0.2)",
             }}
           >
-            {tr('subtitle', 'subtitle', settings.subtitle)}
+            {tr('subtitle', 'subtitle', lang !== 'en' ? t('partners.subtitle') : settings.subtitle)}
           </p>
           <h2
             className="font-bold"
@@ -164,7 +165,7 @@ const OurPartners = () => {
               textShadow: "0 2px 8px rgba(0,0,0,0.3)",
             }}
           >
-            {tr('title', 'title', settings.title)}
+            {tr('title', 'title', lang !== 'en' ? t('partners.title') : settings.title)}
           </h2>
         </div>
 
