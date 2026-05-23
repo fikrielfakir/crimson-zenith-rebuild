@@ -82,12 +82,18 @@ export function useTranslatedList<T extends Record<string, any>>(
     queryKey: ["/api/translations/batch", entityType, ids.join(",")],
     queryFn: async () => {
       if (!ids.length) return [];
-      const res = await fetch(`/api/translations/${entityType}?ids=${ids.join(",")}`);
-      if (!res.ok) return [];
-      return res.json();
+      try {
+        const res = await fetch(`/api/translations/${entityType}?ids=${ids.join(",")}`);
+        if (!res.ok) return [];
+        return res.json();
+      } catch {
+        return [];
+      }
     },
     enabled: !!ids.length,
     staleTime: 30_000,
+    retry: 2,
+    retryDelay: 1000,
   });
 
   if (!allTranslations || lang === "en") return entities;

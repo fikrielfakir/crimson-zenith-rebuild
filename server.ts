@@ -3804,14 +3804,33 @@ function isAdminOrBearer(req: any, res: any, next: any) {
 }
 
 // GET /api/translations/:entityType — all translations for an entity type
+// Accepts optional ?ids=1,2,3 to filter by specific entity IDs
 app.get('/api/translations/:entityType', async (req, res) => {
   try {
     const { entityType } = req.params;
-    const rows = await db
+    const idsParam = req.query.ids as string | undefined;
+    const idList = idsParam ? idsParam.split(',').map(s => s.trim()).filter(Boolean) : [];
+
+    let query = db
       .select()
       .from(contentTranslations)
-      .where(eq(contentTranslations.entityType, entityType));
-    res.json(rows.map(r => ({
+      .where(eq(contentTranslations.entityType, entityType)) as any;
+
+    if (idList.length > 0) {
+      const { inArray } = await import('drizzle-orm');
+      query = db
+        .select()
+        .from(contentTranslations)
+        .where(
+          and(
+            eq(contentTranslations.entityType, entityType),
+            inArray(contentTranslations.entityId, idList)
+          )
+        );
+    }
+
+    const rows = await query;
+    res.json(rows.map((r: any) => ({
       id: r.id,
       entityType: r.entityType,
       entityId: r.entityId,

@@ -298,14 +298,21 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   const currentAdminLang = ADMIN_LANGUAGES.find((l) => l.code === adminLang) ?? ADMIN_LANGUAGES[0];
 
   useEffect(() => {
+    // Capture the public-site language BEFORE i18n.changeLanguage overwrites tja_language
+    const publicLangBackup = localStorage.getItem('tja_language') || 'en';
+
     localStorage.setItem('tja_admin_language', adminLang);
     const isRTL = adminLang === 'ar';
     document.documentElement.setAttribute('dir', isRTL ? 'rtl' : 'ltr');
     document.documentElement.setAttribute('lang', adminLang);
     i18n.changeLanguage(adminLang);
 
+    // i18n.changeLanguage() writes adminLang into tja_language — immediately restore
+    // the public value so a hard reload always sees the correct public language.
+    localStorage.setItem('tja_language', publicLangBackup);
+
     return () => {
-      const publicLang = localStorage.getItem('tja_language') || 'en';
+      const publicLang = localStorage.getItem('tja_language') || publicLangBackup;
       const publicRTL = publicLang === 'ar';
       document.documentElement.setAttribute('dir', publicRTL ? 'rtl' : 'ltr');
       document.documentElement.setAttribute('lang', publicLang);
