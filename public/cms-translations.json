@@ -1,18 +1,10 @@
 [
   {
-    "id": 1779531808296,
-    "entityType": "hero_settings",
-    "entityId": "subtitle",
-    "field": "subtitle",
+    "id": 1779550056785,
+    "entityType": "focus_item",
+    "entityId": "1",
+    "field": "description",
     "language": "ar",
-    "value": "تجربة روح المغرب"
-  },
-  {
-    "id": 1779535385677,
-    "entityType": "president_message",
-    "entityId": "title",
-    "field": "title",
-    "language": "ar",
-    "value": "كلمة الرئيس"
+    "value": "استمتع بمغامرات مثيرة في الهواء الطلق من جبال الأطلس إلى الصحراء الكبرى"
   }
 ]
