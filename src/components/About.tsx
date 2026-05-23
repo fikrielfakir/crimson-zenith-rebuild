@@ -50,6 +50,7 @@ const About = () => {
   const { t, i18n } = useTranslation();
   const lang = (i18n.language || 'en').split('-')[0];
   const tr = useCmsTranslations('focus_item');
+  const trSection = useCmsTranslations('focus_section');
 
   const { data: rawItems } = useQuery({
     queryKey: ["cms", "focus-items"],
@@ -89,12 +90,16 @@ const About = () => {
       }))
     : FALLBACK_ITEMS;
 
-  const sectionTitle = lang !== 'en'
-    ? t("about.ourFocus")
-    : (sectionData?.title || t("about.ourFocus"));
-  const sectionSubtitle = lang !== 'en'
-    ? `${t("about.tourism")}, ${t("about.culture")}, ${t("about.entertainment")}`
-    : (sectionData?.subtitle || `${t("about.tourism")}, ${t("about.culture")}, ${t("about.entertainment")}`);
+  const sectionTitle = trSection(
+    'default', 'title',
+    lang !== 'en' ? t("about.ourFocus") : (sectionData?.title || t("about.ourFocus"))
+  );
+  const sectionSubtitle = trSection(
+    'default', 'subtitle',
+    lang !== 'en'
+      ? `${t("about.tourism")}, ${t("about.culture")}, ${t("about.entertainment")}`
+      : (sectionData?.subtitle || `${t("about.tourism")}, ${t("about.culture")}, ${t("about.entertainment")}`)
+  );
 
   return (
     <section id="discover" className="relative w-full scroll-mt-32">
