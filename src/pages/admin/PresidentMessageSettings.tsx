@@ -253,13 +253,20 @@ export default function PresidentMessageSettings() {
       if (response.ok) {
         toast({ title: 'Success', description: 'President message settings saved successfully' });
       } else {
-        throw new Error('Failed to save settings');
+        let detail = `HTTP ${response.status}`;
+        try {
+          const errBody = await response.json();
+          detail = errBody.message ?? errBody.error ?? JSON.stringify(errBody);
+        } catch {
+          try { detail = await response.text(); } catch {}
+        }
+        throw new Error(detail);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving president message settings:', error);
       toast({ 
         title: 'Error', 
-        description: 'Failed to save president message settings', 
+        description: error?.message ?? 'Failed to save president message settings', 
         variant: 'destructive' 
       });
     } finally {

@@ -28,7 +28,11 @@ const LOCAL_API = "http://localhost:3001";
 const localProxyOptions = {
   target: PROD_API,
   changeOrigin: true,
-  secure: false,
+  secure: true,
+  headers: {
+    Origin: "https://thejourney-ma.org",
+    Referer: "https://thejourney-ma.org/",
+  },
   configure: (proxy: any) => {
     proxy.on("proxyRes", patchCookies);
     proxy.on("error", (err: any, _req: any, res: any) => {
