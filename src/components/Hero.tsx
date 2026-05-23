@@ -15,6 +15,7 @@ const Hero = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const tr = useCmsTranslations('hero_settings');
+  const trTagline = useCmsTranslations('hero_tagline');
 
   // Read locally-saved page hero overrides (background type + video URL)
   const { data: localHero } = useQuery({
@@ -44,20 +45,29 @@ const Hero = () => {
   ];
 
   // title from DB as a JSON array; typewriterTexts is an alias kept for compat
-  const dbTitles: { text: string; twoLines?: boolean }[] =
+  const rawDbTitles: { text: string; twoLines?: boolean }[] =
     Array.isArray(heroSettings?.title) && heroSettings.title.length > 0
       ? heroSettings.title
       : Array.isArray(heroSettings?.typewriterTexts) && heroSettings.typewriterTexts.length > 0
         ? heroSettings.typewriterTexts
         : [];
 
+  // Apply CMS translations (per-index) to each DB tagline
+  const dbTitles = rawDbTitles.map((item, i) => ({
+    ...item,
+    text: trTagline(String(i), 'text', item.text),
+  }));
+
   // i18n translations take priority — they update per language.
-  // DB titles are a fallback for when no translation is provided.
+  // DB titles (with CMS translations applied) are a fallback for when no translation is provided.
   const taglines = i18nTaglines.length > 0
     ? i18nTaglines
     : dbTitles.length > 0
       ? dbTitles
       : hardcodedFallbacks;
+
+  // Static title for non-typewriter mode — uses first translated tagline
+  const title = taglines[0]?.text ?? "Where Adventure Meets\nTransformation";
 
   const [currentTaglineIndex, setCurrentTaglineIndex] = useState(0);
   const [displayedText, setDisplayedText] = useState("");
@@ -98,10 +108,12 @@ const Hero = () => {
 
   const overlayColor =
     heroSettings?.backgroundOverlayColor || "rgba(26, 54, 93, 0.7)";
-  const title = heroSettings?.title || "Where Adventure Meets\nTransformation";
-  const subtitle =
+  const subtitle = tr(
+    'subtitle',
+    'subtitle',
     heroSettings?.subtitle ||
-    "Experience Morocco's soul through sustainable journeys. Discover culture, embrace adventure, and create lasting connections with local communities.";
+      "Experience Morocco's soul through sustainable journeys. Discover culture, embrace adventure, and create lasting connections with local communities."
+  );
   const primaryButtonText = tr(
     'primary_button',
     'primaryButtonText',
