@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Save, Phone, Mail, MapPin, MessageCircle, Headset } from 'lucide-react';
+import { Save, Phone, Mail, MapPin, MessageCircle, Headset, Wand2, Loader2 } from 'lucide-react';
 
 const LANGUAGES = [
   { code: 'en', label: 'English',  flag: '🇬🇧', dir: 'ltr' as const },
@@ -25,6 +25,9 @@ const LABEL_FIELDS = [
   { group: 'formHeading',  icon: Mail,          titleKey: 'title',        subtitleKey: 'subtitle' },
 ];
 
+// All translatable keys across all field groups
+const ALL_KEYS = LABEL_FIELDS.flatMap(f => [f.titleKey, f.subtitleKey]);
+
 interface InfoForm { email: string; phone: string; officeAddress: string }
 
 export default function ContactSettings() {
@@ -32,6 +35,7 @@ export default function ContactSettings() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [activeLang, setActiveLang] = useState('en');
+  const [translating, setTranslating] = useState(false);
 
   // ── Contact Info ────────────────────────────────────────────────────────
   const { data: contactInfo, isLoading: infoLoading } = useQuery<any>({
@@ -50,7 +54,6 @@ export default function ContactSettings() {
       setInfoForm({
         email:         contactInfo.email         ?? '',
         phone:         contactInfo.phone         ?? '',
-        // Laravel returns snake_case; support both
         officeAddress: contactInfo.officeAddress ?? contactInfo.office_address ?? '',
       });
     }
@@ -72,7 +75,7 @@ export default function ContactSettings() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cms-contact'] });
-      toast({ title: t('admin.contact.savedInfo', 'Contact info saved'), description: t('admin.contact.savedInfoDesc', 'Changes are live on the contact page.') });
+      toast({ title: t('admin.contact.savedInfo', 'Contact info saved') });
     },
     onError: () => toast({ title: t('admin.common.error', 'Save failed'), variant: 'destructive' }),
   });
@@ -81,7 +84,7 @@ export default function ContactSettings() {
   const { data: i18nData, isLoading: i18nLoading } = useQuery<Record<string, Record<string, string>>>({
     queryKey: ['admin-i18n-contact'],
     queryFn: async () => {
-      const res = await apiFetch('/api/admin/i18n/contact', { credentials: 'include' });
+      const res = await fetch('/api/admin/i18n/contact', { credentials: 'include' });
       if (!res.ok) throw new Error('Failed to fetch');
       return res.json();
     },
@@ -97,7 +100,7 @@ export default function ContactSettings() {
 
   const saveLabelsMutation = useMutation({
     mutationFn: async (data: typeof labelForm) => {
-      const res = await apiFetch('/api/admin/i18n/contact', {
+      const res = await fetch('/api/admin/i18n/contact', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -107,7 +110,7 @@ export default function ContactSettings() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-i18n-contact'] });
-      toast({ title: t('admin.contact.savedLabels', 'Translations saved'), description: t('admin.contact.savedLabelsDesc', 'Page labels updated for all languages.') });
+      toast({ title: t('admin.contact.savedLabels', 'Translations saved') });
     },
     onError: () => toast({ title: t('admin.common.error', 'Save failed'), variant: 'destructive' }),
   });
@@ -115,13 +118,50 @@ export default function ContactSettings() {
   const setLabel = (lang: string, key: string, value: string) =>
     setLabelForm(prev => ({ ...prev, [lang]: { ...(prev[lang] ?? {}), [key]: value } }));
 
+  // ── Auto-translate current language from English ────────────────────────
+  const handleAutoTranslate = async () => {
+    if (activeLang === 'en') return;
+    const enValues = labelForm['en'] ?? i18nData?.en ?? {};
+    const texts = ALL_KEYS
+      .map(key => ({ key, value: enValues[key] ?? '' }))
+      .filter(item => item.value.trim() !== '');
+
+    if (texts.length === 0) {
+      toast({ title: 'No English text to translate', variant: 'destructive' });
+      return;
+    }
+
+    setTranslating(true);
+    try {
+      const res = await fetch('/api/admin/translations/auto-translate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ texts, targetLanguage: activeLang }),
+      });
+      if (!res.ok) throw new Error('Translation request failed');
+      const { results } = await res.json() as { results: Record<string, string> };
+      setLabelForm(prev => ({
+        ...prev,
+        [activeLang]: { ...(prev[activeLang] ?? {}), ...results },
+      }));
+      toast({
+        title: t('admin.contact.translated', 'Auto-translation complete'),
+        description: `${Object.keys(results).length} fields translated to ${LANGUAGES.find(l => l.code === activeLang)?.label}`,
+      });
+    } catch {
+      toast({ title: 'Translation failed', description: 'Could not connect to translation service.', variant: 'destructive' });
+    } finally {
+      setTranslating(false);
+    }
+  };
+
   const groupLabel = (key: string) => {
     const map: Record<string, string> = {
-      chatSupport: t('contact.chatSupport', 'Chat to Support'),
+      chatSupport:  t('contact.chatSupport',  'Chat to Support'),
       chatToSelect: t('contact.chatToSelect', 'Chat to Select'),
-      visitUs: t('contact.visitUs', 'Visit Us'),
-      callUs: t('contact.callUs', 'Call Us'),
-      formHeading: t('admin.contact.formHeading', 'Form Heading'),
+      visitUs:      t('contact.visitUs',      'Visit Us'),
+      callUs:       t('contact.callUs',       'Call Us'),
+      formHeading:  t('admin.contact.formHeading', 'Form Heading'),
     };
     return map[key] ?? key;
   };
@@ -154,13 +194,15 @@ export default function ContactSettings() {
             </CardHeader>
             <CardContent className="space-y-5 max-w-lg">
               {infoLoading ? (
-                <p className="text-sm text-muted-foreground">{t('admin.common.loading', 'Loading…')}</p>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  {t('admin.common.loading', 'Loading…')}
+                </div>
               ) : (
                 <>
                   <div className="space-y-2">
                     <Label className="flex items-center gap-2">
-                      <Mail className="w-4 h-4" />
-                      {t('contact.email', 'Email Address')}
+                      <Mail className="w-4 h-4" /> {t('contact.email', 'Email Address')}
                     </Label>
                     <Input
                       type="email"
@@ -172,8 +214,7 @@ export default function ContactSettings() {
 
                   <div className="space-y-2">
                     <Label className="flex items-center gap-2">
-                      <Phone className="w-4 h-4" />
-                      {t('contact.phone', 'Phone Number')}
+                      <Phone className="w-4 h-4" /> {t('contact.phone', 'Phone Number')}
                     </Label>
                     <Input
                       placeholder="+212 686 777 888"
@@ -184,8 +225,7 @@ export default function ContactSettings() {
 
                   <div className="space-y-2">
                     <Label className="flex items-center gap-2">
-                      <MapPin className="w-4 h-4" />
-                      {t('contact.visitUs', 'Office Address')}
+                      <MapPin className="w-4 h-4" /> {t('contact.visitUs', 'Office Address')}
                     </Label>
                     <Input
                       placeholder="Rabat Bouregreg, Morocco"
@@ -199,7 +239,9 @@ export default function ContactSettings() {
                     disabled={saveInfoMutation.isPending}
                     className="flex items-center gap-2"
                   >
-                    <Save className="w-4 h-4" />
+                    {saveInfoMutation.isPending
+                      ? <Loader2 className="w-4 h-4 animate-spin" />
+                      : <Save className="w-4 h-4" />}
                     {saveInfoMutation.isPending
                       ? t('admin.common.saving', 'Saving…')
                       : t('admin.contact.saveInfo', 'Save Contact Info')}
@@ -221,28 +263,52 @@ export default function ContactSettings() {
             </CardHeader>
             <CardContent>
               {i18nLoading ? (
-                <p className="text-sm text-muted-foreground">{t('admin.common.loading', 'Loading…')}</p>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  {t('admin.common.loading', 'Loading…')}
+                </div>
               ) : (
                 <>
-                  {/* Language switcher */}
-                  <div className="flex gap-2 flex-wrap mb-6">
-                    {LANGUAGES.map(lang => (
-                      <button
-                        key={lang.code}
-                        onClick={() => setActiveLang(lang.code)}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
-                          activeLang === lang.code
-                            ? 'bg-primary text-primary-foreground border-primary'
-                            : 'bg-background border-border hover:bg-muted'
-                        }`}
+                  {/* Language switcher + auto-translate button */}
+                  <div className="flex items-center gap-3 flex-wrap mb-6">
+                    <div className="flex gap-2 flex-wrap">
+                      {LANGUAGES.map(lang => (
+                        <button
+                          key={lang.code}
+                          onClick={() => setActiveLang(lang.code)}
+                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
+                            activeLang === lang.code
+                              ? 'bg-primary text-primary-foreground border-primary'
+                              : 'bg-background border-border hover:bg-muted'
+                          }`}
+                        >
+                          <span>{lang.flag}</span>
+                          <span>{lang.label}</span>
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Auto-translate — only shown for non-English tabs */}
+                    {activeLang !== 'en' && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleAutoTranslate}
+                        disabled={translating}
+                        className="flex items-center gap-1.5 ml-auto"
+                        title={`Auto-translate English content to ${LANGUAGES.find(l => l.code === activeLang)?.label}`}
                       >
-                        <span>{lang.flag}</span>
-                        <span>{lang.label}</span>
-                      </button>
-                    ))}
+                        {translating
+                          ? <Loader2 className="w-4 h-4 animate-spin" />
+                          : <Wand2 className="w-4 h-4" />}
+                        {translating
+                          ? t('admin.contact.translating', 'Translating…')
+                          : t('admin.contact.autoTranslate', 'Auto Translate')}
+                      </Button>
+                    )}
                   </div>
 
-                  {/* Fields */}
+                  {/* Fields for the active language */}
                   <div
                     className="space-y-4"
                     dir={LANGUAGES.find(l => l.code === activeLang)?.dir ?? 'ltr'}
@@ -282,17 +348,22 @@ export default function ContactSettings() {
                     })}
                   </div>
 
-                  <div className="mt-6">
+                  <div className="mt-6 flex items-center gap-3">
                     <Button
                       onClick={() => saveLabelsMutation.mutate(labelForm)}
                       disabled={saveLabelsMutation.isPending}
                       className="flex items-center gap-2"
                     >
-                      <Save className="w-4 h-4" />
+                      {saveLabelsMutation.isPending
+                        ? <Loader2 className="w-4 h-4 animate-spin" />
+                        : <Save className="w-4 h-4" />}
                       {saveLabelsMutation.isPending
                         ? t('admin.common.saving', 'Saving…')
                         : t('admin.contact.saveLabels', 'Save All Translations')}
                     </Button>
+                    <p className="text-xs text-muted-foreground">
+                      {t('admin.contact.saveHint', 'Saves labels for all 4 languages at once.')}
+                    </p>
                   </div>
                 </>
               )}

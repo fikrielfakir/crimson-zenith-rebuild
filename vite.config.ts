@@ -583,6 +583,71 @@ export default defineConfig(({ mode }: { mode: string }) => ({
       },
     },
     {
+      // Handle i18n locale file read/write locally — intercepts BEFORE the proxy
+      // so these never reach the production Laravel server.
+      //   GET /api/admin/i18n/:section → read keys from all 4 locale JSON files
+      //   PUT /api/admin/i18n/:section → write keys into all 4 locale JSON files
+      name: "handle-i18n-locale",
+      configureServer(server) {
+        server.middlewares.use(async (req: any, res: any, next: any) => {
+          const url: string = req.url ?? "";
+          const match = url.match(/^\/api\/admin\/i18n\/([^?/]+)/);
+          if (!match) return next();
+
+          const section = match[1];
+          const LANGS = ["en", "fr", "ar", "es"];
+          const pathMod = await import("path");
+          const fs = await import("fs/promises");
+
+          // GET — return all locale data for the section
+          if (req.method === "GET") {
+            const result: Record<string, any> = {};
+            for (const lang of LANGS) {
+              const file = pathMod.resolve(__dirname, `src/i18n/locales/${lang}.json`);
+              try {
+                const raw = JSON.parse(await fs.readFile(file, "utf-8"));
+                result[lang] = raw[section] ?? {};
+              } catch { result[lang] = {}; }
+            }
+            res.statusCode = 200;
+            res.setHeader("Content-Type", "application/json");
+            res.end(JSON.stringify(result));
+            return;
+          }
+
+          // PUT — merge incoming keys into each locale file
+          if (req.method === "PUT") {
+            try {
+              const chunks: Buffer[] = [];
+              for await (const chunk of req) chunks.push(chunk);
+              const updates: Record<string, Record<string, string>> = JSON.parse(Buffer.concat(chunks).toString());
+              for (const lang of LANGS) {
+                if (!updates[lang]) continue;
+                const file = pathMod.resolve(__dirname, `src/i18n/locales/${lang}.json`);
+                try {
+                  const raw = JSON.parse(await fs.readFile(file, "utf-8"));
+                  raw[section] = { ...(raw[section] ?? {}), ...updates[lang] };
+                  await fs.writeFile(file, JSON.stringify(raw, null, 2) + "\n", "utf-8");
+                } catch (e) { console.error(`[i18n] Error updating ${lang}.json:`, e); }
+              }
+              res.statusCode = 200;
+              res.setHeader("Content-Type", "application/json");
+              res.end(JSON.stringify({ message: "Saved" }));
+              console.log(`[i18n] Updated section "${section}" for ${Object.keys(updates).join(", ")}`);
+            } catch (err) {
+              console.error("[i18n] Save error:", err);
+              res.statusCode = 500;
+              res.setHeader("Content-Type", "application/json");
+              res.end(JSON.stringify({ message: "Save failed" }));
+            }
+            return;
+          }
+
+          next();
+        });
+      },
+    },
+    {
       // Handle auto-translate only — all other translation read/write goes through
       // the proxy to Laravel API which stores them in MySQL.
       //   POST /api/admin/translations/auto-translate → MyMemory free translation API
