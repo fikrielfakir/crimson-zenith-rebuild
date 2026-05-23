@@ -103,9 +103,13 @@ VALUES ('default', 'Our Focus', 'Tourism, Culture, Entertainment', 1);`;
         body: JSON.stringify({ title: sectionTitle, subtitle: sectionSubtitle }),
         credentials: 'include',
       });
+      // 500 = DB table missing on production — show migration dialog, don't throw
+      if (res.status === 500 || res.status === 503) {
+        return { migrationNeeded: true };
+      }
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        throw new Error(body?.message || 'Failed to save section settings');
+        throw new Error(body?.message || `HTTP ${res.status}: Failed to save section settings`);
       }
       return res.json();
     },
