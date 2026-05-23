@@ -59,8 +59,8 @@ export default defineConfig(({ mode }: { mode: string }) => ({
     host: "0.0.0.0",
     port: 5000,
     allowedHosts: true as const,
-    hmr: process.env.REPL_SLUG
-      ? { clientPort: 443, protocol: "wss" }
+    hmr: (process.env.REPL_SLUG || process.env.REPL_ID)
+      ? { clientPort: 443, protocol: "wss", host: process.env.REPLIT_DEV_DOMAIN }
       : true,
     proxy: {
       "/api/admin":       localProxyOptions,

@@ -98,9 +98,14 @@ const OurPartners = () => {
   if (!settings.is_active) return null;
   if (partners.length === 0) return null;
 
-  const loopedPartners = partners.length < 6
-    ? [...partners, ...partners, ...partners]
-    : partners;
+  // Need enough items to fill the carousel without obvious duplicates.
+  // Only loop if there are at least 2 unique partners; otherwise show as-is.
+  let loopedPartners = partners;
+  if (partners.length >= 2 && partners.length < 6) {
+    loopedPartners = [...partners, ...partners, ...partners];
+  } else if (partners.length === 1) {
+    loopedPartners = partners; // single partner — show once, no duplication
+  }
 
   return (
     <section
