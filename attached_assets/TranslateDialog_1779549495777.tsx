@@ -155,6 +155,9 @@ export function TranslateDialog({ entityType, entityId, entityLabel, fields, sou
     }
     try {
       await Promise.all(tasks.map((t) => saveMutation.mutateAsync(t)));
+      // Invalidate all translation query key patterns used across the app:
+      // 1. useCmsTranslations: ['cms-translations', entityType, lang]
+      // 2. useEntityTranslations / useTranslatedList: ['/api/translations', entityType, ...]
       queryClient.invalidateQueries({ queryKey: ['cms-translations', entityType] });
       queryClient.invalidateQueries({ queryKey: ['/api/translations', entityType] });
       queryClient.invalidateQueries({ queryKey: ['/api/translations/batch', entityType] });
