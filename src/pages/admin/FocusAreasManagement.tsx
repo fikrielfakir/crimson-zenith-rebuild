@@ -10,7 +10,7 @@ import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Pencil, Trash2, Image as ImageIcon, Target, Users, Lightbulb, Heart, Globe, Save, AlignLeft } from 'lucide-react';
+import { Plus, Pencil, Trash2, Image as ImageIcon, Target, Users, Lightbulb, Heart, Globe, Save, AlignLeft, AlertTriangle, Copy, CheckCheck } from 'lucide-react';
 import { TranslateDialog } from '@/components/admin/TranslateDialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
@@ -52,6 +52,8 @@ export default function FocusAreasManagement() {
 
   const [sectionTitle, setSectionTitle] = useState('');
   const [sectionSubtitle, setSectionSubtitle] = useState('');
+  const [showMigrationAlert, setShowMigrationAlert] = useState(false);
+  const [sqlCopied, setSqlCopied] = useState(false);
 
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -78,6 +80,21 @@ export default function FocusAreasManagement() {
     },
   } as any);
 
+  const MIGRATION_SQL = `ALTER TABLE \`focus_items\`
+  ADD COLUMN IF NOT EXISTS \`image_url\` VARCHAR(1000) NULL AFTER \`media_id\`;
+
+CREATE TABLE IF NOT EXISTS \`focus_section_settings\` (
+  \`id\` VARCHAR(50) NOT NULL,
+  \`title\` VARCHAR(255) NOT NULL DEFAULT 'Our Focus',
+  \`subtitle\` VARCHAR(500) DEFAULT NULL,
+  \`is_active\` TINYINT(1) NOT NULL DEFAULT 1,
+  \`updated_by\` VARCHAR(100) DEFAULT NULL,
+  PRIMARY KEY (\`id\`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+INSERT IGNORE INTO \`focus_section_settings\` (\`id\`, \`title\`, \`subtitle\`, \`is_active\`)
+VALUES ('default', 'Our Focus', 'Tourism, Culture, Entertainment', 1);`;
+
   const saveSectionMutation = useMutation({
     mutationFn: async () => {
       const res = await apiFetch('/api/admin/cms/focus-section', {
@@ -86,16 +103,23 @@ export default function FocusAreasManagement() {
         body: JSON.stringify({ title: sectionTitle, subtitle: sectionSubtitle }),
         credentials: 'include',
       });
-      if (!res.ok) throw new Error('Failed to save section settings');
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body?.message || 'Failed to save section settings');
+      }
       return res.json();
     },
-    onSuccess: () => {
+    onSuccess: (data: any) => {
+      if (data?.migrationNeeded) {
+        setShowMigrationAlert(true);
+        return;
+      }
       queryClient.invalidateQueries({ queryKey: ['focusSection'] });
       queryClient.invalidateQueries({ queryKey: ['cms', 'focus-section'] });
-      toast({ title: 'Section settings saved' });
+      toast({ title: 'Section settings saved successfully' });
     },
     onError: (error: Error) => {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      toast({ title: 'Save failed', description: error.message, variant: 'destructive' });
     },
   });
 
@@ -513,6 +537,46 @@ export default function FocusAreasManagement() {
           </DialogContent>
         </Dialog>
       )}
+
+      {/* Migration Required Dialog */}
+      <Dialog open={showMigrationAlert} onOpenChange={setShowMigrationAlert}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-amber-600">
+              <AlertTriangle className="h-5 w-5" />
+              Database Migration Required
+            </DialogTitle>
+            <DialogDescription>
+              The section settings table doesn't exist yet on your production database.
+              Run the following SQL in your Hostinger MySQL panel, then try saving again.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="relative mt-2">
+            <pre className="bg-muted rounded-md p-4 text-xs overflow-x-auto whitespace-pre-wrap font-mono leading-relaxed">
+              {MIGRATION_SQL}
+            </pre>
+            <Button
+              size="sm"
+              variant="secondary"
+              className="absolute top-2 right-2"
+              onClick={() => {
+                navigator.clipboard.writeText(MIGRATION_SQL);
+                setSqlCopied(true);
+                setTimeout(() => setSqlCopied(false), 2000);
+              }}
+            >
+              {sqlCopied ? <CheckCheck className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />}
+              <span className="ml-1">{sqlCopied ? 'Copied!' : 'Copy'}</span>
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground mt-2">
+            After running the SQL, click Save again — the settings will persist permanently.
+          </p>
+          <div className="flex justify-end mt-2">
+            <Button onClick={() => setShowMigrationAlert(false)}>Got it</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

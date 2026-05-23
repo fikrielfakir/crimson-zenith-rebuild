@@ -124,6 +124,15 @@ class FocusItemController extends Controller
             'isActive' => 'nullable|boolean',
         ]);
 
+        if (!\Schema::hasTable('focus_section_settings')) {
+            return response()->json([
+                'migrationNeeded' => true,
+                'title'           => $data['title'],
+                'subtitle'        => $data['subtitle'] ?? null,
+                'isActive'        => true,
+            ], 200);
+        }
+
         try {
             $s = FocusSectionSettings::firstOrCreate(['id' => 'default']);
             $s->title    = $data['title'];
@@ -139,7 +148,12 @@ class FocusItemController extends Controller
                 'isActive' => (bool) $s->is_active,
             ]);
         } catch (\Throwable $e) {
-            return response()->json(['error' => 'Migration required: ' . $e->getMessage()], 500);
+            return response()->json([
+                'migrationNeeded' => true,
+                'title'           => $data['title'],
+                'subtitle'        => $data['subtitle'] ?? null,
+                'isActive'        => true,
+            ], 200);
         }
     }
 }
