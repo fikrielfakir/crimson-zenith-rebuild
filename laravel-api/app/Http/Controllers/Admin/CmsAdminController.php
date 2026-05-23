@@ -123,9 +123,15 @@ class CmsAdminController extends Controller
             'contentGap'         => 'content_gap',
         ];
 
+        $nullableTextFields = ['message', 'quote', 'title', 'president_name', 'president_role'];
+
         $data = [];
         foreach ($request->except(['id']) as $key => $value) {
             $dbKey = $map[$key] ?? $key;
+            // Prevent empty strings from being coerced to null on NOT NULL text columns
+            if (in_array($dbKey, $nullableTextFields) && is_null($value)) {
+                $value = '';
+            }
             $data[$dbKey] = $value;
         }
         $data['updated_by'] = $request->user()?->id;
