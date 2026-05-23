@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
@@ -184,6 +185,9 @@ export function TranslateDialog({ entityType, entityId, entityLabel, fields, sou
               <Languages className="h-5 w-5 text-primary" />
               Translate: {entityLabel}
             </DialogTitle>
+            <DialogDescription>
+              Add or edit translations for Arabic, French, and Spanish.
+            </DialogDescription>
           </DialogHeader>
 
           {sourceValues && (

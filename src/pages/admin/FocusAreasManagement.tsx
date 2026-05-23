@@ -1,5 +1,5 @@
 import { apiFetch } from '@/lib/apiFetch';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -74,11 +74,14 @@ export default function FocusAreasManagement() {
       if (!res.ok) throw new Error('Failed to fetch section settings');
       return res.json();
     },
-    onSuccess: (d) => {
-      setSectionTitle(d.title ?? '');
-      setSectionSubtitle(d.subtitle ?? '');
-    },
-  } as any);
+  });
+
+  useEffect(() => {
+    if (sectionData) {
+      setSectionTitle((sectionData as any).title ?? '');
+      setSectionSubtitle((sectionData as any).subtitle ?? '');
+    }
+  }, [sectionData]);
 
   const MIGRATION_SQL = `ALTER TABLE \`focus_items\`
   ADD COLUMN IF NOT EXISTS \`image_url\` VARCHAR(1000) NULL AFTER \`media_id\`;
