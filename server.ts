@@ -532,6 +532,43 @@ async function seedDatabase() {
       console.log('✅ Database seeded with footer settings!');
     }
 
+    // Seed president message settings
+    const presidentMsg = await storage.getPresidentMessageSettings();
+    if (!presidentMsg) {
+      console.log('📝 Adding president message seed data...');
+      await storage.updatePresidentMessageSettings({
+        isActive: true,
+        title: 'A word from the president',
+        presidentName: 'Dr. Aderahim Azrkan',
+        presidentRole: 'President, The Journey Association',
+        message: `Dear Friends and Fellow Travelers,\n\nIt is with great pleasure and pride that I welcome you to The Journey Association. Our mission is to create sustainable pathways for tourism, culture, and community development across Morocco. We believe that tourism is not just about visiting beautiful places—it's about creating meaningful connections, preserving our heritage, and empowering local communities.\n\nTogether with our partners, clubs, and dedicated members, we are building bridges between cultures, protecting our natural and cultural treasures, and ensuring that the benefits of tourism reach every corner of our beloved Morocco. Your participation and support make all the difference in achieving our vision of a sustainable and prosperous future.`,
+        quote: 'Together, we create lasting impact.',
+        backgroundColor: '#112250',
+        backgroundGradient: 'linear-gradient(180deg, #112250 0%, #1a3366 100%)',
+        titleFontFamily: 'Poppins',
+        titleFontSize: '48px',
+        titleColor: '#ffffff',
+        titleAlignment: 'left',
+        nameFontFamily: 'Poppins',
+        nameFontSize: '28px',
+        nameColor: '#ffffff',
+        roleFontFamily: 'Poppins',
+        roleFontSize: '18px',
+        roleColor: '#D8C18D',
+        messageFontFamily: 'Poppins',
+        messageFontSize: '16px',
+        messageColor: '#ffffff',
+        quoteFontSize: '18px',
+        quoteColor: '#D8C18D',
+        imagePosition: 'left',
+        imageAlignment: 'center',
+        imageWidth: '42%',
+        sectionPadding: '80px 0',
+        contentGap: '48px',
+      });
+      console.log('✅ Database seeded with president message settings!');
+    }
+
     // Seed SEO settings
     const seoSettings = await storage.getSeoSettings();
     if (!seoSettings) {
@@ -3444,7 +3481,7 @@ app.put('/api/admin/cms/about', isAdmin, async (req, res) => {
 app.get('/api/cms/president-message', async (req, res) => {
   try {
     const settings = await storage.getPresidentMessageSettings();
-    res.json(settings);
+    res.json(settings ?? null);
   } catch (error) {
     console.error('❌ Error fetching president message settings:', error);
     res.status(500).json({ error: 'Failed to fetch president message settings' });
@@ -3455,7 +3492,7 @@ app.get('/api/cms/president-message', async (req, res) => {
 app.get('/api/admin/cms/president-message', isAdmin, async (req, res) => {
   try {
     const settings = await storage.getPresidentMessageSettings();
-    res.json(settings);
+    res.json(settings ?? null);
   } catch (error) {
     console.error('❌ Error fetching president message settings:', error);
     res.status(500).json({ error: 'Failed to fetch president message settings' });

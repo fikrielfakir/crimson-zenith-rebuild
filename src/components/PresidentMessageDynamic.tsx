@@ -87,10 +87,9 @@ const PresidentMessageDynamic = () => {
         const response = await fetch('/api/cms/president-message');
         if (response.ok) {
           const data = await response.json();
-          if (data) {
-            setSettings({ ...getDefaultSettings(), ...data });
-            return;
-          }
+          setSettings({ ...getDefaultSettings(), ...(data ?? {}) });
+        } else {
+          setSettings(getDefaultSettings());
         }
       } catch (error) {
         console.error('Error loading president message settings:', error);
