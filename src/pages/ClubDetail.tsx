@@ -228,7 +228,7 @@ const ClubDetail = () => {
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
-            backgroundImage: `url('${club.image || '/api/placeholder/1920/1080'}')`,
+            backgroundImage: `url('${club.image || '/api/placeholder/1920/1080?type=club'}')`,
             transform: `translateY(${scrollY * 0.3}px)`,
             filter: 'brightness(0.6) contrast(1.1) saturate(1.2)',
           }}

@@ -36,10 +36,10 @@ const ActivityDetail = () => {
       description: "Experience breathtaking views and traditional Berber culture in Morocco's highest peaks",
       longDescription: "Embark on an unforgettable journey through the High Atlas Mountains, where snow-capped peaks meet traditional Berber villages. This multi-day trek offers spectacular panoramic views, encounters with local communities, and a chance to witness Morocco's stunning natural beauty from its highest vantage points.",
       images: [
-        "/api/placeholder/800/400",
-        "/api/placeholder/800/400", 
-        "/api/placeholder/800/400",
-        "/api/placeholder/800/400"
+        "/api/placeholder/800/400?type=event",
+        "/api/placeholder/800/400?type=event",
+        "/api/placeholder/800/400?type=event",
+        "/api/placeholder/800/400?type=event"
       ],
       duration: "3 days",
       difficulty: "Moderate",
@@ -71,10 +71,10 @@ const ActivityDetail = () => {
       description: "Camel trekking and camping under the stars in the world's largest hot desert",
       longDescription: "Discover the magic of the Sahara Desert on this incredible adventure. Travel by camel across golden dunes, experience traditional nomadic culture, and spend nights under some of the clearest starry skies on Earth. This experience offers a perfect blend of adventure and tranquility.",
       images: [
-        "/api/placeholder/800/400",
-        "/api/placeholder/800/400",
-        "/api/placeholder/800/400", 
-        "/api/placeholder/800/400"
+        "/api/placeholder/800/400?type=event",
+        "/api/placeholder/800/400?type=event",
+        "/api/placeholder/800/400?type=event",
+        "/api/placeholder/800/400?type=event"
       ],
       duration: "2 days",
       difficulty: "Easy",
@@ -105,10 +105,10 @@ const ActivityDetail = () => {
       description: "Learn to surf on Morocco's pristine Atlantic coastline with expert instructors",
       longDescription: "Experience the thrill of surfing on Morocco's stunning Atlantic coast. Our expert instructors will guide you through the basics or help improve your technique on some of the world's most consistent waves. The coastal town of Taghazout offers perfect learning conditions with warm water and gentle breaks.",
       images: [
-        "/api/placeholder/800/400",
-        "/api/placeholder/800/400",
-        "/api/placeholder/800/400",
-        "/api/placeholder/800/400"
+        "/api/placeholder/800/400?type=event",
+        "/api/placeholder/800/400?type=event",
+        "/api/placeholder/800/400?type=event",
+        "/api/placeholder/800/400?type=event"
       ],
       duration: "1 day",
       difficulty: "Beginner",

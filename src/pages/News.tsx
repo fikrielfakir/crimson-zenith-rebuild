@@ -88,11 +88,11 @@ const News = () => {
 
   const getAuthorImage = (a: Article): string => {
     if (typeof a.author === 'object' && a.author?.avatar) return a.author.avatar;
-    return '/api/placeholder/50/50';
+    return '/api/placeholder/50/50?type=profile';
   };
 
   const getImage = (a: Article): string =>
-    a.image_url ?? a.cover_image ?? a.image ?? '/api/placeholder/600/300';
+    a.image_url ?? a.cover_image ?? a.image ?? '/api/placeholder/600/300?type=news';
 
   const getDate = (a: Article): string => a.published_at ?? a.created_at ?? '';
 

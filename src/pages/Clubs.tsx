@@ -22,7 +22,7 @@ const Clubs = () => {
   const clubs = (Array.isArray(clubsResponse) ? clubsResponse : clubsResponse?.clubs || clubsResponse?.data || []).map((club: any) => ({
     id: club.id,
     name: club.name,
-    image: club.image || "/api/placeholder/300/200",
+    image: club.image || "/api/placeholder/300/200?type=club",
     memberCount: club.member_count,
     activities: club.features || [],
     nextMeetup: {

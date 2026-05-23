@@ -58,28 +58,28 @@ const LearnMore = () => {
     {
       name: "Rachid Benali",
       role: "Founder & Lead Guide",
-      image: "/api/placeholder/150/150",
+      image: "/api/placeholder/150/150?type=profile",
       experience: "15+ years",
       specialization: "Atlas Mountains"
     },
     {
       name: "Aicha Mansouri", 
       role: "Safety Director",
-      image: "/api/placeholder/150/150",
+      image: "/api/placeholder/150/150?type=profile",
       experience: "12+ years",
       specialization: "Risk Management"
     },
     {
       name: "Omar El-Fassi",
       role: "Operations Manager",
-      image: "/api/placeholder/150/150", 
+      image: "/api/placeholder/150/150?type=profile", 
       experience: "10+ years",
       specialization: "Logistics"
     },
     {
       name: "Fatima Zerouali",
       role: "Community Relations",
-      image: "/api/placeholder/150/150",
+      image: "/api/placeholder/150/150?type=profile",
       experience: "8+ years", 
       specialization: "Cultural Programs"
     }

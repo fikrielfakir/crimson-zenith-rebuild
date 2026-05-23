@@ -608,41 +608,109 @@ if (process.env.NODE_ENV === 'production') {
   app.use(express.static(join(__dirname, 'dist')));
 }
 
-// Create a simple placeholder image API that returns demo images
+function buildPlaceholderSVG(w: number, h: number, type: string): string {
+  const NAVY  = '#0d1b42';
+  const NAVY2 = '#152d6e';
+  const GOLD  = '#D8C18D';
+  const GOLDF = '#D8C18D99';
+  const cx = w / 2;
+  const cy = h * 0.44;
+  const r  = Math.min(w, h) * 0.18;
+  const fs = Math.max(10, Math.min(14, h * 0.055));
+  const gradId = `pg_${type}`;
+
+  const labels: Record<string,string> = {
+    club: 'Club', event: 'Event', news: 'Article',
+    gallery: 'Gallery', partner: 'Partner', profile: 'Profile',
+  };
+  const label = labels[type] ?? 'The Journey';
+
+  const icons: Record<string,string> = {
+    profile: `
+      <circle cx="${cx}" cy="${cy - r * 0.25}" r="${r * 0.45}" fill="${GOLD}"/>
+      <path d="M ${cx - r * 0.9} ${cy + r * 1.15} Q ${cx - r * 0.9} ${cy + r * 0.35} ${cx} ${cy + r * 0.35} Q ${cx + r * 0.9} ${cy + r * 0.35} ${cx + r * 0.9} ${cy + r * 1.15} Z" fill="${GOLD}"/>`,
+
+    club: `
+      <circle cx="${cx}" cy="${cy - r * 0.5}" r="${r * 0.38}" fill="${GOLD}"/>
+      <circle cx="${cx - r * 0.8}" cy="${cy - r * 0.2}" r="${r * 0.3}" fill="${GOLD}" opacity="0.7"/>
+      <circle cx="${cx + r * 0.8}" cy="${cy - r * 0.2}" r="${r * 0.3}" fill="${GOLD}" opacity="0.7"/>
+      <ellipse cx="${cx}" cy="${cy + r * 0.6}" rx="${r * 0.65}" ry="${r * 0.45}" fill="${GOLD}"/>
+      <ellipse cx="${cx - r * 0.82}" cy="${cy + r * 0.85}" rx="${r * 0.5}" ry="${r * 0.35}" fill="${GOLD}" opacity="0.6"/>
+      <ellipse cx="${cx + r * 0.82}" cy="${cy + r * 0.85}" rx="${r * 0.5}" ry="${r * 0.35}" fill="${GOLD}" opacity="0.6"/>`,
+
+    event: `
+      <rect x="${cx - r * 1.1}" y="${cy - r * 0.9}" width="${r * 2.2}" height="${r * 1.9}" rx="${r * 0.12}" fill="none" stroke="${GOLD}" stroke-width="${r * 0.1}"/>
+      <rect x="${cx - r * 1.1}" y="${cy - r * 0.9}" width="${r * 2.2}" height="${r * 0.52}" rx="${r * 0.1}" fill="${GOLD}" opacity="0.35"/>
+      <line x1="${cx - r * 0.55}" y1="${cy - r * 1.1}" x2="${cx - r * 0.55}" y2="${cy - r * 0.72}" stroke="${GOLD}" stroke-width="${r * 0.13}" stroke-linecap="round"/>
+      <line x1="${cx + r * 0.55}" y1="${cy - r * 1.1}" x2="${cx + r * 0.55}" y2="${cy - r * 0.72}" stroke="${GOLD}" stroke-width="${r * 0.13}" stroke-linecap="round"/>
+      <circle cx="${cx - r * 0.65}" cy="${cy + r * 0.18}" r="${r * 0.1}" fill="${GOLD}"/>
+      <circle cx="${cx}"            cy="${cy + r * 0.18}" r="${r * 0.1}" fill="${GOLD}"/>
+      <circle cx="${cx + r * 0.65}" cy="${cy + r * 0.18}" r="${r * 0.1}" fill="${GOLD}"/>
+      <circle cx="${cx - r * 0.65}" cy="${cy + r * 0.6}" r="${r * 0.1}" fill="${GOLD}"/>
+      <circle cx="${cx}"            cy="${cy + r * 0.6}" r="${r * 0.1}" fill="${GOLD}"/>
+      <circle cx="${cx + r * 0.65}" cy="${cy + r * 0.6}" r="${r * 0.1}" fill="${GOLD}"/>`,
+
+    news: `
+      <rect x="${cx - r * 0.9}" y="${cy - r * 1.1}" width="${r * 1.8}" height="${r * 2.15}" rx="${r * 0.1}" fill="none" stroke="${GOLD}" stroke-width="${r * 0.09}"/>
+      <polygon points="${cx + r * 0.3},${cy - r * 1.1} ${cx + r * 0.9},${cy - r * 0.5} ${cx + r * 0.3},${cy - r * 0.5}" fill="${GOLD}" opacity="0.4"/>
+      <line x1="${cx - r * 0.65}" y1="${cy - r * 0.35}" x2="${cx + r * 0.45}" y2="${cy - r * 0.35}" stroke="${GOLD}" stroke-width="${r * 0.09}" stroke-linecap="round"/>
+      <line x1="${cx - r * 0.65}" y1="${cy - r * 0.02}" x2="${cx + r * 0.65}" y2="${cy - r * 0.02}" stroke="${GOLD}" stroke-width="${r * 0.09}" stroke-linecap="round"/>
+      <line x1="${cx - r * 0.65}" y1="${cy + r * 0.31}" x2="${cx + r * 0.65}" y2="${cy + r * 0.31}" stroke="${GOLD}" stroke-width="${r * 0.09}" stroke-linecap="round"/>
+      <line x1="${cx - r * 0.65}" y1="${cy + r * 0.64}" x2="${cx + r * 0.3}"  y2="${cy + r * 0.64}" stroke="${GOLD}" stroke-width="${r * 0.09}" stroke-linecap="round"/>`,
+
+    gallery: `
+      <rect x="${cx - r * 1.2}" y="${cy - r * 0.9}" width="${r * 2.4}" height="${r * 1.75}" rx="${r * 0.12}" fill="none" stroke="${GOLD}" stroke-width="${r * 0.09}"/>
+      <polygon points="${cx - r * 1},${cy + r * 0.7} ${cx - r * 0.35},${cy - r * 0.1} ${cx + r * 0.15},${cy + r * 0.35} ${cx + r * 0.6},${cy - r * 0.4} ${cx + r * 1.05},${cy + r * 0.7}"
+        fill="${GOLD}" opacity="0.3" stroke="${GOLD}" stroke-width="${r * 0.07}" stroke-linejoin="round"/>
+      <circle cx="${cx - r * 0.65}" cy="${cy - r * 0.52}" r="${r * 0.22}" fill="${GOLD}" opacity="0.7"/>`,
+
+    partner: `
+      <polygon points="${cx - r * 1.1},${cy - r * 0.3} ${cx},${cy - r * 1.1} ${cx + r * 1.1},${cy - r * 0.3}" fill="${GOLD}" opacity="0.4" stroke="${GOLD}" stroke-width="${r * 0.08}" stroke-linejoin="round"/>
+      <rect x="${cx - r * 0.95}" y="${cy - r * 0.32}" width="${r * 1.9}" height="${r * 1.25}" fill="none" stroke="${GOLD}" stroke-width="${r * 0.08}"/>
+      <rect x="${cx - r * 0.55}" y="${cy + r * 0.1}" width="${r * 0.42}" height="${r * 0.42}" fill="${GOLD}" opacity="0.5"/>
+      <rect x="${cx + r * 0.13}" y="${cy + r * 0.1}" width="${r * 0.42}" height="${r * 0.42}" fill="${GOLD}" opacity="0.5"/>
+      <rect x="${cx - r * 0.22}" y="${cy + r * 0.55}" width="${r * 0.44}" height="${r * 0.38}" fill="${GOLD}" opacity="0.5"/>`,
+
+    default: `
+      <rect x="${cx - r * 0.1}" y="${cy + r * 0.3}" width="${r * 0.2}" height="${r * 0.65}" fill="${GOLD}"/>
+      <circle cx="${cx}"           cy="${cy - r * 0.2}" r="${r * 0.55}" fill="${GOLD}" opacity="0.85"/>
+      <circle cx="${cx - r * 0.42}" cy="${cy + r * 0.2}" r="${r * 0.38}" fill="${GOLD}" opacity="0.75"/>
+      <circle cx="${cx + r * 0.42}" cy="${cy + r * 0.2}" r="${r * 0.38}" fill="${GOLD}" opacity="0.75"/>`,
+  };
+
+  const icon = icons[type] ?? icons['default'];
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
+  <defs>
+    <linearGradient id="${gradId}" x1="0" y1="0" x2="0.3" y2="1">
+      <stop offset="0%"   stop-color="${NAVY}"/>
+      <stop offset="100%" stop-color="${NAVY2}"/>
+    </linearGradient>
+  </defs>
+  <rect width="${w}" height="${h}" fill="url(#${gradId})"/>
+  <rect width="${w}" height="${h}" fill="${GOLD}" opacity="0.03"/>
+  ${icon}
+  <text x="${cx}" y="${h * 0.91}" text-anchor="middle" fill="${GOLDF}"
+    font-family="'Segoe UI',Arial,sans-serif" font-size="${fs}" letter-spacing="1.5">
+    ${label.toUpperCase()}
+  </text>
+</svg>`;
+}
+
 app.get('/api/placeholder/:width/:height', (req, res) => {
-  const { width, height } = req.params;
-  
-  // For demo purposes, serve one of our hero images based on dimensions
-  const demoImages = [
-    'discover-hero.jpg',
-    'book-hero.jpg', 
-    'gallery-hero.jpg',
-    'news-hero.jpg',
-    'events-hero.jpg',
-    'clubs-hero.jpg'
-  ];
-  
-  // Simple hash based on dimensions to consistently return same image for same size
-  const imageIndex = (parseInt(width) + parseInt(height)) % demoImages.length;
-  const selectedImage = demoImages[imageIndex];
-  const imagePath = join(__dirname, 'public', selectedImage);
-  
-  // Check if image exists, otherwise return a default
-  if (fs.existsSync(imagePath)) {
-    res.sendFile(imagePath);
-  } else {
-    // Return a simple SVG placeholder
-    const svg = `
-      <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-        <rect width="100%" height="100%" fill="#e2e8f0"/>
-        <text x="50%" y="50%" text-anchor="middle" dy=".3em" fill="#64748b" font-family="Arial, sans-serif" font-size="16">
-          ${width} × ${height}
-        </text>
-      </svg>
-    `;
-    res.setHeader('Content-Type', 'image/svg+xml');
-    res.send(svg);
-  }
+  const w = Math.min(Math.max(parseInt(req.params.width)  || 400, 10), 3000);
+  const h = Math.min(Math.max(parseInt(req.params.height) || 300, 10), 3000);
+  const rawType = (typeof req.query.type === 'string' ? req.query.type : '').toLowerCase();
+  const validTypes = new Set(['club','event','news','gallery','partner','profile','default']);
+  const type = validTypes.has(rawType) ? rawType
+    : (w === h ? 'profile'
+      : w / h > 2 ? 'event'
+      : w / h > 1.4 ? (h > 500 ? 'gallery' : 'news')
+      : 'default');
+  const svg = buildPlaceholderSVG(w, h, type);
+  res.setHeader('Content-Type', 'image/svg+xml');
+  res.setHeader('Cache-Control', 'public, max-age=86400, immutable');
+  res.send(svg);
 });
 
 // Health check endpoint

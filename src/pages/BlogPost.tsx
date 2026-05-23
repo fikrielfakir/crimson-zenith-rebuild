@@ -92,10 +92,10 @@ const BlogPost = () => {
   };
 
   const getAuthorImage = (): string => {
-    if (!article) return '/api/placeholder/100/100';
+    if (!article) return '/api/placeholder/100/100?type=profile';
     if (typeof article.author === 'object' && (article.author?.avatar || article.author?.image))
-      return article.author.avatar ?? article.author.image ?? '/api/placeholder/100/100';
-    return '/api/placeholder/100/100';
+      return article.author.avatar ?? article.author.image ?? '/api/placeholder/100/100?type=profile';
+    return '/api/placeholder/100/100?type=profile';
   };
 
   const getAuthorBio = (): string => {
@@ -105,8 +105,8 @@ const BlogPost = () => {
   };
 
   const getImage = (): string => {
-    if (!article) return '/api/placeholder/1200/600';
-    return article.image_url ?? article.cover_image ?? article.image ?? '/api/placeholder/1200/600';
+    if (!article) return '/api/placeholder/1200/600?type=news';
+    return article.image_url ?? article.cover_image ?? article.image ?? '/api/placeholder/1200/600?type=news';
   };
 
   const getDate = (): string => article?.published_at ?? article?.created_at ?? '';
