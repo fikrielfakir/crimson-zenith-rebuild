@@ -1,5 +1,6 @@
 import { apiFetch } from '@/lib/apiFetch';
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link, useSearchParams } from 'react-router-dom';
 import {
@@ -91,6 +92,7 @@ async function fetchUsers(params: {
 
 // ── Component ──────────────────────────────────────────────────────────────────
 export default function UserManagement() {
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const [search, setSearch]             = useState(searchParams.get('search') ?? '');
   const [roleFilter, setRoleFilter]     = useState('all');
@@ -251,27 +253,27 @@ export default function UserManagement() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <h1 className="text-3xl font-bold">User Management</h1>
+        <h1 className="text-3xl font-bold">{t('admin.users.title')}</h1>
         <div className="flex items-center gap-2 flex-wrap">
           <Button variant="outline" size="sm" asChild>
             <Link to="/admin/applications">
               <FileText className="mr-2 h-4 w-4" />
-              Applications
+              {t('admin.users.applications')}
             </Link>
           </Button>
           <Button variant="outline" size="sm" asChild>
             <Link to="/admin/users/roles">
               <Shield className="mr-2 h-4 w-4" />
-              Roles & Permissions
+              {t('admin.users.rolesPermissions')}
             </Link>
           </Button>
-          <Button variant="outline" onClick={() => toast({ title: 'Exporting users...' })}>
+          <Button variant="outline" onClick={() => toast({ title: t('admin.users.export') })}>
             <Download className="mr-2 h-4 w-4" />
-            Export
+            {t('admin.users.export')}
           </Button>
           <Button onClick={() => setEditingUser({})}>
             <Plus className="mr-2 h-4 w-4" />
-            Add User
+            {t('admin.users.addUser')}
           </Button>
         </div>
       </div>
@@ -281,7 +283,7 @@ export default function UserManagement() {
         <div className="relative flex-1">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search users..."
+            placeholder={t('admin.users.searchPlaceholder')}
             className="pl-8"
             value={search}
             onChange={e => setSearch(e.target.value)}
@@ -292,12 +294,12 @@ export default function UserManagement() {
             <SelectValue placeholder="Role" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Roles</SelectItem>
-            <SelectItem value="admin">Admin</SelectItem>
-            <SelectItem value="moderator">Moderator</SelectItem>
-            <SelectItem value="club_manager">Club Manager</SelectItem>
-            <SelectItem value="event_organizer">Event Organizer</SelectItem>
-            <SelectItem value="user">Member</SelectItem>
+            <SelectItem value="all">{t('admin.users.allRoles')}</SelectItem>
+            <SelectItem value="admin">{t('admin.users.roles.admin')}</SelectItem>
+            <SelectItem value="moderator">{t('admin.users.roles.moderator')}</SelectItem>
+            <SelectItem value="club_manager">{t('admin.users.roles.clubManager')}</SelectItem>
+            <SelectItem value="event_organizer">{t('admin.users.roles.eventOrganizer')}</SelectItem>
+            <SelectItem value="user">{t('admin.users.roles.member')}</SelectItem>
           </SelectContent>
         </Select>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -305,9 +307,9 @@ export default function UserManagement() {
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="inactive">Inactive</SelectItem>
+            <SelectItem value="all">{t('admin.users.allStatus')}</SelectItem>
+            <SelectItem value="active">{t('admin.common.active')}</SelectItem>
+            <SelectItem value="inactive">{t('admin.common.inactive')}</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -315,15 +317,15 @@ export default function UserManagement() {
       {/* Bulk Actions */}
       {selectedUsers.length > 0 && (
         <div className="flex items-center justify-between bg-muted p-4 rounded-lg">
-          <span className="text-sm">{selectedUsers.length} users selected</span>
+          <span className="text-sm">{t('admin.users.usersSelected', { count: selectedUsers.length })}</span>
           <div className="space-x-2">
             <Button variant="outline" size="sm">
               <Trash2 className="mr-2 h-4 w-4" />
-              Delete Selected
+              {t('admin.common.deleteSelected')}
             </Button>
             <Button variant="outline" size="sm">
               <Download className="mr-2 h-4 w-4" />
-              Export Selected
+              {t('admin.common.exportSelected')}
             </Button>
           </div>
         </div>
@@ -340,12 +342,12 @@ export default function UserManagement() {
                   onCheckedChange={handleSelectAll}
                 />
               </TableHead>
-              <TableHead>User</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Role</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Clubs</TableHead>
-              <TableHead>Joined</TableHead>
+              <TableHead>{t('admin.users.colUser')}</TableHead>
+              <TableHead>{t('admin.users.colEmail')}</TableHead>
+              <TableHead>{t('admin.users.colRole')}</TableHead>
+              <TableHead>{t('admin.users.colStatus')}</TableHead>
+              <TableHead>{t('admin.users.colClubs')}</TableHead>
+              <TableHead>{t('admin.users.colJoined')}</TableHead>
               <TableHead className="w-12"></TableHead>
             </TableRow>
           </TableHeader>
@@ -359,7 +361,7 @@ export default function UserManagement() {
             ) : data?.users?.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
-                  No users found
+                  {t('admin.users.noUsers')}
                 </TableCell>
               </TableRow>
             ) : (
@@ -391,7 +393,7 @@ export default function UserManagement() {
                   </TableCell>
                   <TableCell>
                     <Badge variant={user.isActive ? 'default' : 'outline'}>
-                      {user.isActive ? 'Active' : 'Inactive'}
+                      {user.isActive ? t('admin.common.active') : t('admin.common.inactive')}
                     </Badge>
                   </TableCell>
                   <TableCell>
@@ -413,29 +415,29 @@ export default function UserManagement() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuLabel>{t('admin.common.actions')}</DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem asChild>
                           <Link to={`/admin/applications?search=${encodeURIComponent(user.email)}`}>
                             <FileText className="mr-2 h-4 w-4" />
-                            View Application
+                            {t('admin.users.viewApplication')}
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => setEditingUser(user)}>
                           <Edit className="mr-2 h-4 w-4" />
-                          Edit User
+                          {t('admin.users.editUser')}
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => toggleAdminMutation.mutate({ userId: user.id, isAdmin: user.isAdmin })}>
                           <Shield className="mr-2 h-4 w-4" />
-                          {user.isAdmin ? 'Remove Admin' : 'Make Admin'}
+                          {user.isAdmin ? t('admin.users.removeAdmin') : t('admin.users.makeAdmin')}
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => setResettingPasswordUser(user)}>
                           <Key className="mr-2 h-4 w-4" />
-                          Reset Password
+                          {t('admin.users.resetPassword')}
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => toggleActiveMutation.mutate(user.id)}>
                           <UserX className="mr-2 h-4 w-4" />
-                          {user.isActive ? 'Suspend' : 'Activate'}
+                          {user.isActive ? t('admin.users.deactivate') : t('admin.users.activate')}
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
@@ -443,7 +445,7 @@ export default function UserManagement() {
                           onClick={() => setDeletingUserId(user.id)}
                         >
                           <Trash2 className="mr-2 h-4 w-4" />
-                          Delete User
+                          {t('admin.users.deleteUser')}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -481,74 +483,74 @@ export default function UserManagement() {
       <Dialog open={editingUser !== null} onOpenChange={open => !open && setEditingUser(null)}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>{editingUser?.id ? 'Edit User' : 'Add New User'}</DialogTitle>
+            <DialogTitle>{editingUser?.id ? t('admin.users.editUser') : t('admin.users.addUser')}</DialogTitle>
             <DialogDescription>
-              {editingUser?.id ? 'Update user information' : 'Create a new user account'}
+              {editingUser?.id ? t('admin.users.editUser') : t('admin.users.addUser')}
             </DialogDescription>
           </DialogHeader>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <FormField control={form.control} name="firstName" render={({ field }) => (
-                  <FormItem><FormLabel>First Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>{t('admin.users.form.firstName')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                 )} />
                 <FormField control={form.control} name="lastName" render={({ field }) => (
-                  <FormItem><FormLabel>Last Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>{t('admin.users.form.lastName')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                 )} />
               </div>
               <FormField control={form.control} name="username" render={({ field }) => (
-                <FormItem><FormLabel>Username</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                <FormItem><FormLabel>{t('admin.users.form.username')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
               )} />
               <FormField control={form.control} name="email" render={({ field }) => (
-                <FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" {...field} /></FormControl><FormMessage /></FormItem>
+                <FormItem><FormLabel>{t('admin.users.form.email')}</FormLabel><FormControl><Input type="email" {...field} /></FormControl><FormMessage /></FormItem>
               )} />
               {!editingUser?.id && (
                 <FormField control={form.control} name="password" render={({ field }) => (
-                  <FormItem><FormLabel>Password</FormLabel><FormControl><Input type="password" placeholder="Enter password" {...field} /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>{t('admin.users.form.password')}</FormLabel><FormControl><Input type="password" {...field} /></FormControl><FormMessage /></FormItem>
                 )} />
               )}
               <div className="grid grid-cols-2 gap-4">
                 <FormField control={form.control} name="phone" render={({ field }) => (
-                  <FormItem><FormLabel>Phone</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>{t('admin.users.form.phone')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                 )} />
                 <FormField control={form.control} name="location" render={({ field }) => (
-                  <FormItem><FormLabel>Location</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>{t('admin.users.form.location')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                 )} />
               </div>
               <FormField control={form.control} name="role" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Role</FormLabel>
+                  <FormLabel>{t('admin.users.form.role')}</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select role" />
+                        <SelectValue />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="user">Member</SelectItem>
-                      <SelectItem value="moderator">Moderator</SelectItem>
-                      <SelectItem value="club_manager">Club Manager</SelectItem>
-                      <SelectItem value="event_organizer">Event Organizer</SelectItem>
-                      <SelectItem value="admin">Admin</SelectItem>
+                      <SelectItem value="user">{t('admin.users.roles.member')}</SelectItem>
+                      <SelectItem value="moderator">{t('admin.users.roles.moderator')}</SelectItem>
+                      <SelectItem value="club_manager">{t('admin.users.roles.clubManager')}</SelectItem>
+                      <SelectItem value="event_organizer">{t('admin.users.roles.eventOrganizer')}</SelectItem>
+                      <SelectItem value="admin">{t('admin.users.roles.admin')}</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
                 </FormItem>
               )} />
               <FormField control={form.control} name="bio" render={({ field }) => (
-                <FormItem><FormLabel>Bio</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
+                <FormItem><FormLabel>{t('admin.users.form.bio')}</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
               )} />
               <FormField control={form.control} name="isActive" render={({ field }) => (
                 <FormItem className="flex items-center gap-2 space-y-0">
                   <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
-                  <FormLabel className="!mt-0">Active</FormLabel>
+                  <FormLabel className="!mt-0">{t('admin.users.form.isActive')}</FormLabel>
                 </FormItem>
               )} />
               <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setEditingUser(null)}>Cancel</Button>
+                <Button type="button" variant="outline" onClick={() => setEditingUser(null)}>{t('admin.common.cancel')}</Button>
                 <Button type="submit" disabled={saveUserMutation.isPending}>
                   {saveUserMutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                  {editingUser?.id ? 'Save Changes' : 'Create User'}
+                  {t('admin.common.save')}
                 </Button>
               </DialogFooter>
             </form>
@@ -560,18 +562,18 @@ export default function UserManagement() {
       <AlertDialog open={deletingUserId !== null} onOpenChange={open => !open && setDeletingUserId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete User</AlertDialogTitle>
+            <AlertDialogTitle>{t('admin.users.deleteConfirmTitle')}</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. The user and all their data will be permanently deleted.
+              {t('admin.users.deleteConfirmDesc')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('admin.common.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={() => deletingUserId && deleteUserMutation.mutate(deletingUserId)}
             >
-              Delete
+              {t('admin.common.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -581,32 +583,31 @@ export default function UserManagement() {
       <Dialog open={resettingPasswordUser !== null} onOpenChange={open => !open && setResettingPasswordUser(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Reset Password</DialogTitle>
+            <DialogTitle>{t('admin.users.resetPassword')}</DialogTitle>
             <DialogDescription>
-              Set a new password for {resettingPasswordUser?.firstName} {resettingPasswordUser?.lastName}
+              {resettingPasswordUser?.firstName} {resettingPasswordUser?.lastName}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="newPassword">New Password</Label>
+              <Label htmlFor="newPassword">{t('admin.users.form.password')}</Label>
               <Input
                 id="newPassword"
                 type="password"
                 value={newPassword}
                 onChange={e => setNewPassword(e.target.value)}
-                placeholder="Enter new password (min 6 chars)"
                 className="mt-1"
               />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setResettingPasswordUser(null)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setResettingPasswordUser(null)}>{t('admin.common.cancel')}</Button>
             <Button
               disabled={!newPassword || newPassword.length < 6 || resetPasswordMutation.isPending}
               onClick={() => resetPasswordMutation.mutate({ userId: resettingPasswordUser.id, newPassword })}
             >
               {resetPasswordMutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-              Reset Password
+              {t('admin.users.resetPassword')}
             </Button>
           </DialogFooter>
         </DialogContent>

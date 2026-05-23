@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   LayoutDashboard,
   Users,
@@ -55,98 +56,99 @@ const ADMIN_LANGUAGES = [
 ];
 
 interface NavigationItem {
-  label: string;
+  labelKey: string;
   icon: any;
   href?: string;
-  children?: Array<{ label: string; href: string }>;
+  children?: Array<{ labelKey: string; href: string }>;
 }
 
 const navigationItems: NavigationItem[] = [
-  { label: 'Dashboard', icon: LayoutDashboard, href: '/admin' },
+  { labelKey: 'admin.nav.dashboard', icon: LayoutDashboard, href: '/admin' },
   {
-    label: 'Users',
+    labelKey: 'admin.nav.users',
     icon: Users,
     children: [
-      { label: 'All Users', href: '/admin/users' },
-      { label: 'Roles & Permissions', href: '/admin/users/roles' }
-    ]
+      { labelKey: 'admin.nav.allUsers', href: '/admin/users' },
+      { labelKey: 'admin.nav.rolesPermissions', href: '/admin/users/roles' },
+    ],
   },
   {
-    label: 'Clubs',
+    labelKey: 'admin.nav.clubs',
     icon: Building,
     children: [
-      { label: 'All Clubs', href: '/admin/clubs' },
-      { label: 'Pending Approval', href: '/admin/clubs/pending' }
-    ]
+      { labelKey: 'admin.nav.allClubs', href: '/admin/clubs' },
+      { labelKey: 'admin.nav.pendingApproval', href: '/admin/clubs/pending' },
+    ],
   },
-  { label: 'Events', icon: Calendar, href: '/admin/events' },
-  { label: 'Cities', icon: MapPin, href: '/admin/cities' },
-  { label: 'Bookings', icon: Ticket, href: '/admin/bookings' },
-  { label: 'Applications', icon: FileText, href: '/admin/applications' },
-  { label: 'Contact Inbox', icon: Inbox, href: '/admin/contact-submissions' },
+  { labelKey: 'admin.nav.events', icon: Calendar, href: '/admin/events' },
+  { labelKey: 'admin.nav.cities', icon: MapPin, href: '/admin/cities' },
+  { labelKey: 'admin.nav.bookings', icon: Ticket, href: '/admin/bookings' },
+  { labelKey: 'admin.nav.applications', icon: FileText, href: '/admin/applications' },
+  { labelKey: 'admin.nav.contactInbox', icon: Inbox, href: '/admin/contact-submissions' },
   {
-    label: 'Content',
+    labelKey: 'admin.nav.content',
     icon: FileEdit,
     children: [
-      { label: 'News/Blog', href: '/admin/news' },
-      { label: 'Media Library', href: '/admin/media' },
-      { label: 'Gallery', href: '/admin/gallery' },
-    ]
+      { labelKey: 'admin.nav.newsBlog', href: '/admin/news' },
+      { labelKey: 'admin.nav.mediaLibrary', href: '/admin/media' },
+      { labelKey: 'admin.nav.gallery', href: '/admin/gallery' },
+    ],
   },
   {
-    label: 'Customization',
+    labelKey: 'admin.nav.customization',
     icon: Palette,
     children: [
-      { label: 'Navbar Settings', href: '/admin/customization/navbar' },
-      { label: 'Hero Section', href: '/admin/customization/hero' },
-      { label: 'About President', href: '/admin/customization/about-president' },
-      { label: 'Focus Areas', href: '/admin/customization/focus-areas' },
-      { label: 'Clubs Showcase', href: '/admin/customization/clubs' },
-      { label: 'Events Showcase', href: '/admin/customization/events' },
-      { label: 'Impact Section', href: '/admin/customization/impact' },
-      { label: 'Team Members', href: '/admin/customization/team' },
-      { label: 'Testimonials', href: '/admin/customization/testimonials' },
-      { label: 'Partners', href: '/admin/customization/partners' },
-      { label: 'Page Heroes', href: '/admin/customization/page-heroes' }
-    ]
+      { labelKey: 'admin.nav.navbarSettings', href: '/admin/customization/navbar' },
+      { labelKey: 'admin.nav.heroSection', href: '/admin/customization/hero' },
+      { labelKey: 'admin.nav.aboutPresident', href: '/admin/customization/about-president' },
+      { labelKey: 'admin.nav.focusAreas', href: '/admin/customization/focus-areas' },
+      { labelKey: 'admin.nav.clubsShowcase', href: '/admin/customization/clubs' },
+      { labelKey: 'admin.nav.eventsShowcase', href: '/admin/customization/events' },
+      { labelKey: 'admin.nav.impactSection', href: '/admin/customization/impact' },
+      { labelKey: 'admin.nav.teamMembers', href: '/admin/customization/team' },
+      { labelKey: 'admin.nav.testimonials', href: '/admin/customization/testimonials' },
+      { labelKey: 'admin.nav.partners', href: '/admin/customization/partners' },
+      { labelKey: 'admin.nav.pageHeroes', href: '/admin/customization/page-heroes' },
+    ],
   },
   {
-    label: 'Talents',
+    labelKey: 'admin.nav.talents',
     icon: Users,
     children: [
-      { label: 'Volunteer Opportunities', href: '/admin/talents/opportunities' },
-      { label: 'Volunteer Posts', href: '/admin/talents/posts' },
-      { label: 'Experts', href: '/admin/talents/experts' },
-      { label: 'Work Offers', href: '/admin/talents/work-offers' },
-    ]
+      { labelKey: 'admin.nav.volunteerOpportunities', href: '/admin/talents/opportunities' },
+      { labelKey: 'admin.nav.volunteerPosts', href: '/admin/talents/posts' },
+      { labelKey: 'admin.nav.experts', href: '/admin/talents/experts' },
+      { labelKey: 'admin.nav.workOffers', href: '/admin/talents/work-offers' },
+    ],
   },
-  { label: 'Translations', icon: Languages, href: '/admin/translations' },
-  { label: 'Projects', icon: Building, href: '/admin/projects' },
-  { label: 'Analytics', icon: BarChart3, href: '/admin/analytics' },
+  { labelKey: 'admin.nav.translations', icon: Languages, href: '/admin/translations' },
+  { labelKey: 'admin.nav.projects', icon: Building, href: '/admin/projects' },
+  { labelKey: 'admin.nav.analytics', icon: BarChart3, href: '/admin/analytics' },
   {
-    label: 'Settings',
+    labelKey: 'admin.nav.settings',
     icon: Settings,
     children: [
-      { label: 'Site Settings', href: '/admin/settings' },
-      { label: 'Theme', href: '/admin/theme' },
-      { label: 'Payments', href: '/admin/payments' },
-      { label: 'Email', href: '/admin/email' },
-      { label: 'Auth', href: '/admin/auth' },
-      { label: 'Cookies', href: '/admin/cookies' }
-    ]
+      { labelKey: 'admin.nav.siteSettings', href: '/admin/settings' },
+      { labelKey: 'admin.nav.theme', href: '/admin/theme' },
+      { labelKey: 'admin.nav.payments', href: '/admin/payments' },
+      { labelKey: 'admin.nav.email', href: '/admin/email' },
+      { labelKey: 'admin.nav.auth', href: '/admin/auth' },
+      { labelKey: 'admin.nav.cookies', href: '/admin/cookies' },
+    ],
   },
-  { label: 'System', icon: Server, href: '/admin/system' }
+  { labelKey: 'admin.nav.system', icon: Server, href: '/admin/system' },
 ];
 
 interface SidebarContentProps {
   sidebarCollapsed: boolean;
   setSidebarCollapsed: (v: boolean) => void;
   expandedItems: string[];
-  toggleExpand: (label: string) => void;
+  toggleExpand: (labelKey: string) => void;
   isMobile?: boolean;
   onMobileClose?: () => void;
   onLogout: () => void;
   currentPath: string;
+  t: (key: string) => string;
 }
 
 function SidebarContent({
@@ -158,6 +160,7 @@ function SidebarContent({
   onMobileClose,
   onLogout,
   currentPath,
+  t,
 }: SidebarContentProps) {
   const isActive = (href: string) => currentPath === href;
 
@@ -185,24 +188,24 @@ function SidebarContent({
         <nav className="space-y-1">
           {navigationItems.map((item) => {
             const Icon = item.icon;
-            const isExpanded = expandedItems.includes(item.label);
+            const isExpanded = expandedItems.includes(item.labelKey);
             const hasChildren = item.children && item.children.length > 0;
 
             if (hasChildren) {
               return (
-                <div key={item.label}>
+                <div key={item.labelKey}>
                   <Button
                     variant="ghost"
                     className={cn(
                       "w-full justify-start",
                       sidebarCollapsed && "justify-center px-2"
                     )}
-                    onClick={() => toggleExpand(item.label)}
+                    onClick={() => toggleExpand(item.labelKey)}
                   >
                     <Icon className={cn("h-5 w-5", !sidebarCollapsed && "mr-3")} />
                     {!sidebarCollapsed && (
                       <>
-                        <span className="flex-1 text-left">{item.label}</span>
+                        <span className="flex-1 text-left">{t(item.labelKey)}</span>
                         {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                       </>
                     )}
@@ -216,7 +219,7 @@ function SidebarContent({
                             className="w-full justify-start"
                             onClick={() => isMobile && onMobileClose?.()}
                           >
-                            {child.label}
+                            {t(child.labelKey)}
                           </Button>
                         </Link>
                       ))}
@@ -227,7 +230,7 @@ function SidebarContent({
             }
 
             return (
-              <Link key={item.label} to={item.href || '#'}>
+              <Link key={item.labelKey} to={item.href || '#'}>
                 <Button
                   variant={isActive(item.href || '') ? "secondary" : "ghost"}
                   className={cn(
@@ -237,7 +240,7 @@ function SidebarContent({
                   onClick={() => isMobile && onMobileClose?.()}
                 >
                   <Icon className={cn("h-5 w-5", !sidebarCollapsed && "mr-3")} />
-                  {!sidebarCollapsed && <span>{item.label}</span>}
+                  {!sidebarCollapsed && <span>{t(item.labelKey)}</span>}
                 </Button>
               </Link>
             );
@@ -264,7 +267,7 @@ function SidebarContent({
           onClick={onLogout}
         >
           <LogOut className={cn("h-4 w-4", !sidebarCollapsed && "mr-2")} />
-          {!sidebarCollapsed && <span>Logout</span>}
+          {!sidebarCollapsed && <span>{t('admin.nav.logout')}</span>}
         </Button>
       </div>
     </div>
@@ -275,6 +278,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t, i18n } = useTranslation();
 
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     const saved = localStorage.getItem('admin-sidebar-collapsed');
@@ -287,28 +291,27 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     return (saved as 'light' | 'dark') || 'light';
   });
 
-  // Admin-specific language — fully independent from public site language
   const [adminLang, setAdminLang] = useState<string>(() => {
     return localStorage.getItem('tja_admin_language') || 'en';
   });
 
   const currentAdminLang = ADMIN_LANGUAGES.find((l) => l.code === adminLang) ?? ADMIN_LANGUAGES[0];
 
-  // Apply admin direction to <html> while admin is mounted; restore public direction on unmount
   useEffect(() => {
     localStorage.setItem('tja_admin_language', adminLang);
     const isRTL = adminLang === 'ar';
     document.documentElement.setAttribute('dir', isRTL ? 'rtl' : 'ltr');
     document.documentElement.setAttribute('lang', adminLang);
+    i18n.changeLanguage(adminLang);
 
     return () => {
-      // Restore public site language direction when leaving admin
       const publicLang = localStorage.getItem('tja_language') || 'en';
       const publicRTL = publicLang === 'ar';
       document.documentElement.setAttribute('dir', publicRTL ? 'rtl' : 'ltr');
       document.documentElement.setAttribute('lang', publicLang);
+      i18n.changeLanguage(publicLang);
     };
-  }, [adminLang]);
+  }, [adminLang, i18n]);
 
   useEffect(() => {
     localStorage.setItem('admin-sidebar-collapsed', JSON.stringify(sidebarCollapsed));
@@ -319,9 +322,9 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     document.documentElement.classList.toggle('dark', theme === 'dark');
   }, [theme]);
 
-  const toggleExpand = (label: string) => {
+  const toggleExpand = (labelKey: string) => {
     setExpandedItems(prev =>
-      prev.includes(label) ? prev.filter(item => item !== label) : [...prev, label]
+      prev.includes(labelKey) ? prev.filter(item => item !== labelKey) : [...prev, labelKey]
     );
   };
 
@@ -331,7 +334,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       const { clearAdminToken } = await import('@/lib/tokenStore');
       await apiFetch('/api/admin/logout', { method: 'POST' }).catch(() => null);
       clearAdminToken();
-      toast({ title: 'Logged out successfully' });
+      toast({ title: t('admin.nav.logout') });
       navigate('/admin/login');
     } catch (error) {
       toast({ title: 'Error logging out', variant: 'destructive' });
@@ -356,6 +359,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     toggleExpand,
     onLogout: handleLogout,
     currentPath: location.pathname,
+    t,
   };
 
   return (
@@ -419,7 +423,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
-              placeholder="Search... (Cmd+K)"
+              placeholder={t('admin.header.searchPlaceholder')}
               className="pl-8 w-full"
             />
           </div>
@@ -437,7 +441,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                 variant="ghost"
                 size="sm"
                 className="flex items-center gap-1.5 px-2 text-xs font-medium"
-                title="Admin interface language"
+                title={t('admin.header.adminInterfaceLanguage')}
               >
                 <Globe className="h-4 w-4 shrink-0" />
                 <span className="hidden sm:inline">{currentAdminLang.flag}</span>
@@ -446,7 +450,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="min-w-[160px] z-[200]">
               <DropdownMenuLabel className="text-xs text-muted-foreground pb-1">
-                Admin interface language
+                {t('admin.header.adminInterfaceLanguage')}
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               {ADMIN_LANGUAGES.map((lang) => (
@@ -490,20 +494,20 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel>Admin Account</DropdownMenuLabel>
+              <DropdownMenuLabel>{t('admin.header.adminAccount')}</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem>
                 <User className="mr-2 h-4 w-4" />
-                Profile
+                {t('admin.header.profile')}
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <Settings className="mr-2 h-4 w-4" />
-                Settings
+                {t('admin.header.settings')}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout}>
                 <LogOut className="mr-2 h-4 w-4" />
-                Logout
+                {t('admin.header.logout')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

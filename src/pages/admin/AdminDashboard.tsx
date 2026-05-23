@@ -1,4 +1,5 @@
 import { apiFetch } from '@/lib/apiFetch';
+import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import {
@@ -73,6 +74,7 @@ async function fetchChartsData() {
 }
 
 export default function AdminDashboard() {
+  const { t } = useTranslation();
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ['dashboardStats'],
     queryFn: fetchDashboardStats,
@@ -123,7 +125,7 @@ export default function AdminDashboard() {
             <span className={change >= 0 ? 'text-green-500' : 'text-red-500'}>
               {Math.abs(change)}%
             </span>
-            <span className="ml-1">from last month</span>
+            <span className="ml-1">{t('admin.dashboard.fromLastMonth')}</span>
           </div>
         </CardContent>
       </Card>
@@ -133,7 +135,7 @@ export default function AdminDashboard() {
   if (statsLoading) {
     return (
       <div className="space-y-6">
-        <h1 className="text-3xl font-bold">Dashboard</h1>
+        <h1 className="text-3xl font-bold">{t('admin.dashboard.title')}</h1>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {[1, 2, 3, 4].map((i) => (
             <Skeleton key={i} className="h-32" />
@@ -146,37 +148,37 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h1 className="text-2xl sm:text-3xl font-bold">Dashboard</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold">{t('admin.dashboard.title')}</h1>
         <div className="text-sm text-muted-foreground">
-          Welcome back, Admin
+          {t('admin.dashboard.welcomeBack')}
         </div>
       </div>
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
-          title="Total Users"
+          title={t('admin.dashboard.totalUsers')}
           value={stats?.totalUsers.toLocaleString() || 0}
           change={stats?.userGrowth || 0}
           icon={Users}
           href="/admin/users"
         />
         <StatCard
-          title="Active Clubs"
+          title={t('admin.dashboard.activeClubs')}
           value={stats?.activeClubs || 0}
           change={stats?.newClubsThisMonth || 0}
           icon={Building}
           href="/admin/clubs"
         />
         <StatCard
-          title="Upcoming Events"
+          title={t('admin.dashboard.upcomingEvents')}
           value={stats?.upcomingEvents || 0}
           change={stats?.eventsThisWeek || 0}
           icon={Calendar}
           href="/admin/events"
         />
         <StatCard
-          title="Total Revenue"
+          title={t('admin.dashboard.totalRevenue')}
           value={`${(stats?.totalRevenue || 0).toLocaleString()} MAD`}
           change={stats?.revenueGrowth || 0}
           icon={DollarSign}
@@ -188,8 +190,8 @@ export default function AdminDashboard() {
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>User Growth</CardTitle>
-            <CardDescription>New user registrations over the last 6 months</CardDescription>
+            <CardTitle>{t('admin.dashboard.userGrowth')}</CardTitle>
+            <CardDescription>{t('admin.dashboard.userGrowthDesc')}</CardDescription>
           </CardHeader>
           <CardContent>
             {chartsLoading ? (
@@ -211,8 +213,8 @@ export default function AdminDashboard() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Revenue</CardTitle>
-            <CardDescription>Monthly revenue over the last 6 months</CardDescription>
+            <CardTitle>{t('admin.dashboard.revenue')}</CardTitle>
+            <CardDescription>{t('admin.dashboard.revenueDesc')}</CardDescription>
           </CardHeader>
           <CardContent>
             {chartsLoading ? (
@@ -238,10 +240,10 @@ export default function AdminDashboard() {
         <Card className="md:col-span-2">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle>Recent Activity</CardTitle>
+              <CardTitle>{t('admin.dashboard.recentActivity')}</CardTitle>
               <Button variant="link" size="sm" asChild>
                 <Link to="/admin/activity">
-                  View all <ArrowRight className="ml-1 h-4 w-4" />
+                  {t('admin.dashboard.viewAll')} <ArrowRight className="ml-1 h-4 w-4" />
                 </Link>
               </Button>
             </div>
@@ -283,8 +285,7 @@ export default function AdminDashboard() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Upcoming Events</CardTitle>
-            <CardDescription>Next 5 scheduled events</CardDescription>
+            <CardTitle>{t('admin.dashboard.upcomingEventsSection')}</CardTitle>
           </CardHeader>
           <CardContent>
             {eventsLoading ? (
@@ -317,7 +318,7 @@ export default function AdminDashboard() {
       {/* Quick Actions */}
       <Card>
         <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
+          <CardTitle>{t('admin.common.addNew')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid gap-2 md:grid-cols-5">
