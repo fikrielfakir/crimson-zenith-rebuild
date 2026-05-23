@@ -329,4 +329,86 @@ class CmsAdminController extends Controller
         $modelMap[$type]::findOrFail($id)->delete();
         return response()->json(['message' => 'Deleted']);
     }
+
+    private function partnerToArray(Partner $p): array
+    {
+        return [
+            'id'          => $p->id,
+            'name'        => $p->name,
+            'logoUrl'     => $p->logo_id,
+            'websiteUrl'  => $p->website_url,
+            'description' => $p->description,
+            'ordering'    => $p->ordering,
+            'isActive'    => (bool) $p->is_active,
+        ];
+    }
+
+    public function listPartners()
+    {
+        $partners = Partner::orderBy('ordering')->get();
+        return response()->json($partners->map(fn($p) => $this->partnerToArray($p)));
+    }
+
+    public function storePartner(Request $request)
+    {
+        $validated = $request->validate([
+            'name'        => 'required|string|max:255',
+            'logoUrl'     => 'nullable|string|max:1000',
+            'websiteUrl'  => 'nullable|url|max:500',
+            'description' => 'nullable|string|max:1000',
+            'isActive'    => 'boolean',
+        ]);
+
+        $maxOrder = Partner::max('ordering') ?? 0;
+
+        $partner = Partner::create([
+            'name'        => $validated['name'],
+            'logo_id'     => $validated['logoUrl'] ?? null,
+            'website_url' => $validated['websiteUrl'] ?? null,
+            'description' => $validated['description'] ?? null,
+            'ordering'    => $maxOrder + 1,
+            'is_active'   => $validated['isActive'] ?? true,
+            'created_by'  => $request->user()?->id,
+        ]);
+
+        return response()->json($this->partnerToArray($partner), 201);
+    }
+
+    public function updatePartner(Request $request, int $id)
+    {
+        $partner = Partner::findOrFail($id);
+
+        $validated = $request->validate([
+            'name'        => 'sometimes|string|max:255',
+            'logoUrl'     => 'nullable|string|max:1000',
+            'websiteUrl'  => 'nullable|url|max:500',
+            'description' => 'nullable|string|max:1000',
+            'isActive'    => 'boolean',
+            'ordering'    => 'integer|min:0',
+        ]);
+
+        $map = [
+            'name'        => 'name',
+            'logoUrl'     => 'logo_id',
+            'websiteUrl'  => 'website_url',
+            'description' => 'description',
+            'isActive'    => 'is_active',
+            'ordering'    => 'ordering',
+        ];
+
+        $data = [];
+        foreach ($validated as $key => $value) {
+            $data[$map[$key]] = $value;
+        }
+
+        $partner->update($data);
+
+        return response()->json($this->partnerToArray($partner->fresh()));
+    }
+
+    public function destroyPartner(int $id)
+    {
+        Partner::findOrFail($id)->delete();
+        return response()->json(['message' => 'Partner removed']);
+    }
 }

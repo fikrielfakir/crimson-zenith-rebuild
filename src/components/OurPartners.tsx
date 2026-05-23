@@ -50,15 +50,6 @@ const makeSvgPlaceholder = (name: string) => {
   return `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='80'%3E%3Crect width='180' height='80' rx='8' fill='%23f0f4ff'/%3E%3Ctext x='90' y='46' font-family='sans-serif' font-size='13' font-weight='600' fill='%23112250' text-anchor='middle' dominant-baseline='middle'%3E${label}%3C/text%3E%3C/svg%3E`;
 };
 
-const FALLBACK_PARTNERS: Partner[] = Array.from({ length: 6 }, (_, i) => ({
-  id: i + 1,
-  name: `Partner ${i + 1}`,
-  logo_id: '',
-  website_url: '',
-  ordering: i + 1,
-  is_active: true,
-}));
-
 const OurPartners = () => {
   const { t, i18n } = useTranslation();
   const lang = (i18n.language || 'en').split('-')[0];
@@ -90,9 +81,8 @@ const OurPartners = () => {
       fetch('/api/cms/partner-settings').then(r => r.ok ? r.json() : null),
     ])
       .then(([partnersData, settingsData]) => {
-        const list: Partner[] = Array.isArray(partnersData) ? partnersData : [];
-        setPartners(list.length > 0 ? list : FALLBACK_PARTNERS);
-        if (settingsData && settingsData.title) {
+        setPartners(Array.isArray(partnersData) ? partnersData : []);
+        if (settingsData) {
           setSettings({
             title: settingsData.title ?? 'Our Partners & Supporters',
             subtitle: settingsData.subtitle ?? 'Associates & Clients',
@@ -100,16 +90,17 @@ const OurPartners = () => {
           });
         }
       })
-      .catch(() => setPartners(FALLBACK_PARTNERS))
+      .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 
-  if (!settings.is_active && !loading) return null;
+  if (loading) return null;
+  if (!settings.is_active) return null;
+  if (partners.length === 0) return null;
 
-  const displayPartners = partners.length > 0 ? partners : FALLBACK_PARTNERS;
-  const loopedPartners = displayPartners.length < 6
-    ? [...displayPartners, ...displayPartners, ...displayPartners]
-    : displayPartners;
+  const loopedPartners = partners.length < 6
+    ? [...partners, ...partners, ...partners]
+    : partners;
 
   return (
     <section

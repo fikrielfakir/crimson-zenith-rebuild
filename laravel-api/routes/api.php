@@ -312,6 +312,12 @@ Route::prefix('admin')->middleware(['admin'])->group(function () {
     Route::get('/cms/partner-settings',        [\App\Http\Controllers\Admin\CmsAdminController::class, 'getPartnerSettings']);
     Route::put('/cms/partner-settings',        [\App\Http\Controllers\Admin\CmsAdminController::class, 'updatePartnerSettings']);
 
+    // Partners CRUD
+    Route::get('/cms/partners',               [\App\Http\Controllers\Admin\CmsAdminController::class, 'listPartners']);
+    Route::post('/cms/partners',              [\App\Http\Controllers\Admin\CmsAdminController::class, 'storePartner']);
+    Route::put('/cms/partners/{id}',          [\App\Http\Controllers\Admin\CmsAdminController::class, 'updatePartner']);
+    Route::delete('/cms/partners/{id}',       [\App\Http\Controllers\Admin\CmsAdminController::class, 'destroyPartner']);
+
     // Focus section settings
     Route::get('/cms/focus-section',               [\App\Http\Controllers\Admin\FocusItemController::class, 'getSection']);
     Route::put('/cms/focus-section',               [\App\Http\Controllers\Admin\FocusItemController::class, 'updateSection']);
