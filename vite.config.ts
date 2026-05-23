@@ -633,6 +633,48 @@ export default defineConfig(({ mode }: { mode: string }) => ({
             return;
           }
 
+          // ── POST /api/admin/translations/auto-translate ─────────────────────
+          if (req.method === "POST" && url.startsWith("/api/admin/translations/auto-translate")) {
+            try {
+              const chunks: Buffer[] = [];
+              for await (const chunk of req) chunks.push(chunk);
+              const body = JSON.parse(Buffer.concat(chunks).toString());
+              const { texts, targetLanguage } = body;
+              if (!texts || !Array.isArray(texts) || !targetLanguage) {
+                res.statusCode = 400;
+                res.setHeader("Content-Type", "application/json");
+                res.end(JSON.stringify({ message: "Missing required fields" }));
+                return;
+              }
+              const langMap: Record<string, string> = { ar: "ar", fr: "fr", es: "es" };
+              const targetLang = langMap[targetLanguage];
+              if (!targetLang) {
+                res.statusCode = 400;
+                res.setHeader("Content-Type", "application/json");
+                res.end(JSON.stringify({ message: "Unsupported language" }));
+                return;
+              }
+              const results: Record<string, string> = {};
+              for (const { key, value: text } of texts as Array<{ key: string; value: string }>) {
+                if (!text?.trim()) { results[key] = ""; continue; }
+                const apiUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|${targetLang}`;
+                const apiRes = await fetch(apiUrl);
+                const data = await apiRes.json() as any;
+                results[key] = data?.responseStatus === 200 ? (data.responseData?.translatedText ?? "") : "";
+              }
+              res.statusCode = 200;
+              res.setHeader("Content-Type", "application/json");
+              res.end(JSON.stringify({ results }));
+              console.log(`[translations] Auto-translated ${texts.length} field(s) to ${targetLanguage}`);
+            } catch (err) {
+              console.error("[translations] Auto-translate error:", err);
+              res.statusCode = 500;
+              res.setHeader("Content-Type", "application/json");
+              res.end(JSON.stringify({ message: "Translation failed" }));
+            }
+            return;
+          }
+
           // ── POST /api/admin/translations ────────────────────────────────────
           if (req.method === "POST" && url.startsWith("/api/admin/translations")) {
             try {
