@@ -58,9 +58,7 @@ import {
   ArrowDown,
   Mountain,
   Leaf,
-  Check,
-  Minus,
-  Languages,
+
 } from 'lucide-react';
 import { TranslateDialog } from '@/components/admin/TranslateDialog';
 
@@ -132,15 +130,6 @@ export default function FocusAreasManagement() {
     },
   });
 
-  const { data: translationsData, isLoading: translationsLoading } = useQuery<any[]>({
-    queryKey: ['focusItemTranslations'],
-    queryFn: async () => {
-      const res = await fetch('/api/translations/focus_item');
-      if (!res.ok) return [];
-      return res.json();
-    },
-    staleTime: 30_000,
-  });
 
   useEffect(() => {
     if (sectionData) {
@@ -440,7 +429,7 @@ export default function FocusAreasManagement() {
                             { key: 'description', label: 'Description', multiline: true },
                           ]}
                           sourceValues={{ title: item.title, description: item.description ?? '' }}
-                          onSaved={() => queryClient.invalidateQueries({ queryKey: ['focusItemTranslations'] })}
+                          onSaved={() => queryClient.invalidateQueries({ queryKey: ['focusItems'] })}
                         />
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
@@ -474,112 +463,6 @@ export default function FocusAreasManagement() {
           </TableBody>
         </Table>
       </div>
-
-      {/* Translations Matrix */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="flex items-center gap-2">
-                <Languages className="h-5 w-5" />
-                Translations
-              </CardTitle>
-              <CardDescription>Overview of all translations for each focus item</CardDescription>
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => queryClient.invalidateQueries({ queryKey: ['focusItemTranslations'] })}
-            >
-              Refresh
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent className="overflow-x-auto">
-          {translationsLoading ? (
-            <div className="flex items-center justify-center py-6">
-              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-            </div>
-          ) : allItems.length === 0 ? (
-            <p className="text-sm text-muted-foreground py-4 text-center">No focus items yet — add items first.</p>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="min-w-[140px]">Focus Item</TableHead>
-                  <TableHead className="text-center" colSpan={2}>🇲🇦 Arabic</TableHead>
-                  <TableHead className="text-center" colSpan={2}>🇫🇷 French</TableHead>
-                  <TableHead className="text-center" colSpan={2}>🇪🇸 Spanish</TableHead>
-                  <TableHead className="text-right">Translate</TableHead>
-                </TableRow>
-                <TableRow className="text-xs text-muted-foreground">
-                  <TableHead />
-                  <TableHead className="text-center font-normal">Title</TableHead>
-                  <TableHead className="text-center font-normal">Description</TableHead>
-                  <TableHead className="text-center font-normal">Title</TableHead>
-                  <TableHead className="text-center font-normal">Description</TableHead>
-                  <TableHead className="text-center font-normal">Title</TableHead>
-                  <TableHead className="text-center font-normal">Description</TableHead>
-                  <TableHead />
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {allItems.map((item) => {
-                  const tl = translationsData ?? [];
-                  const get = (lang: string, field: string) =>
-                    tl.find((t: any) => t.entityId === String(item.id) && t.language === lang && t.field === field)?.value;
-
-                  const Cell = ({ lang, field }: { lang: string; field: string }) => {
-                    const val = get(lang, field);
-                    return (
-                      <TableCell className="text-center">
-                        {val ? (
-                          <span
-                            className="inline-flex items-center gap-1 text-xs text-green-700 bg-green-50 border border-green-200 rounded px-1.5 py-0.5 max-w-[110px] truncate"
-                            title={val}
-                          >
-                            <Check className="h-3 w-3 shrink-0" />
-                            <span className="truncate">{val}</span>
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                            <Minus className="h-3 w-3" />
-                          </span>
-                        )}
-                      </TableCell>
-                    );
-                  };
-
-                  return (
-                    <TableRow key={item.id}>
-                      <TableCell className="font-medium text-sm">{item.title}</TableCell>
-                      <Cell lang="ar" field="title" />
-                      <Cell lang="ar" field="description" />
-                      <Cell lang="fr" field="title" />
-                      <Cell lang="fr" field="description" />
-                      <Cell lang="es" field="title" />
-                      <Cell lang="es" field="description" />
-                      <TableCell className="text-right">
-                        <TranslateDialog
-                          entityType="focus_item"
-                          entityId={item.id}
-                          entityLabel={item.title}
-                          fields={[
-                            { key: 'title', label: 'Title' },
-                            { key: 'description', label: 'Description', multiline: true },
-                          ]}
-                          sourceValues={{ title: item.title, description: item.description ?? '' }}
-                          onSaved={() => queryClient.invalidateQueries({ queryKey: ['focusItemTranslations'] })}
-                        />
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-      </Card>
 
       {/* Add / Edit Dialog */}
       <Dialog open={showForm} onOpenChange={(open) => { if (!open) handleCloseForm(); }}>
