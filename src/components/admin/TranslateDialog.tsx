@@ -43,9 +43,10 @@ interface Props {
   entityLabel: string;
   fields: TranslateField[];
   sourceValues?: Record<string, string>;
+  onSaved?: () => void;
 }
 
-export function TranslateDialog({ entityType, entityId, entityLabel, fields }: Props) {
+export function TranslateDialog({ entityType, entityId, entityLabel, fields, onSaved }: Props) {
   const [open, setOpen] = useState(false);
   const [drafts, setDrafts] = useState<Record<string, Record<string, string>>>({});
   const [loading, setLoading] = useState(false);
@@ -114,6 +115,7 @@ export function TranslateDialog({ entityType, entityId, entityLabel, fields }: P
       queryClient.invalidateQueries({ queryKey: ['/api/translations', entityType] });
       queryClient.invalidateQueries({ queryKey: ['/api/translations/batch', entityType] });
       toast({ title: 'Translations saved' });
+      onSaved?.();
       setOpen(false);
     } catch (e: any) {
       toast({ title: 'Save failed', description: e.message, variant: 'destructive' });
