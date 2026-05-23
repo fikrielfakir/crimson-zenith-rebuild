@@ -3871,6 +3871,41 @@ app.get('/api/translations/:entityType/:entityId', async (req, res) => {
   }
 });
 
+// POST /api/admin/translations/auto-translate — translate text via MyMemory free API
+app.post('/api/admin/translations/auto-translate', isAdminOrBearer, async (req, res) => {
+  try {
+    const { texts, targetLanguage } = req.body;
+    // texts: Array<{ key: string; value: string }>
+    // targetLanguage: 'ar' | 'fr' | 'es'
+    if (!texts || !Array.isArray(texts) || !targetLanguage) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    const langMap: Record<string, string> = { ar: 'ar', fr: 'fr', es: 'es' };
+    const targetLang = langMap[targetLanguage];
+    if (!targetLang) return res.status(400).json({ error: 'Unsupported language' });
+
+    const results: Record<string, string> = {};
+
+    for (const { key, value } of texts) {
+      if (!value?.trim()) { results[key] = ''; continue; }
+      const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(value)}&langpair=en|${targetLang}`;
+      const response = await fetch(url);
+      const data = await response.json() as any;
+      if (data?.responseStatus === 200) {
+        results[key] = data.responseData?.translatedText ?? '';
+      } else {
+        results[key] = '';
+      }
+    }
+
+    res.json({ results });
+  } catch (err) {
+    console.error('❌ Auto-translate error:', err);
+    res.status(500).json({ error: 'Translation failed' });
+  }
+});
+
 // POST /api/admin/translations — upsert a single translation
 app.post('/api/admin/translations', isAdminOrBearer, async (req, res) => {
   try {

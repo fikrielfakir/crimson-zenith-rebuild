@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Languages, Loader2 } from 'lucide-react';
+import { Languages, Loader2, Wand2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -46,10 +46,11 @@ interface Props {
   onSaved?: () => void;
 }
 
-export function TranslateDialog({ entityType, entityId, entityLabel, fields, onSaved }: Props) {
+export function TranslateDialog({ entityType, entityId, entityLabel, fields, sourceValues, onSaved }: Props) {
   const [open, setOpen] = useState(false);
   const [drafts, setDrafts] = useState<Record<string, Record<string, string>>>({});
   const [loading, setLoading] = useState(false);
+  const [autoTranslating, setAutoTranslating] = useState<string | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -75,6 +76,49 @@ export function TranslateDialog({ entityType, entityId, entityLabel, fields, onS
   function handleOpen() {
     setOpen(true);
     loadTranslations();
+  }
+
+  async function handleAutoTranslate(langCode: string) {
+    if (!sourceValues) {
+      toast({ title: 'No source text', description: 'Source values are required for auto-translation.', variant: 'destructive' });
+      return;
+    }
+
+    const texts = fields
+      .map((f) => ({ key: f.key, value: sourceValues[f.key] ?? '' }))
+      .filter((t) => t.value.trim());
+
+    if (texts.length === 0) {
+      toast({ title: 'Nothing to translate', description: 'Source values are empty.', variant: 'destructive' });
+      return;
+    }
+
+    setAutoTranslating(langCode);
+    try {
+      const res = await apiFetch('/api/admin/translations/auto-translate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ texts, targetLanguage: langCode }),
+        credentials: 'include',
+      });
+
+      if (!res.ok) throw new Error('Auto-translation failed');
+      const data = await res.json();
+
+      setDrafts((prev) => ({
+        ...prev,
+        [langCode]: {
+          ...(prev[langCode] ?? {}),
+          ...data.results,
+        },
+      }));
+
+      toast({ title: 'Auto-translated', description: `Fields filled in for ${LANGUAGES.find(l => l.code === langCode)?.label}. Review and save.` });
+    } catch (e: any) {
+      toast({ title: 'Translation failed', description: e.message, variant: 'destructive' });
+    } finally {
+      setAutoTranslating(null);
+    }
   }
 
   const saveMutation = useMutation({
@@ -143,7 +187,7 @@ export function TranslateDialog({ entityType, entityId, entityLabel, fields, onS
               Translate: {entityLabel}
             </DialogTitle>
             <DialogDescription>
-              Add or edit translations for Arabic, French, and Spanish.
+              Add or edit translations for Arabic, French, and Spanish. Use Auto Translate to pre-fill fields from the English source.
             </DialogDescription>
           </DialogHeader>
 
@@ -163,9 +207,31 @@ export function TranslateDialog({ entityType, entityId, entityLabel, fields, onS
 
               {LANGUAGES.map((lang) => (
                 <TabsContent key={lang.code} value={lang.code} className="space-y-4 mt-4">
+                  <div className="flex justify-end">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleAutoTranslate(lang.code)}
+                      disabled={autoTranslating !== null}
+                    >
+                      {autoTranslating === lang.code ? (
+                        <><Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />Translating…</>
+                      ) : (
+                        <><Wand2 className="h-3.5 w-3.5 mr-1.5" />Auto Translate</>
+                      )}
+                    </Button>
+                  </div>
+
                   {fields.map((f) => (
                     <div key={f.key} className="space-y-1">
-                      <Label>{f.label}</Label>
+                      <div className="flex items-center justify-between">
+                        <Label>{f.label}</Label>
+                        {sourceValues?.[f.key] && (
+                          <span className="text-xs text-muted-foreground truncate max-w-xs ml-2">
+                            EN: {sourceValues[f.key]}
+                          </span>
+                        )}
+                      </div>
                       {f.multiline ? (
                         <Textarea
                           value={drafts[lang.code]?.[f.key] ?? ''}
