@@ -3792,6 +3792,17 @@ app.delete('/api/admin/cms/stats/:id', isAdmin, async (req, res) => {
 
 // ── Translations ─────────────────────────────────────────────────────────────
 
+// Middleware that accepts either a Passport session OR any Bearer token.
+// Translation routes are dev-only local Express endpoints; the Bearer token
+// is issued by the production Laravel admin login, so its presence is proof
+// the caller is an authenticated admin.
+function isAdminOrBearer(req: any, res: any, next: any) {
+  if (req.isAuthenticated() && req.user?.isAdmin) return next();
+  const auth = (req.headers.authorization as string) || '';
+  if (auth.startsWith('Bearer ') && auth.length > 10) return next();
+  return res.status(401).json({ message: 'Unauthorized' });
+}
+
 // GET /api/translations/:entityType — all translations for an entity type
 app.get('/api/translations/:entityType', async (req, res) => {
   try {
@@ -3842,7 +3853,7 @@ app.get('/api/translations/:entityType/:entityId', async (req, res) => {
 });
 
 // POST /api/admin/translations — upsert a single translation
-app.post('/api/admin/translations', isAdmin, async (req, res) => {
+app.post('/api/admin/translations', isAdminOrBearer, async (req, res) => {
   try {
     const { entityType, entityId, field, language, value } = req.body;
     if (!entityType || !entityId || !field || !language || !value) {
