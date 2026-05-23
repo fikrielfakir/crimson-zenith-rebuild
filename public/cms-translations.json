@@ -1,10 +1,18 @@
 [
   {
-    "id": 1779531808296,
-    "entityType": "hero_settings",
-    "entityId": "subtitle",
-    "field": "subtitle",
+    "id": 1779534979035,
+    "entityType": "president_message",
+    "entityId": "title",
+    "field": "title",
     "language": "ar",
-    "value": "تجربة روح المغرب"
+    "value": "كلمة من رئيس FIFA"
+  },
+  {
+    "id": 1779535001655,
+    "entityType": "president_message",
+    "entityId": "presidentRole",
+    "field": "presidentRole",
+    "language": "es",
+    "value": "presidente"
   }
 ]
