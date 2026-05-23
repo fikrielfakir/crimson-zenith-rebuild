@@ -26,6 +26,7 @@ const LanguageSwitcher = ({ textColor = "#ffffff", className = "" }: LanguageSwi
   const current = LANGUAGES.find((l) => l.code === currentLang) ?? LANGUAGES[0];
 
   const changeLanguage = (code: string) => {
+    localStorage.setItem("tja_language", code);
     i18n.changeLanguage(code);
   };
 
