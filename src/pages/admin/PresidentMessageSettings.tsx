@@ -13,6 +13,15 @@ import { Save, Upload, Eye, Image as ImageIcon } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { TranslateDialog } from '@/components/admin/TranslateDialog';
 
+function snakeToCamel(obj: Record<string, any>): Record<string, any> {
+  return Object.fromEntries(
+    Object.entries(obj).map(([k, v]) => [
+      k.replace(/_([a-z])/g, (_, c) => c.toUpperCase()),
+      v,
+    ])
+  );
+}
+
 const FONT_FAMILIES = [
   'Inter',
   'Poppins',
@@ -147,7 +156,8 @@ export default function PresidentMessageSettings() {
     try {
       const response = await apiFetch('/api/cms/president-message');
       if (response.ok) {
-        const data = await response.json();
+        const raw = await response.json();
+        const data = raw && typeof raw === 'object' ? snakeToCamel(raw) : raw;
         if (data) {
           setIsActive(data.isActive ?? true);
           setTitle(data.title || 'A word from the president');

@@ -2,6 +2,15 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useCmsTranslations } from '@/hooks/useCmsTranslations';
 
+function snakeToCamel(obj: Record<string, any>): Record<string, any> {
+  return Object.fromEntries(
+    Object.entries(obj).map(([k, v]) => [
+      k.replace(/_([a-z])/g, (_, c) => c.toUpperCase()),
+      v,
+    ])
+  );
+}
+
 interface PresidentMessageSettings {
   isActive: boolean;
   title: string;
@@ -86,7 +95,8 @@ const PresidentMessageDynamic = () => {
       try {
         const response = await fetch('/api/cms/president-message');
         if (response.ok) {
-          const data = await response.json();
+          const raw = await response.json();
+          const data = raw && typeof raw === 'object' ? snakeToCamel(raw) : raw;
           setSettings({ ...getDefaultSettings(), ...(data ?? {}) });
         } else {
           setSettings(getDefaultSettings());
