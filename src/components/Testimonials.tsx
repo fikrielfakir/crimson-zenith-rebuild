@@ -1,4 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Star, Quote } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useTestimonials } from "@/hooks/useCMS";
@@ -8,9 +9,9 @@ const TESTIMONIAL_FIELDS = ["name", "role", "feedback"];
 
 const Testimonials = () => {
   const { t } = useTranslation();
-  const { data: dbTestimonials = [] } = useTestimonials();
+  const { data: dbTestimonials, isLoading, isError } = useTestimonials();
   const translatedTestimonials = useTranslatedList(
-    dbTestimonials,
+    dbTestimonials ?? [],
     "testimonial",
     TESTIMONIAL_FIELDS
   );
@@ -26,38 +27,43 @@ const Testimonials = () => {
     ));
   };
 
-  const displayTestimonials =
-    translatedTestimonials.length > 0
-      ? translatedTestimonials
-      : [
-          {
-            id: "fallback-1",
-            name: "Aisha",
-            role: "Member",
-            feedback:
-              "The Journey Association provided an unforgettable experience connecting with Morocco's rich culture and breathtaking landscapes. Highly recommend for conscious travelers!",
-            rating: 5,
-            avatar: null,
-          },
-          {
-            id: "fallback-2",
-            name: "Karim",
-            role: "Member",
-            feedback:
-              "I loved the focus on authentic tourism and the opportunity to give back to the community through the amazing cultural experiences. Great work!",
-            rating: 5,
-            avatar: null,
-          },
-          {
-            id: "fallback-3",
-            name: "Fatima",
-            role: "Member",
-            feedback:
-              "This cultural experience was incredible and this excellent team was top-notch! I can't wait to participate in more events with such passionate organizers. Thank you!",
-            rating: 5,
-            avatar: null,
-          },
-        ];
+  if (isLoading) {
+    return (
+      <section id="gallery" className="py-20 bg-background scroll-mt-32">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <Skeleton className="h-12 w-64 mx-auto mb-4" />
+            <Skeleton className="h-6 w-80 mx-auto" />
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[...Array(3)].map((_, i) => (
+              <Card key={i} className="border-border/50">
+                <CardContent className="p-6">
+                  <Skeleton className="w-8 h-8 mb-4" />
+                  <Skeleton className="h-4 w-full mb-2" />
+                  <Skeleton className="h-4 w-full mb-2" />
+                  <Skeleton className="h-4 w-3/4 mb-6" />
+                  <div className="flex items-center gap-3">
+                    <Skeleton className="w-12 h-12 rounded-full" />
+                    <div className="flex-1">
+                      <Skeleton className="h-4 w-24 mb-2" />
+                      <Skeleton className="h-3 w-16" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (isError || !dbTestimonials || translatedTestimonials.length === 0) {
+    return null;
+  }
+
+  const displayTestimonials = translatedTestimonials;
 
   return (
     <section id="gallery" className="py-20 bg-background scroll-mt-32">

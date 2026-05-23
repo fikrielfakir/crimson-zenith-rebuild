@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -10,7 +11,7 @@ import { useTranslation } from "react-i18next";
 import { useCmsTranslations } from "@/hooks/useCmsTranslations";
 
 const Hero = () => {
-  const { data: heroSettings, isLoading } = useHeroSettings();
+  const { data: heroSettings, isLoading, isError } = useHeroSettings();
   const { isAuthenticated } = useAuth();
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -151,6 +152,41 @@ const Hero = () => {
   const subtitleFontSize = heroSettings?.subtitleFontSize || "20px";
   const subtitleColor = heroSettings?.subtitleColor || "#ffffff";
   const enableTypewriter = heroSettings?.enableTypewriter !== false;
+
+  if (isLoading) {
+    return (
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-primary">
+        <div className="relative z-10 text-center px-6 sm:px-8 lg:px-12 max-w-4xl mx-auto w-full">
+          <Skeleton className="h-16 w-3/4 mx-auto mb-6 bg-white/20" />
+          <Skeleton className="h-16 w-2/3 mx-auto mb-10 bg-white/20" />
+          <Skeleton className="h-6 w-full max-w-xl mx-auto mb-4 bg-white/20" />
+          <Skeleton className="h-6 w-4/5 max-w-lg mx-auto mb-12 bg-white/20" />
+          <div className="flex flex-col sm:flex-row gap-5 justify-center">
+            <Skeleton className="h-14 w-48 rounded-full bg-white/20" />
+            <Skeleton className="h-14 w-40 rounded-full bg-white/20" />
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (isError) {
+    return (
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-primary">
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: `url(${heroBackground})` }}
+        />
+        <div className="absolute inset-0 bg-primary/70" />
+        <div className="relative z-10 text-center px-6">
+          <h1 className="text-4xl font-bold text-white mb-4">حيث تلتقي المغامرة بالتحول</h1>
+          <p className="text-white/80 text-lg max-w-xl mx-auto">
+            Experience Morocco's soul through sustainable journeys.
+          </p>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden font-sans">

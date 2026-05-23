@@ -1,0 +1,65 @@
+    at afterConnectMultiple (node:net:1783:7)
+[proxy] Laravel API unavailable: 
+7:50:57 PM [vite] http proxy error: /api/cms/hero
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1193:18)
+    at afterConnectMultiple (node:net:1783:7)
+[proxy] Laravel API unavailable: 
+7:50:57 PM [vite] http proxy error: /api/cms/focus-items
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1193:18)
+    at afterConnectMultiple (node:net:1783:7)
+[proxy] Laravel API unavailable: 
+7:50:57 PM [vite] http proxy error: /api/clubs
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1193:18)
+    at afterConnectMultiple (node:net:1783:7)
+[proxy] Laravel API unavailable: 
+7:50:57 PM [vite] http proxy error: /api/cms/stats
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1193:18)
+    at afterConnectMultiple (node:net:1783:7)
+[proxy] Laravel API unavailable: 
+7:50:57 PM [vite] http proxy error: /api/cms/testimonials
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1193:18)
+    at afterConnectMultiple (node:net:1783:7)
+[proxy] Laravel API unavailable: 
+7:50:57 PM [vite] http proxy error: /api/cms/contact
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1193:18)
+    at afterConnectMultiple (node:net:1783:7)
+[proxy] Laravel API unavailable: 
+7:51:05 PM [vite] http proxy error: /api/cms/navbar
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1193:18)
+    at afterConnectMultiple (node:net:1783:7)
+[proxy] Laravel API unavailable: 
+7:51:05 PM [vite] http proxy error: /api/cms/hero
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1193:18)
+    at afterConnectMultiple (node:net:1783:7)
+[proxy] Laravel API unavailable: 
+7:51:05 PM [vite] http proxy error: /api/cms/testimonials
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1193:18)
+    at afterConnectMultiple (node:net:1783:7)
+[proxy] Laravel API unavailable: 
+7:51:05 PM [vite] http proxy error: /api/cms/focus-items
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1193:18)
+    at afterConnectMultiple (node:net:1783:7)
+[proxy] Laravel API unavailable: 
+7:51:05 PM [vite] http proxy error: /api/clubs
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1193:18)
+    at afterConnectMultiple (node:net:1783:7)
+[proxy] Laravel API unavailable: 
+7:51:05 PM [vite] http proxy error: /api/cms/stats
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1193:18)
+    at afterConnectMultiple (node:net:1783:7)
+[proxy] Laravel API unavailable: 
+7:51:05 PM [vite] http proxy error: /api/cms/contact
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1193:18)

@@ -1,4 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Users, MapPin, Calendar, Heart, Star, Award, Globe, TrendingUp } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
@@ -15,18 +16,11 @@ const ICON_MAP: Record<string, React.ElementType> = {
   TrendingUp,
 };
 
-const FALLBACK_STATISTICS = [
-  { icon: "Users",       value: "1,200+", labelKey: "stats.participants",   descKey: "stats.participantsDesc" },
-  { icon: "MapPin",      value: "500+",   labelKey: "stats.tripsPlanned",   descKey: "stats.tripsPlannedDesc" },
-  { icon: "Calendar",    value: "50+",    labelKey: "stats.collaborations", descKey: "stats.collaborationsDesc" },
-  { icon: "Heart",       value: "10+",    labelKey: "stats.projects",       descKey: "stats.projectsDesc" },
-];
-
 const Stats = () => {
   const { t } = useTranslation();
   const tr = useCmsTranslations('site_stat');
 
-  const { data: dbStats } = useQuery<any[]>({
+  const { data: dbStats, isLoading, isError } = useQuery<any[]>({
     queryKey: ["cms-stats"],
     queryFn: async () => {
       const res = await fetch("/api/cms/stats", { credentials: "include" });
@@ -34,20 +28,47 @@ const Stats = () => {
       return res.json();
     },
     staleTime: 5 * 60 * 1000,
+    retry: 1,
   });
 
-  const statistics = (dbStats && dbStats.length > 0)
-    ? dbStats
-        .filter((s: any) => s.isActive !== false)
-        .sort((a: any, b: any) => (a.ordering ?? 0) - (b.ordering ?? 0))
-        .map((s: any) => ({
-          icon: s.icon ?? "Star",
-          value: tr(String(s.id), 'value', s.suffix ? `${s.value}${s.suffix}` : s.value),
-          label: tr(String(s.id), 'label', s.label),
-          labelKey: null,
-          descKey: null,
-        }))
-    : FALLBACK_STATISTICS.map((s) => ({ ...s, label: null }));
+  if (isLoading) {
+    return (
+      <section id="stats" className="py-20 bg-primary text-primary-foreground relative overflow-hidden scroll-mt-32">
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="text-center mb-16">
+            <Skeleton className="h-12 w-64 mx-auto mb-4 bg-white/20" />
+            <Skeleton className="h-6 w-96 mx-auto bg-white/20" />
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
+            {[...Array(4)].map((_, i) => (
+              <Card key={i} className="bg-white/10 border-white/20">
+                <CardContent className="p-4 md:p-6 text-center">
+                  <Skeleton className="w-10 h-10 md:w-12 md:h-12 rounded-full mx-auto mb-3 bg-white/20" />
+                  <Skeleton className="h-8 w-20 mx-auto mb-2 bg-white/20" />
+                  <Skeleton className="h-4 w-24 mx-auto bg-white/20" />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (isError || !dbStats || dbStats.length === 0) {
+    return null;
+  }
+
+  const statistics = dbStats
+    .filter((s: any) => s.isActive !== false)
+    .sort((a: any, b: any) => (a.ordering ?? 0) - (b.ordering ?? 0))
+    .map((s: any) => ({
+      icon: s.icon ?? "Star",
+      value: tr(String(s.id), 'value', s.suffix ? `${s.value}${s.suffix}` : s.value),
+      label: tr(String(s.id), 'label', s.label),
+      labelKey: null,
+      descKey: null,
+    }));
 
   return (
     <section id="stats" className="py-20 bg-primary text-primary-foreground relative overflow-hidden scroll-mt-32">

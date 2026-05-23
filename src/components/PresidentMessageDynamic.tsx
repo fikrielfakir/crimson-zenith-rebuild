@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useCmsTranslations } from '@/hooks/useCmsTranslations';
+import { Skeleton } from '@/components/ui/skeleton';
 
 function snakeToCamel(obj: Record<string, any>): Record<string, any> {
   return Object.fromEntries(
@@ -79,6 +80,7 @@ const PresidentMessageDynamic = () => {
   const lang = (i18n.language || 'en').split('-')[0];
   const [settings, setSettings] = useState<PresidentMessageSettings | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
   const tr = useCmsTranslations('president_message');
 
   const getDefaultSettings = (): PresidentMessageSettings => ({
@@ -104,7 +106,7 @@ const PresidentMessageDynamic = () => {
         }
       } catch (error) {
         console.error('Error loading president message settings:', error);
-        setSettings(getDefaultSettings());
+        setIsError(true);
       } finally {
         setIsLoading(false);
       }
@@ -112,9 +114,28 @@ const PresidentMessageDynamic = () => {
     loadSettings();
   }, []);
 
+  if (isLoading) {
+    return (
+      <section className="py-16 px-4" style={{ background: 'linear-gradient(180deg, #112250 0%, #1a3366 100%)' }}>
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row gap-12 items-center">
+          <Skeleton className="w-full md:w-5/12 aspect-square rounded-2xl bg-white/10" />
+          <div className="flex-1 space-y-4">
+            <Skeleton className="h-10 w-3/4 bg-white/10" />
+            <Skeleton className="h-4 w-full bg-white/10" />
+            <Skeleton className="h-4 w-full bg-white/10" />
+            <Skeleton className="h-4 w-full bg-white/10" />
+            <Skeleton className="h-4 w-2/3 bg-white/10" />
+            <Skeleton className="h-6 w-48 mt-6 bg-white/10" />
+            <Skeleton className="h-4 w-36 bg-white/10" />
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   const activeSettings = settings ?? getDefaultSettings();
 
-  if (isLoading || !activeSettings.isActive) {
+  if (isError || !activeSettings.isActive) {
     return null;
   }
 
