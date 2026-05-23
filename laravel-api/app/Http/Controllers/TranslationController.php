@@ -130,6 +130,45 @@ class TranslationController extends Controller
         ]));
     }
 
+    public function autoTranslate(Request $request)
+    {
+        $validated = $request->validate([
+            'texts'          => 'required|array|min:1',
+            'texts.*.key'    => 'required|string',
+            'texts.*.value'  => 'nullable|string',
+            'targetLanguage' => 'required|string|in:ar,fr,es',
+        ]);
+
+        $langMap = ['ar' => 'ar', 'fr' => 'fr', 'es' => 'es'];
+        $targetLang = $langMap[$validated['targetLanguage']];
+        $results = [];
+
+        foreach ($validated['texts'] as $item) {
+            $key   = $item['key'];
+            $text  = trim($item['value'] ?? '');
+
+            if ($text === '') {
+                $results[$key] = '';
+                continue;
+            }
+
+            $url      = 'https://api.mymemory.translated.net/get?q=' . urlencode($text) . '&langpair=en|' . $targetLang;
+            $response = @file_get_contents($url);
+
+            if ($response === false) {
+                $results[$key] = '';
+                continue;
+            }
+
+            $data = json_decode($response, true);
+            $results[$key] = ($data['responseStatus'] ?? 0) === 200
+                ? ($data['responseData']['translatedText'] ?? '')
+                : '';
+        }
+
+        return response()->json(['results' => $results]);
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([

@@ -583,147 +583,53 @@ export default defineConfig(({ mode }: { mode: string }) => ({
       },
     },
     {
-      // Handle CMS Translations locally — intercepts before the proxy:
-      //   GET  /api/translations/:entityType           → list all for entityType
-      //   GET  /api/translations/:entityType/:entityId → list for entityType+entityId
-      //   POST /api/admin/translations                 → upsert a translation record
-      name: "handle-cms-translations",
+      // Handle auto-translate only — all other translation read/write goes through
+      // the proxy to Laravel API which stores them in MySQL.
+      //   POST /api/admin/translations/auto-translate → MyMemory free translation API
+      name: "handle-auto-translate",
       configureServer(server) {
         server.middlewares.use(async (req: any, res: any, next: any) => {
           const url: string = req.url ?? "";
-          const fs = await import("fs/promises");
-          const pathMod = await import("path");
-
-          const translationsFile = pathMod.resolve(__dirname, "public/cms-translations.json");
-
-          async function readAll(): Promise<any[]> {
-            try {
-              return JSON.parse(await fs.readFile(translationsFile, "utf-8"));
-            } catch { return []; }
+          if (req.method !== "POST" || !url.startsWith("/api/admin/translations/auto-translate")) {
+            return next();
           }
-          async function writeAll(items: any[]) {
-            await fs.mkdir(pathMod.dirname(translationsFile), { recursive: true });
-            await fs.writeFile(translationsFile, JSON.stringify(items, null, 2));
-          }
-
-          // ── GET /api/translations/:entityType ──────────────────────────────
-          const typeMatch = url.match(/^\/api\/translations\/([^/?]+)$/);
-          if (req.method === "GET" && typeMatch) {
-            const entityType = decodeURIComponent(typeMatch[1]);
-            const all = await readAll();
-            const filtered = all.filter((t: any) => t.entityType === entityType);
+          try {
+            const chunks: Buffer[] = [];
+            for await (const chunk of req) chunks.push(chunk);
+            const body = JSON.parse(Buffer.concat(chunks).toString());
+            const { texts, targetLanguage } = body;
+            if (!texts || !Array.isArray(texts) || !targetLanguage) {
+              res.statusCode = 400;
+              res.setHeader("Content-Type", "application/json");
+              res.end(JSON.stringify({ message: "Missing required fields" }));
+              return;
+            }
+            const langMap: Record<string, string> = { ar: "ar", fr: "fr", es: "es" };
+            const targetLang = langMap[targetLanguage];
+            if (!targetLang) {
+              res.statusCode = 400;
+              res.setHeader("Content-Type", "application/json");
+              res.end(JSON.stringify({ message: "Unsupported language" }));
+              return;
+            }
+            const results: Record<string, string> = {};
+            for (const { key, value: text } of texts as Array<{ key: string; value: string }>) {
+              if (!text?.trim()) { results[key] = ""; continue; }
+              const apiUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|${targetLang}`;
+              const apiRes = await fetch(apiUrl);
+              const data = await apiRes.json() as any;
+              results[key] = data?.responseStatus === 200 ? (data.responseData?.translatedText ?? "") : "";
+            }
             res.statusCode = 200;
             res.setHeader("Content-Type", "application/json");
-            res.end(JSON.stringify(filtered));
-            return;
-          }
-
-          // ── GET /api/translations/:entityType/:entityId ────────────────────
-          const entityMatch = url.match(/^\/api\/translations\/([^/?]+)\/([^/?]+)/);
-          if (req.method === "GET" && entityMatch) {
-            const entityType = decodeURIComponent(entityMatch[1]);
-            const entityId = decodeURIComponent(entityMatch[2]);
-            const all = await readAll();
-            const filtered = all.filter(
-              (t: any) => t.entityType === entityType && t.entityId === entityId
-            );
-            res.statusCode = 200;
+            res.end(JSON.stringify({ results }));
+            console.log(`[auto-translate] Translated ${texts.length} field(s) → ${targetLanguage}`);
+          } catch (err) {
+            console.error("[auto-translate] Error:", err);
+            res.statusCode = 500;
             res.setHeader("Content-Type", "application/json");
-            res.end(JSON.stringify(filtered));
-            return;
+            res.end(JSON.stringify({ message: "Translation failed" }));
           }
-
-          // ── POST /api/admin/translations/auto-translate ─────────────────────
-          if (req.method === "POST" && url.startsWith("/api/admin/translations/auto-translate")) {
-            try {
-              const chunks: Buffer[] = [];
-              for await (const chunk of req) chunks.push(chunk);
-              const body = JSON.parse(Buffer.concat(chunks).toString());
-              const { texts, targetLanguage } = body;
-              if (!texts || !Array.isArray(texts) || !targetLanguage) {
-                res.statusCode = 400;
-                res.setHeader("Content-Type", "application/json");
-                res.end(JSON.stringify({ message: "Missing required fields" }));
-                return;
-              }
-              const langMap: Record<string, string> = { ar: "ar", fr: "fr", es: "es" };
-              const targetLang = langMap[targetLanguage];
-              if (!targetLang) {
-                res.statusCode = 400;
-                res.setHeader("Content-Type", "application/json");
-                res.end(JSON.stringify({ message: "Unsupported language" }));
-                return;
-              }
-              const results: Record<string, string> = {};
-              for (const { key, value: text } of texts as Array<{ key: string; value: string }>) {
-                if (!text?.trim()) { results[key] = ""; continue; }
-                const apiUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|${targetLang}`;
-                const apiRes = await fetch(apiUrl);
-                const data = await apiRes.json() as any;
-                results[key] = data?.responseStatus === 200 ? (data.responseData?.translatedText ?? "") : "";
-              }
-              res.statusCode = 200;
-              res.setHeader("Content-Type", "application/json");
-              res.end(JSON.stringify({ results }));
-              console.log(`[translations] Auto-translated ${texts.length} field(s) to ${targetLanguage}`);
-            } catch (err) {
-              console.error("[translations] Auto-translate error:", err);
-              res.statusCode = 500;
-              res.setHeader("Content-Type", "application/json");
-              res.end(JSON.stringify({ message: "Translation failed" }));
-            }
-            return;
-          }
-
-          // ── POST /api/admin/translations ────────────────────────────────────
-          if (req.method === "POST" && url.startsWith("/api/admin/translations")) {
-            try {
-              const chunks: Buffer[] = [];
-              for await (const chunk of req) chunks.push(chunk);
-              const body = JSON.parse(Buffer.concat(chunks).toString());
-              const { entityType, entityId, field, language, value } = body;
-              if (!entityType || !entityId || !field || !language || value === undefined) {
-                res.statusCode = 422;
-                res.setHeader("Content-Type", "application/json");
-                res.end(JSON.stringify({ message: "Missing required fields" }));
-                return;
-              }
-              const all = await readAll();
-              const idx = all.findIndex(
-                (t: any) =>
-                  t.entityType === entityType &&
-                  t.entityId === String(entityId) &&
-                  t.field === field &&
-                  t.language === language
-              );
-              const record = {
-                id: idx >= 0 ? all[idx].id : Date.now(),
-                entityType,
-                entityId: String(entityId),
-                field,
-                language,
-                value,
-              };
-              if (idx >= 0) {
-                all[idx] = record;
-              } else {
-                all.push(record);
-              }
-              await writeAll(all);
-              res.statusCode = 201;
-              res.setHeader("Content-Type", "application/json");
-              res.end(JSON.stringify(record));
-              console.log(`[translations] Saved ${entityType}/${entityId}/${field}/${language}`);
-            } catch (err) {
-              console.error("[translations] Save error:", err);
-              res.statusCode = 500;
-              res.setHeader("Content-Type", "application/json");
-              res.end(JSON.stringify({ message: "Save failed" }));
-            }
-            return;
-          }
-
-          next();
         });
       },
     },
