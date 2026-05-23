@@ -3,12 +3,101 @@
 namespace App\Http\Controllers;
 
 use App\Models\Translation;
+use App\Models\EventTranslation;
 use Illuminate\Http\Request;
 
 class TranslationController extends Controller
 {
-    public function byType(string $entityType)
+    /**
+     * EVENT TRANSLATION FIELDS that map to the event_translations table columns.
+     * The TranslateDialog saves field-by-field; we merge them into the event_translations row.
+     */
+    private const EVENT_FIELDS = [
+        'title', 'description', 'location', 'highlights', 'importantInfo',
+    ];
+
+    // ─── Event-translations bridge helpers ──────────────────────────────────────
+
+    private function eventTranslationsAsGeneric(string $entityId = null): array
     {
+        $query = EventTranslation::query();
+        if ($entityId !== null) {
+            $query->where('event_id', $entityId);
+        }
+
+        $rows = [];
+        foreach ($query->get() as $t) {
+            $fieldMap = [
+                'title'       => $t->title,
+                'description' => $t->description,
+                'location'    => $t->location,
+                'highlights'  => is_array($t->highlights) ? implode("\n", $t->highlights) : $t->highlights,
+                'importantInfo' => $t->important_info,
+            ];
+            foreach ($fieldMap as $field => $value) {
+                if ($value === null || $value === '') continue;
+                $rows[] = [
+                    'id'         => $t->id,
+                    'entityType' => 'event',
+                    'entityId'   => (string) $t->event_id,
+                    'field'      => $field,
+                    'language'   => $t->locale,
+                    'value'      => (string) $value,
+                ];
+            }
+        }
+        return $rows;
+    }
+
+    private function storeEventTranslation(array $validated): array
+    {
+        $eventId  = $validated['entityId'];
+        $locale   = $validated['language'];
+        $field    = $validated['field'];
+        $value    = $validated['value'];
+
+        // Map camelCase field names to DB column names
+        $columnMap = [
+            'title'          => 'title',
+            'description'    => 'description',
+            'location'       => 'location',
+            'highlights'     => 'highlights',
+            'importantInfo'  => 'important_info',
+        ];
+
+        $column = $columnMap[$field] ?? null;
+        if (!$column) {
+            // Unknown field — fall through to generic table
+            return [];
+        }
+
+        // highlights is stored as JSON array in event_translations
+        $dbValue = ($column === 'highlights' && $value)
+            ? array_filter(explode("\n", $value))
+            : $value;
+
+        $row = EventTranslation::firstOrNew(['event_id' => $eventId, 'locale' => $locale]);
+        $row->$column = $dbValue;
+        $row->save();
+
+        return [
+            'id'         => $row->id,
+            'entityType' => 'event',
+            'entityId'   => (string) $eventId,
+            'field'      => $field,
+            'language'   => $locale,
+            'value'      => is_array($dbValue) ? implode("\n", $dbValue) : $dbValue,
+        ];
+    }
+
+    // ─── Public endpoints ────────────────────────────────────────────────────────
+
+    public function byType(Request $request, string $entityType)
+    {
+        if ($entityType === 'event') {
+            return response()->json($this->eventTranslationsAsGeneric());
+        }
+
         $translations = Translation::where('entity_type', $entityType)->get();
 
         return response()->json($translations->map(fn ($t) => [
@@ -23,6 +112,10 @@ class TranslationController extends Controller
 
     public function index(string $entityType, string $entityId)
     {
+        if ($entityType === 'event') {
+            return response()->json($this->eventTranslationsAsGeneric($entityId));
+        }
+
         $translations = Translation::where('entity_type', $entityType)
             ->where('entity_id', $entityId)
             ->get();
@@ -47,6 +140,15 @@ class TranslationController extends Controller
             'value'      => 'required|string',
         ]);
 
+        // Route event translations to the dedicated event_translations table
+        if ($validated['entityType'] === 'event') {
+            $result = $this->storeEventTranslation($validated);
+            if (!empty($result)) {
+                return response()->json($result, 201);
+            }
+        }
+
+        // Generic translations table for all other entity types
         $translation = Translation::updateOrCreate(
             [
                 'entity_type' => $validated['entityType'],
