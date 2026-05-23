@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { BackendOfflinePage } from './BackendOfflinePage';
+import { useBackendHealth } from '@/hooks/useBackendHealth';
 import { useTranslation } from 'react-i18next';
 import {
   LayoutDashboard,
@@ -280,6 +282,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { t, i18n } = useTranslation();
+  const { isOffline, status, retrying, retry } = useBackendHealth();
 
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     const saved = localStorage.getItem('admin-sidebar-collapsed');
@@ -523,11 +526,19 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
 
         {/* Main Content */}
         <main className="flex-1 overflow-y-auto">
-          <ScrollArea className="h-full">
-            <div className="container mx-auto p-3 sm:p-6 max-w-7xl">
-              {children}
-            </div>
-          </ScrollArea>
+          {isOffline ? (
+            <BackendOfflinePage
+              kind={status === 'server-error' ? 'server' : status === 'timeout' ? 'timeout' : 'network'}
+              onRetry={retry}
+              retrying={retrying}
+            />
+          ) : (
+            <ScrollArea className="h-full">
+              <div className="container mx-auto p-3 sm:p-6 max-w-7xl">
+                {children}
+              </div>
+            </ScrollArea>
+          )}
         </main>
       </div>
     </div>
