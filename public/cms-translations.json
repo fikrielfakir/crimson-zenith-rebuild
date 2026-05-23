@@ -1,6 +1,14 @@
 [
   {
-    "id": 1779550056785,
+    "id": 1779555894231,
+    "entityType": "focus_item",
+    "entityId": "1",
+    "field": "title",
+    "language": "ar",
+    "value": "المغامرة والاستكشاف"
+  },
+  {
+    "id": 1779555894236,
     "entityType": "focus_item",
     "entityId": "1",
     "field": "description",

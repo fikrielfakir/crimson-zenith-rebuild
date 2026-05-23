@@ -258,5 +258,25 @@
     "thumbnailUrl": "/uploads/b5104403-f23b-4f58-80ce-8483a8c4790b.png",
     "altText": null,
     "createdAt": "2026-05-20T16:46:32.413Z"
+  },
+  {
+    "id": 28,
+    "fileName": "2a5e866b-2f6b-43dd-8ca6-cfe20bbf80d5.png",
+    "fileType": "image/png",
+    "fileSize": 518922,
+    "fileUrl": "/uploads/2a5e866b-2f6b-43dd-8ca6-cfe20bbf80d5.png",
+    "thumbnailUrl": "/uploads/2a5e866b-2f6b-43dd-8ca6-cfe20bbf80d5.png",
+    "altText": null,
+    "createdAt": "2026-05-23T17:38:22.254Z"
+  },
+  {
+    "id": 29,
+    "fileName": "1958c4e5-29d4-462a-964e-5a8014199a5c.png",
+    "fileType": "image/png",
+    "fileSize": 2099906,
+    "fileUrl": "/uploads/1958c4e5-29d4-462a-964e-5a8014199a5c.png",
+    "thumbnailUrl": "/uploads/1958c4e5-29d4-462a-964e-5a8014199a5c.png",
+    "altText": null,
+    "createdAt": "2026-05-23T17:43:34.688Z"
   }
 ]
