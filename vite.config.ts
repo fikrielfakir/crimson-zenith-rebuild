@@ -511,6 +511,78 @@ export default defineConfig(({ mode }: { mode: string }) => ({
       },
     },
     {
+      // Handle Focus-Section settings locally — intercepts before the proxy so no DB
+      // migration is required for `focus_section_settings`:
+      //   GET /api/cms/focus-section           → public read
+      //   GET /api/admin/cms/focus-section     → admin read
+      //   PUT /api/admin/cms/focus-section     → admin write
+      name: "handle-focus-section",
+      configureServer(server) {
+        server.middlewares.use(async (req: any, res: any, next: any) => {
+          const url: string = req.url ?? "";
+          if (
+            !url.startsWith("/api/cms/focus-section") &&
+            !url.startsWith("/api/admin/cms/focus-section")
+          ) {
+            return next();
+          }
+
+          const fs = await import("fs/promises");
+          const pathMod = await import("path");
+          const settingsFile = pathMod.resolve(__dirname, "public/focus-section-settings.json");
+          const DEFAULT = {
+            id: "default",
+            title: "Our Focus",
+            subtitle: "Tourism, Culture, Entertainment",
+            is_active: true,
+          };
+
+          async function readSettings(): Promise<any> {
+            try {
+              return JSON.parse(await fs.readFile(settingsFile, "utf-8"));
+            } catch {
+              return DEFAULT;
+            }
+          }
+          async function writeSettings(data: any) {
+            await fs.mkdir(pathMod.dirname(settingsFile), { recursive: true });
+            await fs.writeFile(settingsFile, JSON.stringify(data, null, 2));
+          }
+
+          if (req.method === "GET") {
+            const settings = await readSettings();
+            res.statusCode = 200;
+            res.setHeader("Content-Type", "application/json");
+            res.end(JSON.stringify(settings));
+            return;
+          }
+
+          if (req.method === "PUT") {
+            try {
+              const chunks: Buffer[] = [];
+              for await (const chunk of req) chunks.push(chunk);
+              const body = JSON.parse(Buffer.concat(chunks).toString());
+              const existing = await readSettings();
+              const updated = { ...existing, ...body, id: "default" };
+              await writeSettings(updated);
+              res.statusCode = 200;
+              res.setHeader("Content-Type", "application/json");
+              res.end(JSON.stringify(updated));
+              console.log("[focus-section] Settings saved");
+            } catch (err) {
+              console.error("[focus-section] Save error:", err);
+              res.statusCode = 500;
+              res.setHeader("Content-Type", "application/json");
+              res.end(JSON.stringify({ message: "Save failed" }));
+            }
+            return;
+          }
+
+          next();
+        });
+      },
+    },
+    {
       // Handle CMS Translations locally — intercepts before the proxy:
       //   GET  /api/translations/:entityType           → list all for entityType
       //   GET  /api/translations/:entityType/:entityId → list for entityType+entityId

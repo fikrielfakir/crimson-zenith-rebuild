@@ -1,0 +1,147 @@
+
+warnOnce @ react-router-dom.js?v=ca2fdc5e:4435
+logDeprecation @ react-router-dom.js?v=ca2fdc5e:4438
+logV6DeprecationWarnings @ react-router-dom.js?v=ca2fdc5e:4444
+(anonymous) @ react-router-dom.js?v=ca2fdc5e:5313
+commitHookEffectListMount @ chunk-O3VNRDW5.js?v=ca2fdc5e:16963
+commitPassiveMountOnFiber @ chunk-O3VNRDW5.js?v=ca2fdc5e:18206
+commitPassiveMountEffects_complete @ chunk-O3VNRDW5.js?v=ca2fdc5e:18179
+commitPassiveMountEffects_begin @ chunk-O3VNRDW5.js?v=ca2fdc5e:18169
+commitPassiveMountEffects @ chunk-O3VNRDW5.js?v=ca2fdc5e:18159
+flushPassiveEffectsImpl @ chunk-O3VNRDW5.js?v=ca2fdc5e:19543
+flushPassiveEffects @ chunk-O3VNRDW5.js?v=ca2fdc5e:19500
+performSyncWorkOnRoot @ chunk-O3VNRDW5.js?v=ca2fdc5e:18921
+flushSyncCallbacks @ chunk-O3VNRDW5.js?v=ca2fdc5e:9166
+commitRootImpl @ chunk-O3VNRDW5.js?v=ca2fdc5e:19485
+commitRoot @ chunk-O3VNRDW5.js?v=ca2fdc5e:19330
+finishConcurrentRender @ chunk-O3VNRDW5.js?v=ca2fdc5e:18858
+performConcurrentWorkOnRoot @ chunk-O3VNRDW5.js?v=ca2fdc5e:18768
+workLoop @ chunk-O3VNRDW5.js?v=ca2fdc5e:197
+flushWork @ chunk-O3VNRDW5.js?v=ca2fdc5e:176
+performWorkUntilDeadline @ chunk-O3VNRDW5.js?v=ca2fdc5e:384
+postMessage
+schedulePerformWorkUntilDeadline @ chunk-O3VNRDW5.js?v=ca2fdc5e:407
+requestHostCallback @ chunk-O3VNRDW5.js?v=ca2fdc5e:418
+unstable_scheduleCallback @ chunk-O3VNRDW5.js?v=ca2fdc5e:330
+scheduleCallback$1 @ chunk-O3VNRDW5.js?v=ca2fdc5e:19879
+ensureRootIsScheduled @ chunk-O3VNRDW5.js?v=ca2fdc5e:18702
+scheduleUpdateOnFiber @ chunk-O3VNRDW5.js?v=ca2fdc5e:18612
+updateContainer @ chunk-O3VNRDW5.js?v=ca2fdc5e:20834
+ReactDOMHydrationRoot.render.ReactDOMRoot.render @ chunk-O3VNRDW5.js?v=ca2fdc5e:21174
+(anonymous) @ main.tsx:9Understand this warning
+chunk-O3VNRDW5.js?v=ca2fdc5e:521 Warning: Input contains an input of type undefined with both value and defaultValue props. Input elements must be either controlled or uncontrolled (specify either the value prop, or the defaultValue prop, but not both). Decide between using a controlled or uncontrolled input element and remove one of these props. More info: https://reactjs.org/link/controlled-components
+    at input
+    at _c (http://192.168.56.1:5000/src/components/ui/input.tsx:23:54)
+    at div
+    at div
+    at div
+    at div
+    at div
+    at _c8 (http://192.168.56.1:5000/src/components/ui/card.tsx:67:61)
+    at div
+    at _c (http://192.168.56.1:5000/src/components/ui/card.tsx:23:53)
+    at div
+    at FocusAreasManagement (http://192.168.56.1:5000/src/pages/admin/FocusAreasManagement.tsx:67:43)
+    at div
+    at div
+    at div
+    at http://192.168.56.1:5000/node_modules/.vite/deps/chunk-CUQRY4JX.js?v=ca2fdc5e:227:13
+    at http://192.168.56.1:5000/node_modules/.vite/deps/@radix-ui_react-scroll-area.js?v=ca2fdc5e:114:13
+    at div
+    at http://192.168.56.1:5000/node_modules/.vite/deps/chunk-CUQRY4JX.js?v=ca2fdc5e:227:13
+    at Provider (http://192.168.56.1:5000/node_modules/.vite/deps/chunk-CUQRY4JX.js?v=ca2fdc5e:43:15)
+    at http://192.168.56.1:5000/node_modules/.vite/deps/@radix-ui_react-scroll-area.js?v=ca2fdc5e:52:7
+    at _c (http://192.168.56.1:5000/src/components/ui/scroll-area.tsx:24:59)
+    at main
+    at div
+    at div
+    at AdminLayout (http://192.168.56.1:5000/src/components/admin/AdminLayout.tsx:544:31)
+    at TokenValidatedRoute (http://192.168.56.1:5000/src/components/admin/ProtectedRoute.tsx:58:32)
+    at ProtectedRoute (http://192.168.56.1:5000/src/components/admin/ProtectedRoute.tsx:37:34)
+    at RenderedRoute (http://192.168.56.1:5000/node_modules/.vite/deps/react-router-dom.js?v=ca2fdc5e:4130:5)
+    at Routes (http://192.168.56.1:5000/node_modules/.vite/deps/react-router-dom.js?v=ca2fdc5e:4600:5)
+    at Router (http://192.168.56.1:5000/node_modules/.vite/deps/react-router-dom.js?v=ca2fdc5e:4543:15)
+    at BrowserRouter (http://192.168.56.1:5000/node_modules/.vite/deps/react-router-dom.js?v=ca2fdc5e:5289:5)
+    at Provider (http://192.168.56.1:5000/node_modules/.vite/deps/chunk-CUQRY4JX.js?v=ca2fdc5e:43:15)
+    at TooltipProvider (http://192.168.56.1:5000/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=ca2fdc5e:157:5)
+    at QueryClientProvider (http://192.168.56.1:5000/node_modules/.vite/deps/@tanstack_react-query.js?v=ca2fdc5e:3170:3)
+    at App
+    at _HelmetProvider (http://192.168.56.1:5000/node_modules/.vite/deps/react-helmet-async.js?v=ca2fdc5e:627:5)
+printWarning @ chunk-O3VNRDW5.js?v=ca2fdc5e:521
+error @ chunk-O3VNRDW5.js?v=ca2fdc5e:505
+initWrapperState @ chunk-O3VNRDW5.js?v=ca2fdc5e:1946
+setInitialProperties @ chunk-O3VNRDW5.js?v=ca2fdc5e:7605
+finalizeInitialChildren @ chunk-O3VNRDW5.js?v=ca2fdc5e:8392
+completeWork @ chunk-O3VNRDW5.js?v=ca2fdc5e:16341
+completeUnitOfWork @ chunk-O3VNRDW5.js?v=ca2fdc5e:19277
+performUnitOfWork @ chunk-O3VNRDW5.js?v=ca2fdc5e:19259
+workLoopSync @ chunk-O3VNRDW5.js?v=ca2fdc5e:19190
+renderRootSync @ chunk-O3VNRDW5.js?v=ca2fdc5e:19169
+performSyncWorkOnRoot @ chunk-O3VNRDW5.js?v=ca2fdc5e:18927
+flushSyncCallbacks @ chunk-O3VNRDW5.js?v=ca2fdc5e:9166
+(anonymous) @ chunk-O3VNRDW5.js?v=ca2fdc5e:18677
+setTimeout
+systemSetTimeoutZero @ @tanstack_react-query.js?v=ca2fdc5e:158
+flush @ @tanstack_react-query.js?v=ca2fdc5e:665
+batch @ @tanstack_react-query.js?v=ca2fdc5e:683
+#dispatch @ @tanstack_react-query.js?v=ca2fdc5e:1421
+setData @ @tanstack_react-query.js?v=ca2fdc5e:1088
+fetch @ @tanstack_react-query.js?v=ca2fdc5e:1318
+await in fetch
+#executeFetch @ @tanstack_react-query.js?v=ca2fdc5e:1631
+onSubscribe @ @tanstack_react-query.js?v=ca2fdc5e:1504
+subscribe @ @tanstack_react-query.js?v=ca2fdc5e:19
+(anonymous) @ @tanstack_react-query.js?v=ca2fdc5e:3384
+subscribeToStore @ chunk-O3VNRDW5.js?v=ca2fdc5e:12032
+commitHookEffectListMount @ chunk-O3VNRDW5.js?v=ca2fdc5e:16963
+commitPassiveMountOnFiber @ chunk-O3VNRDW5.js?v=ca2fdc5e:18206
+commitPassiveMountEffects_complete @ chunk-O3VNRDW5.js?v=ca2fdc5e:18179
+commitPassiveMountEffects_begin @ chunk-O3VNRDW5.js?v=ca2fdc5e:18169
+commitPassiveMountEffects @ chunk-O3VNRDW5.js?v=ca2fdc5e:18159
+flushPassiveEffectsImpl @ chunk-O3VNRDW5.js?v=ca2fdc5e:19543
+flushPassiveEffects @ chunk-O3VNRDW5.js?v=ca2fdc5e:19500
+commitRootImpl @ chunk-O3VNRDW5.js?v=ca2fdc5e:19469
+commitRoot @ chunk-O3VNRDW5.js?v=ca2fdc5e:19330
+performSyncWorkOnRoot @ chunk-O3VNRDW5.js?v=ca2fdc5e:18948
+flushSyncCallbacks @ chunk-O3VNRDW5.js?v=ca2fdc5e:9166
+(anonymous) @ chunk-O3VNRDW5.js?v=ca2fdc5e:18677
+setTimeout
+systemSetTimeoutZero @ @tanstack_react-query.js?v=ca2fdc5e:158
+flush @ @tanstack_react-query.js?v=ca2fdc5e:665
+batch @ @tanstack_react-query.js?v=ca2fdc5e:683
+#dispatch @ @tanstack_react-query.js?v=ca2fdc5e:1421
+setData @ @tanstack_react-query.js?v=ca2fdc5e:1088
+fetch @ @tanstack_react-query.js?v=ca2fdc5e:1318
+await in fetch
+#executeFetch @ @tanstack_react-query.js?v=ca2fdc5e:1631
+onSubscribe @ @tanstack_react-query.js?v=ca2fdc5e:1504
+subscribe @ @tanstack_react-query.js?v=ca2fdc5e:19
+(anonymous) @ @tanstack_react-query.js?v=ca2fdc5e:3384
+subscribeToStore @ chunk-O3VNRDW5.js?v=ca2fdc5e:12032
+commitHookEffectListMount @ chunk-O3VNRDW5.js?v=ca2fdc5e:16963
+commitPassiveMountOnFiber @ chunk-O3VNRDW5.js?v=ca2fdc5e:18206
+commitPassiveMountEffects_complete @ chunk-O3VNRDW5.js?v=ca2fdc5e:18179
+commitPassiveMountEffects_begin @ chunk-O3VNRDW5.js?v=ca2fdc5e:18169
+commitPassiveMountEffects @ chunk-O3VNRDW5.js?v=ca2fdc5e:18159
+flushPassiveEffectsImpl @ chunk-O3VNRDW5.js?v=ca2fdc5e:19543
+flushPassiveEffects @ chunk-O3VNRDW5.js?v=ca2fdc5e:19500
+performSyncWorkOnRoot @ chunk-O3VNRDW5.js?v=ca2fdc5e:18921
+flushSyncCallbacks @ chunk-O3VNRDW5.js?v=ca2fdc5e:9166
+commitRootImpl @ chunk-O3VNRDW5.js?v=ca2fdc5e:19485
+commitRoot @ chunk-O3VNRDW5.js?v=ca2fdc5e:19330
+finishConcurrentRender @ chunk-O3VNRDW5.js?v=ca2fdc5e:18858
+performConcurrentWorkOnRoot @ chunk-O3VNRDW5.js?v=ca2fdc5e:18768
+workLoop @ chunk-O3VNRDW5.js?v=ca2fdc5e:197
+flushWork @ chunk-O3VNRDW5.js?v=ca2fdc5e:176
+performWorkUntilDeadline @ chunk-O3VNRDW5.js?v=ca2fdc5e:384
+postMessage
+schedulePerformWorkUntilDeadline @ chunk-O3VNRDW5.js?v=ca2fdc5e:407
+requestHostCallback @ chunk-O3VNRDW5.js?v=ca2fdc5e:418
+unstable_scheduleCallback @ chunk-O3VNRDW5.js?v=ca2fdc5e:330
+scheduleCallback$1 @ chunk-O3VNRDW5.js?v=ca2fdc5e:19879
+ensureRootIsScheduled @ chunk-O3VNRDW5.js?v=ca2fdc5e:18702
+scheduleUpdateOnFiber @ chunk-O3VNRDW5.js?v=ca2fdc5e:18612
+updateContainer @ chunk-O3VNRDW5.js?v=ca2fdc5e:20834
+ReactDOMHydrationRoot.render.ReactDOMRoot.render @ chunk-O3VNRDW5.js?v=ca2fdc5e:21174
+(anonymous) @ main.tsx:9Understand this error
+apiFetch.ts:63  PUT http://192.168.56.1:5000/api/admin/cms/focus-section 500 (Internal Server Error)

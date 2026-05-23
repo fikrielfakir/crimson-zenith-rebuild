@@ -377,7 +377,6 @@ VALUES ('default', 'Our Focus', 'Tourism, Culture, Entertainment', 1);`;
                       value={sectionTitle}
                       onChange={(e) => setSectionTitle(e.target.value)}
                       placeholder="e.g., Our Focus / تركيزنا"
-                      defaultValue={sectionData?.title ?? ''}
                     />
                     <TranslateDialog
                       entityType="focus_section"
@@ -396,7 +395,6 @@ VALUES ('default', 'Our Focus', 'Tourism, Culture, Entertainment', 1);`;
                       value={sectionSubtitle}
                       onChange={(e) => setSectionSubtitle(e.target.value)}
                       placeholder="e.g., Tourism, Culture, Entertainment"
-                      defaultValue={sectionData?.subtitle ?? ''}
                     />
                     <TranslateDialog
                       entityType="focus_section"
