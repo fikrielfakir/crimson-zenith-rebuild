@@ -22,13 +22,17 @@ function patchCookies(proxyRes: any) {
   );
 }
 
-const LARAVEL_API = "http://localhost:8000";
+const LARAVEL_API = "https://api.thejourney-ma.org";
 const LOCAL_API = "http://localhost:3001";
 
 const proxyOptions = {
-  target: LOCAL_API,
+  target: LARAVEL_API,
   changeOrigin: true,
-  secure: false,
+  secure: true,
+  headers: {
+    Origin: "https://thejourney-ma.org",
+    Referer: "https://thejourney-ma.org/",
+  },
   configure: (proxy: any) => {
     proxy.on("proxyRes", patchCookies);
     proxy.on("error", (err: any, _req: any, res: any) => {
@@ -41,37 +45,9 @@ const proxyOptions = {
   },
 };
 
-const localProxyOptions = {
-  target: LOCAL_API,
-  changeOrigin: true,
-  secure: false,
-  configure: (proxy: any) => {
-    proxy.on("proxyRes", patchCookies);
-    proxy.on("error", (err: any, _req: any, res: any) => {
-      console.error("[proxy] Local API unavailable:", err.message);
-      if (res && !res.headersSent) {
-        res.writeHead(503, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ message: "Local API unavailable — please wait and try again." }));
-      }
-    });
-  },
-};
+const localProxyOptions = proxyOptions;
 
-const laravelProxyOptions = {
-  target: LARAVEL_API,
-  changeOrigin: true,
-  secure: false,
-  configure: (proxy: any) => {
-    proxy.on("proxyRes", patchCookies);
-    proxy.on("error", (err: any, _req: any, res: any) => {
-      console.error("[proxy] Laravel API unavailable:", err.message);
-      if (res && !res.headersSent) {
-        res.writeHead(503, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ message: "Laravel API unavailable — please wait and try again." }));
-      }
-    });
-  },
-};
+const laravelProxyOptions = proxyOptions;
 
 export default defineConfig(({ mode }: { mode: string }) => ({
   optimizeDeps: {
