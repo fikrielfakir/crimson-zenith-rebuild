@@ -1260,7 +1260,7 @@ const BottomNavbar = ({
 };
 
 // Header Container (Corrected Dual Navigation Layout)
-const Header = () => {
+const Header = ({ forceOpaque = false }: { forceOpaque?: boolean }) => {
   const { data: navbarSettings } = useNavbarSettings();
   const { t } = useTranslation();
   const trNavbar = useCmsTranslations('navbar_settings');
@@ -1334,7 +1334,7 @@ const Header = () => {
 
   // Compute navbar background color based on scroll state and settings
   const getNavbarBg = () => {
-    if (isScrolled) {
+    if (forceOpaque || isScrolled) {
       return scrolledBg;
     }
     // When not scrolled
@@ -1347,11 +1347,11 @@ const Header = () => {
     <>
       <header
         className={`${isSticky ? "fixed" : "absolute"} top-0 w-full z-50 transition-all duration-300 ${
-          isScrolled ? "backdrop-blur-sm" : ""
+          (forceOpaque || isScrolled) ? "backdrop-blur-sm" : ""
         }`}
         style={{
           backgroundColor: getNavbarBg(),
-          marginTop: isScrolled ? "0" : "2.5rem",
+          marginTop: (forceOpaque || isScrolled) ? "0" : "2.5rem",
           fontFamily: fontFamily,
           fontSize: fontSize,
           color: textColor,

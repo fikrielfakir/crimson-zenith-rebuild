@@ -649,7 +649,7 @@ const UserProfile = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
-      <Header />
+      <Header forceOpaque />
       
       {/* Profile Hero Section */}
       <div className="relative pt-52 pb-12">

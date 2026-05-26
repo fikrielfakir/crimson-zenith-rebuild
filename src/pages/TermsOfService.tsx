@@ -77,7 +77,7 @@ const TermsOfService = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-orange-50">
-      <Header />
+      <Header forceOpaque />
       <HeaderSpacer />
       <div className="container mx-auto px-4 pb-20">
         <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-8">

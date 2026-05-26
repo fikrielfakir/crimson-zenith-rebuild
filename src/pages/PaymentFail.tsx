@@ -11,7 +11,7 @@ export default function PaymentFail() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
+      <Header forceOpaque />
       <section className="bg-gradient-to-r from-[#111f50] to-[#1a2d5a]" style={{ paddingTop: '14rem', paddingBottom: '3rem' }}>
         <div className="container mx-auto px-6 text-center">
           <div className="w-20 h-20 rounded-full bg-red-400/20 flex items-center justify-center mx-auto mb-6">

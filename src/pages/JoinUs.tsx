@@ -216,7 +216,7 @@ export default function JoinUs() {
   return (
     <div className="min-h-screen bg-[#FAF8F5] flex flex-col">
       <SEOHead {...routeSEO["/join-us"]} />
-      <Header />
+      <Header forceOpaque />
 
       {/* Hero */}
       <section

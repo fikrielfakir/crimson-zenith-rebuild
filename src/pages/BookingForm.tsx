@@ -452,7 +452,7 @@ const BookingForm = () => {
   if (authLoading || isLoading) {
     return (
       <div className="min-h-screen bg-white">
-        <Header />
+        <Header forceOpaque />
         <div className="container mx-auto px-6 py-32 text-center">
           <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-[#D4B26A] border-t-transparent"></div>
           <p className="mt-6 text-gray-600 font-['Inter'] text-lg">Loading booking form...</p>
@@ -465,7 +465,7 @@ const BookingForm = () => {
   if (error || !selectedEvent) {
     return (
       <div className="min-h-screen bg-white">
-        <Header />
+        <Header forceOpaque />
         <div className="container mx-auto px-6 py-32 text-center">
           <div className="text-red-500 mb-4">
             <h2 className="text-3xl font-bold font-['Poppins'] text-[#111f50] mb-3">Unable to Load Event</h2>
@@ -485,7 +485,7 @@ const BookingForm = () => {
   if (alreadyBooked) {
     return (
       <div className="min-h-screen bg-white">
-        <Header />
+        <Header forceOpaque />
         <div className="container mx-auto px-6 py-32 text-center max-w-lg">
           <div className="bg-amber-50 border border-amber-200 rounded-2xl p-10 shadow-sm">
             <div className="text-5xl mb-4">🎫</div>
@@ -514,7 +514,7 @@ const BookingForm = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
+      <Header forceOpaque />
 
       <section className="bg-gradient-to-r from-[#111f50] to-[#1a2d5a] relative overflow-hidden" style={{ paddingTop: '14rem' }}>
         <div className="container mx-auto px-6 pb-8">
