@@ -8,7 +8,8 @@ const FALLBACK_ITEMS = [
     titleKey: "about.tourism",
     description: null,
     descKey: "about.tourismDesc",
-    imageUrl: "https://images.unsplash.com/photo-1682687220742-aba13b6e50ba?auto=format&fit=crop&q=80&w=1200",
+    imageUrl:
+      "https://images.unsplash.com/photo-1682687220742-aba13b6e50ba?auto=format&fit=crop&q=80&w=1200",
     showBirds: true,
   },
   {
@@ -48,10 +49,11 @@ interface SectionSettings {
 
 const About = () => {
   const { t, i18n } = useTranslation();
-  const lang = (i18n.language || 'en').split('-')[0];
-  const isAr = lang === 'ar';
-  const tr = useCmsTranslations('focus_item');
-  const trSection = useCmsTranslations('focus_section');
+  const lang = (i18n.language || "en").split("-")[0];
+  const isAr = lang === "ar";
+  const fontFamily = isAr ? "Cairo, Tajawal, sans-serif" : "Poppins, sans-serif";
+  const tr = useCmsTranslations("focus_item");
+  const trSection = useCmsTranslations("focus_section");
 
   const { data: rawItems } = useQuery({
     queryKey: ["cms", "focus-items"],
@@ -77,66 +79,98 @@ const About = () => {
     ? rawItems
     : (rawItems?.items ?? []);
 
-  const apiItems = rawArray.filter((i) => i.is_active !== false && i.isActive !== false);
+  const apiItems = rawArray.filter(
+    (i) => i.is_active !== false && i.isActive !== false,
+  );
 
-  const focuses = apiItems.length > 0
-    ? apiItems.map((item, idx) => ({
-        title: tr(String(item.id), 'title', item.title),
-        titleKey: null,
-        description: tr(String(item.id), 'description', item.description),
-        descKey: null,
-        imageUrl: item.imageUrl || item.image_url || FALLBACK_ITEMS[idx % FALLBACK_ITEMS.length]?.imageUrl || "",
-        showBirds: idx === 0,
-      }))
-    : FALLBACK_ITEMS;
+  const focuses =
+    apiItems.length > 0
+      ? apiItems.map((item, idx) => ({
+          title: tr(String(item.id), "title", item.title),
+          titleKey: null,
+          description: tr(String(item.id), "description", item.description),
+          descKey: null,
+          imageUrl:
+            item.imageUrl ||
+            item.image_url ||
+            FALLBACK_ITEMS[idx % FALLBACK_ITEMS.length]?.imageUrl ||
+            "",
+          showBirds: idx === 0,
+        }))
+      : FALLBACK_ITEMS;
 
   const sectionTitle = trSection(
-    'default', 'title',
-    isAr ? t("about.ourFocus") : (sectionData?.title || t("about.ourFocus"))
+    "default",
+    "title",
+    isAr ? t("about.ourFocus") : sectionData?.title || t("about.ourFocus"),
   );
   const sectionSubtitle = trSection(
-    'default', 'subtitle',
+    "default",
+    "subtitle",
     isAr
       ? `${t("about.tourism")}, ${t("about.culture")}, ${t("about.entertainment")}`
-      : (sectionData?.subtitle || `${t("about.tourism")}, ${t("about.culture")}, ${t("about.entertainment")}`)
+      : sectionData?.subtitle ||
+          `${t("about.tourism")}, ${t("about.culture")}, ${t("about.entertainment")}`,
   );
-
-  const fontFamily = isAr ? "Cairo, Tajawal, sans-serif" : "Poppins, sans-serif";
 
   return (
     <section id="discover" className="relative w-full scroll-mt-32">
       <div className="relative w-full flex flex-col sm:flex-row overflow-hidden">
+
         {focuses.map((focus, index) => (
           <div
             key={focus.titleKey ?? String(index)}
             className="relative flex-1 group cursor-pointer h-[220px] sm:h-[400px] md:h-[600px]"
             style={{
-              borderRight: index < focuses.length - 1 ? "3px solid rgba(255,255,255,0.9)" : "none",
+              borderRight:
+                index < focuses.length - 1
+                  ? "3px solid rgba(255,255,255,0.9)"
+                  : "none",
               borderBottom: "none",
-              borderRadius: index === 0 ? "8px 0 0 8px" : index === focuses.length - 1 ? "0 8px 8px 0" : "0",
+              borderRadius:
+                index === 0
+                  ? "8px 0 0 8px"
+                  : index === focuses.length - 1
+                    ? "0 8px 8px 0"
+                    : "0",
               overflow: "hidden",
             }}
           >
             <div className="absolute inset-0 transition-transform duration-300 ease-in-out group-hover:scale-105">
-              <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${focus.imageUrl})` }} />
+              <div
+                className="absolute inset-0 bg-cover bg-center"
+                style={{ backgroundImage: `url(${focus.imageUrl})` }}
+              />
               <div
                 className="absolute inset-0 transition-opacity duration-500 opacity-0 group-hover:opacity-100"
-                style={{ background: "linear-gradient(to top, rgba(90,70,30,0.8), rgba(40,30,20,0.3))" }}
+                style={{
+                  background:
+                    "linear-gradient(to top, rgba(90,70,30,0.8), rgba(40,30,20,0.3))",
+                }}
               />
             </div>
 
             {focus.showBirds && (
               <div className="absolute top-8 left-10 opacity-0 group-hover:opacity-60 transition-opacity duration-500">
-                <svg width="60" height="40" viewBox="0 0 60 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg
+                  width="60"
+                  height="40"
+                  viewBox="0 0 60 40"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
                   <path
                     d="M5 10C7 8 10 5 13 5C16 5 18 7 20 10M25 5C27 3 30 0 33 0C36 0 38 2 40 5M45 15C47 13 50 10 53 10C56 10 58 12 60 15"
-                    stroke="white" strokeWidth="1.5" strokeLinecap="round" opacity="0.8"
+                    stroke="white"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    opacity="0.8"
                   />
                 </svg>
               </div>
             )}
 
-            {/* Card title — RTL-safe: spans full width, text aligns to inline-start */}
+            {/* Card label — RTL-safe: inset-inline via left:0/right:0, dir drives text alignment */}
             <div
               dir={isAr ? "rtl" : "ltr"}
               className="absolute bottom-6 px-8"
@@ -144,15 +178,25 @@ const About = () => {
             >
               <h3
                 className="font-bold transition-all duration-500"
-                style={{ fontFamily, fontSize: "26px", color: "#FFFFFF", textShadow: "0 2px 6px rgba(0,0,0,0.5)" }}
+                style={{
+                  fontFamily,
+                  fontSize: "26px",
+                  color: "#FFFFFF",
+                  textShadow: "0 2px 6px rgba(0,0,0,0.5)",
+                }}
               >
-                {focus.title ?? (focus.titleKey ? t(focus.titleKey) : '')}
+                {focus.title ?? (focus.titleKey ? t(focus.titleKey) : "")}
               </h3>
               <p
                 className="max-w-xs opacity-0 max-h-0 group-hover:opacity-100 group-hover:max-h-40 transition-all duration-500 overflow-hidden transform translate-y-4 group-hover:translate-y-0 mt-2"
-                style={{ fontFamily, fontSize: "16px", color: "#E8D8AA", lineHeight: "22px" }}
+                style={{
+                  fontFamily,
+                  fontSize: "16px",
+                  color: "#E8D8AA",
+                  lineHeight: "22px",
+                }}
               >
-                {focus.description ?? (focus.descKey ? t(focus.descKey) : '')}
+                {focus.description ?? (focus.descKey ? t(focus.descKey) : "")}
               </p>
             </div>
           </div>
@@ -161,10 +205,14 @@ const About = () => {
         {/* Dark gradient overlay */}
         <div
           className="absolute inset-0 pointer-events-none"
-          style={{ background: "linear-gradient(#112250 0%, rgba(10,26,61,0.4) 40%, transparent 60%)", zIndex: 1 }}
+          style={{
+            background:
+              "linear-gradient(#112250 0%, rgba(10,26,61,0.4) 40%, transparent 60%)",
+            zIndex: 1,
+          }}
         />
 
-        {/* Section title — RTL-safe flex centering with dir attribute */}
+        {/* Section title — RTL-safe: absolute inset-0, flex centering, dir attribute */}
         <div
           dir={isAr ? "rtl" : "ltr"}
           className="absolute inset-0 z-10 pointer-events-none flex flex-col items-center justify-start text-center pt-6 sm:pt-10 md:pt-12"
@@ -196,6 +244,7 @@ const About = () => {
             {sectionSubtitle}
           </p>
         </div>
+
       </div>
     </section>
   );
