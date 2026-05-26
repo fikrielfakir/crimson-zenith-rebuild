@@ -49,6 +49,7 @@ interface SectionSettings {
 const About = () => {
   const { t, i18n } = useTranslation();
   const lang = (i18n.language || 'en').split('-')[0];
+  const isAr = lang === 'ar';
   const tr = useCmsTranslations('focus_item');
   const trSection = useCmsTranslations('focus_section');
 
@@ -72,7 +73,6 @@ const About = () => {
     staleTime: 5 * 60 * 1000,
   });
 
-  // Production API returns a plain array with snake_case; admin API wraps in {items:[]} with camelCase
   const rawArray: FocusItem[] = Array.isArray(rawItems)
     ? rawItems
     : (rawItems?.items ?? []);
@@ -92,14 +92,16 @@ const About = () => {
 
   const sectionTitle = trSection(
     'default', 'title',
-    lang !== 'en' ? t("about.ourFocus") : (sectionData?.title || t("about.ourFocus"))
+    isAr ? t("about.ourFocus") : (sectionData?.title || t("about.ourFocus"))
   );
   const sectionSubtitle = trSection(
     'default', 'subtitle',
-    lang !== 'en'
+    isAr
       ? `${t("about.tourism")}, ${t("about.culture")}, ${t("about.entertainment")}`
       : (sectionData?.subtitle || `${t("about.tourism")}, ${t("about.culture")}, ${t("about.entertainment")}`)
   );
+
+  const fontFamily = isAr ? "Cairo, Tajawal, sans-serif" : "Poppins, sans-serif";
 
   return (
     <section id="discover" className="relative w-full scroll-mt-32">
@@ -134,16 +136,21 @@ const About = () => {
               </div>
             )}
 
-            <div className={`absolute bottom-6 ${lang === 'ar' ? 'right-8' : 'left-8'}`} style={{ direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
+            {/* Card title — RTL-safe: spans full width, text aligns to inline-start */}
+            <div
+              dir={isAr ? "rtl" : "ltr"}
+              className="absolute bottom-6 px-8"
+              style={{ left: 0, right: 0 }}
+            >
               <h3
                 className="font-bold transition-all duration-500"
-                style={{ fontFamily: lang === 'ar' ? "Cairo, Tajawal, sans-serif" : "Poppins, sans-serif", fontSize: "26px", color: "#FFFFFF", textShadow: "0 2px 6px rgba(0,0,0,0.5)" }}
+                style={{ fontFamily, fontSize: "26px", color: "#FFFFFF", textShadow: "0 2px 6px rgba(0,0,0,0.5)" }}
               >
                 {focus.title ?? (focus.titleKey ? t(focus.titleKey) : '')}
               </h3>
               <p
                 className="max-w-xs opacity-0 max-h-0 group-hover:opacity-100 group-hover:max-h-40 transition-all duration-500 overflow-hidden transform translate-y-4 group-hover:translate-y-0 mt-2"
-                style={{ fontFamily: lang === 'ar' ? "Cairo, Tajawal, sans-serif" : "Poppins, sans-serif", fontSize: "16px", color: "#E8D8AA", lineHeight: "22px" }}
+                style={{ fontFamily, fontSize: "16px", color: "#E8D8AA", lineHeight: "22px" }}
               >
                 {focus.description ?? (focus.descKey ? t(focus.descKey) : '')}
               </p>
@@ -151,20 +158,40 @@ const About = () => {
           </div>
         ))}
 
+        {/* Dark gradient overlay */}
         <div
           className="absolute inset-0 pointer-events-none"
           style={{ background: "linear-gradient(#112250 0%, rgba(10,26,61,0.4) 40%, transparent 60%)", zIndex: 1 }}
         />
 
-        <div className="absolute top-0 left-0 right-0 pt-6 sm:pt-10 md:pt-12 pb-6 z-10 pointer-events-none flex flex-col items-center" style={{ direction: "ltr" }}>
+        {/* Section title — RTL-safe flex centering with dir attribute */}
+        <div
+          dir={isAr ? "rtl" : "ltr"}
+          className="absolute inset-0 z-10 pointer-events-none flex flex-col items-center justify-start text-center pt-6 sm:pt-10 md:pt-12"
+        >
           <h2
             className="font-bold mb-2 sm:mb-3 w-full"
-            style={{ fontFamily: lang === 'ar' ? "Cairo, Tajawal, sans-serif" : "Poppins, sans-serif", fontSize: "clamp(24px,6vw,48px)", fontWeight: 700, color: "#FFFFFF", textShadow: "0px 2px 8px rgba(0,0,0,0.3)", textAlign: "center", direction: "ltr" }}
+            style={{
+              fontFamily,
+              fontSize: "clamp(24px,6vw,48px)",
+              fontWeight: 700,
+              color: "#FFFFFF",
+              textShadow: "0px 2px 8px rgba(0,0,0,0.3)",
+              textAlign: "center",
+            }}
           >
             {sectionTitle}
           </h2>
           <p
-            style={{ fontFamily: lang === 'ar' ? "Cairo, Tajawal, sans-serif" : "Poppins, sans-serif", fontSize: "clamp(13px,3vw,22px)", fontWeight: 400, color: "#FFFFFF", letterSpacing: "0.5px", maxWidth: "85%", textAlign: "center", direction: "ltr" }}
+            style={{
+              fontFamily,
+              fontSize: "clamp(13px,3vw,22px)",
+              fontWeight: 400,
+              color: "#FFFFFF",
+              letterSpacing: "0.5px",
+              maxWidth: "85%",
+              textAlign: "center",
+            }}
           >
             {sectionSubtitle}
           </p>
