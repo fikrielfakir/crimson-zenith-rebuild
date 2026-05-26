@@ -45,19 +45,7 @@ const proxyOptions = {
   },
 };
 
-const localProxyOptions = {
-  target: LOCAL_API,
-  changeOrigin: true,
-  configure: (proxy: any) => {
-    proxy.on("error", (err: any, _req: any, res: any) => {
-      console.error("[proxy] Local API unavailable:", err.message);
-      if (res && !res.headersSent) {
-        res.writeHead(503, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ message: "API unavailable — please wait and try again." }));
-      }
-    });
-  },
-};
+const localProxyOptions = proxyOptions;
 
 const laravelProxyOptions = proxyOptions;
 

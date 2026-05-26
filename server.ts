@@ -3353,26 +3353,6 @@ app.put('/api/booking/my-tickets/:reference/update', async (req, res) => {
 app.get('/api/cms/hero', async (req, res) => {
   try {
     const settings = await storage.getHeroSettings();
-    if (!settings) {
-      return res.json({
-        id: 'default',
-        title: ["Where Adventure Meets Transformation", "اكتشف المغرب"],
-        subtitle: "Experience Morocco's soul through sustainable journeys. Discover culture, embrace adventure, and create lasting connections with local communities.",
-        primaryButtonText: "Start Your Journey",
-        primaryButtonLink: "/join",
-        secondaryButtonText: "Explore Clubs",
-        secondaryButtonLink: "/clubs",
-        backgroundType: "image",
-        backgroundOverlayColor: "rgba(26, 54, 93, 0.7)",
-        titleFontSize: "65px",
-        titleColor: "#ffffff",
-        subtitleFontSize: "20px",
-        subtitleColor: "#ffffff",
-        enableTypewriter: true,
-        showPrimaryButton: true,
-        showSecondaryButton: true,
-      });
-    }
     res.json(settings);
   } catch (error) {
     console.error('❌ Error fetching hero settings:', error);
