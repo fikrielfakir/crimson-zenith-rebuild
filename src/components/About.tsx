@@ -156,15 +156,15 @@ const About = () => {
           style={{ background: "linear-gradient(#112250 0%, rgba(10,26,61,0.4) 40%, transparent 60%)", zIndex: 1 }}
         />
 
-        <div className="absolute top-0 left-0 right-0 text-center pt-6 sm:pt-10 md:pt-12 pb-6 z-10 pointer-events-none">
+        <div className="absolute top-0 left-0 right-0 pt-6 sm:pt-10 md:pt-12 pb-6 z-10 pointer-events-none flex flex-col items-center">
           <h2
-            className="font-bold mb-2 sm:mb-3"
+            className="font-bold mb-2 sm:mb-3 text-center w-full"
             style={{ fontFamily: "Poppins, sans-serif", fontSize: "clamp(24px,6vw,48px)", fontWeight: 700, color: "#FFFFFF", textShadow: "0px 2px 8px rgba(0,0,0,0.3)" }}
           >
             {sectionTitle}
           </h2>
           <p
-            className="mx-auto"
+            className="text-center"
             style={{ fontFamily: "Poppins, sans-serif", fontSize: "clamp(13px,3vw,22px)", fontWeight: 400, color: "#FFFFFF", letterSpacing: "0.5px", maxWidth: "85%" }}
           >
             {sectionSubtitle}
