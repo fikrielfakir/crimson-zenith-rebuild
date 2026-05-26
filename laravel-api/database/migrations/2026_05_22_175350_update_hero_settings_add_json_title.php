@@ -36,17 +36,32 @@ return new class extends Migration {
         });
 
         // Migrate: convert title (text) → json array using existing typewriter_texts if populated
-        DB::statement("
-            UPDATE hero_settings
-            SET title = CASE
-                WHEN typewriter_texts IS NOT NULL
-                  AND JSON_VALID(typewriter_texts)
-                  AND JSON_LENGTH(typewriter_texts) > 0
-                THEN typewriter_texts
-                ELSE JSON_ARRAY(JSON_OBJECT('text', title, 'twoLines', TRUE))
-            END
-            WHERE JSON_VALID(title) = 0 OR title IS NULL
-        ");
+        // Use SQLite-compatible syntax (no JSON_LENGTH, JSON_ARRAY, JSON_OBJECT)
+        $driver = DB::connection()->getDriverName();
+        if ($driver === 'sqlite') {
+            DB::statement("
+                UPDATE hero_settings
+                SET title = CASE
+                    WHEN typewriter_texts IS NOT NULL
+                      AND json_valid(typewriter_texts)
+                    THEN typewriter_texts
+                    ELSE json('[{\"text\":\"' || replace(coalesce(title,''), '\"', '\\\"') || '\",\"twoLines\":true}]')
+                END
+                WHERE json_valid(title) = 0 OR title IS NULL
+            ");
+        } else {
+            DB::statement("
+                UPDATE hero_settings
+                SET title = CASE
+                    WHEN typewriter_texts IS NOT NULL
+                      AND JSON_VALID(typewriter_texts)
+                      AND JSON_LENGTH(typewriter_texts) > 0
+                    THEN typewriter_texts
+                    ELSE JSON_ARRAY(JSON_OBJECT('text', title, 'twoLines', TRUE))
+                END
+                WHERE JSON_VALID(title) = 0 OR title IS NULL
+            ");
+        }
 
         // Change title column from text to json
         Schema::table('hero_settings', function (Blueprint $table) {

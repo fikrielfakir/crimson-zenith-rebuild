@@ -22,17 +22,45 @@ function patchCookies(proxyRes: any) {
   );
 }
 
-const LARAVEL_API = "https://api.thejourney-ma.org";
+const LARAVEL_API = "http://localhost:8000";
 const LOCAL_API = "http://localhost:3001";
 
 const proxyOptions = {
+  target: LOCAL_API,
+  changeOrigin: true,
+  secure: false,
+  configure: (proxy: any) => {
+    proxy.on("proxyRes", patchCookies);
+    proxy.on("error", (err: any, _req: any, res: any) => {
+      console.error("[proxy] API unavailable:", err.message);
+      if (res && !res.headersSent) {
+        res.writeHead(503, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ message: "API unavailable — please wait and try again." }));
+      }
+    });
+  },
+};
+
+const localProxyOptions = {
+  target: LOCAL_API,
+  changeOrigin: true,
+  secure: false,
+  configure: (proxy: any) => {
+    proxy.on("proxyRes", patchCookies);
+    proxy.on("error", (err: any, _req: any, res: any) => {
+      console.error("[proxy] Local API unavailable:", err.message);
+      if (res && !res.headersSent) {
+        res.writeHead(503, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ message: "Local API unavailable — please wait and try again." }));
+      }
+    });
+  },
+};
+
+const laravelProxyOptions = {
   target: LARAVEL_API,
   changeOrigin: true,
-  secure: true,
-  headers: {
-    Origin: "https://thejourney-ma.org",
-    Referer: "https://thejourney-ma.org/",
-  },
+  secure: false,
   configure: (proxy: any) => {
     proxy.on("proxyRes", patchCookies);
     proxy.on("error", (err: any, _req: any, res: any) => {
@@ -44,8 +72,6 @@ const proxyOptions = {
     });
   },
 };
-
-const localProxyOptions = proxyOptions;
 
 export default defineConfig(({ mode }: { mode: string }) => ({
   optimizeDeps: {
@@ -69,8 +95,8 @@ export default defineConfig(({ mode }: { mode: string }) => ({
       "/api/cms":         localProxyOptions,
       "/api/placeholder": { target: LOCAL_API, changeOrigin: true },
       "/api":             proxyOptions,
-      "/sanctum":      proxyOptions,
-      "/storage":      proxyOptions,
+      "/sanctum":      laravelProxyOptions,
+      "/storage":      laravelProxyOptions,
     },
     watch: {
       ignored: [

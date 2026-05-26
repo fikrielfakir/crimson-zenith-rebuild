@@ -1,22 +1,31 @@
 import { useEffect, useRef, useState } from 'react';
 
 export default function HeaderSpacer() {
-  const [height, setHeight] = useState(220);
+  const [height, setHeight] = useState(0);
 
   useEffect(() => {
+    const header = document.querySelector('header');
+    if (!header) return;
+
     function measure() {
-      const header = document.querySelector('header');
-      if (header) {
-        const rect = header.getBoundingClientRect();
-        setHeight(rect.bottom > 0 ? rect.bottom : rect.height);
-      }
+      if (!header) return;
+      const rect = header.getBoundingClientRect();
+      const computedStyle = window.getComputedStyle(header);
+      const marginTop = parseFloat(computedStyle.marginTop) || 0;
+      const totalHeight = rect.height + marginTop;
+      setHeight(totalHeight > 0 ? totalHeight : rect.bottom);
     }
+
     measure();
+
+    const resizeObserver = new ResizeObserver(measure);
+    resizeObserver.observe(header);
+
     window.addEventListener('resize', measure);
-    const id = setTimeout(measure, 300);
+
     return () => {
+      resizeObserver.disconnect();
       window.removeEventListener('resize', measure);
-      clearTimeout(id);
     };
   }, []);
 
