@@ -30,6 +30,9 @@ import {
   partnerSettings,
   partners,
   contentTranslations,
+  legalPages,
+  type LegalPage,
+  type InsertLegalPage,
   type ContentTranslation,
   type InsertContentTranslation,
   type User,
@@ -1409,6 +1412,23 @@ export class DatabaseStorage implements IStorage {
 
   async deleteTranslation(id: number): Promise<void> {
     await db.delete(contentTranslations).where(eq(contentTranslations.id, id));
+  }
+
+  // Legal Pages
+  async getLegalPage(pageKey: string): Promise<LegalPage | undefined> {
+    const [row] = await db.select().from(legalPages).where(eq(legalPages.pageKey, pageKey));
+    return row;
+  }
+
+  async upsertLegalPage(pageKey: string, data: Partial<InsertLegalPage>, userId?: string): Promise<LegalPage> {
+    const existing = await this.getLegalPage(pageKey);
+    if (existing) {
+      await db.update(legalPages).set({ ...data, updatedBy: userId, updatedAt: new Date() }).where(eq(legalPages.pageKey, pageKey));
+    } else {
+      await db.insert(legalPages).values({ ...data, pageKey, updatedBy: userId } as InsertLegalPage);
+    }
+    const [row] = await db.select().from(legalPages).where(eq(legalPages.pageKey, pageKey));
+    return row;
   }
 }
 

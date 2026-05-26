@@ -361,7 +361,8 @@
       "cookies": "Cookies",
       "system": "Système",
       "logout": "Déconnexion",
-      "contactSettings": "Paramètres de contact"
+      "contactSettings": "Paramètres de contact",
+      "legalPages": "Pages Légales"
     },
     "header": {
       "searchPlaceholder": "Rechercher… (Cmd+K)",

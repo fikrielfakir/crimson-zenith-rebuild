@@ -774,7 +774,20 @@ export const contentTranslations = pgTable(
   ]
 );
 
+// Legal Pages table — stores editable content for /privacy-policy, /terms-of-service, /cookie-policy
+export const legalPages = pgTable("legal_pages", {
+  id: serial("id").primaryKey(),
+  pageKey: varchar("page_key", { length: 100 }).notNull().unique(),
+  title: varchar("title", { length: 255 }).notNull(),
+  content: text("content").notNull(),
+  updatedBy: varchar("updated_by", { length: 255 }).references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Type exports
+export type LegalPage = typeof legalPages.$inferSelect;
+export type InsertLegalPage = typeof legalPages.$inferInsert;
 export type ContentTranslation = typeof contentTranslations.$inferSelect;
 export type InsertContentTranslation = typeof contentTranslations.$inferInsert;
 export type GalleryItem = typeof galleryItems.$inferSelect;

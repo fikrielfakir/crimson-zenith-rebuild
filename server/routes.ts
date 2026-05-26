@@ -1429,6 +1429,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ── Legal Pages (cookie-policy, privacy-policy, terms-of-service) ──────────
+
+  // Public: get legal page content
+  app.get('/api/cms/legal/:pageKey', async (req, res) => {
+    try {
+      const page = await storage.getLegalPage(req.params.pageKey);
+      res.json(page || null);
+    } catch (error) {
+      console.error("Error fetching legal page:", error);
+      res.status(500).json({ message: "Failed to fetch legal page" });
+    }
+  });
+
+  // Admin: upsert legal page content
+  app.put('/api/admin/cms/legal/:pageKey', isAuthenticated, isAdmin, async (req: any, res) => {
+    try {
+      const userId = req.user?.id;
+      const page = await storage.upsertLegalPage(req.params.pageKey, req.body, userId);
+      res.json(page);
+    } catch (error) {
+      console.error("Error saving legal page:", error);
+      res.status(500).json({ message: "Failed to save legal page" });
+    }
+  });
+
   // Page Hero Settings (per-page: contact, volunteers, blog, projects, discover, city-detail)
   app.get('/api/cms/page-hero/:pageKey', async (req, res) => {
     try {

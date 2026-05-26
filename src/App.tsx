@@ -53,6 +53,7 @@ import LandingManagement from "./pages/admin/LandingManagement";
 import ApplicationsManagement from "./pages/admin/ApplicationsManagement";
 import JoinUsConfig from "./pages/admin/JoinUsConfig";
 import CookieSettings from "./pages/admin/CookieSettings";
+import LegalPagesSettings from "./pages/admin/LegalPagesSettings";
 import AuthSettings from "./pages/admin/AuthSettings";
 import PaymentSettings from "./pages/admin/PaymentSettings";
 import BookingManagement from "./pages/admin/BookingManagement";
@@ -251,6 +252,11 @@ const App = () => (
           <Route path="/admin/cookies" element={
             <ProtectedRoute>
               <CookieSettings />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/legal-pages" element={
+            <ProtectedRoute>
+              <LegalPagesSettings />
             </ProtectedRoute>
           } />
           <Route path="/admin/auth" element={

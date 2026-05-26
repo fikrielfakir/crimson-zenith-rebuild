@@ -361,7 +361,8 @@
       "cookies": "ملفات تعريف الارتباط",
       "system": "النظام",
       "logout": "تسجيل الخروج",
-      "contactSettings": "إعدادات التواصل"
+      "contactSettings": "إعدادات التواصل",
+      "legalPages": "الصفحات القانونية"
     },
     "header": {
       "searchPlaceholder": "بحث… (Cmd+K)",

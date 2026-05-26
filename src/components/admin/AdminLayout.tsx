@@ -137,6 +137,7 @@ const navigationItems: NavigationItem[] = [
       { labelKey: 'admin.nav.email', href: '/admin/email' },
       { labelKey: 'admin.nav.auth', href: '/admin/auth' },
       { labelKey: 'admin.nav.cookies', href: '/admin/cookies' },
+      { labelKey: 'admin.nav.legalPages', href: '/admin/legal-pages' },
     ],
   },
   { labelKey: 'admin.nav.system', icon: Server, href: '/admin/system' },
