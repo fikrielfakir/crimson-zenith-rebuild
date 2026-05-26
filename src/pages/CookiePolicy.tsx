@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import HeaderSpacer from "@/components/HeaderSpacer";
 import { apiFetch } from '@/lib/apiFetch';
 import { Loader2 } from 'lucide-react';
 
@@ -86,7 +87,8 @@ const CookiePolicy = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-orange-50">
       <Header />
-      <div className="container mx-auto px-4 pt-36 pb-20">
+      <HeaderSpacer />
+      <div className="container mx-auto px-4 pb-20">
         <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-8">
           {isLoading ? (
             <div className="flex justify-center py-16">
