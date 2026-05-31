@@ -136,7 +136,7 @@ export default function EventsManagement() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['admin-club-events'],
     queryFn: fetchEvents,
   });
