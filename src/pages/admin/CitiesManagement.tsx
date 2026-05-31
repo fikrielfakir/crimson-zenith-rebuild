@@ -622,6 +622,80 @@ function SortableCard({ id, children }: { id: string; children: (handle: React.R
   );
 }
 
+/* ─────────────────── translation field builder ─────────────────── */
+function buildCityTranslateProps(city: City): {
+  fields: { key: string; label: string; multiline?: boolean }[];
+  sourceValues: Record<string, string>;
+} {
+  const fields: { key: string; label: string; multiline?: boolean }[] = [
+    { key: 'name',                  label: 'City Name' },
+    { key: 'title',                 label: 'Tagline' },
+    { key: 'description',           label: 'Description', multiline: true },
+    { key: 'culture_title',         label: 'Culture — Section Title' },
+    { key: 'culture_description',   label: 'Culture — Description', multiline: true },
+    { key: 'cuisine_title',         label: 'Cuisine — Section Title' },
+    { key: 'best_time_season',      label: 'Best Time — Season' },
+    { key: 'best_time_months',      label: 'Best Time — Months' },
+    { key: 'best_time_description', label: 'Best Time — Description', multiline: true },
+    { key: 'best_time_temperature', label: 'Best Time — Temperature' },
+    { key: 'getting_there_airport', label: 'Getting There — Airport' },
+    { key: 'getting_there_local',   label: 'Getting There — Local Transport', multiline: true },
+  ];
+
+  const sourceValues: Record<string, string> = {
+    name:                  city.name,
+    title:                 city.title ?? '',
+    description:           city.description ?? '',
+    culture_title:         city.culture?.title ?? '',
+    culture_description:   city.culture?.description ?? '',
+    cuisine_title:         city.cuisine?.title ?? '',
+    best_time_season:      city.bestTime?.season ?? '',
+    best_time_months:      city.bestTime?.months ?? '',
+    best_time_description: city.bestTime?.description ?? '',
+    best_time_temperature: city.bestTime?.temperature ?? '',
+    getting_there_airport: city.gettingThere?.airport ?? '',
+    getting_there_local:   city.gettingThere?.localTransport ?? '',
+  };
+
+  (city.highlights || []).forEach((h, i) => {
+    const text = typeof h === 'string' ? h : (h as any).text ?? '';
+    fields.push({ key: `highlight_${i}`, label: `Highlight ${i + 1}` });
+    sourceValues[`highlight_${i}`] = text;
+  });
+
+  (city.culture?.highlights || []).forEach((h, i) => {
+    const text = typeof h === 'string' ? h : (h as any).text ?? '';
+    fields.push({ key: `culture_highlight_${i}`, label: `Culture Highlight ${i + 1}` });
+    sourceValues[`culture_highlight_${i}`] = text;
+  });
+
+  (city.activities || []).forEach((a, i) => {
+    fields.push({ key: `activity_${i}_name`,        label: `Activity ${i + 1} — Name` });
+    fields.push({ key: `activity_${i}_description`, label: `Activity ${i + 1} — Description`, multiline: true });
+    sourceValues[`activity_${i}_name`]        = a.name ?? '';
+    sourceValues[`activity_${i}_description`] = a.description ?? '';
+  });
+
+  (city.cuisine?.dishes || []).forEach((d, i) => {
+    fields.push({ key: `dish_${i}_name`,        label: `Dish ${i + 1} — Name` });
+    fields.push({ key: `dish_${i}_description`, label: `Dish ${i + 1} — Description`, multiline: true });
+    sourceValues[`dish_${i}_name`]        = d.name ?? '';
+    sourceValues[`dish_${i}_description`] = d.description ?? '';
+  });
+
+  (city.travelTips || []).forEach((tip, i) => {
+    fields.push({ key: `travel_tip_${i}`, label: `Travel Tip ${i + 1}`, multiline: true });
+    sourceValues[`travel_tip_${i}`] = typeof tip === 'string' ? tip : '';
+  });
+
+  (city.gettingThere?.transport || []).forEach((opt, i) => {
+    fields.push({ key: `transport_${i}`, label: `Transport Option ${i + 1}` });
+    sourceValues[`transport_${i}`] = typeof opt === 'string' ? opt : '';
+  });
+
+  return { fields, sourceValues };
+}
+
 /* ─────────────────── empty city ─────────────────── */
 const emptyCity: Omit<City, 'id'> = {
   name: '', slug: '', title: '', description: '', image: '',
@@ -1067,34 +1141,7 @@ export default function CitiesManagement() {
                             entityType="city"
                             entityId={city.id}
                             entityLabel={city.name}
-                            fields={[
-                              { key: 'name',                        label: 'City Name' },
-                              { key: 'title',                       label: 'Tagline' },
-                              { key: 'description',                 label: 'Description', multiline: true },
-                              { key: 'culture_title',               label: 'Culture — Section Title' },
-                              { key: 'culture_description',         label: 'Culture — Description', multiline: true },
-                              { key: 'cuisine_title',               label: 'Cuisine — Section Title' },
-                              { key: 'best_time_season',            label: 'Best Time — Season' },
-                              { key: 'best_time_months',            label: 'Best Time — Months' },
-                              { key: 'best_time_description',       label: 'Best Time — Description', multiline: true },
-                              { key: 'best_time_temperature',       label: 'Best Time — Temperature' },
-                              { key: 'getting_there_airport',       label: 'Getting There — Airport' },
-                              { key: 'getting_there_local',         label: 'Getting There — Local Transport', multiline: true },
-                            ]}
-                            sourceValues={{
-                              name:                        city.name,
-                              title:                       city.title ?? '',
-                              description:                 city.description ?? '',
-                              culture_title:               city.culture?.title ?? '',
-                              culture_description:         city.culture?.description ?? '',
-                              cuisine_title:               city.cuisine?.title ?? '',
-                              best_time_season:            city.bestTime?.season ?? '',
-                              best_time_months:            city.bestTime?.months ?? '',
-                              best_time_description:       city.bestTime?.description ?? '',
-                              best_time_temperature:       city.bestTime?.temperature ?? '',
-                              getting_there_airport:       city.gettingThere?.airport ?? '',
-                              getting_there_local:         city.gettingThere?.localTransport ?? '',
-                            }}
+                            {...buildCityTranslateProps(city)}
                           />
                           {/* edit */}
                           <Button size="sm" variant="outline" onClick={() => openEdit(city)} className="h-8 gap-1.5">

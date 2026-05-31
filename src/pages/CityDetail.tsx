@@ -146,15 +146,41 @@ const CityDetail = () => {
       name:        t('name')        ?? city.name,
       title:       t('title')       ?? city.title,
       description: t('description') ?? city.description,
+
+      highlights: (city.highlights || []).map((h, i) => {
+        const orig = typeof h === 'string' ? h : (h as any).text ?? '';
+        const translated = t(`highlight_${i}`);
+        if (!translated) return h;
+        return typeof h === 'string' ? translated : { ...(h as any), text: translated };
+      }),
+
       culture: city.culture ? {
         ...city.culture,
         title:       t('culture_title')       ?? city.culture.title,
         description: t('culture_description') ?? city.culture.description,
+        highlights: (city.culture.highlights || []).map((h, i) => {
+          const translated = t(`culture_highlight_${i}`);
+          if (!translated) return h;
+          return typeof h === 'string' ? translated : { ...(h as any), text: translated };
+        }),
       } : city.culture,
+
+      activities: (city.activities || []).map((a, i) => ({
+        ...a,
+        name:        t(`activity_${i}_name`)        ?? a.name,
+        description: t(`activity_${i}_description`) ?? a.description,
+      })),
+
       cuisine: city.cuisine ? {
         ...city.cuisine,
         title: t('cuisine_title') ?? city.cuisine.title,
+        dishes: (city.cuisine.dishes || []).map((d, i) => ({
+          ...d,
+          name:        t(`dish_${i}_name`)        ?? d.name,
+          description: t(`dish_${i}_description`) ?? d.description,
+        })),
       } : city.cuisine,
+
       bestTime: city.bestTime ? {
         ...city.bestTime,
         season:      t('best_time_season')       ?? city.bestTime.season,
@@ -162,11 +188,19 @@ const CityDetail = () => {
         description: t('best_time_description')  ?? city.bestTime.description,
         temperature: t('best_time_temperature')  ?? city.bestTime.temperature,
       } : city.bestTime,
+
       gettingThere: city.gettingThere ? {
         ...city.gettingThere,
-        airport:       t('getting_there_airport') ?? city.gettingThere.airport,
-        localTransport: t('getting_there_local')  ?? city.gettingThere.localTransport,
+        airport:        t('getting_there_airport') ?? city.gettingThere.airport,
+        localTransport: t('getting_there_local')   ?? city.gettingThere.localTransport,
+        transport: (city.gettingThere.transport || []).map((opt, i) =>
+          t(`transport_${i}`) ?? opt
+        ),
       } : city.gettingThere,
+
+      travelTips: (city.travelTips || []).map((tip, i) =>
+        t(`travel_tip_${i}`) ?? tip
+      ),
     };
   })();
 
