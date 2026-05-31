@@ -845,3 +845,19 @@ export type PageHeroSetting = typeof pageHeroSettings.$inferSelect;
 export type InsertPageHeroSetting = typeof pageHeroSettings.$inferInsert;
 export type BookingTicket = typeof bookingTickets.$inferSelect;
 export type InsertBookingTicket = typeof bookingTickets.$inferInsert;
+
+// Clubs Page CMS settings
+export const clubsPageSettings = pgTable("clubs_page_settings", {
+  id: varchar("id", { length: 255 }).primaryKey().default("default"),
+  introHeading: varchar("intro_heading", { length: 255 }),
+  introDescription: text("intro_description"),
+  ctaHeading: varchar("cta_heading", { length: 255 }),
+  ctaDescription: text("cta_description"),
+  ctaButtonText: varchar("cta_button_text", { length: 100 }),
+  ctaButtonLink: varchar("cta_button_link", { length: 500 }),
+  updatedBy: varchar("updated_by", { length: 255 }),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export type ClubsPageSettings = typeof clubsPageSettings.$inferSelect;
+export type InsertClubsPageSettings = typeof clubsPageSettings.$inferInsert;

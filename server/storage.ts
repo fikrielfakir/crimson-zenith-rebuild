@@ -31,6 +31,7 @@ import {
   partners,
   contentTranslations,
   legalPages,
+  clubsPageSettings,
   type LegalPage,
   type InsertLegalPage,
   type ContentTranslation,
@@ -46,6 +47,8 @@ import {
   type InsertBookingEvent,
   type BookingTicket,
   type InsertBookingTicket,
+  type ClubsPageSettings,
+  type InsertClubsPageSettings,
   type BookingPageSettings,
   type InsertBookingPageSettings,
   type ThemeSettings,
@@ -252,6 +255,10 @@ export interface IStorage {
   getPresidentMessageSettings(): Promise<PresidentMessageSettings | undefined>;
   updatePresidentMessageSettings(settings: Partial<InsertPresidentMessageSettings>, userId?: string): Promise<PresidentMessageSettings>;
   
+  // Clubs page settings operations
+  getClubsPageSettings(): Promise<ClubsPageSettings | undefined>;
+  updateClubsPageSettings(settings: Partial<InsertClubsPageSettings>, userId?: string): Promise<ClubsPageSettings>;
+
   // Partner settings operations
   getPartnerSettings(): Promise<PartnerSettings | undefined>;
   updatePartnerSettings(settings: Partial<InsertPartnerSettings>, userId?: string): Promise<PartnerSettings>;
@@ -1429,6 +1436,28 @@ export class DatabaseStorage implements IStorage {
     }
     const [row] = await db.select().from(legalPages).where(eq(legalPages.pageKey, pageKey));
     return row;
+  }
+
+  // Clubs page settings
+  async getClubsPageSettings(): Promise<ClubsPageSettings | undefined> {
+    const [settings] = await db.select().from(clubsPageSettings).where(eq(clubsPageSettings.id, 'default'));
+    return settings;
+  }
+
+  async updateClubsPageSettings(settingsData: Partial<InsertClubsPageSettings>, userId?: string): Promise<ClubsPageSettings> {
+    const existing = await this.getClubsPageSettings();
+    if (existing) {
+      return await this.updateAndFetch<ClubsPageSettings>(
+        clubsPageSettings,
+        'default',
+        { ...settingsData, updatedBy: userId, updatedAt: new Date() }
+      );
+    } else {
+      return await this.insertAndFetch<ClubsPageSettings>(
+        clubsPageSettings,
+        { ...settingsData, id: 'default', updatedBy: userId } as InsertClubsPageSettings
+      );
+    }
   }
 }
 

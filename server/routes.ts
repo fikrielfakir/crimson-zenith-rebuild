@@ -1578,6 +1578,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Clubs Page CMS settings (public read + admin write)
+  app.get('/api/cms/clubs-page', async (req, res) => {
+    try {
+      const settings = await storage.getClubsPageSettings();
+      res.json(settings ?? {});
+    } catch (error) {
+      console.error("Error fetching clubs page settings:", error);
+      res.status(500).json({ message: "Failed to fetch clubs page settings" });
+    }
+  });
+
+  app.put('/api/admin/cms/clubs-page', isAuthenticated, isAdmin, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const settings = await storage.updateClubsPageSettings(req.body, userId);
+      res.json(settings);
+    } catch (error) {
+      console.error("Error updating clubs page settings:", error);
+      res.status(500).json({ message: "Failed to update clubs page settings" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

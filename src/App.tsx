@@ -98,6 +98,7 @@ import WorkOffersAdmin from "./pages/admin/WorkOffersAdmin";
 import ProjectsAdmin from "./pages/admin/ProjectsAdmin";
 import TranslationsManagement from "./pages/admin/TranslationsManagement";
 import ContactSettings from "./pages/admin/ContactSettings";
+import ClubsPageSettingsAdmin from "./pages/admin/ClubsPageSettings";
 
 const queryClient = new QueryClient();
 
@@ -342,6 +343,11 @@ const App = () => (
           <Route path="/admin/customization/page-heroes" element={
             <ProtectedRoute>
               <PageHeroSettings />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/customization/clubs-page" element={
+            <ProtectedRoute>
+              <ClubsPageSettingsAdmin />
             </ProtectedRoute>
           } />
           <Route path="/admin/customization/contact" element={
