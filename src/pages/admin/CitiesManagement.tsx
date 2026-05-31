@@ -1303,12 +1303,54 @@ export default function CitiesManagement() {
       <Dialog open={showForm} onOpenChange={setShowForm}>
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{editing ? `Edit ${editing.name}` : 'Add New City'}</DialogTitle>
-            <DialogDescription>
-              {editing
-                ? `Changes will appear on /discover and /discover/cities?city=${editing.slug}`
-                : 'Add a new city destination to the Discover page.'}
-            </DialogDescription>
+            <div className="flex items-start justify-between gap-2">
+              <div>
+                <DialogTitle>{editing ? `Edit ${editing.name}` : 'Add New City'}</DialogTitle>
+                <DialogDescription>
+                  {editing
+                    ? `Changes will appear on /discover and /discover/cities?city=${editing.slug}`
+                    : 'Add a new city destination to the Discover page.'}
+                </DialogDescription>
+              </div>
+              {editing && (
+                <div className="flex gap-1 shrink-0 mt-0.5">
+                  <TranslateDialog
+                    entityType="city"
+                    entityId={String(editing.id)}
+                    entityLabel={`${editing.name} — Basic Info`}
+                    fields={[
+                      { key: 'name', label: 'City Name' },
+                      { key: 'title', label: 'Tagline / Subtitle' },
+                      { key: 'description', label: 'Description', multiline: true },
+                    ]}
+                    sourceValues={{
+                      name: form.name ?? '',
+                      title: form.title ?? '',
+                      description: form.description ?? '',
+                    }}
+                  />
+                  <TranslateDialog
+                    entityType="city-culture"
+                    entityId={String(editing.id)}
+                    entityLabel={`${editing.name} — Culture & Cuisine`}
+                    fields={[
+                      { key: 'culture_title', label: 'Culture Section Title' },
+                      { key: 'culture_description', label: 'Culture Description', multiline: true },
+                      { key: 'cuisine_title', label: 'Cuisine Section Title' },
+                      { key: 'besttime_description', label: 'Best Time Description', multiline: true },
+                      { key: 'gettinghere_local_transport', label: 'Local Transport', multiline: true },
+                    ]}
+                    sourceValues={{
+                      culture_title: form.culture?.title ?? '',
+                      culture_description: form.culture?.description ?? '',
+                      cuisine_title: form.cuisine?.title ?? '',
+                      besttime_description: form.bestTime?.description ?? '',
+                      gettinghere_local_transport: form.gettingThere?.localTransport ?? '',
+                    }}
+                  />
+                </div>
+              )}
+            </div>
           </DialogHeader>
           <div className="space-y-6 py-2">
             {/* Basic */}
