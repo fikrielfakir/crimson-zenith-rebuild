@@ -1098,8 +1098,25 @@ export default function CitiesManagement() {
               {/* Hero */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-base">Hero Section</CardTitle>
-                  <p className="text-sm text-muted-foreground">The full-screen banner at the top of the Discover page</p>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="text-base">Hero Section</CardTitle>
+                      <p className="text-sm text-muted-foreground">The full-screen banner at the top of the Discover page</p>
+                    </div>
+                    <TranslateDialog
+                      entityType="discover-page"
+                      entityId="1"
+                      entityLabel="Hero Section"
+                      fields={[
+                        { key: 'hero_title', label: 'Page Title' },
+                        { key: 'hero_subtitle', label: 'Subtitle', multiline: true },
+                      ]}
+                      sourceValues={{
+                        hero_title: currentDiscover.hero_title ?? '',
+                        hero_subtitle: currentDiscover.hero_subtitle ?? '',
+                      }}
+                    />
+                  </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
@@ -1121,8 +1138,25 @@ export default function CitiesManagement() {
               {/* Intro */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-base">Introduction Section</CardTitle>
-                  <p className="text-sm text-muted-foreground">The text section below the hero banner</p>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="text-base">Introduction Section</CardTitle>
+                      <p className="text-sm text-muted-foreground">The text section below the hero banner</p>
+                    </div>
+                    <TranslateDialog
+                      entityType="discover-page"
+                      entityId="2"
+                      entityLabel="Introduction Section"
+                      fields={[
+                        { key: 'intro_heading', label: 'Heading' },
+                        { key: 'intro_description', label: 'Description', multiline: true },
+                      ]}
+                      sourceValues={{
+                        intro_heading: currentDiscover.intro_heading ?? '',
+                        intro_description: currentDiscover.intro_description ?? '',
+                      }}
+                    />
+                  </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
@@ -1139,8 +1173,27 @@ export default function CitiesManagement() {
               {/* CTA */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-base">Call-to-Action Section</CardTitle>
-                  <p className="text-sm text-muted-foreground">The banner at the bottom of the Discover page</p>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="text-base">Call-to-Action Section</CardTitle>
+                      <p className="text-sm text-muted-foreground">The banner at the bottom of the Discover page</p>
+                    </div>
+                    <TranslateDialog
+                      entityType="discover-page"
+                      entityId="3"
+                      entityLabel="Call-to-Action Section"
+                      fields={[
+                        { key: 'cta_heading', label: 'Heading' },
+                        { key: 'cta_description', label: 'Description', multiline: true },
+                        { key: 'cta_button_text', label: 'Button Text' },
+                      ]}
+                      sourceValues={{
+                        cta_heading: currentDiscover.cta_heading ?? '',
+                        cta_description: currentDiscover.cta_description ?? '',
+                        cta_button_text: currentDiscover.cta_button_text ?? '',
+                      }}
+                    />
+                  </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">

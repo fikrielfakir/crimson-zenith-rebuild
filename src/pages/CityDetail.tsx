@@ -7,6 +7,7 @@ import { moroccoCities } from "@/lib/citiesData";
 import { Button } from "@/components/ui/button";
 import { MapPin, ArrowLeft, Home, ChevronRight, Compass, UtensilsCrossed, Calendar, Plane, Lightbulb, CheckCircle2, Map, Mountain, Coffee, Waves, Sun } from "lucide-react";
 import { apiFetch } from "@/lib/apiFetch";
+import { useTranslatedEntity } from "@/hooks/useContentTranslation";
 
 interface CityActivity {
   name: string;
@@ -129,11 +130,13 @@ const CityDetail = () => {
   const isVideoHero = heroBgType === "video" && !!heroVideoUrl;
   const overlayOpacity = Math.min(90, Math.max(0, city?.heroOverlay ?? 50)) / 100;
 
-  if (!city) {
+  const translatedCity = useTranslatedEntity(city, 'city', ['name', 'title', 'description']) ?? city;
+
+  if (!translatedCity) {
     return null;
   }
 
-  const otherCities = allCities.filter(c => c.slug !== city.slug).slice(0, 3);
+  const otherCities = allCities.filter(c => c.slug !== translatedCity.slug).slice(0, 3);
 
   return (
     <div className="min-h-screen bg-background">
@@ -184,7 +187,7 @@ const CityDetail = () => {
                   </li>
                   <li className="flex items-center">
                     <ChevronRight className="w-4 h-4 mx-1.5 text-white/50" />
-                    <span className="text-white font-semibold">{city.name}</span>
+                    <span className="text-white font-semibold">{translatedCity.name}</span>
                   </li>
                 </ol>
               </nav>
@@ -211,11 +214,11 @@ const CityDetail = () => {
             </div>
             
             <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-black text-white mb-6 tracking-tight leading-none animate-fade-in opacity-0 [animation-delay:600ms] [animation-fill-mode:forwards]" style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>
-              {city.name}
+              {translatedCity.name}
             </h1>
             
             <p className="text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl text-secondary font-light italic tracking-wide mb-8 animate-fade-in opacity-0 [animation-delay:800ms] [animation-fill-mode:forwards]" style={{ fontFamily: 'Georgia, Cambria, serif', textShadow: '0 4px 20px rgba(0,0,0,0.5)' }}>
-              {city.title}
+              {translatedCity.title}
             </p>
 
             <div className="w-24 h-1 bg-gradient-to-r from-secondary to-transparent rounded-full animate-fade-in opacity-0 [animation-delay:1000ms] [animation-fill-mode:forwards] shadow-lg" />
@@ -236,10 +239,10 @@ const CityDetail = () => {
             <div className="max-w-6xl mx-auto">
               <div className="mb-20">
                 <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
-                  About {city.name}
+                  About {translatedCity.name}
                 </h2>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  {city.description}
+                  {translatedCity.description}
                 </p>
               </div>
 
@@ -323,7 +326,7 @@ const CityDetail = () => {
                   </h2>
                 </div>
                 <p className="text-lg text-muted-foreground mb-12">
-                  Discover the best things to do in {city.name}
+                  Discover the best things to do in {translatedCity.name}
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                   {city.activities.map((activity, index) => {
@@ -358,7 +361,7 @@ const CityDetail = () => {
                   </h2>
                 </div>
                 <p className="text-lg text-muted-foreground mb-12">
-                  Savor the authentic flavors of {city.name}
+                  Savor the authentic flavors of {translatedCity.name}
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {(city.cuisine.dishes || []).map((dish, index) => (
@@ -473,7 +476,7 @@ const CityDetail = () => {
           <div className="container mx-auto px-6">
             <div className="max-w-4xl mx-auto text-center">
               <h3 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
-                Ready to explore {city.name}?
+                Ready to explore {translatedCity.name}?
               </h3>
               <p className="text-lg text-muted-foreground mb-10 max-w-2xl mx-auto">
                 Join us on an unforgettable journey to discover the beauty, culture, and heritage of this amazing Moroccan city.
