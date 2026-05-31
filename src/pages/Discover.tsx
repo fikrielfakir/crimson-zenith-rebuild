@@ -10,6 +10,9 @@ import PageHero from "@/components/PageHero";
 import { useQuery } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/apiFetch";
 import { moroccoCities } from "@/lib/citiesData";
+import { useTranslation } from "react-i18next";
+import { useTranslatedList } from "@/hooks/useContentTranslation";
+import { useCmsTranslations } from "@/hooks/useCmsTranslations";
 
 interface City {
   id: number;
@@ -48,6 +51,7 @@ async function fetchDiscoverSettings(): Promise<DiscoverSettings> {
 const Discover = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [scrollY, setScrollY] = useState(0);
+  const { t } = useTranslation();
 
   useEffect(() => {
     setIsVisible(true);
@@ -68,7 +72,7 @@ const Discover = () => {
     retry: 1,
   });
 
-  const cities: City[] = (!citiesError && apiCities && apiCities.length > 0)
+  const rawCities: City[] = (!citiesError && apiCities && apiCities.length > 0)
     ? apiCities
     : moroccoCities.map(c => ({
         id: c.id,
@@ -80,6 +84,21 @@ const Discover = () => {
         highlights: c.highlights,
       }));
 
+  // Apply city translations (name, title, description) for current language
+  const cities = useTranslatedList(rawCities, 'city', ['name', 'title', 'description']);
+
+  // Apply CMS translations for page-level sections
+  // entityIds match what the admin TranslateDialog uses: "1"=hero, "2"=intro, "3"=CTA
+  const tr = useCmsTranslations('discover-page');
+
+  const heroTitle    = tr('1', 'hero_title',    settings?.hero_title    ?? 'Discover Morocco');
+  const heroSubtitle = tr('1', 'hero_subtitle',  settings?.hero_subtitle ?? 'Explore the wonders of the Kingdom — from ancient medinas to snow-capped peaks.');
+  const introHeading = tr('2', 'intro_heading',  settings?.intro_heading ?? '');
+  const introDesc    = tr('2', 'intro_description', settings?.intro_description ?? '');
+  const ctaHeading   = tr('3', 'cta_heading',    settings?.cta_heading   ?? '');
+  const ctaDesc      = tr('3', 'cta_description', settings?.cta_description ?? '');
+  const ctaButtonText = tr('3', 'cta_button_text', settings?.cta_button_text ?? '');
+
   return (
     <div className="min-h-screen bg-background">
       <SEOHead {...routeSEO["/discover"]} />
@@ -90,8 +109,8 @@ const Discover = () => {
           pageKey="discover"
           scrollY={scrollY}
           breadcrumbs={[{ label: "Discover" }]}
-          defaultTitle={settings?.hero_title || "Discover Morocco"}
-          defaultSubtitle={settings?.hero_subtitle || "Explore the wonders of the Kingdom — from ancient medinas to snow-capped peaks."}
+          defaultTitle={heroTitle}
+          defaultSubtitle={heroSubtitle}
           defaultImage={settings?.hero_bg_image || ""}
         />
 
@@ -100,10 +119,10 @@ const Discover = () => {
           <div className="container mx-auto px-6">
             <div className={`max-w-4xl mx-auto text-center transition-all duration-1000 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6 md:mb-8 leading-tight">
-                {settings?.intro_heading}
+                {introHeading}
               </h2>
               <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
-                {settings?.intro_description}
+                {introDesc}
               </p>
             </div>
           </div>
@@ -157,7 +176,7 @@ const Discover = () => {
                     className="mt-6 md:mt-8 bg-gradient-to-r from-[#1a9b8e] to-[#158074] hover:from-[#158074] hover:to-[#0f5f56] text-white px-8 py-4 md:px-10 md:py-7 rounded-full text-base font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 group border-2 border-[#1a9b8e]/20"
                   >
                     <Link to={`/discover/cities?city=${city.slug}`}>
-                      DISCOVER MORE
+                      {t('discover.exploreCity')}
                       <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-2 transition-transform duration-300" />
                     </Link>
                   </Button>
@@ -181,17 +200,17 @@ const Discover = () => {
           <div className="container mx-auto px-6 relative z-10">
             <div className="max-w-3xl mx-auto text-center text-white">
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6 drop-shadow-lg">
-                {settings?.cta_heading}
+                {ctaHeading}
               </h2>
               <p className="text-base md:text-lg lg:text-xl mb-8 md:mb-10 text-white/90 leading-relaxed">
-                {settings?.cta_description}
+                {ctaDesc}
               </p>
               <Button
                 asChild
                 className="bg-white text-primary hover:bg-white/90 px-8 py-4 md:px-12 md:py-7 rounded-full text-base md:text-lg font-bold shadow-2xl hover:shadow-3xl transition-all duration-300 group"
               >
                 <Link to={settings?.cta_button_link ?? '/join-us'}>
-                  {settings?.cta_button_text}
+                  {ctaButtonText}
                   <ArrowRight className="ml-3 w-6 h-6 group-hover:translate-x-2 transition-transform duration-300" />
                 </Link>
               </Button>
