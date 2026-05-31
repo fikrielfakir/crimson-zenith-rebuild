@@ -1068,11 +1068,33 @@ export default function CitiesManagement() {
                             entityId={city.id}
                             entityLabel={city.name}
                             fields={[
-                              { key: 'name', label: 'Name' },
-                              { key: 'title', label: 'Title' },
-                              { key: 'description', label: 'Description', multiline: true },
+                              { key: 'name',                        label: 'City Name' },
+                              { key: 'title',                       label: 'Tagline' },
+                              { key: 'description',                 label: 'Description', multiline: true },
+                              { key: 'culture_title',               label: 'Culture — Section Title' },
+                              { key: 'culture_description',         label: 'Culture — Description', multiline: true },
+                              { key: 'cuisine_title',               label: 'Cuisine — Section Title' },
+                              { key: 'best_time_season',            label: 'Best Time — Season' },
+                              { key: 'best_time_months',            label: 'Best Time — Months' },
+                              { key: 'best_time_description',       label: 'Best Time — Description', multiline: true },
+                              { key: 'best_time_temperature',       label: 'Best Time — Temperature' },
+                              { key: 'getting_there_airport',       label: 'Getting There — Airport' },
+                              { key: 'getting_there_local',         label: 'Getting There — Local Transport', multiline: true },
                             ]}
-                            sourceValues={{ name: city.name, title: (city as any).title ?? '', description: (city as any).description ?? '' }}
+                            sourceValues={{
+                              name:                        city.name,
+                              title:                       city.title ?? '',
+                              description:                 city.description ?? '',
+                              culture_title:               city.culture?.title ?? '',
+                              culture_description:         city.culture?.description ?? '',
+                              cuisine_title:               city.cuisine?.title ?? '',
+                              best_time_season:            city.bestTime?.season ?? '',
+                              best_time_months:            city.bestTime?.months ?? '',
+                              best_time_description:       city.bestTime?.description ?? '',
+                              best_time_temperature:       city.bestTime?.temperature ?? '',
+                              getting_there_airport:       city.gettingThere?.airport ?? '',
+                              getting_there_local:         city.gettingThere?.localTransport ?? '',
+                            }}
                           />
                           {/* edit */}
                           <Button size="sm" variant="outline" onClick={() => openEdit(city)} className="h-8 gap-1.5">

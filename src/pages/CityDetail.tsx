@@ -7,7 +7,8 @@ import { moroccoCities } from "@/lib/citiesData";
 import { Button } from "@/components/ui/button";
 import { MapPin, ArrowLeft, Home, ChevronRight, Compass, UtensilsCrossed, Calendar, Plane, Lightbulb, CheckCircle2, Map, Mountain, Coffee, Waves, Sun } from "lucide-react";
 import { apiFetch } from "@/lib/apiFetch";
-import { useTranslatedEntity } from "@/hooks/useContentTranslation";
+import { useEntityTranslations } from "@/hooks/useContentTranslation";
+import { useTranslation } from "react-i18next";
 
 interface CityActivity {
   name: string;
@@ -130,7 +131,44 @@ const CityDetail = () => {
   const isVideoHero = heroBgType === "video" && !!heroVideoUrl;
   const overlayOpacity = Math.min(90, Math.max(0, city?.heroOverlay ?? 50)) / 100;
 
-  const translatedCity = useTranslatedEntity(city, 'city', ['name', 'title', 'description']) ?? city;
+  const { i18n } = useTranslation();
+  const { data: cityTranslations } = useEntityTranslations('city', city?.id);
+
+  const translatedCity = (() => {
+    if (!city) return city;
+    if (!cityTranslations || i18n.language === 'en') return city;
+
+    const t = (field: string) =>
+      cityTranslations.find(tr => tr.field === field && tr.language === i18n.language)?.value;
+
+    return {
+      ...city,
+      name:        t('name')        ?? city.name,
+      title:       t('title')       ?? city.title,
+      description: t('description') ?? city.description,
+      culture: city.culture ? {
+        ...city.culture,
+        title:       t('culture_title')       ?? city.culture.title,
+        description: t('culture_description') ?? city.culture.description,
+      } : city.culture,
+      cuisine: city.cuisine ? {
+        ...city.cuisine,
+        title: t('cuisine_title') ?? city.cuisine.title,
+      } : city.cuisine,
+      bestTime: city.bestTime ? {
+        ...city.bestTime,
+        season:      t('best_time_season')       ?? city.bestTime.season,
+        months:      t('best_time_months')       ?? city.bestTime.months,
+        description: t('best_time_description')  ?? city.bestTime.description,
+        temperature: t('best_time_temperature')  ?? city.bestTime.temperature,
+      } : city.bestTime,
+      gettingThere: city.gettingThere ? {
+        ...city.gettingThere,
+        airport:       t('getting_there_airport') ?? city.gettingThere.airport,
+        localTransport: t('getting_there_local')  ?? city.gettingThere.localTransport,
+      } : city.gettingThere,
+    };
+  })();
 
   if (!translatedCity) {
     return null;
@@ -246,13 +284,13 @@ const CityDetail = () => {
                 </p>
               </div>
 
-              {(city.highlights || []).length > 0 && (
+              {(translatedCity.highlights || []).length > 0 && (
                 <div className="mb-20">
                   <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-8">
                     Highlights & Must-See Attractions
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {city.highlights.map((highlight, index) => {
+                    {translatedCity.highlights.map((highlight, index) => {
                       const text = typeof highlight === 'string' ? highlight : highlight.text;
                       const image = typeof highlight === 'object' ? highlight.image : undefined;
                       return (
@@ -281,22 +319,22 @@ const CityDetail = () => {
         </section>
 
         {/* Culture & Heritage Section */}
-        {city.culture && (
+        {translatedCity.culture && (
           <section className="py-20 bg-muted/30">
             <div className="container mx-auto px-6">
               <div className="max-w-6xl mx-auto">
                 <div className="flex items-center gap-3 mb-6">
                   <Compass className="w-8 h-8 text-secondary" />
                   <h2 className="text-3xl md:text-4xl font-bold text-foreground">
-                    {city.culture.title}
+                    {translatedCity.culture.title}
                   </h2>
                 </div>
                 <p className="text-lg text-muted-foreground leading-relaxed mb-8">
-                  {city.culture.description}
+                  {translatedCity.culture.description}
                 </p>
-                {(city.culture.highlights || []).length > 0 && (
+                {(translatedCity.culture.highlights || []).length > 0 && (
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {city.culture.highlights.map((item, index) => {
+                    {translatedCity.culture.highlights.map((item, index) => {
                       const text = typeof item === 'string' ? item : item.text;
                       const image = typeof item === 'object' ? item.image : undefined;
                       return (
@@ -315,7 +353,7 @@ const CityDetail = () => {
         )}
 
         {/* Activities & Experiences Section */}
-        {(city.activities || []).length > 0 && (
+        {(translatedCity.activities || []).length > 0 && (
           <section className="py-20 bg-background">
             <div className="container mx-auto px-6">
               <div className="max-w-6xl mx-auto">
@@ -329,7 +367,7 @@ const CityDetail = () => {
                   Discover the best things to do in {translatedCity.name}
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {city.activities.map((activity, index) => {
+                  {translatedCity.activities.map((activity, index) => {
                     const IconComponent = activity.icon === "map" ? Map :
                                          activity.icon === "mountain" ? Mountain :
                                          activity.icon === "coffee" ? Coffee : Waves;
@@ -350,21 +388,21 @@ const CityDetail = () => {
         )}
 
         {/* Local Cuisine Section */}
-        {city.cuisine && (
+        {translatedCity.cuisine && (
           <section className="py-20 bg-muted/30">
             <div className="container mx-auto px-6">
               <div className="max-w-6xl mx-auto">
                 <div className="flex items-center gap-3 mb-6">
                   <UtensilsCrossed className="w-8 h-8 text-secondary" />
                   <h2 className="text-3xl md:text-4xl font-bold text-foreground">
-                    {city.cuisine.title}
+                    {translatedCity.cuisine.title}
                   </h2>
                 </div>
                 <p className="text-lg text-muted-foreground mb-12">
                   Savor the authentic flavors of {translatedCity.name}
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {(city.cuisine.dishes || []).map((dish, index) => (
+                  {(translatedCity.cuisine.dishes || []).map((dish, index) => (
                     <div key={index} className="p-6 bg-card rounded-lg border border-border/50 shadow-sm hover:shadow-lg transition-shadow">
                       <h4 className="text-xl font-bold text-foreground mb-2">{dish.name}</h4>
                       <p className="text-muted-foreground">{dish.description}</p>
@@ -377,12 +415,12 @@ const CityDetail = () => {
         )}
 
         {/* Best Time to Visit & Getting There */}
-        {(city.bestTime || city.gettingThere) && (
+        {(translatedCity.bestTime || translatedCity.gettingThere) && (
           <section className="py-20 bg-background">
             <div className="container mx-auto px-6">
               <div className="max-w-6xl mx-auto">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-                  {city.bestTime && (
+                  {translatedCity.bestTime && (
                     <div>
                       <div className="flex items-center gap-3 mb-6">
                         <Calendar className="w-8 h-8 text-secondary" />
@@ -391,18 +429,18 @@ const CityDetail = () => {
                       <div className="p-8 bg-gradient-to-br from-secondary/10 to-secondary/5 rounded-2xl border border-secondary/20">
                         <div className="flex items-center gap-2 mb-4">
                           <Sun className="w-6 h-6 text-secondary" />
-                          <h3 className="text-2xl font-bold text-foreground">{city.bestTime.season}</h3>
+                          <h3 className="text-2xl font-bold text-foreground">{translatedCity.bestTime.season}</h3>
                         </div>
-                        <p className="text-lg font-semibold text-foreground mb-3">{city.bestTime.months}</p>
-                        <p className="text-muted-foreground mb-4">{city.bestTime.description}</p>
+                        <p className="text-lg font-semibold text-foreground mb-3">{translatedCity.bestTime.months}</p>
+                        <p className="text-muted-foreground mb-4">{translatedCity.bestTime.description}</p>
                         <div className="inline-block px-4 py-2 bg-white/50 rounded-lg">
-                          <p className="text-sm font-semibold text-foreground">{city.bestTime.temperature}</p>
+                          <p className="text-sm font-semibold text-foreground">{translatedCity.bestTime.temperature}</p>
                         </div>
                       </div>
                     </div>
                   )}
 
-                  {city.gettingThere && (
+                  {translatedCity.gettingThere && (
                     <div>
                       <div className="flex items-center gap-3 mb-6">
                         <Plane className="w-8 h-8 text-secondary" />
@@ -414,13 +452,13 @@ const CityDetail = () => {
                             <Plane className="w-5 h-5 text-secondary" />
                             Airport
                           </h4>
-                          <p className="text-muted-foreground">{city.gettingThere.airport}</p>
+                          <p className="text-muted-foreground">{translatedCity.gettingThere.airport}</p>
                         </div>
-                        {(city.gettingThere.transport || []).length > 0 && (
+                        {(translatedCity.gettingThere.transport || []).length > 0 && (
                           <div className="p-6 bg-card rounded-xl border border-border/50">
                             <h4 className="font-bold text-foreground mb-3">Transportation Options</h4>
                             <ul className="space-y-2">
-                              {city.gettingThere.transport.map((option, index) => (
+                              {translatedCity.gettingThere.transport.map((option, index) => (
                                 <li key={index} className="flex items-start gap-2 text-muted-foreground">
                                   <CheckCircle2 className="w-5 h-5 text-secondary flex-shrink-0 mt-0.5" />
                                   <span>{option}</span>
@@ -429,10 +467,10 @@ const CityDetail = () => {
                             </ul>
                           </div>
                         )}
-                        {city.gettingThere.localTransport && (
+                        {translatedCity.gettingThere.localTransport && (
                           <div className="p-6 bg-card rounded-xl border border-border/50">
                             <h4 className="font-bold text-foreground mb-3">Local Transport</h4>
-                            <p className="text-muted-foreground">{city.gettingThere.localTransport}</p>
+                            <p className="text-muted-foreground">{translatedCity.gettingThere.localTransport}</p>
                           </div>
                         )}
                       </div>
@@ -445,7 +483,7 @@ const CityDetail = () => {
         )}
 
         {/* Travel Tips Section */}
-        {(city.travelTips || []).length > 0 && (
+        {(translatedCity.travelTips || []).length > 0 && (
           <section className="py-20 bg-muted/30">
             <div className="container mx-auto px-6">
               <div className="max-w-6xl mx-auto">
@@ -459,7 +497,7 @@ const CityDetail = () => {
                   Insider advice for making the most of your visit
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {city.travelTips.map((tip, index) => (
+                  {translatedCity.travelTips.map((tip, index) => (
                     <div key={index} className="flex items-start gap-3 p-5 bg-card rounded-lg border border-border/50 hover:border-secondary/30 transition-colors">
                       <CheckCircle2 className="w-5 h-5 text-secondary flex-shrink-0 mt-0.5" />
                       <p className="text-foreground">{tip}</p>
