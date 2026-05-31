@@ -148,7 +148,7 @@ const Discover = () => {
                         key={idx}
                         className="px-4 py-2 bg-secondary/10 text-secondary text-sm font-medium rounded-full border border-secondary/20 hover:bg-secondary/20 hover:border-secondary/40 transition-all duration-300 shadow-sm hover:shadow-md"
                       >
-                        {highlight}
+                        {typeof highlight === 'string' ? highlight : (highlight as any).text ?? ''}
                       </span>
                     ))}
                   </div>
