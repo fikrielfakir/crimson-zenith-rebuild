@@ -7,7 +7,7 @@ import { moroccoCities } from "@/lib/citiesData";
 import { Button } from "@/components/ui/button";
 import { MapPin, ArrowLeft, Home, ChevronRight, Compass, UtensilsCrossed, Calendar, Plane, Lightbulb, CheckCircle2, Map, Mountain, Coffee, Waves, Sun } from "lucide-react";
 import { apiFetch } from "@/lib/apiFetch";
-import { useEntityTranslations } from "@/hooks/useContentTranslation";
+import { useEntityTranslations, useTranslatedList } from "@/hooks/useContentTranslation";
 import { useTranslation } from "react-i18next";
 
 interface CityActivity {
@@ -133,6 +133,7 @@ const CityDetail = () => {
 
   const { t, i18n } = useTranslation();
   const { data: cityTranslations } = useEntityTranslations('city', city?.id);
+  const translatedAllCities = useTranslatedList(allCities, 'city', ['name', 'title']);
 
   const translatedCity = (() => {
     if (!city) return city;
@@ -208,7 +209,7 @@ const CityDetail = () => {
     return null;
   }
 
-  const otherCities = allCities.filter(c => c.slug !== translatedCity.slug).slice(0, 3);
+  const otherCities = translatedAllCities.filter(c => c.slug !== translatedCity.slug).slice(0, 3);
 
   return (
     <div className="min-h-screen bg-background">
