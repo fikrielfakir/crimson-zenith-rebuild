@@ -314,6 +314,27 @@
       "low": "Flexible"
     }
   },
+  "cityDetail": {
+    "backToDiscover": "Volver a descubrir",
+    "morocco": "Marruecos",
+    "about": "Acerca de",
+    "highlights": "Destacados y atracciones imperdibles",
+    "activities": "Actividades y Experiencias",
+    "activitiesSubtitle": "Descubre lo mejor que hacer en",
+    "cuisineSubtitle": "Saborea los sabores auténticos de",
+    "bestTime": "Mejor época para visitar",
+    "gettingThere": "Cómo llegar",
+    "airport": "Aeropuerto",
+    "transportOptions": "Opciones de transporte",
+    "localTransport": "Transporte local",
+    "travelTips": "Consejos de viaje",
+    "travelTipsSubtitle": "Consejos de expertos para aprovechar al máximo tu visita",
+    "ctaHeading": "¿Listo para explorar",
+    "ctaBody": "Únete a nosotros en un viaje inolvidable para descubrir la belleza, la cultura y el patrimonio de esta increíble ciudad marroquí.",
+    "joinCommunity": "Unirse a la comunidad",
+    "exploreEvents": "Explorar eventos",
+    "moreCities": "Explorar más ciudades de Marruecos"
+  },
   "admin": {
     "nav": {
       "dashboard": "Panel de control",

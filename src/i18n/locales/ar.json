@@ -314,6 +314,27 @@
       "low": "مرن"
     }
   },
+  "cityDetail": {
+    "backToDiscover": "العودة إلى الاكتشاف",
+    "morocco": "المغرب",
+    "about": "عن",
+    "highlights": "أبرز المعالم والمناطق السياحية",
+    "activities": "الأنشطة والتجارب",
+    "activitiesSubtitle": "اكتشف أفضل ما تفعله في",
+    "cuisineSubtitle": "استمتع بالنكهات الأصيلة لـ",
+    "bestTime": "أفضل وقت للزيارة",
+    "gettingThere": "كيفية الوصول",
+    "airport": "المطار",
+    "transportOptions": "خيارات النقل",
+    "localTransport": "وسائل النقل المحلي",
+    "travelTips": "نصائح السفر وما يجب معرفته",
+    "travelTipsSubtitle": "نصائح من الداخل للاستمتاع بزيارتك",
+    "ctaHeading": "هل أنت مستعد لاستكشاف",
+    "ctaBody": "انضم إلينا في رحلة لا تُنسى لاكتشاف جمال وثقافة وتراث هذه المدينة المغربية الرائعة.",
+    "joinCommunity": "انضم إلى مجتمعنا",
+    "exploreEvents": "استكشف الفعاليات",
+    "moreCities": "استكشف المزيد من المدن المغربية"
+  },
   "admin": {
     "nav": {
       "dashboard": "لوحة التحكم",

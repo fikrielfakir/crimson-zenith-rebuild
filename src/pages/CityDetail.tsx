@@ -131,7 +131,7 @@ const CityDetail = () => {
   const isVideoHero = heroBgType === "video" && !!heroVideoUrl;
   const overlayOpacity = Math.min(90, Math.max(0, city?.heroOverlay ?? 50)) / 100;
 
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { data: cityTranslations } = useEntityTranslations('city', city?.id);
 
   const translatedCity = (() => {
@@ -214,13 +214,13 @@ const CityDetail = () => {
                   <li>
                     <Link to="/" className="flex items-center hover:text-white transition-all duration-300 group">
                       <Home className="w-4 h-4 mr-1.5 group-hover:scale-110 transition-transform" />
-                      <span className="font-medium">Home</span>
+                      <span className="font-medium">{t('nav.home')}</span>
                     </Link>
                   </li>
                   <li className="flex items-center">
                     <ChevronRight className="w-4 h-4 mx-1.5 text-white/50" />
                     <Link to="/discover" className="hover:text-white transition-all duration-300 font-medium hover:underline underline-offset-4">
-                      Discover
+                      {t('nav.discover')}
                     </Link>
                   </li>
                   <li className="flex items-center">
@@ -241,13 +241,13 @@ const CityDetail = () => {
               className="text-white/90 hover:text-white hover:bg-white/20 backdrop-blur-sm border border-white/20 rounded-full mb-8 px-5 py-2.5 shadow-xl transition-all duration-300 hover:scale-105 animate-fade-in opacity-0 [animation-delay:200ms] [animation-fill-mode:forwards]"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Discover
+              {t('cityDetail.backToDiscover')}
             </Button>
 
             <div className="flex items-center gap-3 mb-6 animate-fade-in opacity-0 [animation-delay:400ms] [animation-fill-mode:forwards]">
               <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl">
                 <MapPin className="w-5 h-5 text-secondary" />
-                <span className="text-white text-base font-semibold tracking-wide">Morocco</span>
+                <span className="text-white text-base font-semibold tracking-wide">{t('cityDetail.morocco')}</span>
               </div>
             </div>
             
@@ -277,7 +277,7 @@ const CityDetail = () => {
             <div className="max-w-6xl mx-auto">
               <div className="mb-20">
                 <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
-                  About {translatedCity.name}
+                  {t('cityDetail.about')} {translatedCity.name}
                 </h2>
                 <p className="text-lg text-muted-foreground leading-relaxed">
                   {translatedCity.description}
@@ -287,7 +287,7 @@ const CityDetail = () => {
               {(translatedCity.highlights || []).length > 0 && (
                 <div className="mb-20">
                   <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-8">
-                    Highlights & Must-See Attractions
+                    {t('cityDetail.highlights')}
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {translatedCity.highlights.map((highlight, index) => {
@@ -360,11 +360,11 @@ const CityDetail = () => {
                 <div className="flex items-center gap-3 mb-6">
                   <Compass className="w-8 h-8 text-secondary" />
                   <h2 className="text-3xl md:text-4xl font-bold text-foreground">
-                    Activities & Experiences
+                    {t('cityDetail.activities')}
                   </h2>
                 </div>
                 <p className="text-lg text-muted-foreground mb-12">
-                  Discover the best things to do in {translatedCity.name}
+                  {t('cityDetail.activitiesSubtitle')} {translatedCity.name}
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                   {translatedCity.activities.map((activity, index) => {
@@ -399,7 +399,7 @@ const CityDetail = () => {
                   </h2>
                 </div>
                 <p className="text-lg text-muted-foreground mb-12">
-                  Savor the authentic flavors of {translatedCity.name}
+                  {t('cityDetail.cuisineSubtitle')} {translatedCity.name}
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {(translatedCity.cuisine.dishes || []).map((dish, index) => (
@@ -424,7 +424,7 @@ const CityDetail = () => {
                     <div>
                       <div className="flex items-center gap-3 mb-6">
                         <Calendar className="w-8 h-8 text-secondary" />
-                        <h2 className="text-3xl font-bold text-foreground">Best Time to Visit</h2>
+                        <h2 className="text-3xl font-bold text-foreground">{t('cityDetail.bestTime')}</h2>
                       </div>
                       <div className="p-8 bg-gradient-to-br from-secondary/10 to-secondary/5 rounded-2xl border border-secondary/20">
                         <div className="flex items-center gap-2 mb-4">
@@ -444,19 +444,19 @@ const CityDetail = () => {
                     <div>
                       <div className="flex items-center gap-3 mb-6">
                         <Plane className="w-8 h-8 text-secondary" />
-                        <h2 className="text-3xl font-bold text-foreground">Getting There</h2>
+                        <h2 className="text-3xl font-bold text-foreground">{t('cityDetail.gettingThere')}</h2>
                       </div>
                       <div className="space-y-6">
                         <div className="p-6 bg-card rounded-xl border border-border/50">
                           <h4 className="font-bold text-foreground mb-3 flex items-center gap-2">
                             <Plane className="w-5 h-5 text-secondary" />
-                            Airport
+                            {t('cityDetail.airport')}
                           </h4>
                           <p className="text-muted-foreground">{translatedCity.gettingThere.airport}</p>
                         </div>
                         {(translatedCity.gettingThere.transport || []).length > 0 && (
                           <div className="p-6 bg-card rounded-xl border border-border/50">
-                            <h4 className="font-bold text-foreground mb-3">Transportation Options</h4>
+                            <h4 className="font-bold text-foreground mb-3">{t('cityDetail.transportOptions')}</h4>
                             <ul className="space-y-2">
                               {translatedCity.gettingThere.transport.map((option, index) => (
                                 <li key={index} className="flex items-start gap-2 text-muted-foreground">
@@ -469,7 +469,7 @@ const CityDetail = () => {
                         )}
                         {translatedCity.gettingThere.localTransport && (
                           <div className="p-6 bg-card rounded-xl border border-border/50">
-                            <h4 className="font-bold text-foreground mb-3">Local Transport</h4>
+                            <h4 className="font-bold text-foreground mb-3">{t('cityDetail.localTransport')}</h4>
                             <p className="text-muted-foreground">{translatedCity.gettingThere.localTransport}</p>
                           </div>
                         )}
@@ -490,11 +490,11 @@ const CityDetail = () => {
                 <div className="flex items-center gap-3 mb-6">
                   <Lightbulb className="w-8 h-8 text-secondary" />
                   <h2 className="text-3xl md:text-4xl font-bold text-foreground">
-                    Travel Tips & Things to Know
+                    {t('cityDetail.travelTips')}
                   </h2>
                 </div>
                 <p className="text-lg text-muted-foreground mb-12">
-                  Insider advice for making the most of your visit
+                  {t('cityDetail.travelTipsSubtitle')}
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {translatedCity.travelTips.map((tip, index) => (
@@ -514,17 +514,17 @@ const CityDetail = () => {
           <div className="container mx-auto px-6">
             <div className="max-w-4xl mx-auto text-center">
               <h3 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
-                Ready to explore {translatedCity.name}?
+                {t('cityDetail.ctaHeading')} {translatedCity.name}?
               </h3>
               <p className="text-lg text-muted-foreground mb-10 max-w-2xl mx-auto">
-                Join us on an unforgettable journey to discover the beauty, culture, and heritage of this amazing Moroccan city.
+                {t('cityDetail.ctaBody')}
               </p>
               <div className="flex flex-wrap gap-4 justify-center">
                 <Button asChild size="lg" className="bg-secondary hover:bg-secondary/90 text-white px-8 py-6 text-lg rounded-full shadow-lg hover:shadow-xl transition-all">
-                  <Link to="/join">Join Our Community</Link>
+                  <Link to="/join">{t('cityDetail.joinCommunity')}</Link>
                 </Button>
                 <Button asChild size="lg" variant="outline" className="px-8 py-6 text-lg rounded-full border-2 hover:bg-secondary/10">
-                  <Link to="/contact">Contact Us</Link>
+                  <Link to="/contact">{t('contact.title')}</Link>
                 </Button>
               </div>
             </div>
@@ -536,7 +536,7 @@ const CityDetail = () => {
           <section className="py-16 bg-muted/30">
             <div className="container mx-auto px-6">
               <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-8 text-center">
-                Explore More Moroccan Cities
+                {t('cityDetail.moreCities')}
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
                 {otherCities.map((otherCity) => (

@@ -314,6 +314,27 @@
       "low": "Flexible"
     }
   },
+  "cityDetail": {
+    "backToDiscover": "Back to Discover",
+    "morocco": "Morocco",
+    "about": "About",
+    "highlights": "Highlights & Must-See Attractions",
+    "activities": "Activities & Experiences",
+    "activitiesSubtitle": "Discover the best things to do in",
+    "cuisineSubtitle": "Savor the authentic flavors of",
+    "bestTime": "Best Time to Visit",
+    "gettingThere": "Getting There",
+    "airport": "Airport",
+    "transportOptions": "Transportation Options",
+    "localTransport": "Local Transport",
+    "travelTips": "Travel Tips & Things to Know",
+    "travelTipsSubtitle": "Insider advice for making the most of your visit",
+    "ctaHeading": "Ready to explore",
+    "ctaBody": "Join us on an unforgettable journey to discover the beauty, culture, and heritage of this amazing Moroccan city.",
+    "joinCommunity": "Join Our Community",
+    "exploreEvents": "Explore Events",
+    "moreCities": "Explore More Moroccan Cities"
+  },
   "admin": {
     "nav": {
       "dashboard": "Dashboard",
