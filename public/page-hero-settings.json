@@ -14,5 +14,13 @@
     "overlayOpacity": 60,
     "title": null,
     "subtitle": null
+  },
+  "projects": {
+    "backgroundType": "image",
+    "backgroundImageUrl": "",
+    "backgroundVideoUrl": "",
+    "overlayOpacity": 50,
+    "title": null,
+    "subtitle": null
   }
 }

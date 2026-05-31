@@ -69,7 +69,7 @@ export default defineConfig(({ mode }: { mode: string }) => ({
       "/api/payments":    localProxyOptions,
       "/api/cities":      localProxyOptions,
       "/api/cms":         localProxyOptions,
-      "/api/placeholder": { target: LOCAL_API, changeOrigin: true },
+      "/api/placeholder": { target: LARAVEL_API, changeOrigin: true },
       "/api":             proxyOptions,
       "/sanctum":      laravelProxyOptions,
       "/storage":      laravelProxyOptions,
