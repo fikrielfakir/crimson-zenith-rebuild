@@ -1,119 +1,489 @@
+import { useState, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
 import SEOHead from "@/components/SEOHead";
 import { routeSEO } from "@/lib/seo.config";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import PageHero from "@/components/PageHero";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import {
+  MapPin,
+  Users,
+  Star,
+  Search,
+  ArrowRight,
+  Award,
+  Building2,
+  Filter,
+  X,
+} from "lucide-react";
+import { apiFetch } from "@/lib/apiFetch";
+import { useTranslation } from "react-i18next";
+
+interface Club {
+  id: number;
+  name: string;
+  slug: string;
+  description: string;
+  location: string;
+  member_count: number | null;
+  rating: number | null;
+  image: string | null;
+  features: string[] | null;
+  established: string | null;
+  is_featured?: boolean;
+}
+
+const PLACEHOLDER =
+  "https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=800&q=80";
+
+function ClubCardSkeleton() {
+  return (
+    <div className="rounded-2xl overflow-hidden bg-card border border-border animate-pulse">
+      <div className="h-52 bg-muted" />
+      <div className="p-5 space-y-3">
+        <div className="h-5 bg-muted rounded w-2/3" />
+        <div className="h-4 bg-muted rounded w-1/3" />
+        <div className="h-4 bg-muted rounded w-full" />
+        <div className="h-4 bg-muted rounded w-5/6" />
+        <div className="flex gap-2 pt-1">
+          <div className="h-6 bg-muted rounded-full w-16" />
+          <div className="h-6 bg-muted rounded-full w-20" />
+        </div>
+        <div className="h-10 bg-muted rounded-xl w-full mt-2" />
+      </div>
+    </div>
+  );
+}
+
+function StarRating({ rating }: { rating: number }) {
+  return (
+    <div className="flex items-center gap-0.5">
+      {[1, 2, 3, 4, 5].map((s) => (
+        <Star
+          key={s}
+          className={`w-3.5 h-3.5 ${
+            s <= Math.round(rating)
+              ? "fill-amber-400 text-amber-400"
+              : "text-muted-foreground/40"
+          }`}
+        />
+      ))}
+      <span className="ml-1 text-xs text-muted-foreground">{rating.toFixed(1)}</span>
+    </div>
+  );
+}
+
+function ClubCard({ club }: { club: Club }) {
+  const tags = Array.isArray(club.features)
+    ? club.features.map((f: any) => (typeof f === "string" ? f : f?.text ?? "")).filter(Boolean)
+    : [];
+
+  const slug = club.slug || club.name.toLowerCase().replace(/\s+/g, "-");
+  const imgSrc = club.image && club.image.trim() ? club.image : PLACEHOLDER;
+
+  return (
+    <Link
+      to={`/club/${encodeURIComponent(slug)}`}
+      className="group flex flex-col rounded-2xl overflow-hidden bg-card border border-border shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+    >
+      {/* Image */}
+      <div className="relative h-52 overflow-hidden bg-muted flex-shrink-0">
+        <img
+          src={imgSrc}
+          alt={club.name}
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+          onError={(e) => {
+            (e.currentTarget as HTMLImageElement).src = PLACEHOLDER;
+          }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+
+        {club.is_featured && (
+          <div className="absolute top-3 left-3">
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500 text-white text-xs font-semibold shadow">
+              <Award className="w-3 h-3" />
+              Featured
+            </span>
+          </div>
+        )}
+
+        {/* Location badge over image */}
+        <div className="absolute bottom-3 left-3 flex items-center gap-1 text-white text-sm font-medium drop-shadow">
+          <MapPin className="w-4 h-4 text-primary" />
+          {club.location}
+        </div>
+
+        {club.member_count != null && (
+          <div className="absolute bottom-3 right-3 flex items-center gap-1 text-white text-sm font-medium drop-shadow">
+            <Users className="w-4 h-4 text-primary" />
+            {club.member_count.toLocaleString()}
+          </div>
+        )}
+      </div>
+
+      {/* Body */}
+      <div className="flex flex-col flex-1 p-5 gap-3">
+        <div className="space-y-1">
+          <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors line-clamp-1">
+            {club.name}
+          </h3>
+          {club.rating != null && club.rating > 0 && (
+            <StarRating rating={club.rating} />
+          )}
+        </div>
+
+        <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2 flex-1">
+          {club.description || "A journey club bringing people together through adventure and culture."}
+        </p>
+
+        {tags.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {tags.slice(0, 3).map((tag) => (
+              <Badge
+                key={tag}
+                variant="secondary"
+                className="text-xs px-2.5 py-0.5 rounded-full font-medium"
+              >
+                {tag}
+              </Badge>
+            ))}
+            {tags.length > 3 && (
+              <Badge variant="outline" className="text-xs px-2.5 py-0.5 rounded-full">
+                +{tags.length - 3}
+              </Badge>
+            )}
+          </div>
+        )}
+
+        <Button
+          size="sm"
+          className="mt-auto w-full rounded-xl bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary text-white font-semibold shadow transition-all duration-200 group/btn"
+        >
+          Explore Club
+          <ArrowRight className="ml-2 w-4 h-4 group-hover/btn:translate-x-1 transition-transform duration-200" />
+        </Button>
+      </div>
+    </Link>
+  );
+}
 
 const Clubs = () => {
+  const [scrollY, setScrollY] = useState(0);
+  const [search, setSearch] = useState("");
+  const [selectedCity, setSelectedCity] = useState<string>("all");
+  const [selectedFeature, setSelectedFeature] = useState<string>("all");
+  const { t } = useTranslation();
 
-  // Fetch real clubs data from API
-  const { data: clubsResponse, isLoading, error } = useQuery({
-    queryKey: ['clubs'],
+  useEffect(() => {
+    const handleScroll = () => setScrollY(window.scrollY);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const { data: rawData, isLoading, isError } = useQuery({
+    queryKey: ["clubs-page"],
     queryFn: async () => {
-      const response = await fetch('/api/clubs');
-      if (!response.ok) {
-        throw new Error('Failed to fetch clubs');
-      }
-      return response.json();
+      const res = await apiFetch("/api/clubs");
+      if (!res.ok) throw new Error("Failed to fetch clubs");
+      return res.json();
     },
   });
 
-  // Transform API data for UI display
-  const clubs = (Array.isArray(clubsResponse) ? clubsResponse : clubsResponse?.clubs || clubsResponse?.data || []).map((club: any) => ({
-    id: club.id,
-    name: club.name,
-    image: club.image || "/api/placeholder/300/200?type=club",
-    memberCount: club.member_count,
-    activities: club.features || [],
-    nextMeetup: {
-      date: "Coming Soon",
-      location: club.location
-    },
-    description: club.description,
-    isJoined: false,
-    rating: club.rating,
-    location: club.location
-  })) || [];
+  const clubs: Club[] = useMemo(() => {
+    const list = Array.isArray(rawData)
+      ? rawData
+      : rawData?.clubs ?? rawData?.data ?? [];
+    return list.filter((c: any) => c.is_active !== false);
+  }, [rawData]);
 
+  // Derive unique cities and features for filter dropdowns
+  const cities = useMemo(() => {
+    const set = new Set(clubs.map((c) => c.location).filter(Boolean));
+    return Array.from(set).sort();
+  }, [clubs]);
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-orange-50">
-        <Header />
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto"></div>
-            <p className="mt-4 text-gray-600">Loading clubs...</p>
-          </div>
-        </div>
-        <Footer />
-      </div>
-    );
-  }
+  const allFeatures = useMemo(() => {
+    const set = new Set<string>();
+    clubs.forEach((c) => {
+      (c.features ?? []).forEach((f: any) => {
+        const label = typeof f === "string" ? f : f?.text ?? "";
+        if (label) set.add(label);
+      });
+    });
+    return Array.from(set).sort();
+  }, [clubs]);
 
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-orange-50">
-        <Header />
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="text-center">
-            <p className="text-red-600">Failed to load clubs. Please try again.</p>
-          </div>
-        </div>
-        <Footer />
-      </div>
-    );
-  }
+  // Filtered clubs
+  const filtered = useMemo(() => {
+    return clubs.filter((c) => {
+      const matchSearch =
+        search.trim() === "" ||
+        c.name.toLowerCase().includes(search.toLowerCase()) ||
+        (c.description ?? "").toLowerCase().includes(search.toLowerCase());
 
+      const matchCity = selectedCity === "all" || c.location === selectedCity;
+
+      const matchFeature =
+        selectedFeature === "all" ||
+        (c.features ?? []).some((f: any) => {
+          const label = typeof f === "string" ? f : f?.text ?? "";
+          return label === selectedFeature;
+        });
+
+      return matchSearch && matchCity && matchFeature;
+    });
+  }, [clubs, search, selectedCity, selectedFeature]);
+
+  const totalMembers = useMemo(
+    () => clubs.reduce((sum, c) => sum + (c.member_count ?? 0), 0),
+    [clubs]
+  );
+
+  const hasFilters =
+    search.trim() !== "" || selectedCity !== "all" || selectedFeature !== "all";
+
+  const clearFilters = () => {
+    setSearch("");
+    setSelectedCity("all");
+    setSelectedFeature("all");
+  };
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-background">
       <SEOHead {...routeSEO["/clubs"]} />
       <Header />
-      
-      {/* Main Content */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16 animate-fade-in">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6">
-              Our Clubs
-            </h2>
-            <p className="text-xl text-gray-400">
-              Join local communities across Morocco's most fascinating cities
-            </p>
-          </div>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {clubs.map((club, index) => (
-              <a
-                key={club.id}
-                href={`/club/${encodeURIComponent(club.name.toLowerCase().replace(/\s+/g, '-'))}`}
-                className="group block animate-scale-in"
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                <div className="flex items-start gap-4 transition-all duration-300">
-                  <div className="flex-shrink-0 w-16 h-16 bg-white rounded-full flex items-center justify-center border-2 border-white">
-                    <svg className="w-10 h-10 text-yellow-400" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M23 4a1 1 0 0 0-1.447-.894L12 7.882 2.447 3.106A1 1 0 0 0 1 4v13a1 1 0 0 0 .553.894l10 5a1 1 0 0 0 .894 0l10-5A1 1 0 0 0 23 17V4z"/>
-                    </svg>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-lg font-bold text-white mb-1 group-hover:text-yellow-400 transition-colors">
-                      {club.name}
-                    </h3>
-                    <p className="text-sm text-gray-400 mb-0.5">
-                      {club.location}
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      {club.memberCount}
-                    </p>
+
+      <main>
+        {/* Hero */}
+        <PageHero
+          pageKey="clubs"
+          scrollY={scrollY}
+          breadcrumbs={[{ label: "Clubs" }]}
+          defaultTitle="Our Adventure Clubs"
+          defaultSubtitle="Join passionate communities across Morocco's most iconic destinations — from the Atlas to the Atlantic."
+        />
+
+        {/* Stats bar */}
+        {!isLoading && clubs.length > 0 && (
+          <section className="bg-primary text-white py-6">
+            <div className="container mx-auto px-6">
+              <div className="grid grid-cols-3 divide-x divide-white/20 text-center">
+                <div className="px-4">
+                  <div className="text-2xl md:text-3xl font-bold">{clubs.length}</div>
+                  <div className="text-xs md:text-sm text-white/75 mt-0.5 flex items-center justify-center gap-1">
+                    <Building2 className="w-3.5 h-3.5" /> Active Clubs
                   </div>
                 </div>
-              </a>
-            ))}
+                <div className="px-4">
+                  <div className="text-2xl md:text-3xl font-bold">
+                    {totalMembers > 0 ? totalMembers.toLocaleString() : "—"}
+                  </div>
+                  <div className="text-xs md:text-sm text-white/75 mt-0.5 flex items-center justify-center gap-1">
+                    <Users className="w-3.5 h-3.5" /> Members
+                  </div>
+                </div>
+                <div className="px-4">
+                  <div className="text-2xl md:text-3xl font-bold">{cities.length}</div>
+                  <div className="text-xs md:text-sm text-white/75 mt-0.5 flex items-center justify-center gap-1">
+                    <MapPin className="w-3.5 h-3.5" /> Cities
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Search & Filters */}
+        <section className="sticky top-0 z-20 bg-background/95 backdrop-blur border-b border-border shadow-sm">
+          <div className="container mx-auto px-6 py-4">
+            <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
+              {/* Search */}
+              <div className="relative flex-1 min-w-0">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                <Input
+                  placeholder="Search clubs by name or description…"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="pl-9 rounded-xl bg-muted/50 border-border focus:bg-background"
+                />
+              </div>
+
+              {/* City filter */}
+              <div className="flex items-center gap-2 shrink-0">
+                <Filter className="w-4 h-4 text-muted-foreground hidden sm:block" />
+                <select
+                  value={selectedCity}
+                  onChange={(e) => setSelectedCity(e.target.value)}
+                  className="h-10 rounded-xl border border-border bg-muted/50 px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary transition-colors cursor-pointer"
+                >
+                  <option value="all">All cities</option>
+                  {cities.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Activity filter */}
+              {allFeatures.length > 0 && (
+                <div className="shrink-0">
+                  <select
+                    value={selectedFeature}
+                    onChange={(e) => setSelectedFeature(e.target.value)}
+                    className="h-10 rounded-xl border border-border bg-muted/50 px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary transition-colors cursor-pointer"
+                  >
+                    <option value="all">All activities</option>
+                    {allFeatures.map((f) => (
+                      <option key={f} value={f}>
+                        {f}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {/* Clear filters */}
+              {hasFilters && (
+                <button
+                  onClick={clearFilters}
+                  className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors shrink-0 px-2"
+                >
+                  <X className="w-4 h-4" />
+                  Clear
+                </button>
+              )}
+            </div>
+
+            {/* Result count */}
+            {!isLoading && (
+              <p className="mt-2 text-xs text-muted-foreground">
+                {hasFilters
+                  ? `${filtered.length} of ${clubs.length} clubs`
+                  : `${clubs.length} club${clubs.length !== 1 ? "s" : ""} across Morocco`}
+              </p>
+            )}
           </div>
-        </div>
-      </section>
+        </section>
+
+        {/* Grid */}
+        <section className="py-12 md:py-20">
+          <div className="container mx-auto px-6">
+            {isLoading ? (
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <ClubCardSkeleton key={i} />
+                ))}
+              </div>
+            ) : isError ? (
+              <div className="text-center py-24">
+                <Building2 className="w-16 h-16 mx-auto mb-4 text-muted-foreground/40" />
+                <h3 className="text-xl font-semibold text-foreground mb-2">
+                  Unable to load clubs
+                </h3>
+                <p className="text-muted-foreground mb-6">
+                  Please check your connection and try again.
+                </p>
+                <Button
+                  onClick={() => window.location.reload()}
+                  className="rounded-xl"
+                >
+                  Retry
+                </Button>
+              </div>
+            ) : filtered.length === 0 ? (
+              <div className="text-center py-24">
+                <Search className="w-16 h-16 mx-auto mb-4 text-muted-foreground/30" />
+                <h3 className="text-xl font-semibold text-foreground mb-2">
+                  No clubs found
+                </h3>
+                <p className="text-muted-foreground mb-6">
+                  Try adjusting your search or filters.
+                </p>
+                <Button
+                  variant="outline"
+                  onClick={clearFilters}
+                  className="rounded-xl gap-2"
+                >
+                  <X className="w-4 h-4" />
+                  Clear filters
+                </Button>
+              </div>
+            ) : (
+              <>
+                {/* Featured clubs first */}
+                {filtered.some((c) => c.is_featured) && (
+                  <div className="mb-10">
+                    <h2 className="text-xs font-semibold uppercase tracking-widest text-primary mb-5 flex items-center gap-2">
+                      <Award className="w-4 h-4" />
+                      Featured
+                    </h2>
+                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {filtered
+                        .filter((c) => c.is_featured)
+                        .map((club) => (
+                          <ClubCard key={club.id} club={club} />
+                        ))}
+                    </div>
+                    {filtered.some((c) => !c.is_featured) && (
+                      <div className="mt-10 mb-5 border-t border-border pt-8">
+                        <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
+                          <Building2 className="w-4 h-4" />
+                          All Clubs
+                        </h2>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filtered
+                    .filter((c) => !c.is_featured)
+                    .map((club) => (
+                      <ClubCard key={club.id} club={club} />
+                    ))}
+                </div>
+              </>
+            )}
+          </div>
+        </section>
+
+        {/* CTA Banner */}
+        {!isLoading && !isError && (
+          <section className="py-20 bg-gradient-to-br from-primary via-primary/90 to-primary/80 relative overflow-hidden">
+            <div
+              className="absolute inset-0 opacity-[0.07]"
+              style={{
+                backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
+                backgroundSize: "36px 36px",
+              }}
+            />
+            <div className="container mx-auto px-6 relative z-10 text-center text-white">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4 drop-shadow">
+                Start your own club
+              </h2>
+              <p className="text-white/80 text-lg mb-8 max-w-xl mx-auto leading-relaxed">
+                Passionate about a region or activity? Create a club and build your
+                community of adventurers.
+              </p>
+              <Button
+                asChild
+                size="lg"
+                className="bg-white text-primary hover:bg-white/90 font-bold rounded-full px-10 shadow-xl transition-all duration-300"
+              >
+                <Link to="/join-us">
+                  Get Started
+                  <ArrowRight className="ml-2 w-5 h-5" />
+                </Link>
+              </Button>
+            </div>
+          </section>
+        )}
+      </main>
 
       <Footer />
     </div>
