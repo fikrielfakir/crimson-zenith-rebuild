@@ -22,17 +22,11 @@ function patchCookies(proxyRes: any) {
   );
 }
 
-const LARAVEL_API = "https://api.thejourney-ma.org";
 const LOCAL_API = "http://localhost:3001";
 
-const proxyOptions = {
-  target: LARAVEL_API,
+const localProxyOptions = {
+  target: LOCAL_API,
   changeOrigin: true,
-  secure: true,
-  headers: {
-    Origin: "https://thejourney-ma.org",
-    Referer: "https://thejourney-ma.org/",
-  },
   configure: (proxy: any) => {
     proxy.on("proxyRes", patchCookies);
     proxy.on("error", (err: any, _req: any, res: any) => {
@@ -44,10 +38,6 @@ const proxyOptions = {
     });
   },
 };
-
-const localProxyOptions = proxyOptions;
-
-const laravelProxyOptions = proxyOptions;
 
 export default defineConfig(({ mode }: { mode: string }) => ({
   optimizeDeps: {
@@ -65,14 +55,9 @@ export default defineConfig(({ mode }: { mode: string }) => ({
       ? { clientPort: 443, protocol: "wss", host: process.env.REPLIT_DEV_DOMAIN }
       : true,
     proxy: {
-      "/api/admin":       localProxyOptions,
-      "/api/payments":    localProxyOptions,
-      "/api/cities":      localProxyOptions,
-      "/api/cms":         localProxyOptions,
-      "/api/placeholder": { target: LOCAL_API, changeOrigin: true },
-      "/api":             proxyOptions,
-      "/sanctum":      laravelProxyOptions,
-      "/storage":      laravelProxyOptions,
+      "/api": localProxyOptions,
+      "/sanctum": localProxyOptions,
+      "/storage": localProxyOptions,
     },
     watch: {
       ignored: [
