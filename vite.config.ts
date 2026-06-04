@@ -790,6 +790,94 @@ export default defineConfig(({ mode }: { mode: string }) => ({
         });
       },
     },
+    {
+      // General local-API forwarder — catches any /api/cms/*, /api/admin/*,
+      // /api/payments/*, /api/cities/* request that slipped past the specific
+      // plugins above and was not handled. Forwards directly to localhost:3001
+      // via Node http.request so it never hits the production Laravel server.
+      // Must be the LAST plugin so specific plugins keep priority.
+      name: "handle-local-api",
+      configureServer(server) {
+        server.middlewares.use(async (req: any, res: any, next: any) => {
+          const url: string = req.url ?? "";
+          const isLocal =
+            url.startsWith("/api/cms/") ||
+            url.startsWith("/api/admin/") ||
+            url.startsWith("/api/payments/") ||
+            url.startsWith("/api/cities/") ||
+            url === "/api/cities";
+          if (!isLocal) return next();
+
+          const http = await import("http");
+
+          async function forwardToLocalApi(
+            method: string,
+            path: string,
+            headers: Record<string, string | string[] | undefined>,
+            body?: Buffer,
+          ): Promise<{ status: number; data: Buffer; contentType: string }> {
+            return new Promise((resolve, reject) => {
+              const forwardHeaders: Record<string, string | string[]> = {};
+              for (const [k, v] of Object.entries(headers)) {
+                if (v !== undefined && k.toLowerCase() !== "host") {
+                  forwardHeaders[k] = v as string | string[];
+                }
+              }
+              if (body) forwardHeaders["content-length"] = String(Buffer.byteLength(body));
+
+              const opts = {
+                hostname: "localhost",
+                port: 3001,
+                path,
+                method,
+                headers: forwardHeaders,
+              };
+
+              const chunks: Buffer[] = [];
+              const proxyReq = http.default.request(opts, (proxyRes) => {
+                proxyRes.on("data", (chunk: Buffer) => chunks.push(chunk));
+                proxyRes.on("end", () =>
+                  resolve({
+                    status: proxyRes.statusCode ?? 200,
+                    data: Buffer.concat(chunks),
+                    contentType: (proxyRes.headers["content-type"] as string) ?? "application/json",
+                  }),
+                );
+              });
+              proxyReq.on("error", reject);
+              if (body) proxyReq.write(body);
+              proxyReq.end();
+            });
+          }
+
+          try {
+            const chunks: Buffer[] = [];
+            if (req.method !== "GET" && req.method !== "HEAD") {
+              for await (const chunk of req) chunks.push(chunk as Buffer);
+            }
+            const body = chunks.length > 0 ? Buffer.concat(chunks) : undefined;
+
+            const { status, data, contentType } = await forwardToLocalApi(
+              req.method,
+              url,
+              req.headers as Record<string, string | string[] | undefined>,
+              body,
+            );
+
+            res.statusCode = status;
+            res.setHeader("Content-Type", contentType);
+            res.end(data);
+          } catch (err: any) {
+            console.error("[handle-local-api] Forward error for", url, err?.message ?? err);
+            if (!res.headersSent) {
+              res.statusCode = 503;
+              res.setHeader("Content-Type", "application/json");
+              res.end(JSON.stringify({ message: "Local API unavailable — please wait and retry." }));
+            }
+          }
+        });
+      },
+    },
   ],
   resolve: {
     alias: {

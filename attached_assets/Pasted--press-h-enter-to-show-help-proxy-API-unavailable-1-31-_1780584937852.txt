@@ -1,0 +1,186 @@
+
+  ➜  press h + enter to show help
+[proxy] API unavailable: 
+1:31:30 PM [vite] http proxy error: /api/cms/navbar
+AggregateError [ETIMEDOUT]: 
+    at internalConnectMultiple (node:net:1193:18)
+    at afterConnectMultiple (node:net:1783:7)
+[proxy] API unavailable: 
+1:31:30 PM [vite] http proxy error: /api/translations/city?ids=1,2,3,4,5,6
+AggregateError [ETIMEDOUT]: 
+    at internalConnectMultiple (node:net:1193:18)
+    at afterConnectMultiple (node:net:1783:7)
+[proxy] API unavailable: 
+1:31:30 PM [vite] http proxy error: /api/translations/navbar_settings
+AggregateError [ETIMEDOUT]: 
+    at internalConnectMultiple (node:net:1193:18)
+    at afterConnectMultiple (node:net:1783:7)
+[proxy] API unavailable: 
+1:31:30 PM [vite] http proxy error: /api/translations/navbar_link
+AggregateError [ETIMEDOUT]: 
+    at internalConnectMultiple (node:net:1193:18)
+    at afterConnectMultiple (node:net:1783:7)
+[proxy] API unavailable: 
+1:31:30 PM [vite] http proxy error: /api/auth/user
+AggregateError [ETIMEDOUT]: 
+    at internalConnectMultiple (node:net:1193:18)
+    at afterConnectMultiple (node:net:1783:7)
+[proxy] API unavailable: 
+1:31:30 PM [vite] http proxy error: /api/cities
+AggregateError [ETIMEDOUT]: 
+    at internalConnectMultiple (node:net:1193:18)
+    at afterConnectMultiple (node:net:1783:7)
+[proxy] API unavailable: 
+1:31:42 PM [vite] http proxy error: /api/cms/navbar
+AggregateError [ETIMEDOUT]: 
+    at internalConnectMultiple (node:net:1193:18)
+    at afterConnectMultiple (node:net:1783:7)
+
+
+1:58:42 PM [vite] (client) hmr update /src/index.css, /src/components/Footer.tsx
+
+
+1:58:42 PM [vite] (client) page reload src/i18n/locales/ar.json
+
+
+1:58:42 PM [vite] (client) hmr update /src/index.css, /src/components/Footer.tsx
+
+
+1:58:42 PM [vite] (client) hmr update /src/pages/JoinUs.tsx, /src/index.css
+
+
+1:58:43 PM [vite] (client) page reload src/i18n/locales/ar.json
+
+
+1:58:43 PM [vite] (client) page reload src/i18n/locales/en.json
+
+
+1:58:43 PM [vite] (client) page reload src/i18n/locales/es.json
+
+
+1:58:43 PM [vite] (client) page reload src/i18n/locales/fr.json
+
+
+1:58:43 PM [vite] (client) hmr update /src/pages/JoinUs.tsx, /src/index.css
+
+
+1:58:43 PM [vite] (client) hmr update /src/pages/UserProfile.tsx, /src/index.css
+
+
+2:19:13 PM [vite] (client) hmr update /src/index.css, /src/components/Header.tsx
+
+
+2:19:13 PM [vite] vite.config.ts changed, restarting server...
+2:19:19 PM [vite] server restarted.
+2:19:22 PM [vite] http proxy error: /api/cms/hero
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1193:18)
+    at afterConnectMultiple (node:net:1783:7)
+
+
+2:19:30 PM [vite] http proxy error: /api/cms/hero
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1193:18)
+    at afterConnectMultiple (node:net:1783:7) (x2)
+2:19:31 PM [vite] http proxy error: /api/admin/me
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1193:18)
+    at afterConnectMultiple (node:net:1783:7)
+
+
+2:19:47 PM [vite] vite.config.ts changed, restarting server...
+2:19:47 PM [vite] server restarted.
+
+
+2:45:02 PM [vite] (client) hmr update /src/index.css, /src/components/Header.tsx
+
+
+2:45:02 PM [vite] (client) page reload src/i18n/locales/ar.json
+
+
+2:45:02 PM [vite] (client) hmr update /src/index.css, /src/pages/ClubDetail.tsx
+
+
+2:45:02 PM [vite] (client) page reload src/i18n/locales/en.json
+
+
+2:45:02 PM [vite] (client) page reload src/i18n/locales/es.json
+
+
+2:45:02 PM [vite] (client) page reload src/i18n/locales/fr.json
+
+
+2:45:03 PM [vite] (client) hmr update /src/index.css, /src/pages/Clubs.tsx
+
+
+2:45:03 PM [vite] (client) hmr update /src/index.css, /src/pages/UserLogin.tsx
+
+
+2:45:03 PM [vite] (client) hmr update /src/index.css, /src/pages/UserSignup.tsx
+
+
+2:52:32 PM [vite] (client) hmr update /src/index.css, /src/components/DonateDrawer.tsx
+
+
+2:52:32 PM [vite] (client) page reload src/i18n/locales/ar.json
+
+
+2:52:32 PM [vite] (client) hmr update /src/index.css, /src/components/Header.tsx
+
+
+2:52:32 PM [vite] (client) page reload src/i18n/locales/ar.json
+
+
+2:52:32 PM [vite] (client) page reload src/i18n/locales/en.json
+
+
+2:52:32 PM [vite] (client) page reload src/i18n/locales/es.json
+
+
+2:52:32 PM [vite] (client) page reload src/i18n/locales/fr.json
+
+
+3:10:19 PM [vite] (client) hmr update /src/index.css, /src/components/DonateDrawer.tsx
+
+
+3:10:19 PM [vite] (client) hmr update /src/index.css, /src/pages/PaymentSuccess.tsx, /src/pages/BookingForm.tsx, /src/pages/admin/BookingManagement.tsx, /src/pages/UserProfile.tsx
+[auto-translate] Translated 2 field(s) → ar
+[auto-translate] Translated 2 field(s) → ar
+[auto-translate] Translated 2 field(s) → fr
+[auto-translate] Translated 2 field(s) → ar
+[auto-translate] Translated 2 field(s) → ar
+
+
+3:24:16 PM [vite] (client) hmr update /src/App.tsx, /src/index.css
+
+
+3:24:16 PM [vite] (client) hmr update /src/index.css, /src/components/DonateDrawer.tsx
+[auto-translate] Translated 2 field(s) → ar
+[auto-translate] Translated 2 field(s) → ar
+
+
+3:41:52 PM [vite] vite.config.ts changed, restarting server...
+X [ERROR] Unexpected "<<"
+
+    vite.config.ts:48:0:
+      48 │ <<<<<<< HEAD
+         ╵ ~~
+
+failed to load config from C:\Users\fikri\Desktop\crimson-zenith-rebuild_4\crimson-zenith-rebuild\vite.config.ts
+3:41:52 PM [vite] Build failed with 1 error:
+vite.config.ts:48:0: ERROR: Unexpected "<<"
+3:41:52 PM [vite] server restart failed
+
+
+3:53:39 PM [vite] vite.config.ts changed, restarting server...
+X [ERROR] Unexpected "<<"
+
+    vite.config.ts:48:0:
+      48 │ <<<<<<< HEAD
+         ╵ ~~
+
+failed to load config from C:\Users\fikri\Desktop\crimson-zenith-rebuild_4\crimson-zenith-rebuild\vite.config.ts
+3:53:39 PM [vite] Build failed with 1 error:
+vite.config.ts:48:0: ERROR: Unexpected "<<"
+3:53:39 PM [vite] server restart failed
+[auto-translate] Translated 2 field(s) → ar
