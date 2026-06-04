@@ -24,6 +24,7 @@ import {
   cities
 } from './shared/schema.js';
 import { sendBookingConfirmationEmail, sendBookingApprovedEmail } from './server/emailService.js';
+import { storeAdminToken } from './server/adminTokens.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -1202,25 +1203,27 @@ app.post('/api/admin/login', async (req, res) => {
     }
     
     // Generate token
-    const adminToken = {
-      token: `admin_token_${Date.now()}_${Math.random().toString(36).substring(7)}`,
-      user: {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        role: 'admin'
-      },
-      expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 hours
+    const rawToken = `admin_token_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+    storeAdminToken(rawToken, user.id, expiresAt);
+
+    const userPayload = {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      isAdmin: true,
+      role: 'admin'
     };
-    
+
     console.log(`✅ Admin login successful for user: ${username}`);
     res.json({
       success: true,
-      token: adminToken.token,
-      user: adminToken.user,
-      expires_at: adminToken.expires_at
+      access_token: rawToken,
+      token_type: 'Bearer',
+      user: userPayload,
+      expires_at: expiresAt.toISOString()
     });
   } catch (error) {
     console.error('❌ Error during admin login:', error);

@@ -8,6 +8,7 @@ import { storage } from "./storage";
 import { db, pool } from "./db";
 import { users } from "../shared/schema";
 import { eq } from "drizzle-orm";
+import { validateAdminToken } from "./adminTokens";
 
 export function getSession() {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
@@ -348,11 +349,14 @@ export const isAuthenticated: RequestHandler = async (req, res, next) => {
 };
 
 export const isAdmin: RequestHandler = async (req: any, res, next) => {
-  if (!req.isAuthenticated()) {
-    return res.status(401).json({ message: "Unauthorized" });
+  if (req.isAuthenticated() && req.user?.isAdmin) return next();
+
+  const auth = (req.headers.authorization as string) || '';
+  if (auth.startsWith('Bearer ')) {
+    const token = auth.slice(7);
+    const entry = validateAdminToken(token);
+    if (entry?.isAdmin) return next();
   }
-  if (!req.user || !req.user.isAdmin) {
-    return res.status(403).json({ message: "Forbidden - Admin access required" });
-  }
-  return next();
+
+  return res.status(401).json({ message: "Unauthorized" });
 };
