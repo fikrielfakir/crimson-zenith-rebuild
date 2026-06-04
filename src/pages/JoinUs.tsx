@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
+import { useTranslation } from 'react-i18next';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import {
@@ -25,50 +26,16 @@ import {
   Users,
   MapPin,
   Loader2,
-  ArrowRight,
   Sparkles,
   Lock,
   Eye,
   EyeOff,
 } from 'lucide-react';
 
-// ─── Schemas ──────────────────────────────────────────────────────────────────
-const schemaBase = z.object({
-  applicantName:   z.string().min(2, 'Name must be at least 2 characters'),
-  email:           z.string().email('Please enter a valid email address'),
-  phone:           z.string().min(10, 'Please enter a valid phone number'),
-  password:        z.string().optional().default(''),
-  confirmPassword: z.string().optional().default(''),
-  preferredClub:   z.string().optional(),
-  interests:       z.array(z.string()).min(1, 'Please select at least one interest'),
-  motivation:      z.string().min(50, 'Please write at least 50 characters'),
-  agreeToTerms:    z.boolean().refine(v => v === true, 'You must agree to the terms'),
-});
-
-const schemaWithPassword = schemaBase
-  .extend({
-    password:        z.string().min(8, 'Password must be at least 8 characters'),
-    confirmPassword: z.string().min(1, 'Please confirm your password'),
-  })
-  .refine(d => d.password === d.confirmPassword, {
-    message: "Passwords don't match",
-    path: ['confirmPassword'],
-  });
-
-type FormData = z.infer<typeof schemaWithPassword>;
-
-// ─── Interests list ───────────────────────────────────────────────────────────
-const INTERESTS = [
-  'Mountain Trekking', 'Desert Adventures', 'Photography', 'Water Sports',
-  'Cultural Tours', 'Local Cuisine', 'Traditional Crafts', 'Historical Sites',
-  'Nature Conservation', 'Community Service', 'Language Exchange', 'Wellness',
-];
-
 const ICON_MAP: Record<string, React.ElementType> = {
   Mountain, Camera, Waves, Compass, Users, MapPin,
 };
 
-// ─── Password strength ────────────────────────────────────────────────────────
 function getPasswordStrength(pw: string): { score: number; label: string; color: string } {
   if (!pw) return { score: 0, label: '', color: '' };
   let score = 0;
@@ -83,19 +50,60 @@ function getPasswordStrength(pw: string): { score: number; label: string; color:
   return              { score, label: 'Strong', color: 'bg-green-500' };
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
 export default function JoinUs() {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
-  const [loading, setLoading]                   = useState(false);
-  const [clubs, setClubs]                       = useState<any[]>([]);
-  const [clubsLoading, setClubsLoading]         = useState(true);
+  const [loading, setLoading]                     = useState(false);
+  const [clubs, setClubs]                         = useState<any[]>([]);
+  const [clubsLoading, setClubsLoading]           = useState(true);
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
-  const [selectedClub, setSelectedClub]         = useState('');
-  const [showPassword, setShowPassword]         = useState(false);
-  const [showConfirm, setShowConfirm]           = useState(false);
-  const [appCheckLoading, setAppCheckLoading]   = useState(false);
+  const [selectedClub, setSelectedClub]           = useState('');
+  const [showPassword, setShowPassword]           = useState(false);
+  const [showConfirm, setShowConfirm]             = useState(false);
+  const [appCheckLoading, setAppCheckLoading]     = useState(false);
+
+  // Interests list — keys map to joinPage.interestXxx translation keys
+  const INTEREST_KEYS: { key: string; label: string }[] = [
+    { key: 'Mountain Trekking',    label: t('joinPage.interestMountainTrekking') },
+    { key: 'Desert Adventures',    label: t('joinPage.interestDesertAdventures') },
+    { key: 'Photography',          label: t('joinPage.interestPhotography') },
+    { key: 'Water Sports',         label: t('joinPage.interestWaterSports') },
+    { key: 'Cultural Tours',       label: t('joinPage.interestCulturalTours') },
+    { key: 'Local Cuisine',        label: t('joinPage.interestLocalCuisine') },
+    { key: 'Traditional Crafts',   label: t('joinPage.interestTraditionalCrafts') },
+    { key: 'Historical Sites',     label: t('joinPage.interestHistoricalSites') },
+    { key: 'Nature Conservation',  label: t('joinPage.interestNatureConservation') },
+    { key: 'Community Service',    label: t('joinPage.interestCommunityService') },
+    { key: 'Language Exchange',    label: t('joinPage.interestLanguageExchange') },
+    { key: 'Wellness',             label: t('joinPage.interestWellness') },
+  ];
+
+  // Schemas built inside the component so validation messages are translated
+  const schemaBase = z.object({
+    applicantName:   z.string().min(2, t('joinPage.validationName')),
+    email:           z.string().email(t('joinPage.validationEmail')),
+    phone:           z.string().min(10, t('joinPage.validationPhone')),
+    password:        z.string().optional().default(''),
+    confirmPassword: z.string().optional().default(''),
+    preferredClub:   z.string().optional(),
+    interests:       z.array(z.string()).min(1, t('joinPage.validationInterests')),
+    motivation:      z.string().min(50, t('joinPage.validationMotivation')),
+    agreeToTerms:    z.boolean().refine(v => v === true, t('joinPage.validationTerms')),
+  });
+
+  const schemaWithPassword = schemaBase
+    .extend({
+      password:        z.string().min(8, t('joinPage.validationPassword')),
+      confirmPassword: z.string().min(1, t('joinPage.validationConfirmPassword')),
+    })
+    .refine(d => d.password === d.confirmPassword, {
+      message: t('joinPage.validationPasswordMatch'),
+      path: ['confirmPassword'],
+    });
+
+  type FormData = z.infer<typeof schemaWithPassword>;
 
   const {
     register,
@@ -120,6 +128,12 @@ export default function JoinUs() {
   const passwordValue = watch('password') ?? '';
   const strength      = getPasswordStrength(passwordValue);
 
+  const strengthLabel =
+    strength.label === 'Weak'   ? t('joinPage.strengthWeak')   :
+    strength.label === 'Fair'   ? t('joinPage.strengthFair')   :
+    strength.label === 'Good'   ? t('joinPage.strengthGood')   :
+    strength.label === 'Strong' ? t('joinPage.strengthStrong') : '';
+
   // Fetch clubs
   useEffect(() => {
     fetch('/api/clubs', { headers: { Accept: 'application/json' } })
@@ -132,7 +146,7 @@ export default function JoinUs() {
       .finally(() => setClubsLoading(false));
   }, []);
 
-  // If authenticated user already has an application, redirect to their profile application tab
+  // If authenticated user already has an application, redirect to profile application tab
   useEffect(() => {
     if (!isAuthenticated) return;
     setAppCheckLoading(true);
@@ -151,10 +165,10 @@ export default function JoinUs() {
       .finally(() => setAppCheckLoading(false));
   }, [isAuthenticated]);
 
-  const toggleInterest = (interest: string) => {
-    const next = selectedInterests.includes(interest)
-      ? selectedInterests.filter(i => i !== interest)
-      : [...selectedInterests, interest];
+  const toggleInterest = (key: string) => {
+    const next = selectedInterests.includes(key)
+      ? selectedInterests.filter(i => i !== key)
+      : [...selectedInterests, key];
     setSelectedInterests(next);
     setValue('interests', next, { shouldValidate: true });
   };
@@ -196,23 +210,19 @@ export default function JoinUs() {
       const didCreateAccount = result.accountCreated === true;
 
       if (isAuthenticated) {
-        // User was already logged in — go straight to their application tab
         navigate('/profile?tab=application');
       } else if (didCreateAccount) {
-        // Account was just created — send them to login, then to profile application tab
         navigate('/login?redirect=' + encodeURIComponent('/profile?tab=application'));
       } else {
-        // Guest application with no account — show brief success then go home
         navigate('/profile?tab=application');
       }
     } catch (err: any) {
-      toast({ title: 'Submission failed', description: err?.message ?? 'Please try again.', variant: 'destructive' });
+      toast({ title: t('joinPage.errorTitle'), description: err?.message ?? t('joinPage.errorDesc'), variant: 'destructive' });
     } finally {
       setLoading(false);
     }
   };
 
-  // ── Main form ───────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-[#FAF8F5] flex flex-col">
       <SEOHead {...routeSEO["/join-us"]} />
@@ -236,22 +246,22 @@ export default function JoinUs() {
           <div className="max-w-2xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-2 mb-6">
               <Sparkles className="w-4 h-4 text-[#D6B98C]" />
-              <span className="text-white/90 text-sm font-medium">Open Applications</span>
+              <span className="text-white/90 text-sm font-medium">{t('joinPage.openApplications')}</span>
             </div>
             <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-5 leading-tight font-['Poppins']">
-              Join Our Adventure<br />
-              <span style={{ color: '#D6B98C' }}>Community</span>
+              {t('joinPage.heroTitle')}<br />
+              <span style={{ color: '#D6B98C' }}>{t('joinPage.heroCommunity')}</span>
             </h1>
             <p className="text-white/75 text-lg leading-relaxed max-w-xl mx-auto">
-              Ready to explore Morocco's wonders with like-minded adventurers? Complete this application to become part of our vibrant community.
+              {t('joinPage.heroSubtitle')}
             </p>
           </div>
 
           <div className="grid grid-cols-3 gap-2 sm:gap-4 max-w-lg mx-auto mt-12">
             {[
-              { value: '1,200+', label: 'Members' },
-              { value: '24',     label: 'Active Clubs' },
-              { value: '180+',   label: 'Events / Year' },
+              { value: '1,200+', label: t('joinPage.statsMembers') },
+              { value: '24',     label: t('joinPage.statsClubs') },
+              { value: '180+',   label: t('joinPage.statsEvents') },
             ].map(stat => (
               <div key={stat.label} className="text-center">
                 <p className="text-2xl font-bold font-['Poppins']" style={{ color: '#D6B98C' }}>{stat.value}</p>
@@ -266,35 +276,35 @@ export default function JoinUs() {
       {isAuthenticated && appCheckLoading && (
         <main className="container mx-auto px-4 py-14 max-w-2xl flex-1 flex flex-col items-center justify-center">
           <Loader2 className="w-8 h-8 animate-spin text-[#0B1F5E] mb-3" />
-          <p className="text-sm text-gray-400">Checking your application…</p>
+          <p className="text-sm text-gray-400">{t('joinPage.checkingApplication')}</p>
         </main>
       )}
 
-      {/* Form — shown for guests, or logged-in users without an existing application */}
+      {/* Form */}
       {!appCheckLoading && (
       <main className="container mx-auto px-4 py-14 max-w-2xl flex-1">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
 
           {/* ── 1. Personal Info + Account ───────────────────────────────── */}
-          <Section number={1} title="Personal Information" subtitle="This also creates your Journey Association account">
+          <Section number={1} title={t('joinPage.section1Title')} subtitle={t('joinPage.section1Subtitle')}>
             <div className="grid sm:grid-cols-2 gap-4">
-              <Field label="Full Name" required error={errors.applicantName?.message}>
+              <Field label={t('joinPage.fieldFullName')} required error={errors.applicantName?.message}>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <Input
                     {...register('applicantName')}
-                    placeholder="Your full name"
+                    placeholder={t('joinPage.placeholderFullName')}
                     className={`pl-10 h-12 bg-white border-gray-200 focus:border-[#0B1F5E] rounded-xl ${errors.applicantName ? 'border-red-400' : ''}`}
                   />
                 </div>
               </Field>
-              <Field label="Email Address" required error={errors.email?.message}>
+              <Field label={t('joinPage.fieldEmail')} required error={errors.email?.message}>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <Input
                     {...register('email')}
                     type="email"
-                    placeholder="you@example.com"
+                    placeholder={t('joinPage.placeholderEmail')}
                     autoComplete="email"
                     className={`pl-10 h-12 bg-white border-gray-200 focus:border-[#0B1F5E] rounded-xl ${errors.email ? 'border-red-400' : ''}`}
                   />
@@ -302,12 +312,12 @@ export default function JoinUs() {
               </Field>
             </div>
 
-            <Field label="Phone Number" required error={errors.phone?.message}>
+            <Field label={t('joinPage.fieldPhone')} required error={errors.phone?.message}>
               <div className="relative">
                 <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <Input
                   {...register('phone')}
-                  placeholder="+212 6XX XXX XXX"
+                  placeholder={t('joinPage.placeholderPhone')}
                   className={`pl-10 h-12 bg-white border-gray-200 focus:border-[#0B1F5E] rounded-xl ${errors.phone ? 'border-red-400' : ''}`}
                 />
               </div>
@@ -319,7 +329,7 @@ export default function JoinUs() {
                 <div className="flex items-center gap-3 pt-1">
                   <div className="flex-1 h-px bg-gray-100" />
                   <span className="text-xs text-gray-400 font-medium flex items-center gap-1.5">
-                    <Lock className="w-3 h-3" /> Create your password
+                    <Lock className="w-3 h-3" /> {t('joinPage.createPassword')}
                   </span>
                   <div className="flex-1 h-px bg-gray-100" />
                 </div>
@@ -327,13 +337,13 @@ export default function JoinUs() {
                 <div className="grid sm:grid-cols-2 gap-4">
                   {/* Password */}
                   <div className="space-y-1.5">
-                    <Field label="Password" required error={errors.password?.message}>
+                    <Field label={t('joinPage.fieldPassword')} required error={errors.password?.message}>
                       <div className="relative">
                         <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                         <Input
                           {...register('password')}
                           type={showPassword ? 'text' : 'password'}
-                          placeholder="Min. 8 characters"
+                          placeholder={t('joinPage.placeholderPassword')}
                           autoComplete="new-password"
                           className={`pl-10 pr-10 h-12 bg-white border-gray-200 focus:border-[#0B1F5E] rounded-xl ${errors.password ? 'border-red-400' : ''}`}
                         />
@@ -362,25 +372,26 @@ export default function JoinUs() {
                           ))}
                         </div>
                         <p className="text-xs text-gray-500">
-                          Strength: <span className={`font-medium ${
-                            strength.label === 'Weak'   ? 'text-red-500'   :
+                          {t('joinPage.strengthLabel')}{' '}
+                          <span className={`font-medium ${
+                            strength.label === 'Weak'   ? 'text-red-500'    :
                             strength.label === 'Fair'   ? 'text-yellow-600' :
-                            strength.label === 'Good'   ? 'text-blue-600'  :
+                            strength.label === 'Good'   ? 'text-blue-600'   :
                             'text-green-600'
-                          }`}>{strength.label}</span>
+                          }`}>{strengthLabel}</span>
                         </p>
                       </div>
                     )}
                   </div>
 
                   {/* Confirm password */}
-                  <Field label="Confirm Password" required error={errors.confirmPassword?.message}>
+                  <Field label={t('joinPage.fieldConfirmPassword')} required error={errors.confirmPassword?.message}>
                     <div className="relative">
                       <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                       <Input
                         {...register('confirmPassword')}
                         type={showConfirm ? 'text' : 'password'}
-                        placeholder="Repeat your password"
+                        placeholder={t('joinPage.placeholderConfirmPassword')}
                         autoComplete="new-password"
                         className={`pl-10 pr-10 h-12 bg-white border-gray-200 focus:border-[#0B1F5E] rounded-xl ${errors.confirmPassword ? 'border-red-400' : ''}`}
                       />
@@ -398,7 +409,7 @@ export default function JoinUs() {
 
                 <p className="text-xs text-gray-400 leading-relaxed flex items-start gap-1.5">
                   <Lock className="w-3 h-3 mt-0.5 flex-shrink-0" />
-                  Your account lets you track your application, access approved events, and manage your profile after joining.
+                  {t('joinPage.passwordNote')}
                 </p>
               </>
             )}
@@ -408,20 +419,20 @@ export default function JoinUs() {
               <div className="flex items-start gap-3 p-4 bg-blue-50 border border-blue-100 rounded-xl">
                 <CheckCircle2 className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
                 <p className="text-sm text-blue-800">
-                  You're logged in as <span className="font-semibold">{user?.email}</span>. This application will be linked to your account automatically.
+                  {t('joinPage.loggedInNote', { email: user?.email })}
                 </p>
               </div>
             )}
           </Section>
 
           {/* ── 2. Club Preference ─────────────────────────────────────────── */}
-          <Section number={2} title="Choose a Club" subtitle="Optional — pick the one that excites you most">
+          <Section number={2} title={t('joinPage.section2Title')} subtitle={t('joinPage.section2Subtitle')}>
             {clubsLoading ? (
               <div className="flex items-center justify-center py-8 text-gray-400">
-                <Loader2 className="w-5 h-5 animate-spin mr-2" /> Loading clubs…
+                <Loader2 className="w-5 h-5 animate-spin mr-2" /> {t('joinPage.loadingClubs')}
               </div>
             ) : clubs.length === 0 ? (
-              <p className="text-gray-400 text-sm text-center py-4">No clubs found. You can still apply!</p>
+              <p className="text-gray-400 text-sm text-center py-4">{t('joinPage.noClubs')}</p>
             ) : (
               <div className="grid sm:grid-cols-2 gap-3">
                 {clubs.map(club => {
@@ -462,22 +473,22 @@ export default function JoinUs() {
           </Section>
 
           {/* ── 3. Interests ───────────────────────────────────────────────── */}
-          <Section number={3} title="Your Interests" subtitle="Select everything that excites you">
+          <Section number={3} title={t('joinPage.section3Title')} subtitle={t('joinPage.section3Subtitle')}>
             <div className="flex flex-wrap gap-2">
-              {INTERESTS.map(interest => {
-                const active = selectedInterests.includes(interest);
+              {INTEREST_KEYS.map(({ key, label }) => {
+                const active = selectedInterests.includes(key);
                 return (
                   <button
-                    key={interest}
+                    key={key}
                     type="button"
-                    onClick={() => toggleInterest(interest)}
+                    onClick={() => toggleInterest(key)}
                     className={`px-4 py-2 rounded-full text-sm font-medium border transition-all duration-150 ${
                       active
                         ? 'bg-[#0B1F5E] text-white border-[#0B1F5E]'
                         : 'bg-white text-gray-600 border-gray-200 hover:border-[#0B1F5E]/50 hover:text-[#0B1F5E]'
                     }`}
                   >
-                    {active && <span className="mr-1.5">✓</span>}{interest}
+                    {active && <span className="mr-1.5">✓</span>}{label}
                   </button>
                 );
               })}
@@ -488,11 +499,11 @@ export default function JoinUs() {
           </Section>
 
           {/* ── 4. Motivation ──────────────────────────────────────────────── */}
-          <Section number={4} title="Tell Us About Yourself" subtitle="Why do you want to join our community?">
+          <Section number={4} title={t('joinPage.section4Title')} subtitle={t('joinPage.section4Subtitle')}>
             <div className="relative">
               <Textarea
                 {...register('motivation')}
-                placeholder="Share your passion for adventure, what you hope to experience, and how you'd like to contribute to our community…"
+                placeholder={t('joinPage.motivationPlaceholder')}
                 className={`min-h-[140px] bg-white border-gray-200 focus:border-[#0B1F5E] rounded-xl resize-none text-sm leading-relaxed p-4 ${errors.motivation ? 'border-red-400' : ''}`}
               />
               <div className="flex items-center justify-between mt-2">
@@ -501,7 +512,7 @@ export default function JoinUs() {
                   : <span />
                 }
                 <span className={`text-xs ml-auto ${motivation.length >= 50 ? 'text-green-600 font-medium' : 'text-gray-400'}`}>
-                  {motivation.length} / 50 min
+                  {motivation.length} {t('joinPage.minChars')}
                 </span>
               </div>
             </div>
@@ -526,9 +537,9 @@ export default function JoinUs() {
                 </div>
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-800">I agree to the terms and conditions</p>
+                <p className="text-sm font-medium text-gray-800">{t('joinPage.agreeLabel')}</p>
                 <p className="text-xs text-gray-500 mt-1 leading-relaxed">
-                  By submitting, you agree to our community guidelines, privacy policy, and terms of service. You consent to receive updates about events and activities.
+                  {t('joinPage.agreeDesc')}
                 </p>
                 {errors.agreeToTerms && (
                   <p className="text-xs text-red-500 mt-1">{errors.agreeToTerms.message}</p>
@@ -542,8 +553,7 @@ export default function JoinUs() {
                 <span className="text-[#D6B98C] text-xs font-bold">i</span>
               </div>
               <p className="text-xs text-gray-600 leading-relaxed">
-                Submitting this form creates your Journey Association account and sends your application for review.
-                Our team typically responds within <strong>2–3 business days</strong>.
+                {t('joinPage.infoNote')} <strong>{t('joinPage.infoNoteDays')}</strong>.
               </p>
             </div>
 
@@ -557,11 +567,11 @@ export default function JoinUs() {
               {loading ? (
                 <span className="flex items-center gap-2">
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  {isAuthenticated ? 'Submitting…' : 'Creating account & submitting…'}
+                  {isAuthenticated ? t('joinPage.submittingLoggedIn') : t('joinPage.submittingGuest')}
                 </span>
               ) : (
                 <span className="flex items-center gap-2">
-                  {isAuthenticated ? 'Submit Application' : 'Create Account & Apply'}
+                  {isAuthenticated ? t('joinPage.submitLoggedIn') : t('joinPage.submitGuest')}
                   <ChevronRight className="w-5 h-5" />
                 </span>
               )}
@@ -569,9 +579,9 @@ export default function JoinUs() {
 
             {!isAuthenticated && (
               <p className="text-center text-xs text-gray-400">
-                Already have an account?{' '}
+                {t('joinPage.alreadyHaveAccount')}{' '}
                 <Link to="/login" className="text-[#0B1F5E] font-medium hover:underline">
-                  Sign in instead
+                  {t('joinPage.signIn')}
                 </Link>
               </p>
             )}
