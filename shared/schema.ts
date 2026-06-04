@@ -895,3 +895,16 @@ export const cities = pgTable("cities", {
 
 export type City = typeof cities.$inferSelect;
 export type InsertCity = typeof cities.$inferInsert;
+
+// Landing page section visibility settings
+export const landingPageSections = pgTable("landing_page_sections", {
+  id: serial("id").primaryKey(),
+  sectionKey: varchar("section_key", { length: 100 }).notNull().unique(),
+  label: varchar("label", { length: 255 }).notNull(),
+  isEnabled: boolean("is_enabled").notNull().default(true),
+  ordering: integer("ordering").notNull().default(0),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export type LandingPageSection = typeof landingPageSections.$inferSelect;
+export type InsertLandingPageSection = typeof landingPageSections.$inferInsert;

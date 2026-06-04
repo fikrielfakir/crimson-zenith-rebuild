@@ -585,6 +585,26 @@ async function seedDatabase() {
       });
       console.log('✅ Database seeded with SEO settings!');
     }
+
+    // Seed landing page section visibility settings
+    const existingSections = await storage.getLandingPageSections();
+    if (existingSections.length === 0) {
+      console.log('📝 Seeding landing page section settings...');
+      const { db: dbInst } = await import('./server/db.js');
+      const { landingPageSections: lpsTable } = await import('./shared/schema.js');
+      await dbInst.insert(lpsTable).values([
+        { sectionKey: 'hero',              label: 'Hero',                  isEnabled: true,  ordering: 1 },
+        { sectionKey: 'president_message', label: "President's Message",   isEnabled: true,  ordering: 2 },
+        { sectionKey: 'about',             label: 'About',                 isEnabled: true,  ordering: 3 },
+        { sectionKey: 'clubs_map',         label: 'Clubs Map',             isEnabled: true,  ordering: 4 },
+        { sectionKey: 'events_calendar',   label: 'Events & Activities',   isEnabled: true,  ordering: 5 },
+        { sectionKey: 'stats',             label: 'Stats / Impact',        isEnabled: true,  ordering: 6 },
+        { sectionKey: 'testimonials',      label: 'Testimonials',          isEnabled: true,  ordering: 7 },
+        { sectionKey: 'partners',          label: 'Our Partners',          isEnabled: true,  ordering: 8 },
+        { sectionKey: 'contact',           label: 'Contact',               isEnabled: true,  ordering: 9 },
+      ]);
+      console.log('✅ Landing page section settings seeded!');
+    }
   } catch (error) {
     console.error('❌ Error seeding database:', error);
   }
@@ -4370,6 +4390,50 @@ app.post('/api/admin/translations', isAdminOrBearer, async (req, res) => {
   } catch (err) {
     console.error('❌ Error saving translation:', err);
     res.status(500).json({ error: 'Failed to save translation' });
+  }
+});
+
+// ── Landing page section visibility ─────────────────────────────────────────
+
+// Public: returns only isEnabled flag for each section
+app.get('/api/cms/landing-sections', async (req, res) => {
+  try {
+    const sections = await storage.getLandingPageSections();
+    res.json(sections);
+  } catch (error) {
+    console.error('❌ Error fetching landing sections:', error);
+    res.status(500).json({ error: 'Failed to fetch landing sections' });
+  }
+});
+
+// Admin: same data, but gated
+app.get('/api/admin/cms/landing-sections', isAdmin, async (req, res) => {
+  try {
+    const sections = await storage.getLandingPageSections();
+    res.json(sections);
+  } catch (error) {
+    console.error('❌ Error fetching landing sections:', error);
+    res.status(500).json({ error: 'Failed to fetch landing sections' });
+  }
+});
+
+// Admin: bulk-update all sections at once
+// Body: [{ sectionKey: string, isEnabled: boolean }, ...]
+app.put('/api/admin/cms/landing-sections', isAdmin, async (req, res) => {
+  try {
+    const updates: { sectionKey: string; isEnabled: boolean }[] = req.body;
+    if (!Array.isArray(updates)) {
+      return res.status(400).json({ error: 'Body must be an array of { sectionKey, isEnabled }' });
+    }
+    const results = await Promise.all(
+      updates.map(({ sectionKey, isEnabled }) =>
+        storage.updateLandingPageSection(sectionKey, isEnabled)
+      )
+    );
+    res.json(results);
+  } catch (error) {
+    console.error('❌ Error updating landing sections:', error);
+    res.status(500).json({ error: 'Failed to update landing sections' });
   }
 });
 

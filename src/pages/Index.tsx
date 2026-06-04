@@ -18,6 +18,11 @@ import BottomNavbar from "@/components/BottomNavbar";
 import LandingApiError from "@/components/LandingApiError";
 import { Skeleton } from "@/components/ui/skeleton";
 
+interface LandingSection {
+  sectionKey: string;
+  isEnabled: boolean;
+}
+
 function useApiHealth() {
   return useQuery({
     queryKey: ["__api_health__"],
@@ -31,6 +36,20 @@ function useApiHealth() {
     },
     staleTime: 0,
     gcTime: 0,
+    retry: 0,
+    refetchOnWindowFocus: false,
+  });
+}
+
+function useLandingSections() {
+  return useQuery<LandingSection[]>({
+    queryKey: ["landing-sections"],
+    queryFn: async () => {
+      const res = await fetch("/api/cms/landing-sections", { credentials: "include" });
+      if (!res.ok) return [];
+      return res.json();
+    },
+    staleTime: 30_000,
     retry: 0,
     refetchOnWindowFocus: false,
   });
@@ -55,6 +74,13 @@ const LandingPageSkeleton = () => (
 const Index = () => {
   const location = useLocation();
   const { isLoading, isError } = useApiHealth();
+  const { data: sections } = useLandingSections();
+
+  const isOn = (key: string) => {
+    if (!sections || sections.length === 0) return true;
+    const s = sections.find((s) => s.sectionKey === key);
+    return s ? s.isEnabled : true;
+  };
 
   useEffect(() => {
     if (location.hash) {
@@ -62,36 +88,28 @@ const Index = () => {
       const element = document.getElementById(sectionId);
       if (element) {
         requestAnimationFrame(() => {
-          element.scrollIntoView({
-            behavior: "smooth",
-            block: "start",
-          });
+          element.scrollIntoView({ behavior: "smooth", block: "start" });
         });
       }
     }
   }, [location.hash]);
 
-  if (isLoading) {
-    return <LandingPageSkeleton />;
-  }
-
-  if (isError) {
-    return <LandingApiError />;
-  }
+  if (isLoading) return <LandingPageSkeleton />;
+  if (isError) return <LandingApiError />;
 
   return (
     <div className="min-h-screen">
       <SEOHead {...routeSEO["/"]} />
       <Header />
-      <Hero />
-      <PresidentMessageDynamic />
-      <About />
-      <ClubsWithMap />
-      <EventsActivitiesCalendar />
-      <Stats />
-      <Testimonials />
-      <OurPartners />
-      <Contact />
+      {isOn("hero") && <Hero />}
+      {isOn("president_message") && <PresidentMessageDynamic />}
+      {isOn("about") && <About />}
+      {isOn("clubs_map") && <ClubsWithMap />}
+      {isOn("events_calendar") && <EventsActivitiesCalendar />}
+      {isOn("stats") && <Stats />}
+      {isOn("testimonials") && <Testimonials />}
+      {isOn("partners") && <OurPartners />}
+      {isOn("contact") && <Contact />}
       <Footer />
       <BottomNavbar />
     </div>

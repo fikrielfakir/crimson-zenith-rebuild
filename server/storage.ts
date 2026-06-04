@@ -32,6 +32,9 @@ import {
   contentTranslations,
   legalPages,
   clubsPageSettings,
+  landingPageSections,
+  type LandingPageSection,
+  type InsertLandingPageSection,
   type LegalPage,
   type InsertLegalPage,
   type ContentTranslation,
@@ -258,6 +261,10 @@ export interface IStorage {
   // Clubs page settings operations
   getClubsPageSettings(): Promise<ClubsPageSettings | undefined>;
   updateClubsPageSettings(settings: Partial<InsertClubsPageSettings>, userId?: string): Promise<ClubsPageSettings>;
+
+  // Landing page section visibility
+  getLandingPageSections(): Promise<LandingPageSection[]>;
+  updateLandingPageSection(sectionKey: string, isEnabled: boolean): Promise<LandingPageSection>;
 
   // Partner settings operations
   getPartnerSettings(): Promise<PartnerSettings | undefined>;
@@ -1458,6 +1465,19 @@ export class DatabaseStorage implements IStorage {
         { ...settingsData, id: 'default', updatedBy: userId } as InsertClubsPageSettings
       );
     }
+  }
+
+  // Landing page section visibility
+  async getLandingPageSections(): Promise<LandingPageSection[]> {
+    return await db.select().from(landingPageSections).orderBy(asc(landingPageSections.ordering));
+  }
+
+  async updateLandingPageSection(sectionKey: string, isEnabled: boolean): Promise<LandingPageSection> {
+    await db.update(landingPageSections)
+      .set({ isEnabled, updatedAt: new Date() })
+      .where(eq(landingPageSections.sectionKey, sectionKey));
+    const [row] = await db.select().from(landingPageSections).where(eq(landingPageSections.sectionKey, sectionKey));
+    return row;
   }
 }
 
