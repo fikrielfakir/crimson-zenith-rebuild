@@ -333,6 +333,12 @@ Route::prefix('admin')->middleware(['admin'])->group(function () {
     Route::put('/cms/focus-items/{id}',             [\App\Http\Controllers\Admin\FocusItemController::class, 'update']);
     Route::delete('/cms/focus-items/{id}',          [\App\Http\Controllers\Admin\FocusItemController::class, 'destroy']);
 
+    // Testimonials CRUD
+    Route::get('/cms/testimonials',            [\App\Http\Controllers\Admin\CmsAdminController::class, 'listTestimonials']);
+    Route::post('/cms/testimonials',           [\App\Http\Controllers\Admin\CmsAdminController::class, 'storeTestimonial']);
+    Route::put('/cms/testimonials/{id}',       [\App\Http\Controllers\Admin\CmsAdminController::class, 'updateTestimonial']);
+    Route::delete('/cms/testimonials/{id}',    [\App\Http\Controllers\Admin\CmsAdminController::class, 'destroyTestimonial']);
+
     // CMS bulk-update collections (focus, team, testimonials, stats, partners)
     Route::get('/cms/stats',                   [\App\Http\Controllers\Admin\CmsAdminController::class, 'getCmsStat']);
     Route::post('/cms/stats',                  [\App\Http\Controllers\Admin\CmsAdminController::class, 'updateCmsStat']);
