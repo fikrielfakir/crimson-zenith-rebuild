@@ -1,20 +1,20 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { 
-  MapPin, 
-  Users, 
-  Calendar, 
-  Star, 
-  Phone, 
-  Mail, 
+import {
+  MapPin,
+  Users,
+  Calendar,
+  Star,
+  Phone,
+  Mail,
   Heart,
   Share2,
   Globe,
@@ -31,6 +31,7 @@ import Footer from "@/components/Footer";
 import { format } from "date-fns";
 
 const ClubEventsSection = ({ clubId }: { clubId: number }) => {
+  const { t } = useTranslation();
   const { data: eventsData, isLoading } = useQuery({
     queryKey: ['club-events', clubId],
     queryFn: async () => {
@@ -47,20 +48,20 @@ const ClubEventsSection = ({ clubId }: { clubId: number }) => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Calendar className="w-5 h-5 text-primary" />
-          Upcoming Events
+          {t("clubDetail.upcomingEvents")}
         </CardTitle>
       </CardHeader>
       <CardContent>
         {isLoading ? (
           <div className="text-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-            <p className="mt-2 text-sm text-muted-foreground">Loading events...</p>
+            <p className="mt-2 text-sm text-muted-foreground">{t("clubDetail.loadingEvents")}</p>
           </div>
         ) : events.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <Calendar className="w-12 h-12 mx-auto mb-2 opacity-50" />
-            <p>No upcoming events</p>
-            <p className="text-sm">Check back soon for new activities!</p>
+            <p>{t("clubDetail.noUpcomingEvents")}</p>
+            <p className="text-sm">{t("clubDetail.checkBackSoon")}</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -104,7 +105,7 @@ const ClubEventsSection = ({ clubId }: { clubId: number }) => {
             ))}
             {events.length > 5 && (
               <Button variant="outline" className="w-full">
-                View All {events.length} Events
+                {t("clubDetail.viewAllEvents", { count: events.length })}
               </Button>
             )}
           </div>
@@ -117,6 +118,7 @@ const ClubEventsSection = ({ clubId }: { clubId: number }) => {
 const ClubDetail = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [isJoined, setIsJoined] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
@@ -126,11 +128,11 @@ const ClubDetail = () => {
 
   useEffect(() => {
     setIsVisible(true);
-    
+
     const handleScroll = () => {
       setScrollY(window.scrollY);
     };
-    
+
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -195,7 +197,7 @@ const ClubDetail = () => {
         <Header />
         <div className="container mx-auto px-4 py-20 text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-muted-foreground">Loading club details...</p>
+          <p className="mt-4 text-muted-foreground">{t("clubDetail.loadingClub")}</p>
         </div>
         <Footer />
       </div>
@@ -207,9 +209,9 @@ const ClubDetail = () => {
       <div className="min-h-screen bg-background">
         <Header />
         <div className="container mx-auto px-4 py-20 text-center">
-          <h2 className="text-2xl font-bold mb-4">Club Not Found</h2>
-          <p className="text-muted-foreground mb-6">The club you're looking for doesn't exist.</p>
-          <Button onClick={() => navigate('/clubs')}>View All Clubs</Button>
+          <h2 className="text-2xl font-bold mb-4">{t("clubDetail.clubNotFound")}</h2>
+          <p className="text-muted-foreground mb-6">{t("clubDetail.clubNotFoundDesc")}</p>
+          <Button onClick={() => navigate('/clubs')}>{t("clubDetail.viewAllClubs")}</Button>
         </div>
         <Footer />
       </div>
@@ -221,11 +223,10 @@ const ClubDetail = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+
       {/* Hero Section with Background Image */}
       <section className="relative py-20 overflow-hidden" style={{ paddingTop: '15rem' }}>
-        {/* Background Image with Parallax */}
-        <div 
+        <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
             backgroundImage: `url('${club.image || '/api/placeholder/1920/1080?type=club'}')`,
@@ -233,32 +234,29 @@ const ClubDetail = () => {
             filter: 'brightness(0.6) contrast(1.1) saturate(1.2)',
           }}
         />
-
-        {/* Gradient Overlay for Better Text Readability */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/50" />
         <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-transparent to-primary/20" />
 
-        {/* Content */}
         <div className="relative container mx-auto px-6">
           {/* Breadcrumb Navigation */}
           <nav className={`mb-8 transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
             <ol className="flex items-center space-x-2 text-sm">
               <li>
-                <Link 
-                  to="/" 
+                <Link
+                  to="/"
                   className="flex items-center text-white/90 hover:text-white transition-colors bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-full border border-white/20 hover:border-white/40"
                 >
                   <Home className="w-4 h-4 mr-1.5" />
-                  Home
+                  {t("clubDetail.home")}
                 </Link>
               </li>
               <li className="flex items-center">
                 <ChevronRight className="w-4 h-4 mx-2 text-white/50" />
-                <Link 
-                  to="/clubs" 
+                <Link
+                  to="/clubs"
                   className="text-white/90 hover:text-white transition-colors bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-full border border-white/20 hover:border-white/40"
                 >
-                  Clubs
+                  {t("nav.clubs")}
                 </Link>
               </li>
               <li className="flex items-center">
@@ -276,7 +274,7 @@ const ClubDetail = () => {
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-4">
                   {club.is_active && (
-                    <Badge className="bg-green-500/90 backdrop-blur-sm text-white border-white/20">Active</Badge>
+                    <Badge className="bg-green-500/90 backdrop-blur-sm text-white border-white/20">{t("clubDetail.active")}</Badge>
                   )}
                   {club.rating && (
                     <div className="flex items-center gap-1 bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-full border border-white/20">
@@ -298,7 +296,7 @@ const ClubDetail = () => {
                   </div>
                   <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full border border-white/20">
                     <Users className="w-5 h-5" />
-                    <span className="font-medium">{club.member_count || club.memberCount || 0} Members</span>
+                    <span className="font-medium">{club.member_count || club.memberCount || 0} {t("clubDetail.members")}</span>
                   </div>
                 </div>
               </div>
@@ -306,30 +304,30 @@ const ClubDetail = () => {
 
             {/* Action Buttons */}
             <div className="flex flex-wrap items-center gap-4">
-              <Button 
+              <Button
                 size="lg"
                 className="bg-primary hover:bg-primary/90 text-white shadow-xl hover:shadow-2xl transition-all duration-300"
                 onClick={() => setIsJoined(!isJoined)}
               >
                 <UserPlus className="w-5 h-5 mr-2" />
-                {isJoined ? 'Leave Club' : 'Join Club'}
+                {isJoined ? t("clubDetail.leaveClub") : t("clubDetail.joinClub")}
               </Button>
-              <Button 
+              <Button
                 size="lg"
                 variant="outline"
                 className="bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20 hover:border-white/40"
                 onClick={() => setIsFavorite(!isFavorite)}
               >
                 <Heart className={`w-5 h-5 mr-2 ${isFavorite ? 'fill-current text-red-400' : ''}`} />
-                {isFavorite ? 'Saved' : 'Save'}
+                {isFavorite ? t("clubDetail.saved") : t("clubDetail.save")}
               </Button>
-              <Button 
+              <Button
                 size="lg"
                 variant="outline"
                 className="bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20 hover:border-white/40"
               >
                 <Share2 className="w-5 h-5 mr-2" />
-                Share
+                {t("clubDetail.share")}
               </Button>
             </div>
           </div>
@@ -345,19 +343,19 @@ const ClubDetail = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-2xl">
                   <Award className="w-6 h-6 text-primary" />
-                  About This Club
+                  {t("clubDetail.aboutThisClub")}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 <p className="text-muted-foreground leading-relaxed text-lg">
-                  {club.long_description || club.description || 'Join our community and discover amazing experiences in Morocco. Connect with fellow travelers and locals who share your passion for adventure and culture.'}
+                  {club.long_description || club.description || t("clubs.defaultDescription")}
                 </p>
 
                 {features.length > 0 && (
                   <div>
                     <h3 className="font-semibold mb-3 flex items-center gap-2">
                       <CheckCircle2 className="w-5 h-5 text-primary" />
-                      Club Features
+                      {t("clubDetail.clubFeatures")}
                     </h3>
                     <div className="flex flex-wrap gap-2">
                       {features.map((feature: string, index: number) => (
@@ -374,7 +372,7 @@ const ClubDetail = () => {
                     <div className="flex items-center gap-3 p-4 bg-muted rounded-lg">
                       <Phone className="w-5 h-5 text-primary" />
                       <div>
-                        <p className="text-sm text-muted-foreground">Phone</p>
+                        <p className="text-sm text-muted-foreground">{t("clubDetail.phone")}</p>
                         <p className="font-medium">{club.contact_phone}</p>
                       </div>
                     </div>
@@ -383,7 +381,7 @@ const ClubDetail = () => {
                     <div className="flex items-center gap-3 p-4 bg-muted rounded-lg">
                       <Mail className="w-5 h-5 text-primary" />
                       <div>
-                        <p className="text-sm text-muted-foreground">Email</p>
+                        <p className="text-sm text-muted-foreground">{t("clubDetail.email")}</p>
                         <p className="font-medium">{club.contact_email}</p>
                       </div>
                     </div>
@@ -392,9 +390,9 @@ const ClubDetail = () => {
                     <div className="flex items-center gap-3 p-4 bg-muted rounded-lg">
                       <Globe className="w-5 h-5 text-primary" />
                       <div>
-                        <p className="text-sm text-muted-foreground">Website</p>
+                        <p className="text-sm text-muted-foreground">{t("clubDetail.website")}</p>
                         <a href={club.website} target="_blank" rel="noopener noreferrer" className="font-medium text-primary hover:underline">
-                          Visit Website
+                          {t("clubDetail.visitWebsite")}
                         </a>
                       </div>
                     </div>
@@ -403,7 +401,7 @@ const ClubDetail = () => {
                     <div className="flex items-center gap-3 p-4 bg-muted rounded-lg">
                       <Clock className="w-5 h-5 text-primary" />
                       <div>
-                        <p className="text-sm text-muted-foreground">Established</p>
+                        <p className="text-sm text-muted-foreground">{t("clubDetail.established")}</p>
                         <p className="font-medium">{club.established}</p>
                       </div>
                     </div>
@@ -416,12 +414,12 @@ const ClubDetail = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <MapPin className="w-5 h-5 text-primary" />
-                  Club Location
+                  {t("clubDetail.clubLocation")}
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div 
-                  ref={mapContainer} 
+                <div
+                  ref={mapContainer}
                   className="w-full h-[250px] sm:h-[400px] rounded-lg overflow-hidden border"
                 />
                 <p className="mt-4 text-sm text-muted-foreground flex items-center gap-2">
@@ -435,7 +433,7 @@ const ClubDetail = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <TrendingUp className="w-5 h-5 text-primary" />
-                  Club Statistics
+                  {t("clubDetail.clubStatistics")}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -444,25 +442,25 @@ const ClubDetail = () => {
                     <div className="text-3xl font-bold text-primary mb-1">
                       {club.member_count || club.memberCount || 0}
                     </div>
-                    <div className="text-sm text-muted-foreground">Members</div>
+                    <div className="text-sm text-muted-foreground">{t("clubDetail.members")}</div>
                   </div>
                   <div className="text-center">
                     <div className="text-3xl font-bold text-primary mb-1">
                       {club.rating || 5}
                     </div>
-                    <div className="text-sm text-muted-foreground">Rating</div>
+                    <div className="text-sm text-muted-foreground">{t("clubDetail.rating")}</div>
                   </div>
                   <div className="text-center">
                     <div className="text-3xl font-bold text-primary mb-1">
                       {features.length}
                     </div>
-                    <div className="text-sm text-muted-foreground">Features</div>
+                    <div className="text-sm text-muted-foreground">{t("clubDetail.features")}</div>
                   </div>
                   <div className="text-center">
                     <div className="text-3xl font-bold text-primary mb-1">
                       <CheckCircle2 className="w-8 h-8 mx-auto text-green-500" />
                     </div>
-                    <div className="text-sm text-muted-foreground">Active</div>
+                    <div className="text-sm text-muted-foreground">{t("clubDetail.active")}</div>
                   </div>
                 </div>
               </CardContent>
@@ -474,35 +472,35 @@ const ClubDetail = () => {
           <div className="space-y-6">
             <Card className="sticky top-6">
               <CardContent className="p-6">
-                <h3 className="font-bold text-xl mb-6">Join This Club</h3>
-                
+                <h3 className="font-bold text-xl mb-6">{t("clubDetail.joinThisClub")}</h3>
+
                 <div className="space-y-4 mb-6">
                   <div className="flex items-center gap-3">
                     <Users className="w-5 h-5 text-primary" />
                     <div>
-                      <p className="font-medium">{club.member_count || club.memberCount || 0} Active Members</p>
-                      <p className="text-sm text-muted-foreground">Growing community</p>
+                      <p className="font-medium">{club.member_count || club.memberCount || 0} {t("clubDetail.activeMembers")}</p>
+                      <p className="text-sm text-muted-foreground">{t("clubDetail.growingCommunity")}</p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center gap-3">
                     <CheckCircle2 className="w-5 h-5 text-green-500" />
                     <div>
-                      <p className="font-medium">Verified Club</p>
-                      <p className="text-sm text-muted-foreground">Trusted by our community</p>
+                      <p className="font-medium">{t("clubDetail.verifiedClub")}</p>
+                      <p className="text-sm text-muted-foreground">{t("clubDetail.trustedCommunity")}</p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center gap-3">
                     <Calendar className="w-5 h-5 text-primary" />
                     <div>
-                      <p className="font-medium">Regular Events</p>
-                      <p className="text-sm text-muted-foreground">Weekly activities</p>
+                      <p className="font-medium">{t("clubDetail.regularEvents")}</p>
+                      <p className="text-sm text-muted-foreground">{t("clubDetail.weeklyActivities")}</p>
                     </div>
                   </div>
                 </div>
 
-                <Button 
+                <Button
                   className="w-full mb-3"
                   size="lg"
                   onClick={() => setIsJoined(!isJoined)}
@@ -510,40 +508,40 @@ const ClubDetail = () => {
                   {isJoined ? (
                     <>
                       <CheckCircle2 className="w-4 h-4 mr-2" />
-                      Joined
+                      {t("clubDetail.joined")}
                     </>
                   ) : (
                     <>
                       <Users className="w-4 h-4 mr-2" />
-                      Join Club
+                      {t("clubDetail.joinClub")}
                     </>
                   )}
                 </Button>
-                
-                <Button 
-                  variant="outline" 
+
+                <Button
+                  variant="outline"
                   className="w-full"
                   asChild
                 >
                   <Link to="/contact">
                     <Mail className="w-4 h-4 mr-2" />
-                    Contact Club
+                    {t("clubDetail.contactClub")}
                   </Link>
                 </Button>
 
                 <div className="mt-6 pt-6 border-t">
-                  <h4 className="font-semibold mb-3">Quick Links</h4>
+                  <h4 className="font-semibold mb-3">{t("clubDetail.quickLinks")}</h4>
                   <div className="space-y-2">
                     <Button variant="ghost" className="w-full justify-start" asChild>
                       <Link to="/events">
                         <Calendar className="w-4 h-4 mr-2" />
-                        View Events
+                        {t("clubDetail.viewEvents")}
                       </Link>
                     </Button>
                     <Button variant="ghost" className="w-full justify-start" asChild>
                       <Link to="/clubs">
                         <Users className="w-4 h-4 mr-2" />
-                        All Clubs
+                        {t("clubs.allClubs")}
                       </Link>
                     </Button>
                   </div>
@@ -553,15 +551,15 @@ const ClubDetail = () => {
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Need Help?</CardTitle>
+                <CardTitle className="text-lg">{t("clubDetail.needHelp")}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <p className="text-sm text-muted-foreground">
-                  Have questions about this club? Our team is here to help!
+                  {t("clubDetail.helpDesc")}
                 </p>
                 <Button variant="outline" className="w-full" asChild>
                   <Link to="/contact">
-                    Contact Support
+                    {t("clubDetail.contactSupport")}
                   </Link>
                 </Button>
               </CardContent>

@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import SEOHead from "@/components/SEOHead";
 import { routeSEO } from "@/lib/seo.config";
 import Header from "@/components/Header";
@@ -119,6 +120,7 @@ function StarRating({ rating }: { rating: number }) {
 }
 
 function ClubCard({ club }: { club: Club }) {
+  const { t } = useTranslation();
   const tags = Array.isArray(club.features)
     ? club.features.map((f: any) => (typeof f === "string" ? f : f?.text ?? "")).filter(Boolean)
     : [];
@@ -141,7 +143,7 @@ function ClubCard({ club }: { club: Club }) {
         {club.is_featured && (
           <div className="absolute top-3 left-3">
             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500 text-white text-xs font-semibold shadow">
-              <Award className="w-3 h-3" /> Featured
+              <Award className="w-3 h-3" /> {t("clubs.featured")}
             </span>
           </div>
         )}
@@ -164,7 +166,7 @@ function ClubCard({ club }: { club: Club }) {
           {club.rating != null && club.rating > 0 && <StarRating rating={club.rating} />}
         </div>
         <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2 flex-1">
-          {club.description || "A journey club bringing people together through adventure and culture."}
+          {club.description || t("clubs.defaultDescription")}
         </p>
         {tags.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
@@ -184,7 +186,7 @@ function ClubCard({ club }: { club: Club }) {
           size="sm"
           className="mt-auto w-full rounded-xl bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary text-white font-semibold shadow transition-all duration-200 group/btn"
         >
-          Explore Club
+          {t("clubs.exploreClub")}
           <ArrowRight className="ml-2 w-4 h-4 group-hover/btn:translate-x-1 transition-transform duration-200" />
         </Button>
       </div>
@@ -193,6 +195,7 @@ function ClubCard({ club }: { club: Club }) {
 }
 
 function ClubsMap({ clubs }: { clubs: Club[] }) {
+  const { t } = useTranslation();
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
   const markers = useRef<maplibregl.Marker[]>([]);
@@ -248,7 +251,7 @@ function ClubsMap({ clubs }: { clubs: Club[] }) {
             ${club.location}
           </div>
           ${club.member_count ? `<div style="display:flex; align-items:center; gap:4px; color:#666; font-size:13px; margin-bottom:8px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>${club.member_count.toLocaleString()} members</div>` : ""}
-          <a href="/club/${encodeURIComponent(slug)}" style="display:inline-block; background:#1a9b8e; color:white; padding:5px 14px; border-radius:20px; font-size:12px; font-weight:600; text-decoration:none">View Club →</a>
+          <a href="/club/${encodeURIComponent(slug)}" style="display:inline-block; background:#1a9b8e; color:white; padding:5px 14px; border-radius:20px; font-size:12px; font-weight:600; text-decoration:none">${t("clubs.exploreClub")} →</a>
         </div>
       `;
 
@@ -268,7 +271,7 @@ function ClubsMap({ clubs }: { clubs: Club[] }) {
       mapClubs.forEach(c => bounds.extend([c.longitude!, c.latitude!]));
       map.current.fitBounds(bounds, { padding: 80, maxZoom: 10, duration: 800 });
     }
-  }, [clubs]);
+  }, [clubs, t]);
 
   return (
     <div className="relative w-full rounded-2xl overflow-hidden border border-border shadow-lg" style={{ height: "600px" }}>
@@ -276,8 +279,8 @@ function ClubsMap({ clubs }: { clubs: Club[] }) {
       {clubs.filter(c => c.latitude != null && c.longitude != null).length === 0 && (
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-muted/80 backdrop-blur-sm rounded-2xl">
           <Map className="w-16 h-16 text-muted-foreground/40 mb-3" />
-          <p className="text-muted-foreground font-medium">No map coordinates available</p>
-          <p className="text-sm text-muted-foreground/70 mt-1">Add latitude & longitude to clubs in the admin panel</p>
+          <p className="text-muted-foreground font-medium">{t("clubs.noMapCoords")}</p>
+          <p className="text-sm text-muted-foreground/70 mt-1">{t("clubs.addCoords")}</p>
         </div>
       )}
     </div>
@@ -285,6 +288,7 @@ function ClubsMap({ clubs }: { clubs: Club[] }) {
 }
 
 const Clubs = () => {
+  const { t } = useTranslation();
   const [scrollY, setScrollY] = useState(0);
   const [search, setSearch] = useState("");
   const [selectedCity, setSelectedCity] = useState<string>("all");
@@ -321,8 +325,8 @@ const Clubs = () => {
 
   const tr = useCmsTranslations("clubs-page");
 
-  const introHeading = tr("2", "intro_heading", pageSettings?.introHeading ?? "Join a Community of Adventurers");
-  const introDescription = tr("2", "intro_description", pageSettings?.introDescription ?? "From the Atlantic to the Sahara, our clubs connect passionate explorers across Morocco's most iconic destinations.");
+  const introHeading = tr("2", "intro_heading", pageSettings?.introHeading ?? t("clubs.title"));
+  const introDescription = tr("2", "intro_description", pageSettings?.introDescription ?? t("clubs.subtitle"));
   const ctaHeading = tr("3", "cta_heading", pageSettings?.ctaHeading ?? "Start your own club");
   const ctaDescription = tr("3", "cta_description", pageSettings?.ctaDescription ?? "Passionate about a region or activity? Create a club and build your community of adventurers.");
   const ctaButtonText = tr("3", "cta_button_text", pageSettings?.ctaButtonText ?? "Get Started");
@@ -383,9 +387,9 @@ const Clubs = () => {
         <PageHero
           pageKey="clubs"
           scrollY={scrollY}
-          breadcrumbs={[{ label: "Clubs" }]}
-          defaultTitle="Our Adventure Clubs"
-          defaultSubtitle="Join passionate communities across Morocco's most iconic destinations — from the Atlas to the Atlantic."
+          breadcrumbs={[{ label: t("nav.clubs") }]}
+          defaultTitle={t("clubs.title")}
+          defaultSubtitle={t("clubs.subtitle")}
         />
 
         {/* Stats bar */}
@@ -396,7 +400,7 @@ const Clubs = () => {
                 <div className="px-4">
                   <div className="text-2xl md:text-3xl font-bold">{clubs.length}</div>
                   <div className="text-xs md:text-sm text-white/75 mt-0.5 flex items-center justify-center gap-1">
-                    <Building2 className="w-3.5 h-3.5" /> Active Clubs
+                    <Building2 className="w-3.5 h-3.5" /> {t("clubs.activeClubs")}
                   </div>
                 </div>
                 <div className="px-4">
@@ -404,13 +408,13 @@ const Clubs = () => {
                     {totalMembers > 0 ? totalMembers.toLocaleString() : "—"}
                   </div>
                   <div className="text-xs md:text-sm text-white/75 mt-0.5 flex items-center justify-center gap-1">
-                    <Users className="w-3.5 h-3.5" /> Members
+                    <Users className="w-3.5 h-3.5" /> {t("clubs.members")}
                   </div>
                 </div>
                 <div className="px-4">
                   <div className="text-2xl md:text-3xl font-bold">{cities.length}</div>
                   <div className="text-xs md:text-sm text-white/75 mt-0.5 flex items-center justify-center gap-1">
-                    <MapPin className="w-3.5 h-3.5" /> Cities
+                    <MapPin className="w-3.5 h-3.5" /> {t("clubs.cities")}
                   </div>
                 </div>
               </div>
@@ -439,7 +443,7 @@ const Clubs = () => {
               <div className="relative flex-1 min-w-0">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
                 <Input
-                  placeholder="Search clubs by name or description…"
+                  placeholder={t("clubs.searchPlaceholder")}
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   className="pl-9 rounded-xl bg-muted/50 border-border focus:bg-background"
@@ -453,7 +457,7 @@ const Clubs = () => {
                   onChange={(e) => setSelectedCity(e.target.value)}
                   className="h-10 rounded-xl border border-border bg-muted/50 px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary transition-colors cursor-pointer"
                 >
-                  <option value="all">All cities</option>
+                  <option value="all">{t("clubs.allCities")}</option>
                   {cities.map((c) => (
                     <option key={c} value={c}>{c}</option>
                   ))}
@@ -467,7 +471,7 @@ const Clubs = () => {
                     onChange={(e) => setSelectedFeature(e.target.value)}
                     className="h-10 rounded-xl border border-border bg-muted/50 px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary transition-colors cursor-pointer"
                   >
-                    <option value="all">All activities</option>
+                    <option value="all">{t("clubs.allActivities")}</option>
                     {allFeatures.map((f) => (
                       <option key={f} value={f}>{f}</option>
                     ))}
@@ -480,7 +484,7 @@ const Clubs = () => {
                   onClick={clearFilters}
                   className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors shrink-0 px-2"
                 >
-                  <X className="w-4 h-4" /> Clear
+                  <X className="w-4 h-4" /> {t("clubs.clear")}
                 </button>
               )}
 
@@ -495,7 +499,7 @@ const Clubs = () => {
                   }`}
                 >
                   <LayoutGrid className="w-4 h-4" />
-                  <span className="hidden sm:inline">Grid</span>
+                  <span className="hidden sm:inline">{t("clubs.grid")}</span>
                 </button>
                 <button
                   onClick={() => setViewMode("map")}
@@ -506,7 +510,7 @@ const Clubs = () => {
                   }`}
                 >
                   <Map className="w-4 h-4" />
-                  <span className="hidden sm:inline">Map</span>
+                  <span className="hidden sm:inline">{t("clubs.map")}</span>
                 </button>
               </div>
             </div>
@@ -514,8 +518,8 @@ const Clubs = () => {
             {!isLoading && (
               <p className="mt-2 text-xs text-muted-foreground">
                 {hasFilters
-                  ? `${filtered.length} of ${clubs.length} clubs`
-                  : `${clubs.length} club${clubs.length !== 1 ? "s" : ""} across Morocco`}
+                  ? t("clubs.filteredCount", { filtered: filtered.length, total: clubs.length })
+                  : t(clubs.length === 1 ? "clubs.totalCount_one" : "clubs.totalCount_other", { count: clubs.length })}
               </p>
             )}
           </div>
@@ -531,19 +535,19 @@ const Clubs = () => {
             ) : isError ? (
               <div className="text-center py-24">
                 <Building2 className="w-16 h-16 mx-auto mb-4 text-muted-foreground/40" />
-                <h3 className="text-xl font-semibold text-foreground mb-2">Unable to load clubs</h3>
-                <p className="text-muted-foreground mb-6">Please check your connection and try again.</p>
-                <Button onClick={() => window.location.reload()} className="rounded-xl">Retry</Button>
+                <h3 className="text-xl font-semibold text-foreground mb-2">{t("clubs.unableToLoad")}</h3>
+                <p className="text-muted-foreground mb-6">{t("clubs.checkConnection")}</p>
+                <Button onClick={() => window.location.reload()} className="rounded-xl">{t("clubs.retry")}</Button>
               </div>
             ) : viewMode === "map" ? (
               <ClubsMap clubs={filtered} />
             ) : filtered.length === 0 ? (
               <div className="text-center py-24">
                 <Search className="w-16 h-16 mx-auto mb-4 text-muted-foreground/30" />
-                <h3 className="text-xl font-semibold text-foreground mb-2">No clubs found</h3>
-                <p className="text-muted-foreground mb-6">Try adjusting your search or filters.</p>
+                <h3 className="text-xl font-semibold text-foreground mb-2">{t("clubs.noClubsFound")}</h3>
+                <p className="text-muted-foreground mb-6">{t("clubs.adjustSearch")}</p>
                 <Button variant="outline" onClick={clearFilters} className="rounded-xl gap-2">
-                  <X className="w-4 h-4" /> Clear filters
+                  <X className="w-4 h-4" /> {t("clubs.clearFilters")}
                 </Button>
               </div>
             ) : (
@@ -551,7 +555,7 @@ const Clubs = () => {
                 {filtered.some((c) => c.is_featured) && (
                   <div className="mb-10">
                     <h2 className="text-xs font-semibold uppercase tracking-widest text-primary mb-5 flex items-center gap-2">
-                      <Award className="w-4 h-4" /> Featured
+                      <Award className="w-4 h-4" /> {t("clubs.featured")}
                     </h2>
                     <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                       {filtered.filter((c) => c.is_featured).map((club) => (
@@ -561,7 +565,7 @@ const Clubs = () => {
                     {filtered.some((c) => !c.is_featured) && (
                       <div className="mt-10 mb-5 border-t border-border pt-8">
                         <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
-                          <Building2 className="w-4 h-4" /> All Clubs
+                          <Building2 className="w-4 h-4" /> {t("clubs.allClubs")}
                         </h2>
                       </div>
                     )}
