@@ -13,9 +13,8 @@ const Footer = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 mb-12">
           {/* Brand */}
           <div className="col-span-1 md:col-span-2">
-            <div className="flex items-center gap-3 mb-6">
-              <img src={logo} alt="The Journey Association" className="h-10 w-auto brightness-0 invert" />
-              <span className="text-2xl font-bold font-heading">The Journey</span>
+            <div className="flex items-center mb-6">
+              <img src={logo} alt="The Journey Association" className="h-24 w-auto brightness-0 invert" />
             </div>
             <p className="text-primary-foreground/80 leading-relaxed mb-6 max-w-md font-body">
               {t("footer.tagline")}
