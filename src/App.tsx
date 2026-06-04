@@ -66,6 +66,7 @@ import ThemeSettings from "./pages/admin/ThemeSettings";
 import NavbarSettings from "./pages/admin/NavbarSettings";
 import HeroSettings from "./pages/admin/HeroSettings";
 import PresidentMessageSettings from "./pages/admin/PresidentMessageSettings";
+import AboutManagement from "./pages/admin/AboutManagement";
 import FocusAreasManagement from "./pages/admin/FocusAreasManagement";
 import ImpactManagement from "./pages/admin/ImpactManagement";
 import TeamMembersManagement from "./pages/admin/TeamMembersManagement";
@@ -304,6 +305,11 @@ const App = () => (
           <Route path="/admin/customization/hero" element={
             <ProtectedRoute>
               <HeroSettings />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/customization/about" element={
+            <ProtectedRoute>
+              <AboutManagement />
             </ProtectedRoute>
           } />
           <Route path="/admin/customization/about-president" element={

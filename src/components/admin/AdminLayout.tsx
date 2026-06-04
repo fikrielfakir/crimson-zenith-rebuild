@@ -102,6 +102,7 @@ const navigationItems: NavigationItem[] = [
     children: [
       { labelKey: 'admin.nav.navbarSettings', href: '/admin/customization/navbar' },
       { labelKey: 'admin.nav.heroSection', href: '/admin/customization/hero' },
+      { labelKey: 'admin.nav.aboutPage', href: '/admin/customization/about' },
       { labelKey: 'admin.nav.aboutPresident', href: '/admin/customization/about-president' },
       { labelKey: 'admin.nav.focusAreas', href: '/admin/customization/focus-areas' },
       { labelKey: 'admin.nav.clubsShowcase', href: '/admin/customization/clubs' },

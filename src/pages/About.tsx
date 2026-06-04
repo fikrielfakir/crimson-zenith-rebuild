@@ -1,35 +1,100 @@
+import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import HeaderSpacer from "@/components/HeaderSpacer";
 import Footer from "@/components/Footer";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { Users, MapPin, Target, Heart } from "lucide-react";
+import { apiFetch } from "@/lib/apiFetch";
+
+interface AboutData {
+  title?: string;
+  subtitle?: string;
+  description?: string;
+  whoWeAreTitle?: string;
+  whoWeAreParagraph2?: string;
+  valuesTitle?: string;
+  values?: Array<{ icon: string; title: string; desc: string }>;
+  ctaTitle?: string;
+  ctaDescription?: string;
+  translations?: Record<string, Record<string, string>>;
+}
+
+const ICON_MAP: Record<string, React.ReactNode> = {
+  target: <Target className="w-8 h-8 text-primary" />,
+  users: <Users className="w-8 h-8 text-primary" />,
+  mapPin: <MapPin className="w-8 h-8 text-primary" />,
+  heart: <Heart className="w-8 h-8 text-primary" />,
+};
 
 const About = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const [apiData, setApiData] = useState<AboutData | null>(null);
 
-  const values = [
+  useEffect(() => {
+    apiFetch("/api/cms/about")
+      .then((r) => r.json())
+      .then((data) => setApiData(data))
+      .catch(() => {});
+  }, []);
+
+  const lang = i18n.language?.slice(0, 2);
+
+  const getTranslated = (field: keyof AboutData, fallbackKey: string): string => {
+    if (lang && lang !== "en" && apiData?.translations?.[lang]?.[field as string]) {
+      return apiData.translations[lang][field as string];
+    }
+    if (apiData && apiData[field] && typeof apiData[field] === "string") {
+      return apiData[field] as string;
+    }
+    return t(fallbackKey);
+  };
+
+  const heroTitle = getTranslated("title", "aboutPage.heroTitle");
+  const heroSubtitle = getTranslated("subtitle", "aboutPage.heroSubtitle");
+  const whoWeAreTitle = getTranslated("whoWeAreTitle", "aboutPage.whoWeAreTitle");
+  const whoWeAreParagraph1 = getTranslated("description", "aboutPage.whoWeAreParagraph1");
+  const whoWeAreParagraph2 = getTranslated("whoWeAreParagraph2", "aboutPage.whoWeAreParagraph2");
+  const valuesTitle = getTranslated("valuesTitle", "aboutPage.valuesTitle");
+  const ctaTitle = getTranslated("ctaTitle", "aboutPage.ctaTitle");
+  const ctaSubtitle = getTranslated("ctaDescription", "aboutPage.ctaSubtitle");
+
+  const defaultValues = [
     {
-      icon: <Target className="w-8 h-8 text-primary" />,
-      title: "Our Mission",
-      desc: "To inspire youth and communities through meaningful adventure, cultural discovery, and personal growth across Morocco's diverse landscapes.",
+      icon: "target",
+      title: t("aboutPage.missionTitle"),
+      desc: t("aboutPage.missionDesc"),
     },
     {
-      icon: <Users className="w-8 h-8 text-primary" />,
-      title: "Our Community",
-      desc: "A growing network of clubs, volunteers, and passionate explorers united by a love for Morocco's nature, history, and culture.",
+      icon: "users",
+      title: t("aboutPage.communityTitle"),
+      desc: t("aboutPage.communityDesc"),
     },
     {
-      icon: <MapPin className="w-8 h-8 text-primary" />,
-      title: "Our Reach",
-      desc: "Operating across Morocco's major cities — from the Atlantic coast to the Sahara — with clubs in Rabat, Casablanca, Marrakech, Fes, and beyond.",
+      icon: "mapPin",
+      title: t("aboutPage.reachTitle"),
+      desc: t("aboutPage.reachDesc"),
     },
     {
-      icon: <Heart className="w-8 h-8 text-primary" />,
-      title: "Our Values",
-      desc: "Respect for nature, inclusivity, cultural pride, and a commitment to making adventure accessible for every Moroccan.",
+      icon: "heart",
+      title: t("aboutPage.valuesCardTitle"),
+      desc: t("aboutPage.valuesCardDesc"),
     },
   ];
+
+  const getValues = () => {
+    if (lang && lang !== "en" && apiData?.translations?.[lang]?.values) {
+      try {
+        return JSON.parse(apiData.translations[lang].values);
+      } catch { /* fall through */ }
+    }
+    if (apiData?.values && Array.isArray(apiData.values) && apiData.values.length > 0) {
+      return apiData.values as Array<{ icon: string; title: string; desc: string }>;
+    }
+    return defaultValues;
+  };
+
+  const values = getValues();
 
   return (
     <div className="min-h-screen bg-background">
@@ -40,11 +105,10 @@ const About = () => {
       <section className="bg-primary text-primary-foreground py-20 px-4">
         <div className="container mx-auto max-w-4xl text-center">
           <h1 className="text-4xl md:text-5xl font-bold font-heading mb-6">
-            About The Journey Association
+            {heroTitle}
           </h1>
           <p className="text-xl text-primary-foreground/80 leading-relaxed max-w-2xl mx-auto">
-            Morocco's leading network of adventure and cultural clubs, dedicated
-            to inspiring youth through exploration, community, and purpose.
+            {heroSubtitle}
           </p>
         </div>
       </section>
@@ -55,24 +119,19 @@ const About = () => {
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
               <h2 className="text-3xl font-bold font-heading text-foreground mb-4">
-                Who We Are
+                {whoWeAreTitle}
               </h2>
               <p className="text-muted-foreground leading-relaxed mb-4">
-                The Journey Association (جمعية الرحلة) was founded with a simple
-                belief: that every young Moroccan deserves the opportunity to
-                discover their country, connect with its heritage, and grow
-                through adventure.
+                {whoWeAreParagraph1}
               </p>
               <p className="text-muted-foreground leading-relaxed mb-6">
-                We organize treks, cultural tours, sporting events, and community
-                projects that bring people together across Morocco's cities,
-                mountains, and deserts.
+                {whoWeAreParagraph2}
               </p>
               <Link
                 to="/clubs"
                 className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-lg font-medium hover:bg-primary/90 transition-colors"
               >
-                Explore Our Clubs
+                {t("aboutPage.exploreClubs")}
               </Link>
             </div>
             <div className="rounded-2xl overflow-hidden shadow-xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center h-64">
@@ -89,15 +148,15 @@ const About = () => {
       <section className="py-16 px-4 bg-muted/30">
         <div className="container mx-auto max-w-5xl">
           <h2 className="text-3xl font-bold font-heading text-foreground text-center mb-12">
-            What Drives Us
+            {valuesTitle}
           </h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {values.map((v) => (
+            {values.map((v, idx) => (
               <div
-                key={v.title}
+                key={idx}
                 className="bg-background rounded-xl p-6 shadow-sm border border-border/50"
               >
-                <div className="mb-4">{v.icon}</div>
+                <div className="mb-4">{ICON_MAP[v.icon] ?? <Target className="w-8 h-8 text-primary" />}</div>
                 <h3 className="font-semibold text-foreground mb-2">{v.title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{v.desc}</p>
               </div>
@@ -110,24 +169,23 @@ const About = () => {
       <section className="py-16 px-4">
         <div className="container mx-auto max-w-2xl text-center">
           <h2 className="text-3xl font-bold font-heading text-foreground mb-4">
-            Ready to Join the Journey?
+            {ctaTitle}
           </h2>
           <p className="text-muted-foreground mb-8">
-            Become a member of one of our clubs and start exploring Morocco with
-            like-minded adventurers.
+            {ctaSubtitle}
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
             <Link
               to="/join"
               className="bg-primary text-primary-foreground px-8 py-3 rounded-lg font-medium hover:bg-primary/90 transition-colors"
             >
-              Join Us
+              {t("aboutPage.joinUs")}
             </Link>
             <Link
               to="/contact"
               className="border border-primary text-primary px-8 py-3 rounded-lg font-medium hover:bg-primary/5 transition-colors"
             >
-              Contact Us
+              {t("aboutPage.contactUs")}
             </Link>
           </div>
         </div>
