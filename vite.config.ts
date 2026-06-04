@@ -33,23 +33,20 @@ const proxyOptions = {
     Origin: "https://thejourney-ma.org",
     Referer: "https://thejourney-ma.org/",
   },
-  configure: (proxy: any) => {
-    proxy.on("proxyRes", patchCookies);
-    proxy.on("error", (err: any, _req: any, res: any) => {
-      console.error("[proxy] API unavailable:", err.message);
-      if (res && !res.headersSent) {
-        res.writeHead(503, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ message: "API unavailable — please wait and try again." }));
-      }
-    });
-  },
+  // configure: (proxy: any) => {
+  //   proxy.on("proxyRes", patchCookies);
+  //   proxy.on("error", (err: any, _req: any, res: any) => {
+  //     console.error("[proxy] API unavailable:", err.message);
+  //     if (res && !res.headersSent) {
+  //       res.writeHead(503, { "Content-Type": "application/json" });
+  //       res.end(JSON.stringify({ message: "API unavailable — please wait and try again." }));
+  //     }
+  //   });
+  // },
 };
 
-<<<<<<< HEAD
-const localProxyOptions = proxyOptions;
-=======
 const localProxyOptions = {
-  target: LOCAL_API,
+  target: LARAVEL_API,
   changeOrigin: true,
   secure: false,
   configure: (proxy: any) => {
@@ -62,7 +59,6 @@ const localProxyOptions = {
     });
   },
 };
->>>>>>> 8488be89676cde0800960936b6116839ba426103
 
 const laravelProxyOptions = proxyOptions;
 
@@ -667,6 +663,83 @@ export default defineConfig(({ mode }: { mode: string }) => ({
       },
     },
     {
+      // Handle Legal Pages locally — intercepts before the proxy so these never
+      // hit the production Laravel server (which has no /api/cms/legal routes).
+      //   GET /api/cms/legal/:pageKey          → public read (forward to localhost:3001)
+      //   GET /api/admin/cms/legal/:pageKey    → admin read  (forward to localhost:3001)
+      //   PUT /api/admin/cms/legal/:pageKey    → admin write (forward to localhost:3001)
+      name: "handle-legal-pages",
+      configureServer(server) {
+        server.middlewares.use(async (req: any, res: any, next: any) => {
+          const url: string = req.url ?? "";
+          const publicMatch = url.match(/^\/api\/cms\/legal\/([^?/]+)/);
+          const adminMatch  = url.match(/^\/api\/admin\/cms\/legal\/([^?/]+)/);
+          if (!publicMatch && !adminMatch) return next();
+
+          const http = await import("http");
+
+          function forwardToLocalApi(method: string, path: string, body?: Buffer) {
+            return new Promise<{ status: number; data: string }>((resolve, reject) => {
+              const opts = {
+                hostname: "localhost",
+                port: 3001,
+                path,
+                method,
+                headers: {
+                  "Content-Type": "application/json",
+                  ...(body ? { "Content-Length": Buffer.byteLength(body) } : {}),
+                },
+              };
+              const proxyReq = http.default.request(opts, (proxyRes) => {
+                let data = "";
+                proxyRes.on("data", (chunk: string) => { data += chunk; });
+                proxyRes.on("end", () => resolve({ status: proxyRes.statusCode ?? 200, data }));
+              });
+              proxyReq.on("error", reject);
+              if (body) proxyReq.write(body);
+              proxyReq.end();
+            });
+          }
+
+          try {
+            if (req.method === "GET") {
+              const apiPath = adminMatch
+                ? `/api/admin/cms/legal/${adminMatch[1]}`
+                : `/api/cms/legal/${publicMatch![1]}`;
+              const { status, data } = await forwardToLocalApi("GET", apiPath);
+              res.statusCode = status;
+              res.setHeader("Content-Type", "application/json");
+              res.end(data);
+              return;
+            }
+
+            if (req.method === "PUT" && adminMatch) {
+              const chunks: Buffer[] = [];
+              for await (const chunk of req) chunks.push(chunk);
+              const body = Buffer.concat(chunks);
+              const { status, data } = await forwardToLocalApi(
+                "PUT",
+                `/api/admin/cms/legal/${adminMatch[1]}`,
+                body,
+              );
+              res.statusCode = status;
+              res.setHeader("Content-Type", "application/json");
+              res.end(data);
+              return;
+            }
+          } catch (err) {
+            console.error("[handle-legal-pages] Error:", err);
+            res.statusCode = 503;
+            res.setHeader("Content-Type", "application/json");
+            res.end(JSON.stringify({ message: "Local API unavailable" }));
+            return;
+          }
+
+          next();
+        });
+      },
+    },
+    {
       // Handle auto-translate only — all other translation read/write goes through
       // the proxy to Laravel API which stores them in MySQL.
       //   POST /api/admin/translations/auto-translate → MyMemory free translation API
@@ -713,6 +786,94 @@ export default defineConfig(({ mode }: { mode: string }) => ({
             res.statusCode = 500;
             res.setHeader("Content-Type", "application/json");
             res.end(JSON.stringify({ message: "Translation failed" }));
+          }
+        });
+      },
+    },
+    {
+      // General local-API forwarder — catches any /api/cms/*, /api/admin/*,
+      // /api/payments/*, /api/cities/* request that slipped past the specific
+      // plugins above and was not handled. Forwards directly to localhost:3001
+      // via Node http.request so it never hits the production Laravel server.
+      // Must be the LAST plugin so specific plugins keep priority.
+      name: "handle-local-api",
+      configureServer(server) {
+        server.middlewares.use(async (req: any, res: any, next: any) => {
+          const url: string = req.url ?? "";
+          const isLocal =
+            url.startsWith("/api/cms/") ||
+            url.startsWith("/api/admin/") ||
+            url.startsWith("/api/payments/") ||
+            url.startsWith("/api/cities/") ||
+            url === "/api/cities";
+          if (!isLocal) return next();
+
+          const http = await import("http");
+
+          async function forwardToLocalApi(
+            method: string,
+            path: string,
+            headers: Record<string, string | string[] | undefined>,
+            body?: Buffer,
+          ): Promise<{ status: number; data: Buffer; contentType: string }> {
+            return new Promise((resolve, reject) => {
+              const forwardHeaders: Record<string, string | string[]> = {};
+              for (const [k, v] of Object.entries(headers)) {
+                if (v !== undefined && k.toLowerCase() !== "host") {
+                  forwardHeaders[k] = v as string | string[];
+                }
+              }
+              if (body) forwardHeaders["content-length"] = String(Buffer.byteLength(body));
+
+              const opts = {
+                hostname: "localhost",
+                port: 3001,
+                path,
+                method,
+                headers: forwardHeaders,
+              };
+
+              const chunks: Buffer[] = [];
+              const proxyReq = http.default.request(opts, (proxyRes) => {
+                proxyRes.on("data", (chunk: Buffer) => chunks.push(chunk));
+                proxyRes.on("end", () =>
+                  resolve({
+                    status: proxyRes.statusCode ?? 200,
+                    data: Buffer.concat(chunks),
+                    contentType: (proxyRes.headers["content-type"] as string) ?? "application/json",
+                  }),
+                );
+              });
+              proxyReq.on("error", reject);
+              if (body) proxyReq.write(body);
+              proxyReq.end();
+            });
+          }
+
+          try {
+            const chunks: Buffer[] = [];
+            if (req.method !== "GET" && req.method !== "HEAD") {
+              for await (const chunk of req) chunks.push(chunk as Buffer);
+            }
+            const body = chunks.length > 0 ? Buffer.concat(chunks) : undefined;
+
+            const { status, data, contentType } = await forwardToLocalApi(
+              req.method,
+              url,
+              req.headers as Record<string, string | string[] | undefined>,
+              body,
+            );
+
+            res.statusCode = status;
+            res.setHeader("Content-Type", contentType);
+            res.end(data);
+          } catch (err: any) {
+            console.error("[handle-local-api] Forward error for", url, err?.message ?? err);
+            if (!res.headersSent) {
+              res.statusCode = 503;
+              res.setHeader("Content-Type", "application/json");
+              res.end(JSON.stringify({ message: "Local API unavailable — please wait and retry." }));
+            }
           }
         });
       },

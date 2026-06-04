@@ -1,0 +1,64 @@
+apiFetch.ts:63  GET http://192.168.56.1:5000/api/cms/legal/privacy-policy 404 (Not Found)
+(anonymous) @ apiFetch.ts:63
+(anonymous) @ LegalPagesSettings.tsx:58
+fetchFn @ @tanstack_react-query.js?v=47435847:1259
+run @ @tanstack_react-query.js?v=47435847:844
+start @ @tanstack_react-query.js?v=47435847:886
+fetch @ @tanstack_react-query.js?v=47435847:1309
+#executeFetch @ @tanstack_react-query.js?v=47435847:1631
+onSubscribe @ @tanstack_react-query.js?v=47435847:1504
+subscribe @ @tanstack_react-query.js?v=47435847:19
+(anonymous) @ @tanstack_react-query.js?v=47435847:3384
+subscribeToStore @ chunk-O3VNRDW5.js?v=47435847:12032
+commitHookEffectListMount @ chunk-O3VNRDW5.js?v=47435847:16963
+commitPassiveMountOnFiber @ chunk-O3VNRDW5.js?v=47435847:18206
+commitPassiveMountEffects_complete @ chunk-O3VNRDW5.js?v=47435847:18179
+commitPassiveMountEffects_begin @ chunk-O3VNRDW5.js?v=47435847:18169
+commitPassiveMountEffects @ chunk-O3VNRDW5.js?v=47435847:18159
+flushPassiveEffectsImpl @ chunk-O3VNRDW5.js?v=47435847:19543
+flushPassiveEffects @ chunk-O3VNRDW5.js?v=47435847:19500
+commitRootImpl @ chunk-O3VNRDW5.js?v=47435847:19469
+commitRoot @ chunk-O3VNRDW5.js?v=47435847:19330
+performSyncWorkOnRoot @ chunk-O3VNRDW5.js?v=47435847:18948
+flushSyncCallbacks @ chunk-O3VNRDW5.js?v=47435847:9166
+(anonymous) @ chunk-O3VNRDW5.js?v=47435847:18677
+setTimeout
+systemSetTimeoutZero @ @tanstack_react-query.js?v=47435847:158
+flush @ @tanstack_react-query.js?v=47435847:665
+batch @ @tanstack_react-query.js?v=47435847:683
+#dispatch @ @tanstack_react-query.js?v=47435847:1421
+setData @ @tanstack_react-query.js?v=47435847:1088
+fetch @ @tanstack_react-query.js?v=47435847:1318
+await in fetch
+#executeFetch @ @tanstack_react-query.js?v=47435847:1631
+onSubscribe @ @tanstack_react-query.js?v=47435847:1504
+subscribe @ @tanstack_react-query.js?v=47435847:19
+(anonymous) @ @tanstack_react-query.js?v=47435847:3384
+subscribeToStore @ chunk-O3VNRDW5.js?v=47435847:12032
+commitHookEffectListMount @ chunk-O3VNRDW5.js?v=47435847:16963
+commitPassiveMountOnFiber @ chunk-O3VNRDW5.js?v=47435847:18206
+commitPassiveMountEffects_complete @ chunk-O3VNRDW5.js?v=47435847:18179
+commitPassiveMountEffects_begin @ chunk-O3VNRDW5.js?v=47435847:18169
+commitPassiveMountEffects @ chunk-O3VNRDW5.js?v=47435847:18159
+flushPassiveEffectsImpl @ chunk-O3VNRDW5.js?v=47435847:19543
+flushPassiveEffects @ chunk-O3VNRDW5.js?v=47435847:19500
+performSyncWorkOnRoot @ chunk-O3VNRDW5.js?v=47435847:18921
+flushSyncCallbacks @ chunk-O3VNRDW5.js?v=47435847:9166
+commitRootImpl @ chunk-O3VNRDW5.js?v=47435847:19485
+commitRoot @ chunk-O3VNRDW5.js?v=47435847:19330
+finishConcurrentRender @ chunk-O3VNRDW5.js?v=47435847:18858
+performConcurrentWorkOnRoot @ chunk-O3VNRDW5.js?v=47435847:18768
+workLoop @ chunk-O3VNRDW5.js?v=47435847:197
+flushWork @ chunk-O3VNRDW5.js?v=47435847:176
+performWorkUntilDeadline @ chunk-O3VNRDW5.js?v=47435847:384
+postMessage
+schedulePerformWorkUntilDeadline @ chunk-O3VNRDW5.js?v=47435847:407
+requestHostCallback @ chunk-O3VNRDW5.js?v=47435847:418
+unstable_scheduleCallback @ chunk-O3VNRDW5.js?v=47435847:330
+scheduleCallback$1 @ chunk-O3VNRDW5.js?v=47435847:19879
+ensureRootIsScheduled @ chunk-O3VNRDW5.js?v=47435847:18702
+scheduleUpdateOnFiber @ chunk-O3VNRDW5.js?v=47435847:18612
+updateContainer @ chunk-O3VNRDW5.js?v=47435847:20834
+ReactDOMHydrationRoot.render.ReactDOMRoot.render @ chunk-O3VNRDW5.js?v=47435847:21174
+(anonymous) @ main.tsx:9Understand this error
+apiFetch.ts:63  PUT http://192.168.56.1:5000/api/admin/cms/legal/privacy-policy 404 (Not Found)
