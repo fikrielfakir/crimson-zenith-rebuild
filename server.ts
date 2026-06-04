@@ -24,7 +24,7 @@ import {
   cities
 } from './shared/schema.js';
 import { sendBookingConfirmationEmail, sendBookingApprovedEmail } from './server/emailService.js';
-import { storeAdminToken } from './server/adminTokens.js';
+import { storeAdminToken, revokeAdminToken } from './server/adminTokens.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -1229,6 +1229,15 @@ app.post('/api/admin/login', async (req, res) => {
     console.error('❌ Error during admin login:', error);
     res.status(500).json({ error: 'Login failed', details: error.message });
   }
+});
+
+app.post('/api/admin/logout', (req: any, res) => {
+  const auth = (req.headers.authorization as string) || '';
+  if (auth.startsWith('Bearer ')) {
+    revokeAdminToken(auth.slice(7));
+  }
+  req.logout?.(() => {});
+  res.json({ success: true, message: 'Logged out' });
 });
 
 // =======================
