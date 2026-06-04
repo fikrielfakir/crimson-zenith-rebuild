@@ -16,6 +16,14 @@
     "workOffers": "فرص العمل",
     "home": "الرئيسية",
     "topCities": "أبرز مدن المغرب",
+    "cities": {
+      "tangier": "طنجة",
+      "tetouan": "تطوان",
+      "al-hoceima": "الحسيمة",
+      "chefchaouen": "شفشاون",
+      "fes": "فاس",
+      "essaouira": "الصويرة"
+    },
     "events": "الفعاليات",
     "news": "الأخبار"
   },

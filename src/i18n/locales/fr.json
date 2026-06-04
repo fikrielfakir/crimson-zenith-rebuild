@@ -16,6 +16,14 @@
     "workOffers": "Offres d'emploi",
     "home": "Accueil",
     "topCities": "Meilleures villes du Maroc",
+    "cities": {
+      "tangier": "Tanger",
+      "tetouan": "Tétouan",
+      "al-hoceima": "Al Hoceïma",
+      "chefchaouen": "Chefchaouen",
+      "fes": "Fès",
+      "essaouira": "Essaouira"
+    },
     "events": "Événements",
     "news": "Actualités"
   },

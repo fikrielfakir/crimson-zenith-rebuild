@@ -51,10 +51,14 @@ interface NavLink {
 
 // Original Cities Dropdown (Discover)
 const CitiesDropdown = () => {
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n.language === "ar";
+
   const [emblaRef, emblaApi] = useEmblaCarousel({
     loop: true,
     align: "start",
     slidesToScroll: 1,
+    direction: isRtl ? "rtl" : "ltr",
   });
   const [selectedIndex, setSelectedIndex] = useState(0);
 
@@ -81,10 +85,10 @@ const CitiesDropdown = () => {
   }, [emblaApi, onSelect]);
 
   return (
-    <div className="absolute left-0 top-full mt-2 w-[700px] max-w-[90vw] bg-white/95 dark:bg-card/95 backdrop-blur-sm rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 border border-border/20">
-      <div className="p-6">
+    <div className={`absolute ${isRtl ? "right-0" : "left-0"} top-full mt-2 w-[700px] max-w-[90vw] bg-white/95 dark:bg-card/95 backdrop-blur-sm rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 border border-border/20`}>
+      <div className="p-6" dir={isRtl ? "rtl" : "ltr"}>
         <div className="text-sm font-bold text-foreground mb-4 uppercase tracking-wider">
-          TOP CITIES MOROCCO
+          {t("nav.topCities")}
         </div>
 
         <div className="relative">
@@ -102,13 +106,13 @@ const CitiesDropdown = () => {
                     <div className="relative h-32 rounded-lg overflow-hidden transition-all duration-300 ease-in-out group-hover/card:scale-105 group-hover/card:shadow-xl">
                       <img
                         src={city.image}
-                        alt={city.name}
+                        alt={t(`nav.cities.${city.slug}`, city.name)}
                         className="w-full h-full object-cover transition-transform duration-500 ease-in-out"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
                       <div className="absolute bottom-3 left-3 right-3">
                         <h3 className="text-white font-bold text-lg uppercase tracking-wide drop-shadow-lg">
-                          {city.name}
+                          {t(`nav.cities.${city.slug}`, city.name)}
                         </h3>
                       </div>
                     </div>
@@ -119,17 +123,17 @@ const CitiesDropdown = () => {
           </div>
 
           <button
-            onClick={scrollPrev}
+            onClick={isRtl ? scrollNext : scrollPrev}
             aria-label="Previous cities"
-            className="absolute -left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-primary hover:bg-primary/90 text-white flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-110 z-10"
+            className={`absolute ${isRtl ? "-right-4" : "-left-4"} top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-primary hover:bg-primary/90 text-white flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-110 z-10`}
           >
             <ChevronRight className="w-5 h-5 rotate-180" />
           </button>
 
           <button
-            onClick={scrollNext}
+            onClick={isRtl ? scrollPrev : scrollNext}
             aria-label="Next cities"
-            className="absolute -right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-primary hover:bg-primary/90 text-white flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-110 z-10"
+            className={`absolute ${isRtl ? "-left-4" : "-right-4"} top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-primary hover:bg-primary/90 text-white flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-110 z-10`}
           >
             <ChevronRight className="w-5 h-5" />
           </button>
