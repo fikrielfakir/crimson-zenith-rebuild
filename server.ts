@@ -3736,6 +3736,61 @@ app.get('/api/cms/team-members', async (req, res) => {
   }
 });
 
+// Team Members — admin CRUD
+app.post('/api/admin/cms/team-members', isAdmin, async (req, res) => {
+  try {
+    const userId = (req.user as any)?.id;
+    const { name, role, bio, email, phone, isActive, socialLinks, ordering } = req.body;
+    const member = await storage.createTeamMember({
+      name,
+      role,
+      bio: bio ?? null,
+      email: email ?? null,
+      phone: phone ?? null,
+      isActive: isActive ?? true,
+      socialLinks: socialLinks ?? {},
+      ordering: ordering ?? 0,
+      createdBy: userId ?? null,
+    });
+    res.status(201).json(member);
+  } catch (error) {
+    console.error('❌ Error creating team member:', error);
+    res.status(500).json({ error: 'Failed to create team member' });
+  }
+});
+
+app.put('/api/admin/cms/team-members/:id', isAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    const { name, role, bio, email, phone, isActive, socialLinks, ordering } = req.body;
+    const member = await storage.updateTeamMember(id, {
+      ...(name !== undefined && { name }),
+      ...(role !== undefined && { role }),
+      ...(bio !== undefined && { bio }),
+      ...(email !== undefined && { email }),
+      ...(phone !== undefined && { phone }),
+      ...(isActive !== undefined && { isActive }),
+      ...(socialLinks !== undefined && { socialLinks }),
+      ...(ordering !== undefined && { ordering }),
+    });
+    res.json(member);
+  } catch (error) {
+    console.error('❌ Error updating team member:', error);
+    res.status(500).json({ error: 'Failed to update team member' });
+  }
+});
+
+app.delete('/api/admin/cms/team-members/:id', isAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    await storage.deleteTeamMember(id);
+    res.json({ message: 'Team member deleted' });
+  } catch (error) {
+    console.error('❌ Error deleting team member:', error);
+    res.status(500).json({ error: 'Failed to delete team member' });
+  }
+});
+
 // Testimonials
 app.get('/api/cms/testimonials', async (req, res) => {
   try {

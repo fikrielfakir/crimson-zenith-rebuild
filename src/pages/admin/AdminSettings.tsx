@@ -1,230 +1,318 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { Save, Globe, Search, Link } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Save, Loader2, Globe, Search, ShieldCheck } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { apiFetch } from '@/lib/apiFetch';
 
-export default function AdminSettings() {
+interface SeoSettings {
+  siteTitle?: string;
+  siteDescription?: string;
+  keywords?: string;
+  twitterHandle?: string;
+  ogImage?: string;
+}
+
+interface ContactSettings {
+  email?: string;
+  phone?: string;
+  officeAddress?: string;
+}
+
+function useSettings<T>(readUrl: string, queryKey: string[]) {
+  return useQuery<T>({
+    queryKey,
+    queryFn: async () => {
+      const res = await apiFetch(readUrl);
+      if (!res.ok) return {} as T;
+      return res.json();
+    },
+    staleTime: 30_000,
+  });
+}
+
+function useSaveMutation(writeUrl: string, queryKeys: string[][], label: string) {
   const { toast } = useToast();
-  const [siteName, setSiteName] = useState('The Journey Association');
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: Record<string, unknown>) => {
+      const res = await apiFetch(writeUrl, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error('Failed to save');
+      return res.json();
+    },
+    onSuccess: () => {
+      queryKeys.forEach((k) => queryClient.invalidateQueries({ queryKey: k }));
+      toast({ title: `${label} saved` });
+    },
+    onError: () => toast({ title: 'Save failed', variant: 'destructive' }),
+  });
+}
 
-  const handleSave = () => {
-    toast({ title: 'Settings saved successfully' });
+// ── General Tab ──────────────────────────────────────────────────────────────
+
+function GeneralTab() {
+  const { data: seo, isLoading: seoLoading } = useSettings<SeoSettings>('/api/cms/seo', ['settings-seo']);
+  const { data: contact, isLoading: contactLoading } = useSettings<ContactSettings>('/api/cms/contact', ['settings-contact']);
+
+  const [siteTitle, setSiteTitle] = useState('');
+  const [siteDescription, setSiteDescription] = useState('');
+  const [contactEmail, setContactEmail] = useState('');
+
+  useEffect(() => { if (seo?.siteTitle) setSiteTitle(seo.siteTitle); }, [seo]);
+  useEffect(() => { if (seo?.siteDescription) setSiteDescription(seo.siteDescription); }, [seo]);
+  useEffect(() => { if (contact?.email) setContactEmail(contact.email); }, [contact]);
+
+  const seoMutation = useSaveMutation('/api/admin/cms/seo', [['settings-seo'], ['cms-seo']], 'General settings');
+  const contactMutation = useSaveMutation('/api/admin/settings/contact', [['settings-contact']], 'Contact settings');
+
+  const saving = seoMutation.isPending || contactMutation.isPending;
+  const isLoading = seoLoading || contactLoading;
+
+  const handleSave = async () => {
+    await Promise.all([
+      seoMutation.mutateAsync({ siteTitle, siteDescription }),
+      contactMutation.mutateAsync({ email: contactEmail }),
+    ]);
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Site Settings</h1>
-          <p className="text-muted-foreground mt-1">Configure your website settings and preferences</p>
-        </div>
-        <Button onClick={handleSave}>
-          <Save className="mr-2 h-4 w-4" />
-          Save Changes
-        </Button>
-      </div>
-
-      <Tabs defaultValue="general">
-        <TabsList>
-          <TabsTrigger value="general">General</TabsTrigger>
-          <TabsTrigger value="seo">SEO</TabsTrigger>
-          <TabsTrigger value="integrations">Integrations</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="general" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>General Settings</CardTitle>
-              <CardDescription>Configure basic site information and preferences</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
+    <div className="space-y-4">
+      <Card>
+        <CardHeader>
+          <CardTitle>General Settings</CardTitle>
+          <CardDescription>Basic site information shown in the browser and search results.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {isLoading ? (
+            <div className="flex items-center gap-2 text-muted-foreground text-sm">
+              <Loader2 className="h-4 w-4 animate-spin" /> Loading…
+            </div>
+          ) : (
+            <>
               <div className="space-y-2">
-                <Label htmlFor="site-name">Site Name</Label>
+                <Label htmlFor="site-title">Site Name / Title</Label>
                 <Input
-                  id="site-name"
-                  value={siteName}
-                  onChange={(e) => setSiteName(e.target.value)}
+                  id="site-title"
+                  value={siteTitle}
+                  onChange={(e) => setSiteTitle(e.target.value)}
                   placeholder="Your site name"
                 />
               </div>
-
               <div className="space-y-2">
                 <Label htmlFor="site-description">Site Description</Label>
                 <Textarea
                   id="site-description"
-                  placeholder="Brief description of your site"
                   rows={3}
-                  defaultValue="Experience Morocco's soul through sustainable journeys and cultural connections."
+                  value={siteDescription}
+                  onChange={(e) => setSiteDescription(e.target.value)}
+                  placeholder="Brief description of your site"
                 />
               </div>
-
               <div className="space-y-2">
                 <Label htmlFor="contact-email">Contact Email</Label>
                 <Input
                   id="contact-email"
                   type="email"
+                  value={contactEmail}
+                  onChange={(e) => setContactEmail(e.target.value)}
                   placeholder="contact@example.com"
-                  defaultValue="contact@thejourneyassociation.org"
                 />
+                <p className="text-xs text-muted-foreground">
+                  Full contact details can be edited in <strong>Contact Settings</strong>.
+                </p>
               </div>
+            </>
+          )}
+          <Button onClick={handleSave} disabled={saving || isLoading}>
+            {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+            {saving ? 'Saving…' : 'Save Changes'}
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
 
-              <div className="space-y-2">
-                <Label htmlFor="timezone">Timezone</Label>
-                <select
-                  id="timezone"
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  defaultValue="Africa/Casablanca"
-                >
-                  <option value="Africa/Casablanca">Africa/Casablanca (Morocco)</option>
-                  <option value="Europe/London">Europe/London (GMT)</option>
-                  <option value="Europe/Paris">Europe/Paris (CET)</option>
-                  <option value="America/New_York">America/New_York (EST)</option>
-                </select>
-              </div>
+// ── SEO Tab ──────────────────────────────────────────────────────────────────
 
-              <div className="flex items-center space-x-2">
-                <Switch id="maintenance" />
-                <Label htmlFor="maintenance">Maintenance mode</Label>
-              </div>
+function SeoTab() {
+  const { data, isLoading } = useSettings<SeoSettings>('/api/cms/seo', ['settings-seo']);
+  const [form, setForm] = useState<SeoSettings>({});
 
-              <div className="flex items-center space-x-2">
-                <Switch id="registration" defaultChecked />
-                <Label htmlFor="registration">Allow user registration</Label>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+  useEffect(() => { if (data) setForm(data); }, [data]);
 
-        <TabsContent value="seo" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>SEO Settings</CardTitle>
-              <CardDescription>Optimize your site for search engines</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
+  const mutation = useSaveMutation('/api/admin/cms/seo', [['settings-seo'], ['cms-seo']], 'SEO settings');
+
+  const set = (k: keyof SeoSettings, v: string) => setForm((f) => ({ ...f, [k]: v }));
+
+  return (
+    <div className="space-y-4">
+      <Card>
+        <CardHeader>
+          <CardTitle>SEO Settings</CardTitle>
+          <CardDescription>Control how your site appears in search engines and social shares.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {isLoading ? (
+            <div className="flex items-center gap-2 text-muted-foreground text-sm">
+              <Loader2 className="h-4 w-4 animate-spin" /> Loading…
+            </div>
+          ) : (
+            <>
               <div className="space-y-2">
                 <Label htmlFor="meta-title">Meta Title</Label>
                 <Input
                   id="meta-title"
+                  value={form.siteTitle ?? ''}
+                  onChange={(e) => set('siteTitle', e.target.value)}
                   placeholder="Site title for search engines"
-                  defaultValue="The Journey Association | Sustainable Travel in Morocco"
                 />
               </div>
-
               <div className="space-y-2">
                 <Label htmlFor="meta-description">Meta Description</Label>
                 <Textarea
                   id="meta-description"
-                  placeholder="Description for search results"
                   rows={3}
-                  defaultValue="Discover authentic Moroccan experiences through sustainable tourism. Connect with local communities, explore cultural heritage, and create meaningful journeys."
+                  value={form.siteDescription ?? ''}
+                  onChange={(e) => set('siteDescription', e.target.value)}
+                  placeholder="Description shown in search results (150–160 chars)"
                 />
+                <p className="text-xs text-muted-foreground">
+                  {(form.siteDescription ?? '').length} / 160 characters
+                </p>
               </div>
-
               <div className="space-y-2">
-                <Label htmlFor="meta-keywords">Meta Keywords</Label>
+                <Label htmlFor="meta-keywords">Keywords</Label>
                 <Input
                   id="meta-keywords"
+                  value={form.keywords ?? ''}
+                  onChange={(e) => set('keywords', e.target.value)}
                   placeholder="Comma-separated keywords"
-                  defaultValue="morocco travel, sustainable tourism, cultural experiences, adventure clubs"
                 />
               </div>
-
               <div className="space-y-2">
-                <Label htmlFor="og-image">Open Graph Image URL</Label>
-                <div className="flex items-center space-x-2">
-                  <Globe className="h-4 w-4 text-muted-foreground" />
-                  <Input id="og-image" placeholder="https://example.com/og-image.jpg" />
-                </div>
+                <Label htmlFor="twitter-handle">Twitter / X Handle</Label>
+                <Input
+                  id="twitter-handle"
+                  value={form.twitterHandle ?? ''}
+                  onChange={(e) => set('twitterHandle', e.target.value)}
+                  placeholder="@yourhandle"
+                />
               </div>
+            </>
+          )}
+          <Button onClick={() => mutation.mutate(form)} disabled={mutation.isPending || isLoading}>
+            {mutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+            {mutation.isPending ? 'Saving…' : 'Save SEO Settings'}
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
 
-              <div className="flex items-center space-x-2">
-                <Switch id="noindex" />
-                <Label htmlFor="noindex">Discourage search engines from indexing this site</Label>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+// ── Integrations Tab ─────────────────────────────────────────────────────────
 
-        <TabsContent value="integrations" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Third-Party Integrations</CardTitle>
-              <CardDescription>Connect external services and APIs</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-4 border-b pb-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <Search className="h-5 w-5" />
-                    <div>
-                      <h4 className="font-medium">Google Analytics</h4>
-                      <p className="text-sm text-muted-foreground">Track website analytics</p>
-                    </div>
-                  </div>
-                  <Switch />
+function IntegrationsTab() {
+  return (
+    <div className="space-y-4">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <ShieldCheck className="h-5 w-5" />
+            Third-Party Integrations
+          </CardTitle>
+          <CardDescription>
+            API keys and secrets are managed securely through Replit environment variables — not stored in the database.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {[
+            {
+              name: 'Stripe',
+              desc: 'Payment processing — configured via STRIPE_SECRET_KEY env var.',
+              envVar: 'STRIPE_SECRET_KEY',
+              badge: 'Payments',
+            },
+            {
+              name: 'PayPal',
+              desc: 'PayPal payments — configured via PAYPAL_CLIENT_ID / PAYPAL_CLIENT_SECRET env vars.',
+              envVar: 'PAYPAL_CLIENT_ID',
+              badge: 'Payments',
+            },
+            {
+              name: 'SMTP Email',
+              desc: 'Email delivery — configured via SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS env vars.',
+              envVar: 'SMTP_HOST',
+              badge: 'Email',
+            },
+            {
+              name: 'CMI Payment Gateway',
+              desc: 'Moroccan CMI gateway — configure via the Payments admin page.',
+              envVar: '',
+              badge: 'Payments',
+              link: '/admin/payments',
+            },
+          ].map((item) => (
+            <div key={item.name} className="flex items-start justify-between gap-4 border rounded-lg p-4">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <p className="font-medium">{item.name}</p>
+                  <Badge variant="outline" className="text-xs">{item.badge}</Badge>
                 </div>
-                <Input placeholder="Tracking ID (e.g., G-XXXXXXXXXX)" />
+                <p className="text-sm text-muted-foreground">{item.desc}</p>
+                {item.envVar && (
+                  <code className="text-xs bg-muted px-1.5 py-0.5 rounded">{item.envVar}</code>
+                )}
               </div>
+              <Globe className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
 
-              <div className="space-y-4 border-b pb-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <Globe className="h-5 w-5" />
-                    <div>
-                      <h4 className="font-medium">Google Maps</h4>
-                      <p className="text-sm text-muted-foreground">Enable map features</p>
-                    </div>
-                  </div>
-                  <Switch defaultChecked />
-                </div>
-                <Input placeholder="API Key" type="password" />
-              </div>
+// ── Main Component ────────────────────────────────────────────────────────────
 
-              <div className="space-y-4 border-b pb-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <Link className="h-5 w-5" />
-                    <div>
-                      <h4 className="font-medium">Stripe</h4>
-                      <p className="text-sm text-muted-foreground">Payment processing</p>
-                    </div>
-                  </div>
-                  <Switch />
-                </div>
-                <div className="grid gap-2">
-                  <Input placeholder="Publishable Key" />
-                  <Input placeholder="Secret Key" type="password" />
-                </div>
-              </div>
+export default function AdminSettings() {
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold">Site Settings</h1>
+        <p className="text-muted-foreground mt-1">Configure your website settings and preferences</p>
+      </div>
 
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <Globe className="h-5 w-5" />
-                    <div>
-                      <h4 className="font-medium">Email Service (SMTP)</h4>
-                      <p className="text-sm text-muted-foreground">Configure email delivery</p>
-                    </div>
-                  </div>
-                  <Switch />
-                </div>
-                <div className="grid gap-2">
-                  <Input placeholder="SMTP Host" />
-                  <Input placeholder="SMTP Port" type="number" defaultValue="587" />
-                  <Input placeholder="Username" />
-                  <Input placeholder="Password" type="password" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+      <Tabs defaultValue="general">
+        <TabsList>
+          <TabsTrigger value="general">
+            <Globe className="mr-2 h-4 w-4" />
+            General
+          </TabsTrigger>
+          <TabsTrigger value="seo">
+            <Search className="mr-2 h-4 w-4" />
+            SEO
+          </TabsTrigger>
+          <TabsTrigger value="integrations">
+            <ShieldCheck className="mr-2 h-4 w-4" />
+            Integrations
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="general"><GeneralTab /></TabsContent>
+        <TabsContent value="seo"><SeoTab /></TabsContent>
+        <TabsContent value="integrations"><IntegrationsTab /></TabsContent>
       </Tabs>
     </div>
   );
