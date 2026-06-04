@@ -16,6 +16,14 @@
     "workOffers": "Work Offers",
     "home": "Home",
     "topCities": "Top Cities Morocco",
+    "cities": {
+      "tangier": "Tangier",
+      "tetouan": "Tetouan",
+      "al-hoceima": "Al Hoceima",
+      "chefchaouen": "Chefchaouen",
+      "fes": "Fes",
+      "essaouira": "Essaouira"
+    },
     "events": "Events",
     "news": "News"
   },

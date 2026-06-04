@@ -16,6 +16,14 @@
     "workOffers": "Ofertas de trabajo",
     "home": "Inicio",
     "topCities": "Principales ciudades de Marruecos",
+    "cities": {
+      "tangier": "Tánger",
+      "tetouan": "Tetuán",
+      "al-hoceima": "Al Hoceima",
+      "chefchaouen": "Chaouen",
+      "fes": "Fez",
+      "essaouira": "Esauira"
+    },
     "events": "Eventos",
     "news": "Noticias"
   },

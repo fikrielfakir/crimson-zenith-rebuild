@@ -17,7 +17,9 @@ import logoAtj from "@/assets/logo-atj.png";
 import { useNavbarSettings } from "@/hooks/useCMS";
 import { useCmsTranslations } from "@/hooks/useCmsTranslations";
 import { moroccoCities } from "@/lib/citiesData";
+import { useTranslatedList } from "@/hooks/useContentTranslation";
 import useEmblaCarousel from "embla-carousel-react";
+import { useQuery } from "@tanstack/react-query";
 import DonateDrawer from "./DonateDrawer";
 import { useAuth } from "@/hooks/useAuth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -51,10 +53,31 @@ interface NavLink {
 
 // Original Cities Dropdown (Discover)
 const CitiesDropdown = () => {
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n.language === "ar";
+
+  const { data: apiCities } = useQuery<any[]>({
+    queryKey: ["public-cities-nav"],
+    queryFn: async () => {
+      const res = await fetch("/api/cities");
+      if (!res.ok) return [];
+      return res.json();
+    },
+    staleTime: 60_000,
+  });
+
+  const rawCities =
+    apiCities && apiCities.length > 0
+      ? apiCities
+      : moroccoCities.map((c) => ({ ...c }));
+
+  const cities = useTranslatedList(rawCities, "city", ["name", "title", "description"]);
+
   const [emblaRef, emblaApi] = useEmblaCarousel({
     loop: true,
     align: "start",
     slidesToScroll: 1,
+    direction: isRtl ? "rtl" : "ltr",
   });
   const [selectedIndex, setSelectedIndex] = useState(0);
 
@@ -81,16 +104,16 @@ const CitiesDropdown = () => {
   }, [emblaApi, onSelect]);
 
   return (
-    <div className="absolute left-0 top-full mt-2 w-[700px] max-w-[90vw] bg-white/95 dark:bg-card/95 backdrop-blur-sm rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 border border-border/20">
-      <div className="p-6">
+    <div className={`absolute ${isRtl ? "right-0" : "left-0"} top-full mt-2 w-[700px] max-w-[90vw] bg-white/95 dark:bg-card/95 backdrop-blur-sm rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 border border-border/20`}>
+      <div className="p-6" dir={isRtl ? "rtl" : "ltr"}>
         <div className="text-sm font-bold text-foreground mb-4 uppercase tracking-wider">
-          TOP CITIES MOROCCO
+          {t("nav.topCities")}
         </div>
 
         <div className="relative">
           <div className="overflow-hidden" ref={emblaRef}>
             <div className="flex gap-4">
-              {moroccoCities.map((city) => (
+              {cities.map((city) => (
                 <div key={city.id} className="flex-[0_0_32%] min-w-0">
                   <Link
                     to={{
@@ -119,17 +142,17 @@ const CitiesDropdown = () => {
           </div>
 
           <button
-            onClick={scrollPrev}
+            onClick={isRtl ? scrollNext : scrollPrev}
             aria-label="Previous cities"
-            className="absolute -left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-primary hover:bg-primary/90 text-white flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-110 z-10"
+            className={`absolute ${isRtl ? "-right-4" : "-left-4"} top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-primary hover:bg-primary/90 text-white flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-110 z-10`}
           >
             <ChevronRight className="w-5 h-5 rotate-180" />
           </button>
 
           <button
-            onClick={scrollNext}
+            onClick={isRtl ? scrollPrev : scrollNext}
             aria-label="Next cities"
-            className="absolute -right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-primary hover:bg-primary/90 text-white flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-110 z-10"
+            className={`absolute ${isRtl ? "-left-4" : "-right-4"} top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-primary hover:bg-primary/90 text-white flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-110 z-10`}
           >
             <ChevronRight className="w-5 h-5" />
           </button>
@@ -140,7 +163,7 @@ const CitiesDropdown = () => {
           role="tablist"
           aria-label="City carousel navigation"
         >
-          {Array.from({ length: moroccoCities.length }).map((_, index) => (
+          {cities.map((_, index) => (
             <button
               key={index}
               onClick={() => emblaApi?.scrollTo(index)}
@@ -680,6 +703,22 @@ const BottomNavbar = ({
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user, isAuthenticated } = useAuth();
+
+  const { data: apiNavCities } = useQuery<any[]>({
+    queryKey: ["public-cities-nav"],
+    queryFn: async () => {
+      const res = await fetch("/api/cities");
+      if (!res.ok) return [];
+      return res.json();
+    },
+    staleTime: 60_000,
+  });
+  const rawNavCities =
+    apiNavCities && apiNavCities.length > 0
+      ? apiNavCities
+      : moroccoCities.map((c) => ({ ...c }));
+  const navCities = useTranslatedList(rawNavCities, "city", ["name"]);
+
   const midpoint = Math.ceil(navigationLinks.length / 2);
   const leftLinks = navigationLinks.slice(0, midpoint);
   const rightLinks = navigationLinks.slice(midpoint);
@@ -1097,7 +1136,7 @@ const BottomNavbar = ({
                       </AccordionTrigger>
                       <AccordionContent className="pb-2">
                         <div className="flex flex-col gap-1 pl-3">
-                          {moroccoCities.slice(0, 8).map((city) => (
+                          {navCities.slice(0, 8).map((city) => (
                             <Link
                               key={city.id}
                               to={{
