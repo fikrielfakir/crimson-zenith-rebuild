@@ -4158,6 +4158,31 @@ app.post('/api/admin/cms/page-hero-upload', isAdmin, async (req: any, res) => {
   }
 });
 
+// ── Legal Pages ───────────────────────────────────────────────────────────────
+
+// Public: get legal page content
+app.get('/api/cms/legal/:pageKey', async (req, res) => {
+  try {
+    const page = await storage.getLegalPage(req.params.pageKey);
+    res.json(page || null);
+  } catch (error) {
+    console.error('❌ Error fetching legal page:', error);
+    res.status(500).json({ message: 'Failed to fetch legal page' });
+  }
+});
+
+// Admin: upsert legal page content
+app.put('/api/admin/cms/legal/:pageKey', isAdmin, async (req: any, res) => {
+  try {
+    const userId = req.user?.id;
+    const page = await storage.upsertLegalPage(req.params.pageKey, req.body, userId);
+    res.json(page);
+  } catch (error) {
+    console.error('❌ Error saving legal page:', error);
+    res.status(500).json({ message: 'Failed to save legal page' });
+  }
+});
+
 // ── Translations ─────────────────────────────────────────────────────────────
 
 // Middleware that accepts either a Passport session OR any Bearer token.
