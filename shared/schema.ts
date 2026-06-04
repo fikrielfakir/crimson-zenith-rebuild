@@ -21,9 +21,9 @@ export const sessions = pgTable(
   {
     sid: varchar("sid", { length: 255 }).primaryKey(),
     sess: jsonb("sess").notNull(),
-    expires: timestamp("expires").notNull(),
+    expire: timestamp("expire").notNull(),
   },
-  (table) => [index("IDX_session_expire").on(table.expires)],
+  (table) => [index("IDX_session_expire").on(table.expire)],
 );
 
 // User storage table.
