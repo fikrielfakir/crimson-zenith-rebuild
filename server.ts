@@ -19,7 +19,8 @@ import {
   seoSettings as seoSettingsTable,
   contactSettings as contactSettingsTable,
   themeSettings as themeSettingsTable,
-  contentTranslations
+  contentTranslations,
+  membershipApplications
 } from './shared/schema.js';
 import { sendBookingConfirmationEmail, sendBookingApprovedEmail } from './server/emailService.js';
 
@@ -3347,6 +3348,85 @@ app.put('/api/booking/my-tickets/:reference/update', async (req, res) => {
   }
 });
 
+// CMS Discover/cities page settings
+app.get('/api/cms/discover', async (req, res) => {
+  res.json({});
+});
+
+// CMS Clubs page settings
+app.get('/api/cms/clubs-page', async (req, res) => {
+  try {
+    const settings = await storage.getClubsPageSettings();
+    res.json(settings ?? {});
+  } catch (error) {
+    res.json({});
+  }
+});
+
+app.put('/api/admin/cms/clubs-page', isAdmin, async (req, res) => {
+  try {
+    const userId = (req.user as any)?.id;
+    const settings = await storage.updateClubsPageSettings(req.body, userId);
+    res.json(settings);
+  } catch (error) {
+    console.error('Error updating clubs-page settings:', error);
+    res.status(500).json({ error: 'Failed to update clubs page settings' });
+  }
+});
+
+// Talents/Experts endpoint — returns empty array (no experts table in schema)
+app.get('/api/experts', async (req, res) => {
+  res.json([]);
+});
+
+// Volunteer opportunities — returns empty array
+app.get('/api/volunteer-opportunities', async (req, res) => {
+  res.json([]);
+});
+
+// Volunteer posts — returns empty array
+app.get('/api/volunteer-posts', async (req, res) => {
+  res.json([]);
+});
+
+// Work offers — returns empty array
+app.get('/api/work-offers', async (req, res) => {
+  res.json([]);
+});
+
+// Payment methods — returns empty array (no payment provider configured)
+app.get('/api/payments/methods', async (req, res) => {
+  res.json([]);
+});
+
+// Cities endpoint — returns empty array (frontend falls back to static moroccoCities)
+app.get('/api/cities', async (req, res) => {
+  res.json([]);
+});
+
+app.get('/api/cities/:slug', async (req, res) => {
+  res.status(404).json({ message: 'City not found' });
+});
+
+// Projects endpoint — returns empty array (frontend falls back to static data)
+app.get('/api/projects', async (req, res) => {
+  res.json([]);
+});
+
+// Map configuration endpoint (server-side only — never expose key to frontend)
+app.get('/api/config/map-style', async (req, res) => {
+  try {
+    const apiKey = process.env.MAPTILER_API_KEY;
+    if (!apiKey) {
+      return res.status(200).json({ styleUrl: null });
+    }
+    res.json({ styleUrl: `https://api.maptiler.com/maps/satellite/style.json?key=${apiKey}` });
+  } catch (error) {
+    console.error('Error fetching map config:', error);
+    res.status(500).json({ message: 'Failed to fetch map configuration' });
+  }
+});
+
 // CMS API Routes
 
 // Hero Settings
@@ -3391,6 +3471,27 @@ app.post('/api/admin/cms/media', isAdmin, async (req, res) => {
   } catch (error) {
     console.error('❌ Error uploading media:', error);
     res.status(500).json({ error: 'Failed to upload media' });
+  }
+});
+
+// SEO Settings
+app.get('/api/cms/seo', async (req, res) => {
+  try {
+    const settings = await storage.getSeoSettings();
+    res.json(settings || {});
+  } catch (error) {
+    console.error('❌ Error fetching SEO settings:', error);
+    res.status(500).json({ error: 'Failed to fetch SEO settings' });
+  }
+});
+
+app.put('/api/admin/cms/seo', isAdmin, async (req, res) => {
+  try {
+    const settings = await storage.updateSeoSettings(req.body);
+    res.json(settings);
+  } catch (error) {
+    console.error('❌ Error updating SEO settings:', error);
+    res.status(500).json({ error: 'Failed to update SEO settings' });
   }
 });
 
@@ -3591,6 +3692,38 @@ app.put('/api/admin/cms/footer', isAdmin, async (req, res) => {
   }
 });
 
+// Public partners endpoint
+app.get('/api/cms/partners', async (req, res) => {
+  try {
+    const result = await storage.getPartners();
+    res.json(result);
+  } catch (error) {
+    console.error('❌ Error fetching partners:', error);
+    res.status(500).json({ error: 'Failed to fetch partners' });
+  }
+});
+
+app.get('/api/cms/partner-settings', async (req, res) => {
+  try {
+    const settings = await storage.getPartnerSettings();
+    res.json(settings);
+  } catch (error) {
+    console.error('❌ Error fetching partner settings:', error);
+    res.status(500).json({ error: 'Failed to fetch partner settings' });
+  }
+});
+
+// Alias: /api/booking-events → same data as /api/booking/events
+app.get('/api/booking-events', async (req, res) => {
+  try {
+    const events = await db.select().from(bookingEvents).where(eq(bookingEvents.isActive, true)).orderBy(asc(bookingEvents.startDate));
+    res.json(events);
+  } catch (error) {
+    console.error('❌ Error fetching booking events:', error);
+    res.status(500).json({ error: 'Failed to fetch booking events' });
+  }
+});
+
 // Partner Settings - Admin endpoints
 app.get('/api/admin/cms/partner-settings', isAdmin, async (req, res) => {
   try {
@@ -3787,6 +3920,107 @@ app.delete('/api/admin/cms/stats/:id', isAdmin, async (req, res) => {
   } catch (error) {
     console.error('❌ Error deleting site stat:', error);
     res.status(500).json({ error: 'Failed to delete site stat' });
+  }
+});
+
+// ── User Applications (Membership) ───────────────────────────────────────────
+
+app.get('/api/user/applications', isAuthenticated, async (req: any, res) => {
+  try {
+    const userId = req.user.id;
+    const applications = await db
+      .select()
+      .from(membershipApplications)
+      .where(eq(membershipApplications.userId, userId))
+      .orderBy(desc(membershipApplications.createdAt));
+    res.json(applications);
+  } catch (error) {
+    console.error('❌ Error fetching user applications:', error);
+    res.status(500).json({ error: 'Failed to fetch applications' });
+  }
+});
+
+app.post('/api/user/applications', isAuthenticated, async (req: any, res) => {
+  try {
+    const userId = req.user.id;
+    const { applicantName, email, phone, motivation, interests, preferredClub } = req.body;
+    const [application] = await db
+      .insert(membershipApplications)
+      .values({ userId, applicantName, email, phone, motivation, interests, preferredClub })
+      .returning();
+    res.status(201).json(application);
+  } catch (error) {
+    console.error('❌ Error creating application:', error);
+    res.status(500).json({ error: 'Failed to submit application' });
+  }
+});
+
+// ── Focus Section Settings ────────────────────────────────────────────────────
+
+app.get('/api/cms/focus-section', async (req, res) => {
+  res.json({
+    id: 'default',
+    title: 'Our Focus',
+    subtitle: 'Tourism, Culture, Entertainment',
+    is_active: true,
+  });
+});
+
+app.get('/api/admin/cms/focus-section', isAdmin, async (req: any, res) => {
+  res.json({
+    id: 'default',
+    title: 'Our Focus',
+    subtitle: 'Tourism, Culture, Entertainment',
+    is_active: true,
+  });
+});
+
+// ── Page Hero Settings ────────────────────────────────────────────────────────
+
+app.get('/api/cms/page-hero/:pageKey', async (req, res) => {
+  try {
+    const settings = await storage.getPageHeroSettings(req.params.pageKey);
+    res.json(settings || {});
+  } catch (error) {
+    console.error('❌ Error fetching page hero settings:', error);
+    res.status(500).json({ error: 'Failed to fetch page hero settings' });
+  }
+});
+
+app.put('/api/admin/cms/page-hero/:pageKey', isAdmin, async (req: any, res) => {
+  try {
+    const userId = req.user?.id;
+    const settings = await storage.upsertPageHeroSettings(req.params.pageKey, req.body, userId);
+    res.json(settings);
+  } catch (error) {
+    console.error('❌ Error updating page hero settings:', error);
+    res.status(500).json({ error: 'Failed to update page hero settings' });
+  }
+});
+
+app.post('/api/admin/cms/page-hero-upload', isAdmin, async (req: any, res) => {
+  try {
+    const { imageData } = req.body;
+    if (!imageData) return res.status(400).json({ message: 'No imageData provided' });
+    const match = imageData.match(/^data:([^;]+);base64,(.+)$/s);
+    if (!match) return res.status(400).json({ message: 'Invalid imageData format' });
+    const { default: fsSync } = await import('fs');
+    const { promises: fsPromise } = await import('fs');
+    const pathMod = await import('path');
+    const crypto = await import('crypto');
+    const mime = match[1];
+    const ext = mime.split('/')[1]?.replace('jpeg', 'jpg') ?? 'jpg';
+    const binary = Buffer.from(match[2], 'base64');
+    const id = crypto.randomUUID();
+    const filename = `${id}.${ext}`;
+    const heroMediaDir = pathMod.resolve(__dirname, 'public/uploads/hero-media');
+    await fsPromise.mkdir(heroMediaDir, { recursive: true });
+    await fsPromise.writeFile(pathMod.join(heroMediaDir, filename), binary);
+    const url = `/uploads/hero-media/${filename}`;
+    res.status(201).json({ url, id });
+  } catch (error) {
+    console.error('❌ Error uploading hero media:', error);
+    res.status(500).json({ error: 'Upload failed' });
   }
 });
 

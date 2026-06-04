@@ -713,7 +713,7 @@ const BottomNavbar = ({
             >
               {leftLinks.map((link, index) => {
                 // Prioritize original dropdowns for Discover and Talents
-                if (link.label === "Discover" && !link.isExternal) {
+                if (link.url === "/discover" && !link.isExternal) {
                   return (
                     <div key={index} className="relative group">
                       <span
@@ -734,7 +734,7 @@ const BottomNavbar = ({
                   );
                 }
 
-                if (link.label === "Talents" && !link.isExternal) {
+                if (link.url === "/talents" && !link.isExternal) {
                   return (
                     <div key={index} className="relative group">
                       <span
@@ -872,7 +872,7 @@ const BottomNavbar = ({
             >
               {rightLinks.map((link, index) => {
                 // Prioritize original dropdowns for Discover and Talents
-                if (link.label === "Discover" && !link.isExternal) {
+                if (link.url === "/discover" && !link.isExternal) {
                   return (
                     <div key={index} className="relative group">
                       <span
@@ -893,7 +893,7 @@ const BottomNavbar = ({
                   );
                 }
 
-                if (link.label === "Talents" && !link.isExternal) {
+                if (link.url === "/talents" && !link.isExternal) {
                   return (
                     <div key={index} className="relative group">
                       <span
@@ -1078,8 +1078,8 @@ const BottomNavbar = ({
             <Accordion type="multiple" className="w-full">
               {navigationLinks.map((link, index) => {
                 const isDiscover =
-                  link.label === "Discover" && !link.isExternal;
-                const isTalents = link.label === "Talents" && !link.isExternal;
+                  link.url === "/discover" && !link.isExternal;
+                const isTalents = link.url === "/talents" && !link.isExternal;
                 const hasDropdown =
                   isDiscover ||
                   isTalents ||
