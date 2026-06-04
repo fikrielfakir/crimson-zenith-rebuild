@@ -4171,6 +4171,17 @@ app.get('/api/cms/legal/:pageKey', async (req, res) => {
   }
 });
 
+// Admin: get legal page content (same as public, no extra auth needed for read)
+app.get('/api/admin/cms/legal/:pageKey', async (req, res) => {
+  try {
+    const page = await storage.getLegalPage(req.params.pageKey);
+    res.json(page || null);
+  } catch (error) {
+    console.error('❌ Error fetching legal page (admin):', error);
+    res.status(500).json({ message: 'Failed to fetch legal page' });
+  }
+});
+
 // Admin: upsert legal page content
 app.put('/api/admin/cms/legal/:pageKey', isAdmin, async (req: any, res) => {
   try {
