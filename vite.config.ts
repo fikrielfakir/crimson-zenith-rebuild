@@ -46,7 +46,7 @@ const proxyOptions = {
 };
 
 const localProxyOptions = {
-  target: LARAVEL_API,
+  target: LOCAL_API,
   changeOrigin: true,
   secure: false,
   configure: (proxy: any) => {

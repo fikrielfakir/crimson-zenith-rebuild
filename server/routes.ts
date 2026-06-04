@@ -641,6 +641,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get('/api/admin/cms/testimonials', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const testimonials = await storage.getLandingTestimonials();
+      res.json(testimonials);
+    } catch (error) {
+      console.error("Error fetching testimonials:", error);
+      res.status(500).json({ message: "Failed to fetch testimonials" });
+    }
+  });
+
   app.post('/api/admin/cms/testimonials', isAuthenticated, isAdmin, async (req, res) => {
     try {
       const testimonial = await storage.createLandingTestimonial(req.body);
