@@ -810,7 +810,9 @@ export default defineConfig(({ mode }: { mode: string }) => ({
 
           const http = await import("http");
 
-          async function forwardToLocalApi(
+          const CONNECTION_ERRORS = new Set(["ECONNREFUSED", "ECONNRESET", "ETIMEDOUT", "ENOTFOUND"]);
+
+          function attemptForward(
             method: string,
             path: string,
             headers: Record<string, string | string[] | undefined>,
@@ -825,29 +827,47 @@ export default defineConfig(({ mode }: { mode: string }) => ({
               }
               if (body) forwardHeaders["content-length"] = String(Buffer.byteLength(body));
 
-              const opts = {
-                hostname: "localhost",
-                port: 3001,
-                path,
-                method,
-                headers: forwardHeaders,
-              };
-
               const chunks: Buffer[] = [];
-              const proxyReq = http.default.request(opts, (proxyRes) => {
-                proxyRes.on("data", (chunk: Buffer) => chunks.push(chunk));
-                proxyRes.on("end", () =>
-                  resolve({
-                    status: proxyRes.statusCode ?? 200,
-                    data: Buffer.concat(chunks),
-                    contentType: (proxyRes.headers["content-type"] as string) ?? "application/json",
-                  }),
-                );
-              });
+              const proxyReq = http.default.request(
+                { hostname: "localhost", port: 3001, path, method, headers: forwardHeaders },
+                (proxyRes) => {
+                  proxyRes.on("data", (chunk: Buffer) => chunks.push(chunk));
+                  proxyRes.on("end", () =>
+                    resolve({
+                      status: proxyRes.statusCode ?? 200,
+                      data: Buffer.concat(chunks),
+                      contentType: (proxyRes.headers["content-type"] as string) ?? "application/json",
+                    }),
+                  );
+                },
+              );
               proxyReq.on("error", reject);
               if (body) proxyReq.write(body);
               proxyReq.end();
             });
+          }
+
+          async function forwardToLocalApi(
+            method: string,
+            path: string,
+            headers: Record<string, string | string[] | undefined>,
+            body?: Buffer,
+            maxRetries = 5,
+            retryDelayMs = 400,
+          ): Promise<{ status: number; data: Buffer; contentType: string }> {
+            let lastErr: any;
+            for (let attempt = 0; attempt < maxRetries; attempt++) {
+              try {
+                return await attemptForward(method, path, headers, body);
+              } catch (err: any) {
+                lastErr = err;
+                if (!CONNECTION_ERRORS.has(err?.code)) throw err; // non-connection error → fail fast
+                if (attempt < maxRetries - 1) {
+                  await new Promise((r) => setTimeout(r, retryDelayMs));
+                }
+              }
+            }
+            throw lastErr;
           }
 
           try {
@@ -868,11 +888,16 @@ export default defineConfig(({ mode }: { mode: string }) => ({
             res.setHeader("Content-Type", contentType);
             res.end(data);
           } catch (err: any) {
-            console.error("[handle-local-api] Forward error for", url, err?.message ?? err);
+            const isConnErr = CONNECTION_ERRORS.has(err?.code);
+            if (isConnErr) {
+              console.warn("[handle-local-api] API server not reachable after retries for", url, "— start it with: tsx server.ts");
+            } else {
+              console.error("[handle-local-api] Forward error for", url, err?.message ?? err);
+            }
             if (!res.headersSent) {
               res.statusCode = 503;
               res.setHeader("Content-Type", "application/json");
-              res.end(JSON.stringify({ message: "Local API unavailable — please wait and retry." }));
+              res.end(JSON.stringify({ message: "API server starting up — please refresh in a moment." }));
             }
           }
         });
