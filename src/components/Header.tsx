@@ -794,6 +794,7 @@ const BottomNavbar = ({
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user, isAuthenticated } = useAuth();
+  const { t } = useTranslation();
 
   const { data: apiNavCities } = useQuery<any[]>({
     queryKey: ["public-cities-nav"],
@@ -1371,7 +1372,7 @@ const BottomNavbar = ({
                 }}
               >
                 <Heart className="w-4 h-4" fill="white" />
-                Donate
+                {t('nav.donate')}
               </button>
             )}
             <Link
@@ -1380,7 +1381,7 @@ const BottomNavbar = ({
               className="flex items-center gap-2 text-white/80 hover:text-white text-sm transition-colors"
             >
               <User className="w-4 h-4" />
-              Login / Profile
+              {t('nav.loginProfile')}
             </Link>
           </div>
         </SheetContent>

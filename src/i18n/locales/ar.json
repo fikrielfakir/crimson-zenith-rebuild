@@ -25,7 +25,9 @@
       "essaouira": "الصويرة"
     },
     "events": "الفعاليات",
-    "news": "الأخبار"
+    "news": "الأخبار",
+    "loginProfile": "الدخول / الملف الشخصي",
+    "makeDonation": "قدّم تبرعاً"
   },
   "lang": {
     "en": "English",
@@ -729,6 +731,68 @@
       "upcomingEventsSection": "الفعاليات القادمة",
       "viewAll": "عرض الكل",
       "noActivity": "لا يوجد نشاط حديث"
+    }
+  },
+  "auth": {
+    "backToHome": "العودة إلى الرئيسية",
+    "copyright": "© 2024 Morocco Clubs. جميع الحقوق محفوظة.",
+    "orContinueWith": "أو تابع بـ",
+    "login": {
+      "welcomeTitle": "مرحباً بك في",
+      "welcomeHighlight": "Morocco Clubs",
+      "welcomeSubtitle": "انضم إلى مجتمعنا النابض واكتشف وصولاً حصرياً إلى الأندية الرياضية والفعاليات والأنشطة في مختلف أنحاء المغرب.",
+      "feature1": "الوصول إلى فعاليات الأعضاء الحصرية",
+      "feature2": "حجز المرافق الرياضية فوراً",
+      "feature3": "التواصل مع أعضاء النادي",
+      "formSubtitle": "مرحباً بعودتك! أدخل بياناتك للمتابعة.",
+      "email": "البريد الإلكتروني",
+      "emailPlaceholder": "أدخل بريدك الإلكتروني",
+      "password": "كلمة المرور",
+      "passwordPlaceholder": "أدخل كلمة المرور",
+      "forgotPassword": "نسيت كلمة المرور؟",
+      "signingIn": "جارٍ تسجيل الدخول...",
+      "signIn": "تسجيل الدخول",
+      "noAccount": "ليس لديك حساب؟",
+      "signUpFree": "سجّل مجاناً",
+      "demoAccess": "وصول تجريبي"
+    },
+    "signup": {
+      "joinTitle": "انضم إلى",
+      "joinHighlight": "مجتمعنا",
+      "joinSubtitle": "أنشئ حسابك وابدأ في اكتشاف وصول حصري إلى الأندية الرياضية والفعاليات والأنشطة في المغرب.",
+      "feature1": "عضوية مجانية للبدء",
+      "feature2": "التقدم للحصول على عضوية كاملة",
+      "feature3": "التواصل مع عشاق الرياضة",
+      "createAccount": "إنشاء حسابك",
+      "fillDetails": "أدخل بياناتك للبدء.",
+      "firstName": "الاسم الأول",
+      "lastName": "اسم العائلة",
+      "firstNamePlaceholder": "الاسم الأول",
+      "lastNamePlaceholder": "اسم العائلة",
+      "email": "البريد الإلكتروني",
+      "emailPlaceholder": "أدخل بريدك الإلكتروني",
+      "password": "كلمة المرور",
+      "passwordPlaceholder": "أنشئ كلمة مرور",
+      "confirmPassword": "تأكيد كلمة المرور",
+      "confirmPasswordPlaceholder": "أكّد كلمة مرورك",
+      "creatingAccount": "جارٍ إنشاء الحساب...",
+      "createAccountBtn": "إنشاء حساب",
+      "termsNotice": "بإنشاء حساب، فإنك توافق على",
+      "termsOfService": "شروط الخدمة",
+      "and": "و",
+      "privacyPolicy": "سياسة الخصوصية",
+      "alreadyHaveAccount": "لديك حساب بالفعل؟",
+      "signIn": "تسجيل الدخول",
+      "successTitle": "تم إنشاء الحساب!",
+      "successMessage": "سيتم تحويلك إلى صفحة تسجيل الدخول..."
+    },
+    "errors": {
+      "passwordsDoNotMatch": "كلمتا المرور غير متطابقتين.",
+      "passwordTooShort": "يجب أن تتكون كلمة المرور من 6 أحرف على الأقل.",
+      "registrationFailed": "فشل التسجيل. يرجى المحاولة مرة أخرى.",
+      "invalidCredentials": "البريد الإلكتروني أو كلمة المرور غير صحيحة. يرجى التحقق من بياناتك.",
+      "tryAgain": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
+      "socialLoginUnavailable": "تسجيل الدخول الاجتماعي غير متاح بعد. يرجى استخدام البريد الإلكتروني وكلمة المرور."
     }
   }
 }

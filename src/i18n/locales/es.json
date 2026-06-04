@@ -25,7 +25,9 @@
       "essaouira": "Esauira"
     },
     "events": "Eventos",
-    "news": "Noticias"
+    "news": "Noticias",
+    "loginProfile": "Acceso / Perfil",
+    "makeDonation": "Hacer una donación"
   },
   "lang": {
     "en": "English",
@@ -729,6 +731,68 @@
       "upcomingEventsSection": "Próximos eventos",
       "viewAll": "Ver todo",
       "noActivity": "Sin actividad reciente"
+    }
+  },
+  "auth": {
+    "backToHome": "Volver al inicio",
+    "copyright": "© 2024 Morocco Clubs. Todos los derechos reservados.",
+    "orContinueWith": "O continuar con",
+    "login": {
+      "welcomeTitle": "Bienvenido a",
+      "welcomeHighlight": "Morocco Clubs",
+      "welcomeSubtitle": "Únete a nuestra vibrante comunidad y descubre acceso exclusivo a clubes deportivos, eventos y actividades en todo Marruecos.",
+      "feature1": "Accede a eventos exclusivos para miembros",
+      "feature2": "Reserva instalaciones deportivas al instante",
+      "feature3": "Conéctate con miembros del club",
+      "formSubtitle": "¡Bienvenido de nuevo! Por favor, introduce tus datos.",
+      "email": "Correo electrónico",
+      "emailPlaceholder": "Introduce tu correo electrónico",
+      "password": "Contraseña",
+      "passwordPlaceholder": "Introduce tu contraseña",
+      "forgotPassword": "¿Olvidaste tu contraseña?",
+      "signingIn": "Iniciando sesión...",
+      "signIn": "Iniciar sesión",
+      "noAccount": "¿No tienes cuenta?",
+      "signUpFree": "Regístrate gratis",
+      "demoAccess": "Acceso demo"
+    },
+    "signup": {
+      "joinTitle": "Únete a nuestra",
+      "joinHighlight": "Comunidad",
+      "joinSubtitle": "Crea tu cuenta y empieza a explorar el acceso exclusivo a clubes deportivos, eventos y actividades en todo Marruecos.",
+      "feature1": "Membresía gratuita para empezar",
+      "feature2": "Solicita acceso completo de miembro",
+      "feature3": "Conéctate con entusiastas del deporte",
+      "createAccount": "Crea tu cuenta",
+      "fillDetails": "Completa tus datos para comenzar.",
+      "firstName": "Nombre",
+      "lastName": "Apellido",
+      "firstNamePlaceholder": "Nombre",
+      "lastNamePlaceholder": "Apellido",
+      "email": "Correo electrónico",
+      "emailPlaceholder": "Introduce tu correo electrónico",
+      "password": "Contraseña",
+      "passwordPlaceholder": "Crea una contraseña",
+      "confirmPassword": "Confirmar contraseña",
+      "confirmPasswordPlaceholder": "Confirma tu contraseña",
+      "creatingAccount": "Creando cuenta...",
+      "createAccountBtn": "Crear cuenta",
+      "termsNotice": "Al crear una cuenta, aceptas nuestros",
+      "termsOfService": "Términos de servicio",
+      "and": "y",
+      "privacyPolicy": "Política de privacidad",
+      "alreadyHaveAccount": "¿Ya tienes una cuenta?",
+      "signIn": "Iniciar sesión",
+      "successTitle": "¡Cuenta creada!",
+      "successMessage": "Redirigiéndote a la página de inicio de sesión..."
+    },
+    "errors": {
+      "passwordsDoNotMatch": "Las contraseñas no coinciden.",
+      "passwordTooShort": "La contraseña debe tener al menos 6 caracteres.",
+      "registrationFailed": "El registro ha fallado. Por favor, inténtalo de nuevo.",
+      "invalidCredentials": "Correo electrónico o contraseña inválidos. Por favor, verifica tus credenciales.",
+      "tryAgain": "Ha ocurrido un error. Por favor, inténtalo de nuevo.",
+      "socialLoginUnavailable": "El inicio de sesión social no está disponible aún. Por favor, usa tu correo electrónico y contraseña."
     }
   }
 }

@@ -25,7 +25,9 @@
       "essaouira": "Essaouira"
     },
     "events": "Events",
-    "news": "News"
+    "news": "News",
+    "loginProfile": "Login / Profile",
+    "makeDonation": "Make a Donation"
   },
   "lang": {
     "en": "English",
@@ -729,6 +731,68 @@
       "upcomingEventsSection": "Upcoming Events",
       "viewAll": "View all",
       "noActivity": "No recent activity"
+    }
+  },
+  "auth": {
+    "backToHome": "Back to Home",
+    "copyright": "© 2024 Morocco Clubs. All rights reserved.",
+    "orContinueWith": "Or continue with",
+    "login": {
+      "welcomeTitle": "Welcome to",
+      "welcomeHighlight": "Morocco Clubs",
+      "welcomeSubtitle": "Join our vibrant community and discover exclusive access to sports clubs, events, and activities across Morocco.",
+      "feature1": "Access exclusive member events",
+      "feature2": "Book sports facilities instantly",
+      "feature3": "Connect with club members",
+      "formSubtitle": "Welcome back! Please enter your details.",
+      "email": "Email",
+      "emailPlaceholder": "Enter your email",
+      "password": "Password",
+      "passwordPlaceholder": "Enter your password",
+      "forgotPassword": "Forgot password?",
+      "signingIn": "Signing in...",
+      "signIn": "Sign In",
+      "noAccount": "Don't have an account?",
+      "signUpFree": "Sign up for free",
+      "demoAccess": "Demo Access"
+    },
+    "signup": {
+      "joinTitle": "Join Our",
+      "joinHighlight": "Community",
+      "joinSubtitle": "Create your account and start exploring exclusive access to sports clubs, events, and activities across Morocco.",
+      "feature1": "Free membership to get started",
+      "feature2": "Apply for full member access",
+      "feature3": "Connect with sports enthusiasts",
+      "createAccount": "Create Your Account",
+      "fillDetails": "Fill in your details to get started.",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "firstNamePlaceholder": "First name",
+      "lastNamePlaceholder": "Last name",
+      "email": "Email",
+      "emailPlaceholder": "Enter your email",
+      "password": "Password",
+      "passwordPlaceholder": "Create a password",
+      "confirmPassword": "Confirm Password",
+      "confirmPasswordPlaceholder": "Confirm your password",
+      "creatingAccount": "Creating account...",
+      "createAccountBtn": "Create Account",
+      "termsNotice": "By creating an account, you agree to our",
+      "termsOfService": "Terms of Service",
+      "and": "and",
+      "privacyPolicy": "Privacy Policy",
+      "alreadyHaveAccount": "Already have an account?",
+      "signIn": "Sign in",
+      "successTitle": "Account Created!",
+      "successMessage": "Redirecting you to the login page..."
+    },
+    "errors": {
+      "passwordsDoNotMatch": "Passwords do not match.",
+      "passwordTooShort": "Password must be at least 6 characters long.",
+      "registrationFailed": "Registration failed. Please try again.",
+      "invalidCredentials": "Invalid email or password. Please check your credentials.",
+      "tryAgain": "An error occurred. Please try again.",
+      "socialLoginUnavailable": "Social login is not available yet. Please use email and password."
     }
   }
 }
