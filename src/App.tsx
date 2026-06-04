@@ -23,6 +23,7 @@ import TermsOfService from "./pages/TermsOfService";
 import CookiePolicy from "./pages/CookiePolicy";
 import NotFound from "./pages/NotFound";
 import Projects from "./pages/Projects";
+import About from "./pages/About";
 
 // Error pages
 import Error400 from "./pages/Error400";
@@ -114,6 +115,7 @@ const App = () => (
           {/* Public Routes */}
           <Route path="/" element={<Index />} />
           <Route path="/discover" element={<Discover />} />
+          <Route path="/about" element={<About />} />
           <Route path="/discover/cities" element={<CityDetail />} />
           <Route path="/events" element={<EventsActivities />} />
           <Route path="/projects" element={<Projects />} />

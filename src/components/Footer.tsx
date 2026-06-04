@@ -58,7 +58,7 @@ const Footer = () => {
             <h3 className="text-lg font-semibold mb-6 font-heading">{t("footer.quickLinks")}</h3>
             <ul className="space-y-3">
               <li>
-                <Link to="/discover" className="text-primary-foreground/80 hover:text-white transition-colors">
+                <Link to="/about" className="text-primary-foreground/80 hover:text-white transition-colors">
                   {t("footer.aboutUs")}
                 </Link>
               </li>
