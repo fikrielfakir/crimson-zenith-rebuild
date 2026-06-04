@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Sheet,
   SheetContent,
@@ -18,6 +19,9 @@ interface DonateDrawerProps {
 }
 
 const DonateDrawer = ({ open, onOpenChange }: DonateDrawerProps) => {
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n.language === "ar";
+
   const [amount, setAmount] = useState("50");
   const [customAmount, setCustomAmount] = useState("");
   const [frequency, setFrequency] = useState("once");
@@ -26,23 +30,23 @@ const DonateDrawer = ({ open, onOpenChange }: DonateDrawerProps) => {
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full sm:max-w-lg overflow-y-auto">
+      <SheetContent side="right" className="w-full sm:max-w-lg overflow-y-auto" dir={isRtl ? "rtl" : "ltr"}>
         <SheetHeader className="space-y-4 pb-6 border-b">
           <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mx-auto">
             <Heart className="w-8 h-8 text-primary" />
           </div>
           <SheetTitle className="text-3xl font-bold text-center">
-            Make a Donation
+            {t("donation.title")}
           </SheetTitle>
           <SheetDescription className="text-center text-base">
-            Your contribution helps us empower communities and preserve Morocco's heritage
+            {t("donation.subtitle")}
           </SheetDescription>
         </SheetHeader>
 
         <div className="space-y-8 py-8">
           {/* Frequency Selection */}
           <div className="space-y-4">
-            <Label className="text-base font-semibold">Donation Frequency</Label>
+            <Label className="text-base font-semibold">{t("donation.frequency")}</Label>
             <RadioGroup value={frequency} onValueChange={setFrequency} className="grid grid-cols-2 gap-4">
               <div>
                 <RadioGroupItem value="once" id="once" className="peer sr-only" />
@@ -50,7 +54,7 @@ const DonateDrawer = ({ open, onOpenChange }: DonateDrawerProps) => {
                   htmlFor="once"
                   className="flex items-center justify-center rounded-lg border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 cursor-pointer transition-all"
                 >
-                  One-time
+                  {t("donation.oneTime")}
                 </Label>
               </div>
               <div>
@@ -59,7 +63,7 @@ const DonateDrawer = ({ open, onOpenChange }: DonateDrawerProps) => {
                   htmlFor="monthly"
                   className="flex items-center justify-center rounded-lg border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 cursor-pointer transition-all"
                 >
-                  Monthly
+                  {t("donation.monthly")}
                 </Label>
               </div>
             </RadioGroup>
@@ -67,7 +71,7 @@ const DonateDrawer = ({ open, onOpenChange }: DonateDrawerProps) => {
 
           {/* Amount Selection */}
           <div className="space-y-4">
-            <Label className="text-base font-semibold">Select Amount (USD)</Label>
+            <Label className="text-base font-semibold">{t("donation.selectAmount")}</Label>
             <div className="grid grid-cols-2 gap-3">
               {predefinedAmounts.map((amt) => (
                 <Button
@@ -83,78 +87,81 @@ const DonateDrawer = ({ open, onOpenChange }: DonateDrawerProps) => {
                 </Button>
               ))}
             </div>
-            
+
             <div className="relative">
-              <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <DollarSign className={`absolute ${isRtl ? "right-3" : "left-3"} top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground`} />
               <Input
                 type="number"
-                placeholder="Custom amount"
+                placeholder={t("donation.customAmount")}
                 value={customAmount}
                 onChange={(e) => {
                   setCustomAmount(e.target.value);
                   setAmount("");
                 }}
-                className="h-14 pl-10 text-lg"
+                className={`h-14 ${isRtl ? "pr-10" : "pl-10"} text-lg`}
               />
             </div>
           </div>
 
           {/* Donation Impact */}
           <div className="rounded-lg bg-primary/5 border border-primary/20 p-6 space-y-3">
-            <h3 className="font-semibold text-lg">Your Impact</h3>
+            <h3 className="font-semibold text-lg">{t("donation.yourImpact")}</h3>
             <div className="space-y-2 text-sm text-muted-foreground">
-              <p>✓ Support sustainable tourism initiatives</p>
-              <p>✓ Empower local communities</p>
-              <p>✓ Preserve cultural heritage</p>
-              <p>✓ Fund educational programs</p>
+              <p>✓ {t("donation.impact1")}</p>
+              <p>✓ {t("donation.impact2")}</p>
+              <p>✓ {t("donation.impact3")}</p>
+              <p>✓ {t("donation.impact4")}</p>
             </div>
           </div>
 
           {/* Payment Information */}
           <div className="space-y-4">
-            <Label className="text-base font-semibold">Payment Information</Label>
-            
+            <Label className="text-base font-semibold">{t("donation.paymentInfo")}</Label>
+
             <div className="space-y-2">
-              <Label htmlFor="name">Full Name</Label>
-              <Input id="name" placeholder="John Doe" className="h-12" />
+              <Label htmlFor="name">{t("donation.fullName")}</Label>
+              <Input id="name" placeholder={t("donation.fullNamePlaceholder")} className="h-12" />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email">Email Address</Label>
-              <Input id="email" type="email" placeholder="john@example.com" className="h-12" />
+              <Label htmlFor="email">{t("donation.emailAddress")}</Label>
+              <Input id="email" type="email" placeholder={t("donation.emailPlaceholder")} className="h-12" />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="card">Card Number</Label>
+              <Label htmlFor="card">{t("donation.cardNumber")}</Label>
               <div className="relative">
-                <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                <Input id="card" placeholder="1234 5678 9012 3456" className="h-12 pl-10" />
+                <CreditCard className={`absolute ${isRtl ? "right-3" : "left-3"} top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground`} />
+                <Input id="card" placeholder="1234 5678 9012 3456" className={`h-12 ${isRtl ? "pr-10" : "pl-10"}`} />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="expiry">Expiry Date</Label>
+                <Label htmlFor="expiry">{t("donation.expiryDate")}</Label>
                 <Input id="expiry" placeholder="MM/YY" className="h-12" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="cvv">CVV</Label>
+                <Label htmlFor="cvv">{t("donation.cvv")}</Label>
                 <Input id="cvv" placeholder="123" className="h-12" />
               </div>
             </div>
           </div>
 
           {/* Submit Button */}
-          <Button 
+          <Button
             className="w-full h-14 text-lg font-semibold rounded-full"
             size="lg"
           >
             <Heart className="mr-2 w-5 h-5" />
-            Donate ${customAmount || amount || "0"} {frequency === "monthly" ? "/month" : ""}
+            {t("donation.donateButton", {
+              amount: customAmount || amount || "0",
+              period: frequency === "monthly" ? t("donation.perMonth") : "",
+            })}
           </Button>
 
           <p className="text-xs text-center text-muted-foreground">
-            Your donation is secure and tax-deductible. You will receive a receipt via email.
+            {t("donation.secureNote")}
           </p>
         </div>
       </SheetContent>

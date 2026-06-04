@@ -607,6 +607,7 @@ const TopNavbar = ({
 }) => {
   const [heartAnimate, setHeartAnimate] = useState(false);
   const { user, isAuthenticated } = useAuth();
+  const { t } = useTranslation();
 
   const handleDonateHover = () => {
     setHeartAnimate(true);
@@ -664,7 +665,7 @@ const TopNavbar = ({
                       "U"}
                   </AvatarFallback>
                 </Avatar>
-                <span className="hidden sm:inline">Profile</span>
+                <span className="hidden sm:inline">{t('nav.profile')}</span>
               </Link>
             ) : (
               <Button
@@ -1496,10 +1497,10 @@ const Header = ({ forceOpaque = false }: { forceOpaque?: boolean }) => {
           showLanguageSwitcher={navbarSettings?.showLanguageSwitcher !== false}
           showDarkModeToggle={navbarSettings?.showDarkModeToggle !== false}
           showLoginButton={navbarSettings?.showLoginButton !== false}
-          loginButtonText={trNavbar('login_button', 'loginButtonText', navbarSettings?.loginButtonText || "Login")}
+          loginButtonText={trNavbar('login_button', 'loginButtonText', navbarSettings?.loginButtonText || t('nav.login'))}
           loginButtonLink={navbarSettings?.loginButtonLink || "/login"}
           showJoinButton={navbarSettings?.showJoinButton !== false}
-          joinButtonText={trNavbar('join_button', 'joinButtonText', navbarSettings?.joinButtonText || "Donate")}
+          joinButtonText={trNavbar('join_button', 'joinButtonText', navbarSettings?.joinButtonText || t('nav.donate'))}
           joinButtonLink={navbarSettings?.joinButtonLink || "/join"}
           joinButtonStyle={navbarSettings?.joinButtonStyle || "secondary"}
           onDonateClick={() => setIsDonateDrawerOpen(true)}
