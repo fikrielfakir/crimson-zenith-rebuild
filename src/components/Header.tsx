@@ -17,7 +17,9 @@ import logoAtj from "@/assets/logo-atj.png";
 import { useNavbarSettings } from "@/hooks/useCMS";
 import { useCmsTranslations } from "@/hooks/useCmsTranslations";
 import { moroccoCities } from "@/lib/citiesData";
+import { useTranslatedList } from "@/hooks/useContentTranslation";
 import useEmblaCarousel from "embla-carousel-react";
+import { useQuery } from "@tanstack/react-query";
 import DonateDrawer from "./DonateDrawer";
 import { useAuth } from "@/hooks/useAuth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -53,6 +55,23 @@ interface NavLink {
 const CitiesDropdown = () => {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language === "ar";
+
+  const { data: apiCities } = useQuery<any[]>({
+    queryKey: ["public-cities-nav"],
+    queryFn: async () => {
+      const res = await fetch("/api/cities");
+      if (!res.ok) return [];
+      return res.json();
+    },
+    staleTime: 60_000,
+  });
+
+  const rawCities =
+    apiCities && apiCities.length > 0
+      ? apiCities
+      : moroccoCities.map((c) => ({ ...c }));
+
+  const cities = useTranslatedList(rawCities, "city", ["name", "title", "description"]);
 
   const [emblaRef, emblaApi] = useEmblaCarousel({
     loop: true,
@@ -94,7 +113,7 @@ const CitiesDropdown = () => {
         <div className="relative">
           <div className="overflow-hidden" ref={emblaRef}>
             <div className="flex gap-4">
-              {moroccoCities.map((city) => (
+              {cities.map((city) => (
                 <div key={city.id} className="flex-[0_0_32%] min-w-0">
                   <Link
                     to={{
@@ -106,13 +125,13 @@ const CitiesDropdown = () => {
                     <div className="relative h-32 rounded-lg overflow-hidden transition-all duration-300 ease-in-out group-hover/card:scale-105 group-hover/card:shadow-xl">
                       <img
                         src={city.image}
-                        alt={t(`nav.cities.${city.slug}`, city.name)}
+                        alt={city.name}
                         className="w-full h-full object-cover transition-transform duration-500 ease-in-out"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
                       <div className="absolute bottom-3 left-3 right-3">
                         <h3 className="text-white font-bold text-lg uppercase tracking-wide drop-shadow-lg">
-                          {t(`nav.cities.${city.slug}`, city.name)}
+                          {city.name}
                         </h3>
                       </div>
                     </div>
@@ -144,7 +163,7 @@ const CitiesDropdown = () => {
           role="tablist"
           aria-label="City carousel navigation"
         >
-          {Array.from({ length: moroccoCities.length }).map((_, index) => (
+          {cities.map((_, index) => (
             <button
               key={index}
               onClick={() => emblaApi?.scrollTo(index)}
@@ -684,6 +703,22 @@ const BottomNavbar = ({
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user, isAuthenticated } = useAuth();
+
+  const { data: apiNavCities } = useQuery<any[]>({
+    queryKey: ["public-cities-nav"],
+    queryFn: async () => {
+      const res = await fetch("/api/cities");
+      if (!res.ok) return [];
+      return res.json();
+    },
+    staleTime: 60_000,
+  });
+  const rawNavCities =
+    apiNavCities && apiNavCities.length > 0
+      ? apiNavCities
+      : moroccoCities.map((c) => ({ ...c }));
+  const navCities = useTranslatedList(rawNavCities, "city", ["name"]);
+
   const midpoint = Math.ceil(navigationLinks.length / 2);
   const leftLinks = navigationLinks.slice(0, midpoint);
   const rightLinks = navigationLinks.slice(midpoint);
@@ -1101,7 +1136,7 @@ const BottomNavbar = ({
                       </AccordionTrigger>
                       <AccordionContent className="pb-2">
                         <div className="flex flex-col gap-1 pl-3">
-                          {moroccoCities.slice(0, 8).map((city) => (
+                          {navCities.slice(0, 8).map((city) => (
                             <Link
                               key={city.id}
                               to={{

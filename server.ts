@@ -3399,13 +3399,146 @@ app.get('/api/payments/methods', async (req, res) => {
   res.json([]);
 });
 
-// Cities endpoint — returns empty array (frontend falls back to static moroccoCities)
+// ── Public Cities ───────────────────────────────────────────────────────────
 app.get('/api/cities', async (req, res) => {
-  res.json([]);
+  try {
+    const rows = await db
+      .select()
+      .from(schema.cities)
+      .where(eq(schema.cities.isActive, true))
+      .orderBy(schema.cities.ordering, schema.cities.id);
+    res.json(rows);
+  } catch (err) {
+    console.error('Error fetching cities:', err);
+    res.json([]);
+  }
 });
 
 app.get('/api/cities/:slug', async (req, res) => {
-  res.status(404).json({ message: 'City not found' });
+  try {
+    const [city] = await db
+      .select()
+      .from(schema.cities)
+      .where(eq(schema.cities.slug, req.params.slug))
+      .limit(1);
+    if (!city) return res.status(404).json({ message: 'City not found' });
+    res.json(city);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch city' });
+  }
+});
+
+// ── Admin Cities CRUD ────────────────────────────────────────────────────────
+app.get('/api/admin/cities', isAdmin, async (req, res) => {
+  try {
+    const rows = await db
+      .select()
+      .from(schema.cities)
+      .orderBy(schema.cities.ordering, schema.cities.id);
+    res.json({ cities: rows });
+  } catch (err) {
+    console.error('Error fetching admin cities:', err);
+    res.status(500).json({ message: 'Failed to fetch cities' });
+  }
+});
+
+app.post('/api/admin/cities', isAdmin, async (req, res) => {
+  try {
+    const { name, slug, title, description, image, heroType, heroVideo, heroOverlay,
+            highlights, activities, travelTips, culture, cuisine, bestTime,
+            gettingThere, isActive, ordering } = req.body;
+    const [city] = await db
+      .insert(schema.cities)
+      .values({ name, slug, title, description, image, heroType, heroVideo,
+                heroOverlay: Number(heroOverlay) || 50,
+                highlights: highlights ?? [],
+                activities: activities ?? [],
+                travelTips: travelTips ?? [],
+                culture: culture ?? null,
+                cuisine: cuisine ?? null,
+                bestTime: bestTime ?? null,
+                gettingThere: gettingThere ?? null,
+                isActive: isActive !== false,
+                ordering: Number(ordering) || 0 })
+      .returning();
+    res.json(city);
+  } catch (err: any) {
+    console.error('Error creating city:', err);
+    res.status(500).json({ message: err.message || 'Failed to create city' });
+  }
+});
+
+app.put('/api/admin/cities/:id', isAdmin, async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    const { name, slug, title, description, image, heroType, heroVideo, heroOverlay,
+            highlights, activities, travelTips, culture, cuisine, bestTime,
+            gettingThere, isActive, ordering } = req.body;
+    const updateData: any = { updatedAt: new Date() };
+    if (name !== undefined)        updateData.name        = name;
+    if (slug !== undefined)        updateData.slug        = slug;
+    if (title !== undefined)       updateData.title       = title;
+    if (description !== undefined) updateData.description = description;
+    if (image !== undefined)       updateData.image       = image;
+    if (heroType !== undefined)    updateData.heroType    = heroType;
+    if (heroVideo !== undefined)   updateData.heroVideo   = heroVideo;
+    if (heroOverlay !== undefined) updateData.heroOverlay = Number(heroOverlay);
+    if (highlights !== undefined)  updateData.highlights  = highlights;
+    if (activities !== undefined)  updateData.activities  = activities;
+    if (travelTips !== undefined)  updateData.travelTips  = travelTips;
+    if (culture !== undefined)     updateData.culture     = culture;
+    if (cuisine !== undefined)     updateData.cuisine     = cuisine;
+    if (bestTime !== undefined)    updateData.bestTime    = bestTime;
+    if (gettingThere !== undefined) updateData.gettingThere = gettingThere;
+    if (isActive !== undefined)    updateData.isActive    = isActive;
+    if (ordering !== undefined)    updateData.ordering    = Number(ordering);
+    const [city] = await db
+      .update(schema.cities)
+      .set(updateData)
+      .where(eq(schema.cities.id, id))
+      .returning();
+    if (!city) return res.status(404).json({ message: 'City not found' });
+    res.json(city);
+  } catch (err: any) {
+    console.error('Error updating city:', err);
+    res.status(500).json({ message: err.message || 'Failed to update city' });
+  }
+});
+
+app.delete('/api/admin/cities/:id', isAdmin, async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    await db.delete(schema.cities).where(eq(schema.cities.id, id));
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to delete city' });
+  }
+});
+
+// Seed cities from static defaults
+app.post('/api/admin/cities/seed', isAdmin, async (req, res) => {
+  try {
+    const existing = await db.select({ slug: schema.cities.slug }).from(schema.cities);
+    const existingSlugs = new Set(existing.map(r => r.slug));
+    const defaults = [
+      { id: 1, name: 'Tangier', slug: 'tangier', title: 'Gateway Between Continents', image: '/attached_assets/generated_images/Tangier_city_aerial_view_03330006.png', ordering: 1 },
+      { id: 2, name: 'Tetouan', slug: 'tetouan', title: 'The White Dove', image: '/attached_assets/generated_images/Tetouan_medina_panorama_b1f6dcbc.png', ordering: 2 },
+      { id: 3, name: 'Al Hoceima', slug: 'al-hoceima', title: 'Mediterranean Paradise', image: '/attached_assets/generated_images/Al_Hoceima_coastal_view_9e4e9e0c.png', ordering: 3 },
+      { id: 4, name: 'Chefchaouen', slug: 'chefchaouen', title: 'The Blue Pearl', image: '/attached_assets/generated_images/Chefchaouen_blue_streets_272376ab.png', ordering: 4 },
+      { id: 5, name: 'Fes', slug: 'fes', title: 'Spiritual & Cultural Heart', image: '/attached_assets/generated_images/Fes_medina_and_tanneries_3e9a2ff0.png', ordering: 5 },
+      { id: 6, name: 'Essaouira', slug: 'essaouira', title: 'Wind City of Africa', image: '/attached_assets/generated_images/Essaouira_coastal_fortifications_07abbfb6.png', ordering: 6 },
+    ];
+    let seeded = 0;
+    for (const c of defaults) {
+      if (!existingSlugs.has(c.slug)) {
+        await db.insert(schema.cities).values({ name: c.name, slug: c.slug, title: c.title, image: c.image, ordering: c.ordering, isActive: true });
+        seeded++;
+      }
+    }
+    res.json({ message: `Seeded ${seeded} cities (${defaults.length - seeded} already existed)` });
+  } catch (err: any) {
+    res.status(500).json({ message: err.message || 'Seed failed' });
+  }
 });
 
 // Projects endpoint — returns empty array (frontend falls back to static data)

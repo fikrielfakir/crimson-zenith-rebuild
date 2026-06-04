@@ -861,3 +861,30 @@ export const clubsPageSettings = pgTable("clubs_page_settings", {
 
 export type ClubsPageSettings = typeof clubsPageSettings.$inferSelect;
 export type InsertClubsPageSettings = typeof clubsPageSettings.$inferInsert;
+
+// Cities table — managed from admin
+export const cities = pgTable("cities", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  slug: varchar("slug", { length: 255 }).notNull().unique(),
+  title: varchar("title", { length: 255 }),
+  description: text("description"),
+  image: text("image"),
+  heroType: varchar("hero_type", { length: 20 }).default("image"),
+  heroVideo: text("hero_video"),
+  heroOverlay: integer("hero_overlay").default(50),
+  highlights: jsonb("highlights").default([]),
+  activities: jsonb("activities").default([]),
+  travelTips: jsonb("travel_tips").default([]),
+  culture: jsonb("culture"),
+  cuisine: jsonb("cuisine"),
+  bestTime: jsonb("best_time"),
+  gettingThere: jsonb("getting_there"),
+  isActive: boolean("is_active").default(true),
+  ordering: integer("ordering").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export type City = typeof cities.$inferSelect;
+export type InsertCity = typeof cities.$inferInsert;
