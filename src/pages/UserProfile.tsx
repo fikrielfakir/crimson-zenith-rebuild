@@ -12,6 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 import {
   Dialog,
   DialogContent,
@@ -104,6 +105,7 @@ interface FavoriteEvent {
 const UserProfile = () => {
   const { user, isAuthenticated, isLoading, refetch } = useAuth();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
@@ -157,16 +159,13 @@ const UserProfile = () => {
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       toast({
-        title: "Unauthorized",
-        description: "You are logged out. Logging in again...",
+        title: t('profilePage.toastUnauthorized'),
+        description: t('profilePage.toastLoggedOut'),
         variant: "destructive",
       });
-      setTimeout(() => {
-        navigate('/login');
-      }, 500);
+      setTimeout(() => { navigate('/login'); }, 500);
       return;
     }
-
     if (user) {
       setProfileData({
         firstName: user.firstName || '',
@@ -178,7 +177,6 @@ const UserProfile = () => {
         interests: user.interests || [],
         profileImageUrl: user.profileImageUrl || ''
       });
-      
       fetchUserClubs();
       fetchUserBookings();
       fetchFavoriteEvents();
@@ -227,12 +225,7 @@ const UserProfile = () => {
       const response = await apiFetch('/api/booking/my-tickets');
       if (response.ok) {
         const data = await response.json();
-        // API returns a plain array; fall back to data.tickets for older shape
-        const list = Array.isArray(data)
-          ? data
-          : Array.isArray(data.tickets)
-          ? data.tickets
-          : [];
+        const list = Array.isArray(data) ? data : Array.isArray(data.tickets) ? data.tickets : [];
         setUserBookings(list);
       } else {
         setUserBookings([]);
@@ -251,10 +244,7 @@ const UserProfile = () => {
       const stored = localStorage.getItem(FAVORITES_KEY);
       const ids: string[] = stored ? JSON.parse(stored) : [];
       setFavoriteIds(new Set(ids));
-      if (ids.length === 0) {
-        setFavoriteEvents([]);
-        return;
-      }
+      if (ids.length === 0) { setFavoriteEvents([]); return; }
       const response = await fetch('/api/booking/events');
       if (response.ok) {
         const data = await response.json();
@@ -262,18 +252,10 @@ const UserProfile = () => {
         const matched = raw
           .filter((e: any) => ids.includes(String(e.id)))
           .map((e: any) => ({
-            id: e.id,
-            title: e.title,
-            description: e.description,
-            location: e.location,
-            price: e.price,
-            image: e.image,
-            status: e.status,
-            startDate: e.startDate ?? e.start_date,
-            endDate: e.endDate ?? e.end_date,
-            eventDate: e.eventDate ?? e.event_date,
-            category: e.category,
-            duration: e.duration,
+            id: e.id, title: e.title, description: e.description, location: e.location,
+            price: e.price, image: e.image, status: e.status,
+            startDate: e.startDate ?? e.start_date, endDate: e.endDate ?? e.end_date,
+            eventDate: e.eventDate ?? e.event_date, category: e.category, duration: e.duration,
           }));
         setFavoriteEvents(matched);
       } else {
@@ -289,8 +271,7 @@ const UserProfile = () => {
 
   const isWithin12Hours = (createdAt: string): boolean => {
     const created = new Date(createdAt).getTime();
-    const now = Date.now();
-    return now - created < 12 * 60 * 60 * 1000;
+    return Date.now() - created < 12 * 60 * 60 * 1000;
   };
 
   const removeFavorite = (eventId: number | string) => {
@@ -302,24 +283,19 @@ const UserProfile = () => {
       return next;
     });
     setFavoriteEvents(prev => prev.filter(e => String(e.id) !== id));
-    toast({ title: 'Removed from favorites' });
+    toast({ title: t('profilePage.toastRemovedFavorite') });
   };
 
   const handleCancelBooking = async () => {
     if (!cancellingBooking) return;
-    
     try {
       setActionLoading(true);
       const response = await apiFetch(`/api/booking/my-tickets/${cancellingBooking.bookingReference}/cancel`, {
         method: 'POST',
         body: JSON.stringify({ reason: cancelReason }),
       });
-      
       if (response.ok) {
-        toast({
-          title: "Booking Cancelled",
-          description: "Your booking has been cancelled successfully.",
-        });
+        toast({ title: t('profilePage.toastBookingCancelled'), description: t('profilePage.toastBookingCancelledDesc') });
         setCancellingBooking(null);
         setCancelReason('');
         fetchUserBookings();
@@ -328,11 +304,7 @@ const UserProfile = () => {
         throw new Error(error.error || 'Failed to cancel booking');
       }
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to cancel booking. Please try again.",
-        variant: "destructive",
-      });
+      toast({ title: t('profilePage.toastError'), description: error.message || t('profilePage.toastGenericError'), variant: "destructive" });
     } finally {
       setActionLoading(false);
     }
@@ -340,19 +312,14 @@ const UserProfile = () => {
 
   const handleEditBooking = async () => {
     if (!editingBooking) return;
-    
     try {
       setActionLoading(true);
       const response = await apiFetch(`/api/booking/my-tickets/${editingBooking.bookingReference}/update`, {
         method: 'PUT',
         body: JSON.stringify(editFormData),
       });
-      
       if (response.ok) {
-        toast({
-          title: "Booking Updated",
-          description: "Your booking has been updated successfully.",
-        });
+        toast({ title: t('profilePage.toastBookingUpdated'), description: t('profilePage.toastBookingUpdatedDesc') });
         setEditingBooking(null);
         fetchUserBookings();
       } else {
@@ -360,21 +327,14 @@ const UserProfile = () => {
         throw new Error(error.error || 'Failed to update booking');
       }
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to update booking. Please try again.",
-        variant: "destructive",
-      });
+      toast({ title: t('profilePage.toastError'), description: error.message || t('profilePage.toastGenericError'), variant: "destructive" });
     } finally {
       setActionLoading(false);
     }
   };
 
   const openEditDialog = (booking: Booking) => {
-    setEditFormData({
-      numberOfParticipants: booking.numberOfParticipants,
-      specialRequests: booking.specialRequests || '',
-    });
+    setEditFormData({ numberOfParticipants: booking.numberOfParticipants, specialRequests: booking.specialRequests || '' });
     setEditingBooking(booking);
   };
 
@@ -398,7 +358,7 @@ const UserProfile = () => {
       await generateTicketPDF(ticketData);
     } catch (e) {
       console.error('Ticket download failed', e);
-      toast({ title: 'Error', description: 'Could not generate ticket PDF. Please try again.', variant: 'destructive' });
+      toast({ title: t('profilePage.toastError'), description: t('profilePage.toastPdfError'), variant: 'destructive' });
     } finally {
       setDownloadingRef(null);
     }
@@ -415,25 +375,20 @@ const UserProfile = () => {
     setRefLookupError('');
     setRefLookupResult(null);
     try {
-      const res = await fetch(`/api/booking/tickets/${ref}`, {
-        headers: { Accept: 'application/json' },
-      });
+      const res = await fetch(`/api/booking/tickets/${ref}`, { headers: { Accept: 'application/json' } });
       if (res.ok) {
         const data = await res.json();
         setRefLookupResult(data);
-        // Add to userBookings if not already present
         if (data && data.bookingReference) {
           setUserBookings(prev =>
-            prev.some(b => b.bookingReference === data.bookingReference)
-              ? prev
-              : [data, ...prev]
+            prev.some(b => b.bookingReference === data.bookingReference) ? prev : [data, ...prev]
           );
         }
       } else {
-        setRefLookupError('No booking found with that reference. Please check and try again.');
+        setRefLookupError(t('profilePage.refLookupNotFound'));
       }
     } catch {
-      setRefLookupError('Could not look up booking. Please try again.');
+      setRefLookupError(t('profilePage.refLookupError'));
     } finally {
       setRefLookupLoading(false);
     }
@@ -443,61 +398,48 @@ const UserProfile = () => {
     switch (status.toLowerCase()) {
       case 'accepted':
       case 'confirmed':
-        return <Badge className="bg-green-100 text-green-700"><CheckCircle className="w-3 h-3 mr-1" /> Confirmed</Badge>;
+        return <Badge className="bg-green-100 text-green-700"><CheckCircle className="w-3 h-3 mr-1" /> {t('profilePage.statusConfirmed')}</Badge>;
       case 'pending':
-        return <Badge className="bg-yellow-100 text-yellow-700"><AlertCircle className="w-3 h-3 mr-1" /> Pending</Badge>;
+        return <Badge className="bg-yellow-100 text-yellow-700"><AlertCircle className="w-3 h-3 mr-1" /> {t('profilePage.statusPending')}</Badge>;
       case 'cancelled':
-        return <Badge className="bg-red-100 text-red-700"><XCircle className="w-3 h-3 mr-1" /> Cancelled</Badge>;
+        return <Badge className="bg-red-100 text-red-700"><XCircle className="w-3 h-3 mr-1" /> {t('profilePage.statusCancelled')}</Badge>;
       default:
         return <Badge className="bg-slate-100 text-slate-700">{status}</Badge>;
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      weekday: 'short',
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
-  };
+  const formatDate = (dateString: string) =>
+    new Date(dateString).toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
 
-  const formatPrice = (price: string) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'MAD',
-    }).format(parseFloat(price));
-  };
+  const formatPrice = (price: string) =>
+    new Intl.NumberFormat('en-US', { style: 'currency', currency: 'MAD' }).format(parseFloat(price));
 
   const handleChangePassword = async () => {
     if (!passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword) {
-      toast({ title: "Error", description: "All password fields are required.", variant: "destructive" });
+      toast({ title: t('profilePage.toastError'), description: t('profilePage.toastPasswordRequired'), variant: "destructive" });
       return;
     }
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      toast({ title: "Error", description: "New passwords do not match.", variant: "destructive" });
+      toast({ title: t('profilePage.toastError'), description: t('profilePage.toastPasswordMismatch'), variant: "destructive" });
       return;
     }
     if (passwordData.newPassword.length < 6) {
-      toast({ title: "Error", description: "New password must be at least 6 characters.", variant: "destructive" });
+      toast({ title: t('profilePage.toastError'), description: t('profilePage.toastPasswordTooShort'), variant: "destructive" });
       return;
     }
     try {
       setPasswordLoading(true);
-      const response = await apiFetch('/api/auth/change-password', {
-        method: 'POST',
-        body: JSON.stringify(passwordData),
-      });
+      const response = await apiFetch('/api/auth/change-password', { method: 'POST', body: JSON.stringify(passwordData) });
       const data = await response.json();
       if (response.ok) {
-        toast({ title: "Password changed", description: "Your password has been updated successfully." });
+        toast({ title: t('profilePage.toastPasswordChanged'), description: t('profilePage.toastPasswordChangedDesc') });
         setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
         setShowPasswordForm(false);
       } else {
-        toast({ title: "Error", description: data.message || "Failed to change password.", variant: "destructive" });
+        toast({ title: t('profilePage.toastError'), description: data.message || t('profilePage.toastPasswordFailed'), variant: "destructive" });
       }
     } catch {
-      toast({ title: "Error", description: "An error occurred. Please try again.", variant: "destructive" });
+      toast({ title: t('profilePage.toastError'), description: t('profilePage.toastGenericError'), variant: "destructive" });
     } finally {
       setPasswordLoading(false);
     }
@@ -505,82 +447,48 @@ const UserProfile = () => {
 
   const handleSaveProfile = async () => {
     try {
-      const response = await apiFetch('/api/auth/user', {
-        method: 'PUT',
-        body: JSON.stringify(profileData),
-      });
-
+      const response = await apiFetch('/api/auth/user', { method: 'PUT', body: JSON.stringify(profileData) });
       if (response.ok) {
-        toast({
-          title: "Success",
-          description: "Profile updated successfully!",
-        });
+        toast({ title: t('profilePage.toastSuccess'), description: t('profilePage.toastProfileSavedDesc') });
         setIsEditing(false);
         if (refetch) refetch();
       } else {
         throw new Error('Failed to update profile');
       }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update profile. Please try again.",
-        variant: "destructive",
-      });
+    } catch {
+      toast({ title: t('profilePage.toastError'), description: t('profilePage.toastProfileSaveFailed'), variant: "destructive" });
     }
   };
 
   const handleAddInterest = () => {
     const interest = prompt('Enter new interest:');
     if (interest && interest.trim()) {
-      setProfileData(prev => ({
-        ...prev,
-        interests: [...prev.interests, interest.trim()]
-      }));
+      setProfileData(prev => ({ ...prev, interests: [...prev.interests, interest.trim()] }));
     }
   };
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
-
     if (!file.type.startsWith('image/')) {
-      toast({
-        title: "Invalid file type",
-        description: "Please select an image file (JPG, PNG, GIF, or WebP)",
-        variant: "destructive",
-      });
+      toast({ title: t('profilePage.toastInvalidFile'), description: t('profilePage.toastInvalidFileDesc'), variant: "destructive" });
       return;
     }
-
     if (file.size > 5 * 1024 * 1024) {
-      toast({
-        title: "File too large",
-        description: "Please select an image smaller than 5MB",
-        variant: "destructive",
-      });
+      toast({ title: t('profilePage.toastFileTooLarge'), description: t('profilePage.toastFileTooLargeDesc'), variant: "destructive" });
       return;
     }
-
     setImageUploading(true);
-    
     try {
       const reader = new FileReader();
       reader.onload = async (e) => {
         const imageData = e.target?.result as string;
-        
-        const response = await apiFetch('/api/auth/upload-profile-image', {
-          method: 'POST',
-          body: JSON.stringify({ imageData }),
-        });
-
+        const response = await apiFetch('/api/auth/upload-profile-image', { method: 'POST', body: JSON.stringify({ imageData }) });
         if (response.ok) {
           const data = await response.json();
           setProfileData(prev => ({ ...prev, profileImageUrl: data.profileImageUrl }));
           if (refetch) refetch();
-          toast({
-            title: "Success",
-            description: "Profile image updated successfully!",
-          });
+          toast({ title: t('profilePage.toastSuccess'), description: t('profilePage.toastImageUpdatedDesc') });
         } else {
           throw new Error('Failed to upload image');
         }
@@ -588,35 +496,21 @@ const UserProfile = () => {
       };
       reader.onerror = () => {
         setImageUploading(false);
-        toast({
-          title: "Error",
-          description: "Failed to read image file",
-          variant: "destructive",
-        });
+        toast({ title: t('profilePage.toastError'), description: t('profilePage.toastImageReadError'), variant: "destructive" });
       };
       reader.readAsDataURL(file);
-    } catch (error) {
+    } catch {
       setImageUploading(false);
-      toast({
-        title: "Error",
-        description: "Failed to upload profile image. Please try again.",
-        variant: "destructive",
-      });
+      toast({ title: t('profilePage.toastError'), description: t('profilePage.toastImageUploadError'), variant: "destructive" });
     }
   };
 
   const handleRemoveInterest = (index: number) => {
-    setProfileData(prev => ({
-      ...prev,
-      interests: prev.interests.filter((_, i) => i !== index)
-    }));
+    setProfileData(prev => ({ ...prev, interests: prev.interests.filter((_, i) => i !== index) }));
   };
 
   const handleLogout = async () => {
-    try {
-      await apiFetch('/api/logout', { method: 'POST' });
-    } catch (_) {}
-    // Clear HMAC user token so subsequent auth checks return unauthenticated
+    try { await apiFetch('/api/logout', { method: 'POST' }); } catch (_) {}
     const { clearUserToken } = await import('@/lib/tokenStore');
     clearUserToken();
     localStorage.removeItem('userAuth');
@@ -630,22 +524,16 @@ const UserProfile = () => {
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[hsl(227,65%,19%)] mx-auto mb-4"></div>
-          <p className="text-slate-600">Loading profile...</p>
+          <p className="text-slate-600">{t('profilePage.loadingProfile')}</p>
         </div>
       </div>
     );
   }
 
-  if (!isAuthenticated || !user) {
-    return null;
-  }
+  if (!isAuthenticated || !user) return null;
 
   const isMember = userClubs.length > 0;
-  const stats = {
-    clubsJoined: userClubs.length,
-    eventsAttended: 0,
-    reviewsWritten: 0
-  };
+  const stats = { clubsJoined: userClubs.length, eventsAttended: 0, reviewsWritten: 0 };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
@@ -653,17 +541,15 @@ const UserProfile = () => {
       
       {/* Profile Hero Section */}
       <div className="relative pt-52 pb-12">
-        {/* Background Pattern */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-0 left-0 right-0 h-64 bg-gradient-to-br from-[hsl(227,65%,19%)] via-[hsl(227,65%,25%)] to-[hsl(227,65%,19%)]" />
           <div className="absolute top-0 left-0 right-0 h-64 opacity-50" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")" }} />
         </div>
         
         <div className="container mx-auto px-4 relative z-10">
-          {/* Profile Card */}
           <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 mt-4">
             <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-              {/* Avatar Section */}
+              {/* Avatar */}
               <div className="relative group">
                 <Avatar className="w-28 h-28 md:w-32 md:h-32 border-4 border-white shadow-lg">
                   <AvatarImage src={profileData.profileImageUrl || user.profileImageUrl || ""} />
@@ -671,22 +557,9 @@ const UserProfile = () => {
                     {profileData.firstName?.[0] || 'U'}{profileData.lastName?.[0] || ''}
                   </AvatarFallback>
                 </Avatar>
-                <input
-                  type="file"
-                  id="profile-image-upload"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="hidden"
-                />
-                <label 
-                  htmlFor="profile-image-upload"
-                  className="absolute bottom-1 right-1 w-9 h-9 bg-[hsl(227,65%,19%)] rounded-full flex items-center justify-center text-white shadow-lg opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer hover:bg-[hsl(227,65%,25%)]"
-                >
-                  {imageUploading ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <Camera className="w-4 h-4" />
-                  )}
+                <input type="file" id="profile-image-upload" accept="image/*" onChange={handleImageUpload} className="hidden" />
+                <label htmlFor="profile-image-upload" className="absolute bottom-1 right-1 w-9 h-9 bg-[hsl(227,65%,19%)] rounded-full flex items-center justify-center text-white shadow-lg opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer hover:bg-[hsl(227,65%,25%)]">
+                  {imageUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Camera className="w-4 h-4" />}
                 </label>
               </div>
 
@@ -699,35 +572,24 @@ const UserProfile = () => {
                         {profileData.firstName || 'User'} {profileData.lastName}
                       </h1>
                       <Badge className={`${isMember ? 'bg-[hsl(42,49%,70%)] text-[hsl(227,65%,19%)]' : 'bg-slate-200 text-slate-700'}`}>
-                        {isMember ? 'Member' : 'User'}
+                        {isMember ? t('profilePage.memberBadge') : t('profilePage.userBadge')}
                       </Badge>
                     </div>
                     <p className="text-slate-600 mb-2">{profileData.email}</p>
                     {profileData.location && (
                       <div className="flex items-center gap-1 text-sm text-slate-500">
-                        <MapPin className="w-4 h-4" />
-                        {profileData.location}
+                        <MapPin className="w-4 h-4" />{profileData.location}
                       </div>
                     )}
                   </div>
                   
-                  {/* Action Buttons */}
                   <div className="flex flex-wrap gap-3">
-                    <Button 
-                      variant="outline" 
-                      onClick={() => setIsEditing(!isEditing)}
-                      className="border-[hsl(227,65%,19%)] text-[hsl(227,65%,19%)] hover:bg-[hsl(227,65%,19%)] hover:text-white transition-all"
-                    >
+                    <Button variant="outline" onClick={() => setIsEditing(!isEditing)} className="border-[hsl(227,65%,19%)] text-[hsl(227,65%,19%)] hover:bg-[hsl(227,65%,19%)] hover:text-white transition-all">
                       {isEditing ? <X className="w-4 h-4 mr-2" /> : <Edit3 className="w-4 h-4 mr-2" />}
-                      {isEditing ? 'Cancel' : 'Edit Profile'}
+                      {isEditing ? t('profilePage.cancelEdit') : t('profilePage.editProfile')}
                     </Button>
-                    <Button 
-                      variant="outline" 
-                      onClick={handleLogout}
-                      className="border-red-300 text-red-600 hover:bg-red-50"
-                    >
-                      <LogOut className="w-4 h-4 mr-2" />
-                      Logout
+                    <Button variant="outline" onClick={handleLogout} className="border-red-300 text-red-600 hover:bg-red-50">
+                      <LogOut className="w-4 h-4 mr-2" />{t('profilePage.logout')}
                     </Button>
                   </div>
                 </div>
@@ -736,15 +598,15 @@ const UserProfile = () => {
                 <div className="flex flex-wrap gap-6 mt-6 pt-6 border-t border-slate-100">
                   <div className="text-center">
                     <div className="text-2xl font-bold text-[hsl(227,65%,19%)]">{stats.clubsJoined}</div>
-                    <div className="text-sm text-slate-500">Clubs Joined</div>
+                    <div className="text-sm text-slate-500">{t('profilePage.clubsJoined')}</div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold text-[hsl(227,65%,19%)]">{stats.eventsAttended}</div>
-                    <div className="text-sm text-slate-500">Events Attended</div>
+                    <div className="text-sm text-slate-500">{t('profilePage.eventsAttended')}</div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold text-[hsl(227,65%,19%)]">{stats.reviewsWritten}</div>
-                    <div className="text-sm text-slate-500">Reviews Written</div>
+                    <div className="text-sm text-slate-500">{t('profilePage.reviewsWritten')}</div>
                   </div>
                 </div>
               </div>
@@ -760,63 +622,57 @@ const UserProfile = () => {
           <TabsList className="bg-white shadow-sm rounded-xl p-1 mb-6 flex flex-wrap h-auto gap-1 w-full min-w-[320px]">
             <TabsTrigger value="overview" className="data-[state=active]:bg-[hsl(227,65%,19%)] data-[state=active]:text-white rounded-lg px-3 py-2 text-sm">
               <User className="w-4 h-4 sm:mr-2 shrink-0" />
-              <span className="hidden sm:inline">Overview</span>
+              <span className="hidden sm:inline">{t('profilePage.tabOverview')}</span>
             </TabsTrigger>
             <TabsTrigger value="clubs" className="data-[state=active]:bg-[hsl(227,65%,19%)] data-[state=active]:text-white rounded-lg px-3 py-2 text-sm">
               <Users className="w-4 h-4 sm:mr-2 shrink-0" />
-              <span className="hidden sm:inline">My Clubs</span>
+              <span className="hidden sm:inline">{t('profilePage.tabClubs')}</span>
             </TabsTrigger>
             <TabsTrigger value="events" className="data-[state=active]:bg-[hsl(227,65%,19%)] data-[state=active]:text-white rounded-lg px-3 py-2 text-sm">
               <Calendar className="w-4 h-4 sm:mr-2 shrink-0" />
-              <span className="hidden sm:inline">Events</span>
+              <span className="hidden sm:inline">{t('profilePage.tabEvents')}</span>
             </TabsTrigger>
             <TabsTrigger value="bookings" className="data-[state=active]:bg-[hsl(227,65%,19%)] data-[state=active]:text-white rounded-lg px-3 py-2 text-sm">
               <CreditCard className="w-4 h-4 sm:mr-2 shrink-0" />
-              <span className="hidden sm:inline">Bookings</span>
+              <span className="hidden sm:inline">{t('profilePage.tabBookings')}</span>
             </TabsTrigger>
             <TabsTrigger value="favorites" className="data-[state=active]:bg-[hsl(227,65%,19%)] data-[state=active]:text-white rounded-lg px-3 py-2 text-sm">
               <Heart className="w-4 h-4 sm:mr-2 shrink-0" />
-              <span className="hidden sm:inline">Favorites</span>
+              <span className="hidden sm:inline">{t('profilePage.tabFavorites')}</span>
               {favoriteIds.size > 0 && (
-                <span className="ml-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-semibold">
-                  {favoriteIds.size}
-                </span>
+                <span className="ml-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-semibold">{favoriteIds.size}</span>
               )}
             </TabsTrigger>
             <TabsTrigger value="application" className="data-[state=active]:bg-[hsl(227,65%,19%)] data-[state=active]:text-white rounded-lg px-3 py-2 text-sm">
               <ClipboardList className="w-4 h-4 sm:mr-2 shrink-0" />
-              <span className="hidden sm:inline">Application</span>
+              <span className="hidden sm:inline">{t('profilePage.tabApplication')}</span>
               {userApplications.length > 0 && (
                 <span className={`ml-1 text-xs rounded-full w-4 h-4 flex items-center justify-center font-semibold ${
                   userApplications[0]?.status === 'approved' ? 'bg-green-500 text-white' :
                   userApplications[0]?.status === 'rejected' ? 'bg-red-500 text-white' :
                   'bg-amber-400 text-white'
-                }`}>
-                  {userApplications.length}
-                </span>
+                }`}>{userApplications.length}</span>
               )}
             </TabsTrigger>
             <TabsTrigger value="activity" className="data-[state=active]:bg-[hsl(227,65%,19%)] data-[state=active]:text-white rounded-lg px-3 py-2 text-sm">
               <Activity className="w-4 h-4 sm:mr-2 shrink-0" />
-              <span className="hidden sm:inline">Activity</span>
+              <span className="hidden sm:inline">{t('profilePage.tabActivity')}</span>
             </TabsTrigger>
             <TabsTrigger value="settings" className="data-[state=active]:bg-[hsl(227,65%,19%)] data-[state=active]:text-white rounded-lg px-3 py-2 text-sm">
               <Settings className="w-4 h-4 sm:mr-2 shrink-0" />
-              <span className="hidden sm:inline">Settings</span>
+              <span className="hidden sm:inline">{t('profilePage.tabSettings')}</span>
             </TabsTrigger>
           </TabsList>
           </div>
-          
+
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6">
             <div className="grid md:grid-cols-3 gap-6">
-              {/* Personal Information */}
               <div className="md:col-span-2">
                 <Card className="shadow-sm border-0 bg-white">
                   <CardHeader className="border-b border-slate-100">
                     <CardTitle className="flex items-center gap-2 text-[hsl(227,65%,19%)]">
-                      <User className="w-5 h-5" />
-                      Personal Information
+                      <User className="w-5 h-5" />{t('profilePage.personalInfo')}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="p-6">
@@ -824,89 +680,44 @@ const UserProfile = () => {
                       <div className="space-y-4">
                         <div className="grid md:grid-cols-2 gap-4">
                           <div className="space-y-2">
-                            <Label htmlFor="firstName">First Name</Label>
-                            <Input
-                              id="firstName"
-                              value={profileData.firstName}
-                              onChange={(e) => setProfileData(prev => ({...prev, firstName: e.target.value}))}
-                              className="border-slate-200 focus:border-[hsl(227,65%,19%)]"
-                            />
+                            <Label htmlFor="firstName">{t('profilePage.firstName')}</Label>
+                            <Input id="firstName" value={profileData.firstName} onChange={(e) => setProfileData(prev => ({...prev, firstName: e.target.value}))} className="border-slate-200 focus:border-[hsl(227,65%,19%)]" />
                           </div>
                           <div className="space-y-2">
-                            <Label htmlFor="lastName">Last Name</Label>
-                            <Input
-                              id="lastName"
-                              value={profileData.lastName}
-                              onChange={(e) => setProfileData(prev => ({...prev, lastName: e.target.value}))}
-                              className="border-slate-200 focus:border-[hsl(227,65%,19%)]"
-                            />
+                            <Label htmlFor="lastName">{t('profilePage.lastName')}</Label>
+                            <Input id="lastName" value={profileData.lastName} onChange={(e) => setProfileData(prev => ({...prev, lastName: e.target.value}))} className="border-slate-200 focus:border-[hsl(227,65%,19%)]" />
                           </div>
                         </div>
-                        
                         <div className="grid md:grid-cols-2 gap-4">
                           <div className="space-y-2">
-                            <Label htmlFor="phone">Phone</Label>
-                            <Input
-                              id="phone"
-                              value={profileData.phone}
-                              onChange={(e) => setProfileData(prev => ({...prev, phone: e.target.value}))}
-                              placeholder="+212 xxx xxx xxx"
-                              className="border-slate-200 focus:border-[hsl(227,65%,19%)]"
-                            />
+                            <Label htmlFor="phone">{t('profilePage.phone')}</Label>
+                            <Input id="phone" value={profileData.phone} onChange={(e) => setProfileData(prev => ({...prev, phone: e.target.value}))} placeholder="+212 xxx xxx xxx" className="border-slate-200 focus:border-[hsl(227,65%,19%)]" />
                           </div>
                           <div className="space-y-2">
-                            <Label htmlFor="location">Location</Label>
-                            <Input
-                              id="location"
-                              value={profileData.location}
-                              onChange={(e) => setProfileData(prev => ({...prev, location: e.target.value}))}
-                              placeholder="City, Morocco"
-                              className="border-slate-200 focus:border-[hsl(227,65%,19%)]"
-                            />
+                            <Label htmlFor="location">{t('profilePage.location')}</Label>
+                            <Input id="location" value={profileData.location} onChange={(e) => setProfileData(prev => ({...prev, location: e.target.value}))} placeholder="City, Morocco" className="border-slate-200 focus:border-[hsl(227,65%,19%)]" />
                           </div>
                         </div>
-                        
                         <div className="space-y-2">
-                          <Label htmlFor="bio">Bio</Label>
-                          <Textarea
-                            id="bio"
-                            value={profileData.bio}
-                            onChange={(e) => setProfileData(prev => ({...prev, bio: e.target.value}))}
-                            placeholder="Tell us about yourself..."
-                            rows={4}
-                            className="border-slate-200 focus:border-[hsl(227,65%,19%)]"
-                          />
+                          <Label htmlFor="bio">{t('profilePage.bio')}</Label>
+                          <Textarea id="bio" value={profileData.bio} onChange={(e) => setProfileData(prev => ({...prev, bio: e.target.value}))} placeholder="Tell us about yourself..." rows={4} className="border-slate-200 focus:border-[hsl(227,65%,19%)]" />
                         </div>
-                        
                         <div className="space-y-2">
-                          <Label>Interests</Label>
+                          <Label>{t('profilePage.interests')}</Label>
                           <div className="flex flex-wrap gap-2 mb-2">
                             {profileData.interests.map((interest, index) => (
                               <Badge key={index} variant="secondary" className="bg-slate-100 text-slate-700 cursor-pointer">
                                 {interest}
-                                <button
-                                  onClick={() => handleRemoveInterest(index)}
-                                  className="ml-2 text-red-500 hover:text-red-700"
-                                >
-                                  ×
-                                </button>
+                                <button onClick={() => handleRemoveInterest(index)} className="ml-2 text-red-500 hover:text-red-700">×</button>
                               </Badge>
                             ))}
                           </div>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={handleAddInterest}
-                            className="border-dashed"
-                          >
-                            + Add Interest
+                          <Button type="button" variant="outline" size="sm" onClick={handleAddInterest} className="border-dashed">
+                            {t('profilePage.addInterest')}
                           </Button>
                         </div>
-                        
                         <Button onClick={handleSaveProfile} className="w-full bg-[hsl(227,65%,19%)] hover:bg-[hsl(227,65%,25%)]">
-                          <Save className="w-4 h-4 mr-2" />
-                          Save Changes
+                          <Save className="w-4 h-4 mr-2" />{t('profilePage.saveChanges')}
                         </Button>
                       </div>
                     ) : (
@@ -917,8 +728,8 @@ const UserProfile = () => {
                               <Mail className="w-5 h-5 text-slate-600" />
                             </div>
                             <div>
-                              <p className="text-sm text-slate-500">Email</p>
-                              <p className="font-medium text-slate-900">{profileData.email || 'Not provided'}</p>
+                              <p className="text-sm text-slate-500">{t('profilePage.email')}</p>
+                              <p className="font-medium text-slate-900">{profileData.email || t('profilePage.notProvided')}</p>
                             </div>
                           </div>
                           <div className="flex items-start gap-3">
@@ -926,27 +737,23 @@ const UserProfile = () => {
                               <Phone className="w-5 h-5 text-slate-600" />
                             </div>
                             <div>
-                              <p className="text-sm text-slate-500">Phone</p>
-                              <p className="font-medium text-slate-900">{profileData.phone || 'Not provided'}</p>
+                              <p className="text-sm text-slate-500">{t('profilePage.phone')}</p>
+                              <p className="font-medium text-slate-900">{profileData.phone || t('profilePage.notProvided')}</p>
                             </div>
                           </div>
                         </div>
-                        
                         {profileData.bio && (
                           <div className="pt-4 border-t border-slate-100">
-                            <p className="text-sm text-slate-500 mb-2">About</p>
+                            <p className="text-sm text-slate-500 mb-2">{t('profilePage.about')}</p>
                             <p className="text-slate-700">{profileData.bio}</p>
                           </div>
                         )}
-                        
                         {Array.isArray(profileData.interests) && profileData.interests.length > 0 && (
                           <div className="pt-4 border-t border-slate-100">
-                            <p className="text-sm text-slate-500 mb-2">Interests</p>
+                            <p className="text-sm text-slate-500 mb-2">{t('profilePage.interests')}</p>
                             <div className="flex flex-wrap gap-2">
                               {profileData.interests.map((interest, index) => (
-                                <Badge key={index} className="bg-[hsl(42,49%,70%,0.3)] text-[hsl(227,65%,19%)] border-0">
-                                  {interest}
-                                </Badge>
+                                <Badge key={index} className="bg-[hsl(42,49%,70%,0.3)] text-[hsl(227,65%,19%)] border-0">{interest}</Badge>
                               ))}
                             </div>
                           </div>
@@ -961,28 +768,28 @@ const UserProfile = () => {
               <div className="space-y-6">
                 <Card className="shadow-sm border-0 bg-white">
                   <CardHeader className="border-b border-slate-100">
-                    <CardTitle className="text-lg text-[hsl(227,65%,19%)]">Quick Actions</CardTitle>
+                    <CardTitle className="text-lg text-[hsl(227,65%,19%)]">{t('profilePage.quickActions')}</CardTitle>
                   </CardHeader>
                   <CardContent className="p-4">
                     <div className="space-y-2">
                       <Link to="/clubs" className="flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 transition-colors group">
                         <div className="flex items-center gap-3">
                           <Users className="w-5 h-5 text-[hsl(227,65%,19%)]" />
-                          <span className="text-sm font-medium text-slate-700">Browse Clubs</span>
+                          <span className="text-sm font-medium text-slate-700">{t('profilePage.browseClubs')}</span>
                         </div>
                         <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[hsl(227,65%,19%)] transition-colors" />
                       </Link>
                       <Link to="/events" className="flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 transition-colors group">
                         <div className="flex items-center gap-3">
                           <Calendar className="w-5 h-5 text-[hsl(227,65%,19%)]" />
-                          <span className="text-sm font-medium text-slate-700">Find Events</span>
+                          <span className="text-sm font-medium text-slate-700">{t('profilePage.findEvents')}</span>
                         </div>
                         <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[hsl(227,65%,19%)] transition-colors" />
                       </Link>
                       <Link to="/book" className="flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 transition-colors group">
                         <div className="flex items-center gap-3">
                           <CreditCard className="w-5 h-5 text-[hsl(227,65%,19%)]" />
-                          <span className="text-sm font-medium text-slate-700">Book Activity</span>
+                          <span className="text-sm font-medium text-slate-700">{t('profilePage.bookActivity')}</span>
                         </div>
                         <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[hsl(227,65%,19%)] transition-colors" />
                       </Link>
@@ -990,12 +797,11 @@ const UserProfile = () => {
                   </CardContent>
                 </Card>
 
-                {/* Member Since Card */}
                 <Card className="shadow-sm border-0 bg-gradient-to-br from-[hsl(227,65%,19%)] to-[hsl(227,65%,25%)] text-white">
                   <CardContent className="p-6">
                     <div className="flex items-center gap-3 mb-3">
                       <Clock className="w-5 h-5 opacity-80" />
-                      <span className="text-sm opacity-80">Member Since</span>
+                      <span className="text-sm opacity-80">{t('profilePage.memberSince')}</span>
                     </div>
                     <p className="text-xl font-bold">December 2024</p>
                   </CardContent>
@@ -1003,14 +809,14 @@ const UserProfile = () => {
               </div>
             </div>
           </TabsContent>
-          
+
           {/* My Clubs Tab */}
           <TabsContent value="clubs" className="space-y-6">
             <Card className="shadow-sm border-0 bg-white">
               <CardHeader className="border-b border-slate-100">
                 <CardTitle className="flex items-center gap-2 text-[hsl(227,65%,19%)]">
                   <Users className="w-5 h-5" />
-                  My Clubs ({userClubs.length})
+                  {t('profilePage.myClubs', { count: userClubs.length })}
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6">
@@ -1019,12 +825,10 @@ const UserProfile = () => {
                     <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-slate-100 flex items-center justify-center">
                       <Users className="w-10 h-10 text-slate-400" />
                     </div>
-                    <h3 className="text-xl font-semibold text-slate-800 mb-2">Join Your First Club!</h3>
-                    <p className="text-slate-500 mb-6 max-w-md mx-auto">
-                      Discover amazing clubs and start your adventure with The Journey Association.
-                    </p>
+                    <h3 className="text-xl font-semibold text-slate-800 mb-2">{t('profilePage.joinFirstClub')}</h3>
+                    <p className="text-slate-500 mb-6 max-w-md mx-auto">{t('profilePage.joinFirstClubDesc')}</p>
                     <Button onClick={() => navigate('/clubs')} className="bg-[hsl(227,65%,19%)] hover:bg-[hsl(227,65%,25%)]">
-                      Explore Clubs
+                      {t('profilePage.exploreClubs')}
                     </Button>
                   </div>
                 ) : (
@@ -1038,13 +842,13 @@ const UserProfile = () => {
                           <div>
                             <h4 className="font-semibold text-slate-800">Club #{membership.clubId}</h4>
                             <p className="text-sm text-slate-500">
-                              Joined {new Date(membership.joinedAt).toLocaleDateString()}
+                              {t('profilePage.joinedOn')} {new Date(membership.joinedAt).toLocaleDateString()}
                             </p>
-                            <Badge variant="secondary" className="mt-1 bg-green-100 text-green-700">{membership.role || 'Member'}</Badge>
+                            <Badge variant="secondary" className="mt-1 bg-green-100 text-green-700">{membership.role || t('profilePage.memberBadge')}</Badge>
                           </div>
                         </div>
                         <Button variant="outline" size="sm" onClick={() => navigate(`/club/${membership.clubId}`)}>
-                          View
+                          {t('profilePage.viewClub')}
                         </Button>
                       </div>
                     ))}
@@ -1053,14 +857,13 @@ const UserProfile = () => {
               </CardContent>
             </Card>
           </TabsContent>
-          
+
           {/* Events Tab */}
           <TabsContent value="events" className="space-y-6">
             <Card className="shadow-sm border-0 bg-white">
               <CardHeader className="border-b border-slate-100">
                 <CardTitle className="flex items-center gap-2 text-[hsl(227,65%,19%)]">
-                  <Calendar className="w-5 h-5" />
-                  My Events
+                  <Calendar className="w-5 h-5" />{t('profilePage.myEvents')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6">
@@ -1068,10 +871,10 @@ const UserProfile = () => {
                   <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-slate-100 flex items-center justify-center">
                     <Calendar className="w-10 h-10 text-slate-400" />
                   </div>
-                  <h3 className="text-xl font-semibold text-slate-800 mb-2">No Events Yet</h3>
-                  <p className="text-slate-500 mb-6">Join clubs to participate in exciting events!</p>
+                  <h3 className="text-xl font-semibold text-slate-800 mb-2">{t('profilePage.noEventsYet')}</h3>
+                  <p className="text-slate-500 mb-6">{t('profilePage.noEventsYetDesc')}</p>
                   <Button onClick={() => navigate('/events')} className="bg-[hsl(227,65%,19%)] hover:bg-[hsl(227,65%,25%)]">
-                    Browse Events
+                    {t('profilePage.browseEvents')}
                   </Button>
                 </div>
               </CardContent>
@@ -1080,26 +883,19 @@ const UserProfile = () => {
 
           {/* Bookings Tab */}
           <TabsContent value="bookings" className="space-y-6">
-            {/* Reference lookup card — always visible */}
             <Card className="shadow-sm border-0 bg-white border-l-4 border-l-[#D4B26A]">
               <CardContent className="p-5">
-                <p className="text-sm font-semibold text-[hsl(227,65%,19%)] mb-3">
-                  Have a booking reference? Look it up here
-                </p>
+                <p className="text-sm font-semibold text-[hsl(227,65%,19%)] mb-3">{t('profilePage.refLookupTitle')}</p>
                 <div className="flex gap-2">
                   <Input
                     value={refLookup}
                     onChange={e => setRefLookup(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handleRefLookup()}
-                    placeholder="e.g. TJ-ABC12345"
+                    placeholder={t('profilePage.refLookupPlaceholder')}
                     className="font-mono uppercase text-sm border-slate-200 focus:border-[hsl(227,65%,19%)]"
                   />
-                  <Button
-                    onClick={handleRefLookup}
-                    disabled={refLookupLoading || !refLookup.trim()}
-                    className="bg-[hsl(227,65%,19%)] hover:bg-[hsl(227,65%,25%)] shrink-0"
-                  >
-                    {refLookupLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Find'}
+                  <Button onClick={handleRefLookup} disabled={refLookupLoading || !refLookup.trim()} className="bg-[hsl(227,65%,19%)] hover:bg-[hsl(227,65%,25%)] shrink-0">
+                    {refLookupLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : t('profilePage.refLookupBtn')}
                   </Button>
                 </div>
                 {refLookupError && (
@@ -1109,7 +905,7 @@ const UserProfile = () => {
                 )}
                 {refLookupResult && (
                   <p className="text-sm text-green-600 mt-2 flex items-center gap-1">
-                    <CheckCircle className="w-4 h-4" /> Booking found and added to your list below.
+                    <CheckCircle className="w-4 h-4" /> {t('profilePage.refLookupFound')}
                   </p>
                 )}
               </CardContent>
@@ -1119,25 +915,25 @@ const UserProfile = () => {
               <CardHeader className="border-b border-slate-100">
                 <CardTitle className="flex items-center gap-2 text-[hsl(227,65%,19%)]">
                   <Ticket className="w-5 h-5" />
-                  My Bookings ({userBookings.length})
+                  {t('profilePage.myBookings', { count: userBookings.length })}
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6">
                 {bookingsLoading ? (
                   <div className="text-center py-12">
                     <Loader2 className="w-10 h-10 animate-spin mx-auto text-[hsl(227,65%,19%)]" />
-                    <p className="text-slate-500 mt-4">Loading your bookings...</p>
+                    <p className="text-slate-500 mt-4">{t('profilePage.loadingBookings')}</p>
                   </div>
                 ) : userBookings.length === 0 ? (
                   <div className="text-center py-12">
                     <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-slate-100 flex items-center justify-center">
                       <Ticket className="w-10 h-10 text-slate-400" />
                     </div>
-                    <h3 className="text-xl font-semibold text-slate-800 mb-2">No Bookings Found</h3>
-                    <p className="text-slate-500 mb-2">If you made a booking, use the reference lookup above.</p>
-                    <p className="text-slate-400 text-sm mb-6">Or explore and book a new activity below.</p>
+                    <h3 className="text-xl font-semibold text-slate-800 mb-2">{t('profilePage.noBookingsFound')}</h3>
+                    <p className="text-slate-500 mb-2">{t('profilePage.noBookingsDesc')}</p>
+                    <p className="text-slate-400 text-sm mb-6">{t('profilePage.noBookingsDesc2')}</p>
                     <Button onClick={() => navigate('/book')} className="bg-[hsl(227,65%,19%)] hover:bg-[hsl(227,65%,25%)]">
-                      Explore Activities
+                      {t('profilePage.exploreActivities')}
                     </Button>
                   </div>
                 ) : (
@@ -1151,71 +947,46 @@ const UserProfile = () => {
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-1 flex-wrap">
-                                <h4 className="font-semibold text-slate-800 truncate">
-                                  {booking.eventTitle || `Event #${booking.eventId}`}
-                                </h4>
+                                <h4 className="font-semibold text-slate-800 truncate">{booking.eventTitle || `Event #${booking.eventId}`}</h4>
                                 {getStatusBadge(booking.status)}
                               </div>
                               <p className="text-sm text-slate-500 mb-1">
-                                <span className="font-medium">Ref:</span> {booking.bookingReference}
+                                <span className="font-medium">{t('profilePage.refLabel')}</span> {booking.bookingReference}
                               </p>
                               <div className="flex flex-wrap gap-4 text-sm text-slate-600">
                                 <span className="flex items-center gap-1">
-                                  <Calendar className="w-4 h-4" />
-                                  {formatDate(booking.eventDate)}
+                                  <Calendar className="w-4 h-4" />{formatDate(booking.eventDate)}
                                 </span>
                                 <span className="flex items-center gap-1">
                                   <Users className="w-4 h-4" />
-                                  {booking.numberOfParticipants} participant{booking.numberOfParticipants > 1 ? 's' : ''}
+                                  {booking.numberOfParticipants} {booking.numberOfParticipants > 1 ? t('profilePage.participants') : t('profilePage.participant')}
                                 </span>
-                                <span className="font-semibold text-[hsl(227,65%,19%)]">
-                                  {formatPrice(booking.totalPrice)}
-                                </span>
+                                <span className="font-semibold text-[hsl(227,65%,19%)]">{formatPrice(booking.totalPrice)}</span>
                               </div>
                               {booking.specialRequests && (
                                 <p className="text-sm text-slate-500 mt-2 italic">
-                                  Note: {booking.specialRequests}
+                                  {t('profilePage.noteLabel')} {booking.specialRequests}
                                 </p>
                               )}
                             </div>
                           </div>
                           
                           <div className="flex gap-2 flex-shrink-0 flex-wrap">
-                            {/* Download ticket — only for confirmed/paid bookings */}
                             {isConfirmed(booking) && (
-                              <Button
-                                size="sm"
-                                onClick={() => handleDownloadTicket(booking)}
-                                disabled={downloadingRef === booking.bookingReference}
-                                className="bg-gradient-to-r from-[#D4B26A] to-[#C9A758] hover:from-[#C9A758] hover:to-[#B89647] text-white shadow-sm"
-                              >
-                                {downloadingRef === booking.bookingReference ? (
-                                  <><Loader2 className="w-4 h-4 mr-1 animate-spin" /> Generating…</>
-                                ) : (
-                                  <><Download className="w-4 h-4 mr-1" /> Ticket</>
-                                )}
+                              <Button size="sm" onClick={() => handleDownloadTicket(booking)} disabled={downloadingRef === booking.bookingReference} className="bg-gradient-to-r from-[#D4B26A] to-[#C9A758] hover:from-[#C9A758] hover:to-[#B89647] text-white shadow-sm">
+                                {downloadingRef === booking.bookingReference
+                                  ? <><Loader2 className="w-4 h-4 mr-1 animate-spin" /> {t('profilePage.generatingTicket')}</>
+                                  : <><Download className="w-4 h-4 mr-1" /> {t('profilePage.downloadTicket')}</>
+                                }
                               </Button>
                             )}
-
                             {booking.status === 'pending' && isWithin12Hours(booking.createdAt) && (
                               <>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => openEditDialog(booking)}
-                                  className="border-[hsl(227,65%,19%)] text-[hsl(227,65%,19%)] hover:bg-[hsl(227,65%,19%)] hover:text-white"
-                                >
-                                  <Edit3 className="w-4 h-4 mr-1" />
-                                  Edit
+                                <Button variant="outline" size="sm" onClick={() => openEditDialog(booking)} className="border-[hsl(227,65%,19%)] text-[hsl(227,65%,19%)] hover:bg-[hsl(227,65%,19%)] hover:text-white">
+                                  <Edit3 className="w-4 h-4 mr-1" />{t('profilePage.editBtn')}
                                 </Button>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => setCancellingBooking(booking)}
-                                  className="border-red-300 text-red-600 hover:bg-red-50"
-                                >
-                                  <X className="w-4 h-4 mr-1" />
-                                  Cancel
+                                <Button variant="outline" size="sm" onClick={() => setCancellingBooking(booking)} className="border-red-300 text-red-600 hover:bg-red-50">
+                                  <X className="w-4 h-4 mr-1" />{t('profilePage.cancelBtn')}
                                 </Button>
                               </>
                             )}
@@ -1235,26 +1006,24 @@ const UserProfile = () => {
               <CardHeader className="border-b border-slate-100">
                 <CardTitle className="flex items-center gap-2 text-[hsl(227,65%,19%)]">
                   <Heart className="w-5 h-5 text-red-500" fill="#ef4444" />
-                  My Favorites ({favoriteEvents.length})
+                  {t('profilePage.myFavorites', { count: favoriteEvents.length })}
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6">
                 {favoritesLoading ? (
                   <div className="text-center py-12">
                     <Loader2 className="w-10 h-10 animate-spin mx-auto text-[hsl(227,65%,19%)]" />
-                    <p className="text-slate-500 mt-4">Loading your favorites...</p>
+                    <p className="text-slate-500 mt-4">{t('profilePage.loadingFavorites')}</p>
                   </div>
                 ) : favoriteEvents.length === 0 ? (
                   <div className="text-center py-12">
                     <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-red-50 flex items-center justify-center">
                       <Heart className="w-10 h-10 text-red-300" />
                     </div>
-                    <h3 className="text-xl font-semibold text-slate-800 mb-2">No Favorites Yet</h3>
-                    <p className="text-slate-500 mb-6 max-w-md mx-auto">
-                      Heart any event on the booking page to save it here for quick access.
-                    </p>
+                    <h3 className="text-xl font-semibold text-slate-800 mb-2">{t('profilePage.noFavoritesYet')}</h3>
+                    <p className="text-slate-500 mb-6 max-w-md mx-auto">{t('profilePage.noFavoritesDesc')}</p>
                     <Button onClick={() => navigate('/book')} className="bg-[hsl(227,65%,19%)] hover:bg-[hsl(227,65%,25%)]">
-                      Browse Events
+                      {t('profilePage.browseEvents')}
                     </Button>
                   </div>
                 ) : (
@@ -1265,12 +1034,7 @@ const UserProfile = () => {
                         ? new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
                         : null;
                       return (
-                        <div
-                          key={event.id}
-                          className="group relative border border-slate-100 rounded-2xl overflow-hidden hover:shadow-lg transition-all duration-200 cursor-pointer bg-white"
-                          onClick={() => navigate(`/book?event=${event.id}`)}
-                        >
-                          {/* Event Image */}
+                        <div key={event.id} className="group relative border border-slate-100 rounded-2xl overflow-hidden hover:shadow-lg transition-all duration-200 cursor-pointer bg-white" onClick={() => navigate(`/book?event=${event.id}`)}>
                           <div className="relative h-44 bg-slate-100 overflow-hidden">
                             <img
                               src={event.image && !event.image.startsWith('blob:') ? event.image : 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80'}
@@ -1278,65 +1042,34 @@ const UserProfile = () => {
                               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                               onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80'; }}
                             />
-                            {/* Remove button */}
-                            <button
-                              className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow hover:bg-white transition-colors z-10"
-                              title="Remove from favorites"
-                              onClick={(e) => { e.stopPropagation(); removeFavorite(event.id); }}
-                            >
+                            <button className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow hover:bg-white transition-colors z-10" onClick={(e) => { e.stopPropagation(); removeFavorite(event.id); }}>
                               <Heart className="w-4 h-4 text-red-500" fill="#ef4444" />
                             </button>
-                            {/* Status badge */}
                             {event.status && (
                               <span className={`absolute top-3 left-3 text-xs font-semibold px-2.5 py-1 rounded-full ${
-                                event.status.toLowerCase() === 'upcoming'
-                                  ? 'bg-blue-100 text-blue-700'
-                                  : event.status.toLowerCase() === 'ongoing'
-                                  ? 'bg-green-100 text-green-700'
-                                  : 'bg-slate-100 text-slate-600'
-                              }`}>
-                                {event.status}
-                              </span>
+                                event.status.toLowerCase() === 'upcoming' ? 'bg-blue-100 text-blue-700' :
+                                event.status.toLowerCase() === 'ongoing' ? 'bg-green-100 text-green-700' :
+                                'bg-slate-100 text-slate-600'
+                              }`}>{event.status}</span>
                             )}
                           </div>
-
-                          {/* Card Body */}
                           <div className="p-4">
-                            <h4 className="font-semibold text-slate-800 leading-snug mb-2 line-clamp-2 group-hover:text-[hsl(227,65%,19%)] transition-colors">
-                              {event.title}
-                            </h4>
-
+                            <h4 className="font-semibold text-slate-800 leading-snug mb-2 line-clamp-2 group-hover:text-[hsl(227,65%,19%)] transition-colors">{event.title}</h4>
                             <div className="space-y-1.5 text-sm text-slate-500 mb-4">
                               {event.location && (
-                                <div className="flex items-center gap-1.5">
-                                  <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
-                                  <span className="truncate">{event.location}</span>
-                                </div>
+                                <div className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 flex-shrink-0" /><span className="truncate">{event.location}</span></div>
                               )}
                               {formattedDate && (
-                                <div className="flex items-center gap-1.5">
-                                  <Calendar className="w-3.5 h-3.5 flex-shrink-0" />
-                                  <span>{formattedDate}</span>
-                                </div>
+                                <div className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5 flex-shrink-0" /><span>{formattedDate}</span></div>
                               )}
                               {event.duration && (
-                                <div className="flex items-center gap-1.5">
-                                  <Clock className="w-3.5 h-3.5 flex-shrink-0" />
-                                  <span>{event.duration}</span>
-                                </div>
+                                <div className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 flex-shrink-0" /><span>{event.duration}</span></div>
                               )}
                             </div>
-
                             <div className="flex items-center justify-between pt-3 border-t border-slate-100">
-                              <span className="font-bold text-[hsl(227,65%,19%)]">
-                                {event.price ? `${event.price} MAD` : 'Free'}
-                              </span>
-                              <Button
-                                size="sm"
-                                className="bg-[hsl(227,65%,19%)] hover:bg-[hsl(227,65%,25%)] text-white text-xs px-3 h-8"
-                                onClick={(e) => { e.stopPropagation(); navigate(`/book?event=${event.id}`); }}
-                              >
-                                Book Now
+                              <span className="font-bold text-[hsl(227,65%,19%)]">{event.price ? `${event.price} MAD` : t('profilePage.free')}</span>
+                              <Button size="sm" className="bg-[hsl(227,65%,19%)] hover:bg-[hsl(227,65%,25%)] text-white text-xs px-3 h-8" onClick={(e) => { e.stopPropagation(); navigate(`/book?event=${event.id}`); }}>
+                                {t('profilePage.bookNow')}
                               </Button>
                             </div>
                           </div>
@@ -1356,25 +1089,15 @@ const UserProfile = () => {
                 <div className="flex items-center justify-between">
                   <CardTitle className="flex items-center gap-2 text-[hsl(227,65%,19%)]">
                     <ClipboardList className="w-5 h-5" />
-                    My Membership Application{userApplications.length > 1 ? 's' : ''}
+                    {userApplications.length > 1 ? t('profilePage.myApplicationPlural') : t('profilePage.myApplication')}
                   </CardTitle>
                   <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={fetchUserApplications}
-                      disabled={applicationsLoading}
-                      className="border-slate-200 text-slate-600 hover:border-[hsl(227,65%,19%)] hover:text-[hsl(227,65%,19%)]"
-                    >
+                    <Button variant="outline" size="sm" onClick={fetchUserApplications} disabled={applicationsLoading} className="border-slate-200 text-slate-600 hover:border-[hsl(227,65%,19%)] hover:text-[hsl(227,65%,19%)]">
                       <RefreshCw className={`w-4 h-4 mr-1.5 ${applicationsLoading ? 'animate-spin' : ''}`} />
-                      Refresh
+                      {t('profilePage.refreshBtn')}
                     </Button>
-                    <Button
-                      size="sm"
-                      onClick={() => navigate('/join')}
-                      className="bg-[hsl(227,65%,19%)] hover:bg-[hsl(227,65%,25%)] text-white"
-                    >
-                      Apply Again
+                    <Button size="sm" onClick={() => navigate('/join')} className="bg-[hsl(227,65%,19%)] hover:bg-[hsl(227,65%,25%)] text-white">
+                      {t('profilePage.applyAgain')}
                     </Button>
                   </div>
                 </div>
@@ -1383,23 +1106,17 @@ const UserProfile = () => {
                 {applicationsLoading ? (
                   <div className="text-center py-12">
                     <Loader2 className="w-10 h-10 animate-spin mx-auto text-[hsl(227,65%,19%)]" />
-                    <p className="text-slate-500 mt-4">Loading your application...</p>
+                    <p className="text-slate-500 mt-4">{t('profilePage.loadingApplication')}</p>
                   </div>
                 ) : userApplications.length === 0 ? (
                   <div className="text-center py-12">
                     <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-slate-100 flex items-center justify-center">
                       <ClipboardList className="w-10 h-10 text-slate-400" />
                     </div>
-                    <h3 className="text-xl font-semibold text-slate-800 mb-2">No Application Found</h3>
-                    <p className="text-slate-500 mb-6 max-w-md mx-auto">
-                      You haven't submitted a membership application yet. Join our adventure community today!
-                    </p>
-                    <Button
-                      onClick={() => navigate('/join')}
-                      className="bg-[hsl(227,65%,19%)] hover:bg-[hsl(227,65%,25%)] text-white"
-                    >
-                      <ClipboardList className="w-4 h-4 mr-2" />
-                      Submit an Application
+                    <h3 className="text-xl font-semibold text-slate-800 mb-2">{t('profilePage.noApplicationFound')}</h3>
+                    <p className="text-slate-500 mb-6 max-w-md mx-auto">{t('profilePage.noApplicationDesc')}</p>
+                    <Button onClick={() => navigate('/join')} className="bg-[hsl(227,65%,19%)] hover:bg-[hsl(227,65%,25%)] text-white">
+                      <ClipboardList className="w-4 h-4 mr-2" />{t('profilePage.submitApplicationBtn')}
                     </Button>
                   </div>
                 ) : (
@@ -1412,35 +1129,27 @@ const UserProfile = () => {
                       const steps = [
                         {
                           key: 'submitted',
-                          label: 'Application Submitted',
-                          description: 'Your application has been received by our team.',
+                          label: t('profilePage.stepSubmitted'),
+                          description: t('profilePage.stepSubmittedDesc'),
                           date: app.submittedAt,
                           done: true,
                           icon: <FileText className="w-4 h-4" />,
                         },
                         {
                           key: 'review',
-                          label: 'Under Review',
-                          description: 'Our team is reviewing your application.',
+                          label: t('profilePage.stepUnderReview'),
+                          description: t('profilePage.stepUnderReviewDesc'),
                           date: null,
                           done: !isPending,
                           icon: <Eye className="w-4 h-4" />,
                         },
                         {
                           key: 'decision',
-                          label: isApproved ? 'Application Approved' : isRejected ? 'Application Declined' : 'Decision Pending',
-                          description: isApproved
-                            ? 'Welcome to The Journey Association! You are now a member.'
-                            : isRejected
-                            ? 'Unfortunately your application was not approved at this time.'
-                            : 'A decision will be communicated to you by email.',
+                          label: isApproved ? t('profilePage.stepApproved') : isRejected ? t('profilePage.stepDeclined') : t('profilePage.stepDecisionPending'),
+                          description: isApproved ? t('profilePage.stepApprovedDesc') : isRejected ? t('profilePage.stepDeclinedDesc') : t('profilePage.stepDecisionPendingDesc'),
                           date: app.reviewedAt,
                           done: !isPending,
-                          icon: isApproved
-                            ? <CheckCircle className="w-4 h-4" />
-                            : isRejected
-                            ? <XCircle className="w-4 h-4" />
-                            : <Clock className="w-4 h-4" />,
+                          icon: isApproved ? <CheckCircle className="w-4 h-4" /> : isRejected ? <XCircle className="w-4 h-4" /> : <Clock className="w-4 h-4" />,
                         },
                       ];
 
@@ -1452,15 +1161,11 @@ const UserProfile = () => {
                         }`}>
                           {/* Header row */}
                           <div className={`px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
-                            isApproved ? 'bg-green-100/60' :
-                            isRejected ? 'bg-red-100/60' :
-                            'bg-amber-100/60'
+                            isApproved ? 'bg-green-100/60' : isRejected ? 'bg-red-100/60' : 'bg-amber-100/60'
                           }`}>
                             <div className="flex items-center gap-3">
                               <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                                isApproved ? 'bg-green-500' :
-                                isRejected ? 'bg-red-500' :
-                                'bg-amber-500'
+                                isApproved ? 'bg-green-500' : isRejected ? 'bg-red-500' : 'bg-amber-500'
                               }`}>
                                 {isApproved ? <CheckCircle className="w-5 h-5 text-white" /> :
                                  isRejected ? <XCircle className="w-5 h-5 text-white" /> :
@@ -1469,19 +1174,17 @@ const UserProfile = () => {
                               <div>
                                 <p className="font-semibold text-slate-800 text-sm">
                                   Application #{app.id}
-                                  {index === 0 && <span className="ml-2 text-xs bg-[hsl(227,65%,19%)] text-white px-2 py-0.5 rounded-full">Latest</span>}
+                                  {index === 0 && <span className="ml-2 text-xs bg-[hsl(227,65%,19%)] text-white px-2 py-0.5 rounded-full">{t('profilePage.latestBadge')}</span>}
                                 </p>
                                 <p className="text-xs text-slate-500">
-                                  Submitted {new Date(app.submittedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                                  {t('profilePage.submittedOn')} {new Date(app.submittedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
                                 </p>
                               </div>
                             </div>
                             <Badge className={`text-sm px-3 py-1 font-semibold ${
-                              isApproved ? 'bg-green-500 text-white' :
-                              isRejected ? 'bg-red-500 text-white' :
-                              'bg-amber-500 text-white'
+                              isApproved ? 'bg-green-500 text-white' : isRejected ? 'bg-red-500 text-white' : 'bg-amber-500 text-white'
                             }`}>
-                              {isApproved ? '✓ Approved' : isRejected ? '✗ Declined' : '⏳ Pending Review'}
+                              {isApproved ? t('profilePage.statusApproved') : isRejected ? t('profilePage.statusDeclined') : t('profilePage.statusPendingReview')}
                             </Badge>
                           </div>
 
@@ -1494,19 +1197,13 @@ const UserProfile = () => {
                                   <div key={step.key} className="flex gap-4 relative">
                                     <div className={`relative z-10 w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 border-2 transition-colors ${
                                       step.done
-                                        ? (si === steps.length - 1 && isApproved)
-                                          ? 'bg-green-500 border-green-500 text-white'
-                                          : (si === steps.length - 1 && isRejected)
-                                          ? 'bg-red-500 border-red-500 text-white'
+                                        ? (si === steps.length - 1 && isApproved) ? 'bg-green-500 border-green-500 text-white'
+                                          : (si === steps.length - 1 && isRejected) ? 'bg-red-500 border-red-500 text-white'
                                           : 'bg-[hsl(227,65%,19%)] border-[hsl(227,65%,19%)] text-white'
                                         : 'bg-white border-slate-300 text-slate-400'
-                                    }`}>
-                                      {step.icon}
-                                    </div>
+                                    }`}>{step.icon}</div>
                                     <div className="pt-1.5 pb-2 flex-1">
-                                      <p className={`font-semibold text-sm ${step.done ? 'text-slate-800' : 'text-slate-400'}`}>
-                                        {step.label}
-                                      </p>
+                                      <p className={`font-semibold text-sm ${step.done ? 'text-slate-800' : 'text-slate-400'}`}>{step.label}</p>
                                       <p className="text-xs text-slate-500 mt-0.5">{step.description}</p>
                                       {step.date && (
                                         <p className="text-xs text-slate-400 mt-1 flex items-center gap-1">
@@ -1526,7 +1223,7 @@ const UserProfile = () => {
                                 <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-50">
                                   <Users className="w-4 h-4 text-[hsl(227,65%,19%)] mt-0.5 flex-shrink-0" />
                                   <div>
-                                    <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">Preferred Club</p>
+                                    <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">{t('profilePage.preferredClub')}</p>
                                     <p className="text-sm font-semibold text-slate-800 mt-0.5">{app.preferredClub}</p>
                                   </div>
                                 </div>
@@ -1535,7 +1232,7 @@ const UserProfile = () => {
                                 <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-50">
                                   <Star className="w-4 h-4 text-[hsl(227,65%,19%)] mt-0.5 flex-shrink-0" />
                                   <div>
-                                    <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">Interests</p>
+                                    <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">{t('profilePage.interests')}</p>
                                     <div className="flex flex-wrap gap-1 mt-1">
                                       {app.interests.map((i: string) => (
                                         <span key={i} className="text-xs bg-[hsl(227,65%,19%)]/10 text-[hsl(227,65%,19%)] px-2 py-0.5 rounded-full font-medium">{i}</span>
@@ -1548,43 +1245,32 @@ const UserProfile = () => {
                                 <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-50 sm:col-span-2">
                                   <MessageSquare className="w-4 h-4 text-[hsl(227,65%,19%)] mt-0.5 flex-shrink-0" />
                                   <div>
-                                    <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">Your Motivation</p>
+                                    <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">{t('profilePage.yourMotivation')}</p>
                                     <p className="text-sm text-slate-700 mt-0.5 leading-relaxed line-clamp-3">{app.motivation}</p>
                                   </div>
                                 </div>
                               )}
                             </div>
 
-                            {/* Review notes (only shown when reviewed) */}
+                            {/* Review notes */}
                             {app.reviewNotes && (
                               <div className={`p-4 rounded-xl border-l-4 ${
                                 isApproved ? 'bg-green-50 border-green-400' :
                                 isRejected ? 'bg-red-50 border-red-400' :
                                 'bg-blue-50 border-blue-400'
                               }`}>
-                                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">
-                                  Review Notes from Team
-                                </p>
+                                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">{t('profilePage.reviewNotes')}</p>
                                 <p className={`text-sm leading-relaxed ${
-                                  isApproved ? 'text-green-800' :
-                                  isRejected ? 'text-red-800' :
-                                  'text-blue-800'
-                                }`}>
-                                  {app.reviewNotes}
-                                </p>
+                                  isApproved ? 'text-green-800' : isRejected ? 'text-red-800' : 'text-blue-800'
+                                }`}>{app.reviewNotes}</p>
                               </div>
                             )}
 
                             {/* CTA for rejected */}
                             {isRejected && (
                               <div className="flex justify-end">
-                                <Button
-                                  onClick={() => navigate('/join')}
-                                  variant="outline"
-                                  size="sm"
-                                  className="border-[hsl(227,65%,19%)] text-[hsl(227,65%,19%)] hover:bg-[hsl(227,65%,19%)] hover:text-white"
-                                >
-                                  Submit a New Application
+                                <Button onClick={() => navigate('/join')} variant="outline" size="sm" className="border-[hsl(227,65%,19%)] text-[hsl(227,65%,19%)] hover:bg-[hsl(227,65%,19%)] hover:text-white">
+                                  {t('profilePage.submitNewApplication')}
                                 </Button>
                               </div>
                             )}
@@ -1603,8 +1289,7 @@ const UserProfile = () => {
             <Card className="shadow-sm border-0 bg-white">
               <CardHeader className="border-b border-slate-100">
                 <CardTitle className="flex items-center gap-2 text-[hsl(227,65%,19%)]">
-                  <Activity className="w-5 h-5" />
-                  Recent Activity
+                  <Activity className="w-5 h-5" />{t('profilePage.recentActivity')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6">
@@ -1612,21 +1297,20 @@ const UserProfile = () => {
                   <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-slate-100 flex items-center justify-center">
                     <Activity className="w-10 h-10 text-slate-400" />
                   </div>
-                  <h3 className="text-xl font-semibold text-slate-800 mb-2">No Activity Yet</h3>
-                  <p className="text-slate-500">Your activity timeline will appear here.</p>
+                  <h3 className="text-xl font-semibold text-slate-800 mb-2">{t('profilePage.noActivityYet')}</h3>
+                  <p className="text-slate-500">{t('profilePage.noActivityDesc')}</p>
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
-          
+
           {/* Settings Tab */}
           <TabsContent value="settings" className="space-y-6">
             <div className="grid md:grid-cols-2 gap-6">
               <Card className="shadow-sm border-0 bg-white">
                 <CardHeader className="border-b border-slate-100">
                   <CardTitle className="flex items-center gap-2 text-[hsl(227,65%,19%)]">
-                    <Shield className="w-5 h-5" />
-                    Account Security
+                    <Shield className="w-5 h-5" />{t('profilePage.accountSecurity')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-6 space-y-4">
@@ -1634,87 +1318,52 @@ const UserProfile = () => {
                     <div className="flex items-center gap-3">
                       <Mail className="w-5 h-5 text-slate-600" />
                       <div>
-                        <p className="font-medium text-slate-800">Email</p>
+                        <p className="font-medium text-slate-800">{t('profilePage.email')}</p>
                         <p className="text-sm text-slate-500">{profileData.email}</p>
                       </div>
                     </div>
-                    <Badge className="bg-green-100 text-green-700">Verified</Badge>
+                    <Badge className="bg-green-100 text-green-700">{t('profilePage.verified')}</Badge>
                   </div>
                   {!showPasswordForm ? (
-                    <Button
-                      variant="outline"
-                      className="w-full border-[hsl(227,65%,19%)] text-[hsl(227,65%,19%)] hover:bg-[hsl(227,65%,19%)] hover:text-white transition-all"
-                      onClick={() => setShowPasswordForm(true)}
-                    >
-                      <Lock className="w-4 h-4 mr-2" />
-                      Change Password
+                    <Button variant="outline" className="w-full border-[hsl(227,65%,19%)] text-[hsl(227,65%,19%)] hover:bg-[hsl(227,65%,19%)] hover:text-white transition-all" onClick={() => setShowPasswordForm(true)}>
+                      <Lock className="w-4 h-4 mr-2" />{t('profilePage.changePassword')}
                     </Button>
                   ) : (
                     <div className="space-y-3 pt-1">
                       <div className="relative">
-                        <Label className="text-xs text-slate-500 mb-1 block">Current Password</Label>
+                        <Label className="text-xs text-slate-500 mb-1 block">{t('profilePage.currentPassword')}</Label>
                         <div className="relative">
-                          <Input
-                            type={showCurrentPw ? "text" : "password"}
-                            placeholder="Current password"
-                            value={passwordData.currentPassword}
-                            onChange={(e) => setPasswordData(p => ({ ...p, currentPassword: e.target.value }))}
-                            className="pr-10 h-10 text-sm"
-                          />
+                          <Input type={showCurrentPw ? "text" : "password"} placeholder={t('profilePage.currentPasswordPlaceholder')} value={passwordData.currentPassword} onChange={(e) => setPasswordData(p => ({ ...p, currentPassword: e.target.value }))} className="pr-10 h-10 text-sm" />
                           <button type="button" onClick={() => setShowCurrentPw(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
                             {showCurrentPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                           </button>
                         </div>
                       </div>
                       <div>
-                        <Label className="text-xs text-slate-500 mb-1 block">New Password</Label>
+                        <Label className="text-xs text-slate-500 mb-1 block">{t('profilePage.newPassword')}</Label>
                         <div className="relative">
-                          <Input
-                            type={showNewPw ? "text" : "password"}
-                            placeholder="New password (min. 6 chars)"
-                            value={passwordData.newPassword}
-                            onChange={(e) => setPasswordData(p => ({ ...p, newPassword: e.target.value }))}
-                            className="pr-10 h-10 text-sm"
-                          />
+                          <Input type={showNewPw ? "text" : "password"} placeholder={t('profilePage.newPasswordPlaceholder')} value={passwordData.newPassword} onChange={(e) => setPasswordData(p => ({ ...p, newPassword: e.target.value }))} className="pr-10 h-10 text-sm" />
                           <button type="button" onClick={() => setShowNewPw(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
                             {showNewPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                           </button>
                         </div>
                       </div>
                       <div>
-                        <Label className="text-xs text-slate-500 mb-1 block">Confirm New Password</Label>
+                        <Label className="text-xs text-slate-500 mb-1 block">{t('profilePage.confirmNewPassword')}</Label>
                         <div className="relative">
-                          <Input
-                            type={showConfirmPw ? "text" : "password"}
-                            placeholder="Confirm new password"
-                            value={passwordData.confirmPassword}
-                            onChange={(e) => setPasswordData(p => ({ ...p, confirmPassword: e.target.value }))}
-                            className="pr-10 h-10 text-sm"
-                          />
+                          <Input type={showConfirmPw ? "text" : "password"} placeholder={t('profilePage.confirmPasswordPlaceholder')} value={passwordData.confirmPassword} onChange={(e) => setPasswordData(p => ({ ...p, confirmPassword: e.target.value }))} className="pr-10 h-10 text-sm" />
                           <button type="button" onClick={() => setShowConfirmPw(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
                             {showConfirmPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                           </button>
                         </div>
                       </div>
                       <div className="flex gap-2 pt-1">
-                        <Button
-                          className="flex-1 h-9 text-sm bg-[hsl(227,65%,19%)] hover:bg-[hsl(227,65%,25%)] text-white"
-                          onClick={handleChangePassword}
-                          disabled={passwordLoading}
-                        >
+                        <Button className="flex-1 h-9 text-sm bg-[hsl(227,65%,19%)] hover:bg-[hsl(227,65%,25%)] text-white" onClick={handleChangePassword} disabled={passwordLoading}>
                           {passwordLoading ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <CheckCircle className="w-4 h-4 mr-1" />}
-                          {passwordLoading ? 'Saving…' : 'Save Password'}
+                          {passwordLoading ? t('profilePage.savingPassword') : t('profilePage.savePassword')}
                         </Button>
-                        <Button
-                          variant="outline"
-                          className="h-9 text-sm"
-                          onClick={() => {
-                            setShowPasswordForm(false);
-                            setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
-                          }}
-                          disabled={passwordLoading}
-                        >
-                          Cancel
+                        <Button variant="outline" className="h-9 text-sm" onClick={() => { setShowPasswordForm(false); setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' }); }} disabled={passwordLoading}>
+                          {t('profilePage.cancelEdit')}
                         </Button>
                       </div>
                     </div>
@@ -1725,22 +1374,21 @@ const UserProfile = () => {
               <Card className="shadow-sm border-0 bg-white">
                 <CardHeader className="border-b border-slate-100">
                   <CardTitle className="flex items-center gap-2 text-[hsl(227,65%,19%)]">
-                    <Bell className="w-5 h-5" />
-                    Notifications
+                    <Bell className="w-5 h-5" />{t('profilePage.notifications')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-6 space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="font-medium text-slate-800">Email Notifications</p>
-                      <p className="text-sm text-slate-500">Receive updates via email</p>
+                      <p className="font-medium text-slate-800">{t('profilePage.emailNotifications')}</p>
+                      <p className="text-sm text-slate-500">{t('profilePage.emailNotificationsDesc')}</p>
                     </div>
                     <input type="checkbox" defaultChecked className="w-5 h-5 rounded text-[hsl(227,65%,19%)]" />
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="font-medium text-slate-800">Event Reminders</p>
-                      <p className="text-sm text-slate-500">Get notified before events</p>
+                      <p className="font-medium text-slate-800">{t('profilePage.eventReminders')}</p>
+                      <p className="text-sm text-slate-500">{t('profilePage.eventRemindersDesc')}</p>
                     </div>
                     <input type="checkbox" defaultChecked className="w-5 h-5 rounded text-[hsl(227,65%,19%)]" />
                   </div>
@@ -1750,20 +1398,19 @@ const UserProfile = () => {
               <Card className="shadow-sm border-0 bg-white">
                 <CardHeader className="border-b border-slate-100">
                   <CardTitle className="flex items-center gap-2 text-[hsl(227,65%,19%)]">
-                    <Eye className="w-5 h-5" />
-                    Privacy
+                    <Eye className="w-5 h-5" />{t('profilePage.privacy')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-6 space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="font-medium text-slate-800">Profile Visibility</p>
-                      <p className="text-sm text-slate-500">Who can see your profile</p>
+                      <p className="font-medium text-slate-800">{t('profilePage.profileVisibility')}</p>
+                      <p className="text-sm text-slate-500">{t('profilePage.profileVisibilityDesc')}</p>
                     </div>
                     <select className="border rounded-lg px-3 py-1.5 text-sm">
-                      <option>Public</option>
-                      <option>Members Only</option>
-                      <option>Private</option>
+                      <option>{t('profilePage.visibilityPublic')}</option>
+                      <option>{t('profilePage.visibilityMembers')}</option>
+                      <option>{t('profilePage.visibilityPrivate')}</option>
                     </select>
                   </div>
                 </CardContent>
@@ -1772,16 +1419,13 @@ const UserProfile = () => {
               <Card className="shadow-sm border-0 bg-white border-red-100">
                 <CardHeader className="border-b border-slate-100">
                   <CardTitle className="flex items-center gap-2 text-red-600">
-                    <X className="w-5 h-5" />
-                    Danger Zone
+                    <X className="w-5 h-5" />{t('profilePage.dangerZone')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-6">
-                  <p className="text-sm text-slate-500 mb-4">
-                    Once you delete your account, there is no going back. Please be certain.
-                  </p>
+                  <p className="text-sm text-slate-500 mb-4">{t('profilePage.dangerZoneDesc')}</p>
                   <Button variant="outline" className="border-red-300 text-red-600 hover:bg-red-50 w-full">
-                    Delete Account
+                    {t('profilePage.deleteAccount')}
                   </Button>
                 </CardContent>
               </Card>
@@ -1796,60 +1440,26 @@ const UserProfile = () => {
       <Dialog open={!!editingBooking} onOpenChange={() => setEditingBooking(null)}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Edit Booking</DialogTitle>
-            <DialogDescription>
-              Update your booking details. Only pending bookings can be edited.
-            </DialogDescription>
+            <DialogTitle>{t('profilePage.editBookingTitle')}</DialogTitle>
+            <DialogDescription>{t('profilePage.editBookingDesc')}</DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="edit-participants">Number of Participants</Label>
-              <Input
-                id="edit-participants"
-                type="number"
-                min="1"
-                max="50"
-                value={editFormData.numberOfParticipants}
-                onChange={(e) => setEditFormData(prev => ({ 
-                  ...prev, 
-                  numberOfParticipants: parseInt(e.target.value) || 1 
-                }))}
-              />
+              <Label htmlFor="edit-participants">{t('profilePage.numberOfParticipants')}</Label>
+              <Input id="edit-participants" type="number" min="1" max="50" value={editFormData.numberOfParticipants} onChange={(e) => setEditFormData(prev => ({ ...prev, numberOfParticipants: parseInt(e.target.value) || 1 }))} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="edit-requests">Special Requests</Label>
-              <Textarea
-                id="edit-requests"
-                placeholder="Any special requirements or notes..."
-                value={editFormData.specialRequests}
-                onChange={(e) => setEditFormData(prev => ({ 
-                  ...prev, 
-                  specialRequests: e.target.value 
-                }))}
-                rows={3}
-              />
+              <Label htmlFor="edit-requests">{t('profilePage.specialRequests')}</Label>
+              <Textarea id="edit-requests" placeholder={t('profilePage.specialRequestsPlaceholder')} value={editFormData.specialRequests} onChange={(e) => setEditFormData(prev => ({ ...prev, specialRequests: e.target.value }))} rows={3} />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditingBooking(null)}>
-              Cancel
-            </Button>
-            <Button 
-              onClick={handleEditBooking} 
-              disabled={actionLoading}
-              className="bg-[hsl(227,65%,19%)] hover:bg-[hsl(227,65%,25%)]"
-            >
-              {actionLoading ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Saving...
-                </>
-              ) : (
-                <>
-                  <Save className="w-4 h-4 mr-2" />
-                  Save Changes
-                </>
-              )}
+            <Button variant="outline" onClick={() => setEditingBooking(null)}>{t('profilePage.cancelEdit')}</Button>
+            <Button onClick={handleEditBooking} disabled={actionLoading} className="bg-[hsl(227,65%,19%)] hover:bg-[hsl(227,65%,25%)]">
+              {actionLoading
+                ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />{t('profilePage.savingBtn')}</>
+                : <><Save className="w-4 h-4 mr-2" />{t('profilePage.saveChanges')}</>
+              }
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1859,49 +1469,28 @@ const UserProfile = () => {
       <Dialog open={!!cancellingBooking} onOpenChange={() => setCancellingBooking(null)}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle className="text-red-600">Cancel Booking</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to cancel this booking? This action cannot be undone.
-            </DialogDescription>
+            <DialogTitle className="text-red-600">{t('profilePage.cancelBookingTitle')}</DialogTitle>
+            <DialogDescription>{t('profilePage.cancelBookingDesc')}</DialogDescription>
           </DialogHeader>
           <div className="py-4">
             {cancellingBooking && (
               <div className="bg-slate-50 rounded-lg p-4 mb-4">
                 <p className="font-medium text-slate-800">{cancellingBooking.eventTitle || `Event #${cancellingBooking.eventId}`}</p>
-                <p className="text-sm text-slate-500">Ref: {cancellingBooking.bookingReference}</p>
+                <p className="text-sm text-slate-500">{t('profilePage.refLabel')} {cancellingBooking.bookingReference}</p>
               </div>
             )}
             <div className="space-y-2">
-              <Label htmlFor="cancel-reason">Reason for Cancellation (Optional)</Label>
-              <Textarea
-                id="cancel-reason"
-                placeholder="Why are you cancelling this booking?"
-                value={cancelReason}
-                onChange={(e) => setCancelReason(e.target.value)}
-                rows={3}
-              />
+              <Label htmlFor="cancel-reason">{t('profilePage.cancelReason')}</Label>
+              <Textarea id="cancel-reason" placeholder={t('profilePage.cancelReasonPlaceholder')} value={cancelReason} onChange={(e) => setCancelReason(e.target.value)} rows={3} />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setCancellingBooking(null)}>
-              Keep Booking
-            </Button>
-            <Button 
-              variant="destructive"
-              onClick={handleCancelBooking} 
-              disabled={actionLoading}
-            >
-              {actionLoading ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Cancelling...
-                </>
-              ) : (
-                <>
-                  <X className="w-4 h-4 mr-2" />
-                  Cancel Booking
-                </>
-              )}
+            <Button variant="outline" onClick={() => setCancellingBooking(null)}>{t('profilePage.keepBooking')}</Button>
+            <Button variant="destructive" onClick={handleCancelBooking} disabled={actionLoading}>
+              {actionLoading
+                ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />{t('profilePage.cancellingBtn')}</>
+                : <><X className="w-4 h-4 mr-2" />{t('profilePage.cancelBookingBtn')}</>
+              }
             </Button>
           </DialogFooter>
         </DialogContent>
