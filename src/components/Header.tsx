@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   Moon,
   Sun,
@@ -55,6 +55,7 @@ interface NavLink {
 const CitiesDropdown = () => {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language === "ar";
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const { data: apiCities } = useQuery<any[]>({
     queryKey: ["public-cities-nav"],
@@ -103,14 +104,43 @@ const CitiesDropdown = () => {
     };
   }, [emblaApi, onSelect]);
 
+  // Adjust dropdown position to stay within viewport on hover
+  useEffect(() => {
+    const el = dropdownRef.current;
+    if (!el) return;
+    const parent = el.parentElement;
+    if (!parent) return;
+
+    const adjust = () => {
+      el.style.right = "";
+      el.style.left = "";
+      const rect = el.getBoundingClientRect();
+      const vw = window.innerWidth;
+      const margin = 8;
+      if (rect.right > vw - margin) {
+        el.style.right = `${-(rect.right - (vw - margin))}px`;
+        el.style.left = "auto";
+      } else if (rect.left < margin) {
+        el.style.left = `${margin - rect.left}px`;
+        el.style.right = "auto";
+      }
+    };
+
+    parent.addEventListener("mouseenter", adjust);
+    return () => parent.removeEventListener("mouseenter", adjust);
+  }, [isRtl]);
+
   return (
-    <div className={`absolute ${isRtl ? "right-0" : "left-0"} top-full mt-2 w-[700px] max-w-[90vw] bg-white/95 dark:bg-card/95 backdrop-blur-sm rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 border border-border/20`}>
+    <div
+      ref={dropdownRef}
+      className={`absolute ${isRtl ? "right-0" : "left-0"} top-full mt-2 w-[700px] max-w-[90vw] bg-white/95 dark:bg-card/95 backdrop-blur-sm rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 border border-border/20`}
+    >
       <div className="p-6" dir={isRtl ? "rtl" : "ltr"}>
         <div className="text-sm font-bold text-foreground mb-4 uppercase tracking-wider">
           {t("nav.topCities")}
         </div>
 
-        <div className="relative">
+        <div className="relative px-6">
           <div className="overflow-hidden" ref={emblaRef}>
             <div className="flex gap-4">
               {cities.map((city) => (
@@ -142,19 +172,19 @@ const CitiesDropdown = () => {
           </div>
 
           <button
-            onClick={isRtl ? scrollNext : scrollPrev}
+            onClick={scrollPrev}
             aria-label="Previous cities"
-            className={`absolute ${isRtl ? "-right-4" : "-left-4"} top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-primary hover:bg-primary/90 text-white flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-110 z-10`}
+            className="absolute -left-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-primary hover:bg-primary/90 text-white flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-110 z-10"
           >
-            <ChevronRight className="w-5 h-5 rotate-180" />
+            <ChevronRight className={`w-5 h-5 ${isRtl ? "" : "rotate-180"}`} />
           </button>
 
           <button
-            onClick={isRtl ? scrollPrev : scrollNext}
+            onClick={scrollNext}
             aria-label="Next cities"
-            className={`absolute ${isRtl ? "-left-4" : "-right-4"} top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-primary hover:bg-primary/90 text-white flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-110 z-10`}
+            className="absolute -right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-primary hover:bg-primary/90 text-white flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-110 z-10"
           >
-            <ChevronRight className="w-5 h-5" />
+            <ChevronRight className={`w-5 h-5 ${isRtl ? "rotate-180" : ""}`} />
           </button>
         </div>
 
@@ -183,10 +213,40 @@ const CitiesDropdown = () => {
 
 // Original Talents Dropdown
 const TalentsDropdown = () => {
+  const { i18n } = useTranslation();
+  const isRtl = i18n.language === "ar";
   const [volunteersOpen, setVolunteersOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = dropdownRef.current;
+    if (!el) return;
+    const parent = el.parentElement;
+    if (!parent) return;
+    const adjust = () => {
+      el.style.right = "";
+      el.style.left = "";
+      const rect = el.getBoundingClientRect();
+      const vw = window.innerWidth;
+      const margin = 8;
+      if (rect.right > vw - margin) {
+        el.style.right = `${-(rect.right - (vw - margin))}px`;
+        el.style.left = "auto";
+      } else if (rect.left < margin) {
+        el.style.left = `${margin - rect.left}px`;
+        el.style.right = "auto";
+      }
+    };
+    parent.addEventListener("mouseenter", adjust);
+    return () => parent.removeEventListener("mouseenter", adjust);
+  }, [isRtl]);
 
   return (
-    <div className="absolute left-0 top-full mt-2 w-64 bg-white/95 dark:bg-card/95 backdrop-blur-sm rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 border border-border/20">
+    <div
+      ref={dropdownRef}
+      className={`absolute ${isRtl ? "right-0" : "left-0"} top-full mt-2 w-64 bg-white/95 dark:bg-card/95 backdrop-blur-sm rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 border border-border/20`}
+      dir={isRtl ? "rtl" : "ltr"}
+    >
       <div className="p-4">
         <div className="flex flex-col gap-1">
           {/* Volunteers with sub-menu */}
@@ -197,11 +257,11 @@ const TalentsDropdown = () => {
           >
             <div className="flex items-center justify-between px-4 py-3 text-foreground hover:bg-secondary/10 rounded-lg transition-colors cursor-pointer">
               <span className="font-medium text-sm">Volunteers</span>
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className={`w-4 h-4 ${isRtl ? "rotate-180" : ""}`} />
             </div>
-            {/* Volunteers submenu */}
+            {/* Volunteers submenu — opens opposite side in RTL */}
             <div
-              className={`absolute left-full top-0 ml-2 w-48 bg-white/95 dark:bg-card/95 backdrop-blur-sm rounded-xl shadow-2xl border border-border/20 transition-all duration-300 ${volunteersOpen ? "opacity-100 visible" : "opacity-0 invisible"}`}
+              className={`absolute ${isRtl ? "right-full mr-2" : "left-full ml-2"} top-0 w-48 bg-white/95 dark:bg-card/95 backdrop-blur-sm rounded-xl shadow-2xl border border-border/20 transition-all duration-300 ${volunteersOpen ? "opacity-100 visible" : "opacity-0 invisible"}`}
             >
               <div className="p-2">
                 <Link
@@ -251,10 +311,15 @@ const DropdownRenderer = ({
   type?: DropdownDisplayType;
   title?: string;
 }) => {
+  const { i18n } = useTranslation();
+  const isRtl = i18n.language === "ar";
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
   const [emblaRef, emblaApi] = useEmblaCarousel({
     loop: true,
     align: "start",
     slidesToScroll: 1,
+    direction: isRtl ? "rtl" : "ltr",
   });
   const [selectedIndex, setSelectedIndex] = useState(0);
 
@@ -280,12 +345,38 @@ const DropdownRenderer = ({
     };
   }, [emblaApi, onSelect]);
 
+  // Viewport-aware positioning
+  useEffect(() => {
+    const el = dropdownRef.current;
+    if (!el) return;
+    const parent = el.parentElement;
+    if (!parent) return;
+    const adjust = () => {
+      el.style.right = "";
+      el.style.left = "";
+      const rect = el.getBoundingClientRect();
+      const vw = window.innerWidth;
+      const margin = 8;
+      if (rect.right > vw - margin) {
+        el.style.right = `${-(rect.right - (vw - margin))}px`;
+        el.style.left = "auto";
+      } else if (rect.left < margin) {
+        el.style.left = `${margin - rect.left}px`;
+        el.style.right = "auto";
+      }
+    };
+    parent.addEventListener("mouseenter", adjust);
+    return () => parent.removeEventListener("mouseenter", adjust);
+  }, [isRtl]);
+
   if (!items || items.length === 0) return null;
+
+  const positionClass = isRtl ? "right-0" : "left-0";
 
   // Carousel Type
   if (type === "carousel") {
     return (
-      <div className="absolute left-0 top-full mt-2 w-[700px] max-w-[90vw] bg-white/95 dark:bg-card/95 backdrop-blur-sm rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 border border-border/20">
+      <div ref={dropdownRef} className={`absolute ${positionClass} top-full mt-2 w-[700px] max-w-[90vw] bg-white/95 dark:bg-card/95 backdrop-blur-sm rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 border border-border/20`} dir={isRtl ? "rtl" : "ltr"}>
         <div className="p-6">
           {title && (
             <div className="text-sm font-bold text-foreground mb-4 uppercase tracking-wider">
@@ -293,7 +384,7 @@ const DropdownRenderer = ({
             </div>
           )}
 
-          <div className="relative">
+          <div className="relative px-6">
             <div className="overflow-hidden" ref={emblaRef}>
               <div className="flex gap-4">
                 {items.map((item, idx) => {
@@ -353,17 +444,17 @@ const DropdownRenderer = ({
                 <button
                   onClick={scrollPrev}
                   aria-label="Previous items"
-                  className="absolute -left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-primary hover:bg-primary/90 text-white flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-110 z-10"
+                  className="absolute -left-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-primary hover:bg-primary/90 text-white flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-110 z-10"
                 >
-                  <ChevronRight className="w-5 h-5 rotate-180" />
+                  <ChevronRight className={`w-5 h-5 ${isRtl ? "" : "rotate-180"}`} />
                 </button>
 
                 <button
                   onClick={scrollNext}
                   aria-label="Next items"
-                  className="absolute -right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-primary hover:bg-primary/90 text-white flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-110 z-10"
+                  className="absolute -right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-primary hover:bg-primary/90 text-white flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-110 z-10"
                 >
-                  <ChevronRight className="w-5 h-5" />
+                  <ChevronRight className={`w-5 h-5 ${isRtl ? "rotate-180" : ""}`} />
                 </button>
               </>
             )}
@@ -397,7 +488,7 @@ const DropdownRenderer = ({
   // List with Images Type
   if (type === "list-with-images") {
     return (
-      <div className="absolute left-0 top-full mt-2 w-80 bg-white/95 dark:bg-card/95 backdrop-blur-sm rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 border border-border/20">
+      <div ref={dropdownRef} className={`absolute ${positionClass} top-full mt-2 w-80 bg-white/95 dark:bg-card/95 backdrop-blur-sm rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 border border-border/20`} dir={isRtl ? "rtl" : "ltr"}>
         <div className="p-4">
           {title && (
             <div className="text-sm font-bold text-foreground mb-3 uppercase tracking-wider">
@@ -450,7 +541,7 @@ const DropdownRenderer = ({
 
   // Simple List Type (Default)
   return (
-    <div className="absolute left-0 top-full mt-2 w-64 bg-white/95 dark:bg-card/95 backdrop-blur-sm rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 border border-border/20">
+    <div ref={dropdownRef} className={`absolute ${positionClass} top-full mt-2 w-64 bg-white/95 dark:bg-card/95 backdrop-blur-sm rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 border border-border/20`} dir={isRtl ? "rtl" : "ltr"}>
       <div className="p-4">
         {title && (
           <div className="text-sm font-bold text-foreground mb-2 uppercase tracking-wider">

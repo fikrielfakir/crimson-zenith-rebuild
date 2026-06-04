@@ -45,7 +45,11 @@ const proxyOptions = {
   },
 };
 
-const localProxyOptions = proxyOptions;
+const localProxyOptions = {
+  target: LOCAL_API,
+  changeOrigin: true,
+  secure: false,
+};
 
 const laravelProxyOptions = proxyOptions;
 

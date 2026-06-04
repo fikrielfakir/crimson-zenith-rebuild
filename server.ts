@@ -20,7 +20,8 @@ import {
   contactSettings as contactSettingsTable,
   themeSettings as themeSettingsTable,
   contentTranslations,
-  membershipApplications
+  membershipApplications,
+  cities
 } from './shared/schema.js';
 import { sendBookingConfirmationEmail, sendBookingApprovedEmail } from './server/emailService.js';
 
@@ -3404,9 +3405,9 @@ app.get('/api/cities', async (req, res) => {
   try {
     const rows = await db
       .select()
-      .from(schema.cities)
-      .where(eq(schema.cities.isActive, true))
-      .orderBy(schema.cities.ordering, schema.cities.id);
+      .from(cities)
+      .where(eq(cities.isActive, true))
+      .orderBy(cities.ordering, cities.id);
     res.json(rows);
   } catch (err) {
     console.error('Error fetching cities:', err);
@@ -3418,8 +3419,8 @@ app.get('/api/cities/:slug', async (req, res) => {
   try {
     const [city] = await db
       .select()
-      .from(schema.cities)
-      .where(eq(schema.cities.slug, req.params.slug))
+      .from(cities)
+      .where(eq(cities.slug, req.params.slug))
       .limit(1);
     if (!city) return res.status(404).json({ message: 'City not found' });
     res.json(city);
@@ -3433,8 +3434,8 @@ app.get('/api/admin/cities', isAdmin, async (req, res) => {
   try {
     const rows = await db
       .select()
-      .from(schema.cities)
-      .orderBy(schema.cities.ordering, schema.cities.id);
+      .from(cities)
+      .orderBy(cities.ordering, cities.id);
     res.json({ cities: rows });
   } catch (err) {
     console.error('Error fetching admin cities:', err);
@@ -3448,7 +3449,7 @@ app.post('/api/admin/cities', isAdmin, async (req, res) => {
             highlights, activities, travelTips, culture, cuisine, bestTime,
             gettingThere, isActive, ordering } = req.body;
     const [city] = await db
-      .insert(schema.cities)
+      .insert(cities)
       .values({ name, slug, title, description, image, heroType, heroVideo,
                 heroOverlay: Number(heroOverlay) || 50,
                 highlights: highlights ?? [],
@@ -3493,9 +3494,9 @@ app.put('/api/admin/cities/:id', isAdmin, async (req, res) => {
     if (isActive !== undefined)    updateData.isActive    = isActive;
     if (ordering !== undefined)    updateData.ordering    = Number(ordering);
     const [city] = await db
-      .update(schema.cities)
+      .update(cities)
       .set(updateData)
-      .where(eq(schema.cities.id, id))
+      .where(eq(cities.id, id))
       .returning();
     if (!city) return res.status(404).json({ message: 'City not found' });
     res.json(city);
@@ -3508,7 +3509,7 @@ app.put('/api/admin/cities/:id', isAdmin, async (req, res) => {
 app.delete('/api/admin/cities/:id', isAdmin, async (req, res) => {
   try {
     const id = Number(req.params.id);
-    await db.delete(schema.cities).where(eq(schema.cities.id, id));
+    await db.delete(cities).where(eq(cities.id, id));
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ message: 'Failed to delete city' });
@@ -3518,7 +3519,7 @@ app.delete('/api/admin/cities/:id', isAdmin, async (req, res) => {
 // Seed cities from static defaults
 app.post('/api/admin/cities/seed', isAdmin, async (req, res) => {
   try {
-    const existing = await db.select({ slug: schema.cities.slug }).from(schema.cities);
+    const existing = await db.select({ slug: cities.slug }).from(cities);
     const existingSlugs = new Set(existing.map(r => r.slug));
     const defaults = [
       { id: 1, name: 'Tangier', slug: 'tangier', title: 'Gateway Between Continents', image: '/attached_assets/generated_images/Tangier_city_aerial_view_03330006.png', ordering: 1 },
@@ -3531,7 +3532,7 @@ app.post('/api/admin/cities/seed', isAdmin, async (req, res) => {
     let seeded = 0;
     for (const c of defaults) {
       if (!existingSlugs.has(c.slug)) {
-        await db.insert(schema.cities).values({ name: c.name, slug: c.slug, title: c.title, image: c.image, ordering: c.ordering, isActive: true });
+        await db.insert(cities).values({ name: c.name, slug: c.slug, title: c.title, image: c.image, ordering: c.ordering, isActive: true });
         seeded++;
       }
     }
