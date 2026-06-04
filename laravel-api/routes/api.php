@@ -182,6 +182,10 @@ Route::post('/payments/cmi/initiate',        [\App\Http\Controllers\PaymentContr
 Route::post('/payments/cmi/callback',        [\App\Http\Controllers\PaymentController::class, 'cmiCallback']);
 Route::get('/payments/cmi/status/{ref}',     [\App\Http\Controllers\PaymentController::class, 'cmiStatus']);
 
+// Donation CMI Gateway
+Route::post('/donations/cmi/initiate',       [\App\Http\Controllers\PaymentController::class, 'initiateDonationCmi']);
+Route::get('/donations/cmi/status/{ref}',    [\App\Http\Controllers\PaymentController::class, 'donationStatus']);
+
 /*
 |--------------------------------------------------------------------------
 | Placeholder images (SVG)

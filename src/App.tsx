@@ -11,6 +11,8 @@ import Book from "./pages/Book";
 import BookingForm from "./pages/BookingForm";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentFail from "./pages/PaymentFail";
+import DonateSuccess from "./pages/DonateSuccess";
+import DonateFail from "./pages/DonateFail";
 import Gallery from "./pages/Gallery";
 import News from "./pages/News";
 import BlogPost from "./pages/BlogPost";
@@ -123,6 +125,8 @@ const App = () => (
           <Route path="/book/form" element={<BookingForm />} />
           <Route path="/book/payment/success" element={<PaymentSuccess />} />
           <Route path="/book/payment/fail" element={<PaymentFail />} />
+          <Route path="/donate/success" element={<DonateSuccess />} />
+          <Route path="/donate/fail" element={<DonateFail />} />
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/news" element={<News />} />
           <Route path="/news/:slug" element={<BlogPost />} />

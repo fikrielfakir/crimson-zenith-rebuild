@@ -169,6 +169,109 @@ class PaymentController extends Controller
     }
 
     // -------------------------------------------------------------------------
+    // Donations – initiate CMI payment for a donation (no event required)
+    // -------------------------------------------------------------------------
+    public function initiateDonationCmi(Request $request)
+    {
+        $validated = $request->validate([
+            'donorName'  => 'required|string|max:255',
+            'donorEmail' => 'required|email|max:255',
+            'donorPhone' => 'nullable|string|max:50',
+            'amount'     => 'required|numeric|min:1',
+            'frequency'  => 'nullable|string|in:once,monthly',
+        ]);
+
+        if (!$this->cmiService->isEnabled()) {
+            return response()->json(['message' => 'CMI payment is not enabled.'], 503);
+        }
+
+        $settings = $this->cmiService->getSettings();
+        $ref      = 'DON-' . strtoupper(Str::random(8));
+
+        // Store the donation as a booking ticket with event_id = 'donation'
+        $ticket = BookingTicket::create([
+            'id'                     => Str::uuid(),
+            'booking_reference'      => $ref,
+            'event_id'               => 'donation',
+            'user_id'                => $request->user()?->id ?? 'guest',
+            'customer_name'          => $validated['donorName'],
+            'customer_email'         => $validated['donorEmail'],
+            'customer_phone'         => $validated['donorPhone'] ?? null,
+            'number_of_participants' => 1,
+            'event_date'             => now(),
+            'total_price'            => $validated['amount'],
+            'payment_status'         => 'pending',
+            'payment_method'         => 'cmi',
+            'transaction_id'         => null,
+            'special_requests'       => 'Donation – ' . ($validated['frequency'] ?? 'once'),
+            'status'                 => 'pending',
+        ]);
+
+        // Demo mode: skip gateway
+        if ($settings->demo_mode) {
+            $ticket->update([
+                'payment_status' => 'completed',
+                'status'         => 'accepted',
+                'transaction_id' => 'DEMO-' . strtoupper(Str::random(10)),
+            ]);
+            return response()->json([
+                'demo_mode'         => true,
+                'booking_reference' => $ref,
+            ]);
+        }
+
+        $appUrl      = rtrim(env('APP_FRONTEND_URL', env('APP_URL', 'http://localhost:5000')), '/');
+        $apiUrl      = rtrim(env('APP_URL', 'http://localhost:8000'), '/');
+        $okUrl       = $appUrl . '/donate/success?ref=' . $ref;
+        $failUrl     = $appUrl . '/donate/fail?ref=' . $ref;
+        $callbackUrl = $apiUrl . '/api/payments/cmi/callback';
+
+        try {
+            $form = $this->cmiService->buildPaymentForm([
+                'oid'         => $ref,
+                'amount'      => $validated['amount'],
+                'okUrl'       => $okUrl,
+                'failUrl'     => $failUrl,
+                'callbackUrl' => $callbackUrl,
+                'email'       => $validated['donorEmail'],
+            ]);
+        } catch (\RuntimeException $e) {
+            return response()->json(['message' => $e->getMessage()], 503);
+        }
+
+        return response()->json([
+            'gateway_url'       => $form['gateway_url'],
+            'fields'            => $form['fields'],
+            'booking_reference' => $ref,
+        ]);
+    }
+
+    // -------------------------------------------------------------------------
+    // Donations – check donation payment status
+    // -------------------------------------------------------------------------
+    public function donationStatus(Request $request, string $ref)
+    {
+        $ticket = BookingTicket::where('booking_reference', $ref)
+            ->where('event_id', 'donation')
+            ->first();
+
+        if (!$ticket) {
+            return response()->json(['message' => 'Donation not found'], 404);
+        }
+
+        return response()->json([
+            'booking_reference' => $ticket->booking_reference,
+            'payment_status'    => $ticket->payment_status,
+            'status'            => $ticket->status,
+            'transaction_id'    => $ticket->transaction_id,
+            'customer_name'     => $ticket->customer_name,
+            'customer_email'    => $ticket->customer_email,
+            'total_price'       => $ticket->total_price,
+            'payment_method'    => $ticket->payment_method,
+        ]);
+    }
+
+    // -------------------------------------------------------------------------
     // CMI – check payment status by booking reference
     // -------------------------------------------------------------------------
     public function cmiStatus(Request $request, string $ref)

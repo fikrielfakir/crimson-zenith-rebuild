@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Sheet,
@@ -11,7 +11,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Heart, CreditCard, DollarSign, ArrowLeft, ArrowRight } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { Heart, DollarSign, ArrowLeft, ArrowRight, Loader2, Phone, Mail, User, ShieldCheck } from "lucide-react";
 
 interface DonateDrawerProps {
   open: boolean;
@@ -20,6 +21,7 @@ interface DonateDrawerProps {
 
 const DonateDrawer = ({ open, onOpenChange }: DonateDrawerProps) => {
   const { t, i18n } = useTranslation();
+  const { toast } = useToast();
   const isRtl = i18n.language === "ar";
 
   const [step, setStep] = useState(1);
@@ -27,12 +29,89 @@ const DonateDrawer = ({ open, onOpenChange }: DonateDrawerProps) => {
   const [customAmount, setCustomAmount] = useState("");
   const [frequency, setFrequency] = useState("once");
 
+  const [donorName, setDonorName] = useState("");
+  const [donorEmail, setDonorEmail] = useState("");
+  const [donorPhone, setDonorPhone] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
   const predefinedAmounts = ["25", "50", "100", "250"];
   const displayAmount = customAmount || amount || "0";
 
   const handleClose = (open: boolean) => {
-    if (!open) setStep(1);
+    if (!open) {
+      setStep(1);
+      setSubmitting(false);
+    }
     onOpenChange(open);
+  };
+
+  const handleSubmit = async () => {
+    if (!donorName.trim()) {
+      toast({ title: "Name required", description: "Please enter your full name.", variant: "destructive" });
+      return;
+    }
+    if (!donorEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(donorEmail)) {
+      toast({ title: "Valid email required", description: "Please enter a valid email address.", variant: "destructive" });
+      return;
+    }
+
+    setSubmitting(true);
+
+    try {
+      const res = await fetch("/api/donations/cmi/initiate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          donorName: donorName.trim(),
+          donorEmail: donorEmail.trim(),
+          donorPhone: donorPhone.trim() || undefined,
+          amount: parseFloat(displayAmount),
+          frequency,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        toast({
+          title: "Payment Error",
+          description: data.message || "Could not initiate CMI payment.",
+          variant: "destructive",
+        });
+        setSubmitting(false);
+        return;
+      }
+
+      // Demo mode — no gateway redirect
+      if (data.demo_mode) {
+        toast({ title: "Demo donation approved!", description: "Redirecting to confirmation…" });
+        window.location.href = `/donate/success?ref=${data.booking_reference}`;
+        return;
+      }
+
+      // Build a hidden form and auto-submit to CMI gateway
+      const form = document.createElement("form");
+      form.method = "POST";
+      form.action = data.gateway_url;
+      form.style.display = "none";
+
+      Object.entries(data.fields as Record<string, string>).forEach(([key, val]) => {
+        const input = document.createElement("input");
+        input.type = "hidden";
+        input.name = key;
+        input.value = val;
+        form.appendChild(input);
+      });
+
+      toast({ title: "Redirecting to secure payment…", description: "You will be taken to the CMI payment page." });
+      document.body.appendChild(form);
+      form.submit();
+    } catch (err) {
+      console.error("Donation initiation error:", err);
+      toast({ title: "Error", description: "An unexpected error occurred. Please try again.", variant: "destructive" });
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -52,7 +131,9 @@ const DonateDrawer = ({ open, onOpenChange }: DonateDrawerProps) => {
           {/* Step indicator */}
           <div className="flex items-center justify-center gap-3 pt-2">
             <div className="flex items-center gap-2">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-colors ${step === 1 ? "bg-primary text-primary-foreground" : "bg-primary text-primary-foreground"}`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-colors ${
+                step === 1 ? "bg-primary text-primary-foreground" : "bg-primary/20 text-primary"
+              }`}>
                 1
               </div>
               <span className={`text-sm font-medium ${step === 1 ? "text-foreground" : "text-muted-foreground"}`}>
@@ -61,11 +142,13 @@ const DonateDrawer = ({ open, onOpenChange }: DonateDrawerProps) => {
             </div>
             <div className="h-px w-8 bg-border" />
             <div className="flex items-center gap-2">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-colors ${step === 2 ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-colors ${
+                step === 2 ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+              }`}>
                 2
               </div>
               <span className={`text-sm font-medium ${step === 2 ? "text-foreground" : "text-muted-foreground"}`}>
-                {t("donation.paymentInfo") || "Payment Info"}
+                {t("donation.paymentInfo") || "Your Details"}
               </span>
             </div>
           </div>
@@ -73,10 +156,10 @@ const DonateDrawer = ({ open, onOpenChange }: DonateDrawerProps) => {
 
         <div className="space-y-8 py-8">
 
-          {/* ── STEP 1 ── */}
+          {/* ── STEP 1: Amount ── */}
           {step === 1 && (
             <>
-              {/* Frequency Selection */}
+              {/* Frequency */}
               <div className="space-y-4">
                 <Label className="text-base font-semibold">{t("donation.frequency")}</Label>
                 <RadioGroup value={frequency} onValueChange={setFrequency} className="grid grid-cols-2 gap-4">
@@ -101,7 +184,7 @@ const DonateDrawer = ({ open, onOpenChange }: DonateDrawerProps) => {
                 </RadioGroup>
               </div>
 
-              {/* Amount Selection */}
+              {/* Amount */}
               <div className="space-y-4">
                 <Label className="text-base font-semibold">{t("donation.selectAmount")}</Label>
                 <div className="grid grid-cols-2 gap-3">
@@ -109,13 +192,10 @@ const DonateDrawer = ({ open, onOpenChange }: DonateDrawerProps) => {
                     <Button
                       key={amt}
                       variant={amount === amt && !customAmount ? "default" : "outline"}
-                      onClick={() => {
-                        setAmount(amt);
-                        setCustomAmount("");
-                      }}
+                      onClick={() => { setAmount(amt); setCustomAmount(""); }}
                       className="h-14 text-lg font-semibold"
                     >
-                      ${amt}
+                      {amt} MAD
                     </Button>
                   ))}
                 </div>
@@ -126,16 +206,13 @@ const DonateDrawer = ({ open, onOpenChange }: DonateDrawerProps) => {
                     type="number"
                     placeholder={t("donation.customAmount")}
                     value={customAmount}
-                    onChange={(e) => {
-                      setCustomAmount(e.target.value);
-                      setAmount("");
-                    }}
+                    onChange={(e) => { setCustomAmount(e.target.value); setAmount(""); }}
                     className={`h-14 ${isRtl ? "pr-10" : "pl-10"} text-lg`}
                   />
                 </div>
               </div>
 
-              {/* Donation Impact */}
+              {/* Impact */}
               <div className="rounded-lg bg-primary/5 border border-primary/20 p-6 space-y-3">
                 <h3 className="font-semibold text-lg">{t("donation.yourImpact")}</h3>
                 <div className="space-y-2 text-sm text-muted-foreground">
@@ -146,7 +223,6 @@ const DonateDrawer = ({ open, onOpenChange }: DonateDrawerProps) => {
                 </div>
               </div>
 
-              {/* Next Step Button */}
               <Button
                 className="w-full h-14 text-lg font-semibold rounded-full"
                 size="lg"
@@ -159,52 +235,82 @@ const DonateDrawer = ({ open, onOpenChange }: DonateDrawerProps) => {
             </>
           )}
 
-          {/* ── STEP 2 ── */}
+          {/* ── STEP 2: Donor details + CMI ── */}
           {step === 2 && (
             <>
-              {/* Summary of step 1 */}
+              {/* Amount summary */}
               <div className="rounded-lg bg-muted/50 border p-4 flex items-center justify-between">
                 <div className="text-sm text-muted-foreground">
-                  {frequency === "monthly" ? t("donation.monthly") : t("donation.oneTime")} {t("donation.donation") || "donation"}
+                  {frequency === "monthly" ? t("donation.monthly") : t("donation.oneTime")}{" "}
+                  {t("donation.donation") || "donation"}
                 </div>
                 <div className="text-xl font-bold text-primary">
-                  ${displayAmount}
-                  {frequency === "monthly" && <span className="text-sm font-normal text-muted-foreground">/{t("donation.perMonth") || "mo"}</span>}
+                  {displayAmount} MAD
+                  {frequency === "monthly" && (
+                    <span className="text-sm font-normal text-muted-foreground">
+                      /{t("donation.perMonth") || "mo"}
+                    </span>
+                  )}
                 </div>
               </div>
 
-              {/* Payment Information */}
+              {/* Donor details */}
               <div className="space-y-4">
-                <Label className="text-base font-semibold">{t("donation.paymentInfo")}</Label>
+                <Label className="text-base font-semibold">
+                  {t("donation.paymentInfo") || "Your Details"}
+                </Label>
 
                 <div className="space-y-2">
-                  <Label htmlFor="name">{t("donation.fullName")}</Label>
-                  <Input id="name" placeholder={t("donation.fullNamePlaceholder")} className="h-12" />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="email">{t("donation.emailAddress")}</Label>
-                  <Input id="email" type="email" placeholder={t("donation.emailPlaceholder")} className="h-12" />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="card">{t("donation.cardNumber")}</Label>
+                  <Label htmlFor="donorName">{t("donation.fullName") || "Full Name"} *</Label>
                   <div className="relative">
-                    <CreditCard className={`absolute ${isRtl ? "right-3" : "left-3"} top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground`} />
-                    <Input id="card" placeholder="1234 5678 9012 3456" className={`h-12 ${isRtl ? "pr-10" : "pl-10"}`} />
+                    <User className={`absolute ${isRtl ? "right-3" : "left-3"} top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground`} />
+                    <Input
+                      id="donorName"
+                      placeholder={t("donation.fullNamePlaceholder") || "Your full name"}
+                      value={donorName}
+                      onChange={(e) => setDonorName(e.target.value)}
+                      className={`h-12 ${isRtl ? "pr-10" : "pl-10"}`}
+                    />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="expiry">{t("donation.expiryDate")}</Label>
-                    <Input id="expiry" placeholder="MM/YY" className="h-12" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="cvv">{t("donation.cvv")}</Label>
-                    <Input id="cvv" placeholder="123" className="h-12" />
+                <div className="space-y-2">
+                  <Label htmlFor="donorEmail">{t("donation.emailAddress") || "Email Address"} *</Label>
+                  <div className="relative">
+                    <Mail className={`absolute ${isRtl ? "right-3" : "left-3"} top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground`} />
+                    <Input
+                      id="donorEmail"
+                      type="email"
+                      placeholder={t("donation.emailPlaceholder") || "your@email.com"}
+                      value={donorEmail}
+                      onChange={(e) => setDonorEmail(e.target.value)}
+                      className={`h-12 ${isRtl ? "pr-10" : "pl-10"}`}
+                    />
                   </div>
                 </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="donorPhone">{t("donation.phone") || "Phone"} <span className="text-muted-foreground text-xs">(optional)</span></Label>
+                  <div className="relative">
+                    <Phone className={`absolute ${isRtl ? "right-3" : "left-3"} top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground`} />
+                    <Input
+                      id="donorPhone"
+                      type="tel"
+                      placeholder="+212 6XX XXX XXX"
+                      value={donorPhone}
+                      onChange={(e) => setDonorPhone(e.target.value)}
+                      className={`h-12 ${isRtl ? "pr-10" : "pl-10"}`}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* CMI secure payment notice */}
+              <div className="flex items-start gap-3 rounded-lg border border-primary/20 bg-primary/5 p-4">
+                <ShieldCheck className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                <p className="text-sm text-muted-foreground">
+                  You will be securely redirected to the <strong className="text-foreground">CMI payment gateway</strong> to complete your donation. Your card details are never shared with us.
+                </p>
               </div>
 
               {/* Actions */}
@@ -213,24 +319,34 @@ const DonateDrawer = ({ open, onOpenChange }: DonateDrawerProps) => {
                   variant="outline"
                   className="h-14 px-6 rounded-full"
                   onClick={() => setStep(1)}
+                  disabled={submitting}
                 >
                   <ArrowLeft className={`${isRtl ? "ml-2 rotate-180" : "mr-2"} w-4 h-4`} />
                   {t("donation.back") || "Back"}
                 </Button>
+
                 <Button
-                  className="flex-1 h-14 text-lg font-semibold rounded-full"
+                  className="flex-1 h-14 text-base font-semibold rounded-full"
                   size="lg"
+                  onClick={handleSubmit}
+                  disabled={submitting}
                 >
-                  <Heart className="mr-2 w-5 h-5" />
-                  {t("donation.donateButton", {
-                    amount: displayAmount,
-                    period: frequency === "monthly" ? t("donation.perMonth") : "",
-                  })}
+                  {submitting ? (
+                    <>
+                      <Loader2 className="mr-2 w-5 h-5 animate-spin" />
+                      Processing…
+                    </>
+                  ) : (
+                    <>
+                      <Heart className="mr-2 w-5 h-5" />
+                      Donate {displayAmount} MAD
+                    </>
+                  )}
                 </Button>
               </div>
 
               <p className="text-xs text-center text-muted-foreground">
-                {t("donation.secureNote")}
+                {t("donation.secureNote") || "Secured by CMI — 3D Secure payment"}
               </p>
             </>
           )}
