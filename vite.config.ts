@@ -46,7 +46,7 @@ const proxyOptions = {
 };
 
 const localProxyOptions = {
-  target: LOCAL_API,
+  target: LARAVEL_API,
   changeOrigin: true,
   secure: false,
   configure: (proxy: any) => {
@@ -54,7 +54,11 @@ const localProxyOptions = {
       console.error("[proxy] Local API unavailable:", err.message);
       if (res && !res.headersSent) {
         res.writeHead(503, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ message: "Local API unavailable — please wait and try again." }));
+        res.end(
+          JSON.stringify({
+            message: "Local API unavailable — please wait and try again.",
+          }),
+        );
       }
     });
   },
@@ -74,18 +78,23 @@ export default defineConfig(({ mode }: { mode: string }) => ({
     host: "0.0.0.0",
     port: 5000,
     allowedHosts: true as const,
-    hmr: (process.env.REPL_SLUG || process.env.REPL_ID)
-      ? { clientPort: 443, protocol: "wss", host: process.env.REPLIT_DEV_DOMAIN }
-      : true,
+    hmr:
+      process.env.REPL_SLUG || process.env.REPL_ID
+        ? {
+            clientPort: 443,
+            protocol: "wss",
+            host: process.env.REPLIT_DEV_DOMAIN,
+          }
+        : true,
     proxy: {
-      "/api/admin":       localProxyOptions,
-      "/api/payments":    localProxyOptions,
-      "/api/cities":      localProxyOptions,
-      "/api/cms":         localProxyOptions,
+      "/api/admin": localProxyOptions,
+      "/api/payments": localProxyOptions,
+      "/api/cities": localProxyOptions,
+      "/api/cms": localProxyOptions,
       "/api/placeholder": { target: LARAVEL_API, changeOrigin: true },
-      "/api":             proxyOptions,
-      "/sanctum":      laravelProxyOptions,
-      "/storage":      laravelProxyOptions,
+      "/api": proxyOptions,
+      "/sanctum": laravelProxyOptions,
+      "/storage": laravelProxyOptions,
     },
     watch: {
       ignored: [
@@ -122,7 +131,9 @@ export default defineConfig(({ mode }: { mode: string }) => ({
             try {
               const raw = await fs.readFile(indexFile, "utf-8");
               return JSON.parse(raw);
-            } catch { return []; }
+            } catch {
+              return [];
+            }
           }
           async function writeIndex(items: any[]) {
             await fs.mkdir(uploadsDir, { recursive: true });
@@ -149,7 +160,9 @@ export default defineConfig(({ mode }: { mode: string }) => ({
               try {
                 const filePath = path.join(uploadsDir, entry.fileName);
                 await fs.unlink(filePath);
-              } catch { /* file may already be gone */ }
+              } catch {
+                /* file may already be gone */
+              }
               await writeIndex(items.filter((x: any) => x.id !== id));
             }
             res.statusCode = 200;
@@ -165,7 +178,9 @@ export default defineConfig(({ mode }: { mode: string }) => ({
             if (!boundary) {
               res.statusCode = 400;
               res.setHeader("Content-Type", "application/json");
-              res.end(JSON.stringify({ message: "Missing multipart boundary" }));
+              res.end(
+                JSON.stringify({ message: "Missing multipart boundary" }),
+              );
               return;
             }
 
@@ -217,7 +232,8 @@ export default defineConfig(({ mode }: { mode: string }) => ({
                 return;
               }
 
-              const ext = fileName.split(".").pop()?.replace("jpeg", "jpg") ?? "jpg";
+              const ext =
+                fileName.split(".").pop()?.replace("jpeg", "jpg") ?? "jpg";
               const id = crypto.randomUUID();
               const savedName = `${id}.${ext}`;
               await fs.mkdir(uploadsDir, { recursive: true });
@@ -225,7 +241,10 @@ export default defineConfig(({ mode }: { mode: string }) => ({
 
               // Update index
               const items = await readIndex();
-              const nextId = items.length > 0 ? Math.max(...items.map((x: any) => x.id)) + 1 : 1;
+              const nextId =
+                items.length > 0
+                  ? Math.max(...items.map((x: any) => x.id)) + 1
+                  : 1;
               const entry = {
                 id: nextId,
                 fileName: savedName,
@@ -242,7 +261,9 @@ export default defineConfig(({ mode }: { mode: string }) => ({
               res.statusCode = 201;
               res.setHeader("Content-Type", "application/json");
               res.end(JSON.stringify(entry));
-              console.log(`[local-media] Saved ${savedName} (${fileBuffer.length} bytes)`);
+              console.log(
+                `[local-media] Saved ${savedName} (${fileBuffer.length} bytes)`,
+              );
             } catch (err) {
               console.error("[local-media] Upload error:", err);
               res.statusCode = 500;
@@ -303,8 +324,13 @@ export default defineConfig(({ mode }: { mode: string }) => ({
             // Also register in the media library index
             try {
               let items: any[] = [];
-              try { items = JSON.parse(await fs.readFile(indexFile, "utf-8")); } catch {}
-              const nextId = items.length > 0 ? Math.max(...items.map((x: any) => x.id)) + 1 : 1;
+              try {
+                items = JSON.parse(await fs.readFile(indexFile, "utf-8"));
+              } catch {}
+              const nextId =
+                items.length > 0
+                  ? Math.max(...items.map((x: any) => x.id)) + 1
+                  : 1;
               const altName: string = body.alt ?? filename;
               items.push({
                 id: nextId,
@@ -323,7 +349,9 @@ export default defineConfig(({ mode }: { mode: string }) => ({
             res.statusCode = 201;
             res.setHeader("Content-Type", "application/json");
             res.end(JSON.stringify({ url, id, alt: body.alt ?? "" }));
-            console.log(`[handle-media-upload] Saved ${filename} (${binary.length} bytes)`);
+            console.log(
+              `[handle-media-upload] Saved ${filename} (${binary.length} bytes)`,
+            );
           } catch (err) {
             console.error("[handle-media-upload] Error:", err);
             res.statusCode = 500;
@@ -358,19 +386,27 @@ export default defineConfig(({ mode }: { mode: string }) => ({
               const files = await fs.readdir(uploadsDir);
               const match = files.find((f) => f.startsWith(id + "."));
               if (match) localFile = path.join(uploadsDir, match);
-            } catch { /* directory may not exist yet */ }
+            } catch {
+              /* directory may not exist yet */
+            }
 
             if (localFile) {
               const ext = localFile.split(".").pop() ?? "jpg";
               const mimeMap: Record<string, string> = {
-                jpg: "image/jpeg", jpeg: "image/jpeg",
-                png: "image/png", gif: "image/gif", webp: "image/webp",
+                jpg: "image/jpeg",
+                jpeg: "image/jpeg",
+                png: "image/png",
+                gif: "image/gif",
+                webp: "image/webp",
               };
               const mime = mimeMap[ext] ?? "image/jpeg";
               const binary = await fs.readFile(localFile);
               res.statusCode = 200;
               res.setHeader("Content-Type", mime);
-              res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+              res.setHeader(
+                "Cache-Control",
+                "public, max-age=31536000, immutable",
+              );
               res.end(binary);
               return;
             }
@@ -398,13 +434,21 @@ export default defineConfig(({ mode }: { mode: string }) => ({
           const pathMod = await import("path");
           const crypto = await import("crypto");
 
-          const settingsFile = pathMod.resolve(__dirname, "public/page-hero-settings.json");
-          const heroMediaDir = pathMod.resolve(__dirname, "public/uploads/hero-media");
+          const settingsFile = pathMod.resolve(
+            __dirname,
+            "public/page-hero-settings.json",
+          );
+          const heroMediaDir = pathMod.resolve(
+            __dirname,
+            "public/uploads/hero-media",
+          );
 
           async function readSettings(): Promise<Record<string, any>> {
             try {
               return JSON.parse(await fs.readFile(settingsFile, "utf-8"));
-            } catch { return {}; }
+            } catch {
+              return {};
+            }
           }
           async function writeSettings(data: Record<string, any>) {
             await fs.mkdir(pathMod.dirname(settingsFile), { recursive: true });
@@ -424,7 +468,9 @@ export default defineConfig(({ mode }: { mode: string }) => ({
           }
 
           // PUT /api/admin/cms/page-hero/:page
-          const putMatch = url.match(/^\/api\/admin\/cms\/page-hero\/([^?/]+)$/);
+          const putMatch = url.match(
+            /^\/api\/admin\/cms\/page-hero\/([^?/]+)$/,
+          );
           if (req.method === "PUT" && putMatch) {
             const page = putMatch[1];
             try {
@@ -447,13 +493,18 @@ export default defineConfig(({ mode }: { mode: string }) => ({
           }
 
           // POST /api/admin/cms/page-hero-upload
-          if (req.method === "POST" && url.startsWith("/api/admin/cms/page-hero-upload")) {
+          if (
+            req.method === "POST" &&
+            url.startsWith("/api/admin/cms/page-hero-upload")
+          ) {
             const contentType: string = req.headers["content-type"] ?? "";
             const boundaryPart = contentType.split("boundary=")[1];
             if (!boundaryPart) {
               res.statusCode = 400;
               res.setHeader("Content-Type", "application/json");
-              res.end(JSON.stringify({ message: "Missing multipart boundary" }));
+              res.end(
+                JSON.stringify({ message: "Missing multipart boundary" }),
+              );
               return;
             }
 
@@ -501,17 +552,23 @@ export default defineConfig(({ mode }: { mode: string }) => ({
                 return;
               }
 
-              const ext = fileName.split(".").pop()?.replace("jpeg", "jpg") ?? "bin";
+              const ext =
+                fileName.split(".").pop()?.replace("jpeg", "jpg") ?? "bin";
               const id = (crypto as any).randomUUID();
               const savedName = `${id}.${ext}`;
               await fs.mkdir(heroMediaDir, { recursive: true });
-              await fs.writeFile(pathMod.join(heroMediaDir, savedName), fileBuffer);
+              await fs.writeFile(
+                pathMod.join(heroMediaDir, savedName),
+                fileBuffer,
+              );
 
               const fileUrl = `/uploads/hero-media/${savedName}`;
               res.statusCode = 201;
               res.setHeader("Content-Type", "application/json");
               res.end(JSON.stringify({ url: fileUrl, id }));
-              console.log(`[page-hero-upload] Saved ${savedName} (${fileBuffer.length} bytes)`);
+              console.log(
+                `[page-hero-upload] Saved ${savedName} (${fileBuffer.length} bytes)`,
+              );
             } catch (err) {
               console.error("[page-hero-upload] Error:", err);
               res.statusCode = 500;
@@ -544,7 +601,10 @@ export default defineConfig(({ mode }: { mode: string }) => ({
 
           const fs = await import("fs/promises");
           const pathMod = await import("path");
-          const settingsFile = pathMod.resolve(__dirname, "public/focus-section-settings.json");
+          const settingsFile = pathMod.resolve(
+            __dirname,
+            "public/focus-section-settings.json",
+          );
           const DEFAULT = {
             id: "default",
             title: "Our Focus",
@@ -618,11 +678,16 @@ export default defineConfig(({ mode }: { mode: string }) => ({
           if (req.method === "GET") {
             const result: Record<string, any> = {};
             for (const lang of LANGS) {
-              const file = pathMod.resolve(__dirname, `src/i18n/locales/${lang}.json`);
+              const file = pathMod.resolve(
+                __dirname,
+                `src/i18n/locales/${lang}.json`,
+              );
               try {
                 const raw = JSON.parse(await fs.readFile(file, "utf-8"));
                 result[lang] = raw[section] ?? {};
-              } catch { result[lang] = {}; }
+              } catch {
+                result[lang] = {};
+              }
             }
             res.statusCode = 200;
             res.setHeader("Content-Type", "application/json");
@@ -635,20 +700,34 @@ export default defineConfig(({ mode }: { mode: string }) => ({
             try {
               const chunks: Buffer[] = [];
               for await (const chunk of req) chunks.push(chunk);
-              const updates: Record<string, Record<string, string>> = JSON.parse(Buffer.concat(chunks).toString());
+              const updates: Record<
+                string,
+                Record<string, string>
+              > = JSON.parse(Buffer.concat(chunks).toString());
               for (const lang of LANGS) {
                 if (!updates[lang]) continue;
-                const file = pathMod.resolve(__dirname, `src/i18n/locales/${lang}.json`);
+                const file = pathMod.resolve(
+                  __dirname,
+                  `src/i18n/locales/${lang}.json`,
+                );
                 try {
                   const raw = JSON.parse(await fs.readFile(file, "utf-8"));
                   raw[section] = { ...(raw[section] ?? {}), ...updates[lang] };
-                  await fs.writeFile(file, JSON.stringify(raw, null, 2) + "\n", "utf-8");
-                } catch (e) { console.error(`[i18n] Error updating ${lang}.json:`, e); }
+                  await fs.writeFile(
+                    file,
+                    JSON.stringify(raw, null, 2) + "\n",
+                    "utf-8",
+                  );
+                } catch (e) {
+                  console.error(`[i18n] Error updating ${lang}.json:`, e);
+                }
               }
               res.statusCode = 200;
               res.setHeader("Content-Type", "application/json");
               res.end(JSON.stringify({ message: "Saved" }));
-              console.log(`[i18n] Updated section "${section}" for ${Object.keys(updates).join(", ")}`);
+              console.log(
+                `[i18n] Updated section "${section}" for ${Object.keys(updates).join(", ")}`,
+              );
             } catch (err) {
               console.error("[i18n] Save error:", err);
               res.statusCode = 500;
@@ -677,16 +756,22 @@ export default defineConfig(({ mode }: { mode: string }) => ({
         server.middlewares.use(async (req: any, res: any, next: any) => {
           const url: string = req.url ?? "";
           const publicMatch = url.match(/^\/api\/cms\/legal\/([^?/]+)/);
-          const adminMatch  = url.match(/^\/api\/admin\/cms\/legal\/([^?/]+)/);
+          const adminMatch = url.match(/^\/api\/admin\/cms\/legal\/([^?/]+)/);
           if (!publicMatch && !adminMatch) return next();
 
           const fs = await import("fs/promises");
           const pathMod = await import("path");
-          const storeFile = pathMod.resolve(__dirname, "public/legal-pages.json");
+          const storeFile = pathMod.resolve(
+            __dirname,
+            "public/legal-pages.json",
+          );
 
           async function readStore(): Promise<Record<string, any>> {
-            try { return JSON.parse(await fs.readFile(storeFile, "utf-8")); }
-            catch { return {}; }
+            try {
+              return JSON.parse(await fs.readFile(storeFile, "utf-8"));
+            } catch {
+              return {};
+            }
           }
           async function writeStore(data: Record<string, any>) {
             await fs.mkdir(pathMod.dirname(storeFile), { recursive: true });
@@ -737,7 +822,10 @@ export default defineConfig(({ mode }: { mode: string }) => ({
       configureServer(server) {
         server.middlewares.use(async (req: any, res: any, next: any) => {
           const url: string = req.url ?? "";
-          if (req.method !== "POST" || !url.startsWith("/api/admin/translations/auto-translate")) {
+          if (
+            req.method !== "POST" ||
+            !url.startsWith("/api/admin/translations/auto-translate")
+          ) {
             return next();
           }
           try {
@@ -751,7 +839,11 @@ export default defineConfig(({ mode }: { mode: string }) => ({
               res.end(JSON.stringify({ message: "Missing required fields" }));
               return;
             }
-            const langMap: Record<string, string> = { ar: "ar", fr: "fr", es: "es" };
+            const langMap: Record<string, string> = {
+              ar: "ar",
+              fr: "fr",
+              es: "es",
+            };
             const targetLang = langMap[targetLanguage];
             if (!targetLang) {
               res.statusCode = 400;
@@ -760,17 +852,28 @@ export default defineConfig(({ mode }: { mode: string }) => ({
               return;
             }
             const results: Record<string, string> = {};
-            for (const { key, value: text } of texts as Array<{ key: string; value: string }>) {
-              if (!text?.trim()) { results[key] = ""; continue; }
+            for (const { key, value: text } of texts as Array<{
+              key: string;
+              value: string;
+            }>) {
+              if (!text?.trim()) {
+                results[key] = "";
+                continue;
+              }
               const apiUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|${targetLang}`;
               const apiRes = await fetch(apiUrl);
-              const data = await apiRes.json() as any;
-              results[key] = data?.responseStatus === 200 ? (data.responseData?.translatedText ?? "") : "";
+              const data = (await apiRes.json()) as any;
+              results[key] =
+                data?.responseStatus === 200
+                  ? (data.responseData?.translatedText ?? "")
+                  : "";
             }
             res.statusCode = 200;
             res.setHeader("Content-Type", "application/json");
             res.end(JSON.stringify({ results }));
-            console.log(`[auto-translate] Translated ${texts.length} field(s) → ${targetLanguage}`);
+            console.log(
+              `[auto-translate] Translated ${texts.length} field(s) → ${targetLanguage}`,
+            );
           } catch (err) {
             console.error("[auto-translate] Error:", err);
             res.statusCode = 500;

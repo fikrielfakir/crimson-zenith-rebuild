@@ -411,4 +411,66 @@ class CmsAdminController extends Controller
         Partner::findOrFail($id)->delete();
         return response()->json(['message' => 'Partner removed']);
     }
+
+    public function listTestimonials()
+    {
+        return response()->json(LandingTestimonial::orderBy('ordering')->get());
+    }
+
+    public function storeTestimonial(\Illuminate\Http\Request $request)
+    {
+        $data = $request->validate([
+            'name'       => 'required|string|max:255',
+            'role'       => 'nullable|string|max:255',
+            'feedback'   => 'required|string',
+            'rating'     => 'nullable|integer|min:1|max:5',
+            'isApproved' => 'nullable|boolean',
+            'isActive'   => 'nullable|boolean',
+        ]);
+
+        $testimonial = LandingTestimonial::create([
+            'name'        => $data['name'],
+            'role'        => $data['role'] ?? null,
+            'feedback'    => $data['feedback'],
+            'rating'      => $data['rating'] ?? 5,
+            'is_approved' => $data['isApproved'] ?? true,
+            'is_active'   => $data['isActive'] ?? true,
+            'ordering'    => (LandingTestimonial::max('ordering') ?? 0) + 1,
+        ]);
+
+        return response()->json($testimonial, 201);
+    }
+
+    public function updateTestimonial(\Illuminate\Http\Request $request, $id)
+    {
+        $testimonial = LandingTestimonial::findOrFail($id);
+
+        $data = $request->validate([
+            'name'       => 'sometimes|string|max:255',
+            'role'       => 'nullable|string|max:255',
+            'feedback'   => 'sometimes|string',
+            'rating'     => 'nullable|integer|min:1|max:5',
+            'isApproved' => 'nullable|boolean',
+            'isActive'   => 'nullable|boolean',
+            'ordering'   => 'nullable|integer',
+        ]);
+
+        $testimonial->update([
+            'name'        => $data['name']       ?? $testimonial->name,
+            'role'        => $data['role']       ?? $testimonial->role,
+            'feedback'    => $data['feedback']   ?? $testimonial->feedback,
+            'rating'      => $data['rating']     ?? $testimonial->rating,
+            'is_approved' => $data['isApproved'] ?? $testimonial->is_approved,
+            'is_active'   => $data['isActive']   ?? $testimonial->is_active,
+            'ordering'    => $data['ordering']   ?? $testimonial->ordering,
+        ]);
+
+        return response()->json($testimonial->fresh());
+    }
+
+    public function destroyTestimonial($id)
+    {
+        LandingTestimonial::findOrFail($id)->delete();
+        return response()->json(['message' => 'Deleted']);
+    }
 }
