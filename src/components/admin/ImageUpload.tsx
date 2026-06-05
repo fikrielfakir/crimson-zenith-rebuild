@@ -31,11 +31,11 @@ export function ImageUpload({ value, onChange, className }: ImageUploadProps) {
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
-      alert('Please select an image file');
+      setUploadError('Please select an image file (PNG, JPG, GIF, WebP).');
       return;
     }
     if (file.size > 10 * 1024 * 1024) {
-      alert('File size should be less than 10MB');
+      setUploadError('File size must be under 10 MB. Please choose a smaller image.');
       return;
     }
 

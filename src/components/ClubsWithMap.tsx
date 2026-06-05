@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useTranslatedList } from "@/hooks/useContentTranslation";
@@ -76,6 +77,7 @@ const ClubsWithMap = () => {
   const [cityScrollIndex, setCityScrollIndex] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
+  const { toast } = useToast();
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
   const markers = useRef<maplibregl.Marker[]>([]);
@@ -695,7 +697,11 @@ const ClubsWithMap = () => {
                     },
                     (error) => {
                       console.error("Error getting location:", error);
-                      alert("Unable to get your location. Please enable location services and try again.");
+                      toast({
+                        title: 'Location unavailable',
+                        description: 'Unable to get your location. Please enable location services and try again.',
+                        variant: 'destructive',
+                      });
                     },
                     {
                       enableHighAccuracy: true,
@@ -704,7 +710,11 @@ const ClubsWithMap = () => {
                     }
                   );
                 } else {
-                  alert("Geolocation is not supported by your browser.");
+                  toast({
+                    title: 'Not supported',
+                    description: 'Geolocation is not supported by your browser.',
+                    variant: 'destructive',
+                  });
                 }
               }
             }}

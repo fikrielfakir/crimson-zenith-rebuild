@@ -1,5 +1,6 @@
 import { apiFetch } from '@/lib/apiFetch';
 import { useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
 import { useQuery } from '@tanstack/react-query';
 import { Calendar, Download, TrendingUp, Users, Calendar as CalendarIcon, DollarSign, Building } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -41,8 +42,10 @@ export default function Analytics() {
     queryFn: () => fetchAnalytics(period),
   });
 
+  const { toast } = useToast();
+
   const handleExport = () => {
-    alert('Exporting analytics data...');
+    toast({ title: 'Export not available yet', description: 'Analytics CSV export is coming soon.' });
   };
 
   if (isLoading) {
