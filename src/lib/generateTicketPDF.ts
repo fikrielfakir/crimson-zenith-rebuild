@@ -14,6 +14,5 @@ export interface TicketData {
 }
 
 export async function generateTicketPDF(data: TicketData): Promise<void> {
-  console.warn("PDF generation is not available in this environment.");
-  alert(`Ticket reference: ${data.bookingReference}\nPlease save your booking reference for entry.`);
+  console.warn("PDF generation is not yet available in this environment.", data.bookingReference);
 }

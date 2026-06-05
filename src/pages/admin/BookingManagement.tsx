@@ -95,6 +95,7 @@ async function deleteBooking(bookingReference: string) {
 function TicketModal({ booking, isOpen, onClose }: { booking: Booking | null; isOpen: boolean; onClose: () => void }) {
   const [downloading, setDownloading] = useState(false);
   const [dlError, setDlError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   if (!booking) return null;
 
@@ -115,6 +116,10 @@ function TicketModal({ booking, isOpen, onClose }: { booking: Booking | null; is
         eventDate:            booking.eventDate,
         totalPrice:           booking.totalAmount,
         paymentStatus:        booking.status,
+      });
+      toast({
+        title: 'Booking reference saved',
+        description: `Reference: ${booking.bookingReference} — PDF export coming soon.`,
       });
     } catch (err) {
       console.error('[TicketPDF] download failed:', err);
