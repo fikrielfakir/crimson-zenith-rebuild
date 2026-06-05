@@ -1,6 +1,6 @@
 import { apiFetch } from '@/lib/apiFetch';
 import { generateTicketPDF } from '@/lib/generateTicketPDF';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -96,6 +96,7 @@ function TicketModal({ booking, isOpen, onClose }: { booking: Booking | null; is
   const [downloading, setDownloading] = useState(false);
   const [dlError, setDlError] = useState<string | null>(null);
   const { toast } = useToast();
+  const ticketRef = useRef<HTMLDivElement>(null);
 
   if (!booking) return null;
 
@@ -107,19 +108,22 @@ function TicketModal({ booking, isOpen, onClose }: { booking: Booking | null; is
     setDlError(null);
     setDownloading(true);
     try {
-      await generateTicketPDF({
-        bookingReference:     booking.bookingReference,
-        customerName:         booking.userName,
-        customerEmail:        booking.userEmail,
-        numberOfParticipants: booking.attendees,
-        eventTitle:           booking.eventTitle,
-        eventDate:            booking.eventDate,
-        totalPrice:           booking.totalAmount,
-        paymentStatus:        booking.status,
-      });
+      await generateTicketPDF(
+        {
+          bookingReference:     booking.bookingReference,
+          customerName:         booking.userName,
+          customerEmail:        booking.userEmail,
+          numberOfParticipants: booking.attendees,
+          eventTitle:           booking.eventTitle,
+          eventDate:            booking.eventDate,
+          totalPrice:           booking.totalAmount,
+          paymentStatus:        booking.status,
+        },
+        ticketRef.current ?? undefined,
+      );
       toast({
-        title: 'Booking reference saved',
-        description: `Reference: ${booking.bookingReference} — PDF export coming soon.`,
+        title: 'Ticket downloaded',
+        description: `ticket-${booking.bookingReference}.pdf saved to your downloads folder.`,
       });
     } catch (err) {
       console.error('[TicketPDF] download failed:', err);
@@ -136,6 +140,7 @@ function TicketModal({ booking, isOpen, onClose }: { booking: Booking | null; is
 
         {/* ── Luxury vertical ticket ── */}
         <div
+          ref={ticketRef}
           className="relative mx-auto select-none"
           style={{ width: 300, fontFamily: 'sans-serif' }}
         >
