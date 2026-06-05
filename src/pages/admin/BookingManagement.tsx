@@ -127,6 +127,7 @@ function TicketModal({ booking, isOpen, onClose }: { booking: Booking | null; is
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-sm p-0 overflow-hidden bg-transparent border-0 shadow-none">
+        <DialogTitle className="sr-only">Event Ticket</DialogTitle>
 
         {/* ── Luxury vertical ticket ── */}
         <div
