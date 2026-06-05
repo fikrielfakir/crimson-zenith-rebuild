@@ -9,12 +9,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useToast } from '@/hooks/use-toast';
 import { Plus, MoreHorizontal, Pencil, Trash2, Search, RefreshCw, FileText, MapPin, Calendar } from 'lucide-react';
 import { TranslateDialog } from '@/components/admin/TranslateDialog';
+import { ConfirmDeleteDialog } from '@/components/admin/ConfirmDeleteDialog';
+import { AdminPageHeader, AdminTableSkeleton, AdminEmptyState } from '@/components/admin/AdminPageShell';
 
 interface VolunteerPost {
   id: number;
@@ -51,12 +52,8 @@ async function fetchPosts(status: string, search: string) {
   return (data.data ?? data) as VolunteerPost[];
 }
 
-function arrayField(val: string[] | null) {
-  return (val ?? []).join('\n');
-}
-function parseArrayField(val: string): string[] {
-  return val.split('\n').map(s => s.trim()).filter(Boolean);
-}
+function arrayField(val: string[] | null) { return (val ?? []).join('\n'); }
+function parseArrayField(val: string): string[] { return val.split('\n').map(s => s.trim()).filter(Boolean); }
 
 export default function VolunteerPostsAdmin() {
   const [statusFilter, setStatusFilter] = useState('all');
@@ -133,18 +130,18 @@ export default function VolunteerPostsAdmin() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-4">
-        <div>
-          <h1 className="text-3xl font-bold">Volunteer Posts</h1>
-          <p className="text-muted-foreground mt-1">Structured volunteer position listings</p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching}>
-            <RefreshCw className={`mr-2 h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />Refresh
-          </Button>
-          <Button onClick={openCreate}><Plus className="mr-2 h-4 w-4" />New Post</Button>
-        </div>
-      </div>
+      <AdminPageHeader
+        title="Volunteer Posts"
+        description="Structured volunteer position listings"
+        action={
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching}>
+              <RefreshCw className={`mr-2 h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />Refresh
+            </Button>
+            <Button onClick={openCreate}><Plus className="mr-2 h-4 w-4" />New Post</Button>
+          </div>
+        }
+      />
 
       <Card>
         <CardContent className="pt-4 pb-3">
@@ -174,11 +171,13 @@ export default function VolunteerPostsAdmin() {
         </CardHeader>
         <CardContent className="p-0">
           {isLoading ? (
-            <div className="flex justify-center py-12"><div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div>
+            <AdminTableSkeleton cols={5} />
           ) : data.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground">
-              <FileText className="h-10 w-10 mx-auto mb-3 opacity-30" /><p>No posts yet.</p>
-            </div>
+            <AdminEmptyState
+              title="No volunteer posts yet"
+              message="Create your first volunteer position to get started."
+              action={<Button size="sm" onClick={openCreate}><Plus className="mr-2 h-4 w-4" />New Post</Button>}
+            />
           ) : (
             <Table>
               <TableHeader>
@@ -201,9 +200,9 @@ export default function VolunteerPostsAdmin() {
                     <TableCell><span className="flex items-center gap-1 text-sm"><MapPin className="h-3.5 w-3.5 text-muted-foreground" />{p.location ?? '—'}</span></TableCell>
                     <TableCell><span className="text-sm">{p.type ?? '—'}</span></TableCell>
                     <TableCell>
-                      {p.deadline ? (
-                        <span className="flex items-center gap-1 text-sm"><Calendar className="h-3.5 w-3.5 text-muted-foreground" />{new Date(p.deadline).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
-                      ) : '—'}
+                      {p.deadline
+                        ? <span className="flex items-center gap-1 text-sm"><Calendar className="h-3.5 w-3.5 text-muted-foreground" />{new Date(p.deadline).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                        : '—'}
                     </TableCell>
                     <TableCell><Badge variant={p.status === 'published' ? 'default' : 'secondary'}>{p.status}</Badge></TableCell>
                     <TableCell className="text-right pr-6">
@@ -255,7 +254,8 @@ export default function VolunteerPostsAdmin() {
               <div className="space-y-1.5"><Label>Type</Label><Input value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value }))} placeholder="Long-term" /></div>
               <div className="space-y-1.5"><Label>Duration</Label><Input value={form.duration} onChange={e => setForm(f => ({ ...f, duration: e.target.value }))} placeholder="6 months" /></div>
               <div className="space-y-1.5"><Label>Commitment</Label><Input value={form.commitment} onChange={e => setForm(f => ({ ...f, commitment: e.target.value }))} placeholder="20h/week" /></div>
-              <div className="space-y-1.5"><Label>Status</Label>
+              <div className="space-y-1.5">
+                <Label>Status</Label>
                 <Select value={form.status} onValueChange={v => setForm(f => ({ ...f, status: v as any }))}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent><SelectItem value="draft">Draft</SelectItem><SelectItem value="published">Published</SelectItem></SelectContent>
@@ -264,9 +264,9 @@ export default function VolunteerPostsAdmin() {
               <div className="space-y-1.5"><Label>Start Date</Label><Input type="date" value={form.start_date} onChange={e => setForm(f => ({ ...f, start_date: e.target.value }))} /></div>
               <div className="space-y-1.5"><Label>Deadline</Label><Input type="date" value={form.deadline} onChange={e => setForm(f => ({ ...f, deadline: e.target.value }))} /></div>
               <div className="col-span-2 space-y-1.5"><Label>Description</Label><Textarea rows={3} value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="Describe the role…" /></div>
-              <div className="col-span-2 space-y-1.5"><Label>Responsibilities (one per line)</Label><Textarea rows={3} value={form.responsibilities} onChange={e => setForm(f => ({ ...f, responsibilities: e.target.value }))} placeholder="Manage garden schedule&#10;Coordinate volunteers" /></div>
-              <div className="col-span-2 space-y-1.5"><Label>Requirements (one per line)</Label><Textarea rows={3} value={form.requirements} onChange={e => setForm(f => ({ ...f, requirements: e.target.value }))} placeholder="Passion for nature&#10;Basic French" /></div>
-              <div className="col-span-2 space-y-1.5"><Label>Benefits (one per line)</Label><Textarea rows={3} value={form.benefits} onChange={e => setForm(f => ({ ...f, benefits: e.target.value }))} placeholder="Training provided&#10;Certificate" /></div>
+              <div className="col-span-2 space-y-1.5"><Label>Responsibilities (one per line)</Label><Textarea rows={3} value={form.responsibilities} onChange={e => setForm(f => ({ ...f, responsibilities: e.target.value }))} /></div>
+              <div className="col-span-2 space-y-1.5"><Label>Requirements (one per line)</Label><Textarea rows={3} value={form.requirements} onChange={e => setForm(f => ({ ...f, requirements: e.target.value }))} /></div>
+              <div className="col-span-2 space-y-1.5"><Label>Benefits (one per line)</Label><Textarea rows={3} value={form.benefits} onChange={e => setForm(f => ({ ...f, benefits: e.target.value }))} /></div>
             </div>
             <div className="flex justify-end gap-2 pt-2">
               <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
@@ -278,15 +278,13 @@ export default function VolunteerPostsAdmin() {
         </DialogContent>
       </Dialog>
 
-      <AlertDialog open={deletingId !== null} onOpenChange={open => !open && setDeletingId(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader><AlertDialogTitle>Delete post?</AlertDialogTitle><AlertDialogDescription>This action cannot be undone.</AlertDialogDescription></AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => deletingId && deleteMutation.mutate(deletingId)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmDeleteDialog
+        open={deletingId !== null}
+        onConfirm={() => deletingId && deleteMutation.mutate(deletingId)}
+        onCancel={() => setDeletingId(null)}
+        entityName="post"
+        isPending={deleteMutation.isPending}
+      />
     </div>
   );
 }

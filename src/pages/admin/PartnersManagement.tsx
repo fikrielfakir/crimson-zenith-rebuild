@@ -1,7 +1,7 @@
-import { apiFetch } from '@/lib/apiFetch';
 import { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { apiFetch } from '@/lib/apiFetch';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -15,20 +15,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Pencil, Trash2, Handshake, ExternalLink, Globe, Save, Eye, EyeOff, Upload, Loader2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, ExternalLink, Globe, Save, Eye, EyeOff, Upload, Loader2 } from 'lucide-react';
 import { TranslateDialog } from '@/components/admin/TranslateDialog';
+import { ConfirmDeleteDialog } from '@/components/admin/ConfirmDeleteDialog';
+import {
+  AdminPageHeader,
+  AdminTableSkeleton,
+  AdminEmptyState,
+} from '@/components/admin/AdminPageShell';
+import { useAdminCRUD } from '@/hooks/useAdminCRUD';
 
 interface Partner {
   id: number;
@@ -56,42 +53,12 @@ type PartnerForm = {
   isActive: boolean;
 };
 
-const PARTNERS_KEY = ['admin-partners'] as const;
 const SETTINGS_KEY = ['admin-partner-settings'] as const;
-
-async function fetchPartners(): Promise<Partner[]> {
-  const res = await apiFetch('/api/admin/cms/partners');
-  if (!res.ok) throw new Error('Failed to fetch partners');
-  return res.json();
-}
 
 async function fetchPartnerSettings(): Promise<PartnerSettings> {
   const res = await apiFetch('/api/admin/cms/partner-settings');
   if (!res.ok) throw new Error('Failed to fetch partner settings');
   return res.json();
-}
-
-async function createPartner(item: Omit<PartnerForm, 'logoUrl'> & { logoUrl?: string }): Promise<Partner> {
-  const res = await apiFetch('/api/admin/cms/partners', {
-    method: 'POST',
-    body: JSON.stringify(item),
-  });
-  if (!res.ok) throw new Error('Failed to create partner');
-  return res.json();
-}
-
-async function updatePartner(id: number, item: Partial<PartnerForm>): Promise<Partner> {
-  const res = await apiFetch(`/api/admin/cms/partners/${id}`, {
-    method: 'PUT',
-    body: JSON.stringify(item),
-  });
-  if (!res.ok) throw new Error('Failed to update partner');
-  return res.json();
-}
-
-async function deletePartner(id: number): Promise<void> {
-  const res = await apiFetch(`/api/admin/cms/partners/${id}`, { method: 'DELETE' });
-  if (!res.ok) throw new Error('Failed to delete partner');
 }
 
 async function savePartnerSettings(data: Partial<PartnerSettings>): Promise<PartnerSettings> {
@@ -135,9 +102,15 @@ export default function PartnersManagement() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  const { data: partners = [], isLoading } = useQuery({
-    queryKey: PARTNERS_KEY,
-    queryFn: fetchPartners,
+  const crud = useAdminCRUD<Partner>({
+    readEndpoint: '/api/admin/cms/partners',
+    writeEndpoint: '/api/admin/cms/partners',
+    queryKey: ['admin-partners'],
+    messages: {
+      created: 'Partner added',
+      updated: 'Partner updated',
+      deleted: 'Partner removed',
+    },
   });
 
   const { data: sectionSettings, isLoading: settingsLoading } = useQuery({
@@ -150,36 +123,6 @@ export default function PartnersManagement() {
     subtitle: sectionSettings?.subtitle ?? 'Associates & Clients',
     isActive: sectionSettings?.isActive ?? true,
   };
-
-  const createMutation = useMutation({
-    mutationFn: createPartner,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: PARTNERS_KEY });
-      toast({ title: 'Partner added' });
-      handleClose();
-    },
-    onError: (err: Error) => toast({ title: 'Error', description: err.message, variant: 'destructive' }),
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: ({ id, ...data }: { id: number } & Partial<PartnerForm>) => updatePartner(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: PARTNERS_KEY });
-      toast({ title: 'Partner updated' });
-      handleClose();
-    },
-    onError: (err: Error) => toast({ title: 'Error', description: err.message, variant: 'destructive' }),
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: deletePartner,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: PARTNERS_KEY });
-      toast({ title: 'Partner removed' });
-      setDeletingId(null);
-    },
-    onError: (err: Error) => toast({ title: 'Error', description: err.message, variant: 'destructive' }),
-  });
 
   const settingsMutation = useMutation({
     mutationFn: savePartnerSettings,
@@ -209,16 +152,17 @@ export default function PartnersManagement() {
     setForm(emptyForm);
   };
 
-  const handleSavePartner = () => {
+  const handleSavePartner = async () => {
     if (!form.name.trim()) {
       toast({ title: 'Validation error', description: 'Partner name is required', variant: 'destructive' });
       return;
     }
     if (editingItem) {
-      updateMutation.mutate({ id: editingItem.id, ...form });
+      await crud.update(editingItem.id, form);
     } else {
-      createMutation.mutate(form);
+      await crud.create(form);
     }
+    handleClose();
   };
 
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -244,23 +188,22 @@ export default function PartnersManagement() {
     }
   };
 
-  const activeCount = partners.filter((p) => p.isActive).length;
-  const isPending = createMutation.isPending || updateMutation.isPending;
+  const activeCount = crud.data.filter((p) => p.isActive).length;
+  const isPending = crud.isCreating || crud.isUpdating;
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Partners</h1>
-          <p className="text-muted-foreground mt-1">Manage the Partners & Supporters section on the landing page</p>
-        </div>
-        <Button onClick={() => setShowForm(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          Add Partner
-        </Button>
-      </div>
+      <AdminPageHeader
+        title="Partners"
+        description="Manage the Partners & Supporters section on the landing page"
+        action={
+          <Button onClick={() => setShowForm(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Add Partner
+          </Button>
+        }
+      />
 
-      {/* Section settings */}
       <Card>
         <CardHeader>
           <CardTitle>Section Header</CardTitle>
@@ -321,14 +264,12 @@ export default function PartnersManagement() {
                     checked={section.isActive}
                     onCheckedChange={(v) => setSectionDraft({ ...section, isActive: v })}
                   />
-                  <div>
-                    <Label htmlFor="sec-active" className="cursor-pointer">
-                      {section.isActive
-                        ? <span className="flex items-center gap-1.5 text-green-700"><Eye className="h-4 w-4" /> Section visible on site</span>
-                        : <span className="flex items-center gap-1.5 text-muted-foreground"><EyeOff className="h-4 w-4" /> Section hidden from site</span>
-                      }
-                    </Label>
-                  </div>
+                  <Label htmlFor="sec-active" className="cursor-pointer">
+                    {section.isActive
+                      ? <span className="flex items-center gap-1.5 text-green-700"><Eye className="h-4 w-4" /> Section visible on site</span>
+                      : <span className="flex items-center gap-1.5 text-muted-foreground"><EyeOff className="h-4 w-4" /> Section hidden from site</span>
+                    }
+                  </Label>
                 </div>
                 <Button onClick={() => settingsMutation.mutate(section)} disabled={settingsMutation.isPending}>
                   <Save className="mr-2 h-4 w-4" />
@@ -346,33 +287,30 @@ export default function PartnersManagement() {
         </CardContent>
       </Card>
 
-      {/* Stats */}
       <div className="grid grid-cols-3 gap-4">
-        <Card><CardContent className="pt-6"><div className="text-2xl font-bold">{partners.length}</div><div className="text-sm text-muted-foreground mt-1">Total partners</div></CardContent></Card>
+        <Card><CardContent className="pt-6"><div className="text-2xl font-bold">{crud.data.length}</div><div className="text-sm text-muted-foreground mt-1">Total partners</div></CardContent></Card>
         <Card><CardContent className="pt-6"><div className="text-2xl font-bold text-green-600">{activeCount}</div><div className="text-sm text-muted-foreground mt-1">Visible on site</div></CardContent></Card>
-        <Card><CardContent className="pt-6"><div className="text-2xl font-bold text-gray-400">{partners.length - activeCount}</div><div className="text-sm text-muted-foreground mt-1">Hidden</div></CardContent></Card>
+        <Card><CardContent className="pt-6"><div className="text-2xl font-bold text-gray-400">{crud.data.length - activeCount}</div><div className="text-sm text-muted-foreground mt-1">Hidden</div></CardContent></Card>
       </div>
 
-      {/* Partners table */}
       <Card>
         <CardHeader>
           <CardTitle>Partner Logos</CardTitle>
-          <CardDescription>{partners.length} partner{partners.length !== 1 ? 's' : ''} · shown in the scrolling carousel</CardDescription>
+          <CardDescription>{crud.data.length} partner{crud.data.length !== 1 ? 's' : ''} · shown in the scrolling carousel</CardDescription>
         </CardHeader>
         <CardContent className="overflow-x-auto">
-          {isLoading ? (
-            <div className="flex items-center justify-center py-12 text-muted-foreground">
-              <div className="text-center space-y-2">
-                <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent mx-auto" />
-                <p className="text-sm">Loading partners…</p>
-              </div>
-            </div>
-          ) : partners.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground">
-              <Handshake className="h-12 w-12 mx-auto mb-4 opacity-40" />
-              <p className="font-medium">No partners yet</p>
-              <p className="text-sm mt-1">Click "Add Partner" to get started</p>
-            </div>
+          {crud.isLoading ? (
+            <AdminTableSkeleton cols={7} rows={4} />
+          ) : crud.data.length === 0 ? (
+            <AdminEmptyState
+              title="No partners yet"
+              message='Click "Add Partner" to add your first partner logo.'
+              action={
+                <Button size="sm" onClick={() => setShowForm(true)}>
+                  <Plus className="mr-2 h-4 w-4" />Add Partner
+                </Button>
+              }
+            />
           ) : (
             <Table>
               <TableHeader>
@@ -387,7 +325,7 @@ export default function PartnersManagement() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {partners.map((partner) => (
+                {crud.data.map((partner) => (
                   <TableRow key={partner.id}>
                     <TableCell><LogoPreview src={partner.logoUrl} name={partner.name} /></TableCell>
                     <TableCell className="font-medium">{partner.name}</TableCell>
@@ -439,7 +377,6 @@ export default function PartnersManagement() {
         </CardContent>
       </Card>
 
-      {/* Add/Edit dialog */}
       <Dialog open={showForm} onOpenChange={(open) => { if (!open) handleClose(); }}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
@@ -504,23 +441,16 @@ export default function PartnersManagement() {
         </DialogContent>
       </Dialog>
 
-      <AlertDialog open={deletingId !== null} onOpenChange={(open) => !open && setDeletingId(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Remove partner?</AlertDialogTitle>
-            <AlertDialogDescription>This will permanently remove the partner from the carousel.</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              onClick={() => deletingId !== null && deleteMutation.mutate(deletingId)}
-            >
-              {deleteMutation.isPending ? 'Removing…' : 'Remove'}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmDeleteDialog
+        open={deletingId !== null}
+        onConfirm={() => {
+          if (deletingId !== null) crud.remove(deletingId).then(() => setDeletingId(null));
+        }}
+        onCancel={() => setDeletingId(null)}
+        entityName="partner"
+        description="This will permanently remove the partner from the carousel."
+        isPending={crud.isRemoving}
+      />
     </div>
   );
 }

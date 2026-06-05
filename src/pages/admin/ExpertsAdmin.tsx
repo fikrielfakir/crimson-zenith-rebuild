@@ -9,13 +9,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { Plus, MoreHorizontal, Pencil, Trash2, Search, RefreshCw, Star, GraduationCap, MapPin, Upload, X, Loader2, ImageIcon } from 'lucide-react';
 import { TranslateDialog } from '@/components/admin/TranslateDialog';
+import { ConfirmDeleteDialog } from '@/components/admin/ConfirmDeleteDialog';
+import { AdminPageHeader, AdminTableSkeleton, AdminEmptyState } from '@/components/admin/AdminPageShell';
 
 interface Expert {
   id: number;
@@ -77,8 +78,7 @@ function ImageUploader({ value, onChange }: { value: string; onChange: (url: str
       const res = await apiFetch('/api/admin/media', { method: 'POST', body: fd, credentials: 'include' });
       if (!res.ok) throw new Error('Upload failed');
       const data = await res.json();
-      const url = data.fileUrl ?? data.url ?? '';
-      onChange(url);
+      onChange(data.fileUrl ?? data.url ?? '');
       toast({ title: 'Image uploaded' });
     } catch (err: any) {
       toast({ title: 'Upload failed', description: err.message, variant: 'destructive' });
@@ -90,20 +90,14 @@ function ImageUploader({ value, onChange }: { value: string; onChange: (url: str
 
   return (
     <div className="space-y-2">
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/jpeg,image/png,image/webp,image/gif"
-        className="hidden"
-        onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f); }}
-      />
+      <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="hidden"
+        onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f); }} />
       {value ? (
         <div className="relative group w-32 h-32">
           <img src={value} alt="Profile" className="w-32 h-32 rounded-full object-cover border-2 border-border" />
           <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-full flex flex-col items-center justify-center gap-1">
             <Button type="button" size="sm" variant="secondary" className="h-7 text-xs px-2" onClick={() => fileInputRef.current?.click()} disabled={uploading}>
-              {uploading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Upload className="h-3 w-3 mr-1" />}
-              Change
+              {uploading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Upload className="h-3 w-3 mr-1" />}Change
             </Button>
             <Button type="button" size="sm" variant="destructive" className="h-7 text-xs px-2" onClick={() => { onChange(''); if (fileInputRef.current) fileInputRef.current.value = ''; }} disabled={uploading}>
               <X className="h-3 w-3 mr-1" />Remove
@@ -111,20 +105,9 @@ function ImageUploader({ value, onChange }: { value: string; onChange: (url: str
           </div>
         </div>
       ) : (
-        <button
-          type="button"
-          onClick={() => fileInputRef.current?.click()}
-          disabled={uploading}
-          className="w-32 h-32 rounded-full border-2 border-dashed border-border hover:border-primary transition-colors flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-primary cursor-pointer bg-muted/30"
-        >
-          {uploading ? (
-            <Loader2 className="h-6 w-6 animate-spin" />
-          ) : (
-            <>
-              <ImageIcon className="h-6 w-6" />
-              <span className="text-xs font-medium">Upload Photo</span>
-            </>
-          )}
+        <button type="button" onClick={() => fileInputRef.current?.click()} disabled={uploading}
+          className="w-32 h-32 rounded-full border-2 border-dashed border-border hover:border-primary transition-colors flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-primary cursor-pointer bg-muted/30">
+          {uploading ? <Loader2 className="h-6 w-6 animate-spin" /> : <><ImageIcon className="h-6 w-6" /><span className="text-xs font-medium">Upload Photo</span></>}
         </button>
       )}
     </div>
@@ -205,39 +188,54 @@ export default function ExpertsAdmin() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-4">
-        <div>
-          <h1 className="text-3xl font-bold">Experts</h1>
-          <p className="text-muted-foreground mt-1">Manage expert profiles</p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching}><RefreshCw className={`mr-2 h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />Refresh</Button>
-          <Button onClick={openCreate}><Plus className="mr-2 h-4 w-4" />New Expert</Button>
-        </div>
-      </div>
+      <AdminPageHeader
+        title="Experts"
+        description="Manage expert profiles"
+        action={
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching}>
+              <RefreshCw className={`mr-2 h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />Refresh
+            </Button>
+            <Button onClick={openCreate}><Plus className="mr-2 h-4 w-4" />New Expert</Button>
+          </div>
+        }
+      />
 
       <Card>
         <CardContent className="pt-4 pb-3">
           <div className="flex flex-col sm:flex-row gap-3">
             <form onSubmit={e => { e.preventDefault(); setSearch(searchInput); }} className="flex gap-2 flex-1">
-              <div className="relative flex-1"><Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input placeholder="Search…" className="pl-9" value={searchInput} onChange={e => setSearchInput(e.target.value)} /></div>
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input placeholder="Search…" className="pl-9" value={searchInput} onChange={e => setSearchInput(e.target.value)} />
+              </div>
               <Button type="submit" variant="secondary">Search</Button>
             </form>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
-              <SelectContent><SelectItem value="all">All statuses</SelectItem><SelectItem value="published">Published</SelectItem><SelectItem value="draft">Draft</SelectItem></SelectContent>
+              <SelectContent>
+                <SelectItem value="all">All statuses</SelectItem>
+                <SelectItem value="published">Published</SelectItem>
+                <SelectItem value="draft">Draft</SelectItem>
+              </SelectContent>
             </Select>
           </div>
         </CardContent>
       </Card>
 
       <Card>
-        <CardHeader className="pb-3"><CardTitle className="flex items-center gap-2"><GraduationCap className="h-5 w-5" />Experts ({data.length})</CardTitle></CardHeader>
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2"><GraduationCap className="h-5 w-5" />Experts ({data.length})</CardTitle>
+        </CardHeader>
         <CardContent className="p-0">
           {isLoading ? (
-            <div className="flex justify-center py-12"><div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div>
+            <AdminTableSkeleton cols={6} />
           ) : data.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground"><GraduationCap className="h-10 w-10 mx-auto mb-3 opacity-30" /><p>No experts yet.</p></div>
+            <AdminEmptyState
+              title="No experts yet"
+              message="Add your first expert profile to get started."
+              action={<Button size="sm" onClick={openCreate}><Plus className="mr-2 h-4 w-4" />New Expert</Button>}
+            />
           ) : (
             <Table>
               <TableHeader>
@@ -256,7 +254,9 @@ export default function ExpertsAdmin() {
                   <TableRow key={e.id}>
                     <TableCell className="pl-6">
                       <div className="flex items-center gap-3">
-                        {e.image ? <img src={e.image} alt={e.name} className="h-9 w-9 rounded-full object-cover flex-shrink-0" /> : <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-semibold flex-shrink-0">{e.name.charAt(0)}</div>}
+                        {e.image
+                          ? <img src={e.image} alt={e.name} className="h-9 w-9 rounded-full object-cover flex-shrink-0" />
+                          : <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-semibold flex-shrink-0">{e.name.charAt(0)}</div>}
                         <div><p className="font-medium">{e.name}</p><p className="text-xs text-muted-foreground">{e.title ?? ''}</p></div>
                       </div>
                     </TableCell>
@@ -299,14 +299,10 @@ export default function ExpertsAdmin() {
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{editing ? 'Edit Expert' : 'New Expert'}</DialogTitle></DialogHeader>
           <div className="space-y-4 mt-2">
-            {/* Profile Photo Upload */}
             <div className="flex items-start gap-6">
               <div className="space-y-1.5">
                 <Label>Profile Photo</Label>
-                <ImageUploader
-                  value={form.image}
-                  onChange={url => setForm(f => ({ ...f, image: url }))}
-                />
+                <ImageUploader value={form.image} onChange={url => setForm(f => ({ ...f, image: url }))} />
               </div>
               <div className="flex-1 space-y-4 mt-0.5">
                 <div className="space-y-1.5"><Label>Name *</Label><Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Amina Benali" /></div>
@@ -314,15 +310,18 @@ export default function ExpertsAdmin() {
                 <div className="space-y-1.5"><Label>Location</Label><Input value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} placeholder="Agadir" /></div>
               </div>
             </div>
-
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5"><Label>Contact Email</Label><Input type="email" value={form.contact_email} onChange={e => setForm(f => ({ ...f, contact_email: e.target.value }))} placeholder="expert@example.com" /></div>
               <div className="space-y-1.5"><Label>LinkedIn URL</Label><Input value={form.linkedin_url} onChange={e => setForm(f => ({ ...f, linkedin_url: e.target.value }))} placeholder="https://linkedin.com/in/username" /></div>
               <div className="space-y-1.5"><Label>Rating (0–5)</Label><Input type="number" min={0} max={5} step={0.1} value={form.rating} onChange={e => setForm(f => ({ ...f, rating: +e.target.value }))} /></div>
               <div className="space-y-1.5"><Label>Projects</Label><Input type="number" min={0} value={form.projects_count} onChange={e => setForm(f => ({ ...f, projects_count: +e.target.value }))} /></div>
               <div className="space-y-1.5"><Label>Years Experience</Label><Input type="number" min={0} value={form.years_experience} onChange={e => setForm(f => ({ ...f, years_experience: +e.target.value }))} /></div>
-              <div className="space-y-1.5"><Label>Status</Label>
-                <Select value={form.status} onValueChange={v => setForm(f => ({ ...f, status: v as any }))}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="draft">Draft</SelectItem><SelectItem value="published">Published</SelectItem></SelectContent></Select>
+              <div className="space-y-1.5">
+                <Label>Status</Label>
+                <Select value={form.status} onValueChange={v => setForm(f => ({ ...f, status: v as any }))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent><SelectItem value="draft">Draft</SelectItem><SelectItem value="published">Published</SelectItem></SelectContent>
+                </Select>
               </div>
               <div className="space-y-1.5"><Label>Expertise (comma-separated)</Label><Input value={form.expertise} onChange={e => setForm(f => ({ ...f, expertise: e.target.value }))} placeholder="Ecology, Trekking, Photography" /></div>
               <div className="space-y-1.5"><Label>Languages (comma-separated)</Label><Input value={form.languages} onChange={e => setForm(f => ({ ...f, languages: e.target.value }))} placeholder="Arabic, French, English" /></div>
@@ -331,23 +330,26 @@ export default function ExpertsAdmin() {
                 <Label>Available for projects</Label>
               </div>
               <div className="col-span-2 space-y-1.5"><Label>Bio</Label><Textarea rows={3} value={form.bio} onChange={e => setForm(f => ({ ...f, bio: e.target.value }))} placeholder="Short biography…" /></div>
-              <div className="col-span-2 space-y-1.5"><Label>Achievements (one per line)</Label><Textarea rows={3} value={form.achievements} onChange={e => setForm(f => ({ ...f, achievements: e.target.value }))} placeholder="Led 200+ expeditions&#10;National award 2023" /></div>
-              <div className="col-span-2 space-y-1.5"><Label>Certifications (one per line)</Label><Textarea rows={3} value={form.certifications} onChange={e => setForm(f => ({ ...f, certifications: e.target.value }))} placeholder="IFMGA Mountain Guide&#10;Wilderness First Responder" /></div>
+              <div className="col-span-2 space-y-1.5"><Label>Achievements (one per line)</Label><Textarea rows={3} value={form.achievements} onChange={e => setForm(f => ({ ...f, achievements: e.target.value }))} /></div>
+              <div className="col-span-2 space-y-1.5"><Label>Certifications (one per line)</Label><Textarea rows={3} value={form.certifications} onChange={e => setForm(f => ({ ...f, certifications: e.target.value }))} /></div>
             </div>
             <div className="flex justify-end gap-2 pt-2">
               <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-              <Button onClick={() => saveMutation.mutate(form)} disabled={!form.name.trim() || saveMutation.isPending}>{saveMutation.isPending ? 'Saving…' : editing ? 'Update' : 'Create'}</Button>
+              <Button onClick={() => saveMutation.mutate(form)} disabled={!form.name.trim() || saveMutation.isPending}>
+                {saveMutation.isPending ? 'Saving…' : editing ? 'Update' : 'Create'}
+              </Button>
             </div>
           </div>
         </DialogContent>
       </Dialog>
 
-      <AlertDialog open={deletingId !== null} onOpenChange={open => !open && setDeletingId(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader><AlertDialogTitle>Delete expert?</AlertDialogTitle><AlertDialogDescription>This action cannot be undone.</AlertDialogDescription></AlertDialogHeader>
-          <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={() => deletingId && deleteMutation.mutate(deletingId)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete</AlertDialogAction></AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmDeleteDialog
+        open={deletingId !== null}
+        onConfirm={() => deletingId && deleteMutation.mutate(deletingId)}
+        onCancel={() => setDeletingId(null)}
+        entityName="expert"
+        isPending={deleteMutation.isPending}
+      />
     </div>
   );
 }

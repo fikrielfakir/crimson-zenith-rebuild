@@ -9,7 +9,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Switch } from '@/components/ui/switch';
@@ -17,6 +16,8 @@ import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { Plus, MoreHorizontal, Pencil, Trash2, Search, RefreshCw, FolderOpen, MapPin, Users, Star } from 'lucide-react';
 import { TranslateDialog } from '@/components/admin/TranslateDialog';
+import { ConfirmDeleteDialog } from '@/components/admin/ConfirmDeleteDialog';
+import { AdminPageHeader, AdminTableSkeleton, AdminEmptyState } from '@/components/admin/AdminPageShell';
 
 interface Project {
   id: number;
@@ -132,22 +133,27 @@ export default function ProjectsAdmin() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-4">
-        <div>
-          <h1 className="text-3xl font-bold">Projects</h1>
-          <p className="text-muted-foreground mt-1">Manage association projects</p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching}><RefreshCw className={`mr-2 h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />Refresh</Button>
-          <Button onClick={openCreate}><Plus className="mr-2 h-4 w-4" />New Project</Button>
-        </div>
-      </div>
+      <AdminPageHeader
+        title="Projects"
+        description="Manage association projects"
+        action={
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching}>
+              <RefreshCw className={`mr-2 h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />Refresh
+            </Button>
+            <Button onClick={openCreate}><Plus className="mr-2 h-4 w-4" />New Project</Button>
+          </div>
+        }
+      />
 
       <Card>
         <CardContent className="pt-4 pb-3">
           <div className="flex flex-col sm:flex-row gap-3">
             <form onSubmit={e => { e.preventDefault(); setSearch(searchInput); }} className="flex gap-2 flex-1">
-              <div className="relative flex-1"><Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input placeholder="Search projects…" className="pl-9" value={searchInput} onChange={e => setSearchInput(e.target.value)} /></div>
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input placeholder="Search projects…" className="pl-9" value={searchInput} onChange={e => setSearchInput(e.target.value)} />
+              </div>
               <Button type="submit" variant="secondary">Search</Button>
             </form>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -165,12 +171,18 @@ export default function ProjectsAdmin() {
       </Card>
 
       <Card>
-        <CardHeader className="pb-3"><CardTitle className="flex items-center gap-2"><FolderOpen className="h-5 w-5" />Projects ({data.length})</CardTitle></CardHeader>
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2"><FolderOpen className="h-5 w-5" />Projects ({data.length})</CardTitle>
+        </CardHeader>
         <CardContent className="p-0">
           {isLoading ? (
-            <div className="flex justify-center py-12"><div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div>
+            <AdminTableSkeleton cols={6} />
           ) : data.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground"><FolderOpen className="h-10 w-10 mx-auto mb-3 opacity-30" /><p>No projects yet. Create one to get started.</p></div>
+            <AdminEmptyState
+              title="No projects yet"
+              message="Create your first project to get started."
+              action={<Button size="sm" onClick={openCreate}><Plus className="mr-2 h-4 w-4" />New Project</Button>}
+            />
           ) : (
             <Table>
               <TableHeader>
@@ -249,8 +261,17 @@ export default function ProjectsAdmin() {
               <div className="col-span-2 space-y-1.5"><Label>Title *</Label><Input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="Atlas Reforestation Initiative" /></div>
               <div className="space-y-1.5"><Label>Category</Label><Input value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))} placeholder="Environment" /></div>
               <div className="space-y-1.5"><Label>Location</Label><Input value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} placeholder="High Atlas Mountains" /></div>
-              <div className="space-y-1.5"><Label>Status</Label>
-                <Select value={form.status} onValueChange={v => setForm(f => ({ ...f, status: v as any }))}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="planning">Planning</SelectItem><SelectItem value="active">Active</SelectItem><SelectItem value="ongoing">Ongoing</SelectItem><SelectItem value="completed">Completed</SelectItem></SelectContent></Select>
+              <div className="space-y-1.5">
+                <Label>Status</Label>
+                <Select value={form.status} onValueChange={v => setForm(f => ({ ...f, status: v as any }))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="planning">Planning</SelectItem>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="ongoing">Ongoing</SelectItem>
+                    <SelectItem value="completed">Completed</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-1.5"><Label>Progress (%)</Label><Input type="number" min={0} max={100} value={form.progress} onChange={e => setForm(f => ({ ...f, progress: +e.target.value }))} /></div>
               <div className="space-y-1.5"><Label>Cover Image URL</Label><Input value={form.image} onChange={e => setForm(f => ({ ...f, image: e.target.value }))} placeholder="https://…" /></div>
@@ -266,18 +287,21 @@ export default function ProjectsAdmin() {
             </div>
             <div className="flex justify-end gap-2 pt-2">
               <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-              <Button onClick={() => saveMutation.mutate(form)} disabled={!form.title.trim() || saveMutation.isPending}>{saveMutation.isPending ? 'Saving…' : editing ? 'Update' : 'Create'}</Button>
+              <Button onClick={() => saveMutation.mutate(form)} disabled={!form.title.trim() || saveMutation.isPending}>
+                {saveMutation.isPending ? 'Saving…' : editing ? 'Update' : 'Create'}
+              </Button>
             </div>
           </div>
         </DialogContent>
       </Dialog>
 
-      <AlertDialog open={deletingId !== null} onOpenChange={open => !open && setDeletingId(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader><AlertDialogTitle>Delete project?</AlertDialogTitle><AlertDialogDescription>This cannot be undone.</AlertDialogDescription></AlertDialogHeader>
-          <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={() => deletingId && deleteMutation.mutate(deletingId)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete</AlertDialogAction></AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmDeleteDialog
+        open={deletingId !== null}
+        onConfirm={() => deletingId && deleteMutation.mutate(deletingId)}
+        onCancel={() => setDeletingId(null)}
+        entityName="project"
+        isPending={deleteMutation.isPending}
+      />
     </div>
   );
 }
