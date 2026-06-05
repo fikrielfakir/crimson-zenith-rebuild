@@ -72,7 +72,7 @@ function GeneralTab() {
   useEffect(() => { if (seo?.siteDescription) setSiteDescription(seo.siteDescription); }, [seo]);
   useEffect(() => { if (contact?.email) setContactEmail(contact.email); }, [contact]);
 
-  const seoMutation = useSaveMutation('/api/admin/cms/seo', [['settings-seo'], ['cms-seo']], 'General settings');
+  const seoMutation = useSaveMutation('/api/admin/settings/seo', [['settings-seo'], ['cms-seo']], 'General settings');
   const contactMutation = useSaveMutation('/api/admin/settings/contact', [['settings-contact']], 'Contact settings');
 
   const saving = seoMutation.isPending || contactMutation.isPending;
@@ -151,7 +151,7 @@ function SeoTab() {
 
   useEffect(() => { if (data) setForm(data); }, [data]);
 
-  const mutation = useSaveMutation('/api/admin/cms/seo', [['settings-seo'], ['cms-seo']], 'SEO settings');
+  const mutation = useSaveMutation('/api/admin/settings/seo', [['settings-seo'], ['cms-seo']], 'SEO settings');
 
   const set = (k: keyof SeoSettings, v: string) => setForm((f) => ({ ...f, [k]: v }));
 

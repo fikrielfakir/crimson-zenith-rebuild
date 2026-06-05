@@ -18,6 +18,7 @@ use App\Models\LandingTestimonial;
 use App\Models\SiteStat;
 use App\Models\Partner;
 use App\Models\PartnerSettings;
+use App\Models\ClubsPageSettings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -410,6 +411,115 @@ class CmsAdminController extends Controller
     {
         Partner::findOrFail($id)->delete();
         return response()->json(['message' => 'Partner removed']);
+    }
+
+    public function listTeamMembers()
+    {
+        return response()->json(TeamMember::orderBy('ordering')->get()->map(fn($m) => $this->teamMemberToArray($m)));
+    }
+
+    public function storeTeamMember(Request $request)
+    {
+        $data = $request->validate([
+            'name'     => 'required|string|max:255',
+            'role'     => 'required|string|max:255',
+            'bio'      => 'nullable|string',
+            'email'    => 'nullable|email|max:255',
+            'phone'    => 'nullable|string|max:50',
+            'isActive' => 'nullable|boolean',
+        ]);
+
+        $member = TeamMember::create([
+            'name'       => $data['name'],
+            'role'       => $data['role'],
+            'bio'        => $data['bio'] ?? null,
+            'email'      => $data['email'] ?? null,
+            'phone'      => $data['phone'] ?? null,
+            'is_active'  => $data['isActive'] ?? true,
+            'ordering'   => (TeamMember::max('ordering') ?? 0) + 1,
+            'created_by' => $request->user()->id,
+        ]);
+
+        return response()->json($this->teamMemberToArray($member), 201);
+    }
+
+    public function updateTeamMember(Request $request, $id)
+    {
+        $member = TeamMember::findOrFail($id);
+
+        $data = $request->validate([
+            'name'     => 'sometimes|string|max:255',
+            'role'     => 'sometimes|string|max:255',
+            'bio'      => 'nullable|string',
+            'email'    => 'nullable|email|max:255',
+            'phone'    => 'nullable|string|max:50',
+            'isActive' => 'nullable|boolean',
+            'ordering' => 'nullable|integer',
+        ]);
+
+        $member->update([
+            'name'      => $data['name']     ?? $member->name,
+            'role'      => $data['role']     ?? $member->role,
+            'bio'       => array_key_exists('bio', $data)   ? $data['bio']   : $member->bio,
+            'email'     => array_key_exists('email', $data) ? $data['email'] : $member->email,
+            'phone'     => array_key_exists('phone', $data) ? $data['phone'] : $member->phone,
+            'is_active' => $data['isActive'] ?? $member->is_active,
+            'ordering'  => $data['ordering'] ?? $member->ordering,
+        ]);
+
+        return response()->json($this->teamMemberToArray($member->fresh()));
+    }
+
+    public function destroyTeamMember($id)
+    {
+        TeamMember::findOrFail($id)->delete();
+        return response()->json(['message' => 'Team member deleted']);
+    }
+
+    private function teamMemberToArray(TeamMember $m): array
+    {
+        return [
+            'id'       => $m->id,
+            'name'     => $m->name,
+            'role'     => $m->role,
+            'bio'      => $m->bio,
+            'email'    => $m->email,
+            'phone'    => $m->phone,
+            'isActive' => (bool) $m->is_active,
+            'ordering' => $m->ordering,
+        ];
+    }
+
+    public function updateClubsPage(Request $request)
+    {
+        $data = $request->validate([
+            'introHeading'     => 'nullable|string|max:255',
+            'introDescription' => 'nullable|string',
+            'ctaHeading'       => 'nullable|string|max:255',
+            'ctaDescription'   => 'nullable|string',
+            'ctaButtonText'    => 'nullable|string|max:100',
+            'ctaButtonLink'    => 'nullable|string|max:500',
+        ]);
+
+        $settings = ClubsPageSettings::firstOrCreate(['id' => 'default']);
+        $settings->update([
+            'intro_heading'     => $data['introHeading']     ?? $settings->intro_heading,
+            'intro_description' => $data['introDescription'] ?? $settings->intro_description,
+            'cta_heading'       => $data['ctaHeading']       ?? $settings->cta_heading,
+            'cta_description'   => $data['ctaDescription']   ?? $settings->cta_description,
+            'cta_button_text'   => $data['ctaButtonText']    ?? $settings->cta_button_text,
+            'cta_button_link'   => $data['ctaButtonLink']    ?? $settings->cta_button_link,
+            'updated_by'        => $request->user()->id,
+        ]);
+
+        return response()->json([
+            'intro_heading'     => $settings->intro_heading,
+            'intro_description' => $settings->intro_description,
+            'cta_heading'       => $settings->cta_heading,
+            'cta_description'   => $settings->cta_description,
+            'cta_button_text'   => $settings->cta_button_text,
+            'cta_button_link'   => $settings->cta_button_link,
+        ]);
     }
 
     public function listTestimonials()

@@ -1,6 +1,4 @@
-import { apiFetch } from '@/lib/apiFetch';
 import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -26,9 +24,9 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { useToast } from '@/hooks/use-toast';
 import { Plus, Pencil, Trash2, Star, MessageSquare } from 'lucide-react';
 import { TranslateDialog } from '@/components/admin/TranslateDialog';
+import { useAdminCRUD } from '@/hooks/useAdminCRUD';
 
 interface Testimonial {
   id: number;
@@ -39,37 +37,6 @@ interface Testimonial {
   isApproved: boolean;
   isActive: boolean;
   ordering: number;
-}
-
-const QUERY_KEY = ['admin-testimonials'] as const;
-
-async function fetchTestimonials(): Promise<Testimonial[]> {
-  const res = await apiFetch('/api/admin/cms/testimonials');
-  if (!res.ok) throw new Error('Failed to fetch testimonials');
-  return res.json();
-}
-
-async function createTestimonial(item: Omit<Testimonial, 'id' | 'ordering'>): Promise<Testimonial> {
-  const res = await apiFetch('/api/admin/cms/testimonials', {
-    method: 'POST',
-    body: JSON.stringify(item),
-  });
-  if (!res.ok) throw new Error('Failed to create testimonial');
-  return res.json();
-}
-
-async function updateTestimonial(id: number, item: Partial<Testimonial>): Promise<Testimonial> {
-  const res = await apiFetch(`/api/admin/cms/testimonials/${id}`, {
-    method: 'PUT',
-    body: JSON.stringify(item),
-  });
-  if (!res.ok) throw new Error('Failed to update testimonial');
-  return res.json();
-}
-
-async function deleteTestimonial(id: number): Promise<void> {
-  const res = await apiFetch(`/api/admin/cms/testimonials/${id}`, { method: 'DELETE' });
-  if (!res.ok) throw new Error('Failed to delete testimonial');
 }
 
 const emptyForm = { name: '', role: '', feedback: '', rating: 5, isApproved: true, isActive: true };
@@ -90,42 +57,15 @@ export default function TestimonialsManagement() {
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [form, setForm] = useState(emptyForm);
 
-  const queryClient = useQueryClient();
-  const { toast } = useToast();
-
-  const { data: testimonials = [], isLoading } = useQuery({
-    queryKey: QUERY_KEY,
-    queryFn: fetchTestimonials,
-  });
-
-  const createMutation = useMutation({
-    mutationFn: createTestimonial,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEY });
-      toast({ title: 'Testimonial added' });
-      handleClose();
+  const crud = useAdminCRUD<Testimonial>({
+    readEndpoint: '/api/admin/cms/testimonials',
+    writeEndpoint: '/api/admin/cms/testimonials',
+    queryKey: ['admin-testimonials'],
+    messages: {
+      created: 'Testimonial added',
+      updated: 'Testimonial updated',
+      deleted: 'Testimonial deleted',
     },
-    onError: (err: Error) => toast({ title: 'Error', description: err.message, variant: 'destructive' }),
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: ({ id, ...data }: { id: number } & Partial<Testimonial>) => updateTestimonial(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEY });
-      toast({ title: 'Testimonial updated' });
-      handleClose();
-    },
-    onError: (err: Error) => toast({ title: 'Error', description: err.message, variant: 'destructive' }),
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: deleteTestimonial,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEY });
-      toast({ title: 'Testimonial deleted' });
-      setDeletingId(null);
-    },
-    onError: (err: Error) => toast({ title: 'Error', description: err.message, variant: 'destructive' }),
   });
 
   const handleEdit = (item: Testimonial) => {
@@ -147,19 +87,23 @@ export default function TestimonialsManagement() {
     setForm(emptyForm);
   };
 
-  const handleSave = () => {
-    if (!form.name.trim() || !form.feedback.trim()) {
-      toast({ title: 'Validation error', description: 'Name and feedback are required', variant: 'destructive' });
-      return;
-    }
+  const handleSave = async () => {
+    if (!form.name.trim() || !form.feedback.trim()) return;
     if (editingItem) {
-      updateMutation.mutate({ id: editingItem.id, ...form });
+      await crud.update(editingItem.id, form);
     } else {
-      createMutation.mutate(form);
+      await crud.create(form);
     }
+    handleClose();
   };
 
-  const isPending = createMutation.isPending || updateMutation.isPending;
+  const handleDelete = async () => {
+    if (deletingId === null) return;
+    await crud.remove(deletingId);
+    setDeletingId(null);
+  };
+
+  const isPending = crud.isCreating || crud.isUpdating;
 
   return (
     <div className="space-y-6">
@@ -177,12 +121,12 @@ export default function TestimonialsManagement() {
       <Card>
         <CardHeader>
           <CardTitle>All Testimonials</CardTitle>
-          <CardDescription>{testimonials.length} testimonial{testimonials.length !== 1 ? 's' : ''}</CardDescription>
+          <CardDescription>{crud.data.length} testimonial{crud.data.length !== 1 ? 's' : ''}</CardDescription>
         </CardHeader>
         <CardContent className="overflow-x-auto">
-          {isLoading ? (
+          {crud.isLoading ? (
             <div className="flex items-center justify-center py-8 text-muted-foreground">Loading…</div>
-          ) : testimonials.length === 0 ? (
+          ) : crud.data.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>No testimonials yet</p>
@@ -201,7 +145,7 @@ export default function TestimonialsManagement() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {testimonials.map((item) => (
+                {crud.data.map((item) => (
                   <TableRow key={item.id}>
                     <TableCell className="font-medium">{item.name}</TableCell>
                     <TableCell className="text-muted-foreground">{item.role ?? '—'}</TableCell>
@@ -324,9 +268,9 @@ export default function TestimonialsManagement() {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              onClick={() => deletingId !== null && deleteMutation.mutate(deletingId)}
+              onClick={handleDelete}
             >
-              {deleteMutation.isPending ? 'Deleting…' : 'Delete'}
+              {crud.isRemoving ? 'Deleting…' : 'Delete'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -120,6 +120,7 @@ Route::prefix('cms')->group(function () {
     Route::get('/footer',            [\App\Http\Controllers\CmsController::class, 'footer']);
     Route::get('/contact',           [\App\Http\Controllers\CmsController::class, 'contact']);
     Route::get('/seo',               [\App\Http\Controllers\CmsController::class, 'seo']);
+    Route::get('/clubs-page',        [\App\Http\Controllers\CmsController::class, 'clubsPage']);
     Route::get('/about',             [\App\Http\Controllers\CmsController::class, 'about']);
     Route::get('/focus-items',         [\App\Http\Controllers\CmsController::class, 'focusItems']);
     Route::get('/focus-section',       [\App\Http\Controllers\CmsController::class, 'focusSection']);
@@ -338,6 +339,15 @@ Route::prefix('admin')->middleware(['admin'])->group(function () {
     Route::post('/cms/testimonials',           [\App\Http\Controllers\Admin\CmsAdminController::class, 'storeTestimonial']);
     Route::put('/cms/testimonials/{id}',       [\App\Http\Controllers\Admin\CmsAdminController::class, 'updateTestimonial']);
     Route::delete('/cms/testimonials/{id}',    [\App\Http\Controllers\Admin\CmsAdminController::class, 'destroyTestimonial']);
+
+    // Team Members CRUD
+    Route::get('/cms/team-members',            [\App\Http\Controllers\Admin\CmsAdminController::class, 'listTeamMembers']);
+    Route::post('/cms/team-members',           [\App\Http\Controllers\Admin\CmsAdminController::class, 'storeTeamMember']);
+    Route::put('/cms/team-members/{id}',       [\App\Http\Controllers\Admin\CmsAdminController::class, 'updateTeamMember']);
+    Route::delete('/cms/team-members/{id}',    [\App\Http\Controllers\Admin\CmsAdminController::class, 'destroyTeamMember']);
+
+    // Clubs page settings
+    Route::put('/cms/clubs-page',              [\App\Http\Controllers\Admin\CmsAdminController::class, 'updateClubsPage']);
 
     // CMS bulk-update collections (focus, team, testimonials, stats, partners)
     Route::get('/cms/stats',                   [\App\Http\Controllers\Admin\CmsAdminController::class, 'getCmsStat']);

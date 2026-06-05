@@ -1,6 +1,4 @@
-import { apiFetch } from '@/lib/apiFetch';
 import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,9 +23,9 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { useToast } from '@/hooks/use-toast';
 import { Plus, Pencil, Trash2, Users } from 'lucide-react';
 import { TranslateDialog } from '@/components/admin/TranslateDialog';
+import { useAdminCRUD } from '@/hooks/useAdminCRUD';
 
 interface TeamMember {
   id: number;
@@ -40,37 +38,6 @@ interface TeamMember {
   isActive: boolean;
 }
 
-const QUERY_KEY = ['admin-team-members'] as const;
-
-async function fetchTeamMembers(): Promise<TeamMember[]> {
-  const res = await apiFetch('/api/cms/team-members');
-  if (!res.ok) throw new Error('Failed to fetch team members');
-  return res.json();
-}
-
-async function createTeamMember(member: Omit<TeamMember, 'id' | 'ordering'>): Promise<TeamMember> {
-  const res = await apiFetch('/api/admin/cms/team-members', {
-    method: 'POST',
-    body: JSON.stringify(member),
-  });
-  if (!res.ok) throw new Error('Failed to create team member');
-  return res.json();
-}
-
-async function updateTeamMember(id: number, member: Partial<TeamMember>): Promise<TeamMember> {
-  const res = await apiFetch(`/api/admin/cms/team-members/${id}`, {
-    method: 'PUT',
-    body: JSON.stringify(member),
-  });
-  if (!res.ok) throw new Error('Failed to update team member');
-  return res.json();
-}
-
-async function deleteTeamMember(id: number): Promise<void> {
-  const res = await apiFetch(`/api/admin/cms/team-members/${id}`, { method: 'DELETE' });
-  if (!res.ok) throw new Error('Failed to delete team member');
-}
-
 const emptyForm = { name: '', role: '', bio: '', email: '', phone: '', isActive: true };
 
 export default function TeamMembersManagement() {
@@ -79,42 +46,15 @@ export default function TeamMembersManagement() {
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [form, setForm] = useState(emptyForm);
 
-  const queryClient = useQueryClient();
-  const { toast } = useToast();
-
-  const { data: members = [], isLoading } = useQuery({
-    queryKey: QUERY_KEY,
-    queryFn: fetchTeamMembers,
-  });
-
-  const createMutation = useMutation({
-    mutationFn: createTeamMember,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEY });
-      toast({ title: 'Team member added' });
-      handleClose();
+  const crud = useAdminCRUD<TeamMember>({
+    readEndpoint: '/api/admin/cms/team-members',
+    writeEndpoint: '/api/admin/cms/team-members',
+    queryKey: ['admin-team-members'],
+    messages: {
+      created: 'Team member added',
+      updated: 'Team member updated',
+      deleted: 'Team member deleted',
     },
-    onError: (err: Error) => toast({ title: 'Error', description: err.message, variant: 'destructive' }),
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: ({ id, ...data }: { id: number } & Partial<TeamMember>) => updateTeamMember(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEY });
-      toast({ title: 'Team member updated' });
-      handleClose();
-    },
-    onError: (err: Error) => toast({ title: 'Error', description: err.message, variant: 'destructive' }),
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: deleteTeamMember,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEY });
-      toast({ title: 'Team member deleted' });
-      setDeletingId(null);
-    },
-    onError: (err: Error) => toast({ title: 'Error', description: err.message, variant: 'destructive' }),
   });
 
   const handleEdit = (member: TeamMember) => {
@@ -136,19 +76,23 @@ export default function TeamMembersManagement() {
     setForm(emptyForm);
   };
 
-  const handleSave = () => {
-    if (!form.name.trim() || !form.role.trim()) {
-      toast({ title: 'Validation error', description: 'Name and role are required', variant: 'destructive' });
-      return;
-    }
+  const handleSave = async () => {
+    if (!form.name.trim() || !form.role.trim()) return;
     if (editingMember) {
-      updateMutation.mutate({ id: editingMember.id, ...form });
+      await crud.update(editingMember.id, form);
     } else {
-      createMutation.mutate(form);
+      await crud.create(form);
     }
+    handleClose();
   };
 
-  const isPending = createMutation.isPending || updateMutation.isPending;
+  const handleDelete = async () => {
+    if (deletingId === null) return;
+    await crud.remove(deletingId);
+    setDeletingId(null);
+  };
+
+  const isPending = crud.isCreating || crud.isUpdating;
 
   return (
     <div className="space-y-6">
@@ -166,12 +110,12 @@ export default function TeamMembersManagement() {
       <Card>
         <CardHeader>
           <CardTitle>Team</CardTitle>
-          <CardDescription>{members.length} member{members.length !== 1 ? 's' : ''}</CardDescription>
+          <CardDescription>{crud.data.length} member{crud.data.length !== 1 ? 's' : ''}</CardDescription>
         </CardHeader>
         <CardContent className="overflow-x-auto">
-          {isLoading ? (
+          {crud.isLoading ? (
             <div className="flex items-center justify-center py-8 text-muted-foreground">Loading…</div>
-          ) : members.length === 0 ? (
+          ) : crud.data.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>No team members yet</p>
@@ -189,7 +133,7 @@ export default function TeamMembersManagement() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {members.map((member) => (
+                {crud.data.map((member) => (
                   <TableRow key={member.id}>
                     <TableCell className="font-medium">{member.name}</TableCell>
                     <TableCell>{member.role}</TableCell>
@@ -291,9 +235,9 @@ export default function TeamMembersManagement() {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              onClick={() => deletingId !== null && deleteMutation.mutate(deletingId)}
+              onClick={handleDelete}
             >
-              {deleteMutation.isPending ? 'Deleting…' : 'Delete'}
+              {crud.isRemoving ? 'Deleting…' : 'Delete'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

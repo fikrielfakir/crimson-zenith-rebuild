@@ -3,9 +3,19 @@ import { useToast } from '@/hooks/use-toast';
 import { apiFetch } from '@/lib/apiFetch';
 
 interface UseAdminCRUDOptions<T> {
-  /** Public read endpoint, e.g. '/api/cms/team-members' */
+  /**
+   * Endpoint used for GET (list). May be the public CMS endpoint or the admin
+   * endpoint — intentional split so admin list pages can show all records while
+   * the public site sees only active/approved ones.
+   * e.g. '/api/admin/cms/team-members' (admin, shows all)
+   *   or '/api/cms/team-members' (public, shows active only)
+   */
   readEndpoint: string;
-  /** Admin write base endpoint, e.g. '/api/admin/cms/team-members' */
+  /**
+   * Base admin endpoint used for POST (create), PUT /{id} (update), and
+   * DELETE /{id} (remove). Always an admin-protected route.
+   * e.g. '/api/admin/cms/team-members'
+   */
   writeEndpoint: string;
   /** React Query cache key */
   queryKey: readonly unknown[];

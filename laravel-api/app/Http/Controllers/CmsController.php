@@ -20,6 +20,7 @@ use App\Models\MediaAsset;
 use App\Models\Partner;
 use App\Models\PartnerSettings;
 use App\Models\FocusSectionSettings;
+use App\Models\ClubsPageSettings;
 
 class CmsController extends Controller
 {
@@ -157,6 +158,27 @@ class CmsController extends Controller
     public function teamMembers()
     {
         return response()->json(TeamMember::where('is_active', true)->orderBy('ordering')->get());
+    }
+
+    public function clubsPage()
+    {
+        $settings = ClubsPageSettings::firstOrCreate(['id' => 'default'], [
+            'intro_heading'     => 'Join a Community of Adventurers',
+            'intro_description' => 'From the Atlantic to the Sahara, our clubs connect passionate explorers across Morocco\'s most iconic destinations.',
+            'cta_heading'       => 'Start your own club',
+            'cta_description'   => 'Passionate about a region or activity? Create a club and build your community of adventurers.',
+            'cta_button_text'   => 'Get Started',
+            'cta_button_link'   => '/join-us',
+        ]);
+
+        return response()->json([
+            'intro_heading'     => $settings->intro_heading,
+            'intro_description' => $settings->intro_description,
+            'cta_heading'       => $settings->cta_heading,
+            'cta_description'   => $settings->cta_description,
+            'cta_button_text'   => $settings->cta_button_text,
+            'cta_button_link'   => $settings->cta_button_link,
+        ]);
     }
 
     public function testimonials()
