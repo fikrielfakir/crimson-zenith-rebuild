@@ -2,10 +2,44 @@ import logo from "@/assets/logo.png";
 import { Facebook, Instagram, Twitter, Mail } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useQuery } from "@tanstack/react-query";
 
 const Footer = () => {
   const { t } = useTranslation();
   const currentYear = new Date().getFullYear();
+
+  const { data: contactData } = useQuery<any>({
+    queryKey: ["cms-contact"],
+    queryFn: async () => {
+      const res = await fetch("/api/cms/contact", { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to fetch contact settings");
+      return res.json();
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const { data: footerData } = useQuery<any>({
+    queryKey: ["cms-footer"],
+    queryFn: async () => {
+      const res = await fetch("/api/cms/footer", { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to fetch footer settings");
+      return res.json();
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const contactPhone = contactData?.phone ?? "+212 686 777 888";
+  const contactEmail = contactData?.email ?? "info@thejourney-ma.com";
+  const contactAddress =
+    contactData?.officeAddress ?? contactData?.office_address ?? "Rabat Bouregreg, Morocco";
+
+  const socialLinks = footerData?.socialLinks ?? footerData?.social_links ?? {};
+  const facebookUrl = socialLinks?.facebook ?? "https://www.facebook.com/moroccoactivities";
+  const instagramUrl = socialLinks?.instagram ?? "https://www.instagram.com/moroccoactivities";
+  const twitterUrl = socialLinks?.twitter ?? "https://twitter.com/moroccoactivities";
+  const mailLink = socialLinks?.email
+    ? `mailto:${socialLinks.email}`
+    : `mailto:${contactEmail}`;
 
   return (
     <footer className="bg-primary text-primary-foreground py-16">
@@ -21,7 +55,7 @@ const Footer = () => {
             </p>
             <div className="flex gap-4">
               <a
-                href="https://www.facebook.com/moroccoactivities"
+                href={facebookUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors cursor-pointer"
@@ -29,7 +63,7 @@ const Footer = () => {
                 <Facebook className="w-5 h-5" />
               </a>
               <a
-                href="https://www.instagram.com/moroccoactivities"
+                href={instagramUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors cursor-pointer"
@@ -37,7 +71,7 @@ const Footer = () => {
                 <Instagram className="w-5 h-5" />
               </a>
               <a
-                href="https://twitter.com/moroccoactivities"
+                href={twitterUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors cursor-pointer"
@@ -45,7 +79,7 @@ const Footer = () => {
                 <Twitter className="w-5 h-5" />
               </a>
               <a
-                href="mailto:info@moroccoactivities.com"
+                href={mailLink}
                 className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors cursor-pointer"
               >
                 <Mail className="w-5 h-5" />
@@ -84,9 +118,9 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold mb-6">{t("footer.contact")}</h3>
             <div className="space-y-3 text-primary-foreground/80">
-              <p>+212 686 777 888</p>
-              <p>info@thejourney-ma.com</p>
-              <p>Rabat Bouregreg, Morocco</p>
+              <p>{contactPhone}</p>
+              <p>{contactEmail}</p>
+              <p>{contactAddress}</p>
             </div>
           </div>
         </div>

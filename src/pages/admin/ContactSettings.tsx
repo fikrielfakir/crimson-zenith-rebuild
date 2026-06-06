@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Phone, Mail, MapPin, MessageCircle, Headset, Wand2 } from 'lucide-react';
+import { Phone, Mail, MapPin, MessageCircle, Headset, Wand2, Facebook, Instagram, Twitter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   AdminPageHeader,
@@ -40,6 +40,7 @@ const ALL_KEYS = LABEL_FIELDS.flatMap(f => [f.titleKey, f.subtitleKey]);
 // ── Types ────────────────────────────────────────────────────────────────────
 
 interface InfoForm { email: string; phone: string; officeAddress: string }
+interface SocialForm { facebook: string; instagram: string; twitter: string; email: string }
 
 // ── Component ────────────────────────────────────────────────────────────────
 
@@ -94,6 +95,64 @@ export default function ContactSettings() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cms-contact'] });
       toast({ title: 'Contact info saved' });
+    },
+    onError: () => toast({ title: 'Save failed', variant: 'destructive' }),
+  });
+
+  // ── Social Links ────────────────────────────────────────────────────────────
+  const {
+    data: footerData,
+    isLoading: footerLoading,
+    isError: footerError,
+    refetch: refetchFooter,
+  } = useQuery<any>({
+    queryKey: ['cms-footer'],
+    queryFn: async () => {
+      const res = await fetch('/api/cms/footer', { credentials: 'include' });
+      if (!res.ok) throw new Error('Failed to fetch footer settings');
+      return res.json();
+    },
+  });
+
+  const [socialForm, setSocialForm] = useState<SocialForm>({
+    facebook: '',
+    instagram: '',
+    twitter: '',
+    email: '',
+  });
+
+  useEffect(() => {
+    if (footerData) {
+      const links = footerData.socialLinks ?? footerData.social_links ?? {};
+      setSocialForm({
+        facebook:  links.facebook  ?? '',
+        instagram: links.instagram ?? '',
+        twitter:   links.twitter   ?? '',
+        email:     links.email     ?? '',
+      });
+    }
+  }, [footerData]);
+
+  const saveSocialMutation = useMutation({
+    mutationFn: async (data: SocialForm) => {
+      const res = await apiFetch('/api/admin/cms/footer', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          socialLinks: {
+            facebook:  data.facebook,
+            instagram: data.instagram,
+            twitter:   data.twitter,
+            email:     data.email,
+          },
+        }),
+      });
+      if (!res.ok) throw new Error('Failed to save');
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['cms-footer'] });
+      toast({ title: 'Social links saved' });
     },
     onError: () => toast({ title: 'Save failed', variant: 'destructive' }),
   });
@@ -190,12 +249,13 @@ export default function ContactSettings() {
     <div className="space-y-6">
       <AdminPageHeader
         title={t('admin.nav.contactSettings', 'Contact Settings')}
-        description={t('admin.contact.description', 'Manage contact information and page labels shown on the Contact page.')}
+        description={t('admin.contact.description', 'Manage contact information, social links, and page labels shown on the Contact page.')}
       />
 
       <Tabs defaultValue="info">
         <TabsList className="mb-5">
           <TabsTrigger value="info">{t('admin.contact.tabInfo', 'Contact Info')}</TabsTrigger>
+          <TabsTrigger value="social">{t('admin.contact.tabSocial', 'Social Links')}</TabsTrigger>
           <TabsTrigger value="labels">{t('admin.contact.tabLabels', 'Page Labels')}</TabsTrigger>
         </TabsList>
 
@@ -213,7 +273,7 @@ export default function ContactSettings() {
           ) : (
             <AdminCard
               title={t('admin.contact.infoTitle', 'Contact Information')}
-              description={t('admin.contact.infoDesc', 'Email, phone number, and office address shown on the contact page.')}
+              description={t('admin.contact.infoDesc', 'Email, phone number, and office address shown on the contact page and footer.')}
               className="max-w-lg"
               footer={
                 <AdminSaveButton
@@ -265,7 +325,90 @@ export default function ContactSettings() {
           )}
         </TabsContent>
 
-        {/* ── Tab 2: Page Labels ───────────────────────────────────────────── */}
+        {/* ── Tab 2: Social Links ──────────────────────────────────────────── */}
+        <TabsContent value="social">
+          {footerLoading ? (
+            <AdminFormSkeleton rows={4} className="max-w-lg" />
+          ) : footerError ? (
+            <AdminPageError
+              title="Couldn't load social links"
+              message="The footer settings failed to load. The server may be unavailable."
+              onRetry={() => refetchFooter()}
+              className="max-w-lg"
+            />
+          ) : (
+            <AdminCard
+              title={t('admin.contact.socialTitle', 'Social Links')}
+              description={t('admin.contact.socialDesc', 'Social media URLs and contact email shown in the footer.')}
+              className="max-w-lg"
+              footer={
+                <AdminSaveButton
+                  isPending={saveSocialMutation.isPending}
+                  onClick={() => saveSocialMutation.mutate(socialForm)}
+                  label={t('admin.contact.saveSocial', 'Save Social Links')}
+                  pendingLabel={t('admin.common.saving', 'Saving…')}
+                />
+              }
+            >
+              <div className="space-y-2">
+                <Label className={`${LABEL_CN} flex items-center gap-2`}>
+                  <Facebook className="h-4 w-4 text-muted-foreground" />
+                  Facebook URL
+                </Label>
+                <Input
+                  type="url"
+                  placeholder="https://www.facebook.com/yourpage"
+                  value={socialForm.facebook}
+                  onChange={e => setSocialForm(f => ({ ...f, facebook: e.target.value }))}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className={`${LABEL_CN} flex items-center gap-2`}>
+                  <Instagram className="h-4 w-4 text-muted-foreground" />
+                  Instagram URL
+                </Label>
+                <Input
+                  type="url"
+                  placeholder="https://www.instagram.com/yourpage"
+                  value={socialForm.instagram}
+                  onChange={e => setSocialForm(f => ({ ...f, instagram: e.target.value }))}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className={`${LABEL_CN} flex items-center gap-2`}>
+                  <Twitter className="h-4 w-4 text-muted-foreground" />
+                  Twitter / X URL
+                </Label>
+                <Input
+                  type="url"
+                  placeholder="https://twitter.com/yourhandle"
+                  value={socialForm.twitter}
+                  onChange={e => setSocialForm(f => ({ ...f, twitter: e.target.value }))}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className={`${LABEL_CN} flex items-center gap-2`}>
+                  <Mail className="h-4 w-4 text-muted-foreground" />
+                  Contact Email (for mail icon in footer)
+                </Label>
+                <Input
+                  type="email"
+                  placeholder="info@thejourney-ma.com"
+                  value={socialForm.email}
+                  onChange={e => setSocialForm(f => ({ ...f, email: e.target.value }))}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Leave blank to use the contact email above.
+                </p>
+              </div>
+            </AdminCard>
+          )}
+        </TabsContent>
+
+        {/* ── Tab 3: Page Labels ───────────────────────────────────────────── */}
         <TabsContent value="labels">
           {i18nLoading ? (
             <AdminFormSkeleton rows={5} />
