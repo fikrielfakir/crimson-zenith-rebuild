@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import Header from "@/components/Header";
 import HeaderSpacer from "@/components/HeaderSpacer";
 import Footer from "@/components/Footer";
@@ -8,13 +8,13 @@ import { Users, MapPin, Target, Heart } from "lucide-react";
 import { apiFetch } from "@/lib/apiFetch";
 
 interface AboutData {
+  isActive?: boolean;
   title?: string;
   subtitle?: string;
   description?: string;
   whoWeAreTitle?: string;
   whoWeAreParagraph2?: string;
   valuesTitle?: string;
-  values?: Array<{ icon: string; title: string; desc: string }>;
   ctaTitle?: string;
   ctaDescription?: string;
   translations?: Record<string, Record<string, string>>;
@@ -22,82 +22,63 @@ interface AboutData {
 
 const ICON_MAP: Record<string, React.ReactNode> = {
   target: <Target className="w-8 h-8 text-primary" />,
-  users: <Users className="w-8 h-8 text-primary" />,
+  users:  <Users  className="w-8 h-8 text-primary" />,
   mapPin: <MapPin className="w-8 h-8 text-primary" />,
-  heart: <Heart className="w-8 h-8 text-primary" />,
+  heart:  <Heart  className="w-8 h-8 text-primary" />,
 };
 
 const About = () => {
   const { t, i18n } = useTranslation();
-  const [apiData, setApiData] = useState<AboutData | null>(null);
+  const lang = (i18n.language || "en").slice(0, 2);
 
-  useEffect(() => {
-    apiFetch("/api/cms/about")
-      .then((r) => r.json())
-      .then((data) => setApiData(data))
-      .catch(() => {});
-  }, []);
+  const { data: apiData } = useQuery<AboutData>({
+    queryKey: ["cms", "about"],
+    queryFn: async () => {
+      const res = await apiFetch("/api/cms/about");
+      if (!res.ok) return {};
+      return res.json();
+    },
+    staleTime: 5 * 60 * 1000,
+  });
 
-  const lang = i18n.language?.slice(0, 2);
-
-  const getTranslated = (field: keyof AboutData, fallbackKey: string): string => {
-    if (lang && lang !== "en" && apiData?.translations?.[lang]?.[field as string]) {
+  // Returns translated value → CMS English value → i18n key fallback
+  const get = (field: keyof AboutData, i18nKey: string): string => {
+    if (lang !== "en" && apiData?.translations?.[lang]?.[field as string]) {
       return apiData.translations[lang][field as string];
     }
-    if (apiData && apiData[field] && typeof apiData[field] === "string") {
-      return apiData[field] as string;
-    }
-    return t(fallbackKey);
+    const val = apiData?.[field];
+    if (typeof val === "string" && val.trim()) return val;
+    return t(i18nKey);
   };
 
-  const heroTitle = getTranslated("title", "aboutPage.heroTitle");
-  const heroSubtitle = getTranslated("subtitle", "aboutPage.heroSubtitle");
-  const whoWeAreTitle = getTranslated("whoWeAreTitle", "aboutPage.whoWeAreTitle");
-  const whoWeAreParagraph1 = getTranslated("description", "aboutPage.whoWeAreParagraph1");
-  const whoWeAreParagraph2 = getTranslated("whoWeAreParagraph2", "aboutPage.whoWeAreParagraph2");
-  const valuesTitle = getTranslated("valuesTitle", "aboutPage.valuesTitle");
-  const ctaTitle = getTranslated("ctaTitle", "aboutPage.ctaTitle");
-  const ctaSubtitle = getTranslated("ctaDescription", "aboutPage.ctaSubtitle");
+  const heroTitle         = get("title",              "aboutPage.heroTitle");
+  const heroSubtitle      = get("subtitle",            "aboutPage.heroSubtitle");
+  const whoWeAreTitle     = get("whoWeAreTitle",       "aboutPage.whoWeAreTitle");
+  const whoWeAreParagraph1 = get("description",        "aboutPage.whoWeAreParagraph1");
+  const whoWeAreParagraph2 = get("whoWeAreParagraph2", "aboutPage.whoWeAreParagraph2");
+  const valuesTitle       = get("valuesTitle",         "aboutPage.valuesTitle");
+  const ctaTitle          = get("ctaTitle",            "aboutPage.ctaTitle");
+  const ctaSubtitle       = get("ctaDescription",      "aboutPage.ctaSubtitle");
 
   const defaultValues = [
-    {
-      icon: "target",
-      title: t("aboutPage.missionTitle"),
-      desc: t("aboutPage.missionDesc"),
-    },
-    {
-      icon: "users",
-      title: t("aboutPage.communityTitle"),
-      desc: t("aboutPage.communityDesc"),
-    },
-    {
-      icon: "mapPin",
-      title: t("aboutPage.reachTitle"),
-      desc: t("aboutPage.reachDesc"),
-    },
-    {
-      icon: "heart",
-      title: t("aboutPage.valuesCardTitle"),
-      desc: t("aboutPage.valuesCardDesc"),
-    },
+    { icon: "target", title: t("aboutPage.missionTitle"),     desc: t("aboutPage.missionDesc") },
+    { icon: "users",  title: t("aboutPage.communityTitle"),   desc: t("aboutPage.communityDesc") },
+    { icon: "mapPin", title: t("aboutPage.reachTitle"),       desc: t("aboutPage.reachDesc") },
+    { icon: "heart",  title: t("aboutPage.valuesCardTitle"),  desc: t("aboutPage.valuesCardDesc") },
   ];
 
-  const getValues = () => {
-    if (lang && lang !== "en" && apiData?.translations?.[lang]?.values) {
-      try {
-        return JSON.parse(apiData.translations[lang].values);
-      } catch { /* fall through */ }
-    }
-    if (apiData?.values && Array.isArray(apiData.values) && apiData.values.length > 0) {
-      return apiData.values as Array<{ icon: string; title: string; desc: string }>;
+  const values = (() => {
+    // Try translated values first
+    if (lang !== "en" && apiData?.translations?.[lang]?.values) {
+      try { return JSON.parse(apiData.translations[lang].values); } catch { /* fall through */ }
     }
     return defaultValues;
-  };
+  })();
 
-  const values = getValues();
+  const isAr = lang === "ar";
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background" dir={isAr ? "rtl" : "ltr"}>
       <Header forceOpaque />
       <HeaderSpacer />
 
@@ -151,12 +132,14 @@ const About = () => {
             {valuesTitle}
           </h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {values.map((v, idx) => (
+            {values.map((v: { icon: string; title: string; desc: string }, idx: number) => (
               <div
                 key={idx}
                 className="bg-background rounded-xl p-6 shadow-sm border border-border/50"
               >
-                <div className="mb-4">{ICON_MAP[v.icon] ?? <Target className="w-8 h-8 text-primary" />}</div>
+                <div className="mb-4">
+                  {ICON_MAP[v.icon] ?? <Target className="w-8 h-8 text-primary" />}
+                </div>
                 <h3 className="font-semibold text-foreground mb-2">{v.title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{v.desc}</p>
               </div>

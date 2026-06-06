@@ -104,7 +104,8 @@ class CmsController extends Controller
 
     public function about()
     {
-        return response()->json(AboutSettings::firstOrCreate(['id' => 'default']));
+        $settings = AboutSettings::firstOrCreate(['id' => 'default']);
+        return response()->json($settings->toApiArray());
     }
 
     public function discoverSettings()

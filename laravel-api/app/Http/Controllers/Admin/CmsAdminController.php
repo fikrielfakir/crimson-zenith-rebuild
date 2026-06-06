@@ -145,8 +145,36 @@ class CmsAdminController extends Controller
     public function updateAbout(Request $request)
     {
         $settings = AboutSettings::firstOrCreate(['id' => 'default']);
-        $settings->update(array_merge($request->except(['id']), ['updated_by' => $request->user()->id]));
-        return response()->json($settings->fresh());
+
+        $map = [
+            'title'              => 'title',
+            'subtitle'           => 'subtitle',
+            'description'        => 'description',
+            'whoWeAreTitle'      => 'who_we_are_title',
+            'whoWeAreParagraph2' => 'who_we_are_paragraph2',
+            'valuesTitle'        => 'values_title',
+            'ctaTitle'           => 'cta_title',
+            'ctaDescription'     => 'cta_description',
+            'isActive'           => 'is_active',
+            'imageId'            => 'image_id',
+            'backgroundImageId'  => 'background_image_id',
+            'backgroundColor'    => 'background_color',
+        ];
+
+        $data = ['updated_by' => $request->user()->id];
+        foreach ($map as $camel => $snake) {
+            if ($request->has($camel)) {
+                $data[$snake] = $request->input($camel);
+            }
+        }
+
+        // Store translations as JSON
+        if ($request->has('translations')) {
+            $data['translations'] = $request->input('translations');
+        }
+
+        $settings->update($data);
+        return response()->json($settings->fresh()->toApiArray());
     }
 
     public function updateDiscover(Request $request)
