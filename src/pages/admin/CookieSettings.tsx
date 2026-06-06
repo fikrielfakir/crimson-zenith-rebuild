@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { TranslateDialog } from '@/components/admin/TranslateDialog';
 import { Save, Loader2, Cookie, Eye, EyeOff, Lock } from 'lucide-react';
 
 interface CookieCategory {
@@ -150,8 +151,22 @@ export default function CookieSettings() {
       {/* Banner Text */}
       <Card>
         <CardHeader>
-          <CardTitle>Banner Text</CardTitle>
-          <CardDescription>Customize the title and description shown in the cookie banner.</CardDescription>
+          <div className="flex items-start justify-between">
+            <div>
+              <CardTitle>Banner Text</CardTitle>
+              <CardDescription>Customize the title and description shown in the cookie banner.</CardDescription>
+            </div>
+            <TranslateDialog
+              entityType="cookie_settings"
+              entityId="banner"
+              entityLabel="Cookie Banner"
+              fields={[
+                { key: 'title', label: 'Banner Title' },
+                { key: 'description', label: 'Description', multiline: true },
+              ]}
+              sourceValues={{ title: form.title, description: form.description }}
+            />
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
@@ -209,6 +224,18 @@ export default function CookieSettings() {
                         Always Active
                       </Badge>
                     )}
+                    <div className="ml-auto">
+                      <TranslateDialog
+                        entityType="cookie_settings"
+                        entityId={`category_${cat.key}`}
+                        entityLabel={cat.label}
+                        fields={[
+                          { key: 'label', label: 'Category Name' },
+                          { key: 'description', label: 'Description' },
+                        ]}
+                        sourceValues={{ label: cat.label, description: cat.description }}
+                      />
+                    </div>
                   </div>
                   <div className="space-y-2">
                     <div className="space-y-1">
