@@ -19,6 +19,7 @@ use App\Models\SiteStat;
 use App\Models\Partner;
 use App\Models\PartnerSettings;
 use App\Models\ClubsPageSettings;
+use App\Models\LegalPage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -582,5 +583,29 @@ class CmsAdminController extends Controller
     {
         LandingTestimonial::findOrFail($id)->delete();
         return response()->json(['message' => 'Deleted']);
+    }
+
+    public function updateLegalPage(Request $request, string $pageKey)
+    {
+        $allowed = ['privacy-policy', 'terms-of-service', 'cookie-policy'];
+        if (!in_array($pageKey, $allowed)) {
+            return response()->json(['message' => 'Invalid page key'], 422);
+        }
+
+        $data = $request->validate([
+            'title'   => 'required|string|max:255',
+            'content' => 'required|string',
+        ]);
+
+        $page = LegalPage::updateOrCreate(
+            ['page_key' => $pageKey],
+            [
+                'title'      => $data['title'],
+                'content'    => $data['content'],
+                'updated_by' => $request->user()->id,
+            ]
+        );
+
+        return response()->json($page->fresh()->toApiArray());
     }
 }

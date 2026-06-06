@@ -21,6 +21,7 @@ use App\Models\Partner;
 use App\Models\PartnerSettings;
 use App\Models\FocusSectionSettings;
 use App\Models\ClubsPageSettings;
+use App\Models\LegalPage;
 
 class CmsController extends Controller
 {
@@ -205,6 +206,15 @@ class CmsController extends Controller
             ['title' => 'Our Partners & Supporters', 'subtitle' => 'Associates & Clients', 'is_active' => true]
         );
         return response()->json($settings);
+    }
+
+    public function legalPage($pageKey)
+    {
+        $page = LegalPage::where('page_key', $pageKey)->first();
+        if (!$page) {
+            return response()->json(null, 404);
+        }
+        return response()->json($page->toApiArray());
     }
 
     public function media($id)

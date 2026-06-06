@@ -132,6 +132,7 @@ Route::prefix('cms')->group(function () {
     Route::get('/page-hero/{page}',  [\App\Http\Controllers\CmsController::class, 'pageHero']);
     Route::get('/partners',          [\App\Http\Controllers\CmsController::class, 'partners']);
     Route::get('/partner-settings',  [\App\Http\Controllers\CmsController::class, 'partnerSettings']);
+    Route::get('/legal/{pageKey}',   [\App\Http\Controllers\CmsController::class, 'legalPage']);
 });
 
 Route::get('/landing', [\App\Http\Controllers\LandingController::class, 'index']);
@@ -348,6 +349,9 @@ Route::prefix('admin')->middleware(['admin'])->group(function () {
 
     // Clubs page settings
     Route::put('/cms/clubs-page',              [\App\Http\Controllers\Admin\CmsAdminController::class, 'updateClubsPage']);
+
+    // Legal Pages (Privacy Policy, Terms of Service, Cookie Policy)
+    Route::put('/cms/legal/{pageKey}',         [\App\Http\Controllers\Admin\CmsAdminController::class, 'updateLegalPage']);
 
     // CMS bulk-update collections (focus, team, testimonials, stats, partners)
     Route::get('/cms/stats',                   [\App\Http\Controllers\Admin\CmsAdminController::class, 'getCmsStat']);
