@@ -12,7 +12,7 @@ import { format, isToday, isFuture, isPast, parseISO, differenceInHours, isWithi
 import "react-calendar/dist/Calendar.css";
 
 interface SmartEvent {
-  id: number;
+  id: number | string;
   title: string;
   description: string;
   eventDate: string;
@@ -20,13 +20,13 @@ interface SmartEvent {
   maxParticipants: number;
   currentParticipants: number;
   status: string;
-  clubId: number;
+  clubId: number | string | null;
   clubName: string;
   category?: string;
   difficulty?: string;
   tags: string[];
   weatherConditions?: string;
-  price?: number;
+  price?: number | null;
   smartScore: number;
   conflictEvents?: SmartEvent[];
   recommendations?: SmartEvent[];
@@ -49,12 +49,14 @@ const SmartEventCalendar = () => {
   const [events, setEvents] = useState<SmartEvent[]>([]);
   const [clubs, setClubs] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+  const [totalFetched, setTotalFetched] = useState(0);
   const [viewMode, setViewMode] = useState<"calendar" | "smart" | "list">("smart");
   const [filters, setFilters] = useState<SmartFilters>({
     search: "",
     category: "all",
-    difficulty: "all", 
-    dateRange: "upcoming",
+    difficulty: "all",
+    dateRange: "all",
     capacity: "all",
     club: "all",
     showConflicts: false,
@@ -70,64 +72,75 @@ const SmartEventCalendar = () => {
   const fetchEventsAndClubs = async () => {
     try {
       setIsLoading(true);
-      
-      // Fetch clubs and their events
+      setFetchError(null);
+
       const [clubsResponse, eventsResponse] = await Promise.all([
         fetch('/api/clubs'),
-        fetch('/api/booking/events')
+        fetch('/api/booking/events'),
       ]);
+
+      const clubsData = clubsResponse.ok ? await clubsResponse.json() : { clubs: [] };
       
-      const clubsData = await clubsResponse.json();
+      if (!eventsResponse.ok) {
+        const errText = await eventsResponse.text().catch(() => '');
+        setFetchError(`Events API returned ${eventsResponse.status}${errText ? ': ' + errText.slice(0, 120) : ''}`);
+        setIsLoading(false);
+        return;
+      }
+
       const eventsData = await eventsResponse.json();
-      
+      const rawEvents: any[] = eventsData.events || eventsData.data || [];
+
       if (clubsResponse.ok) {
         setClubs(clubsData.clubs || []);
       }
-      
-      if (eventsResponse.ok) {
-        const enhancedEvents = enhanceEventsWithSmartFeatures(eventsData.events || [], clubsData.clubs || []);
-        setEvents(enhancedEvents);
-      }
-    } catch (error) {
+
+      const enhancedEvents = enhanceEventsWithSmartFeatures(rawEvents, clubsData.clubs || []);
+      setTotalFetched(enhancedEvents.length);
+      setEvents(enhancedEvents);
+    } catch (error: any) {
       console.error('Error fetching events and clubs:', error);
+      setFetchError(error?.message || 'Network error — could not reach the events API.');
     } finally {
       setIsLoading(false);
     }
   };
 
   // Enhance events with smart features
-  const enhanceEventsWithSmartFeatures = (rawEvents: any[], clubList: any[]): SmartEvent[] => {
+  // The Laravel API returns camelCase fields (mapOutput), so we read those directly.
+  const enhanceEventsWithSmartFeatures = (rawEvents: any[], _clubList: any[]): SmartEvent[] => {
     return rawEvents.map(event => {
-      const club = clubList.find(c => c.id === event.club_id);
-      const eventDate = parseISO(event.event_date);
-      
-      // Calculate smart score based on multiple factors
-      const smartScore = calculateSmartScore(event, eventDate);
-      
-      // Auto-detect category and difficulty
-      const category = detectCategory(event.title, event.description);
-      const difficulty = detectDifficulty(event.title, event.description);
-      
-      // Extract tags from title and description
-      const tags = extractTags(event.title, event.description);
-      
+      // Resolve the best available date: eventDate → startDate → null
+      const rawDate = event.eventDate || event.startDate || null;
+      let parsedDate: Date;
+      try {
+        parsedDate = rawDate ? parseISO(rawDate) : new Date();
+      } catch {
+        parsedDate = new Date();
+      }
+
+      const smartScore = calculateSmartScore(event, parsedDate);
+      const category = event.category || detectCategory(event.title, event.description ?? '');
+      const difficulty = detectDifficulty(event.title, event.description ?? '');
+      const tags = extractTags(event.title, event.description ?? '');
+
       return {
         id: event.id,
         title: event.title,
-        description: event.description,
-        eventDate: event.event_date,
-        location: event.location,
-        maxParticipants: event.max_participants,
-        currentParticipants: event.current_participants,
-        status: event.status,
-        clubId: event.club_id,
-        clubName: club?.name || 'Unknown Club',
+        description: event.description ?? '',
+        eventDate: rawDate || new Date().toISOString(),
+        location: event.location ?? '',
+        maxParticipants: event.maxParticipants ?? event.maxPeople ?? 0,
+        currentParticipants: event.currentParticipants ?? 0,
+        status: event.status ?? 'upcoming',
+        clubId: event.clubId ?? null,
+        clubName: event.clubName || 'The Journey Association',
         category,
         difficulty,
         tags,
         smartScore,
-        weatherConditions: getWeatherConditions(event.location),
-        price: Math.floor(Math.random() * 100) + 25 // Mock price for demo
+        weatherConditions: getWeatherConditions(event.location ?? ''),
+        price: event.price ?? event.originalPrice ?? null,
       };
     });
   };
@@ -135,21 +148,26 @@ const SmartEventCalendar = () => {
   // Smart scoring algorithm
   const calculateSmartScore = (event: any, eventDate: Date): number => {
     let score = 0;
-    
+
     // Date relevance (future events score higher)
     if (isFuture(eventDate)) score += 30;
     if (isToday(eventDate)) score += 50;
-    
-    // Capacity availability
-    const capacityRatio = event.current_participants / event.max_participants;
+
+    // Capacity availability — works with both camelCase (API) and snake_case fields
+    const current = event.currentParticipants ?? event.current_participants ?? 0;
+    const max = event.maxParticipants ?? event.max_participants ?? event.maxPeople ?? 1;
+    const capacityRatio = max > 0 ? current / max : 0;
     score += (1 - capacityRatio) * 20;
-    
+
     // Event status
     if (event.status === 'upcoming') score += 25;
-    
+
     // Popularity (more participants = higher score)
-    score += Math.min(event.current_participants * 2, 25);
-    
+    score += Math.min(current * 2, 25);
+
+    // Boost for events with a real price (real data signal)
+    if (event.price != null) score += 5;
+
     return Math.min(score, 100);
   };
 
@@ -272,6 +290,9 @@ const SmartEventCalendar = () => {
         case 'upcoming':
           if (!isFuture(eventDate)) return false;
           break;
+        case 'all':
+        default:
+          break;
       }
       
       // Capacity filter
@@ -327,6 +348,19 @@ const SmartEventCalendar = () => {
       <div className="flex items-center justify-center p-12">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
         <span className="ml-3 text-lg">Loading smart calendar...</span>
+      </div>
+    );
+  }
+
+  if (fetchError) {
+    return (
+      <div className="p-6 rounded-lg border border-red-200 bg-red-50 text-red-800 space-y-2">
+        <div className="flex items-center gap-2 font-semibold">
+          <AlertTriangle className="w-5 h-5" />
+          Could not load events
+        </div>
+        <p className="text-sm">{fetchError}</p>
+        <Button variant="outline" size="sm" onClick={fetchEventsAndClubs}>Retry</Button>
       </div>
     );
   }
@@ -400,10 +434,11 @@ const SmartEventCalendar = () => {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="all">All Events</SelectItem>
+                  <SelectItem value="upcoming">Upcoming Only</SelectItem>
                   <SelectItem value="today">Today</SelectItem>
                   <SelectItem value="week">This Week</SelectItem>
                   <SelectItem value="month">This Month</SelectItem>
-                  <SelectItem value="upcoming">All Upcoming</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -549,13 +584,13 @@ const SmartEventCalendar = () => {
                       {/* Actions */}
                       <div className="flex items-center justify-between pt-2">
                         <span className="text-lg font-bold text-primary">
-                          ${event.price}
+                          {event.price != null ? `$${event.price}` : 'Free'}
                         </span>
                         <Button 
                           size="sm"
-                          disabled={event.currentParticipants >= event.maxParticipants}
+                          disabled={event.maxParticipants > 0 && event.currentParticipants >= event.maxParticipants}
                         >
-                          {event.currentParticipants >= event.maxParticipants ? 'Full' : 'Join Event'}
+                          {event.maxParticipants > 0 && event.currentParticipants >= event.maxParticipants ? 'Full' : 'Join Event'}
                         </Button>
                       </div>
                     </div>
@@ -674,7 +709,9 @@ const SmartEventCalendar = () => {
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-xl font-bold text-primary mb-2">${event.price}</div>
+                      <div className="text-xl font-bold text-primary mb-2">
+                        {event.price != null ? `$${event.price}` : 'Free'}
+                      </div>
                       <Button size="sm">Join Event</Button>
                     </div>
                   </div>
