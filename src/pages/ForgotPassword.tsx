@@ -4,15 +4,19 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle, Mail, ArrowLeft, CheckCircle } from 'lucide-react';
+import { AlertCircle, Mail, ArrowLeft, CheckCircle, RefreshCw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import logoAtj from '@/assets/logo-atj.png';
+
+const RESEND_COOLDOWN = 60;
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isResending, setIsResending] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [countdown, setCountdown] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language === 'ar';
@@ -21,29 +25,50 @@ const ForgotPassword = () => {
     setIsVisible(true);
   }, []);
 
+  useEffect(() => {
+    if (countdown <= 0) return;
+    const timer = setTimeout(() => setCountdown((c) => c - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [countdown]);
+
+  const sendRequest = async () => {
+    const response = await fetch('/api/forgot-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ email }),
+    });
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      throw new Error(data.message || t('auth.errors.tryAgain'));
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
-
     try {
-      const response = await fetch('/api/forgot-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ email }),
-      });
-
-      if (response.ok) {
-        setSuccess(true);
-      } else {
-        const data = await response.json();
-        setError(data.message || t('auth.errors.tryAgain'));
-      }
-    } catch {
-      setError(t('auth.errors.tryAgain'));
+      await sendRequest();
+      setSuccess(true);
+      setCountdown(RESEND_COOLDOWN);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('auth.errors.tryAgain'));
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleResend = async () => {
+    setIsResending(true);
+    setError('');
+    try {
+      await sendRequest();
+      setCountdown(RESEND_COOLDOWN);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('auth.errors.tryAgain'));
+    } finally {
+      setIsResending(false);
     }
   };
 
@@ -136,9 +161,54 @@ const ForgotPassword = () => {
               <p className="text-green-700 mb-6">
                 {t('auth.forgotPassword.successMessage', { email })}
               </p>
+
+              {error && (
+                <Alert variant="destructive" className="border-red-200 bg-red-50 rounded-xl mb-4 text-left">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+
+              <div className="flex flex-col items-center gap-3 mb-6">
+                <Button
+                  onClick={handleResend}
+                  disabled={countdown > 0 || isResending}
+                  variant="outline"
+                  className="w-full h-11 rounded-xl border-green-300 text-green-800 hover:bg-green-100 disabled:opacity-60 disabled:cursor-not-allowed transition-all"
+                >
+                  {isResending ? (
+                    <span className="flex items-center gap-2">
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                      {t('auth.forgotPassword.resending')}
+                    </span>
+                  ) : countdown > 0 ? (
+                    <span className="flex items-center gap-2">
+                      <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-green-200 text-green-900 text-xs font-bold tabular-nums">
+                        {countdown}
+                      </span>
+                      {t('auth.forgotPassword.resendIn', { seconds: countdown })}
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-2">
+                      <RefreshCw className="w-4 h-4" />
+                      {t('auth.forgotPassword.resendEmail')}
+                    </span>
+                  )}
+                </Button>
+
+                {countdown > 0 && (
+                  <div className="w-full bg-green-200 rounded-full h-1 overflow-hidden">
+                    <div
+                      className="h-full bg-green-500 rounded-full transition-all duration-1000 ease-linear"
+                      style={{ width: `${(countdown / RESEND_COOLDOWN) * 100}%` }}
+                    />
+                  </div>
+                )}
+              </div>
+
               <Link
                 to="/login"
-                className="inline-flex items-center gap-2 text-[hsl(227,65%,19%)] font-semibold hover:text-[hsl(227,65%,30%)] transition-colors"
+                className="inline-flex items-center gap-2 text-[hsl(227,65%,19%)] font-semibold hover:text-[hsl(227,65%,30%)] transition-colors text-sm"
               >
                 <ArrowLeft className={`w-4 h-4 ${isRtl ? 'rotate-180' : ''}`} />
                 {t('auth.forgotPassword.returnToLogin')}

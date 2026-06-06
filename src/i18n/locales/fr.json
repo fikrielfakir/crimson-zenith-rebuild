@@ -894,7 +894,10 @@
       "signIn": "Se connecter",
       "successTitle": "Vérifiez votre e-mail",
       "successMessage": "Si un compte avec {{email}} existe, vous recevrez bientôt des instructions de réinitialisation.",
-      "returnToLogin": "Retour à la connexion"
+      "returnToLogin": "Retour à la connexion",
+      "resendEmail": "Renvoyer l'e-mail",
+      "resending": "Envoi en cours...",
+      "resendIn": "Renvoyer dans {{seconds}}s"
     },
     "errors": {
       "passwordsDoNotMatch": "Les mots de passe ne correspondent pas.",

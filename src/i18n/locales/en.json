@@ -894,7 +894,10 @@
       "signIn": "Sign in",
       "successTitle": "Check Your Email",
       "successMessage": "If an account with {{email}} exists, you'll receive password reset instructions shortly.",
-      "returnToLogin": "Return to Login"
+      "returnToLogin": "Return to Login",
+      "resendEmail": "Resend Email",
+      "resending": "Resending...",
+      "resendIn": "Resend in {{seconds}}s"
     },
     "errors": {
       "passwordsDoNotMatch": "Passwords do not match.",
