@@ -210,12 +210,12 @@ const UserSignup = () => {
                   <div className="space-y-2">
                     <Label htmlFor="firstName" className="text-slate-700 font-medium">{t('auth.signup.firstName')}</Label>
                     <div className="relative group">
-                      <User className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-[hsl(227,65%,19%)] transition-colors" />
+                      <User className={`absolute ${isRtl ? 'right-4' : 'left-4'} top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-[hsl(227,65%,19%)] transition-colors`} />
                       <Input
                         id="firstName"
                         type="text"
                         placeholder={t('auth.signup.firstNamePlaceholder')}
-                        className="pl-12 h-12 border-slate-200 rounded-xl focus:border-[hsl(227,65%,19%)] focus:ring-2 focus:ring-[hsl(227,65%,19%,0.1)] transition-all bg-white"
+                        className={`${isRtl ? 'pr-12' : 'pl-12'} h-12 border-slate-200 rounded-xl focus:border-[hsl(227,65%,19%)] focus:ring-2 focus:ring-[hsl(227,65%,19%,0.1)] transition-all bg-white`}
                         value={formData.firstName}
                         onChange={(e) => setFormData(prev => ({...prev, firstName: e.target.value}))}
                         required
@@ -226,12 +226,12 @@ const UserSignup = () => {
                   <div className="space-y-2">
                     <Label htmlFor="lastName" className="text-slate-700 font-medium">{t('auth.signup.lastName')}</Label>
                     <div className="relative group">
-                      <User className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-[hsl(227,65%,19%)] transition-colors" />
+                      <User className={`absolute ${isRtl ? 'right-4' : 'left-4'} top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-[hsl(227,65%,19%)] transition-colors`} />
                       <Input
                         id="lastName"
                         type="text"
                         placeholder={t('auth.signup.lastNamePlaceholder')}
-                        className="pl-12 h-12 border-slate-200 rounded-xl focus:border-[hsl(227,65%,19%)] focus:ring-2 focus:ring-[hsl(227,65%,19%,0.1)] transition-all bg-white"
+                        className={`${isRtl ? 'pr-12' : 'pl-12'} h-12 border-slate-200 rounded-xl focus:border-[hsl(227,65%,19%)] focus:ring-2 focus:ring-[hsl(227,65%,19%,0.1)] transition-all bg-white`}
                         value={formData.lastName}
                         onChange={(e) => setFormData(prev => ({...prev, lastName: e.target.value}))}
                         required
@@ -243,12 +243,12 @@ const UserSignup = () => {
                 <div className="space-y-2">
                   <Label htmlFor="email" className="text-slate-700 font-medium">{t('auth.signup.email')}</Label>
                   <div className="relative group">
-                    <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-[hsl(227,65%,19%)] transition-colors" />
+                    <Mail className={`absolute ${isRtl ? 'right-4' : 'left-4'} top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-[hsl(227,65%,19%)] transition-colors`} />
                     <Input
                       id="email"
                       type="email"
                       placeholder={t('auth.signup.emailPlaceholder')}
-                      className="pl-12 h-12 border-slate-200 rounded-xl focus:border-[hsl(227,65%,19%)] focus:ring-2 focus:ring-[hsl(227,65%,19%,0.1)] transition-all bg-white"
+                      className={`${isRtl ? 'pr-12' : 'pl-12'} h-12 border-slate-200 rounded-xl focus:border-[hsl(227,65%,19%)] focus:ring-2 focus:ring-[hsl(227,65%,19%,0.1)] transition-all bg-white`}
                       value={formData.email}
                       onChange={(e) => setFormData(prev => ({...prev, email: e.target.value}))}
                       required
@@ -259,12 +259,12 @@ const UserSignup = () => {
                 <div className="space-y-2">
                   <Label htmlFor="password" className="text-slate-700 font-medium">{t('auth.signup.password')}</Label>
                   <div className="relative group">
-                    <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-[hsl(227,65%,19%)] transition-colors" />
+                    <Lock className={`absolute ${isRtl ? 'right-4' : 'left-4'} top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-[hsl(227,65%,19%)] transition-colors`} />
                     <Input
                       id="password"
                       type={showPassword ? "text" : "password"}
                       placeholder={t('auth.signup.passwordPlaceholder')}
-                      className="pl-12 pr-12 h-12 border-slate-200 rounded-xl focus:border-[hsl(227,65%,19%)] focus:ring-2 focus:ring-[hsl(227,65%,19%,0.1)] transition-all bg-white"
+                      className={`${isRtl ? 'pr-12 pl-12' : 'pl-12 pr-12'} h-12 border-slate-200 rounded-xl focus:border-[hsl(227,65%,19%)] focus:ring-2 focus:ring-[hsl(227,65%,19%,0.1)] transition-all bg-white`}
                       value={formData.password}
                       onChange={(e) => setFormData(prev => ({...prev, password: e.target.value}))}
                       required
@@ -272,7 +272,7 @@ const UserSignup = () => {
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                      className={`absolute ${isRtl ? 'left-4' : 'right-4'} top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors`}
                     >
                       {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
@@ -282,12 +282,12 @@ const UserSignup = () => {
                 <div className="space-y-2">
                   <Label htmlFor="confirmPassword" className="text-slate-700 font-medium">{t('auth.signup.confirmPassword')}</Label>
                   <div className="relative group">
-                    <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-[hsl(227,65%,19%)] transition-colors" />
+                    <Lock className={`absolute ${isRtl ? 'right-4' : 'left-4'} top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-[hsl(227,65%,19%)] transition-colors`} />
                     <Input
                       id="confirmPassword"
                       type={showConfirmPassword ? "text" : "password"}
                       placeholder={t('auth.signup.confirmPasswordPlaceholder')}
-                      className="pl-12 pr-12 h-12 border-slate-200 rounded-xl focus:border-[hsl(227,65%,19%)] focus:ring-2 focus:ring-[hsl(227,65%,19%,0.1)] transition-all bg-white"
+                      className={`${isRtl ? 'pr-12 pl-12' : 'pl-12 pr-12'} h-12 border-slate-200 rounded-xl focus:border-[hsl(227,65%,19%)] focus:ring-2 focus:ring-[hsl(227,65%,19%,0.1)] transition-all bg-white`}
                       value={formData.confirmPassword}
                       onChange={(e) => setFormData(prev => ({...prev, confirmPassword: e.target.value}))}
                       required
@@ -295,7 +295,7 @@ const UserSignup = () => {
                     <button
                       type="button"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                      className={`absolute ${isRtl ? 'left-4' : 'right-4'} top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors`}
                     >
                       {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>

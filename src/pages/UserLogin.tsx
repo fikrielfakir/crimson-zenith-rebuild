@@ -187,12 +187,12 @@ const UserLogin = () => {
             <div className="space-y-2">
               <Label htmlFor="email" className="text-slate-700 font-medium">{t('auth.login.email')}</Label>
               <div className="relative group">
-                <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-[hsl(227,65%,19%)] transition-colors" />
+                <Mail className={`absolute ${isRtl ? 'right-4' : 'left-4'} top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-[hsl(227,65%,19%)] transition-colors`} />
                 <Input
                   id="email"
                   type="email"
                   placeholder={t('auth.login.emailPlaceholder')}
-                  className="pl-12 h-12 border-slate-200 rounded-xl focus:border-[hsl(227,65%,19%)] focus:ring-2 focus:ring-[hsl(227,65%,19%,0.1)] transition-all bg-white"
+                  className={`${isRtl ? 'pr-12' : 'pl-12'} h-12 border-slate-200 rounded-xl focus:border-[hsl(227,65%,19%)] focus:ring-2 focus:ring-[hsl(227,65%,19%,0.1)] transition-all bg-white`}
                   value={credentials.email}
                   onChange={(e) => setCredentials(prev => ({...prev, email: e.target.value}))}
                   required
@@ -203,12 +203,12 @@ const UserLogin = () => {
             <div className="space-y-2">
               <Label htmlFor="password" className="text-slate-700 font-medium">{t('auth.login.password')}</Label>
               <div className="relative group">
-                <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-[hsl(227,65%,19%)] transition-colors" />
+                <Lock className={`absolute ${isRtl ? 'right-4' : 'left-4'} top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-[hsl(227,65%,19%)] transition-colors`} />
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
                   placeholder={t('auth.login.passwordPlaceholder')}
-                  className="pl-12 pr-12 h-12 border-slate-200 rounded-xl focus:border-[hsl(227,65%,19%)] focus:ring-2 focus:ring-[hsl(227,65%,19%,0.1)] transition-all bg-white"
+                  className={`${isRtl ? 'pr-12 pl-12' : 'pl-12 pr-12'} h-12 border-slate-200 rounded-xl focus:border-[hsl(227,65%,19%)] focus:ring-2 focus:ring-[hsl(227,65%,19%,0.1)] transition-all bg-white`}
                   value={credentials.password}
                   onChange={(e) => setCredentials(prev => ({...prev, password: e.target.value}))}
                   required
@@ -216,7 +216,7 @@ const UserLogin = () => {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                  className={`absolute ${isRtl ? 'left-4' : 'right-4'} top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors`}
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>

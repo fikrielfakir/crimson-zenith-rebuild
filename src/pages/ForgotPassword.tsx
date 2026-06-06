@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, Mail, ArrowLeft, CheckCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import logoAtj from '@/assets/logo-atj.png';
 
 const ForgotPassword = () => {
@@ -13,6 +14,8 @@ const ForgotPassword = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n.language === 'ar';
 
   useEffect(() => {
     setIsVisible(true);
@@ -35,17 +38,17 @@ const ForgotPassword = () => {
         setSuccess(true);
       } else {
         const data = await response.json();
-        setError(data.message || 'Something went wrong. Please try again.');
+        setError(data.message || t('auth.errors.tryAgain'));
       }
     } catch {
-      setError('An error occurred. Please check your connection and try again.');
+      setError(t('auth.errors.tryAgain'));
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex" dir={isRtl ? 'rtl' : 'ltr'}>
       {/* Left Side - Decorative Panel */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
         <div
@@ -68,8 +71,8 @@ const ForgotPassword = () => {
               to="/login"
               className="flex items-center gap-2 text-white hover:text-white/80 transition-all duration-300"
             >
-              <ArrowLeft className="w-5 h-5" />
-              <span className="font-medium">Back to Login</span>
+              <ArrowLeft className={`w-5 h-5 ${isRtl ? 'rotate-180' : ''}`} />
+              <span className="font-medium">{t('auth.forgotPassword.backToLogin')}</span>
             </Link>
             <div className="flex-1 flex justify-center">
               <Link to="/" className="inline-block">
@@ -86,16 +89,16 @@ const ForgotPassword = () => {
 
           <div className={`space-y-6 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
             <h1 className="text-5xl font-bold leading-tight">
-              Reset Your<br />
-              <span className="text-[hsl(42,49%,70%)]">Password</span>
+              {t('auth.forgotPassword.pageTitle')}<br />
+              <span className="text-[hsl(42,49%,70%)]">{t('auth.forgotPassword.pageHighlight')}</span>
             </h1>
             <p className="text-lg text-white/80 max-w-md leading-relaxed">
-              Enter the email address linked to your account and we'll send you instructions to reset your password.
+              {t('auth.forgotPassword.pageSubtitle')}
             </p>
           </div>
 
           <div className="text-white/60 text-sm">
-            &copy; 2024 Morocco Clubs. All rights reserved.
+            {t('auth.copyright')}
           </div>
         </div>
       </div>
@@ -110,8 +113,8 @@ const ForgotPassword = () => {
                 to="/login"
                 className="flex items-center gap-2 text-[hsl(227,65%,19%)] hover:text-[hsl(227,65%,30%)] transition-all"
               >
-                <ArrowLeft className="w-5 h-5" />
-                <span className="font-medium text-sm">Back to Login</span>
+                <ArrowLeft className={`w-5 h-5 ${isRtl ? 'rotate-180' : ''}`} />
+                <span className="font-medium text-sm">{t('auth.forgotPassword.backToLogin')}</span>
               </Link>
             </div>
             <div className="text-center">
@@ -129,35 +132,35 @@ const ForgotPassword = () => {
           {success ? (
             <div className="text-center p-8 rounded-2xl bg-green-50 border border-green-200">
               <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-green-800 mb-2">Check Your Email</h3>
+              <h3 className="text-xl font-bold text-green-800 mb-2">{t('auth.forgotPassword.successTitle')}</h3>
               <p className="text-green-700 mb-6">
-                If an account with <span className="font-semibold">{email}</span> exists, you'll receive password reset instructions shortly.
+                {t('auth.forgotPassword.successMessage', { email })}
               </p>
               <Link
                 to="/login"
                 className="inline-flex items-center gap-2 text-[hsl(227,65%,19%)] font-semibold hover:text-[hsl(227,65%,30%)] transition-colors"
               >
-                <ArrowLeft className="w-4 h-4" />
-                Return to Login
+                <ArrowLeft className={`w-4 h-4 ${isRtl ? 'rotate-180' : ''}`} />
+                {t('auth.forgotPassword.returnToLogin')}
               </Link>
             </div>
           ) : (
             <>
               <div className="text-center mb-8">
-                <h2 className="text-2xl font-bold text-slate-800 mb-2">Forgot your password?</h2>
-                <p className="text-slate-600">No worries — we'll send you reset instructions.</p>
+                <h2 className="text-2xl font-bold text-slate-800 mb-2">{t('auth.forgotPassword.formTitle')}</h2>
+                <p className="text-slate-600">{t('auth.forgotPassword.formSubtitle')}</p>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-slate-700 font-medium">Email address</Label>
+                  <Label htmlFor="email" className="text-slate-700 font-medium">{t('auth.forgotPassword.emailLabel')}</Label>
                   <div className="relative group">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-[hsl(227,65%,19%)] transition-colors" />
+                    <Mail className={`absolute ${isRtl ? 'right-4' : 'left-4'} top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-[hsl(227,65%,19%)] transition-colors`} />
                     <Input
                       id="email"
                       type="email"
-                      placeholder="Enter your email"
-                      className="pl-12 h-12 border-slate-200 rounded-xl focus:border-[hsl(227,65%,19%)] focus:ring-2 focus:ring-[hsl(227,65%,19%,0.1)] transition-all bg-white"
+                      placeholder={t('auth.forgotPassword.emailPlaceholder')}
+                      className={`${isRtl ? 'pr-12' : 'pl-12'} h-12 border-slate-200 rounded-xl focus:border-[hsl(227,65%,19%)] focus:ring-2 focus:ring-[hsl(227,65%,19%,0.1)] transition-all bg-white`}
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
@@ -183,19 +186,19 @@ const ForgotPassword = () => {
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                       </svg>
-                      Sending...
+                      {t('auth.forgotPassword.sending')}
                     </span>
-                  ) : 'Send Reset Instructions'}
+                  ) : t('auth.forgotPassword.sendButton')}
                 </Button>
               </form>
 
               <p className="mt-8 text-center text-slate-600">
-                Remember your password?{' '}
+                {t('auth.forgotPassword.rememberPassword')}{' '}
                 <Link
                   to="/login"
                   className="font-semibold text-[hsl(227,65%,19%)] hover:text-[hsl(227,65%,30%)] transition-colors"
                 >
-                  Sign in
+                  {t('auth.forgotPassword.signIn')}
                 </Link>
               </p>
             </>

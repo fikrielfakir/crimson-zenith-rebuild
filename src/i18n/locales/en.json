@@ -879,6 +879,23 @@
       "successTitle": "Account Created!",
       "successMessage": "Redirecting you to the login page..."
     },
+    "forgotPassword": {
+      "pageTitle": "Reset Your",
+      "pageHighlight": "Password",
+      "pageSubtitle": "Enter the email address linked to your account and we'll send you instructions to reset your password.",
+      "backToLogin": "Back to Login",
+      "formTitle": "Forgot your password?",
+      "formSubtitle": "No worries — we'll send you reset instructions.",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "Enter your email",
+      "sending": "Sending...",
+      "sendButton": "Send Reset Instructions",
+      "rememberPassword": "Remember your password?",
+      "signIn": "Sign in",
+      "successTitle": "Check Your Email",
+      "successMessage": "If an account with {{email}} exists, you'll receive password reset instructions shortly.",
+      "returnToLogin": "Return to Login"
+    },
     "errors": {
       "passwordsDoNotMatch": "Passwords do not match.",
       "passwordTooShort": "Password must be at least 6 characters long.",
