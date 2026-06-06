@@ -1,0 +1,676 @@
+# User Profile System - Development Prompt
+
+## Project Context
+Build a comprehensive user profile system for The Journey Association platform with role-based access control supporting two primary roles: **User** (basic/guest) and **Member** (authenticated).
+
+---
+
+## Core Requirements
+
+### 1. User Roles Definition
+
+#### **User Role (Basic/Guest)**
+- **Access Level**: Public content only
+- **Permissions**:
+  - Browse clubs, events, and news
+  - View public profiles
+  - Use contact forms
+  - Apply for membership
+  - View gallery (public content)
+  - Read articles and blog posts
+- **Restrictions**:
+  - Cannot join clubs
+  - Cannot RSVP to events
+  - Cannot leave reviews
+  - Cannot book paid experiences
+  - No personalized dashboard
+
+#### **Member Role (Authenticated)**
+- **Access Level**: Full member privileges
+- **Permissions**:
+  - All User role permissions, PLUS:
+  - Join/leave clubs
+  - RSVP to events
+  - Book paid experiences (Stripe/PayPal)
+  - Leave reviews and ratings
+  - Create and manage personal profile
+  - View personalized dashboard
+  - Upload photos to galleries
+  - Receive email notifications
+  - Save favorite clubs/events
+  - Track activity history
+- **Profile Features**:
+  - Avatar/photo upload
+  - Bio and interests
+  - Contact information
+  - Privacy settings
+  - Activity feed
+  - Membership history
+
+---
+
+## Technical Specifications
+
+### Database Schema
+
+#### Users Table
+```sql
+users {
+  id: UUID (Primary Key)
+  username: VARCHAR(50) UNIQUE
+  email: VARCHAR(100) UNIQUE NOT NULL
+  password_hash: VARCHAR(255) NOT NULL
+  role: ENUM('user', 'member', 'admin') DEFAULT 'user'
+  status: ENUM('active', 'inactive', 'banned') DEFAULT 'active'
+  
+  -- Profile Information
+  first_name: VARCHAR(50)
+  last_name: VARCHAR(50)
+  phone: VARCHAR(20)
+  avatar_url: TEXT
+  bio: TEXT
+  location: VARCHAR(100)
+  date_of_birth: DATE
+  
+  -- Preferences
+  language: VARCHAR(10) DEFAULT 'en'
+  timezone: VARCHAR(50)
+  email_notifications: BOOLEAN DEFAULT true
+  sms_notifications: BOOLEAN DEFAULT false
+  
+  -- Privacy Settings
+  profile_visibility: ENUM('public', 'members', 'private') DEFAULT 'public'
+  show_email: BOOLEAN DEFAULT false
+  show_phone: BOOLEAN DEFAULT false
+  
+  -- Metadata
+  created_at: TIMESTAMP DEFAULT NOW()
+  updated_at: TIMESTAMP DEFAULT NOW()
+  last_login: TIMESTAMP
+  email_verified: BOOLEAN DEFAULT false
+  email_verified_at: TIMESTAMP
+}
+```
+
+#### User Profiles Table (Extended Info)
+```sql
+user_profiles {
+  id: UUID (Primary Key)
+  user_id: UUID (Foreign Key -> users.id)
+  
+  -- Interests & Experience
+  interests: JSON (array of interest IDs)
+  experience_level: ENUM('beginner', 'intermediate', 'advanced')
+  preferred_activities: JSON (array of activity types)
+  
+  -- Social Links
+  facebook_url: TEXT
+  instagram_url: TEXT
+  twitter_url: TEXT
+  linkedin_url: TEXT
+  website_url: TEXT
+  
+  -- Emergency Contact
+  emergency_contact_name: VARCHAR(100)
+  emergency_contact_phone: VARCHAR(20)
+  emergency_contact_relationship: VARCHAR(50)
+  
+  -- Additional Info
+  languages_spoken: JSON (array of language codes)
+  dietary_restrictions: TEXT
+  medical_conditions: TEXT (encrypted)
+  
+  created_at: TIMESTAMP DEFAULT NOW()
+  updated_at: TIMESTAMP DEFAULT NOW()
+}
+```
+
+#### Member Activity Table
+```sql
+member_activity {
+  id: UUID (Primary Key)
+  user_id: UUID (Foreign Key -> users.id)
+  activity_type: ENUM('club_joined', 'event_rsvp', 'review_posted', 'booking_made', 'photo_uploaded')
+  related_entity_type: VARCHAR(50) (club, event, etc.)
+  related_entity_id: UUID
+  metadata: JSON
+  created_at: TIMESTAMP DEFAULT NOW()
+}
+```
+
+---
+
+## Frontend Components Structure
+
+### Pages to Build
+
+#### 1. User Registration Page (`/register`)
+**Features**:
+- Multi-step registration form
+- Email validation
+- Password strength indicator
+- Terms acceptance checkbox
+- Email verification flow
+- Social registration option (optional)
+
+**Form Fields**:
+- Email (required)
+- Password (required, min 8 chars)
+- Confirm Password
+- First Name (required)
+- Last Name (required)
+- Phone (optional)
+- Interests (multi-select)
+- Agree to Terms & Privacy Policy
+
+#### 2. User Profile Page (`/profile` or `/profile/:username`)
+**Layout Sections**:
+
+**A. Profile Header**
+- Avatar (editable if own profile)
+- Name and username
+- Location
+- Member since date
+- Edit Profile button (if own profile)
+- Follow/Message buttons (if viewing other's profile)
+
+**B. Profile Tabs**:
+1. **Overview Tab**
+   - Bio
+   - Interests tags
+   - Experience level badge
+   - Languages spoken
+   - Social links
+   - Contact info (based on privacy settings)
+
+2. **Activity Tab**
+   - Recent activity feed
+   - Clubs joined (with dates)
+   - Events attended/upcoming
+   - Reviews written
+   - Photos uploaded
+
+3. **Clubs Tab**
+   - List/grid of clubs user has joined
+   - Join date
+   - Member status
+   - Quick link to club page
+
+4. **Events Tab**
+   - Upcoming events (RSVPed)
+   - Past events attended
+   - Event calendar view toggle
+
+5. **Bookings Tab** (Member only)
+   - Booking history
+   - Upcoming bookings
+   - Payment receipts
+   - Cancel/modify options
+
+6. **Achievements Tab**
+   - Badges earned
+   - Milestones reached
+   - Activity statistics
+
+#### 3. Profile Edit Page (`/profile/edit`)
+**Sections**:
+
+**A. Basic Information**
+- Avatar upload (drag-drop, crop functionality)
+- First & Last Name
+- Username (unique check)
+- Email (with re-verification if changed)
+- Phone
+- Date of Birth
+- Location
+
+**B. About Me**
+- Bio (rich text, max 500 chars)
+- Interests (tag selector)
+- Experience level
+- Languages spoken
+- Preferred activities
+
+**C. Social Links**
+- Facebook, Instagram, Twitter, LinkedIn, Website
+
+**D. Privacy Settings**
+- Profile visibility (public/members/private)
+- Show email publicly
+- Show phone publicly
+- Activity visibility
+- Search engine indexing
+
+**E. Notification Preferences**
+- Email notifications (events, clubs, news)
+- SMS notifications
+- Push notifications (if PWA)
+- Notification frequency
+
+**F. Account Settings**
+- Change password
+- Two-factor authentication
+- Connected accounts
+- Delete account option
+
+**G. Emergency Contact**
+- Name, Phone, Relationship
+
+---
+
+## API Endpoints
+
+### Authentication
+```
+POST   /api/auth/register          - Register new user
+POST   /api/auth/login             - User login
+POST   /api/auth/logout            - User logout
+POST   /api/auth/verify-email      - Verify email token
+POST   /api/auth/forgot-password   - Request password reset
+POST   /api/auth/reset-password    - Reset password with token
+GET    /api/auth/me                - Get current user
+```
+
+### User Profile
+```
+GET    /api/users/:userId          - Get user profile (public view)
+GET    /api/users/profile          - Get own profile (authenticated)
+PUT    /api/users/profile          - Update own profile
+PATCH  /api/users/avatar           - Update avatar
+DELETE /api/users/profile          - Delete account
+
+GET    /api/users/profile/activity - Get activity history
+GET    /api/users/profile/clubs    - Get joined clubs
+GET    /api/users/profile/events   - Get user events
+GET    /api/users/profile/bookings - Get booking history
+```
+
+### Member Actions
+```
+POST   /api/clubs/:clubId/join     - Join a club (Member only)
+POST   /api/clubs/:clubId/leave    - Leave a club (Member only)
+POST   /api/events/:eventId/rsvp   - RSVP to event (Member only)
+POST   /api/reviews                - Create review (Member only)
+```
+
+---
+
+## Role-Based Middleware (Backend)
+
+### Authentication Middleware
+```javascript
+// middleware/auth.js
+
+// Check if user is authenticated
+export const isAuthenticated = (req, res, next) => {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  return res.status(401).json({ 
+    error: 'Authentication required' 
+  });
+};
+
+// Check if user has member role
+export const isMember = (req, res, next) => {
+  if (req.isAuthenticated() && req.user.role === 'member') {
+    return next();
+  }
+  return res.status(403).json({ 
+    error: 'Member access required' 
+  });
+};
+
+// Check if user is active
+export const isActive = (req, res, next) => {
+  if (req.user && req.user.status === 'active') {
+    return next();
+  }
+  return res.status(403).json({ 
+    error: 'Account is not active' 
+  });
+};
+```
+
+### Usage Example
+```javascript
+// Protected routes
+router.post('/clubs/:clubId/join', 
+  isAuthenticated, 
+  isMember, 
+  isActive, 
+  joinClub
+);
+
+router.get('/profile', 
+  isAuthenticated, 
+  getProfile
+);
+```
+
+---
+
+## Frontend Role Protection
+
+### React Context for User
+```jsx
+// context/AuthContext.jsx
+import { createContext, useContext, useState, useEffect } from 'react';
+
+const AuthContext = createContext();
+
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Fetch current user on mount
+    fetchUser();
+  }, []);
+
+  const fetchUser = async () => {
+    try {
+      const response = await fetch('/api/auth/me');
+      if (response.ok) {
+        const data = await response.json();
+        setUser(data.user);
+      }
+    } catch (error) {
+      console.error('Auth check failed:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const login = async (credentials) => {
+    const response = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(credentials)
+    });
+    if (response.ok) {
+      await fetchUser();
+      return true;
+    }
+    return false;
+  };
+
+  const logout = async () => {
+    await fetch('/api/auth/logout', { method: 'POST' });
+    setUser(null);
+  };
+
+  const hasRole = (role) => {
+    return user?.role === role;
+  };
+
+  const isMember = () => {
+    return user?.role === 'member' || user?.role === 'admin';
+  };
+
+  return (
+    <AuthContext.Provider value={{ 
+      user, 
+      loading, 
+      login, 
+      logout, 
+      hasRole, 
+      isMember,
+      isAuthenticated: !!user 
+    }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export const useAuth = () => useContext(AuthContext);
+```
+
+### Protected Route Component
+```jsx
+// components/ProtectedRoute.jsx
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+
+export const ProtectedRoute = ({ children, requireMember = false }) => {
+  const { user, loading, isMember } = useAuth();
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!user) {
+    return <Navigate to="/login" />;
+  }
+
+  if (requireMember && !isMember()) {
+    return <Navigate to="/join" />;
+  }
+
+  return children;
+};
+```
+
+### Conditional UI Rendering
+```jsx
+// Example usage in components
+import { useAuth } from '../context/AuthContext';
+
+const ClubDetailPage = () => {
+  const { user, isMember } = useAuth();
+
+  return (
+    <div>
+      <h1>Club Name</h1>
+      
+      {/* Show to everyone */}
+      <p>Club description...</p>
+      
+      {/* Member-only features */}
+      {isMember() ? (
+        <button>Join Club</button>
+      ) : (
+        <div className="upgrade-prompt">
+          <p>Become a member to join clubs!</p>
+          <a href="/join">Join Now</a>
+        </div>
+      )}
+      
+      {/* User-specific actions */}
+      {user ? (
+        <button>Save to Favorites</button>
+      ) : (
+        <a href="/login">Login to save</a>
+      )}
+    </div>
+  );
+};
+```
+
+---
+
+## UI Components to Build
+
+### 1. Profile Card Component
+```jsx
+<ProfileCard
+  user={userData}
+  isOwnProfile={boolean}
+  showEditButton={boolean}
+  compact={boolean}
+/>
+```
+
+### 2. Role Badge Component
+```jsx
+<RoleBadge role="member" size="sm|md|lg" />
+```
+
+### 3. Activity Feed Component
+```jsx
+<ActivityFeed 
+  userId={userId} 
+  limit={10}
+  showFilters={boolean}
+/>
+```
+
+### 4. Membership Upgrade Prompt
+```jsx
+<UpgradePrompt
+  feature="Join clubs and RSVP to events"
+  currentRole="user"
+  targetRole="member"
+/>
+```
+
+---
+
+## User Flows
+
+### Registration Flow
+1. User visits `/register`
+2. Fills out registration form
+3. Submits form → Creates account with role="user"
+4. Receives verification email
+5. Clicks verification link
+6. Redirected to `/profile/edit` to complete profile
+7. Can immediately upgrade to "member" via `/join` page
+
+### Member Upgrade Flow
+1. User (role="user") wants to join a club
+2. Clicks "Join Club" → Shown upgrade prompt
+3. Redirected to `/join` (membership application)
+4. Fills application form
+5. Admin reviews application
+6. Upon approval → role updated to "member"
+7. User receives email notification
+8. Can now access member features
+
+### Profile Edit Flow
+1. Member clicks "Edit Profile"
+2. Navigates to `/profile/edit`
+3. Updates information across tabs
+4. Changes are saved automatically or via "Save" button
+5. Success notification shown
+6. Redirected back to profile view
+
+---
+
+## Security Considerations
+
+### Password Security
+- Minimum 8 characters
+- Require uppercase, lowercase, number, special char
+- Hash with bcrypt (salt rounds: 12)
+- Implement password reset with expiring tokens
+
+### Email Verification
+- Send verification email on registration
+- Token expires in 24 hours
+- Prevent access to member features until verified
+
+### Session Management
+- Use secure, httpOnly cookies
+- Implement session timeout (30 min inactivity)
+- CSRF protection
+- Rate limiting on auth endpoints
+
+### Data Privacy
+- Encrypt sensitive data (medical conditions)
+- Respect privacy settings (hide email/phone)
+- GDPR-compliant data export
+- Account deletion request handling
+
+---
+
+## Testing Checklist
+
+### Unit Tests
+- [ ] User registration validation
+- [ ] Role-based permission checks
+- [ ] Profile update validation
+- [ ] Password hashing/verification
+
+### Integration Tests
+- [ ] Registration → Email verification → Login flow
+- [ ] User → Member upgrade flow
+- [ ] Profile CRUD operations
+- [ ] Role-based route protection
+
+### E2E Tests
+- [ ] Complete registration journey
+- [ ] Profile editing and saving
+- [ ] Member-only feature access
+- [ ] Privacy settings enforcement
+
+---
+
+## Success Metrics
+
+- User registration completion rate
+- Email verification rate
+- User → Member conversion rate
+- Profile completion percentage
+- Average time to first interaction (join club/RSVP)
+- User retention rate
+- Profile view engagement
+
+---
+
+## Implementation Priority
+
+### Phase 1 (MVP)
+1. ✅ User registration & login
+2. ✅ Basic profile view
+3. ✅ Role-based access control
+4. ✅ Profile edit functionality
+
+### Phase 2
+5. ✅ Member upgrade flow
+6. ✅ Activity tracking
+7. ✅ Privacy settings
+8. ✅ Email notifications
+
+### Phase 3
+9. ⏳ Social features (follow, message)
+10. ⏳ Achievements & badges
+11. ⏳ Advanced privacy controls
+12. ⏳ Two-factor authentication
+
+---
+
+## Additional Resources
+
+### Recommended Libraries
+- **Authentication**: Passport.js (already implemented)
+- **Validation**: Zod or Yup
+- **File Upload**: Multer (backend) + react-dropzone (frontend)
+- **Image Processing**: Sharp (for avatar optimization)
+- **Email**: Nodemailer
+- **Notifications**: React-Toastify
+
+### Design References
+- Profile layout: LinkedIn, GitHub
+- Role badges: Discord, Slack
+- Activity feed: Facebook, Twitter
+- Privacy settings: Instagram, Twitter
+
+---
+
+## Notes for Developer
+
+- Ensure all member-only routes are protected both frontend and backend
+- Implement proper error handling for unauthorized access
+- Add loading states for async operations
+- Make profile page responsive (mobile-first)
+- Add skeleton loaders for better UX
+- Implement optimistic UI updates where applicable
+- Cache user data appropriately
+- Add analytics tracking for user journeys
+
+---
+
+**Last Updated**: December 2024  
+**Version**: 1.0  
+**Platform**: The Journey Association - Morocco Clubs Platform

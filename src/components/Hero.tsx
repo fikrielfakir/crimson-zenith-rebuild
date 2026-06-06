@@ -1,0 +1,602 @@
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useState, useEffect, useCallback } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { useHeroSettings } from "@/hooks/useCMS";
+import { useAuth } from "@/hooks/useAuth";
+import { apiFetch } from "@/lib/apiFetch";
+import heroBackground from "@/assets/hero-bg.jpg";
+import { useTranslation } from "react-i18next";
+import { useCmsTranslations } from "@/hooks/useCmsTranslations";
+
+const Hero = () => {
+  const { data: heroSettings, isLoading, isError } = useHeroSettings();
+  const { isAuthenticated } = useAuth();
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const tr = useCmsTranslations('hero_settings');
+  const trTagline = useCmsTranslations('hero_tagline');
+
+  // Read locally-saved page hero overrides (background type + video URL)
+  const { data: localHero } = useQuery({
+    queryKey: ["page-hero", "landing"],
+    queryFn: async () => {
+      try {
+        const res = await apiFetch("/api/cms/page-hero/landing");
+        if (!res.ok) return null;
+        const data = await res.json();
+        return Object.keys(data).length > 0 ? data : null;
+      } catch { return null; }
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const i18nTaglines = (t("hero.taglines", { returnObjects: true }) as string[]).map(
+    (text) => ({ text, twoLines: true })
+  );
+
+  const hardcodedFallbacks = [
+    { text: "Where Adventure Meets\nTransformation", twoLines: true },
+    { text: "Where Journey Meets\nDiscovery", twoLines: true },
+    { text: "Where Exploration Meets\nInspiration", twoLines: true },
+    { text: "Where Travel Meets\nPurpose", twoLines: true },
+    { text: "Journey Within,\nExplore Without", twoLines: true },
+    { text: "Where Journeys Become\nTransformations", twoLines: true },
+  ];
+
+  // title from DB as a JSON array; typewriterTexts is an alias kept for compat
+  const rawDbTitles: { text: string; twoLines?: boolean }[] =
+    Array.isArray(heroSettings?.title) && heroSettings.title.length > 0
+      ? heroSettings.title
+      : Array.isArray(heroSettings?.typewriterTexts) && heroSettings.typewriterTexts.length > 0
+        ? heroSettings.typewriterTexts
+        : [];
+
+  // Apply CMS translations (per-index) to each DB tagline
+  const dbTitles = rawDbTitles.map((item, i) => ({
+    ...item,
+    text: trTagline(String(i), 'text', item.text),
+  }));
+
+  // i18n translations take priority — they update per language.
+  // DB titles (with CMS translations applied) are a fallback for when no translation is provided.
+  const taglines = i18nTaglines.length > 0
+    ? i18nTaglines
+    : dbTitles.length > 0
+      ? dbTitles
+      : hardcodedFallbacks;
+
+  // Static title for non-typewriter mode — uses first translated tagline
+  const title = taglines[0]?.text ?? "Where Adventure Meets\nTransformation";
+
+  const [currentTaglineIndex, setCurrentTaglineIndex] = useState(0);
+  const [displayedText, setDisplayedText] = useState("");
+  const [charIndex, setCharIndex] = useState(0);
+  const [isTyping, setIsTyping] = useState(true);
+  const [fadeKey, setFadeKey] = useState(0);
+
+  useEffect(() => {
+    const currentText = taglines[currentTaglineIndex].text;
+
+    if (isTyping && charIndex < currentText.length) {
+      const timer = setTimeout(() => {
+        setDisplayedText(currentText.slice(0, charIndex + 1));
+        setCharIndex(charIndex + 1);
+      }, 80);
+      return () => clearTimeout(timer);
+    } else if (charIndex >= currentText.length) {
+      const timer = setTimeout(() => {
+        setIsTyping(false);
+        setCharIndex(0);
+        setDisplayedText("");
+        setCurrentTaglineIndex((prev) => (prev + 1) % taglines.length);
+        setFadeKey((prev) => prev + 1);
+        setTimeout(() => setIsTyping(true), 100);
+      }, 3500);
+      return () => clearTimeout(timer);
+    }
+  }, [charIndex, isTyping, currentTaglineIndex, taglines]);
+
+  const backgroundUrl = heroSettings?.backgroundMediaId
+    ? `/api/cms/media/${heroSettings.backgroundMediaId}`
+    : heroBackground;
+
+  // Local overrides take precedence for background type, image, and video URL
+  const effectiveBgType: string = localHero?.backgroundType || heroSettings?.backgroundType || "image";
+  const effectiveVideoUrl: string = localHero?.backgroundVideoUrl || heroSettings?.backgroundVideoUrl || "";
+  const effectiveImageUrl: string = localHero?.backgroundImageUrl || heroSettings?.backgroundImageUrl || "";
+
+  const overlayColor =
+    heroSettings?.backgroundOverlayColor || "rgba(26, 54, 93, 0.7)";
+  const subtitle = tr(
+    'subtitle',
+    'subtitle',
+    heroSettings?.subtitle ||
+      "Experience Morocco's soul through sustainable journeys. Discover culture, embrace adventure, and create lasting connections with local communities."
+  );
+  const primaryButtonText = tr(
+    'primary_button',
+    'primaryButtonText',
+    heroSettings?.primaryButtonText || "Start Your Journey"
+  );
+  const primaryButtonLink = heroSettings?.primaryButtonLink || "/join";
+
+  const handlePrimaryClick = useCallback(async () => {
+    if (isAuthenticated) {
+      try {
+        const res = await fetch('/api/user/applications', {
+          credentials: 'include',
+          headers: { Accept: 'application/json' },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const apps = Array.isArray(data) ? data : [];
+          if (apps.length > 0) {
+            navigate('/profile?tab=application');
+            return;
+          }
+        }
+      } catch {}
+    }
+    navigate(primaryButtonLink);
+  }, [isAuthenticated, primaryButtonLink, navigate]);
+  const secondaryButtonText = tr(
+    'secondary_button',
+    'secondaryButtonText',
+    heroSettings?.secondaryButtonText || "Explore Clubs"
+  );
+  const secondaryButtonLink = heroSettings?.secondaryButtonLink || "/clubs";
+  const titleFontSize = heroSettings?.titleFontSize || "65px";
+  const titleColor = heroSettings?.titleColor || "#ffffff";
+  const subtitleFontSize = heroSettings?.subtitleFontSize || "20px";
+  const subtitleColor = heroSettings?.subtitleColor || "#ffffff";
+  const enableTypewriter = heroSettings?.enableTypewriter !== false;
+
+  if (isLoading) return null;
+
+  if (isError) {
+    return (
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-primary">
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: `url(${heroBackground})` }}
+        />
+        <div className="absolute inset-0 bg-primary/70" />
+        <div className="relative z-10 text-center px-6">
+          <h1 className="text-4xl font-bold text-white mb-4">حيث تلتقي المغامرة بالتحول</h1>
+          <p className="text-white/80 text-lg max-w-xl mx-auto">
+            Experience Morocco's soul through sustainable journeys.
+          </p>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden font-sans">
+      {/* Background Image or Video — uses local page-hero override when set */}
+      {effectiveBgType === "video" && effectiveVideoUrl ? (
+        <video
+          className="absolute inset-0 w-full h-full object-cover"
+          autoPlay
+          loop
+          muted
+          playsInline
+        >
+          <source src={effectiveVideoUrl} type="video/mp4" />
+          <source src={effectiveVideoUrl} type="video/webm" />
+        </video>
+      ) : (
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: `url(${effectiveImageUrl || backgroundUrl})` }}
+        />
+      )}
+
+      {/* Enhanced Gradient Overlay */}
+      <div className="absolute inset-0" style={{ background: overlayColor }} />
+      <div className="absolute inset-0 bg-gradient-to-b from-primary/20 via-transparent to-primary/30" />
+
+      {/* Content - Fixed Layout Structure */}
+      <div className="relative z-10 text-center px-6 sm:px-8 lg:px-12 max-w-7xl mx-auto hero-content-wrapper">
+        {/* ABSOLUTE FIXED HEIGHT for H1 - Accommodates 3 Lines */}
+        <div className="h1-fixed-container">
+          <div className="h1-inner-wrapper">
+            <h1 className="hero-title" style={{ color: titleColor }}>
+              {enableTypewriter ? (
+                <span className="hero-text-wrapper" key={fadeKey}>
+                  {(() => {
+                    const lines = displayedText.split("\n");
+
+                    return lines.map((line, lineIndex) => (
+                      <span key={lineIndex} className="hero-line">
+                        {line}
+                        {lineIndex < lines.length - 1 && <br />}
+                        {lineIndex === lines.length - 1 && isTyping && (
+                          <span className="typewriter-cursor-new" />
+                        )}
+                      </span>
+                    ));
+                  })()}
+                </span>
+              ) : (
+                <span className="hero-text-wrapper">
+                  {title.split("\n").map((line, i) => (
+                    <span key={i} className="hero-line">
+                      {line}
+                      {i < title.split("\n").length - 1 && <br />}
+                    </span>
+                  ))}
+                </span>
+              )}
+            </h1>
+          </div>
+        </div>
+
+        {/* FIXED POSITION Subtitle - Always starts at same Y position */}
+        <div className="subtitle-fixed-container">
+          <p className="hero-subtitle" style={{ color: subtitleColor }}>
+            {subtitle}
+          </p>
+        </div>
+
+        {/* FIXED POSITION Buttons - Always at same Y position */}
+        <div className="buttons-fixed-container">
+          <div className="flex flex-col sm:flex-row gap-5 justify-center items-center">
+            <Button
+              onClick={handlePrimaryClick}
+              className="w-full sm:w-auto bg-secondary hover:bg-secondary/90 text-primary text-base px-10 py-4 h-14 rounded-button font-medium transition-all duration-300 shadow-elegant hover:shadow-glow hover:scale-105 border-0"
+            >
+              {primaryButtonText}
+            </Button>
+            <Link to={secondaryButtonLink} className="w-full sm:w-auto">
+              <Button
+                variant="outline"
+                className="w-full sm:w-auto text-white border-white/70 hover:bg-white/10 hover:border-white hover:backdrop-blur-sm text-base px-10 py-4 h-14 rounded-button font-medium transition-all duration-300 bg-transparent/10 backdrop-blur-sm border-2 hover:scale-105"
+              >
+                {secondaryButtonText}
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* Decorative Pattern at Bottom */}
+      <div className="absolute bottom-0 left-0 right-0 w-full h-auto z-10 pointer-events-none">
+        <img
+          src="/attached_assets/pattern 002_1762097803637.png"
+          alt=""
+          className="w-full h-auto object-cover opacity-80"
+        />
+      </div>
+
+      {/* Enhanced Styles with Better Typography */}
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+          /* Import Cinzel Font for Elegant Display Typography */
+          @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap');
+          
+          /* Main Content Wrapper */
+          .hero-content-wrapper {
+            margin-top: 3rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+          }
+          
+          /* CRITICAL: Fixed Height Container for H1 - Prevents ANY Layout Shift */
+          .h1-fixed-container {
+            width: 100%;
+            height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0;
+            position: relative;
+          }
+          
+          .h1-inner-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+          }
+          
+          /* Hero Title - Elegant Cinzel Display Font */
+          .hero-title {
+            font-family: 'Cinzel', 'Cormorant Garamond', 'Playfair Display', 'Georgia', serif;
+            font-size: 55px;
+            font-weight: 700;
+            line-height: 1.25;
+            letter-spacing: 0.02em;
+            text-align: center;
+            text-transform: uppercase;
+            margin: 0;
+            padding: 0;
+            position: relative;
+          }
+          
+          /* Text Wrapper with Smooth Fade */
+          .hero-text-wrapper {
+            display: inline-block;
+            animation: fadeInTitle 0.6s ease-out;
+          }
+          
+          /* Pure White Text */
+          .hero-line {
+            display: inline;
+            color: #ffffff;
+          }
+          
+          /* Single Clean Cursor */
+          .typewriter-cursor-new {
+            display: inline-block;
+            width: 4px;
+            height: 0.85em;
+            background: #ffffff;
+            margin-left: 6px;
+            animation: cursorBlink 1s infinite;
+            vertical-align: baseline;
+            position: relative;
+            top: 0.08em;
+          }
+          
+          /* FIXED POSITION Subtitle Container */
+          .subtitle-fixed-container {
+            width: 100%;
+            max-width: 48rem;
+            margin: 1.5rem auto 0;
+            padding: 0 1rem;
+          }
+          
+          /* Refined Subtitle Typography */
+          .hero-subtitle {
+            font-family: 'Cormorant Garamond', 'Georgia', serif;
+            font-size: clamp(1rem, 2.5vw, 1.2rem);
+            font-weight: 400;
+            line-height: 1.75;
+            letter-spacing: 0.02em;
+            color: #f5e6d3;
+            opacity: 0.96;
+            text-shadow: 
+              0 3px 12px rgba(0, 0, 0, 0.3),
+              0 1px 4px rgba(0, 0, 0, 0.2);
+            margin: 0;
+          }
+          
+          /* FIXED POSITION Buttons Container */
+          .buttons-fixed-container {
+            margin-top: 2rem;
+            width: 100%;
+          }
+          
+          /* Smooth Fade In Animation */
+          @keyframes fadeInTitle {
+            from {
+              opacity: 0;
+              transform: translateY(15px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+          
+          /* Cursor Blink */
+          @keyframes cursorBlink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+          }
+          
+          /* ===== RESPONSIVE BREAKPOINTS ===== */
+          
+          /* Mobile: All sizes - Base mobile styles */
+          @media (max-width: 640px) {
+            .hero-content-wrapper {
+              margin-top: 1.5rem;
+              padding-left: 1rem;
+              padding-right: 1rem;
+              width: 100%;
+              max-width: 100%;
+            }
+            
+            .h1-fixed-container {
+              height: 140px;
+              width: 100%;
+            }
+            
+            .hero-title {
+              font-size: clamp(1.75rem, 9vw, 2.5rem);
+              line-height: 1.15;
+              letter-spacing: 0.01em;
+            }
+            
+            .subtitle-fixed-container {
+              margin-top: 1rem;
+              padding: 0;
+              width: 100%;
+              max-width: 100%;
+            }
+            
+            .hero-subtitle {
+              font-size: clamp(0.9rem, 4.5vw, 1.1rem);
+              line-height: 1.6;
+              padding: 0 0.5rem;
+            }
+            
+            .buttons-fixed-container {
+              margin-top: 1.5rem;
+              width: 100%;
+              padding: 0;
+            }
+            
+            .buttons-fixed-container > div {
+              gap: 1rem;
+              width: 100%;
+            }
+          }
+          
+          /* Small Mobile: 320px - 374px (iPhone SE, small phones) */
+          @media (max-width: 374px) {
+            .hero-content-wrapper {
+              margin-top: 1rem;
+              padding-left: 0.75rem;
+              padding-right: 0.75rem;
+            }
+            
+            .h1-fixed-container {
+              height: 120px;
+            }
+            
+            .hero-title {
+              font-size: clamp(1.5rem, 8.5vw, 2rem);
+              line-height: 1.1;
+            }
+            
+            .subtitle-fixed-container {
+              margin-top: 0.75rem;
+            }
+            
+            .hero-subtitle {
+              font-size: clamp(0.85rem, 4vw, 0.95rem);
+              line-height: 1.5;
+              padding: 0 0.25rem;
+            }
+            
+            .buttons-fixed-container {
+              margin-top: 1.25rem;
+            }
+          }
+          
+          /* Medium Mobile: 375px - 413px (iPhone 12/13/14, standard phones) */
+          @media (min-width: 375px) and (max-width: 413px) {
+            .h1-fixed-container {
+              height: 135px;
+            }
+            
+            .hero-title {
+              font-size: clamp(1.9rem, 8.5vw, 2.3rem);
+            }
+            
+            .hero-subtitle {
+              font-size: clamp(0.95rem, 4.2vw, 1.05rem);
+            }
+          }
+          
+          /* Large Mobile: 414px - 480px (iPhone Pro Max, large phones) */
+          @media (min-width: 414px) and (max-width: 480px) {
+            .h1-fixed-container {
+              height: 145px;
+            }
+            
+            .hero-title {
+              font-size: clamp(2rem, 8.8vw, 2.6rem);
+            }
+            
+            .hero-subtitle {
+              font-size: clamp(1rem, 4.3vw, 1.1rem);
+            }
+          }
+          
+          /* Extra Large Mobile / Small Tablet: 481px - 640px */
+          @media (min-width: 481px) and (max-width: 640px) {
+            .hero-content-wrapper {
+              margin-top: 2rem;
+            }
+            
+            .h1-fixed-container {
+              height: 160px;
+            }
+            
+            .hero-title {
+              font-size: 32px;
+            }
+            
+            .hero-subtitle {
+              font-size: clamp(1.05rem, 4.5vw, 1.15rem);
+              line-height: 1.65;
+            }
+            
+            .buttons-fixed-container {
+              margin-top: 1.75rem;
+            }
+          }
+          
+          /* Tablet: 641px - 1024px */
+          @media (min-width: 641px) and (max-width: 1024px) {
+            .hero-content-wrapper {
+              margin-top: 2.5rem;
+            }
+            
+            .h1-fixed-container {
+              height: 170px;
+            }
+            
+            .hero-title {
+              font-size: clamp(3rem, 8vw, 4rem);
+            }
+            
+            .subtitle-fixed-container {
+              margin-top: 1.35rem;
+            }
+            
+            .buttons-fixed-container {
+              margin-top: 1.85rem;
+            }
+          }
+          
+          /* Desktop: 1025px+ */
+          @media (min-width: 1025px) {
+            .hero-content-wrapper {
+              margin-top: 3rem;
+            }
+            
+            .h1-fixed-container {
+              height: 190px;
+            }
+            
+            .hero-title {
+              font-size: 55px;
+              letter-spacing: 0.02em;
+            }
+            
+            .subtitle-fixed-container {
+              margin-top: 1.5rem;
+              max-width: 50rem;
+            }
+            
+            .hero-subtitle {
+              font-size: 1.5rem;
+              line-height: 1.2;
+            }
+            
+            .buttons-fixed-container {
+              margin-top: 2.25rem;
+            }
+          }
+          
+          /* Ultra-wide: 1400px+ */
+          @media (min-width: 1400px) {
+            .h1-fixed-container {
+              height: 200px;
+            }
+            
+            .hero-title {
+              font-size: 55px;
+            }
+          }
+          
+          /* Mouse Indicator */
+          .w-6 { width: 2.5rem; }
+          .h-6 { height: 2.5rem; }
+        `,
+        }}
+      />
+    </section>
+  );
+};
+
+export default Hero;

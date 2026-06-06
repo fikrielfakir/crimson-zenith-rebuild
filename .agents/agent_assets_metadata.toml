@@ -1,0 +1,8 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "Lm5ndluWwatxmvAU_Qp4m"
+uri = "file://public/panoramas/nebula.png"
+type = "image"
+title = "deep space nebula equirectangular panorama"

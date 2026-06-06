@@ -1,0 +1,1289 @@
+import { apiFetch } from '@/lib/apiFetch';
+import { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Search,
+  Plus,
+  Download,
+  MoreVertical,
+  Edit,
+  Trash2,
+  Eye,
+  Calendar,
+  MapPin,
+  Users,
+  Loader2,
+  Clock,
+  ArrowLeft,
+  Building2,
+  Globe,
+  Copy,
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/hooks/use-toast';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { format } from 'date-fns';
+import { ImageUpload } from '@/components/admin/ImageUpload';
+import { TranslateDialog } from '@/components/admin/TranslateDialog';
+
+/** Convert any date string to MySQL-compatible datetime: '2026-06-15 08:00:00' */
+function toMySQLDatetime(value: string | null | undefined): string | null {
+  if (!value) return null;
+  try {
+    return new Date(value).toISOString().slice(0, 19).replace('T', ' ');
+  } catch {
+    return null;
+  }
+}
+
+const eventSchema = z.object({
+  title: z.string().min(1, 'Title is required'),
+  description: z.string().min(10, 'Description must be at least 10 characters'),
+  isAssociationEvent: z.boolean().default(false),
+  clubId: z.string().optional(),
+  location: z.string().min(1, 'Location is required'),
+  locationDetails: z.string().optional(),
+  startDate: z.string().min(1, 'Start date is required'),
+  endDate: z.string().min(1, 'End date is required'),
+  duration: z.string().optional(),
+  category: z.string().min(1, 'Category is required'),
+  languages: z.string().optional(),
+  minAge: z.string().optional(),
+  maxPeople: z.string().optional(),
+  maxAttendees: z.string().optional(),
+  price: z.string().optional(),
+  image: z.string().min(1, 'Event image is required'),
+  highlights: z.string().optional(),
+  included: z.string().optional(),
+  notIncluded: z.string().optional(),
+  importantInfo: z.string().optional(),
+  status: z.enum(['upcoming', 'ongoing', 'completed', 'cancelled']).default('upcoming'),
+});
+
+type EventFormData = z.infer<typeof eventSchema>;
+
+async function fetchEvents() {
+  const response = await apiFetch(`/api/admin/events`, { credentials: 'include' });
+  if (!response.ok) throw new Error('Failed to fetch events');
+  return response.json();
+}
+
+async function fetchClubs() {
+  const response = await apiFetch('/api/clubs');
+  if (!response.ok) throw new Error('Failed to fetch clubs');
+  return response.json();
+}
+
+export default function EventsManagement() {
+  const [search, setSearch] = useState('');
+  const [eventTypeFilter, setEventTypeFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [selectedEvents, setSelectedEvents] = useState<string[]>([]);
+  const [editingEvent, setEditingEvent] = useState<any>(null);
+  const [deletingEventId, setDeletingEventId] = useState<string | null>(null);
+  const [viewingEvent, setViewingEvent] = useState<any>(null);
+  const [showForm, setShowForm] = useState(false);
+  const [selectedEventType, setSelectedEventType] = useState<'club' | 'association' | null>(null);
+  const [activeLangTab, setActiveLangTab] = useState<'fr' | 'ar' | 'es'>('fr');
+  const [translations, setTranslations] = useState<Record<string, Record<string, string>>>({
+    fr: {}, ar: {}, es: {},
+  });
+
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  const { data, isLoading, isError, refetch } = useQuery({
+    queryKey: ['admin-club-events'],
+    queryFn: fetchEvents,
+  });
+
+  const { data: clubsData } = useQuery({
+    queryKey: ['clubs'],
+    queryFn: fetchClubs,
+  });
+
+  const form = useForm<EventFormData>({
+    resolver: zodResolver(eventSchema),
+    defaultValues: {
+      title: '',
+      description: '',
+      isAssociationEvent: false,
+      clubId: '',
+      location: '',
+      locationDetails: '',
+      startDate: '',
+      endDate: '',
+      duration: '',
+      category: '',
+      languages: '',
+      minAge: '',
+      maxPeople: '',
+      maxAttendees: '',
+      price: '',
+      image: '',
+      highlights: '',
+      included: '',
+      notIncluded: '',
+      importantInfo: '',
+      status: 'upcoming',
+    },
+  });
+
+  const isEditingExistingEvent = editingEvent && editingEvent.id && editingEvent.id !== '';
+
+  useEffect(() => {
+    if (editingEvent && editingEvent.id && editingEvent.id !== '') {
+      setShowForm(true);
+      setSelectedEventType(editingEvent.isAssociationEvent ? 'association' : 'club');
+      if (editingEvent.translations && typeof editingEvent.translations === 'object') {
+        setTranslations({
+          fr: editingEvent.translations.fr ?? {},
+          ar: editingEvent.translations.ar ?? {},
+          es: editingEvent.translations.es ?? {},
+        });
+      } else {
+        setTranslations({ fr: {}, ar: {}, es: {} });
+      }
+      form.reset({
+        title: editingEvent.title || '',
+        description: editingEvent.description || '',
+        isAssociationEvent: !!editingEvent.isAssociationEvent,
+        clubId: editingEvent.clubId?.toString() || '',
+        location: editingEvent.location || '',
+        locationDetails: editingEvent.locationDetails || '',
+        startDate: editingEvent.eventDate ? new Date(editingEvent.eventDate).toISOString().slice(0, 16) : '',
+        endDate: editingEvent.endDate ? new Date(editingEvent.endDate).toISOString().slice(0, 16) : '',
+        duration: editingEvent.duration || '',
+        category: editingEvent.category || '',
+        languages: editingEvent.languages || '',
+        minAge: editingEvent.minAge?.toString() || '',
+        maxPeople: editingEvent.maxPeople?.toString() || '',
+        maxAttendees: editingEvent.maxParticipants?.toString() || '',
+        price: editingEvent.price?.toString() || '',
+        image: editingEvent.image || '',
+        highlights: editingEvent.highlights || '',
+        included: editingEvent.included || '',
+        notIncluded: editingEvent.notIncluded || '',
+        importantInfo: editingEvent.importantInfo || '',
+        status: editingEvent.status || 'upcoming',
+      });
+    } else if (editingEvent && (!editingEvent.id || editingEvent.id === '')) {
+      setShowForm(true);
+      setSelectedEventType(null);
+      form.reset({
+        title: '',
+        description: '',
+        isAssociationEvent: false,
+        clubId: '',
+        location: '',
+        locationDetails: '',
+        startDate: '',
+        endDate: '',
+        duration: '',
+        category: '',
+        languages: '',
+        minAge: '',
+        maxPeople: '',
+        maxAttendees: '',
+        price: '',
+        image: '',
+        highlights: '',
+        included: '',
+        notIncluded: '',
+        importantInfo: '',
+        status: 'upcoming',
+      });
+    }
+  }, [editingEvent, form]);
+
+  const deleteEventMutation = useMutation({
+    mutationFn: async (eventId: string) => {
+      const response = await apiFetch(`/api/admin/events/${eventId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      if (!response.ok) throw new Error('Failed to delete event');
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-club-events'] });
+      toast({ title: 'Event deleted successfully' });
+      setDeletingEventId(null);
+    },
+    onError: (error: Error) => {
+      toast({ title: 'Failed to delete event', description: error.message, variant: 'destructive' });
+    },
+  });
+
+  const saveEventMutation = useMutation({
+    mutationFn: async (data: EventFormData) => {
+      const isEditing = editingEvent && editingEvent.id;
+      const url = isEditing
+        ? `/api/admin/events/${editingEvent.id}`
+        : '/api/admin/events';
+
+      const payload = {
+        title: data.title,
+        description: data.description,
+        isAssociationEvent: data.isAssociationEvent,
+        clubId: data.clubId && !data.isAssociationEvent ? parseInt(data.clubId) : null,
+        location: data.location,
+        locationDetails: data.locationDetails,
+        startDate: toMySQLDatetime(data.startDate),
+        endDate: toMySQLDatetime(data.endDate),
+        duration: data.duration || null,
+        category: data.category,
+        languages: data.languages || null,
+        minAge: data.minAge ? parseInt(data.minAge) : null,
+        maxPeople: data.maxPeople ? parseInt(data.maxPeople) : null,
+        maxAttendees: data.maxAttendees ? parseInt(data.maxAttendees) : null,
+        price: data.price ? parseFloat(data.price) : null,
+        image: data.image || null,
+        highlights: data.highlights || null,
+        included: data.included || null,
+        notIncluded: data.notIncluded || null,
+        importantInfo: data.importantInfo || null,
+        status: data.status,
+        translations,
+      };
+
+      const response = await apiFetch(url, {
+        method: isEditing ? 'PUT' : 'POST',
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) throw new Error('Failed to save event');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-club-events'] });
+      toast({ title: `Event ${editingEvent?.id ? 'updated' : 'created'} successfully` });
+      setEditingEvent(null);
+      setShowForm(false);
+      setSelectedEventType(null);
+      setTranslations({ fr: {}, ar: {}, es: {} });
+      form.reset();
+    },
+    onError: (error: Error) => {
+      toast({ title: 'Failed to save event', description: error.message, variant: 'destructive' });
+    },
+  });
+
+  const duplicateEventMutation = useMutation({
+    mutationFn: async (event: any) => {
+      const payload = {
+        title: `Copy of ${event.title}`,
+        description: event.description,
+        isAssociationEvent: event.isAssociationEvent,
+        clubId: event.clubId ?? null,
+        location: event.location,
+        locationDetails: event.locationDetails ?? null,
+        startDate: toMySQLDatetime(event.startDate ?? event.eventDate) ?? toMySQLDatetime(new Date().toISOString()),
+        endDate: toMySQLDatetime(event.endDate),
+        duration: event.duration ?? null,
+        category: event.category,
+        languages: event.languages ?? null,
+        minAge: event.minAge ?? null,
+        maxPeople: event.maxPeople ?? null,
+        maxAttendees: event.maxAttendees ?? null,
+        price: event.price ?? null,
+        image: event.image ?? null,
+        highlights: event.highlights ?? null,
+        included: event.included ?? null,
+        notIncluded: event.notIncluded ?? null,
+        importantInfo: event.importantInfo ?? null,
+        status: 'upcoming',
+      };
+
+      const response = await apiFetch('/api/admin/events', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) throw new Error('Failed to duplicate event');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-club-events'] });
+      toast({ title: 'Event duplicated', description: 'A copy has been created with status "upcoming".' });
+    },
+    onError: (error: Error) => {
+      toast({ title: 'Failed to duplicate event', description: error.message, variant: 'destructive' });
+    },
+  });
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedEvents(data?.events.map((e: any) => e.id) || []);
+    } else {
+      setSelectedEvents([]);
+    }
+  };
+
+  const handleSelectEvent = (eventId: string, checked: boolean) => {
+    if (checked) {
+      setSelectedEvents([...selectedEvents, eventId]);
+    } else {
+      setSelectedEvents(selectedEvents.filter(id => id !== eventId));
+    }
+  };
+
+  const handleExport = () => {
+    toast({ title: 'Exporting events...', description: 'Download will start shortly' });
+  };
+
+  const handleBulkDelete = () => {
+    if (selectedEvents.length === 0) return;
+    toast({ title: `Deleting ${selectedEvents.length} events...` });
+  };
+
+  const handleCancelForm = () => {
+    setShowForm(false);
+    setEditingEvent(null);
+    setSelectedEventType(null);
+    setTranslations({ fr: {}, ar: {}, es: {} });
+    form.reset();
+  };
+
+  const handleEventTypeSelection = (type: 'club' | 'association') => {
+    setSelectedEventType(type);
+    form.setValue('isAssociationEvent', type === 'association');
+  };
+
+  const onSubmit = (data: EventFormData) => {
+    saveEventMutation.mutate(data);
+  };
+
+  const filteredEvents = (data?.events || []).filter((event: any) => {
+    if (search && !event.title?.toLowerCase().includes(search.toLowerCase()) && 
+        !event.location?.toLowerCase().includes(search.toLowerCase())) {
+      return false;
+    }
+    
+    if (eventTypeFilter !== 'all') {
+      if (eventTypeFilter === 'association' && !event.isAssociationEvent) return false;
+      if (eventTypeFilter === 'club' && event.isAssociationEvent) return false;
+    }
+    
+    if (categoryFilter !== 'all' && event.category !== categoryFilter) return false;
+    if (statusFilter !== 'all' && event.status !== statusFilter) return false;
+    
+    return true;
+  });
+
+  const events = filteredEvents;
+
+  if (showForm) {
+    return (
+      <div className="space-y-6 max-w-4xl mx-auto pb-12">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" onClick={handleCancelForm}>
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold">{isEditingExistingEvent ? 'Edit Event' : 'Create New Event'}</h1>
+            <p className="text-muted-foreground mt-1">
+              {isEditingExistingEvent ? 'Update event information' : 'Add a new event to your community'}
+            </p>
+          </div>
+        </div>
+
+        {!isEditingExistingEvent && !selectedEventType && (
+          <div className="space-y-4">
+            <div>
+              <h2 className="text-xl font-semibold mb-2">Select Event Type</h2>
+              <p className="text-sm text-muted-foreground mb-4">
+                Choose whether this is a club event or an association event
+              </p>
+            </div>
+            <div className="grid md:grid-cols-2 gap-6">
+              <Card 
+                className="cursor-pointer hover:border-primary hover:shadow-md transition-all"
+                onClick={() => handleEventTypeSelection('club')}
+              >
+                <CardHeader>
+                  <div className="flex items-center gap-3">
+                    <div className="p-3 bg-blue-100 rounded-lg">
+                      <Building2 className="h-6 w-6 text-blue-600" />
+                    </div>
+                    <div>
+                      <CardTitle>Club Event</CardTitle>
+                      <CardDescription>Event organized by a specific club</CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">
+                    Create an event for a specific club in your community. The event will be associated with the club you select.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card 
+                className="cursor-pointer hover:border-primary hover:shadow-md transition-all"
+                onClick={() => handleEventTypeSelection('association')}
+              >
+                <CardHeader>
+                  <div className="flex items-center gap-3">
+                    <div className="p-3 bg-purple-100 rounded-lg">
+                      <Globe className="h-6 w-6 text-purple-600" />
+                    </div>
+                    <div>
+                      <CardTitle>Journey Association Event</CardTitle>
+                      <CardDescription>Event organized by the main association</CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">
+                    Create an event organized by The Journey Association. This event will be visible to all members.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        )}
+
+        {(selectedEventType || isEditingExistingEvent) && (
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                {form.watch('isAssociationEvent') ? (
+                  <Badge className="bg-purple-100 text-purple-700 hover:bg-purple-200">
+                    <Globe className="h-3 w-3 mr-1" />
+                    Journey Association Event
+                  </Badge>
+                ) : (
+                  <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200">
+                    <Building2 className="h-3 w-3 mr-1" />
+                    Club Event
+                  </Badge>
+                )}
+              </div>
+            </CardHeader>
+            <CardContent>
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                  <FormField
+                    control={form.control}
+                    name="title"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Event Title</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="Enter event title" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Description</FormLabel>
+                        <FormControl>
+                          <Textarea {...field} placeholder="Describe your event" rows={4} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {!form.watch('isAssociationEvent') && (
+                    <FormField
+                      control={form.control}
+                      name="clubId"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Select Club</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Choose a club" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {clubsData?.clubs?.map((club: any) => (
+                                <SelectItem key={club.id} value={club.id.toString()}>
+                                  {club.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
+                  
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="location"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Location</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="Event location" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="locationDetails"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Location Details (optional)</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="e.g., Atlas Mountains, Morocco" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="category"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Category</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select category" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="workshop">Workshop</SelectItem>
+                              <SelectItem value="conference">Conference</SelectItem>
+                              <SelectItem value="meetup">Meetup</SelectItem>
+                              <SelectItem value="webinar">Webinar</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="duration"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Duration (optional)</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="e.g., 3 Days / 2 Nights" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="startDate"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Start Date & Time</FormLabel>
+                          <FormControl>
+                            <Input type="datetime-local" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="endDate"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>End Date & Time</FormLabel>
+                          <FormControl>
+                            <Input type="datetime-local" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="maxAttendees"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Max Attendees (optional)</FormLabel>
+                          <FormControl>
+                            <Input type="number" {...field} placeholder="Unlimited" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="price"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Price (optional)</FormLabel>
+                          <FormControl>
+                            <Input type="number" step="0.01" {...field} placeholder="Free" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="grid md:grid-cols-3 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="languages"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Languages (optional)</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="e.g., English, French" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="minAge"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Min Age (optional)</FormLabel>
+                          <FormControl>
+                            <Input type="number" {...field} placeholder="12+" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="maxPeople"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Max People (optional)</FormLabel>
+                          <FormControl>
+                            <Input type="number" {...field} placeholder="12" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <FormField
+                    control={form.control}
+                    name="highlights"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Highlights (optional)</FormLabel>
+                        <FormControl>
+                          <Textarea {...field} placeholder="Enter each highlight on a new line" rows={3} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="included"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>What's Included (optional)</FormLabel>
+                        <FormControl>
+                          <Textarea {...field} placeholder="Enter each item on a new line" rows={3} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="notIncluded"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>What's Not Included (optional)</FormLabel>
+                        <FormControl>
+                          <Textarea {...field} placeholder="Enter each item on a new line" rows={3} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="importantInfo"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Important Information (optional)</FormLabel>
+                        <FormControl>
+                          <Textarea {...field} placeholder="Any important information for participants" rows={4} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* ── Translations Section ─────────────────────────── */}
+                  <div className="border rounded-lg overflow-hidden">
+                    <div className="bg-muted px-4 py-3 border-b">
+                      <h3 className="font-semibold text-sm">Translations</h3>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Provide translations for the key content fields. Leave blank to fall back to English.
+                      </p>
+                    </div>
+                    {/* Language tabs */}
+                    <div className="flex border-b">
+                      {(['fr', 'ar', 'es'] as const).map(lang => (
+                        <button
+                          key={lang}
+                          type="button"
+                          onClick={() => setActiveLangTab(lang)}
+                          className={`flex-1 py-2 text-sm font-medium transition-colors ${
+                            activeLangTab === lang
+                              ? 'bg-background border-b-2 border-primary text-primary'
+                              : 'text-muted-foreground hover:text-foreground'
+                          }`}
+                        >
+                          {lang === 'fr' ? '🇫🇷 French' : lang === 'ar' ? '🇲🇦 Arabic' : '🇪🇸 Spanish'}
+                        </button>
+                      ))}
+                    </div>
+                    {/* Translation fields */}
+                    <div className="p-4 space-y-4" dir={activeLangTab === 'ar' ? 'rtl' : 'ltr'}>
+                      <div className="space-y-1.5">
+                        <Label>Title</Label>
+                        <Input
+                          value={translations[activeLangTab]?.title ?? ''}
+                          onChange={e => setTranslations(prev => ({ ...prev, [activeLangTab]: { ...prev[activeLangTab], title: e.target.value } }))}
+                          placeholder="Translated title"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label>Description</Label>
+                        <Textarea
+                          rows={3}
+                          value={translations[activeLangTab]?.description ?? ''}
+                          onChange={e => setTranslations(prev => ({ ...prev, [activeLangTab]: { ...prev[activeLangTab], description: e.target.value } }))}
+                          placeholder="Translated description"
+                        />
+                      </div>
+                      <div className="grid md:grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                          <Label>Location</Label>
+                          <Input
+                            value={translations[activeLangTab]?.location ?? ''}
+                            onChange={e => setTranslations(prev => ({ ...prev, [activeLangTab]: { ...prev[activeLangTab], location: e.target.value } }))}
+                            placeholder="Translated location"
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label>Location Details</Label>
+                          <Input
+                            value={translations[activeLangTab]?.locationDetails ?? ''}
+                            onChange={e => setTranslations(prev => ({ ...prev, [activeLangTab]: { ...prev[activeLangTab], locationDetails: e.target.value } }))}
+                            placeholder="Translated location details"
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label>Highlights</Label>
+                        <Textarea
+                          rows={3}
+                          value={translations[activeLangTab]?.highlights ?? ''}
+                          onChange={e => setTranslations(prev => ({ ...prev, [activeLangTab]: { ...prev[activeLangTab], highlights: e.target.value } }))}
+                          placeholder="One highlight per line"
+                        />
+                      </div>
+                      <div className="grid md:grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                          <Label>What's Included</Label>
+                          <Textarea
+                            rows={3}
+                            value={translations[activeLangTab]?.included ?? ''}
+                            onChange={e => setTranslations(prev => ({ ...prev, [activeLangTab]: { ...prev[activeLangTab], included: e.target.value } }))}
+                            placeholder="One item per line"
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label>What's Not Included</Label>
+                          <Textarea
+                            rows={3}
+                            value={translations[activeLangTab]?.notIncluded ?? ''}
+                            onChange={e => setTranslations(prev => ({ ...prev, [activeLangTab]: { ...prev[activeLangTab], notIncluded: e.target.value } }))}
+                            placeholder="One item per line"
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label>Important Information</Label>
+                        <Textarea
+                          rows={3}
+                          value={translations[activeLangTab]?.importantInfo ?? ''}
+                          onChange={e => setTranslations(prev => ({ ...prev, [activeLangTab]: { ...prev[activeLangTab], importantInfo: e.target.value } }))}
+                          placeholder="Translated important info"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <FormField
+                    control={form.control}
+                    name="image"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Event Image <span className="text-red-500">*</span></FormLabel>
+                        <FormControl>
+                          <ImageUpload
+                            value={field.value}
+                            onChange={field.onChange}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="status"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Status</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="upcoming">Upcoming</SelectItem>
+                            <SelectItem value="ongoing">Ongoing</SelectItem>
+                            <SelectItem value="completed">Completed</SelectItem>
+                            <SelectItem value="cancelled">Cancelled</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <div className="flex gap-3 justify-end pt-4">
+                    <Button type="button" variant="outline" onClick={handleCancelForm}>
+                      Cancel
+                    </Button>
+                    <Button type="submit" disabled={saveEventMutation.isPending}>
+                      {saveEventMutation.isPending ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Saving...
+                        </>
+                      ) : (
+                        isEditingExistingEvent ? 'Update Event' : 'Create Event'
+                      )}
+                    </Button>
+                  </div>
+                </form>
+              </Form>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Journey Events Management</h1>
+          <p className="text-muted-foreground mt-1">Manage bookable events for The Journey Association</p>
+        </div>
+        <Button onClick={() => { setEditingEvent({}); setShowForm(true); }}>
+          <Plus className="mr-2 h-4 w-4" />
+          Create Event
+        </Button>
+      </div>
+
+      <div className="flex flex-col md:flex-row gap-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search events..."
+            className="pl-8"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+        <Select value={eventTypeFilter} onValueChange={setEventTypeFilter}>
+          <SelectTrigger className="w-40">
+            <SelectValue placeholder="Event Type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Events</SelectItem>
+            <SelectItem value="club">Club Events</SelectItem>
+            <SelectItem value="association">Association Events</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+          <SelectTrigger className="w-40">
+            <SelectValue placeholder="Category" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Categories</SelectItem>
+            <SelectItem value="workshop">Workshop</SelectItem>
+            <SelectItem value="conference">Conference</SelectItem>
+            <SelectItem value="meetup">Meetup</SelectItem>
+            <SelectItem value="webinar">Webinar</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="w-40">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Status</SelectItem>
+            <SelectItem value="upcoming">Upcoming</SelectItem>
+            <SelectItem value="ongoing">Ongoing</SelectItem>
+            <SelectItem value="completed">Completed</SelectItem>
+            <SelectItem value="cancelled">Cancelled</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="border rounded-lg overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Event</TableHead>
+              <TableHead>Date</TableHead>
+              <TableHead>Location</TableHead>
+              <TableHead>Category</TableHead>
+              <TableHead>Type</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Attendees</TableHead>
+              <TableHead className="w-12"></TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {isLoading ? (
+              Array.from({ length: 6 }).map((_, i) => (
+                <TableRow key={`sk-${i}`}>
+                  {Array.from({ length: 8 }).map((_, j) => (
+                    <TableCell key={j}><Skeleton className="h-4 w-full rounded" /></TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : isError ? (
+              <TableRow>
+                <TableCell colSpan={8} className="py-12 text-center">
+                  <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                    <p className="text-sm font-medium text-foreground">Failed to load events</p>
+                    <button onClick={() => refetch()} className="text-xs text-primary underline">Retry</button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : events.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                  No events found
+                </TableCell>
+              </TableRow>
+            ) : (
+              events.map((event: any) => (
+                <TableRow key={event.id}>
+                  <TableCell>
+                    <div>
+                      <p className="font-medium">{event.title}</p>
+                      <p className="text-sm text-muted-foreground line-clamp-1">{event.description}</p>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center text-sm">
+                      <Calendar className="h-4 w-4 mr-1 text-muted-foreground" />
+                      {event.eventDate && format(new Date(event.eventDate), 'MMM d, yyyy')}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center text-sm">
+                      <MapPin className="h-4 w-4 mr-1 text-muted-foreground" />
+                      {event.location}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="outline">{event.category}</Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={event.isAssociationEvent ? 'default' : 'secondary'}>
+                      {event.isAssociationEvent ? 'Association' : 'Club'}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={
+                      event.status === 'upcoming' ? 'default' :
+                      event.status === 'ongoing' ? 'secondary' :
+                      event.status === 'completed' ? 'outline' :
+                      'destructive'
+                    }>
+                      {event.status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center text-sm">
+                      <Users className="h-4 w-4 mr-1 text-muted-foreground" />
+                      {event.attendees || 0}/{event.maxAttendees || '∞'}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center justify-end gap-1">
+                    <TranslateDialog
+                      entityType="event"
+                      entityId={event.id}
+                      entityLabel={event.title}
+                      fields={[
+                        { key: 'title', label: 'Title' },
+                        { key: 'description', label: 'Description', multiline: true },
+                        { key: 'location', label: 'Location' },
+                        { key: 'highlights', label: 'Highlights', multiline: true },
+                        { key: 'importantInfo', label: 'Important Info', multiline: true },
+                      ]}
+                      sourceValues={{
+                        title: event.title,
+                        description: (event as any).description ?? '',
+                        location: (event as any).location ?? '',
+                        highlights: Array.isArray((event as any).highlights) ? (event as any).highlights.join('\n') : ((event as any).highlights ?? ''),
+                        importantInfo: (event as any).importantInfo ?? (event as any).important_info ?? '',
+                      }}
+                    />
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => setViewingEvent(event)}>
+                          <Eye className="mr-2 h-4 w-4" />
+                          View Details
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => { setEditingEvent(event); setShowForm(true); }}>
+                          <Edit className="mr-2 h-4 w-4" />
+                          Edit Event
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => duplicateEventMutation.mutate(event)}
+                          disabled={duplicateEventMutation.isPending}
+                        >
+                          <Copy className="mr-2 h-4 w-4" />
+                          Duplicate Event
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          className="text-destructive"
+                          onClick={() => setDeletingEventId(event.id)}
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Delete Event
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      <AlertDialog open={deletingEventId !== null} onOpenChange={(open) => !open && setDeletingEventId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete this event. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => deletingEventId && deleteEventMutation.mutate(deletingEventId)}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {viewingEvent && (
+        <AlertDialog open={viewingEvent !== null} onOpenChange={(open) => !open && setViewingEvent(null)}>
+          <AlertDialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+            <AlertDialogHeader>
+              <AlertDialogTitle className="text-xl">{viewingEvent.title}</AlertDialogTitle>
+              <AlertDialogDescription asChild>
+                <div className="space-y-4 text-left">
+                  <div className="flex flex-wrap gap-2">
+                    <Badge variant={viewingEvent.isAssociationEvent ? 'default' : 'secondary'}>
+                      {viewingEvent.isAssociationEvent ? 'Association Event' : 'Club Event'}
+                    </Badge>
+                    <Badge variant="outline">{viewingEvent.category}</Badge>
+                    <Badge variant={
+                      viewingEvent.status === 'upcoming' ? 'default' :
+                      viewingEvent.status === 'ongoing' ? 'secondary' :
+                      viewingEvent.status === 'completed' ? 'outline' :
+                      'destructive'
+                    }>
+                      {viewingEvent.status}
+                    </Badge>
+                  </div>
+                  
+                  <div>
+                    <h4 className="font-semibold text-foreground mb-1">Description</h4>
+                    <p className="text-sm">{viewingEvent.description || 'No description'}</p>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <h4 className="font-semibold text-foreground mb-1 flex items-center gap-1">
+                        <MapPin className="h-4 w-4" /> Location
+                      </h4>
+                      <p className="text-sm">{viewingEvent.location || 'Not specified'}</p>
+                      {viewingEvent.locationDetails && (
+                        <p className="text-sm text-muted-foreground">{viewingEvent.locationDetails}</p>
+                      )}
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-foreground mb-1 flex items-center gap-1">
+                        <Calendar className="h-4 w-4" /> Date
+                      </h4>
+                      <p className="text-sm">
+                        {viewingEvent.eventDate ? format(new Date(viewingEvent.eventDate), 'PPP') : 'Not specified'}
+                      </p>
+                      {viewingEvent.duration && (
+                        <p className="text-sm text-muted-foreground">Duration: {viewingEvent.duration}</p>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <h4 className="font-semibold text-foreground mb-1 flex items-center gap-1">
+                        <Users className="h-4 w-4" /> Capacity
+                      </h4>
+                      <p className="text-sm">
+                        {viewingEvent.attendees || 0} / {viewingEvent.maxAttendees || '∞'} attendees
+                      </p>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-foreground mb-1">Price</h4>
+                      <p className="text-sm">
+                        {viewingEvent.price ? `$${viewingEvent.price}` : 'Free'}
+                      </p>
+                    </div>
+                  </div>
+
+                  {viewingEvent.highlights && (
+                    <div>
+                      <h4 className="font-semibold text-foreground mb-1">Highlights</h4>
+                      <p className="text-sm whitespace-pre-line">{viewingEvent.highlights}</p>
+                    </div>
+                  )}
+
+                  {viewingEvent.included && (
+                    <div>
+                      <h4 className="font-semibold text-foreground mb-1">What's Included</h4>
+                      <p className="text-sm whitespace-pre-line">{viewingEvent.included}</p>
+                    </div>
+                  )}
+
+                  {viewingEvent.notIncluded && (
+                    <div>
+                      <h4 className="font-semibold text-foreground mb-1">What's Not Included</h4>
+                      <p className="text-sm whitespace-pre-line">{viewingEvent.notIncluded}</p>
+                    </div>
+                  )}
+
+                  {viewingEvent.importantInfo && (
+                    <div>
+                      <h4 className="font-semibold text-foreground mb-1">Important Information</h4>
+                      <p className="text-sm whitespace-pre-line">{viewingEvent.importantInfo}</p>
+                    </div>
+                  )}
+                </div>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Close</AlertDialogCancel>
+              <AlertDialogAction onClick={() => { setViewingEvent(null); setEditingEvent(viewingEvent); setShowForm(true); }}>
+                Edit Event
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
+    </div>
+  );
+}

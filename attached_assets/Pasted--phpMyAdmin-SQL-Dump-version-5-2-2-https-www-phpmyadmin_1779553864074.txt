@@ -1,0 +1,99 @@
+-- phpMyAdmin SQL Dump
+-- version 5.2.2
+-- https://www.phpmyadmin.net/
+--
+-- Host: 127.0.0.1:3306
+-- Generation Time: May 23, 2026 at 04:30 PM
+-- Server version: 11.8.6-MariaDB-log
+-- PHP Version: 7.2.34
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+
+--
+-- Database: `u279218004_thejourney`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `translations`
+--
+
+CREATE TABLE `translations` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `entity_type` varchar(100) NOT NULL,
+  `entity_id` varchar(255) NOT NULL,
+  `field` varchar(100) NOT NULL,
+  `language` varchar(10) NOT NULL,
+  `value` text NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `translations`
+--
+
+INSERT INTO `translations` (`id`, `entity_type`, `entity_id`, `field`, `language`, `value`, `created_at`, `updated_at`) VALUES
+(1, 'hero_tagline', '0', 'text', 'fr', 'Là où l\'exploration se rencontre\nInspiration', '2026-05-22 18:09:50', '2026-05-22 18:09:50'),
+(2, 'hero_tagline', '0', 'text', 'ar', 'أين يلتقي الاستكشاف الإلهام', '2026-05-22 18:09:50', '2026-05-22 18:09:50'),
+(3, 'hero_tagline', '0', 'text', 'es', 'Dónde se encuentra la exploración\nInspiración', '2026-05-22 18:09:50', '2026-05-22 18:09:50'),
+(4, 'hero_tagline', '1', 'text', 'ar', 'رحلة في الداخل،\nاستكشاف بدون', '2026-05-22 18:10:04', '2026-05-22 18:10:04'),
+(5, 'hero_tagline', '1', 'text', 'fr', 'Voyage à l\'intérieur,\nExplorer sans', '2026-05-22 18:10:04', '2026-05-22 18:10:04'),
+(6, 'hero_tagline', '1', 'text', 'es', 'Journey Within,\nExplorar sin', '2026-05-22 18:10:04', '2026-05-22 18:10:04'),
+(7, 'hero_tagline', '2', 'text', 'ar', 'أين تصبح الرحلات التحولات', '2026-05-22 18:10:16', '2026-05-22 18:10:16'),
+(8, 'hero_tagline', '2', 'text', 'fr', 'Où les voyages deviennent\nTransformations', '2026-05-22 18:10:16', '2026-05-22 18:10:16'),
+(9, 'hero_tagline', '2', 'text', 'es', 'Dónde se convierten los viajes\nTransformaciones', '2026-05-22 18:10:16', '2026-05-22 18:10:16'),
+(10, 'hero_tagline', '3', 'text', 'es', 'Donde la aventura se encuentra\nTransformación', '2026-05-22 18:10:26', '2026-05-22 18:10:26'),
+(11, 'hero_tagline', '3', 'text', 'ar', 'حيث تلتقي المغامرة التحول', '2026-05-22 18:10:26', '2026-05-22 18:10:26'),
+(12, 'hero_tagline', '3', 'text', 'fr', 'Où l\'aventure se rencontre\nTransformation', '2026-05-22 18:10:26', '2026-05-22 18:10:26'),
+(13, 'hero_tagline', '4', 'text', 'ar', 'أين تلتقي الرحلة\nالاكتشاف', '2026-05-22 18:10:34', '2026-05-22 18:13:03'),
+(14, 'hero_tagline', '4', 'text', 'fr', 'Où le voyage se rencontre\nDécouverte', '2026-05-22 18:10:34', '2026-05-22 18:10:34'),
+(15, 'hero_tagline', '4', 'text', 'es', 'Donde el viaje se encuentra\nDescubrimiento', '2026-05-22 18:10:34', '2026-05-22 18:10:34'),
+(16, 'hero_settings', 'subtitle', 'subtitle', 'es', 'Inspirar a los jóvenes a través del propósito y la comunidad', '2026-05-23 09:35:18', '2026-05-23 09:35:18'),
+(17, 'hero_settings', 'subtitle', 'subtitle', 'fr', 'Inspirer les jeunes par le but et la communauté', '2026-05-23 09:35:18', '2026-05-23 09:35:18'),
+(18, 'hero_settings', 'subtitle', 'subtitle', 'ar', 'إلهام الشباب من خلال الغرض والمجتمع', '2026-05-23 09:35:18', '2026-05-23 09:35:18'),
+(19, 'club', '1', 'name', 'fr', 'Ensah', '2026-05-23 09:58:16', '2026-05-23 09:58:16'),
+(20, 'club', '1', 'description', 'fr', 'Randonnée en montagne et aventures de randonnée', '2026-05-23 09:58:16', '2026-05-23 09:58:16'),
+(21, 'club', '1', 'location', 'fr', 'Atlas', '2026-05-23 09:58:16', '2026-05-23 09:58:16'),
+(22, 'club', '1', 'location', 'ar', 'جبال الأطلس, سلسلة جبلية تقع في غرب افريقيا', '2026-05-23 09:58:16', '2026-05-23 09:58:16'),
+(23, 'club', '1', 'description', 'ar', 'مغامرات الرحلات الجبلية والمشي لمسافات طويلة', '2026-05-23 09:58:16', '2026-05-23 09:58:16'),
+(24, 'club', '1', 'name', 'ar', 'إنسة', '2026-05-23 09:58:16', '2026-05-23 09:58:16'),
+(25, 'club', '1', 'name', 'es', 'Ensah', '2026-05-23 09:58:16', '2026-05-23 09:58:16'),
+(26, 'club', '1', 'location', 'es', 'Montañas del Atlas', '2026-05-23 09:58:16', '2026-05-23 09:58:16'),
+(27, 'club', '1', 'description', 'es', 'Aventuras de senderismo y senderismo por la montaña', '2026-05-23 09:58:16', '2026-05-23 09:58:16');
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `translations`
+--
+ALTER TABLE `translations`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `translations_entity_type_entity_id_field_language_unique` (`entity_type`,`entity_id`,`field`,`language`),
+  ADD KEY `translations_entity_type_entity_id_index` (`entity_type`,`entity_id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `translations`
+--
+ALTER TABLE `translations`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

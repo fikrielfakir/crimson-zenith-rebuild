@@ -1,0 +1,1540 @@
+import {
+  users,
+  clubs,
+  clubMemberships,
+  clubEvents,
+  eventGallery,
+  eventSchedule,
+  eventReviews,
+  eventPrices,
+  clubGallery,
+  clubReviews,
+  bookingEvents,
+  bookingTickets,
+  bookingPageSettings,
+  themeSettings,
+  navbarSettings,
+  heroSettings,
+  mediaAssets,
+  landingSections,
+  sectionBlocks,
+  focusItems,
+  teamMembers,
+  landingTestimonials,
+  siteStats,
+  contactSettings,
+  footerSettings,
+  seoSettings,
+  aboutSettings,
+  presidentMessageSettings,
+  partnerSettings,
+  partners,
+  contentTranslations,
+  legalPages,
+  clubsPageSettings,
+  landingPageSections,
+  authSettings,
+  smtpSettings,
+  emailLog,
+  type LandingPageSection,
+  type InsertLandingPageSection,
+  type AuthSettings,
+  type InsertAuthSettings,
+  type SmtpSettings,
+  type InsertSmtpSettings,
+  type EmailLog,
+  type InsertEmailLog,
+  type LegalPage,
+  type InsertLegalPage,
+  type ContentTranslation,
+  type InsertContentTranslation,
+  type User,
+  type UpsertUser,
+  type Club,
+  type InsertClub,
+  type ClubMembership,
+  type ClubEvent,
+  type InsertClubEvent,
+  type BookingEvent,
+  type InsertBookingEvent,
+  type BookingTicket,
+  type InsertBookingTicket,
+  type ClubsPageSettings,
+  type InsertClubsPageSettings,
+  type BookingPageSettings,
+  type InsertBookingPageSettings,
+  type ThemeSettings,
+  type InsertThemeSettings,
+  type NavbarSettings,
+  type InsertNavbarSettings,
+  type HeroSettings,
+  type InsertHeroSettings,
+  type MediaAsset,
+  type InsertMediaAsset,
+  type LandingSection,
+  type InsertLandingSection,
+  type SectionBlock,
+  type InsertSectionBlock,
+  type FocusItem,
+  type InsertFocusItem,
+  type TeamMember,
+  type InsertTeamMember,
+  type LandingTestimonial,
+  type InsertLandingTestimonial,
+  type SiteStat,
+  type InsertSiteStat,
+  type ContactSettings,
+  type InsertContactSettings,
+  type FooterSettings,
+  type InsertFooterSettings,
+  type SeoSettings,
+  type InsertSeoSettings,
+  type AboutSettings,
+  type InsertAboutSettings,
+  type PresidentMessageSettings,
+  type InsertPresidentMessageSettings,
+  type PartnerSettings,
+  type InsertPartnerSettings,
+  type Partner,
+  type InsertPartner,
+  galleryItems,
+  type GalleryItem,
+  type InsertGalleryItem,
+  pageHeroSettings,
+  type PageHeroSetting,
+  type InsertPageHeroSetting,
+} from "../shared/schema.js";
+import { db } from "./db";
+import { eq, and, desc, asc, count, sql } from "drizzle-orm";
+import { generateEventId } from "./utils/id-generator";
+
+// Interface for storage operations
+export interface IStorage {
+  // User operations
+  // (IMPORTANT) these user operations are mandatory for Replit Auth.
+  getUser(id: string): Promise<User | undefined>;
+  getUserByUsername(username: string): Promise<User | undefined>;
+  getAllUsers(): Promise<User[]>;
+  upsertUser(user: UpsertUser): Promise<User>;
+  
+  // Club operations
+  getClubs(): Promise<Club[]>;
+  getClub(id: number): Promise<Club | undefined>;
+  getClubByName(name: string): Promise<Club | undefined>;
+  getClubBySlug(slug: string): Promise<Club | undefined>;
+  createClub(club: InsertClub): Promise<Club>;
+  updateClub(id: number, club: Partial<InsertClub>): Promise<Club>;
+  deleteClub(id: number): Promise<void>;
+  
+  // Club membership operations
+  joinClub(userId: string, clubId: number): Promise<ClubMembership>;
+  leaveClub(userId: string, clubId: number): Promise<void>;
+  getUserClubMemberships(userId: string): Promise<ClubMembership[]>;
+  getClubMembers(clubId: number): Promise<ClubMembership[]>;
+  isClubMember(userId: string, clubId: number): Promise<boolean>;
+  
+  // Event operations (unified - now uses booking_events for all events)
+  getClubEvents(clubId: number): Promise<BookingEvent[]>;
+  getUpcomingClubEvents(clubId: number): Promise<BookingEvent[]>;
+  getAssociationEvents(): Promise<BookingEvent[]>; // Get Journey/Association events
+  getUpcomingAssociationEvents(): Promise<BookingEvent[]>; // Get upcoming Journey/Association events
+  getAllEvents(): Promise<BookingEvent[]>; // Get all events (for admin)
+  getEvent(id: string): Promise<BookingEvent | undefined>; // Get single event by ID
+  createClubEvent(event: InsertBookingEvent): Promise<BookingEvent>;
+  updateClubEvent(id: string, event: Partial<InsertBookingEvent>): Promise<BookingEvent>;
+  deleteClubEvent(id: string): Promise<void>;
+  
+  // Event gallery operations
+  getEventGallery(eventId: string): Promise<any[]>;
+  addEventImage(eventId: string, imageUrl: string, sortOrder?: number): Promise<any>;
+  deleteEventImage(id: number): Promise<void>;
+  
+  // Event schedule operations
+  getEventSchedule(eventId: string): Promise<any[]>;
+  addEventScheduleDay(eventId: string, dayNumber: number, title: string, description?: string): Promise<any>;
+  updateEventScheduleDay(id: number, data: any): Promise<any>;
+  deleteEventScheduleDay(id: number): Promise<void>;
+  
+  // Event reviews operations
+  getEventReviews(eventId: string): Promise<any[]>;
+  addEventReview(eventId: string, userName: string, rating: number, review?: string): Promise<any>;
+  deleteEventReview(id: number): Promise<void>;
+  
+  // Event prices operations
+  getEventPrices(eventId: string): Promise<any[]>;
+  addEventPrice(eventId: string, travelers: number, pricePerPerson: number): Promise<any>;
+  updateEventPrice(id: number, data: any): Promise<any>;
+  deleteEventPrice(id: number): Promise<void>;
+  
+  // Club gallery operations
+  getClubGallery(clubId: number): Promise<any[]>;
+  addClubImage(clubId: number, imageUrl: string, caption?: string, uploadedBy?: string): Promise<any>;
+  
+  // Booking event operations (now serves all event types)
+  getBookingEvents(): Promise<BookingEvent[]>;
+  getBookingEvent(id: string): Promise<BookingEvent | undefined>;
+  createBookingEvent(event: InsertBookingEvent): Promise<BookingEvent>;
+  updateBookingEvent(id: string, event: Partial<InsertBookingEvent>): Promise<BookingEvent>;
+  deleteBookingEvent(id: string): Promise<void>;
+  
+  // Booking ticket operations
+  createBookingTicket(ticket: InsertBookingTicket): Promise<BookingTicket>;
+  getBookingTicket(bookingReference: string): Promise<BookingTicket | undefined>;
+  getBookingTickets(): Promise<BookingTicket[]>;
+  getUserBookingTickets(userId: string): Promise<BookingTicket[]>;
+  getEventBookingTickets(eventId: string): Promise<BookingTicket[]>;
+  updateBookingTicketStatus(bookingReference: string, status: string, additionalData?: any): Promise<BookingTicket>;
+  deleteBookingTicket(bookingReference: string): Promise<void>;
+  
+  // Booking page settings operations
+  getBookingPageSettings(): Promise<BookingPageSettings | undefined>;
+  updateBookingPageSettings(settings: InsertBookingPageSettings): Promise<BookingPageSettings>;
+  
+  // CMS operations
+  getNavbarSettings(): Promise<NavbarSettings | undefined>;
+  updateNavbarSettings(settings: Partial<InsertNavbarSettings>, userId?: string): Promise<NavbarSettings>;
+  
+  getHeroSettings(): Promise<HeroSettings | undefined>;
+  updateHeroSettings(settings: Partial<InsertHeroSettings>, userId?: string): Promise<HeroSettings>;
+  
+  getThemeSettings(): Promise<ThemeSettings | undefined>;
+  updateThemeSettings(settings: Partial<InsertThemeSettings>, userId?: string): Promise<ThemeSettings>;
+
+  getPageHeroSettings(pageKey: string): Promise<PageHeroSetting | undefined>;
+  upsertPageHeroSettings(pageKey: string, data: Partial<InsertPageHeroSetting>, userId?: string): Promise<PageHeroSetting>;
+  
+  getMediaAssets(): Promise<MediaAsset[]>;
+  getMediaAsset(id: number): Promise<MediaAsset | undefined>;
+  createMediaAsset(asset: InsertMediaAsset): Promise<MediaAsset>;
+  deleteMediaAsset(id: number): Promise<void>;
+  
+  getLandingSections(): Promise<LandingSection[]>;
+  getLandingSection(id: number): Promise<LandingSection | undefined>;
+  createLandingSection(section: InsertLandingSection): Promise<LandingSection>;
+  updateLandingSection(id: number, section: Partial<InsertLandingSection>, userId?: string): Promise<LandingSection>;
+  deleteLandingSection(id: number): Promise<void>;
+  
+  getSectionBlocks(sectionId: number): Promise<SectionBlock[]>;
+  createSectionBlock(block: InsertSectionBlock): Promise<SectionBlock>;
+  updateSectionBlock(id: number, block: Partial<InsertSectionBlock>): Promise<SectionBlock>;
+  deleteSectionBlock(id: number): Promise<void>;
+  
+  // Focus items operations
+  getFocusItems(): Promise<FocusItem[]>;
+  getFocusItem(id: number): Promise<FocusItem | undefined>;
+  createFocusItem(item: InsertFocusItem): Promise<FocusItem>;
+  updateFocusItem(id: number, item: Partial<InsertFocusItem>): Promise<FocusItem>;
+  deleteFocusItem(id: number): Promise<void>;
+  
+  // Team members operations
+  getTeamMembers(): Promise<TeamMember[]>;
+  getTeamMember(id: number): Promise<TeamMember | undefined>;
+  createTeamMember(member: InsertTeamMember): Promise<TeamMember>;
+  updateTeamMember(id: number, member: Partial<InsertTeamMember>): Promise<TeamMember>;
+  deleteTeamMember(id: number): Promise<void>;
+  
+  // Landing testimonials operations
+  getLandingTestimonials(): Promise<LandingTestimonial[]>;
+  getLandingTestimonial(id: number): Promise<LandingTestimonial | undefined>;
+  createLandingTestimonial(testimonial: InsertLandingTestimonial): Promise<LandingTestimonial>;
+  updateLandingTestimonial(id: number, testimonial: Partial<InsertLandingTestimonial>): Promise<LandingTestimonial>;
+  deleteLandingTestimonial(id: number): Promise<void>;
+  
+  // Site stats operations
+  getSiteStats(): Promise<SiteStat[]>;
+  getSiteStat(id: number): Promise<SiteStat | undefined>;
+  createSiteStat(stat: InsertSiteStat): Promise<SiteStat>;
+  updateSiteStat(id: number, stat: Partial<InsertSiteStat>): Promise<SiteStat>;
+  deleteSiteStat(id: number): Promise<void>;
+  
+  // Contact settings operations
+  getContactSettings(): Promise<ContactSettings | undefined>;
+  updateContactSettings(settings: Partial<InsertContactSettings>, userId?: string): Promise<ContactSettings>;
+  
+  // Footer settings operations
+  getFooterSettings(): Promise<FooterSettings | undefined>;
+  updateFooterSettings(settings: Partial<InsertFooterSettings>, userId?: string): Promise<FooterSettings>;
+  
+  // SEO settings operations
+  getSeoSettings(): Promise<SeoSettings | undefined>;
+  updateSeoSettings(settings: Partial<InsertSeoSettings>, userId?: string): Promise<SeoSettings>;
+  
+  // About settings operations
+  getAboutSettings(): Promise<AboutSettings | undefined>;
+  updateAboutSettings(settings: Partial<InsertAboutSettings>, userId?: string): Promise<AboutSettings>;
+  
+  // President message settings operations
+  getPresidentMessageSettings(): Promise<PresidentMessageSettings | undefined>;
+  updatePresidentMessageSettings(settings: Partial<InsertPresidentMessageSettings>, userId?: string): Promise<PresidentMessageSettings>;
+  
+  // Clubs page settings operations
+  getClubsPageSettings(): Promise<ClubsPageSettings | undefined>;
+  updateClubsPageSettings(settings: Partial<InsertClubsPageSettings>, userId?: string): Promise<ClubsPageSettings>;
+
+  // Landing page section visibility
+  getLandingPageSections(): Promise<LandingPageSection[]>;
+  updateLandingPageSection(sectionKey: string, isEnabled: boolean): Promise<LandingPageSection>;
+
+  // Partner settings operations
+  getPartnerSettings(): Promise<PartnerSettings | undefined>;
+  updatePartnerSettings(settings: Partial<InsertPartnerSettings>, userId?: string): Promise<PartnerSettings>;
+  
+  // Partners operations
+  getPartners(): Promise<Partner[]>;
+  getPartner(id: number): Promise<Partner | undefined>;
+  createPartner(partner: InsertPartner): Promise<Partner>;
+  updatePartner(id: number, partner: Partial<InsertPartner>): Promise<Partner>;
+  deletePartner(id: number): Promise<void>;
+
+  // Gallery items operations
+  getGalleryItems(options?: { limit?: number; offset?: number; category?: string; featured?: boolean }): Promise<{ items: GalleryItem[]; total: number }>;
+  getGalleryItem(id: number): Promise<GalleryItem | undefined>;
+  createGalleryItem(item: InsertGalleryItem): Promise<GalleryItem>;
+  updateGalleryItem(id: number, item: Partial<InsertGalleryItem>): Promise<GalleryItem>;
+  deleteGalleryItem(id: number): Promise<void>;
+  toggleGalleryItemFeatured(id: number): Promise<GalleryItem>;
+
+  // Content translations operations
+  getTranslations(entityType: string, entityId: string): Promise<ContentTranslation[]>;
+  getTranslationsForType(entityType: string, entityIds?: string[]): Promise<ContentTranslation[]>;
+  upsertTranslation(data: InsertContentTranslation): Promise<ContentTranslation>;
+  deleteTranslation(id: number): Promise<void>;
+}
+
+export class DatabaseStorage implements IStorage {
+  // Helper functions for MySQL (does not support .returning())
+  
+  // Insert and fetch - handles both auto-increment IDs and user-provided IDs (including strings)
+  private async insertAndFetch<T extends { id: number | string }>(
+    table: any,
+    values: any,
+    dbOrTx: any = db
+  ): Promise<T> {
+    // MySQL does not support RETURNING clause
+    // Insert and then fetch the record
+    const result = await dbOrTx.insert(table).values(values);
+    
+    // If the ID was provided in values, use it; otherwise use the inserted ID
+    // mysql2 returns [ResultSetHeader, FieldPacket[]] so we need result[0].insertId
+    const insertedId = values.id || (result[0]?.insertId ?? result.insertId);
+    
+    // For tables without auto-increment IDs (like booking_tickets with serial), 
+    // we need to fetch by a unique field if no ID
+    if (insertedId) {
+      const [record] = await dbOrTx.select().from(table).where(eq(table.id, insertedId));
+      return record as T;
+    } else if (values.bookingReference) {
+      // For booking_tickets, fetch by booking_reference
+      const [record] = await dbOrTx.select().from(table).where(eq(table.bookingReference, values.bookingReference));
+      return record as T;
+    }
+    
+    // Fallback: fetch the last inserted record
+    const [record] = await dbOrTx.select().from(table).orderBy(desc(table.id)).limit(1);
+    return record as T;
+  }
+  
+  // Update and fetch using primary key
+  private async updateAndFetch<T extends { id: number | string }>(
+    table: any,
+    id: number | string,
+    values: any,
+    dbOrTx: any = db
+  ): Promise<T> {
+    await dbOrTx.update(table).set(values).where(eq(table.id, id));
+    const [record] = await dbOrTx.select().from(table).where(eq(table.id, id));
+    return record as T;
+  }
+
+  // User operations
+  // (IMPORTANT) these user operations are mandatory for Replit Auth.
+  async getUser(id: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user;
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    return await db.select().from(users);
+  }
+
+  async upsertUser(userData: UpsertUser): Promise<User> {
+    const now = new Date();
+    
+    // Check if user exists
+    const existingUser = userData.id ? await this.getUser(userData.id) : null;
+    
+    if (existingUser) {
+      // Update existing user
+      const updateData: Partial<UpsertUser> = {
+        username: userData.username,
+        email: userData.email,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        profileImageUrl: userData.profileImageUrl,
+        bio: userData.bio,
+        phone: userData.phone,
+        location: userData.location,
+        interests: userData.interests,
+        isAdmin: userData.isAdmin,
+        updatedAt: now,
+      };
+      
+      // Only update password if provided
+      if (userData.password) {
+        updateData.password = userData.password;
+      }
+      
+      await db.update(users)
+        .set(updateData)
+        .where(eq(users.id, userData.id!));
+      
+      // Fetch and return updated user
+      const updated = await this.getUser(userData.id!);
+      if (!updated) throw new Error('User not found after update');
+      return updated;
+    } else {
+      // Insert new user
+      const insertData: UpsertUser = {
+        id: userData.id,
+        username: userData.username,
+        password: userData.password || '',
+        email: userData.email,
+        name: userData.name || `${userData.firstName || ''} ${userData.lastName || ''}`.trim() || null,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        profileImageUrl: userData.profileImageUrl,
+        bio: userData.bio,
+        phone: userData.phone,
+        location: userData.location,
+        interests: userData.interests,
+        isAdmin: userData.isAdmin,
+        createdAt: now,
+        updatedAt: now,
+      };
+      
+      const result = await db.insert(users).values(insertData);
+      const insertId = userData.id || (result as any).insertId;
+      
+      const newUser = await this.getUser(insertId);
+      if (!newUser) throw new Error('User not found after insert');
+      return newUser;
+    }
+  }
+
+  // Club operations
+  async getClubs(): Promise<Club[]> {
+    return await db.select().from(clubs).where(eq(clubs.isActive, true)).orderBy(asc(clubs.name));
+  }
+
+  async getClub(id: number): Promise<Club | undefined> {
+    const [club] = await db.select().from(clubs).where(and(eq(clubs.id, id), eq(clubs.isActive, true)));
+    return club;
+  }
+
+  async getClubByName(name: string): Promise<Club | undefined> {
+    const [club] = await db.select().from(clubs).where(and(eq(clubs.name, name), eq(clubs.isActive, true)));
+    return club;
+  }
+
+  async getClubBySlug(slug: string): Promise<Club | undefined> {
+    const [club] = await db.select().from(clubs).where(and(eq(clubs.slug, slug), eq(clubs.isActive, true)));
+    return club;
+  }
+
+  async createClub(clubData: InsertClub): Promise<Club> {
+    return await this.insertAndFetch<Club>(clubs, clubData);
+  }
+
+  async updateClub(id: number, clubData: Partial<InsertClub>): Promise<Club> {
+    return await this.updateAndFetch<Club>(clubs, id, { ...clubData, updatedAt: new Date() });
+  }
+
+  async deleteClub(id: number): Promise<void> {
+    await db.update(clubs).set({ isActive: false }).where(eq(clubs.id, id));
+  }
+
+  // Club membership operations
+  async joinClub(userId: string, clubId: number): Promise<ClubMembership> {
+    return await db.transaction(async (tx) => {
+      // Check if already a member
+      const existing = await tx
+        .select()
+        .from(clubMemberships)
+        .where(and(eq(clubMemberships.userId, userId), eq(clubMemberships.clubId, clubId)))
+        .limit(1);
+      
+      let membership: ClubMembership;
+      
+      if (existing.length > 0) {
+        // Reactivate membership if inactive
+        membership = await this.updateAndFetch<ClubMembership>(
+          clubMemberships,
+          existing[0].id,
+          { isActive: true },
+          tx
+        );
+      } else {
+        // Create new membership
+        membership = await this.insertAndFetch<ClubMembership>(
+          clubMemberships,
+          { userId, clubId, role: 'member' },
+          tx
+        );
+      }
+
+      // Update club member count with proper count query
+      const [memberCountResult] = await tx
+        .select({ count: count() })
+        .from(clubMemberships)
+        .where(and(eq(clubMemberships.clubId, clubId), eq(clubMemberships.isActive, true)));
+
+      await tx
+        .update(clubs)
+        .set({ memberCount: memberCountResult.count })
+        .where(eq(clubs.id, clubId));
+
+      return membership;
+    });
+  }
+
+  async leaveClub(userId: string, clubId: number): Promise<void> {
+    await db.transaction(async (tx) => {
+      // Deactivate membership
+      await tx
+        .update(clubMemberships)
+        .set({ isActive: false })
+        .where(and(eq(clubMemberships.userId, userId), eq(clubMemberships.clubId, clubId)));
+
+      // Update club member count with proper count query
+      const [memberCountResult] = await tx
+        .select({ count: count() })
+        .from(clubMemberships)
+        .where(and(eq(clubMemberships.clubId, clubId), eq(clubMemberships.isActive, true)));
+
+      await tx
+        .update(clubs)
+        .set({ memberCount: memberCountResult.count })
+        .where(eq(clubs.id, clubId));
+    });
+  }
+
+  async getUserClubMemberships(userId: string): Promise<ClubMembership[]> {
+    return await db
+      .select()
+      .from(clubMemberships)
+      .where(and(eq(clubMemberships.userId, userId), eq(clubMemberships.isActive, true)));
+  }
+
+  async getClubMembers(clubId: number): Promise<ClubMembership[]> {
+    return await db
+      .select()
+      .from(clubMemberships)
+      .where(and(eq(clubMemberships.clubId, clubId), eq(clubMemberships.isActive, true)));
+  }
+
+  async isClubMember(userId: string, clubId: number): Promise<boolean> {
+    const [membership] = await db
+      .select()
+      .from(clubMemberships)
+      .where(and(
+        eq(clubMemberships.userId, userId), 
+        eq(clubMemberships.clubId, clubId),
+        eq(clubMemberships.isActive, true)
+      ))
+      .limit(1);
+    return !!membership;
+  }
+
+  // Event operations (now using unified bookingEvents table)
+  async getClubEvents(clubId: number): Promise<BookingEvent[]> {
+    return await db
+      .select()
+      .from(bookingEvents)
+      .where(and(
+        eq(bookingEvents.clubId, clubId),
+        eq(bookingEvents.isAssociationEvent, false)
+      ))
+      .orderBy(desc(bookingEvents.eventDate));
+  }
+
+  async getUpcomingClubEvents(clubId: number): Promise<BookingEvent[]> {
+    return await db
+      .select()
+      .from(bookingEvents)
+      .where(and(
+        eq(bookingEvents.clubId, clubId),
+        eq(bookingEvents.isAssociationEvent, false),
+        eq(bookingEvents.status, 'upcoming')
+      ))
+      .orderBy(asc(bookingEvents.eventDate));
+  }
+
+  async getAssociationEvents(): Promise<BookingEvent[]> {
+    return await db
+      .select()
+      .from(bookingEvents)
+      .where(eq(bookingEvents.isAssociationEvent, true))
+      .orderBy(desc(bookingEvents.eventDate));
+  }
+
+  async getUpcomingAssociationEvents(): Promise<BookingEvent[]> {
+    return await db
+      .select()
+      .from(bookingEvents)
+      .where(and(
+        eq(bookingEvents.isAssociationEvent, true),
+        eq(bookingEvents.status, 'upcoming')
+      ))
+      .orderBy(asc(bookingEvents.eventDate));
+  }
+
+  async getAllEvents(): Promise<BookingEvent[]> {
+    return await db
+      .select()
+      .from(bookingEvents)
+      .orderBy(desc(bookingEvents.eventDate));
+  }
+
+  async getEvent(id: string): Promise<BookingEvent | undefined> {
+    const [event] = await db
+      .select()
+      .from(bookingEvents)
+      .where(eq(bookingEvents.id, id))
+      .limit(1);
+    return event;
+  }
+
+  async createClubEvent(eventData: InsertBookingEvent): Promise<BookingEvent> {
+    // Generate a unique ID for the event if not provided
+    const id = eventData.id || generateEventId();
+    return await this.insertAndFetch<BookingEvent>(bookingEvents, { ...eventData, id });
+  }
+
+  async updateClubEvent(id: string, eventData: Partial<InsertBookingEvent>): Promise<BookingEvent> {
+    return await this.updateAndFetch<BookingEvent>(bookingEvents, id, { ...eventData, updatedAt: new Date() });
+  }
+
+  async deleteClubEvent(id: string): Promise<void> {
+    await db.delete(bookingEvents).where(eq(bookingEvents.id, id));
+  }
+
+  // Event gallery operations
+  async getEventGallery(eventId: string): Promise<any[]> {
+    return await db
+      .select()
+      .from(eventGallery)
+      .where(eq(eventGallery.eventId, eventId))
+      .orderBy(asc(eventGallery.sortOrder));
+  }
+
+  async addEventImage(eventId: string, imageUrl: string, sortOrder: number = 0): Promise<any> {
+    return await this.insertAndFetch<any>(eventGallery, { eventId, imageUrl, sortOrder });
+  }
+
+  async deleteEventImage(id: number): Promise<void> {
+    await db.delete(eventGallery).where(eq(eventGallery.id, id));
+  }
+
+  // Event schedule operations
+  async getEventSchedule(eventId: string): Promise<any[]> {
+    return await db
+      .select()
+      .from(eventSchedule)
+      .where(eq(eventSchedule.eventId, eventId))
+      .orderBy(asc(eventSchedule.dayNumber));
+  }
+
+  async addEventScheduleDay(eventId: string, dayNumber: number, title: string, description?: string): Promise<any> {
+    return await this.insertAndFetch<any>(eventSchedule, { eventId, dayNumber, title, description });
+  }
+
+  async updateEventScheduleDay(id: number, data: any): Promise<any> {
+    return await this.updateAndFetch<any>(eventSchedule, id, data);
+  }
+
+  async deleteEventScheduleDay(id: number): Promise<void> {
+    await db.delete(eventSchedule).where(eq(eventSchedule.id, id));
+  }
+
+  // Event reviews operations
+  async getEventReviews(eventId: string): Promise<any[]> {
+    return await db
+      .select()
+      .from(eventReviews)
+      .where(eq(eventReviews.eventId, eventId))
+      .orderBy(desc(eventReviews.createdAt));
+  }
+
+  async addEventReview(eventId: string, userName: string, rating: number, review?: string): Promise<any> {
+    return await this.insertAndFetch<any>(eventReviews, { eventId, userName, rating, review });
+  }
+
+  async deleteEventReview(id: number): Promise<void> {
+    await db.delete(eventReviews).where(eq(eventReviews.id, id));
+  }
+
+  // Event prices operations
+  async getEventPrices(eventId: string): Promise<any[]> {
+    return await db
+      .select()
+      .from(eventPrices)
+      .where(eq(eventPrices.eventId, eventId))
+      .orderBy(asc(eventPrices.travelers));
+  }
+
+  async addEventPrice(eventId: string, travelers: number, pricePerPerson: number): Promise<any> {
+    return await this.insertAndFetch<any>(eventPrices, { eventId, travelers, pricePerPerson });
+  }
+
+  async updateEventPrice(id: number, data: any): Promise<any> {
+    return await this.updateAndFetch<any>(eventPrices, id, data);
+  }
+
+  async deleteEventPrice(id: number): Promise<void> {
+    await db.delete(eventPrices).where(eq(eventPrices.id, id));
+  }
+
+  // Club gallery operations
+  async getClubGallery(clubId: number): Promise<any[]> {
+    return await db
+      .select()
+      .from(clubGallery)
+      .where(eq(clubGallery.clubId, clubId))
+      .orderBy(desc(clubGallery.uploadedAt));
+  }
+
+  async addClubImage(clubId: number, imageUrl: string, caption?: string, uploadedBy?: string): Promise<any> {
+    return await this.insertAndFetch<any>(clubGallery, { clubId, imageUrl, caption, uploadedBy });
+  }
+
+  // Booking event operations
+  async getBookingEvents(): Promise<BookingEvent[]> {
+    const results = await db
+      .select({
+        event: bookingEvents,
+        club: clubs,
+      })
+      .from(bookingEvents)
+      .leftJoin(clubs, eq(bookingEvents.clubId, clubs.id))
+      .orderBy(desc(bookingEvents.createdAt));
+    
+    // Map results to include clubName in the event object
+    return results.map(({ event, club }) => ({
+      ...event,
+      clubName: club?.name || undefined,
+    }));
+  }
+
+  async getBookingEvent(id: string): Promise<BookingEvent | undefined> {
+    const [event] = await db
+      .select()
+      .from(bookingEvents)
+      .where(eq(bookingEvents.id, id));
+    return event;
+  }
+
+  async createBookingEvent(eventData: InsertBookingEvent): Promise<BookingEvent> {
+    return await this.insertAndFetch<BookingEvent>(bookingEvents, eventData);
+  }
+
+  async updateBookingEvent(id: string, eventData: Partial<InsertBookingEvent>): Promise<BookingEvent> {
+    return await this.updateAndFetch<BookingEvent>(bookingEvents, id, { ...eventData, updatedAt: new Date() });
+  }
+
+  async deleteBookingEvent(id: string): Promise<void> {
+    await db.delete(bookingEvents).where(eq(bookingEvents.id, id));
+  }
+
+  // Booking ticket operations
+  async createBookingTicket(ticketData: InsertBookingTicket): Promise<BookingTicket> {
+    const bookingReference = `BKG-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+    return await this.insertAndFetch<BookingTicket>(bookingTickets, {
+      ...ticketData,
+      bookingReference,
+    });
+  }
+
+  async getBookingTicket(bookingReference: string): Promise<BookingTicket | undefined> {
+    const [ticket] = await db
+      .select()
+      .from(bookingTickets)
+      .where(eq(bookingTickets.bookingReference, bookingReference));
+    return ticket;
+  }
+
+  async getBookingTickets(): Promise<BookingTicket[]> {
+    return await db
+      .select()
+      .from(bookingTickets)
+      .orderBy(desc(bookingTickets.createdAt));
+  }
+
+  async getUserBookingTickets(userId: string): Promise<BookingTicket[]> {
+    return await db
+      .select()
+      .from(bookingTickets)
+      .where(eq(bookingTickets.userId, userId))
+      .orderBy(desc(bookingTickets.createdAt));
+  }
+
+  async getEventBookingTickets(eventId: string): Promise<BookingTicket[]> {
+    return await db
+      .select()
+      .from(bookingTickets)
+      .where(eq(bookingTickets.eventId, eventId))
+      .orderBy(desc(bookingTickets.createdAt));
+  }
+
+  async updateBookingTicketStatus(bookingReference: string, status: string, additionalData?: any): Promise<BookingTicket> {
+    const updateData: any = { status, updatedAt: new Date() };
+    
+    if (status === 'confirmed') {
+      updateData.confirmedAt = new Date();
+      updateData.paymentStatus = 'completed';
+    } else if (status === 'cancelled') {
+      updateData.cancelledAt = new Date();
+      if (additionalData?.cancellationReason) {
+        updateData.cancellationReason = additionalData.cancellationReason;
+      }
+    }
+    
+    if (additionalData?.paymentMethod) {
+      updateData.paymentMethod = additionalData.paymentMethod;
+    }
+    if (additionalData?.transactionId) {
+      updateData.transactionId = additionalData.transactionId;
+    }
+    
+    // Update the ticket using bookingReference (MySQL does not support .returning())
+    await db
+      .update(bookingTickets)
+      .set(updateData)
+      .where(eq(bookingTickets.bookingReference, bookingReference));
+    
+    // Fetch the updated ticket
+    const [updated] = await db
+      .select()
+      .from(bookingTickets)
+      .where(eq(bookingTickets.bookingReference, bookingReference));
+    
+    if (!updated) {
+      throw new Error(`Booking ticket not found: ${bookingReference}`);
+    }
+    
+    return updated;
+  }
+
+  async deleteBookingTicket(bookingReference: string): Promise<void> {
+    await db.delete(bookingTickets).where(eq(bookingTickets.bookingReference, bookingReference));
+  }
+
+  // Booking page settings operations
+  async getBookingPageSettings(): Promise<BookingPageSettings | undefined> {
+    const [settings] = await db
+      .select()
+      .from(bookingPageSettings)
+      .where(eq(bookingPageSettings.id, 'booking-page-settings'));
+    return settings;
+  }
+
+  async updateBookingPageSettings(settingsData: InsertBookingPageSettings): Promise<BookingPageSettings> {
+    const existingSettings = await this.getBookingPageSettings();
+    
+    if (existingSettings) {
+      return await this.updateAndFetch<BookingPageSettings>(
+        bookingPageSettings,
+        'booking-page-settings',
+        { ...settingsData, updatedAt: new Date() }
+      );
+    } else {
+      return await this.insertAndFetch<BookingPageSettings>(
+        bookingPageSettings,
+        { ...settingsData, id: 'booking-page-settings' }
+      );
+    }
+  }
+
+  // CMS operations
+  async getNavbarSettings(): Promise<NavbarSettings | undefined> {
+    const [settings] = await db.select().from(navbarSettings).where(eq(navbarSettings.id, 'default'));
+    if (settings) {
+      // Parse JSON fields if they're strings (MySQL returns JSON as strings)
+      if (typeof settings.navigationLinks === 'string') {
+        settings.navigationLinks = JSON.parse(settings.navigationLinks);
+      }
+      if (typeof settings.availableLanguages === 'string') {
+        settings.availableLanguages = JSON.parse(settings.availableLanguages);
+      }
+    }
+    return settings;
+  }
+
+  async updateNavbarSettings(settingsData: Partial<InsertNavbarSettings>, userId?: string): Promise<NavbarSettings> {
+    if (settingsData.navigationLinks !== undefined && settingsData.navigationLinks !== null) {
+      if (!Array.isArray(settingsData.navigationLinks)) {
+        throw new Error('Navigation links must be an array');
+      }
+      
+      for (let i = 0; i < settingsData.navigationLinks.length; i++) {
+        const link = settingsData.navigationLinks[i];
+        
+        if (!link || typeof link !== 'object' || Array.isArray(link)) {
+          throw new Error(`Navigation link at index ${i} must be an object`);
+        }
+        
+        if (!link.label || typeof link.label !== 'string' || !link.label.trim()) {
+          throw new Error(`Navigation link at index ${i} must have a valid label`);
+        }
+        
+        if (!link.url || typeof link.url !== 'string' || !link.url.trim()) {
+          throw new Error(`Navigation link at index ${i} must have a valid URL`);
+        }
+      }
+    }
+
+    const existing = await this.getNavbarSettings();
+    
+    if (existing) {
+      return await this.updateAndFetch<NavbarSettings>(
+        navbarSettings,
+        'default',
+        { ...settingsData, updatedBy: userId, updatedAt: new Date() }
+      );
+    } else {
+      return await this.insertAndFetch<NavbarSettings>(
+        navbarSettings,
+        { ...settingsData, id: 'default', updatedBy: userId } as InsertNavbarSettings
+      );
+    }
+  }
+
+  async getHeroSettings(): Promise<HeroSettings | undefined> {
+    const [settings] = await db.select().from(heroSettings).where(eq(heroSettings.id, 'default'));
+    return settings;
+  }
+
+  async updateHeroSettings(settingsData: Partial<InsertHeroSettings>, userId?: string): Promise<HeroSettings> {
+    const existing = await this.getHeroSettings();
+    
+    if (existing) {
+      return await this.updateAndFetch<HeroSettings>(
+        heroSettings,
+        'default',
+        { ...settingsData, updatedBy: userId, updatedAt: new Date() }
+      );
+    } else {
+      return await this.insertAndFetch<HeroSettings>(
+        heroSettings,
+        { ...settingsData, id: 'default', updatedBy: userId } as InsertHeroSettings
+      );
+    }
+  }
+
+  async getThemeSettings(): Promise<ThemeSettings | undefined> {
+    const [settings] = await db.select().from(themeSettings).where(eq(themeSettings.id, 'default'));
+    return settings;
+  }
+
+  async updateThemeSettings(settingsData: Partial<InsertThemeSettings>, userId?: string): Promise<ThemeSettings> {
+    const existing = await this.getThemeSettings();
+    
+    if (existing) {
+      return await this.updateAndFetch<ThemeSettings>(
+        themeSettings,
+        'default',
+        { ...settingsData, updatedBy: userId, updatedAt: new Date() }
+      );
+    } else {
+      return await this.insertAndFetch<ThemeSettings>(
+        themeSettings,
+        { ...settingsData, id: 'default', updatedBy: userId } as InsertThemeSettings
+      );
+    }
+  }
+
+  async getMediaAssets(): Promise<MediaAsset[]> {
+    return await db.select().from(mediaAssets).orderBy(desc(mediaAssets.createdAt));
+  }
+
+  async getMediaAsset(id: number): Promise<MediaAsset | undefined> {
+    const [asset] = await db.select().from(mediaAssets).where(eq(mediaAssets.id, id));
+    return asset;
+  }
+
+  async createMediaAsset(assetData: InsertMediaAsset): Promise<MediaAsset> {
+    return await this.insertAndFetch<MediaAsset>(mediaAssets, assetData);
+  }
+
+  async deleteMediaAsset(id: number): Promise<void> {
+    await db.delete(mediaAssets).where(eq(mediaAssets.id, id));
+  }
+
+  async getLandingSections(): Promise<LandingSection[]> {
+    return await db.select().from(landingSections).where(eq(landingSections.isActive, true)).orderBy(asc(landingSections.ordering));
+  }
+
+  async getLandingSection(id: number): Promise<LandingSection | undefined> {
+    const [section] = await db.select().from(landingSections).where(eq(landingSections.id, id));
+    return section;
+  }
+
+  async createLandingSection(sectionData: InsertLandingSection): Promise<LandingSection> {
+    return await this.insertAndFetch<LandingSection>(landingSections, sectionData);
+  }
+
+  async updateLandingSection(id: number, sectionData: Partial<InsertLandingSection>, userId?: string): Promise<LandingSection> {
+    return await this.updateAndFetch<LandingSection>(
+      landingSections,
+      id,
+      { ...sectionData, updatedBy: userId, updatedAt: new Date() }
+    );
+  }
+
+  async deleteLandingSection(id: number): Promise<void> {
+    await db.update(landingSections).set({ isActive: false }).where(eq(landingSections.id, id));
+  }
+
+  async getSectionBlocks(sectionId: number): Promise<SectionBlock[]> {
+    return await db
+      .select()
+      .from(sectionBlocks)
+      .where(and(eq(sectionBlocks.sectionId, sectionId), eq(sectionBlocks.isActive, true)))
+      .orderBy(asc(sectionBlocks.ordering));
+  }
+
+  async createSectionBlock(blockData: InsertSectionBlock): Promise<SectionBlock> {
+    return await this.insertAndFetch<SectionBlock>(sectionBlocks, blockData);
+  }
+
+  async updateSectionBlock(id: number, blockData: Partial<InsertSectionBlock>): Promise<SectionBlock> {
+    return await this.updateAndFetch<SectionBlock>(
+      sectionBlocks,
+      id,
+      { ...blockData, updatedAt: new Date() }
+    );
+  }
+
+  async deleteSectionBlock(id: number): Promise<void> {
+    await db.update(sectionBlocks).set({ isActive: false }).where(eq(sectionBlocks.id, id));
+  }
+
+  // Focus items operations
+  async getFocusItems(): Promise<FocusItem[]> {
+    return await db.select().from(focusItems).where(eq(focusItems.isActive, true)).orderBy(asc(focusItems.ordering));
+  }
+
+  async getFocusItem(id: number): Promise<FocusItem | undefined> {
+    const [item] = await db.select().from(focusItems).where(eq(focusItems.id, id));
+    return item;
+  }
+
+  async createFocusItem(itemData: InsertFocusItem): Promise<FocusItem> {
+    return await this.insertAndFetch<FocusItem>(focusItems, itemData);
+  }
+
+  async updateFocusItem(id: number, itemData: Partial<InsertFocusItem>): Promise<FocusItem> {
+    return await this.updateAndFetch<FocusItem>(
+      focusItems,
+      id,
+      { ...itemData, updatedAt: new Date() }
+    );
+  }
+
+  async deleteFocusItem(id: number): Promise<void> {
+    await db.update(focusItems).set({ isActive: false }).where(eq(focusItems.id, id));
+  }
+
+  async bulkReorderFocusItems(items: Array<{ id: number; ordering: number }>): Promise<void> {
+    const existingItems = await db.select({ id: focusItems.id }).from(focusItems).where(eq(focusItems.isActive, true));
+    const existingIds = new Set(existingItems.map(i => i.id));
+    const requestIds = items.map(i => i.id);
+    const uniqueRequestIds = new Set(requestIds);
+    
+    if (requestIds.length !== uniqueRequestIds.size) {
+      throw new Error('Duplicate IDs detected in request');
+    }
+    
+    if (existingIds.size !== requestIds.length) {
+      throw new Error(`Expected ${existingIds.size} items, received ${requestIds.length}`);
+    }
+    
+    const sortedExistingIds = Array.from(existingIds).sort((a, b) => a - b);
+    const sortedRequestIds = Array.from(uniqueRequestIds).sort((a, b) => a - b);
+    
+    for (let i = 0; i < sortedExistingIds.length; i++) {
+      if (sortedExistingIds[i] !== sortedRequestIds[i]) {
+        throw new Error(`ID mismatch: request does not contain all active focus items`);
+      }
+    }
+    
+    const orderingValues = items.map(i => i.ordering);
+    const uniqueOrderings = new Set(orderingValues);
+    
+    if (orderingValues.length !== uniqueOrderings.size) {
+      throw new Error('Duplicate ordering values detected');
+    }
+    
+    const sortedOrderings = [...orderingValues].sort((a, b) => a - b);
+    for (let i = 0; i < sortedOrderings.length; i++) {
+      if (sortedOrderings[i] !== i) {
+        throw new Error('Ordering values must be contiguous starting from 0');
+      }
+    }
+    
+    await db.transaction(async (tx) => {
+      for (const item of items) {
+        await tx
+          .update(focusItems)
+          .set({ ordering: item.ordering, updatedAt: new Date() })
+          .where(eq(focusItems.id, item.id));
+      }
+    });
+  }
+
+  // Team members operations
+  async getTeamMembers(): Promise<TeamMember[]> {
+    return await db.select().from(teamMembers).where(eq(teamMembers.isActive, true)).orderBy(asc(teamMembers.ordering));
+  }
+
+  async getTeamMember(id: number): Promise<TeamMember | undefined> {
+    const [member] = await db.select().from(teamMembers).where(eq(teamMembers.id, id));
+    return member;
+  }
+
+  async createTeamMember(memberData: InsertTeamMember): Promise<TeamMember> {
+    return await this.insertAndFetch<TeamMember>(teamMembers, memberData);
+  }
+
+  async updateTeamMember(id: number, memberData: Partial<InsertTeamMember>): Promise<TeamMember> {
+    return await this.updateAndFetch<TeamMember>(
+      teamMembers,
+      id,
+      { ...memberData, updatedAt: new Date() }
+    );
+  }
+
+  async deleteTeamMember(id: number): Promise<void> {
+    await db.update(teamMembers).set({ isActive: false }).where(eq(teamMembers.id, id));
+  }
+
+  // Landing testimonials operations
+  async getLandingTestimonials(): Promise<LandingTestimonial[]> {
+    return await db.select().from(landingTestimonials).where(and(eq(landingTestimonials.isActive, true), eq(landingTestimonials.isApproved, true))).orderBy(asc(landingTestimonials.ordering));
+  }
+
+  async getLandingTestimonial(id: number): Promise<LandingTestimonial | undefined> {
+    const [testimonial] = await db.select().from(landingTestimonials).where(eq(landingTestimonials.id, id));
+    return testimonial;
+  }
+
+  async createLandingTestimonial(testimonialData: InsertLandingTestimonial): Promise<LandingTestimonial> {
+    return await this.insertAndFetch<LandingTestimonial>(landingTestimonials, testimonialData);
+  }
+
+  async updateLandingTestimonial(id: number, testimonialData: Partial<InsertLandingTestimonial>): Promise<LandingTestimonial> {
+    return await this.updateAndFetch<LandingTestimonial>(
+      landingTestimonials,
+      id,
+      { ...testimonialData, updatedAt: new Date() }
+    );
+  }
+
+  async deleteLandingTestimonial(id: number): Promise<void> {
+    await db.update(landingTestimonials).set({ isActive: false }).where(eq(landingTestimonials.id, id));
+  }
+
+  // Site stats operations
+  async getSiteStats(): Promise<SiteStat[]> {
+    return await db.select().from(siteStats).where(eq(siteStats.isActive, true)).orderBy(asc(siteStats.ordering));
+  }
+
+  async getSiteStat(id: number): Promise<SiteStat | undefined> {
+    const [stat] = await db.select().from(siteStats).where(eq(siteStats.id, id));
+    return stat;
+  }
+
+  async createSiteStat(statData: InsertSiteStat): Promise<SiteStat> {
+    return await this.insertAndFetch<SiteStat>(siteStats, statData);
+  }
+
+  async updateSiteStat(id: number, statData: Partial<InsertSiteStat>): Promise<SiteStat> {
+    return await this.updateAndFetch<SiteStat>(
+      siteStats,
+      id,
+      { ...statData, updatedAt: new Date() }
+    );
+  }
+
+  async deleteSiteStat(id: number): Promise<void> {
+    await db.update(siteStats).set({ isActive: false }).where(eq(siteStats.id, id));
+  }
+
+  // Contact settings operations
+  async getContactSettings(): Promise<ContactSettings | undefined> {
+    const [settings] = await db.select().from(contactSettings).where(eq(contactSettings.id, 'default'));
+    return settings;
+  }
+
+  async updateContactSettings(settingsData: Partial<InsertContactSettings>, userId?: string): Promise<ContactSettings> {
+    const existing = await this.getContactSettings();
+    
+    if (existing) {
+      return await this.updateAndFetch<ContactSettings>(
+        contactSettings,
+        'default',
+        { ...settingsData, updatedBy: userId, updatedAt: new Date() }
+      );
+    } else {
+      return await this.insertAndFetch<ContactSettings>(
+        contactSettings,
+        { ...settingsData, id: 'default', updatedBy: userId } as InsertContactSettings
+      );
+    }
+  }
+
+  // Footer settings operations
+  async getFooterSettings(): Promise<FooterSettings | undefined> {
+    const [settings] = await db.select().from(footerSettings).where(eq(footerSettings.id, 'default'));
+    return settings;
+  }
+
+  async updateFooterSettings(settingsData: Partial<InsertFooterSettings>, userId?: string): Promise<FooterSettings> {
+    const existing = await this.getFooterSettings();
+    
+    if (existing) {
+      return await this.updateAndFetch<FooterSettings>(
+        footerSettings,
+        'default',
+        { ...settingsData, updatedBy: userId, updatedAt: new Date() }
+      );
+    } else {
+      return await this.insertAndFetch<FooterSettings>(
+        footerSettings,
+        { ...settingsData, id: 'default', updatedBy: userId } as InsertFooterSettings
+      );
+    }
+  }
+
+  // SEO settings operations
+  async getSeoSettings(): Promise<SeoSettings | undefined> {
+    const [settings] = await db.select().from(seoSettings).where(eq(seoSettings.id, 'default'));
+    return settings;
+  }
+
+  async updateSeoSettings(settingsData: Partial<InsertSeoSettings>, userId?: string): Promise<SeoSettings> {
+    const existing = await this.getSeoSettings();
+    
+    if (existing) {
+      return await this.updateAndFetch<SeoSettings>(
+        seoSettings,
+        'default',
+        { ...settingsData, updatedBy: userId, updatedAt: new Date() }
+      );
+    } else {
+      return await this.insertAndFetch<SeoSettings>(
+        seoSettings,
+        { ...settingsData, id: 'default', updatedBy: userId } as InsertSeoSettings
+      );
+    }
+  }
+
+  // About settings operations
+  async getAboutSettings(): Promise<AboutSettings | undefined> {
+    const [settings] = await db.select().from(aboutSettings).where(eq(aboutSettings.id, 'default'));
+    return settings;
+  }
+
+  async updateAboutSettings(settingsData: Partial<InsertAboutSettings>, userId?: string): Promise<AboutSettings> {
+    const existing = await this.getAboutSettings();
+    
+    if (existing) {
+      return await this.updateAndFetch<AboutSettings>(
+        aboutSettings,
+        'default',
+        { ...settingsData, updatedBy: userId, updatedAt: new Date() }
+      );
+    } else {
+      return await this.insertAndFetch<AboutSettings>(
+        aboutSettings,
+        { ...settingsData, id: 'default', updatedBy: userId } as InsertAboutSettings
+      );
+    }
+  }
+
+  // President message settings operations
+  async getPresidentMessageSettings(): Promise<PresidentMessageSettings | undefined> {
+    const [settings] = await db.select().from(presidentMessageSettings).where(eq(presidentMessageSettings.id, 'default'));
+    return settings;
+  }
+
+  async updatePresidentMessageSettings(settingsData: Partial<InsertPresidentMessageSettings>, userId?: string): Promise<PresidentMessageSettings> {
+    const existing = await this.getPresidentMessageSettings();
+    
+    if (existing) {
+      return await this.updateAndFetch<PresidentMessageSettings>(
+        presidentMessageSettings,
+        'default',
+        { ...settingsData, updatedBy: userId, updatedAt: new Date() }
+      );
+    } else {
+      return await this.insertAndFetch<PresidentMessageSettings>(
+        presidentMessageSettings,
+        { ...settingsData, id: 'default', updatedBy: userId } as InsertPresidentMessageSettings
+      );
+    }
+  }
+
+  // Partner settings operations
+  async getPartnerSettings(): Promise<PartnerSettings | undefined> {
+    const [settings] = await db.select().from(partnerSettings).where(eq(partnerSettings.id, 'default'));
+    return settings;
+  }
+
+  async updatePartnerSettings(settingsData: Partial<InsertPartnerSettings>, userId?: string): Promise<PartnerSettings> {
+    const existing = await this.getPartnerSettings();
+    
+    if (existing) {
+      return await this.updateAndFetch<PartnerSettings>(
+        partnerSettings,
+        'default',
+        { ...settingsData, updatedBy: userId, updatedAt: new Date() }
+      );
+    } else {
+      return await this.insertAndFetch<PartnerSettings>(
+        partnerSettings,
+        { ...settingsData, id: 'default', updatedBy: userId } as InsertPartnerSettings
+      );
+    }
+  }
+
+  // Gallery items operations
+  async getGalleryItems(options: { limit?: number; offset?: number; category?: string; featured?: boolean } = {}): Promise<{ items: GalleryItem[]; total: number }> {
+    const { limit = 100, offset = 0, category, featured } = options;
+    const conditions: any[] = [];
+    if (category) conditions.push(eq(galleryItems.category, category));
+    if (featured !== undefined) conditions.push(eq(galleryItems.isFeatured, featured));
+    const where = conditions.length > 0 ? (conditions.length === 1 ? conditions[0] : and(...conditions)) : undefined;
+    const [items, [{ value: total }]] = await Promise.all([
+      db.select().from(galleryItems).where(where).orderBy(asc(galleryItems.sortOrder), desc(galleryItems.createdAt)).limit(limit).offset(offset),
+      db.select({ value: count() }).from(galleryItems).where(where),
+    ]);
+    return { items, total: Number(total) };
+  }
+
+  async getGalleryItem(id: number): Promise<GalleryItem | undefined> {
+    const [item] = await db.select().from(galleryItems).where(eq(galleryItems.id, id));
+    return item;
+  }
+
+  async createGalleryItem(item: InsertGalleryItem): Promise<GalleryItem> {
+    return await this.insertAndFetch<GalleryItem>(galleryItems, item);
+  }
+
+  async updateGalleryItem(id: number, item: Partial<InsertGalleryItem>): Promise<GalleryItem> {
+    return await this.updateAndFetch<GalleryItem>(galleryItems, id, { ...item, updatedAt: new Date() });
+  }
+
+  async deleteGalleryItem(id: number): Promise<void> {
+    await db.delete(galleryItems).where(eq(galleryItems.id, id));
+  }
+
+  async toggleGalleryItemFeatured(id: number): Promise<GalleryItem> {
+    const item = await this.getGalleryItem(id);
+    if (!item) throw new Error(`Gallery item ${id} not found`);
+    return await this.updateAndFetch<GalleryItem>(galleryItems, id, { isFeatured: !item.isFeatured, updatedAt: new Date() });
+  }
+
+  // Partners operations
+  async getPartners(): Promise<Partner[]> {
+    return await db.select().from(partners).where(eq(partners.isActive, true)).orderBy(asc(partners.ordering));
+  }
+
+  async getPageHeroSettings(pageKey: string): Promise<PageHeroSetting | undefined> {
+    const [row] = await db.select().from(pageHeroSettings).where(eq(pageHeroSettings.pageKey, pageKey));
+    return row;
+  }
+
+  async upsertPageHeroSettings(pageKey: string, data: Partial<InsertPageHeroSetting>, userId?: string): Promise<PageHeroSetting> {
+    const existing = await this.getPageHeroSettings(pageKey);
+    if (existing) {
+      await db
+        .update(pageHeroSettings)
+        .set({ ...data, updatedBy: userId, updatedAt: new Date() })
+        .where(eq(pageHeroSettings.pageKey, pageKey));
+    } else {
+      await db
+        .insert(pageHeroSettings)
+        .values({ ...data, pageKey, updatedBy: userId } as InsertPageHeroSetting);
+    }
+    const [row] = await db.select().from(pageHeroSettings).where(eq(pageHeroSettings.pageKey, pageKey));
+    return row;
+  }
+
+  async getPartner(id: number): Promise<Partner | undefined> {
+    const [partner] = await db.select().from(partners).where(eq(partners.id, id));
+    return partner;
+  }
+
+  async createPartner(partnerData: InsertPartner): Promise<Partner> {
+    return await this.insertAndFetch<Partner>(partners, partnerData);
+  }
+
+  async updatePartner(id: number, partnerData: Partial<InsertPartner>): Promise<Partner> {
+    return await this.updateAndFetch<Partner>(partners, id, { ...partnerData, updatedAt: new Date() });
+  }
+
+  async deletePartner(id: number): Promise<void> {
+    await db.delete(partners).where(eq(partners.id, id));
+  }
+
+  // Content Translations
+  async getTranslations(entityType: string, entityId: string): Promise<ContentTranslation[]> {
+    return db.select().from(contentTranslations)
+      .where(and(
+        eq(contentTranslations.entityType, entityType),
+        eq(contentTranslations.entityId, entityId)
+      ))
+      .orderBy(asc(contentTranslations.language), asc(contentTranslations.field));
+  }
+
+  async getTranslationsForType(entityType: string, entityIds?: string[]): Promise<ContentTranslation[]> {
+    if (entityIds && entityIds.length > 0) {
+      const { inArray } = await import("drizzle-orm");
+      return db.select().from(contentTranslations)
+        .where(and(
+          eq(contentTranslations.entityType, entityType),
+          inArray(contentTranslations.entityId, entityIds)
+        ));
+    }
+    return db.select().from(contentTranslations)
+      .where(eq(contentTranslations.entityType, entityType));
+  }
+
+  async upsertTranslation(data: InsertContentTranslation): Promise<ContentTranslation> {
+    const existing = await db.select().from(contentTranslations)
+      .where(and(
+        eq(contentTranslations.entityType, data.entityType),
+        eq(contentTranslations.entityId, data.entityId),
+        eq(contentTranslations.field, data.field),
+        eq(contentTranslations.language, data.language)
+      ));
+    if (existing.length > 0) {
+      await db.update(contentTranslations)
+        .set({ value: data.value, updatedAt: new Date() })
+        .where(eq(contentTranslations.id, existing[0].id));
+      const [row] = await db.select().from(contentTranslations).where(eq(contentTranslations.id, existing[0].id));
+      return row;
+    }
+    return this.insertAndFetch<ContentTranslation>(contentTranslations, data);
+  }
+
+  async deleteTranslation(id: number): Promise<void> {
+    await db.delete(contentTranslations).where(eq(contentTranslations.id, id));
+  }
+
+  // Legal Pages
+  async getLegalPage(pageKey: string): Promise<LegalPage | undefined> {
+    const [row] = await db.select().from(legalPages).where(eq(legalPages.pageKey, pageKey));
+    return row;
+  }
+
+  async upsertLegalPage(pageKey: string, data: Partial<InsertLegalPage>, userId?: string): Promise<LegalPage> {
+    const existing = await this.getLegalPage(pageKey);
+    if (existing) {
+      await db.update(legalPages).set({ ...data, updatedBy: userId, updatedAt: new Date() }).where(eq(legalPages.pageKey, pageKey));
+    } else {
+      await db.insert(legalPages).values({ ...data, pageKey, updatedBy: userId } as InsertLegalPage);
+    }
+    const [row] = await db.select().from(legalPages).where(eq(legalPages.pageKey, pageKey));
+    return row;
+  }
+
+  // Clubs page settings
+  async getClubsPageSettings(): Promise<ClubsPageSettings | undefined> {
+    const [settings] = await db.select().from(clubsPageSettings).where(eq(clubsPageSettings.id, 'default'));
+    return settings;
+  }
+
+  async updateClubsPageSettings(settingsData: Partial<InsertClubsPageSettings>, userId?: string): Promise<ClubsPageSettings> {
+    const existing = await this.getClubsPageSettings();
+    if (existing) {
+      return await this.updateAndFetch<ClubsPageSettings>(
+        clubsPageSettings,
+        'default',
+        { ...settingsData, updatedBy: userId, updatedAt: new Date() }
+      );
+    } else {
+      return await this.insertAndFetch<ClubsPageSettings>(
+        clubsPageSettings,
+        { ...settingsData, id: 'default', updatedBy: userId } as InsertClubsPageSettings
+      );
+    }
+  }
+
+  // Auth settings operations
+  async getAuthSettings(): Promise<AuthSettings | undefined> {
+    const [row] = await db.select().from(authSettings).where(eq(authSettings.id, 'default'));
+    return row;
+  }
+
+  async updateAuthSettings(data: Partial<InsertAuthSettings>, userId?: string): Promise<AuthSettings> {
+    const existing = await this.getAuthSettings();
+    if (existing) {
+      return await this.updateAndFetch<AuthSettings>(
+        authSettings, 'default', { ...data, updatedBy: userId, updatedAt: new Date() }
+      );
+    }
+    return await this.insertAndFetch<AuthSettings>(
+      authSettings, { ...data, id: 'default', updatedBy: userId } as InsertAuthSettings
+    );
+  }
+
+  // SMTP settings operations
+  async getSmtpSettings(): Promise<SmtpSettings | undefined> {
+    const [row] = await db.select().from(smtpSettings).where(eq(smtpSettings.id, 'default'));
+    return row;
+  }
+
+  async updateSmtpSettings(data: Partial<InsertSmtpSettings>, userId?: string): Promise<SmtpSettings> {
+    const existing = await this.getSmtpSettings();
+    if (existing) {
+      return await this.updateAndFetch<SmtpSettings>(
+        smtpSettings, 'default', { ...data, updatedBy: userId, updatedAt: new Date() }
+      );
+    }
+    return await this.insertAndFetch<SmtpSettings>(
+      smtpSettings, { ...data, id: 'default', updatedBy: userId } as InsertSmtpSettings
+    );
+  }
+
+  // Email log operations
+  async createEmailLog(entry: Omit<InsertEmailLog, 'id' | 'sentAt'>): Promise<EmailLog> {
+    const [row] = await db.insert(emailLog).values(entry as InsertEmailLog).returning();
+    return row;
+  }
+
+  async getEmailLogs(limit = 100): Promise<EmailLog[]> {
+    return await db.select().from(emailLog).orderBy(desc(emailLog.sentAt)).limit(limit);
+  }
+
+  // Landing page section visibility
+  async getLandingPageSections(): Promise<LandingPageSection[]> {
+    return await db.select().from(landingPageSections).orderBy(asc(landingPageSections.ordering));
+  }
+
+  async updateLandingPageSection(sectionKey: string, isEnabled: boolean): Promise<LandingPageSection> {
+    await db.update(landingPageSections)
+      .set({ isEnabled, updatedAt: new Date() })
+      .where(eq(landingPageSections.sectionKey, sectionKey));
+    const [row] = await db.select().from(landingPageSections).where(eq(landingPageSections.sectionKey, sectionKey));
+    return row;
+  }
+}
+
+// Export the storage instance
+export const storage = new DatabaseStorage();

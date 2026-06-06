@@ -1,0 +1,54 @@
+Phase 1 — Navigation & Shell
+The frame every page shares. Fixes here have the widest impact.
+
+#	Task
+1.1	Header (desktop nav) — Verify the 3-column grid (grid-cols-3 md:grid-cols-[1fr_auto_1fr]) doesn't collapse badly on tablet; ensure logo, nav links, and CTA buttons don't overflow
+1.2	Header (mobile hamburger) — Audit the mobile drawer: all menu items visible, scrollable if overflow, close button reachable
+1.3	Mega-drop-downs (Discover / Events) — The fixed w-[700px] panel with max-w-[90vw] cap: test on tablet that the Embla carousel is usable and doesn't clip
+1.4	BottomNavbar — Verify 5-item bottom bar doesn't overflow horizontally on 320px; icon + label sizes; safe-area inset padding for notched phones
+1.5	Sticky header scroll behavior — On tablet/mobile ensure the height transition (py-3 → py-0) doesn't push content under the header
+Phase 2 — Home Page (Index)
+Currently no responsive classes found — likely needs the most work.
+
+#	Task
+2.1	Hero section — Full-width background, heading size scale (text-4xl → text-6xl), CTA button layout on narrow screens
+2.2	Stats / numbers row — Ensure the horizontal count strip wraps or stacks on mobile
+2.3	Section grids (features, destinations, events preview) — All multi-column grids need grid-cols-1 sm:grid-cols-2 lg:grid-cols-3/4
+2.4	President message section — Image + text side-by-side: stack vertically on mobile, imagePosition logic respected
+2.5	Partner logos strip — Horizontal scroll or wrapping grid on mobile
+Phase 3 — Key Public Pages
+#	Task
+3.1	Discover page — City cards grid: 1 col mobile → 2 col tablet → 3-4 col desktop; filter sidebar collapses to top bar on mobile
+3.2	Events & Activities — Event cards grid, filter bar, date picker: usable on mobile without overflow
+3.3	Clubs page — Club cards grid, search/filter UX on small screens
+3.4	Talents / Experts — Expert cards grid, contact modal is full-screen on mobile
+3.5	Gallery — Masonry or grid layout: columns reduce on narrow viewports; lightbox modal fits viewport
+3.6	News / Blog — Article cards grid; featured article hero image aspect ratio preserved on all screens
+Phase 4 — Detail Pages
+#	Task
+4.1	Event Detail — Hero image, info sidebar (date/location/price): sidebar stacks below content on mobile
+4.2	Club Detail — Header banner, stats row, tabs: tab bar scrolls horizontally on mobile
+4.3	Blog Post — Full article prose: max-width reading column, images within prose don't overflow
+4.4	City Detail — Map + card layout: map full-width on mobile, info cards below
+Phase 5 — Auth & User Pages
+#	Task
+5.1	Login / Signup forms — Centered card: full-width on mobile with comfortable padding
+5.2	Forgot Password — Same card treatment
+5.3	User Profile — Avatar, edit fields, tabs: single column on mobile
+5.4	Club Profile Edit — Multi-section form: fieldsets stack cleanly on mobile
+Phase 6 — Admin Panel
+#	Task
+6.1	AdminLayout sidebar — hidden md:flex sidebar hides on mobile correctly; hamburger opens mobile drawer
+6.2	Admin Dashboard — Stat cards grid + charts: 1-col mobile → 2-col tablet → 4-col desktop
+6.3	Data tables (Users, Events, Clubs, News, Bookings) — Horizontal scroll wrapper on mobile; action columns remain accessible
+6.4	Settings pages (Navbar, Hero, Theme, President Message) — Multi-column form layout stacks on tablet/mobile
+6.5	Media Library — Image grid reduces columns; upload dropzone usable on touch
+6.6	Admin Header — Breadcrumb (hidden md:flex) + search bar (hidden lg:block) — confirm fallbacks exist on small screens
+Phase 7 — Global Components & Polish
+#	Task
+7.1	Footer — grid md:grid-cols-4 already set; verify on 320px col-span-2 logo section doesn't break the 1-col stacking
+7.2	PageHero — Background image, title, breadcrumb: font sizes scale down on mobile
+7.3	Modals & Drawers — All dialogs (contact, booking, confirm) are max 100vw / max 100dvh on mobile; scrollable body
+7.4	Typography scale — Audit h1–h3 and body text across breakpoints for readability (min 16px body on mobile)
+7.5	Touch targets — All buttons/links are ≥ 44×44px on mobile (WCAG 2.5.5)
+7.6	Horizontal overflow sweep — Global check: no element causes overflow-x on body at 375px width

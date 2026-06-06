@@ -1,0 +1,176 @@
+// src/lib/seo.config.ts
+// Centralized SEO metadata for all routes.
+// Used by the <SEOHead /> component to set page-specific meta tags.
+
+export const SITE = {
+  name: "Crimson Zenith",
+  url: "https://crimsonzenith.ma",
+  defaultTitle: "Crimson Zenith | Morocco's Premier Sports & Cultural Network",
+  defaultDescription:
+    "Crimson Zenith connects Morocco's clubs, events, and cultural activities. Discover festivals, book tickets, and join clubs across Casablanca, Fez, Marrakech and more.",
+  defaultImage: "https://crimsonzenith.ma/og-image.jpg",
+  twitterHandle: "@CrimsonZenithMA",
+  locale: "en_US",
+  themeColor: "#DC143C",
+};
+
+export interface SEOConfig {
+  title: string;
+  description: string;
+  canonical?: string;
+  image?: string;
+  noIndex?: boolean;
+  type?: "website" | "article" | "event";
+  structuredData?: object;
+}
+
+/** Per-route SEO configuration */
+export const routeSEO: Record<string, SEOConfig> = {
+  "/": {
+    title: "Crimson Zenith | Morocco's Premier Sports & Cultural Network",
+    description:
+      "Discover Morocco's best clubs, events, and cultural activities. Book tickets, join clubs, and explore festivals across Casablanca, Fez, and Marrakech.",
+    canonical: "/",
+  },
+  "/discover": {
+    title: "Discover Morocco | Clubs, Events & Activities – Crimson Zenith",
+    description:
+      "Explore Morocco's cultural and sports landscape. Find clubs by city, discover upcoming events, and book experiences across the country.",
+    canonical: "/discover",
+  },
+  "/clubs": {
+    title: "Sports & Cultural Clubs in Morocco | Crimson Zenith",
+    description:
+      "Browse Morocco's top sports and cultural clubs. Find clubs in Casablanca, Fez, Marrakech, Rabat, and more. Join or book events today.",
+    canonical: "/clubs",
+  },
+  "/events": {
+    title: "Events & Activities in Morocco | Crimson Zenith",
+    description:
+      "Find upcoming events and activities across Morocco. From sports tournaments to cultural festivals — all in one place.",
+    canonical: "/events",
+  },
+  "/gallery": {
+    title: "Gallery | Morocco's Culture & Sports in Photos – Crimson Zenith",
+    description:
+      "Browse stunning photos from Morocco's clubs, events, and festivals. From Gnaoua to Timitar and beyond.",
+    canonical: "/gallery",
+  },
+  "/news": {
+    title: "Latest News & Blog | Morocco Sports & Culture – Crimson Zenith",
+    description:
+      "Stay up to date with the latest news, articles, and stories about Morocco's sports clubs and cultural scene.",
+    canonical: "/news",
+  },
+  "/contact": {
+    title: "Contact Us | Crimson Zenith Morocco",
+    description:
+      "Get in touch with Crimson Zenith. We're here to help with clubs, events, memberships, and more.",
+    canonical: "/contact",
+  },
+  "/book": {
+    title: "Book Tickets | Morocco Events – Crimson Zenith",
+    description:
+      "Book tickets for Morocco's top sports and cultural events. Fast, secure, and easy online booking.",
+    canonical: "/book",
+  },
+  "/join-us": {
+    title: "Join Crimson Zenith | Become a Member",
+    description:
+      "Apply for membership to Crimson Zenith. Connect with Morocco's sports and cultural community.",
+    canonical: "/join-us",
+  },
+  "/projects": {
+    title: "Projects | Crimson Zenith Morocco",
+    description:
+      "Learn about Crimson Zenith's community projects, initiatives, and impact across Morocco.",
+    canonical: "/projects",
+  },
+  "/privacy-policy": {
+    title: "Privacy Policy | Crimson Zenith",
+    description: "Read Crimson Zenith's privacy policy and learn how we handle your data.",
+    canonical: "/privacy-policy",
+    noIndex: true,
+  },
+  "/terms-of-service": {
+    title: "Terms of Service | Crimson Zenith",
+    description: "Read the terms of service for using Crimson Zenith's platform and services.",
+    canonical: "/terms-of-service",
+    noIndex: true,
+  },
+  "/cookie-policy": {
+    title: "Cookie Policy | Crimson Zenith",
+    description: "Learn about how Crimson Zenith uses cookies on our website.",
+    canonical: "/cookie-policy",
+    noIndex: true,
+  },
+};
+
+/** Generate structured data for an event page */
+export function buildEventStructuredData(event: {
+  name: string;
+  description: string;
+  startDate: string;
+  endDate?: string;
+  location?: string;
+  image?: string;
+  url?: string;
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Event",
+    name: event.name,
+    description: event.description,
+    startDate: event.startDate,
+    ...(event.endDate && { endDate: event.endDate }),
+    ...(event.image && { image: event.image }),
+    url: event.url ?? SITE.url,
+    location: {
+      "@type": "Place",
+      name: event.location ?? "Morocco",
+      address: {
+        "@type": "PostalAddress",
+        addressCountry: "MA",
+      },
+    },
+    organizer: {
+      "@type": "Organization",
+      name: SITE.name,
+      url: SITE.url,
+    },
+  };
+}
+
+/** Generate structured data for a blog post */
+export function buildArticleStructuredData(article: {
+  title: string;
+  description: string;
+  datePublished: string;
+  dateModified?: string;
+  author?: string;
+  image?: string;
+  url: string;
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: article.title,
+    description: article.description,
+    datePublished: article.datePublished,
+    dateModified: article.dateModified ?? article.datePublished,
+    image: article.image ?? SITE.defaultImage,
+    url: article.url,
+    author: {
+      "@type": "Person",
+      name: article.author ?? SITE.name,
+    },
+    publisher: {
+      "@type": "Organization",
+      name: SITE.name,
+      logo: {
+        "@type": "ImageObject",
+        url: `${SITE.url}/logo.png`,
+      },
+    },
+  };
+}

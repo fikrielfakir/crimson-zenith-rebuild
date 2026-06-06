@@ -1,0 +1,254 @@
+ClubDetail.tsx:37  GET https://0d679be0-b5ea-45b8-9b28-2b99261a715d-00-1kucyjh3m406z.picard.replit.dev/api/clubs/1/events 404 (Not Found)
+queryFn @ ClubDetail.tsx:37
+fetchFn @ @tanstack_react-query.js?v=fa4798e3:852
+run @ @tanstack_react-query.js?v=fa4798e3:495
+start @ @tanstack_react-query.js?v=fa4798e3:536
+fetch @ @tanstack_react-query.js?v=fa4798e3:935
+#executeFetch @ @tanstack_react-query.js?v=fa4798e3:2043
+onSubscribe @ @tanstack_react-query.js?v=fa4798e3:1926
+subscribe @ @tanstack_react-query.js?v=fa4798e3:19
+(anonymous) @ @tanstack_react-query.js?v=fa4798e3:3085
+subscribeToStore @ chunk-7CVORMRW.js?v=c1aa5dcc:12032
+commitHookEffectListMount @ chunk-7CVORMRW.js?v=c1aa5dcc:16963
+commitPassiveMountOnFiber @ chunk-7CVORMRW.js?v=c1aa5dcc:18206
+commitPassiveMountEffects_complete @ chunk-7CVORMRW.js?v=c1aa5dcc:18179
+commitPassiveMountEffects_begin @ chunk-7CVORMRW.js?v=c1aa5dcc:18169
+commitPassiveMountEffects @ chunk-7CVORMRW.js?v=c1aa5dcc:18159
+flushPassiveEffectsImpl @ chunk-7CVORMRW.js?v=c1aa5dcc:19543
+flushPassiveEffects @ chunk-7CVORMRW.js?v=c1aa5dcc:19500
+commitRootImpl @ chunk-7CVORMRW.js?v=c1aa5dcc:19469
+commitRoot @ chunk-7CVORMRW.js?v=c1aa5dcc:19330
+performSyncWorkOnRoot @ chunk-7CVORMRW.js?v=c1aa5dcc:18948
+flushSyncCallbacks @ chunk-7CVORMRW.js?v=c1aa5dcc:9166
+(anonymous) @ chunk-7CVORMRW.js?v=c1aa5dcc:18677
+setTimeout
+defaultScheduler @ @tanstack_react-query.js?v=fa4798e3:546
+flush @ @tanstack_react-query.js?v=fa4798e3:570
+batch @ @tanstack_react-query.js?v=fa4798e3:588
+#dispatch @ @tanstack_react-query.js?v=fa4798e3:1006
+setData @ @tanstack_react-query.js?v=fa4798e3:693
+onSuccess @ @tanstack_react-query.js?v=fa4798e3:907
+resolve @ @tanstack_react-query.js?v=fa4798e3:460
+Promise.then
+run @ @tanstack_react-query.js?v=fa4798e3:499
+start @ @tanstack_react-query.js?v=fa4798e3:536
+fetch @ @tanstack_react-query.js?v=fa4798e3:935
+#executeFetch @ @tanstack_react-query.js?v=fa4798e3:2043
+onSubscribe @ @tanstack_react-query.js?v=fa4798e3:1926
+subscribe @ @tanstack_react-query.js?v=fa4798e3:19
+(anonymous) @ @tanstack_react-query.js?v=fa4798e3:3085
+subscribeToStore @ chunk-7CVORMRW.js?v=c1aa5dcc:12032
+commitHookEffectListMount @ chunk-7CVORMRW.js?v=c1aa5dcc:16963
+commitPassiveMountOnFiber @ chunk-7CVORMRW.js?v=c1aa5dcc:18206
+commitPassiveMountEffects_complete @ chunk-7CVORMRW.js?v=c1aa5dcc:18179
+commitPassiveMountEffects_begin @ chunk-7CVORMRW.js?v=c1aa5dcc:18169
+commitPassiveMountEffects @ chunk-7CVORMRW.js?v=c1aa5dcc:18159
+flushPassiveEffectsImpl @ chunk-7CVORMRW.js?v=c1aa5dcc:19543
+flushPassiveEffects @ chunk-7CVORMRW.js?v=c1aa5dcc:19500
+performSyncWorkOnRoot @ chunk-7CVORMRW.js?v=c1aa5dcc:18921
+flushSyncCallbacks @ chunk-7CVORMRW.js?v=c1aa5dcc:9166
+commitRootImpl @ chunk-7CVORMRW.js?v=c1aa5dcc:19485
+commitRoot @ chunk-7CVORMRW.js?v=c1aa5dcc:19330
+finishConcurrentRender @ chunk-7CVORMRW.js?v=c1aa5dcc:18858
+performConcurrentWorkOnRoot @ chunk-7CVORMRW.js?v=c1aa5dcc:18768
+workLoop @ chunk-7CVORMRW.js?v=c1aa5dcc:197
+flushWork @ chunk-7CVORMRW.js?v=c1aa5dcc:176
+performWorkUntilDeadline @ chunk-7CVORMRW.js?v=c1aa5dcc:384
+ClubDetail.tsx:37  GET https://0d679be0-b5ea-45b8-9b28-2b99261a715d-00-1kucyjh3m406z.picard.replit.dev/api/clubs/1/events 404 (Not Found)
+queryFn @ ClubDetail.tsx:37
+fetchFn @ @tanstack_react-query.js?v=fa4798e3:852
+run @ @tanstack_react-query.js?v=fa4798e3:495
+(anonymous) @ @tanstack_react-query.js?v=fa4798e3:519
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=fa4798e3:515
+Promise.catch
+run @ @tanstack_react-query.js?v=fa4798e3:499
+start @ @tanstack_react-query.js?v=fa4798e3:536
+fetch @ @tanstack_react-query.js?v=fa4798e3:935
+#executeFetch @ @tanstack_react-query.js?v=fa4798e3:2043
+onSubscribe @ @tanstack_react-query.js?v=fa4798e3:1926
+subscribe @ @tanstack_react-query.js?v=fa4798e3:19
+(anonymous) @ @tanstack_react-query.js?v=fa4798e3:3085
+subscribeToStore @ chunk-7CVORMRW.js?v=c1aa5dcc:12032
+commitHookEffectListMount @ chunk-7CVORMRW.js?v=c1aa5dcc:16963
+commitPassiveMountOnFiber @ chunk-7CVORMRW.js?v=c1aa5dcc:18206
+commitPassiveMountEffects_complete @ chunk-7CVORMRW.js?v=c1aa5dcc:18179
+commitPassiveMountEffects_begin @ chunk-7CVORMRW.js?v=c1aa5dcc:18169
+commitPassiveMountEffects @ chunk-7CVORMRW.js?v=c1aa5dcc:18159
+flushPassiveEffectsImpl @ chunk-7CVORMRW.js?v=c1aa5dcc:19543
+flushPassiveEffects @ chunk-7CVORMRW.js?v=c1aa5dcc:19500
+commitRootImpl @ chunk-7CVORMRW.js?v=c1aa5dcc:19469
+commitRoot @ chunk-7CVORMRW.js?v=c1aa5dcc:19330
+performSyncWorkOnRoot @ chunk-7CVORMRW.js?v=c1aa5dcc:18948
+flushSyncCallbacks @ chunk-7CVORMRW.js?v=c1aa5dcc:9166
+(anonymous) @ chunk-7CVORMRW.js?v=c1aa5dcc:18677
+setTimeout
+defaultScheduler @ @tanstack_react-query.js?v=fa4798e3:546
+flush @ @tanstack_react-query.js?v=fa4798e3:570
+batch @ @tanstack_react-query.js?v=fa4798e3:588
+#dispatch @ @tanstack_react-query.js?v=fa4798e3:1006
+setData @ @tanstack_react-query.js?v=fa4798e3:693
+onSuccess @ @tanstack_react-query.js?v=fa4798e3:907
+resolve @ @tanstack_react-query.js?v=fa4798e3:460
+Promise.then
+run @ @tanstack_react-query.js?v=fa4798e3:499
+start @ @tanstack_react-query.js?v=fa4798e3:536
+fetch @ @tanstack_react-query.js?v=fa4798e3:935
+#executeFetch @ @tanstack_react-query.js?v=fa4798e3:2043
+onSubscribe @ @tanstack_react-query.js?v=fa4798e3:1926
+subscribe @ @tanstack_react-query.js?v=fa4798e3:19
+(anonymous) @ @tanstack_react-query.js?v=fa4798e3:3085
+subscribeToStore @ chunk-7CVORMRW.js?v=c1aa5dcc:12032
+commitHookEffectListMount @ chunk-7CVORMRW.js?v=c1aa5dcc:16963
+commitPassiveMountOnFiber @ chunk-7CVORMRW.js?v=c1aa5dcc:18206
+commitPassiveMountEffects_complete @ chunk-7CVORMRW.js?v=c1aa5dcc:18179
+commitPassiveMountEffects_begin @ chunk-7CVORMRW.js?v=c1aa5dcc:18169
+commitPassiveMountEffects @ chunk-7CVORMRW.js?v=c1aa5dcc:18159
+flushPassiveEffectsImpl @ chunk-7CVORMRW.js?v=c1aa5dcc:19543
+flushPassiveEffects @ chunk-7CVORMRW.js?v=c1aa5dcc:19500
+performSyncWorkOnRoot @ chunk-7CVORMRW.js?v=c1aa5dcc:18921
+flushSyncCallbacks @ chunk-7CVORMRW.js?v=c1aa5dcc:9166
+commitRootImpl @ chunk-7CVORMRW.js?v=c1aa5dcc:19485
+commitRoot @ chunk-7CVORMRW.js?v=c1aa5dcc:19330
+finishConcurrentRender @ chunk-7CVORMRW.js?v=c1aa5dcc:18858
+performConcurrentWorkOnRoot @ chunk-7CVORMRW.js?v=c1aa5dcc:18768
+workLoop @ chunk-7CVORMRW.js?v=c1aa5dcc:197
+flushWork @ chunk-7CVORMRW.js?v=c1aa5dcc:176
+performWorkUntilDeadline @ chunk-7CVORMRW.js?v=c1aa5dcc:384
+ClubDetail.tsx:37  GET https://0d679be0-b5ea-45b8-9b28-2b99261a715d-00-1kucyjh3m406z.picard.replit.dev/api/clubs/1/events 404 (Not Found)
+queryFn @ ClubDetail.tsx:37
+fetchFn @ @tanstack_react-query.js?v=fa4798e3:852
+run @ @tanstack_react-query.js?v=fa4798e3:495
+(anonymous) @ @tanstack_react-query.js?v=fa4798e3:519
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=fa4798e3:515
+Promise.catch
+run @ @tanstack_react-query.js?v=fa4798e3:499
+(anonymous) @ @tanstack_react-query.js?v=fa4798e3:519
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=fa4798e3:515
+Promise.catch
+run @ @tanstack_react-query.js?v=fa4798e3:499
+start @ @tanstack_react-query.js?v=fa4798e3:536
+fetch @ @tanstack_react-query.js?v=fa4798e3:935
+#executeFetch @ @tanstack_react-query.js?v=fa4798e3:2043
+onSubscribe @ @tanstack_react-query.js?v=fa4798e3:1926
+subscribe @ @tanstack_react-query.js?v=fa4798e3:19
+(anonymous) @ @tanstack_react-query.js?v=fa4798e3:3085
+subscribeToStore @ chunk-7CVORMRW.js?v=c1aa5dcc:12032
+commitHookEffectListMount @ chunk-7CVORMRW.js?v=c1aa5dcc:16963
+commitPassiveMountOnFiber @ chunk-7CVORMRW.js?v=c1aa5dcc:18206
+commitPassiveMountEffects_complete @ chunk-7CVORMRW.js?v=c1aa5dcc:18179
+commitPassiveMountEffects_begin @ chunk-7CVORMRW.js?v=c1aa5dcc:18169
+commitPassiveMountEffects @ chunk-7CVORMRW.js?v=c1aa5dcc:18159
+flushPassiveEffectsImpl @ chunk-7CVORMRW.js?v=c1aa5dcc:19543
+flushPassiveEffects @ chunk-7CVORMRW.js?v=c1aa5dcc:19500
+commitRootImpl @ chunk-7CVORMRW.js?v=c1aa5dcc:19469
+commitRoot @ chunk-7CVORMRW.js?v=c1aa5dcc:19330
+performSyncWorkOnRoot @ chunk-7CVORMRW.js?v=c1aa5dcc:18948
+flushSyncCallbacks @ chunk-7CVORMRW.js?v=c1aa5dcc:9166
+(anonymous) @ chunk-7CVORMRW.js?v=c1aa5dcc:18677
+setTimeout
+defaultScheduler @ @tanstack_react-query.js?v=fa4798e3:546
+flush @ @tanstack_react-query.js?v=fa4798e3:570
+batch @ @tanstack_react-query.js?v=fa4798e3:588
+#dispatch @ @tanstack_react-query.js?v=fa4798e3:1006
+setData @ @tanstack_react-query.js?v=fa4798e3:693
+onSuccess @ @tanstack_react-query.js?v=fa4798e3:907
+resolve @ @tanstack_react-query.js?v=fa4798e3:460
+Promise.then
+run @ @tanstack_react-query.js?v=fa4798e3:499
+start @ @tanstack_react-query.js?v=fa4798e3:536
+fetch @ @tanstack_react-query.js?v=fa4798e3:935
+#executeFetch @ @tanstack_react-query.js?v=fa4798e3:2043
+onSubscribe @ @tanstack_react-query.js?v=fa4798e3:1926
+subscribe @ @tanstack_react-query.js?v=fa4798e3:19
+(anonymous) @ @tanstack_react-query.js?v=fa4798e3:3085
+subscribeToStore @ chunk-7CVORMRW.js?v=c1aa5dcc:12032
+commitHookEffectListMount @ chunk-7CVORMRW.js?v=c1aa5dcc:16963
+commitPassiveMountOnFiber @ chunk-7CVORMRW.js?v=c1aa5dcc:18206
+commitPassiveMountEffects_complete @ chunk-7CVORMRW.js?v=c1aa5dcc:18179
+commitPassiveMountEffects_begin @ chunk-7CVORMRW.js?v=c1aa5dcc:18169
+commitPassiveMountEffects @ chunk-7CVORMRW.js?v=c1aa5dcc:18159
+flushPassiveEffectsImpl @ chunk-7CVORMRW.js?v=c1aa5dcc:19543
+flushPassiveEffects @ chunk-7CVORMRW.js?v=c1aa5dcc:19500
+performSyncWorkOnRoot @ chunk-7CVORMRW.js?v=c1aa5dcc:18921
+flushSyncCallbacks @ chunk-7CVORMRW.js?v=c1aa5dcc:9166
+commitRootImpl @ chunk-7CVORMRW.js?v=c1aa5dcc:19485
+commitRoot @ chunk-7CVORMRW.js?v=c1aa5dcc:19330
+finishConcurrentRender @ chunk-7CVORMRW.js?v=c1aa5dcc:18858
+performConcurrentWorkOnRoot @ chunk-7CVORMRW.js?v=c1aa5dcc:18768
+workLoop @ chunk-7CVORMRW.js?v=c1aa5dcc:197
+flushWork @ chunk-7CVORMRW.js?v=c1aa5dcc:176
+performWorkUntilDeadline @ chunk-7CVORMRW.js?v=c1aa5dcc:384
+ClubDetail.tsx:37  GET https://0d679be0-b5ea-45b8-9b28-2b99261a715d-00-1kucyjh3m406z.picard.replit.dev/api/clubs/1/events 404 (Not Found)
+queryFn @ ClubDetail.tsx:37
+fetchFn @ @tanstack_react-query.js?v=fa4798e3:852
+run @ @tanstack_react-query.js?v=fa4798e3:495
+(anonymous) @ @tanstack_react-query.js?v=fa4798e3:519
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=fa4798e3:515
+Promise.catch
+run @ @tanstack_react-query.js?v=fa4798e3:499
+(anonymous) @ @tanstack_react-query.js?v=fa4798e3:519
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=fa4798e3:515
+Promise.catch
+run @ @tanstack_react-query.js?v=fa4798e3:499
+(anonymous) @ @tanstack_react-query.js?v=fa4798e3:519
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=fa4798e3:515
+Promise.catch
+run @ @tanstack_react-query.js?v=fa4798e3:499
+start @ @tanstack_react-query.js?v=fa4798e3:536
+fetch @ @tanstack_react-query.js?v=fa4798e3:935
+#executeFetch @ @tanstack_react-query.js?v=fa4798e3:2043
+onSubscribe @ @tanstack_react-query.js?v=fa4798e3:1926
+subscribe @ @tanstack_react-query.js?v=fa4798e3:19
+(anonymous) @ @tanstack_react-query.js?v=fa4798e3:3085
+subscribeToStore @ chunk-7CVORMRW.js?v=c1aa5dcc:12032
+commitHookEffectListMount @ chunk-7CVORMRW.js?v=c1aa5dcc:16963
+commitPassiveMountOnFiber @ chunk-7CVORMRW.js?v=c1aa5dcc:18206
+commitPassiveMountEffects_complete @ chunk-7CVORMRW.js?v=c1aa5dcc:18179
+commitPassiveMountEffects_begin @ chunk-7CVORMRW.js?v=c1aa5dcc:18169
+commitPassiveMountEffects @ chunk-7CVORMRW.js?v=c1aa5dcc:18159
+flushPassiveEffectsImpl @ chunk-7CVORMRW.js?v=c1aa5dcc:19543
+flushPassiveEffects @ chunk-7CVORMRW.js?v=c1aa5dcc:19500
+commitRootImpl @ chunk-7CVORMRW.js?v=c1aa5dcc:19469
+commitRoot @ chunk-7CVORMRW.js?v=c1aa5dcc:19330
+performSyncWorkOnRoot @ chunk-7CVORMRW.js?v=c1aa5dcc:18948
+flushSyncCallbacks @ chunk-7CVORMRW.js?v=c1aa5dcc:9166
+(anonymous) @ chunk-7CVORMRW.js?v=c1aa5dcc:18677
+setTimeout
+defaultScheduler @ @tanstack_react-query.js?v=fa4798e3:546
+flush @ @tanstack_react-query.js?v=fa4798e3:570
+batch @ @tanstack_react-query.js?v=fa4798e3:588
+#dispatch @ @tanstack_react-query.js?v=fa4798e3:1006
+setData @ @tanstack_react-query.js?v=fa4798e3:693
+onSuccess @ @tanstack_react-query.js?v=fa4798e3:907
+resolve @ @tanstack_react-query.js?v=fa4798e3:460
+Promise.then
+run @ @tanstack_react-query.js?v=fa4798e3:499
+start @ @tanstack_react-query.js?v=fa4798e3:536
+fetch @ @tanstack_react-query.js?v=fa4798e3:935
+#executeFetch @ @tanstack_react-query.js?v=fa4798e3:2043
+onSubscribe @ @tanstack_react-query.js?v=fa4798e3:1926
+subscribe @ @tanstack_react-query.js?v=fa4798e3:19
+(anonymous) @ @tanstack_react-query.js?v=fa4798e3:3085
+subscribeToStore @ chunk-7CVORMRW.js?v=c1aa5dcc:12032
+commitHookEffectListMount @ chunk-7CVORMRW.js?v=c1aa5dcc:16963
+commitPassiveMountOnFiber @ chunk-7CVORMRW.js?v=c1aa5dcc:18206
+commitPassiveMountEffects_complete @ chunk-7CVORMRW.js?v=c1aa5dcc:18179
+commitPassiveMountEffects_begin @ chunk-7CVORMRW.js?v=c1aa5dcc:18169
+commitPassiveMountEffects @ chunk-7CVORMRW.js?v=c1aa5dcc:18159
+flushPassiveEffectsImpl @ chunk-7CVORMRW.js?v=c1aa5dcc:19543
+flushPassiveEffects @ chunk-7CVORMRW.js?v=c1aa5dcc:19500
+performSyncWorkOnRoot @ chunk-7CVORMRW.js?v=c1aa5dcc:18921
+flushSyncCallbacks @ chunk-7CVORMRW.js?v=c1aa5dcc:9166
+commitRootImpl @ chunk-7CVORMRW.js?v=c1aa5dcc:19485
+commitRoot @ chunk-7CVORMRW.js?v=c1aa5dcc:19330
+finishConcurrentRender @ chunk-7CVORMRW.js?v=c1aa5dcc:18858
+performConcurrentWorkOnRoot @ chunk-7CVORMRW.js?v=c1aa5dcc:18768
+workLoop @ chunk-7CVORMRW.js?v=c1aa5dcc:197
+flushWork @ chunk-7CVORMRW.js?v=c1aa5dcc:176
+performWorkUntilDeadline @ chunk-7CVORMRW.js?v=c1aa5dcc:384

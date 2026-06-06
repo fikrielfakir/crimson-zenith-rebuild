@@ -1,0 +1,156 @@
+Objective:
+Recreate a clean, modern, and responsive UI section titled “Events & Activities Calendar” that highlights upcoming events across Morocco. The layout must visually balance a calendar on the left and event cards on the right, maintaining alignment between the top and bottom of both areas.
+
+🎨 Layout & Structure
+
+Main Container:
+
+Display as a two-column grid (Calendar left, Event Cards right).
+
+Use max-width: 1200px, centered horizontally with margin: 0 auto.
+
+Padding: padding: 80px 40px.
+
+Background: pure white #FFFFFF.
+
+Section Header:
+
+Title: "Events & Activities Calendar"
+
+Font: Poppins or Inter, Bold, font-size: 40px, line-height: 1.3,
+
+Color: #0A0A0A for "Events & Activities" and #D4B26A (gold tone) for "Calendar".
+
+Subtitle:
+
+Text: “Discover upcoming adventures and cultural experiences across Morocco”.
+
+Font: Inter, Regular, font-size: 16px, color: #666A73,
+
+Margin-top: 10px, centered under the title.
+
+📅 Calendar Section (Left Side)
+
+Width: ~35% of container
+
+Calendar Block:
+
+Rounded corners: border-radius: 12px
+
+Date cells: 40x40px with subtle hover effect (#E6D1A3 background)
+
+Selected Date: background #E6D1A3, text color #0A0A0A, bold font
+
+Navigation arrows: small and subtle with low opacity hover
+
+Month Label:
+
+Font: Poppins, Semi-bold, font-size: 18px, color: #0A0A0A
+
+Selected Date Info Box:
+
+Background: light beige #F9EBD0
+
+Padding: 16px 20px, border-radius: 8px
+
+Font: Inter, Medium, font-size: 14px
+
+Icon (calendar): small and aligned left with date text
+
+Event & City Summary Cards (below calendar):
+
+Two small info boxes side by side
+
+Background: #F9F9F9, border-radius: 10px
+
+Each box size: 140x70px
+
+Text center-aligned
+
+Top number: Bold, font-size: 24px, color: #0A0A0A
+
+Bottom label: font-size: 14px, color: #757575
+
+🎟️ Event Cards Section (Right Side)
+
+Width: ~65% of container
+
+Use horizontal scroll or carousel with pagination dots centered at the bottom.
+
+Event Card Design:
+
+Card size: width: 360px, height: 480px
+
+Border radius: 20px
+
+Image: full width, height 60%, rounded top corners
+
+Overlay gradient (bottom to top): dark transparent black for text visibility
+
+Event Text Overlay (bottom left inside image):
+
+Event title: Poppins Bold, font-size: 22px, color: #FFFFFF
+
+Time: Inter, font-size: 14px, color: #FFFFFF, opacity 0.9
+
+Location: Inter, font-size: 14px, color #FFFFFF, opacity 0.8
+
+Card Bottom Section:
+
+Background gradient overlay continues softly
+
+Left side: Price in bold gold color #D4B26A, font-size: 18px
+
+Right side: "Book Now" button
+
+Font: Poppins Medium, font-size: 14px
+
+Button color: #D4B26A, text #FFFFFF
+
+Rounded corners 10px
+
+Hover: change background to #C9A758
+
+Icons (Top Right of Card):
+
+Favorite (heart) and Share icons
+
+White stroke, size: 22px, slight shadow for visibility
+
+Positioned absolute top: 16px, right: 16px, spaced 8px apart
+
+📏 Alignment & Spacing
+
+Calendar and Event cards aligned vertically at top and bottom edges.
+
+Equal vertical padding (80px) above and below both sections.
+
+Card spacing (between events): gap: 24px
+
+Section responsive:
+
+On mobile, stack vertically (Calendar on top, Cards below) with gap: 40px
+
+✨ Color Palette
+
+Primary Text: #0A0A0A
+
+Accent Gold: #D4B26A
+
+Muted Gray: #757575
+
+Background Light: #FFFFFF
+
+Highlight Beige: #F9EBD0
+
+Card Button Hover: #C9A758
+
+🧠 UX Notes
+
+Keep hover transitions soft (0.25s ease-in-out)
+
+Add subtle shadow under event cards for depth (0 6px 20px rgba(0,0,0,0.1))
+
+Pagination dots highlight in gold when active
+
+Maintain accessible color contrast (AAA standard for text on images)

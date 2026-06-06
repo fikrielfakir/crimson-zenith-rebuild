@@ -1,0 +1,171 @@
+Build a comprehensive admin panel (/admin/landing) for managing "The Journey Association" landing page. The system should allow non-technical administrators to customize the hero section and navigation bar through an intuitive interface.
+
+Core Requirements
+1. Navbar Management Module
+Navigation Links:
+
+CRUD operations for menu items (Create, Read, Update, Delete)
+Drag-and-drop reordering functionality
+Fields per menu item:
+
+Label text (e.g., "Discover", "Activities", "Membership")
+Link URL or route
+Link type toggle (internal/external)
+Visibility toggle (show/hide)
+Open in new tab option
+
+
+Support for dropdown/nested menu items
+
+Branding Controls:
+
+Logo upload with preview (support SVG, PNG, JPG)
+Logo dimensions and positioning controls
+Alternative text for accessibility
+
+Utility Elements:
+
+Language switcher configuration:
+
+Add/remove language options
+Set default language
+Toggle visibility
+
+
+Theme toggle (dark/light mode):
+
+Enable/disable functionality
+Default theme selection
+
+
+Action buttons management:
+
+"Login" button (text, link, styling, visibility)
+"Join Us" button (text, link, color customization, visibility)
+
+
+
+Styling Options:
+
+Background color/transparency
+Text color schemes
+Hover effects
+Mobile responsiveness settings
+
+
+2. Hero Section Management Module
+Content Management:
+
+Main Headline:
+
+Rich text editor
+Character limit indicator
+Preview in real-time
+Optional animated typing effect toggle
+
+
+Subheading/Description:
+
+Multi-line text area
+Formatting options (bold, italic)
+Character count
+Preview display
+
+
+
+Visual Elements:
+
+Background media upload:
+
+Image upload (JPG, PNG, WebP)
+Video upload (MP4, WebM)
+Media library selection
+Background positioning (cover, contain, custom)
+Parallax effect toggle
+
+
+Overlay controls:
+
+Color picker
+Opacity slider (0-100%)
+Gradient options
+
+
+
+Call-to-Action Buttons:
+
+Add multiple CTAs (minimum 2, as shown: "Start Your Journey", "Explore Clubs")
+Per-button configuration:
+
+Button text
+Target URL/route
+Button style (filled, outlined, ghost)
+Color picker (background, text, border)
+Size options (small, medium, large)
+Icon selection (optional)
+Hover effects
+
+
+Drag-and-drop button reordering
+
+Layout Options:
+
+Content alignment (left, center, right)
+Vertical positioning (top, center, bottom)
+Spacing controls (padding, margins)
+Maximum width settings
+
+Decorative Elements:
+
+Bottom pattern/border management:
+
+Upload custom pattern
+Color customization
+Height adjustment
+Toggle visibility
+
+
+
+
+Technical Specifications
+Interface Requirements:
+
+Tab-based navigation between sections (Hero, Focus Items, Activities, Events, Clubs, Call to Action, Testimonials, Contact)
+Real-time preview panel (split-screen or modal)
+Form validation with clear error messages
+Unsaved changes warning
+"Save Changes" and "Reset" buttons prominently displayed
+Responsive admin interface (desktop-first, mobile-friendly)
+
+Data Management:
+
+RESTful API endpoints for all CRUD operations
+JSON-based configuration storage
+Image optimization on upload
+Version control/history (optional but recommended)
+Draft/publish workflow
+
+User Experience:
+
+Drag-and-drop interfaces using modern libraries (React DnD, Sortable.js)
+Color pickers with hex/RGB support
+File upload with drag-and-drop support
+Image cropping/editing tools
+Live preview updates
+Undo/redo functionality
+Keyboard shortcuts for common actions
+
+Security & Permissions:
+
+Role-based access control (admin only)
+CSRF protection
+File type validation
+File size limits
+XSS prevention in text inputs
+
+Performance:
+
+Lazy loading for media
+Image optimization and compression
+Caching strategies
+Fast save operations (<500ms)

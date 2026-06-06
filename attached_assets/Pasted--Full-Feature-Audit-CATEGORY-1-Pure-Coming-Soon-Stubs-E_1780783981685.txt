@@ -1,0 +1,59 @@
+ Full Feature Audit
+🔴 CATEGORY 1 — Pure "Coming Soon" Stubs
+Empty pages with placeholder text only — zero logic, zero API calls
+
+Page	Route	Status
+EmailCampaigns.tsx	/admin/email-campaigns	"Coming Soon" card with planned features list
+AuthSettings.tsx	/admin/auth-settings	Single card: "Authentication settings will be configured here"
+SystemMonitoring.tsx	/admin/monitoring	Two empty cards: Server Status + Database Status
+ThemeCustomization.tsx	/admin/theme	Single card: "Theme customization options will be here"
+JoinUsConfig.tsx	/admin/join-us-config	Single card: "Join Us form configuration will be here"
+🟠 CATEGORY 2 — Admin Pages Calling Endpoints That Don't Exist in Laravel
+UI is built, it calls an API, but no matching Laravel route exists
+
+Page	Calls	Laravel Route?
+LegalPagesSettings.tsx	GET /api/cms/legal/{key} PUT /api/admin/cms/legal/{key}	❌ Missing — no legal routes in api.php
+Analytics.tsx	GET /api/admin/analytics — ✅ exists, BUT the Export button fires a "Coming Soon" toast	⚠️ Partial
+🟡 CATEGORY 3 — Public Pages with Zero Laravel Integration (Hardcoded Data)
+Real pages visitors see — but their content is baked into the source code, not loaded from the backend
+
+Page / Component	What's Hardcoded	Should Come From
+SmartEvents.tsx	Entire page — no API calls at all, static calendar UI	Laravel events API
+ActivityDetail.tsx	Full activities object (6 hardcoded activities with /api/placeholder/ images)	Laravel clubs/events API
+LearnMore.tsx	Certifications, team members, FAQ, contact methods — all static arrays	Laravel CMS API
+EventsActivities.tsx	Calendar page wraps EventCalendar.tsx — no API calls	Laravel events API
+EventCalendar.tsx component	Static array of 12 Moroccan festival events	Laravel events API
+Activities.tsx component	Landing page activities section — hardcoded 4-item array	Laravel CMS API
+PresidentMessage.tsx component	Hardcoded "Dr. Aderahim Azrkan" text	/api/cms/president-message (admin page exists!)
+🟢 CATEGORY 4 — Admin Pages That Call Laravel But Laravel Has No Matching Controller Yet
+Frontend is wired correctly, Laravel route exists, but the controller/table may not be implemented
+
+Page	Laravel Route	Risk
+UserRolesManagement.tsx	GET /api/admin/roles → RolesController	Verify RolesController exists
+ClubsPendingApproval.tsx	GET /api/admin/clubs/pending	Verify endpoint returns pending clubs
+LandingManagement.tsx	Overview page only — links to sub-pages	No direct risk
+⚙️ CATEGORY 5 — server.ts Mock Data Still Active
+Express proxy (port 3001) intercepts these and returns fake data instead of passing to Laravel
+
+Mock in server.ts	What It Fakes
+mockApplications (line 1115)	Applications list — returns 3 fake applicants
+mock payment intent (line 1022)	Stripe — returns pi_mock_... secret
+mock user growth data (line 1416)	Analytics chart — generates random growth numbers
+mock landing page config (line 2713)	Landing CMS — returns static mock config
+mock membership system (line 2782)	User club memberships — fake clubs
+✅ WHAT IS FULLY INTEGRATED (for reference)
+These admin pages are wired to real Laravel routes and working:
+
+Clubs, Events, Bookings, Users, Blog/News, Media Library, Gallery, Hero Settings, Navbar Settings, Contact Settings, SEO Settings, Team Members, Testimonials, Partners, About Page, Discover/Cities, Focus Areas, Impact Stats, Page Hero, Roles & Permissions, Work Offers, Volunteer Opportunities, Volunteer Posts, Projects, Experts, Payment Settings (CMI/Stripe), Cookie Settings, Legal Pages Settings (partially — frontend exists but Laravel route is missing), Translations.
+
+📋 Priority Fix List
+Priority	Task
+🔴 High	Add Laravel routes for Legal Pages (/api/cms/legal/{key}, /api/admin/cms/legal/{key})
+🔴 High	Connect PresidentMessage.tsx public component to the /api/cms/president-message it already has in Laravel
+🟠 Medium	Wire SmartEvents.tsx to Laravel events API
+🟠 Medium	Wire Activities.tsx landing component to a CMS API endpoint
+🟡 Low	Replace hardcoded ActivityDetail.tsx with a real API
+🟡 Low	Replace hardcoded LearnMore.tsx with CMS-driven content
+🟡 Low	Build out EmailCampaigns, SystemMonitoring, AuthSettings, ThemeCustomization, JoinUsConfig
+🟡 Low	Remove mock data from server.ts once Laravel endpoints are confirmed working
+Want me to start fixing any of these? The highest-impact quick wins would be Legal Pages (Laravel route is missing but frontend is fully built) and PresidentMessage (the admin page exists but the public component ignores it).

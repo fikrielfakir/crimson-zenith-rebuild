@@ -1,0 +1,58 @@
+ the issues. Let me check the Partners public component and then the ImpactManagement TranslateDialog fields:Ran 4 commandsRan 4 commandsNow I can see the root bug clearly. In PartnersManagement.tsx, the TranslateDialog saves with:
+
+entityId="subtitle" and field="subtitle" → stored as entity_id='subtitle', field='subtitle'
+entityId="title" and field="title" → stored as entity_id='title', field='title'
+
+But in OurPartners.tsx, it calls tr('subtitle', 'subtitle', ...) and tr('title', 'title', ...) — which is correct.
+However, let me check the Stats.tsx / Testimonials.tsx / Events.tsx for whether they use useCmsTranslations at all:Ran 9 commandsRan 9 commandsNow I have a full diagnosis. Let me fix all the bugs:Read full Stats.tsx to understand how to add translation supportRead full Stats.tsx to understand how to add translation supportNow I have everything I need. Here's my complete diagnosis and fix plan:
+Root Bugs Found:
+
+TranslateDialog.tsx — After saving, it invalidates ['cms-translations', entityType] but useCmsTranslations uses ['cms-translations', entityType, lang] → cache never refreshes after save. Also, the useContentTranslation hooks use completely different query key patterns (['/api/translations', ...]) that are never invalidated.
+Stats.tsx — Never calls useCmsTranslations('site_stat'), so Impact translations are saved but never rendered.
+Events.tsx / SmartEventCalendar.tsx — Events translations are saved but the public components are hardcoded / don't call the translation hook.
+OurTeam.tsx — Hardcoded, never reads from DB or translations.
+Backup files before editingBackup files before editingFix 1: TranslateDialog.tsx — fix cache invalidation to cover all query key patternsFix cache invalidation to cover all translation query key patternsFix cache invalidation to cover all translation query key patternsFix cache invalidation to cover all translation query key patternsTranslateDialog.tsx+13-8DoneFix 2: Stats.tsx — wire up useCmsTranslations('site_stat') to apply translationsAdd useCmsTranslations import to Stats.tsxAdd useCmsTranslations import to Stats.tsxAdd useCmsTranslations import to Stats.tsxStats.tsx+5-4Done
+Diagnosis: Translation (Issue Manager) Bugs
+I've fully analyzed both the Laravel API and the React frontend. Here's a complete breakdown of all the bugs and their fixes:
+
+Bug 1 — Cache Invalidation Mismatch in TranslateDialog.tsx (Affects ALL pages)
+Root cause: After saving translations, TranslateDialog only invalidates ['cms-translations', entityType], but:
+
+useCmsTranslations uses query key ['cms-translations', entityType, **lang**]
+useTranslatedList uses ['/api/translations', entityType, ...]
+Neither gets invalidated → saved translations never appear until full page reload
+
+Fix (applied in TranslateDialog.tsx):
+ts// Before (wrong - misses the lang segment and the /api/translations key family)
+queryClient.invalidateQueries({ queryKey: ['cms-translations', entityType] });
+
+// After (correct - covers all three query key patterns used in the app)
+queryClient.invalidateQueries({ queryKey: ['cms-translations', entityType] });
+queryClient.invalidateQueries({ queryKey: ['/api/translations', entityType] });
+queryClient.invalidateQueries({ queryKey: ['/api/translations/batch', entityType] });
+React Query partial-key matching handles the rest (lang, ids suffix, etc.).
+
+Bug 2 — Stats.tsx (Impact) never reads translations
+The ImpactManagement admin correctly saves site_stat translations, but the public Stats.tsx component never calls useCmsTranslations('site_stat'). It just renders raw s.label and s.value from the DB with no translation layer.
+Fix: Add const tr = useCmsTranslations('site_stat') and apply it when building the statistics array:
+tsconst tr = useCmsTranslations('site_stat');
+// In .map():
+label: tr(String(s.id), 'label', s.label),
+value: tr(String(s.id), 'value', s.suffix ? `${s.value}${s.suffix}` : s.value),
+
+Bug 3 — Events.tsx / SmartEventCalendar.tsx never reads translations
+The EventsManagement admin correctly saves event translations, but neither public component calls useCmsTranslations('event') or useTranslatedList(..., 'event', [...]). Events always render in English.
+Fix: In the real events display component (whichever fetches from /api/cms/events), add:
+tsconst translatedEvents = useTranslatedList(rawEvents, 'event', ['title', 'description', 'location']);
+
+Bug 4 — OurTeam.tsx is fully hardcoded
+The team management admin saves to DB and has a TranslateDialog, but OurTeam.tsx is hardcoded with static data — it never fetches from /api/cms/team-members and never calls translations.
+Fix: Wire OurTeam.tsx to fetch from the API and apply useCmsTranslations('team_member').
+
+Bug 5 — Laravel byType() doesn't accept a Request parameter (minor)
+`useTranslatedList` sends `?ids=1,2,3` but `byType(string entityType)` ignores it — it returns *all* translations for that type. This isn't a correctness bug (client filters), but it wastes bandwidth. To fix properly, add `Request $request` and filter: `->when(
+request->ids, fn($q) => $q->whereIn('entity_id', explode(',', $request->ids)))`.
+
+Summary Table
+PageEntity TypeSave ✅Cache InvalidationPublic DisplayFocus Areasfocus_item / focus_section✅❌ Wrong key✅ (About.tsx uses useCmsTranslations)Eventsevent✅❌ Wrong key❌ Never readImpactsite_stat✅❌ Wrong key❌ Never readTeamteam_member✅❌ Wrong key❌ Hardcoded componentTestimonialstestimonial✅❌ Wrong key✅ (useTranslatedList)Partnerspartner / partner_settings✅❌ Wrong key✅ (useCmsTranslations)
+The single most impactful fix is Bug 1 — it affects every single page and means translations appear to save (the API call succeeds) but the UI never updates until a hard refresh. Would you like me to package the corrected files for download?

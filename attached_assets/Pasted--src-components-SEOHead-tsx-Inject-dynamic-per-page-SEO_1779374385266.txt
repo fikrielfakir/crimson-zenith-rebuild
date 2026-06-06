@@ -1,0 +1,115 @@
+// src/components/SEOHead.tsx
+// Inject dynamic, per-page SEO meta tags using react-helmet-async.
+// Covers Google, Bing, Yahoo, and Yandex.
+//
+// INSTALL (run once):
+//   npm install react-helmet-async
+//   npm install --save-dev @types/react-helmet-async
+//
+// SETUP in main.tsx — wrap your app with <HelmetProvider>:
+//   import { HelmetProvider } from 'react-helmet-async';
+//   <HelmetProvider><App /></HelmetProvider>
+//
+// USAGE in any page:
+//   import SEOHead from '@/components/SEOHead';
+//   <SEOHead title="..." description="..." />
+
+import { Helmet } from "react-helmet-async";
+import { SITE } from "@/lib/seo.config";
+
+interface SEOHeadProps {
+  /** Page title (will be appended with "| Crimson Zenith" if not already) */
+  title?: string;
+  /** Meta description — keep between 120–160 characters */
+  description?: string;
+  /** Canonical URL path (e.g. "/clubs") — auto-prefixed with site URL */
+  canonical?: string;
+  /** OG/Twitter share image URL (absolute). Falls back to default OG image. */
+  image?: string;
+  /** OG content type. Default: "website" */
+  type?: "website" | "article" | "event";
+  /** Set to true on admin/private/noindex pages */
+  noIndex?: boolean;
+  /** Optional JSON-LD structured data object */
+  structuredData?: object;
+  /** Additional keywords (comma-separated) */
+  keywords?: string;
+}
+
+const SEOHead = ({
+  title,
+  description,
+  canonical,
+  image,
+  type = "website",
+  noIndex = false,
+  structuredData,
+  keywords,
+}: SEOHeadProps) => {
+  const fullTitle = title
+    ? title.includes(SITE.name)
+      ? title
+      : `${title} | ${SITE.name}`
+    : SITE.defaultTitle;
+
+  const metaDescription = description ?? SITE.defaultDescription;
+  const ogImage = image ?? SITE.defaultImage;
+  const canonicalUrl = canonical
+    ? `${SITE.url}${canonical.startsWith("/") ? canonical : `/${canonical}`}`
+    : undefined;
+
+  const defaultKeywords =
+    "Morocco clubs, Moroccan events, sports Morocco, cultural activities Morocco, Fez club, Casablanca events, Marrakech activities";
+  const metaKeywords = keywords
+    ? `${keywords}, ${defaultKeywords}`
+    : defaultKeywords;
+
+  return (
+    <Helmet>
+      {/* ── Primary ── */}
+      <title>{fullTitle}</title>
+      <meta name="description" content={metaDescription} />
+      <meta name="keywords" content={metaKeywords} />
+      {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
+
+      {/* ── Robots ── */}
+      <meta
+        name="robots"
+        content={
+          noIndex
+            ? "noindex, nofollow"
+            : "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1"
+        }
+      />
+
+      {/* ── Open Graph (Google, Facebook, Yandex, WhatsApp) ── */}
+      <meta property="og:title" content={fullTitle} />
+      <meta property="og:description" content={metaDescription} />
+      <meta property="og:type" content={type} />
+      <meta property="og:image" content={ogImage} />
+      <meta property="og:image:width" content="1200" />
+      <meta property="og:image:height" content="630" />
+      <meta property="og:image:alt" content={fullTitle} />
+      <meta property="og:site_name" content={SITE.name} />
+      {canonicalUrl && <meta property="og:url" content={canonicalUrl} />}
+      <meta property="og:locale" content={SITE.locale} />
+
+      {/* ── Twitter / X Card (indexed by Bing/Yahoo too) ── */}
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:site" content={SITE.twitterHandle} />
+      <meta name="twitter:title" content={fullTitle} />
+      <meta name="twitter:description" content={metaDescription} />
+      <meta name="twitter:image" content={ogImage} />
+      <meta name="twitter:image:alt" content={fullTitle} />
+
+      {/* ── Structured Data / JSON-LD ── */}
+      {structuredData && (
+        <script type="application/ld+json">
+          {JSON.stringify(structuredData)}
+        </script>
+      )}
+    </Helmet>
+  );
+};
+
+export default SEOHead;

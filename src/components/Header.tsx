@@ -1,0 +1,1538 @@
+import { Button } from "@/components/ui/button";
+import { useState, useEffect, useCallback, useRef } from "react";
+import {
+  Moon,
+  Sun,
+  User,
+  Menu,
+  ChevronDown,
+  ChevronRight,
+  Heart,
+  X,
+} from "lucide-react";
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "./LanguageSwitcher";
+import { Link } from "react-router-dom";
+import logoAtj from "@/assets/logo-atj.png";
+import { useNavbarSettings } from "@/hooks/useCMS";
+import { useCmsTranslations } from "@/hooks/useCmsTranslations";
+import { moroccoCities } from "@/lib/citiesData";
+import { useTranslatedList } from "@/hooks/useContentTranslation";
+import useEmblaCarousel from "embla-carousel-react";
+import { useQuery } from "@tanstack/react-query";
+import DonateDrawer from "./DonateDrawer";
+import { useAuth } from "@/hooks/useAuth";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+
+interface DropdownItem {
+  label: string;
+  url: string;
+  isExternal?: boolean;
+  imageId?: number | null;
+  imageUrl?: string;
+  description?: string;
+}
+
+type DropdownDisplayType = "simple-list" | "list-with-images" | "carousel";
+
+interface NavLink {
+  label: string;
+  url: string;
+  isExternal?: boolean;
+  hasDropdown?: boolean;
+  dropdownType?: DropdownDisplayType;
+  dropdownItems?: DropdownItem[];
+}
+
+// Original Cities Dropdown (Discover)
+const CitiesDropdown = () => {
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n.language === "ar";
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const { data: apiCities } = useQuery<any[]>({
+    queryKey: ["public-cities-nav"],
+    queryFn: async () => {
+      const res = await fetch("/api/cities");
+      if (!res.ok) return [];
+      return res.json();
+    },
+    staleTime: 60_000,
+  });
+
+  const rawCities =
+    apiCities && apiCities.length > 0
+      ? apiCities
+      : moroccoCities.map((c) => ({ ...c }));
+
+  const cities = useTranslatedList(rawCities, "city", ["name", "title", "description"]);
+
+  const [emblaRef, emblaApi] = useEmblaCarousel({
+    loop: true,
+    align: "start",
+    slidesToScroll: 1,
+    direction: isRtl ? "rtl" : "ltr",
+  });
+  const [selectedIndex, setSelectedIndex] = useState(0);
+
+  const scrollPrev = useCallback(() => {
+    if (emblaApi) emblaApi.scrollPrev();
+  }, [emblaApi]);
+
+  const scrollNext = useCallback(() => {
+    if (emblaApi) emblaApi.scrollNext();
+  }, [emblaApi]);
+
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return;
+    setSelectedIndex(emblaApi.selectedScrollSnap());
+  }, [emblaApi]);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    onSelect();
+    emblaApi.on("select", onSelect);
+    return () => {
+      emblaApi.off("select", onSelect);
+    };
+  }, [emblaApi, onSelect]);
+
+  // Adjust dropdown position to stay within viewport on hover
+  useEffect(() => {
+    const el = dropdownRef.current;
+    if (!el) return;
+    const parent = el.parentElement;
+    if (!parent) return;
+
+    const adjust = () => {
+      el.style.right = "";
+      el.style.left = "";
+      const rect = el.getBoundingClientRect();
+      const vw = window.innerWidth;
+      const margin = 8;
+      if (rect.right > vw - margin) {
+        el.style.right = `${-(rect.right - (vw - margin))}px`;
+        el.style.left = "auto";
+      } else if (rect.left < margin) {
+        el.style.left = `${margin - rect.left}px`;
+        el.style.right = "auto";
+      }
+    };
+
+    parent.addEventListener("mouseenter", adjust);
+    return () => parent.removeEventListener("mouseenter", adjust);
+  }, [isRtl]);
+
+  return (
+    <div
+      ref={dropdownRef}
+      className={`absolute ${isRtl ? "right-0" : "left-0"} top-full mt-2 w-[700px] max-w-[90vw] bg-white/95 dark:bg-card/95 backdrop-blur-sm rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 border border-border/20`}
+    >
+      <div className="p-6" dir={isRtl ? "rtl" : "ltr"}>
+        <div className="text-sm font-bold text-foreground mb-4 uppercase tracking-wider">
+          {t("nav.topCities")}
+        </div>
+
+        <div className="relative px-6">
+          <div className="overflow-hidden" ref={emblaRef}>
+            <div className="flex gap-4">
+              {cities.map((city) => (
+                <div key={city.id} className="flex-[0_0_32%] min-w-0">
+                  <Link
+                    to={{
+                      pathname: "/discover/cities",
+                      search: `?city=${city.slug}`,
+                    }}
+                    className="block group/card"
+                  >
+                    <div className="relative h-32 rounded-lg overflow-hidden transition-all duration-300 ease-in-out group-hover/card:scale-105 group-hover/card:shadow-xl">
+                      <img
+                        src={city.image}
+                        alt={city.name}
+                        className="w-full h-full object-cover transition-transform duration-500 ease-in-out"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                      <div className="absolute bottom-3 left-3 right-3">
+                        <h3 className="text-white font-bold text-lg uppercase tracking-wide drop-shadow-lg">
+                          {city.name}
+                        </h3>
+                      </div>
+                    </div>
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <button
+            onClick={scrollPrev}
+            aria-label="Previous cities"
+            className="absolute -left-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-primary hover:bg-primary/90 text-white flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-110 z-10"
+          >
+            <ChevronRight className={`w-5 h-5 ${isRtl ? "" : "rotate-180"}`} />
+          </button>
+
+          <button
+            onClick={scrollNext}
+            aria-label="Next cities"
+            className="absolute -right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-primary hover:bg-primary/90 text-white flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-110 z-10"
+          >
+            <ChevronRight className={`w-5 h-5 ${isRtl ? "rotate-180" : ""}`} />
+          </button>
+        </div>
+
+        <div
+          className="flex justify-center gap-2 mt-4"
+          role="tablist"
+          aria-label="City carousel navigation"
+        >
+          {cities.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => emblaApi?.scrollTo(index)}
+              role="tab"
+              aria-label={`Go to slide ${index + 1}`}
+              aria-selected={index === selectedIndex}
+              className={`w-2 h-2 rounded-full transition-all duration-200 ${
+                index === selectedIndex ? "bg-primary w-6" : "bg-gray-300"
+              }`}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Original Talents Dropdown
+const TalentsDropdown = () => {
+  const { i18n } = useTranslation();
+  const isRtl = i18n.language === "ar";
+  const [volunteersOpen, setVolunteersOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = dropdownRef.current;
+    if (!el) return;
+    const parent = el.parentElement;
+    if (!parent) return;
+    const adjust = () => {
+      el.style.right = "";
+      el.style.left = "";
+      const rect = el.getBoundingClientRect();
+      const vw = window.innerWidth;
+      const margin = 8;
+      if (rect.right > vw - margin) {
+        el.style.right = `${-(rect.right - (vw - margin))}px`;
+        el.style.left = "auto";
+      } else if (rect.left < margin) {
+        el.style.left = `${margin - rect.left}px`;
+        el.style.right = "auto";
+      }
+    };
+    parent.addEventListener("mouseenter", adjust);
+    return () => parent.removeEventListener("mouseenter", adjust);
+  }, [isRtl]);
+
+  return (
+    <div
+      ref={dropdownRef}
+      className={`absolute ${isRtl ? "right-0" : "left-0"} top-full mt-2 w-64 bg-white/95 dark:bg-card/95 backdrop-blur-sm rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 border border-border/20`}
+      dir={isRtl ? "rtl" : "ltr"}
+    >
+      <div className="p-4">
+        <div className="flex flex-col gap-1">
+          {/* Volunteers with sub-menu */}
+          <div
+            className="relative group/volunteers"
+            onMouseEnter={() => setVolunteersOpen(true)}
+            onMouseLeave={() => setVolunteersOpen(false)}
+          >
+            <div className="flex items-center justify-between px-4 py-3 text-foreground hover:bg-secondary/10 rounded-lg transition-colors cursor-pointer">
+              <span className="font-medium text-sm">Volunteers</span>
+              <ChevronRight className={`w-4 h-4 ${isRtl ? "rotate-180" : ""}`} />
+            </div>
+            {/* Volunteers submenu — opens opposite side in RTL */}
+            <div
+              className={`absolute ${isRtl ? "right-full mr-2" : "left-full ml-2"} top-0 w-48 bg-white/95 dark:bg-card/95 backdrop-blur-sm rounded-xl shadow-2xl border border-border/20 transition-all duration-300 ${volunteersOpen ? "opacity-100 visible" : "opacity-0 invisible"}`}
+            >
+              <div className="p-2">
+                <Link
+                  to="/talents/volunteers/spontaneous"
+                  className="block px-4 py-2 text-foreground hover:bg-secondary/10 rounded-lg transition-colors text-sm"
+                >
+                  Spontaneous
+                </Link>
+                <Link
+                  to="/talents/volunteers/posts"
+                  className="block px-4 py-2 text-foreground hover:bg-secondary/10 rounded-lg transition-colors text-sm"
+                >
+                  Available posts
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* Our Experts */}
+          <Link
+            to="/talents/experts"
+            className="block px-4 py-3 text-foreground hover:bg-secondary/10 rounded-lg transition-colors font-medium text-sm"
+          >
+            Our Experts
+          </Link>
+
+          {/* Work offers */}
+          <Link
+            to="/talents/work-offers"
+            className="block px-4 py-3 text-foreground hover:bg-secondary/10 rounded-lg transition-colors font-medium text-sm"
+          >
+            Work offers
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Dynamic Dropdown Renderer Component (for new custom dropdowns)
+const DropdownRenderer = ({
+  items,
+  type = "simple-list",
+  title,
+}: {
+  items?: DropdownItem[];
+  type?: DropdownDisplayType;
+  title?: string;
+}) => {
+  const { i18n } = useTranslation();
+  const isRtl = i18n.language === "ar";
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const [emblaRef, emblaApi] = useEmblaCarousel({
+    loop: true,
+    align: "start",
+    slidesToScroll: 1,
+    direction: isRtl ? "rtl" : "ltr",
+  });
+  const [selectedIndex, setSelectedIndex] = useState(0);
+
+  const scrollPrev = useCallback(() => {
+    if (emblaApi) emblaApi.scrollPrev();
+  }, [emblaApi]);
+
+  const scrollNext = useCallback(() => {
+    if (emblaApi) emblaApi.scrollNext();
+  }, [emblaApi]);
+
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return;
+    setSelectedIndex(emblaApi.selectedScrollSnap());
+  }, [emblaApi]);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    onSelect();
+    emblaApi.on("select", onSelect);
+    return () => {
+      emblaApi.off("select", onSelect);
+    };
+  }, [emblaApi, onSelect]);
+
+  // Viewport-aware positioning
+  useEffect(() => {
+    const el = dropdownRef.current;
+    if (!el) return;
+    const parent = el.parentElement;
+    if (!parent) return;
+    const adjust = () => {
+      el.style.right = "";
+      el.style.left = "";
+      const rect = el.getBoundingClientRect();
+      const vw = window.innerWidth;
+      const margin = 8;
+      if (rect.right > vw - margin) {
+        el.style.right = `${-(rect.right - (vw - margin))}px`;
+        el.style.left = "auto";
+      } else if (rect.left < margin) {
+        el.style.left = `${margin - rect.left}px`;
+        el.style.right = "auto";
+      }
+    };
+    parent.addEventListener("mouseenter", adjust);
+    return () => parent.removeEventListener("mouseenter", adjust);
+  }, [isRtl]);
+
+  if (!items || items.length === 0) return null;
+
+  const positionClass = isRtl ? "right-0" : "left-0";
+
+  // Carousel Type
+  if (type === "carousel") {
+    return (
+      <div ref={dropdownRef} className={`absolute ${positionClass} top-full mt-2 w-[700px] max-w-[90vw] bg-white/95 dark:bg-card/95 backdrop-blur-sm rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 border border-border/20`} dir={isRtl ? "rtl" : "ltr"}>
+        <div className="p-6">
+          {title && (
+            <div className="text-sm font-bold text-foreground mb-4 uppercase tracking-wider">
+              {title}
+            </div>
+          )}
+
+          <div className="relative px-6">
+            <div className="overflow-hidden" ref={emblaRef}>
+              <div className="flex gap-4">
+                {items.map((item, idx) => {
+                  const LinkComponent = item.isExternal ? "a" : Link;
+                  const linkProps = item.isExternal
+                    ? {
+                        href: item.url,
+                        target: "_blank",
+                        rel: "noopener noreferrer",
+                      }
+                    : { to: item.url };
+
+                  return (
+                    <div key={idx} className="flex-[0_0_32%] min-w-0">
+                      <LinkComponent
+                        {...(linkProps as any)}
+                        className="block group/card"
+                      >
+                        <div className="relative h-32 rounded-lg overflow-hidden transition-all duration-300 ease-in-out group-hover/card:scale-105 group-hover/card:shadow-xl">
+                          {item.imageUrl ? (
+                            <>
+                              <img
+                                src={item.imageUrl}
+                                alt={item.label}
+                                className="w-full h-full object-cover transition-transform duration-500 ease-in-out"
+                                loading="lazy"
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                              <div className="absolute bottom-3 left-3 right-3">
+                                <h3 className="text-white font-bold text-lg uppercase tracking-wide drop-shadow-lg">
+                                  {item.label}
+                                </h3>
+                                {item.description && (
+                                  <p className="text-white/90 text-xs mt-1">
+                                    {item.description}
+                                  </p>
+                                )}
+                              </div>
+                            </>
+                          ) : (
+                            <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                              <span className="text-foreground font-bold text-lg text-center px-2">
+                                {item.label}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </LinkComponent>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {items.length > 3 && (
+              <>
+                <button
+                  onClick={scrollPrev}
+                  aria-label="Previous items"
+                  className="absolute -left-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-primary hover:bg-primary/90 text-white flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-110 z-10"
+                >
+                  <ChevronRight className={`w-5 h-5 ${isRtl ? "" : "rotate-180"}`} />
+                </button>
+
+                <button
+                  onClick={scrollNext}
+                  aria-label="Next items"
+                  className="absolute -right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-primary hover:bg-primary/90 text-white flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-110 z-10"
+                >
+                  <ChevronRight className={`w-5 h-5 ${isRtl ? "rotate-180" : ""}`} />
+                </button>
+              </>
+            )}
+          </div>
+
+          {items.length > 3 && (
+            <div
+              className="flex justify-center gap-2 mt-4"
+              role="tablist"
+              aria-label="Carousel navigation"
+            >
+              {Array.from({ length: items.length }).map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => emblaApi?.scrollTo(index)}
+                  role="tab"
+                  aria-label={`Go to slide ${index + 1}`}
+                  aria-selected={index === selectedIndex}
+                  className={`w-2 h-2 rounded-full transition-all duration-200 ${
+                    index === selectedIndex ? "bg-primary w-6" : "bg-gray-300"
+                  }`}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // List with Images Type
+  if (type === "list-with-images") {
+    return (
+      <div ref={dropdownRef} className={`absolute ${positionClass} top-full mt-2 w-80 bg-white/95 dark:bg-card/95 backdrop-blur-sm rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 border border-border/20`} dir={isRtl ? "rtl" : "ltr"}>
+        <div className="p-4">
+          {title && (
+            <div className="text-sm font-bold text-foreground mb-3 uppercase tracking-wider">
+              {title}
+            </div>
+          )}
+          <div className="flex flex-col gap-2">
+            {items.map((item, idx) => {
+              const LinkComponent = item.isExternal ? "a" : Link;
+              const linkProps = item.isExternal
+                ? {
+                    href: item.url,
+                    target: "_blank",
+                    rel: "noopener noreferrer",
+                  }
+                : { to: item.url };
+
+              return (
+                <LinkComponent
+                  key={idx}
+                  {...(linkProps as any)}
+                  className="flex items-center gap-3 px-3 py-2 text-foreground hover:bg-secondary/10 rounded-lg transition-colors group"
+                >
+                  {item.imageUrl && (
+                    <div className="w-12 h-12 rounded-md overflow-hidden flex-shrink-0">
+                      <img
+                        src={item.imageUrl}
+                        alt={item.label}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                        loading="lazy"
+                      />
+                    </div>
+                  )}
+                  <div className="flex-1">
+                    <div className="font-medium text-sm">{item.label}</div>
+                    {item.description && (
+                      <div className="text-xs text-muted-foreground">
+                        {item.description}
+                      </div>
+                    )}
+                  </div>
+                </LinkComponent>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Simple List Type (Default)
+  return (
+    <div ref={dropdownRef} className={`absolute ${positionClass} top-full mt-2 w-64 bg-white/95 dark:bg-card/95 backdrop-blur-sm rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 border border-border/20`} dir={isRtl ? "rtl" : "ltr"}>
+      <div className="p-4">
+        {title && (
+          <div className="text-sm font-bold text-foreground mb-2 uppercase tracking-wider">
+            {title}
+          </div>
+        )}
+        <div className="flex flex-col gap-1">
+          {items.map((item, idx) => {
+            const LinkComponent = item.isExternal ? "a" : Link;
+            const linkProps = item.isExternal
+              ? { href: item.url, target: "_blank", rel: "noopener noreferrer" }
+              : { to: item.url };
+
+            return (
+              <LinkComponent
+                key={idx}
+                {...(linkProps as any)}
+                className="block px-4 py-3 text-foreground hover:bg-secondary/10 rounded-lg transition-colors font-medium text-sm"
+              >
+                {item.label}
+              </LinkComponent>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Top Navbar (Utility Bar - Only utilities, no navigation)
+const TopNavbar = ({
+  isDarkMode,
+  toggleDarkMode,
+  isScrolled,
+  showLanguageSwitcher,
+  showDarkModeToggle,
+  showLoginButton,
+  loginButtonText,
+  loginButtonLink,
+  showJoinButton,
+  joinButtonText,
+  joinButtonLink,
+  joinButtonStyle,
+  onDonateClick,
+  textColor,
+  hoverColor,
+}: {
+  isDarkMode: boolean;
+  toggleDarkMode: () => void;
+  isScrolled: boolean;
+  showLanguageSwitcher: boolean;
+  showDarkModeToggle: boolean;
+  showLoginButton: boolean;
+  loginButtonText: string;
+  loginButtonLink: string;
+  showJoinButton: boolean;
+  joinButtonText: string;
+  joinButtonLink: string;
+  joinButtonStyle: string;
+  onDonateClick: () => void;
+  textColor: string;
+  hoverColor: string;
+}) => {
+  const [heartAnimate, setHeartAnimate] = useState(false);
+  const { user, isAuthenticated } = useAuth();
+  const { t } = useTranslation();
+
+  const handleDonateHover = () => {
+    setHeartAnimate(true);
+    setTimeout(() => setHeartAnimate(false), 600);
+  };
+
+  return (
+    <div
+      className="w-full bg-transparent transition-all duration-300 overflow-hidden max-md:!max-h-[10px]"
+      style={
+        isScrolled
+          ? { maxHeight: "65px", opacity: "0", height: "65px" }
+          : { maxHeight: "80px", opacity: "1" }
+      }
+    >
+      <div
+        className={`container mx-auto px-6 transition-all duration-300 ${isScrolled ? "py-0" : "py-3"}`}
+      >
+        <div className="flex items-center justify-end gap-2 md:gap-4">
+          {/* Language Switcher — hidden on mobile */}
+          {showLanguageSwitcher && (
+            <LanguageSwitcher textColor={textColor} className="hidden sm:flex" />
+          )}
+
+          {/* Dark Mode Toggle — hidden on mobile */}
+          {showDarkModeToggle && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleDarkMode}
+              className="hidden sm:flex px-2 py-2 rounded-button"
+              style={{ color: textColor }}
+            >
+              {isDarkMode ? (
+                <Sun className="h-4 w-4" />
+              ) : (
+                <Moon className="h-4 w-4" />
+              )}
+            </Button>
+          )}
+
+          {/* Login Button / Profile Avatar — hidden on mobile (shown in bottom nav instead) */}
+          {showLoginButton &&
+            (isAuthenticated && user ? (
+              <Link
+                to="/profile"
+                className="hidden sm:flex items-center gap-2 px-2 sm:px-3 py-2 text-xs rounded-button font-body hover:opacity-80 transition-opacity"
+                style={{ color: textColor }}
+              >
+                <Avatar className="h-8 w-8 border-2 border-white/30">
+                  <AvatarImage src={user.profileImageUrl || ""} />
+                  <AvatarFallback className="bg-[hsl(227,65%,19%)] text-white text-xs">
+                    {user.firstName?.[0] ||
+                      user.email?.[0]?.toUpperCase() ||
+                      "U"}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="hidden sm:inline">{t('nav.profile')}</span>
+              </Link>
+            ) : (
+              <Button
+                asChild
+                variant="ghost"
+                size="sm"
+                className="px-2 sm:px-3 py-2 text-xs hidden sm:flex items-center gap-1 rounded-button font-body"
+                style={{ color: textColor }}
+              >
+                <Link to="/login">
+                  <User className="h-4 w-4" />
+                  <span className="hidden sm:inline">{loginButtonText}</span>
+                </Link>
+              </Button>
+            ))}
+
+          {/* Donate Button — hidden on mobile (shown in bottom nav instead) */}
+          {showJoinButton && (
+            <Button
+              onClick={onDonateClick}
+              className="text-white font-medium hidden sm:flex items-center gap-2 border-0 cursor-pointer transition-all duration-300 ease-in-out hover:scale-[1.03]"
+              style={{
+                background: "linear-gradient(90deg, #d45151 0%, #c04040 100%)",
+                fontSize: "16px",
+                fontWeight: "500",
+                borderRadius: "30px",
+                padding: "12px 28px",
+                height: "44px",
+                boxShadow: "0 2px 6px rgba(0, 0, 0, 0.15)",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "#b03a3a";
+                handleDonateHover();
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background =
+                  "linear-gradient(90deg, #d45151 0%, #c04040 100%)";
+              }}
+            >
+              <Heart
+                className="h-[18px] w-[18px] transition-transform origin-center"
+                fill="white"
+                style={{
+                  animation: heartAnimate
+                    ? "heartBeatWarp 0.8s ease-in-out"
+                    : "none",
+                  transformOrigin: "center center",
+                }}
+              />
+              <style
+                dangerouslySetInnerHTML={{
+                  __html: `
+                  @keyframes heartBeatWarp {
+                    0% {
+                      transform: scale(1) skew(0deg, 0deg);
+                    }
+                    10% {
+                      transform: scale(1.15) skew(-2deg, 1deg);
+                    }
+                    20% {
+                      transform: scale(1.4) skew(3deg, -2deg) rotate(-8deg);
+                    }
+                    30% {
+                      transform: scale(1.6) skew(-4deg, 3deg) rotate(5deg);
+                    }
+                    40% {
+                      transform: scale(1.8) skew(5deg, -4deg) rotate(-10deg);
+                    }
+                    50% {
+                      transform: scale(1.5) skew(-3deg, 2deg) rotate(7deg);
+                    }
+                    60% {
+                      transform: scale(1.7) skew(4deg, -3deg) rotate(-5deg);
+                    }
+                    70% {
+                      transform: scale(1.4) skew(-2deg, 2deg) rotate(3deg);
+                    }
+                    80% {
+                      transform: scale(1.2) skew(1deg, -1deg) rotate(-2deg);
+                    }
+                    90% {
+                      transform: scale(1.05) skew(-0.5deg, 0.5deg) rotate(1deg);
+                    }
+                    100% {
+                      transform: scale(1) skew(0deg, 0deg) rotate(0deg);
+                    }
+                  }
+                `,
+                }}
+              />
+              {joinButtonText}
+            </Button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Bottom Navbar (Main Navigation with Logo)
+const BottomNavbar = ({
+  isScrolled,
+  navigationLinks,
+  logoUrl,
+  logoSize,
+  logoLink,
+  logoType,
+  logoText,
+  textColor,
+  hoverColor,
+  navHeight,
+  onDonateClick,
+  showDonateButton,
+}: {
+  isScrolled: boolean;
+  navigationLinks: NavLink[];
+  logoUrl: string;
+  logoSize: number;
+  logoLink: string;
+  logoType: "image" | "text";
+  logoText: string;
+  textColor: string;
+  hoverColor: string;
+  navHeight: number;
+  onDonateClick: () => void;
+  showDonateButton?: boolean;
+}) => {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { user, isAuthenticated } = useAuth();
+  const { t } = useTranslation();
+
+  const { data: apiNavCities } = useQuery<any[]>({
+    queryKey: ["public-cities-nav"],
+    queryFn: async () => {
+      const res = await fetch("/api/cities");
+      if (!res.ok) return [];
+      return res.json();
+    },
+    staleTime: 60_000,
+  });
+  const rawNavCities =
+    apiNavCities && apiNavCities.length > 0
+      ? apiNavCities
+      : moroccoCities.map((c) => ({ ...c }));
+  const navCities = useTranslatedList(rawNavCities, "city", ["name"]);
+
+  const midpoint = Math.ceil(navigationLinks.length / 2);
+  const leftLinks = navigationLinks.slice(0, midpoint);
+  const rightLinks = navigationLinks.slice(midpoint);
+
+  return (
+    <div className="w-full bg-transparent relative">
+      {/* Top Border - breaks around logo */}
+      <div
+        className={`relative h-px w-full transition-opacity duration-300 ${isScrolled ? "opacity-0" : "opacity-100"}`}
+      >
+        <div className="container mx-auto px-6 flex items-center">
+          <div className="flex-1 h-px bg-white/25"></div>
+          <div className="w-48"></div>
+          <div className="flex-1 h-px bg-white/25"></div>
+        </div>
+      </div>
+
+      <div
+        className="container mx-auto px-6 transition-all duration-300"
+        style={{
+          paddingTop: isScrolled ? "0.4rem" : "1.5rem",
+          paddingBottom: isScrolled ? "0.4rem" : "1.5rem",
+        }}
+      >
+        <div className="navbar-main-grid grid grid-cols-[1fr_auto_1fr] items-center gap-4 md:gap-12">
+          {/* Left Section - Navigation */}
+          <div className="hidden md:flex items-center justify-end">
+            <nav
+              className={`flex items-center gap-10 transition-all duration-300 ${isScrolled ? "relative" : ""}`}
+              style={isScrolled ? { bottom: "1rem" } : {}}
+            >
+              {leftLinks.map((link, index) => {
+                // Prioritize original dropdowns for Discover and Talents
+                if (link.url === "/discover" && !link.isExternal) {
+                  return (
+                    <div key={index} className="relative group">
+                      <span
+                        className="transition-all duration-300 font-normal text-sm tracking-wide font-body flex items-center gap-1 cursor-pointer group"
+                        style={{ color: textColor }}
+                        onMouseEnter={(e) =>
+                          (e.currentTarget.style.color = hoverColor)
+                        }
+                        onMouseLeave={(e) =>
+                          (e.currentTarget.style.color = textColor)
+                        }
+                      >
+                        {link.label}
+                        <ChevronDown className="w-3 h-3 transition-transform group-hover:rotate-180 duration-300" />
+                      </span>
+                      <CitiesDropdown />
+                    </div>
+                  );
+                }
+
+                if (link.url === "/talents" && !link.isExternal) {
+                  return (
+                    <div key={index} className="relative group">
+                      <span
+                        className="transition-all duration-300 font-normal text-sm tracking-wide font-body flex items-center gap-1 cursor-pointer group"
+                        style={{ color: textColor }}
+                        onMouseEnter={(e) =>
+                          (e.currentTarget.style.color = hoverColor)
+                        }
+                        onMouseLeave={(e) =>
+                          (e.currentTarget.style.color = textColor)
+                        }
+                      >
+                        {link.label}
+                        <ChevronDown className="w-3 h-3 transition-transform group-hover:rotate-180 duration-300" />
+                      </span>
+                      <TalentsDropdown />
+                    </div>
+                  );
+                }
+
+                // Render new custom dropdown links
+                if (link.hasDropdown && link.dropdownItems) {
+                  return (
+                    <div key={index} className="relative group">
+                      <span
+                        className="transition-all duration-300 font-normal text-sm tracking-wide font-body flex items-center gap-1 cursor-pointer group"
+                        style={{ color: textColor }}
+                        onMouseEnter={(e) =>
+                          (e.currentTarget.style.color = hoverColor)
+                        }
+                        onMouseLeave={(e) =>
+                          (e.currentTarget.style.color = textColor)
+                        }
+                      >
+                        {link.label}
+                        <ChevronDown className="w-3 h-3 transition-transform group-hover:rotate-180 duration-300" />
+                      </span>
+                      <DropdownRenderer
+                        items={link.dropdownItems}
+                        type={link.dropdownType || "simple-list"}
+                        title={
+                          link.dropdownType === "carousel"
+                            ? link.label.toUpperCase()
+                            : undefined
+                        }
+                      />
+                    </div>
+                  );
+                }
+
+                // Render regular links
+                return link.isExternal ? (
+                  <a
+                    key={index}
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="transition-all duration-300 font-normal text-sm tracking-wide font-body"
+                    style={{ color: textColor }}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.color = hoverColor)
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.color = textColor)
+                    }
+                  >
+                    {link.label}
+                  </a>
+                ) : (
+                  <Link
+                    key={index}
+                    to={link.url}
+                    className="transition-all duration-300 font-normal text-sm tracking-wide font-body"
+                    style={{ color: textColor }}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.color = hoverColor)
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.color = textColor)
+                    }
+                  >
+                    {link.label}
+                  </Link>
+                );
+              })}
+            </nav>
+          </div>
+
+          {/* Center Section - Logo */}
+          <div className="navbar-logo-container col-start-2 justify-self-center flex items-center justify-center">
+            <Link
+              to={logoLink}
+              className="flex flex-col items-center navbar-logo-link"
+              style={{
+                position: "relative",
+                bottom: `${logoSize * 0.7}px`,
+                height: "0",
+              }}
+            >
+              {logoType === "image" ? (
+                <img
+                  src={logoUrl}
+                  alt="Logo"
+                  className="w-auto object-contain transition-all duration-300 cursor-pointer hover:opacity-90"
+                  style={
+                    isScrolled
+                      ? { height: `${logoSize * 0.67}px`, margin: "20px 10px" }
+                      : { height: `${logoSize}px` }
+                  }
+                />
+              ) : (
+                <span
+                  className="font-bold transition-all duration-300 cursor-pointer hover:opacity-90"
+                  style={
+                    isScrolled
+                      ? {
+                          fontSize: `${logoSize * 0.15}px`,
+                          margin: "20px 10px",
+                          color: textColor,
+                        }
+                      : { fontSize: `${logoSize * 0.2}px`, color: textColor }
+                  }
+                >
+                  {logoText}
+                </span>
+              )}
+            </Link>
+          </div>
+
+          {/* Right Section - Navigation */}
+          <div className="hidden md:flex items-center justify-start">
+            <nav
+              className={`flex items-center gap-10 transition-all duration-300 ${isScrolled ? "relative" : ""}`}
+              style={isScrolled ? { bottom: "1rem" } : {}}
+            >
+              {rightLinks.map((link, index) => {
+                // Prioritize original dropdowns for Discover and Talents
+                if (link.url === "/discover" && !link.isExternal) {
+                  return (
+                    <div key={index} className="relative group">
+                      <span
+                        className="transition-all duration-300 font-normal text-sm tracking-wide font-body flex items-center gap-1 cursor-pointer group"
+                        style={{ color: textColor }}
+                        onMouseEnter={(e) =>
+                          (e.currentTarget.style.color = hoverColor)
+                        }
+                        onMouseLeave={(e) =>
+                          (e.currentTarget.style.color = textColor)
+                        }
+                      >
+                        {link.label}
+                        <ChevronDown className="w-3 h-3 transition-transform group-hover:rotate-180 duration-300" />
+                      </span>
+                      <CitiesDropdown />
+                    </div>
+                  );
+                }
+
+                if (link.url === "/talents" && !link.isExternal) {
+                  return (
+                    <div key={index} className="relative group">
+                      <span
+                        className="transition-all duration-300 font-normal text-sm tracking-wide font-body flex items-center gap-1 cursor-pointer group"
+                        style={{ color: textColor }}
+                        onMouseEnter={(e) =>
+                          (e.currentTarget.style.color = hoverColor)
+                        }
+                        onMouseLeave={(e) =>
+                          (e.currentTarget.style.color = textColor)
+                        }
+                      >
+                        {link.label}
+                        <ChevronDown className="w-3 h-3 transition-transform group-hover:rotate-180 duration-300" />
+                      </span>
+                      <TalentsDropdown />
+                    </div>
+                  );
+                }
+
+                // Render new custom dropdown links
+                if (link.hasDropdown && link.dropdownItems) {
+                  return (
+                    <div key={index} className="relative group">
+                      <span
+                        className="transition-all duration-300 font-normal text-sm tracking-wide font-body flex items-center gap-1 cursor-pointer group"
+                        style={{ color: textColor }}
+                        onMouseEnter={(e) =>
+                          (e.currentTarget.style.color = hoverColor)
+                        }
+                        onMouseLeave={(e) =>
+                          (e.currentTarget.style.color = textColor)
+                        }
+                      >
+                        {link.label}
+                        <ChevronDown className="w-3 h-3 transition-transform group-hover:rotate-180 duration-300" />
+                      </span>
+                      <DropdownRenderer
+                        items={link.dropdownItems}
+                        type={link.dropdownType || "simple-list"}
+                        title={
+                          link.dropdownType === "carousel"
+                            ? link.label.toUpperCase()
+                            : undefined
+                        }
+                      />
+                    </div>
+                  );
+                }
+
+                // Render regular links
+                return link.isExternal ? (
+                  <a
+                    key={index}
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="transition-all duration-300 font-normal text-sm tracking-wide font-body"
+                    style={{ color: textColor }}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.color = hoverColor)
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.color = textColor)
+                    }
+                  >
+                    {link.label}
+                  </a>
+                ) : (
+                  <Link
+                    key={index}
+                    to={link.url}
+                    className="transition-all duration-300 font-normal text-sm tracking-wide font-body"
+                    style={{ color: textColor }}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.color = hoverColor)
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.color = textColor)
+                    }
+                  >
+                    {link.label}
+                  </Link>
+                );
+              })}
+            </nav>
+          </div>
+
+          {/* Mobile right actions: login + donate + hamburger */}
+          <div className="col-start-3 justify-self-end flex items-center gap-1">
+            {/* Compact login icon — mobile only */}
+            <Link
+              to={isAuthenticated && user ? "/profile" : "/login"}
+              className="sm:hidden flex items-center justify-center text-white rounded-button hover:opacity-80 transition-opacity"
+              style={{ width: 28, height: 28 }}
+              aria-label={isAuthenticated ? "Profile" : "Login"}
+            >
+              {isAuthenticated && user ? (
+                <Avatar className="h-5 w-5 border border-white/30">
+                  <AvatarImage src={user.profileImageUrl || ""} />
+                  <AvatarFallback className="bg-[hsl(227,65%,19%)] text-white text-[9px]">
+                    {user.firstName?.[0] ||
+                      user.email?.[0]?.toUpperCase() ||
+                      "U"}
+                  </AvatarFallback>
+                </Avatar>
+              ) : (
+                <User className="w-4 h-4" />
+              )}
+            </Link>
+
+            {/* Compact donate button — mobile only */}
+            {showDonateButton && (
+              <button
+                onClick={onDonateClick}
+                className="sm:hidden flex items-center justify-center rounded-full transition-all duration-300 hover:scale-105"
+                aria-label="Donate"
+                style={{
+                  background:
+                    "linear-gradient(90deg, #d45151 0%, #c04040 100%)",
+                  boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
+                  width: "28px",
+                  height: "28px",
+                }}
+              >
+                <Heart className="w-3 h-3 text-white" fill="white" />
+              </button>
+            )}
+
+            {/* Hamburger — mobile/tablet only */}
+            <Button
+              variant="ghost"
+              onClick={() => setMobileMenuOpen(true)}
+              className="md:hidden text-white p-2 min-w-[44px] min-h-[44px]"
+              aria-label="Open navigation menu"
+            >
+              <Menu className="w-6 h-6" />
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom Border - breaks around logo */}
+      <div
+        className={`relative h-px w-full transition-opacity duration-300 ${isScrolled ? "opacity-0" : "opacity-100"}`}
+      >
+        <div className="container mx-auto px-6 flex items-center">
+          <div className="flex-1 h-px bg-white/25"></div>
+          <div className="w-48"></div>
+          <div className="flex-1 h-px bg-white/25"></div>
+        </div>
+      </div>
+
+      {/* ── Mobile Navigation Drawer ── */}
+      <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+        <SheetContent
+          side="left"
+          className="w-[85vw] max-w-sm p-0 flex flex-col bg-[#112250]"
+        >
+          {/* Drawer header */}
+          <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
+            {logoType === "image" ? (
+              <img
+                src={logoUrl}
+                alt="Logo"
+                className="h-10 w-auto object-contain"
+              />
+            ) : (
+              <span className="text-white font-bold text-lg">{logoText}</span>
+            )}
+            <button
+              onClick={() => setMobileMenuOpen(false)}
+              className="text-white/70 hover:text-white transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+              aria-label="Close menu"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Drawer nav links */}
+          <nav className="flex-1 overflow-y-auto px-4 py-3">
+            <Accordion type="multiple" className="w-full">
+              {navigationLinks.map((link, index) => {
+                const isDiscover =
+                  link.url === "/discover" && !link.isExternal;
+                const isTalents = link.url === "/talents" && !link.isExternal;
+                const hasDropdown =
+                  isDiscover ||
+                  isTalents ||
+                  (link.hasDropdown && link.dropdownItems);
+
+                if (isDiscover) {
+                  return (
+                    <AccordionItem
+                      key={index}
+                      value={`link-${index}`}
+                      className="border-b border-white/10"
+                    >
+                      <AccordionTrigger className="text-white/90 hover:text-white text-sm font-medium py-3 hover:no-underline">
+                        {link.label}
+                      </AccordionTrigger>
+                      <AccordionContent className="pb-2">
+                        <div className="flex flex-col gap-1 pl-3">
+                          {navCities.slice(0, 8).map((city) => (
+                            <Link
+                              key={city.id}
+                              to={{
+                                pathname: "/discover/cities",
+                                search: `?city=${city.slug}`,
+                              }}
+                              onClick={() => setMobileMenuOpen(false)}
+                              className="block px-3 py-2 text-white/70 hover:text-white hover:bg-white/5 rounded-lg text-sm transition-colors"
+                            >
+                              {city.name}
+                            </Link>
+                          ))}
+                          <Link
+                            to="/discover"
+                            onClick={() => setMobileMenuOpen(false)}
+                            className="block px-3 py-2 text-[#D8C18D] hover:text-white text-sm font-medium transition-colors"
+                          >
+                            See all destinations →
+                          </Link>
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+                  );
+                }
+
+                if (isTalents) {
+                  return (
+                    <AccordionItem
+                      key={index}
+                      value={`link-${index}`}
+                      className="border-b border-white/10"
+                    >
+                      <AccordionTrigger className="text-white/90 hover:text-white text-sm font-medium py-3 hover:no-underline">
+                        {link.label}
+                      </AccordionTrigger>
+                      <AccordionContent className="pb-2">
+                        <div className="flex flex-col gap-1 pl-3">
+                          <Link
+                            to="/talents/volunteers/spontaneous"
+                            onClick={() => setMobileMenuOpen(false)}
+                            className="block px-3 py-2 text-white/70 hover:text-white hover:bg-white/5 rounded-lg text-sm transition-colors"
+                          >
+                            Spontaneous Volunteers
+                          </Link>
+                          <Link
+                            to="/talents/volunteers/posts"
+                            onClick={() => setMobileMenuOpen(false)}
+                            className="block px-3 py-2 text-white/70 hover:text-white hover:bg-white/5 rounded-lg text-sm transition-colors"
+                          >
+                            Volunteer Posts
+                          </Link>
+                          <Link
+                            to="/talents/experts"
+                            onClick={() => setMobileMenuOpen(false)}
+                            className="block px-3 py-2 text-white/70 hover:text-white hover:bg-white/5 rounded-lg text-sm transition-colors"
+                          >
+                            Our Experts
+                          </Link>
+                          <Link
+                            to="/talents/work-offers"
+                            onClick={() => setMobileMenuOpen(false)}
+                            className="block px-3 py-2 text-white/70 hover:text-white hover:bg-white/5 rounded-lg text-sm transition-colors"
+                          >
+                            Work Offers
+                          </Link>
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+                  );
+                }
+
+                if (
+                  link.hasDropdown &&
+                  link.dropdownItems &&
+                  link.dropdownItems.length > 0
+                ) {
+                  return (
+                    <AccordionItem
+                      key={index}
+                      value={`link-${index}`}
+                      className="border-b border-white/10"
+                    >
+                      <AccordionTrigger className="text-white/90 hover:text-white text-sm font-medium py-3 hover:no-underline">
+                        {link.label}
+                      </AccordionTrigger>
+                      <AccordionContent className="pb-2">
+                        <div className="flex flex-col gap-1 pl-3">
+                          {link.dropdownItems.map((item, i) => (
+                            <Link
+                              key={i}
+                              to={item.url}
+                              onClick={() => setMobileMenuOpen(false)}
+                              className="block px-3 py-2 text-white/70 hover:text-white hover:bg-white/5 rounded-lg text-sm transition-colors"
+                            >
+                              {item.label}
+                            </Link>
+                          ))}
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+                  );
+                }
+
+                return link.isExternal ? (
+                  <a
+                    key={index}
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center py-3 text-white/90 hover:text-white text-sm font-medium border-b border-white/10 transition-colors"
+                  >
+                    {link.label}
+                  </a>
+                ) : (
+                  <Link
+                    key={index}
+                    to={link.url}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center py-3 text-white/90 hover:text-white text-sm font-medium border-b border-white/10 transition-colors"
+                  >
+                    {link.label}
+                  </Link>
+                );
+              })}
+            </Accordion>
+          </nav>
+
+          {/* Drawer footer — Donate + Login */}
+          <div className="px-5 py-4 border-t border-white/10 flex flex-col gap-3">
+            {showDonateButton && (
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onDonateClick();
+                }}
+                className="flex items-center justify-center gap-2 w-full py-3 rounded-full text-white font-medium text-sm transition-all duration-300 hover:opacity-90"
+                style={{
+                  background:
+                    "linear-gradient(90deg, #d45151 0%, #c04040 100%)",
+                }}
+              >
+                <Heart className="w-4 h-4" fill="white" />
+                {t('nav.donate')}
+              </button>
+            )}
+            <Link
+              to="/login"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center gap-2 text-white/80 hover:text-white text-sm transition-colors"
+            >
+              <User className="w-4 h-4" />
+              {t('nav.loginProfile')}
+            </Link>
+          </div>
+        </SheetContent>
+      </Sheet>
+    </div>
+  );
+};
+
+// Header Container (Corrected Dual Navigation Layout)
+const Header = ({ forceOpaque = false }: { forceOpaque?: boolean }) => {
+  const { data: navbarSettings } = useNavbarSettings();
+  const { t } = useTranslation();
+  const trNavbar = useCmsTranslations('navbar_settings');
+  const trNavLink = useCmsTranslations('navbar_link');
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isDonateDrawerOpen, setIsDonateDrawerOpen] = useState(false);
+
+  const defaultNavigationLinks: NavLink[] = [
+    { label: t("nav.discover"), url: "/discover" },
+    { label: t("nav.activities"), url: "/#events" },
+    { label: t("nav.projects"), url: "/projects" },
+    { label: t("nav.clubs"), url: "/#clubs" },
+    { label: t("nav.gallery"), url: "/gallery" },
+    { label: t("nav.blog"), url: "/news" },
+    { label: t("nav.talents"), url: "/talents" },
+    { label: t("nav.contact"), url: "/contact" },
+  ];
+
+  const navigationLinks =
+    navbarSettings?.navigationLinks &&
+    Array.isArray(navbarSettings.navigationLinks) &&
+    navbarSettings.navigationLinks.length > 0
+      ? (navbarSettings.navigationLinks as unknown as Array<{ href: string; label: string; openInNewTab?: boolean; [key: string]: unknown }>).map((link) => ({
+          ...link,
+          url: link.href,
+          isExternal: link.openInNewTab ?? false,
+          label: trNavLink(link.href, 'label', link.label),
+        } as NavLink))
+      : defaultNavigationLinks;
+
+  const availableLanguages =
+    navbarSettings?.availableLanguages &&
+    Array.isArray(navbarSettings.availableLanguages) &&
+    navbarSettings.availableLanguages.length > 0
+      ? (navbarSettings.availableLanguages as string[])
+      : ["EN", "FR", "AR", "ES"];
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+
+    handleScroll();
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const toggleDarkMode = () => {
+    setIsDarkMode(!isDarkMode);
+    document.documentElement.classList.toggle("dark");
+  };
+
+  const logoUrl =
+    navbarSettings?.logoType === "image" && navbarSettings?.logoImageId
+      ? `/api/cms/media/${navbarSettings.logoImageId}`
+      : logoAtj;
+
+  // Extract styling settings with defaults
+  const bgColor = navbarSettings?.backgroundColor || "#112250";
+  const textColor = navbarSettings?.textColor || "#ffffff";
+  const hoverColor = navbarSettings?.hoverColor || "#D8C18D";
+  const fontFamily = navbarSettings?.fontFamily || "Inter";
+  const fontSize = navbarSettings?.fontSize || "14px";
+  const navHeight = navbarSettings?.height || 80;
+  const isSticky = navbarSettings?.isSticky ?? true;
+  const isTransparent = navbarSettings?.isTransparent ?? true;
+
+  const transparentBg = navbarSettings?.transparentBg || "rgb(0 0 0 / 0%)";
+  const scrolledBg = navbarSettings?.scrolledBg || bgColor;
+  const logoSize = navbarSettings?.logoSize || 135;
+  const logoLink = navbarSettings?.logoLink || "/";
+
+  // Compute navbar background color based on scroll state and settings
+  const getNavbarBg = () => {
+    if (forceOpaque || isScrolled) {
+      return scrolledBg;
+    }
+    // When not scrolled
+    if (isTransparent) {
+      return transparentBg; // e.g., "rgba(0,0,0,0.3)" or "transparent"
+    }
+    return transparentBg;
+  };
+  return (
+    <>
+      <header
+        className={`${isSticky ? "fixed" : "absolute"} top-0 w-full z-50 transition-all duration-300 ${
+          (forceOpaque || isScrolled) ? "backdrop-blur-sm" : ""
+        }`}
+        style={{
+          backgroundColor: getNavbarBg(),
+          marginTop: (forceOpaque || isScrolled) ? "0" : "2.5rem",
+          fontFamily: fontFamily,
+          fontSize: fontSize,
+          color: textColor,
+        }}
+      >
+        {/* Top Navbar - Utility Bar (Language, Theme, Login, Join) */}
+        <TopNavbar
+          isDarkMode={isDarkMode}
+          toggleDarkMode={toggleDarkMode}
+          isScrolled={isScrolled}
+          showLanguageSwitcher={navbarSettings?.showLanguageSwitcher !== false}
+          showDarkModeToggle={navbarSettings?.showDarkModeToggle !== false}
+          showLoginButton={navbarSettings?.showLoginButton !== false}
+          loginButtonText={trNavbar('login_button', 'loginButtonText', navbarSettings?.loginButtonText || t('nav.login'))}
+          loginButtonLink={navbarSettings?.loginButtonLink || "/login"}
+          showJoinButton={navbarSettings?.showJoinButton !== false}
+          joinButtonText={trNavbar('join_button', 'joinButtonText', navbarSettings?.joinButtonText || t('nav.donate'))}
+          joinButtonLink={navbarSettings?.joinButtonLink || "/join"}
+          joinButtonStyle={navbarSettings?.joinButtonStyle || "secondary"}
+          onDonateClick={() => setIsDonateDrawerOpen(true)}
+          textColor={textColor}
+          hoverColor={hoverColor}
+        />
+
+        {/* Bottom Navbar - Main Navigation */}
+        <BottomNavbar
+          isScrolled={isScrolled}
+          navigationLinks={navigationLinks}
+          logoUrl={logoUrl}
+          logoSize={logoSize}
+          logoLink={logoLink}
+          logoType={navbarSettings?.logoType || "image"}
+          logoText={navbarSettings?.logoText || ""}
+          textColor={textColor}
+          hoverColor={hoverColor}
+          navHeight={navHeight}
+          onDonateClick={() => setIsDonateDrawerOpen(true)}
+          showDonateButton={navbarSettings?.showJoinButton !== false}
+        />
+      </header>
+
+      <DonateDrawer
+        open={isDonateDrawerOpen}
+        onOpenChange={setIsDonateDrawerOpen}
+      />
+    </>
+  );
+};
+
+export default Header;

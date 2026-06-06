@@ -1,0 +1,70 @@
+
+warnOnce @ react-router-dom.js?v=382b574c:4435
+logDeprecation @ react-router-dom.js?v=382b574c:4438
+logV6DeprecationWarnings @ react-router-dom.js?v=382b574c:4444
+(anonymous) @ react-router-dom.js?v=382b574c:5313
+commitHookEffectListMount @ chunk-O3VNRDW5.js?v=17cd334b:16963
+commitPassiveMountOnFiber @ chunk-O3VNRDW5.js?v=17cd334b:18206
+commitPassiveMountEffects_complete @ chunk-O3VNRDW5.js?v=17cd334b:18179
+commitPassiveMountEffects_begin @ chunk-O3VNRDW5.js?v=17cd334b:18169
+commitPassiveMountEffects @ chunk-O3VNRDW5.js?v=17cd334b:18159
+flushPassiveEffectsImpl @ chunk-O3VNRDW5.js?v=17cd334b:19543
+flushPassiveEffects @ chunk-O3VNRDW5.js?v=17cd334b:19500
+performSyncWorkOnRoot @ chunk-O3VNRDW5.js?v=17cd334b:18921
+flushSyncCallbacks @ chunk-O3VNRDW5.js?v=17cd334b:9166
+commitRootImpl @ chunk-O3VNRDW5.js?v=17cd334b:19485
+commitRoot @ chunk-O3VNRDW5.js?v=17cd334b:19330
+finishConcurrentRender @ chunk-O3VNRDW5.js?v=17cd334b:18858
+performConcurrentWorkOnRoot @ chunk-O3VNRDW5.js?v=17cd334b:18768
+workLoop @ chunk-O3VNRDW5.js?v=17cd334b:197
+flushWork @ chunk-O3VNRDW5.js?v=17cd334b:176
+performWorkUntilDeadline @ chunk-O3VNRDW5.js?v=17cd334b:384
+postMessage
+schedulePerformWorkUntilDeadline @ chunk-O3VNRDW5.js?v=17cd334b:407
+requestHostCallback @ chunk-O3VNRDW5.js?v=17cd334b:418
+unstable_scheduleCallback @ chunk-O3VNRDW5.js?v=17cd334b:330
+scheduleCallback$1 @ chunk-O3VNRDW5.js?v=17cd334b:19879
+ensureRootIsScheduled @ chunk-O3VNRDW5.js?v=17cd334b:18702
+scheduleUpdateOnFiber @ chunk-O3VNRDW5.js?v=17cd334b:18612
+updateContainer @ chunk-O3VNRDW5.js?v=17cd334b:20834
+ReactDOMHydrationRoot.render.ReactDOMRoot.render @ chunk-O3VNRDW5.js?v=17cd334b:21174
+(anonymous) @ main.tsx:9Understand this warning
+useAuth.ts:27  GET http://192.168.56.1:5000/api/auth/user 401 (Unauthorized)
+fetchUser @ useAuth.ts:27
+fetchFn @ @tanstack_react-query.js?v=cdb1fc1b:1259
+run @ @tanstack_react-query.js?v=cdb1fc1b:844
+start @ @tanstack_react-query.js?v=cdb1fc1b:886
+fetch @ @tanstack_react-query.js?v=cdb1fc1b:1309
+#executeFetch @ @tanstack_react-query.js?v=cdb1fc1b:1631
+onSubscribe @ @tanstack_react-query.js?v=cdb1fc1b:1504
+subscribe @ @tanstack_react-query.js?v=cdb1fc1b:19
+(anonymous) @ @tanstack_react-query.js?v=cdb1fc1b:3384
+subscribeToStore @ chunk-O3VNRDW5.js?v=17cd334b:12032
+commitHookEffectListMount @ chunk-O3VNRDW5.js?v=17cd334b:16963
+commitPassiveMountOnFiber @ chunk-O3VNRDW5.js?v=17cd334b:18206
+commitPassiveMountEffects_complete @ chunk-O3VNRDW5.js?v=17cd334b:18179
+commitPassiveMountEffects_begin @ chunk-O3VNRDW5.js?v=17cd334b:18169
+commitPassiveMountEffects @ chunk-O3VNRDW5.js?v=17cd334b:18159
+flushPassiveEffectsImpl @ chunk-O3VNRDW5.js?v=17cd334b:19543
+flushPassiveEffects @ chunk-O3VNRDW5.js?v=17cd334b:19500
+performSyncWorkOnRoot @ chunk-O3VNRDW5.js?v=17cd334b:18921
+flushSyncCallbacks @ chunk-O3VNRDW5.js?v=17cd334b:9166
+commitRootImpl @ chunk-O3VNRDW5.js?v=17cd334b:19485
+commitRoot @ chunk-O3VNRDW5.js?v=17cd334b:19330
+finishConcurrentRender @ chunk-O3VNRDW5.js?v=17cd334b:18858
+performConcurrentWorkOnRoot @ chunk-O3VNRDW5.js?v=17cd334b:18768
+workLoop @ chunk-O3VNRDW5.js?v=17cd334b:197
+flushWork @ chunk-O3VNRDW5.js?v=17cd334b:176
+performWorkUntilDeadline @ chunk-O3VNRDW5.js?v=17cd334b:384
+postMessage
+schedulePerformWorkUntilDeadline @ chunk-O3VNRDW5.js?v=17cd334b:407
+requestHostCallback @ chunk-O3VNRDW5.js?v=17cd334b:418
+unstable_scheduleCallback @ chunk-O3VNRDW5.js?v=17cd334b:330
+scheduleCallback$1 @ chunk-O3VNRDW5.js?v=17cd334b:19879
+ensureRootIsScheduled @ chunk-O3VNRDW5.js?v=17cd334b:18702
+scheduleUpdateOnFiber @ chunk-O3VNRDW5.js?v=17cd334b:18612
+updateContainer @ chunk-O3VNRDW5.js?v=17cd334b:20834
+ReactDOMHydrationRoot.render.ReactDOMRoot.render @ chunk-O3VNRDW5.js?v=17cd334b:21174
+(anonymous) @ main.tsx:9Understand this error
+chunk-XZ6LJBNC.js?v=17cd334b:19969 [Violation] 'requestAnimationFrame' handler took 99ms
+Gallery.tsx:970 Unable to preventDefault inside passive event listener invocation.

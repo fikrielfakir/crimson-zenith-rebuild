@@ -1,0 +1,180 @@
+Updated “Our Clubs” Section (with Search Bar + Icons + Button Text Update)
+🧭 General Layout
+
+Design an interactive clubs map section like the one shown, with a left sidebar containing:
+
+A small search bar on top.
+
+A scrollable list of cities vertically centered.
+
+An up/down arrow centered beside the list.
+
+Cards that display club details (with icons).
+
+A button at the bottom with new text and style.
+
+The right side remains the interactive map area.
+
+🔍 1. Search Bar (Top of City List)
+
+Placement:
+
+Fixed above the list of cities, inside the same left sidebar container.
+
+Aligned left, with slight padding.
+
+Design:
+
+Width: 220px
+
+Height: 36px
+
+Border-radius: 8px
+
+Background: rgba(255, 255, 255, 0.15)
+
+Border: 1px solid rgba(255, 255, 255, 0.25)
+
+Placeholder text: "Search city..."
+
+Font:
+
+Family: Poppins, sans-serif
+
+Size: 14px
+
+Color: #ffffffb3
+
+Icon (magnifier): left-aligned inside the bar (16px from the edge), white, size 16px.
+
+Focus state: border changes to #ffd54a, background to rgba(255, 255, 255, 0.25).
+
+🏙️ 2. City List & Arrow Icon
+
+List container:
+
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+justify-content: center;
+gap: 16px;
+position: relative;
+margin-top: 16px;
+
+
+Text styles:
+
+Inactive city: #c8c8c8
+
+Active city: white (#fff), bold, with 3px left border (#ffd54a)
+
+Arrow icons:
+
+Centered vertically next to the city list
+
+Circle background (48x48px), white icon, semi-transparent background
+
+Hover effect: background → #ffd54a, icon → navy (#0b1a52)
+
+🪧 3. Club Card Design (Left Sidebar, When Active or No Clubs)
+
+Card container:
+
+Width: 260px
+
+Background: rgba(255, 255, 255, 0.12)
+
+Border-radius: 12px
+
+Padding: 16px 20px
+
+Font: Poppins, sans-serif
+
+Text color: white
+
+Gap between cards: 12px
+
+🟢 Active or Existing Club
+
+Small icon (e.g., 🏠, 📍, or 🏛️) on the left side of the card title.
+
+Icon color: #ffd54a
+
+Icon size: 18px
+
+Title font size: 16px, bold.
+
+Subtitle: 14px, light color #ffffffb3
+
+Hover: smooth scale 1.03 and glow (box-shadow: 0 0 8px rgba(255,213,74,0.4))
+
+⚪ No Clubs Yet Card
+
+Background: rgba(255, 255, 255, 0.08)
+
+Text: "No clubs yet in Beni Mellal"
+
+Subtitle: "Check back soon or explore other cities"
+
+Add icon:
+
+Icon type: “info” or “map-pin-off”
+
+Icon position: left side of text, aligned vertically center
+
+Icon color: #ffd54a, size: 20px
+
+Margin-right: 8px
+
+📍 4. Locate Button (Text & Function Update)
+
+Old text: “Locate Selected Club”
+New text: “Locate My Current Location”
+
+Design:
+
+Width: 230px
+
+Height: 46px
+
+Border-radius: 8px
+
+Font:
+
+Family: Poppins, sans-serif
+
+Size: 15px
+
+Weight: 500
+
+Color: #0b1a52
+
+Background: gradient from #ffd54a → #f1b02d
+
+Hover: slight lift (translateY(-2px)), glow effect around button
+
+Icon: location marker (📍) on left side of text, white, size 18px
+
+🌍 Map Area (Right Side)
+
+Full width background map (satellite or styled map).
+
+Gradient overlays on left and right edges for smooth contrast:
+
+Left gradient: linear-gradient(90deg, #0b1a52 35%, transparent 100%)
+
+Right gradient: subtle dark overlay.
+
+Zoom controls (+, −) remain on the right side as circular white icons.
+
+✅ Final Behavior Summary
+
+Search bar filters visible cities instantly.
+
+Arrow icons scroll through city list if overflowed.
+
+Club cards update dynamically based on selected city.
+
+When no clubs available, info card with icon appears.
+
+“Locate My Current Location” button triggers geolocation map centering.

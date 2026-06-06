@@ -1,0 +1,38 @@
+[vite] connecting...
+[vite] connected.
+⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+Cannot read properties of undefined (reading 'map')
+Cannot read properties of undefined (reading 'map')
+The above error occurred in the <Book> component:
+
+    at Book (https://df3ce34e-5aba-4e68-b624-b9d35b872b2a-00-2u592lb5a0pba.janeway.replit.dev/src/pages/Book.tsx:38:28)
+    at RenderedRoute (https://df3ce34e-5aba-4e68-b624-b9d35b872b2a-00-2u592lb5a0pba.janeway.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=f2905358:4088:5)
+    at Routes (https://df3ce34e-5aba-4e68-b624-b9d35b872b2a-00-2u592lb5a0pba.janeway.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=f2905358:4558:5)
+    at Router (https://df3ce34e-5aba-4e68-b624-b9d35b872b2a-00-2u592lb5a0pba.janeway.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=f2905358:4501:15)
+    at BrowserRouter (https://df3ce34e-5aba-4e68-b624-b9d35b872b2a-00-2u592lb5a0pba.janeway.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=f2905358:5247:5)
+    at Provider (https://df3ce34e-5aba-4e68-b624-b9d35b872b2a-00-2u592lb5a0pba.janeway.replit.dev/node_modules/.vite/deps/chunk-U27FYV5Z.js?v=91332538:38:15)
+    at TooltipProvider (https://df3ce34e-5aba-4e68-b624-b9d35b872b2a-00-2u592lb5a0pba.janeway.replit.dev/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=36e81e54:62:5)
+    at QueryClientProvider (https://df3ce34e-5aba-4e68-b624-b9d35b872b2a-00-2u592lb5a0pba.janeway.replit.dev/node_modules/.vite/deps/@tanstack_react-query.js?v=f6d5f6bd:2934:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+
+at Book (https://df3ce34e-5aba-4e68-b624-b9d35b872b2a-00-2u592lb5a0pba.janeway.replit.dev/src/pages/Book.tsx:38:28)
+at RenderedRoute (https://df3ce34e-5aba-4e68-b624-b9d35b872b2a-00-2u592lb5a0pba.janeway.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=f2905358:4088:5)
+at Routes (https://df3ce34e-5aba-4e68-b624-b9d35b872b2a-00-2u592lb5a0pba.janeway.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=f2905358:4558:5)
+at Router (https://df3ce34e-5aba-4e68-b624-b9d35b872b2a-00-2u592lb5a0pba.janeway.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=f2905358:4501:15)
+at BrowserRouter (https://df3ce34e-5aba-4e68-b624-b9d35b872b2a-00-2u592lb5a0pba.janeway.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=f2905358:5247:5)
+at Provider (https://df3ce34e-5aba-4e68-b624-b9d35b872b2a-00-2u592lb5a0pba.janeway.replit.dev/node_modules/.vite/deps/chunk-U27FYV5Z.js?v=91332538:38:15)
+at TooltipProvider (https://df3ce34e-5aba-4e68-b624-b9d35b872b2a-00-2u592lb5a0pba.janeway.replit.dev/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=36e81e54:62:5)
+at QueryClientProvider (https://df3ce34e-5aba-4e68-b624-b9d35b872b2a-00-2u592lb5a0pba.janeway.replit.dev/node_modules/.vite/deps/@tanstack_react-query.js?v=f6d5f6bd:2934:3)
+at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+at t.value (https://df3ce34e-5aba-4e68-b624-b9d35b872b2a-00-2u592lb5a0pba.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:17465)
+at new t (https://df3ce34e-5aba-4e68-b624-b9d35b872b2a-00-2u592lb5a0pba.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:12630)
+at t.value (https://df3ce34e-5aba-4e68-b624-b9d35b872b2a-00-2u592lb5a0pba.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:32766)
+at https://df3ce34e-5aba-4e68-b624-b9d35b872b2a-00-2u592lb5a0pba.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:34400
+Cannot read properties of undefined (reading 'map')

@@ -1,0 +1,3 @@
+- [Migration setup](migration-setup.md) — Journey Association app runs as two workflows: Dev Server (Vite, port 5000) + API Server (Express/tsx, port 3001); all routes live in server.ts
+- [Hero settings seed](hero-settings-seed.md) — hero_settings table needs a default row seeded via raw SQL on fresh DB; use INSERT ... ON CONFLICT DO NOTHING
+- [Missing routes pattern](missing-routes.md) — server/routes.ts has registerRoutes() but is NOT wired into server.ts; all routes must be added directly to server.ts

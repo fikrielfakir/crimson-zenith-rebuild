@@ -1,0 +1,146 @@
+Goal:
+Redesign the “Our Clubs” section to perfectly match the Figma layout (Screen Figma.png), with correct spacing, card sizes, typography, alignment, and interactive logic.
+
+🧭 General Layout
+
+Use a full-width section with a Google Maps background blurred slightly behind a dark gradient overlay (linear-gradient(180deg, #0A1845 0%, rgba(10, 24, 69, 0.9) 100%)).
+
+Place a semi-transparent left sidebar listing cities vertically.
+
+Center the main heading "Our Clubs" and subtitle just above the map, aligned horizontally.
+
+Club cards are horizontally scrollable, positioned at the bottom-center of the map view.
+
+🧱 Typography & Colors
+
+Title (“Our Clubs”)
+
+Font: Poppins ExtraBold
+
+Size: 48px
+
+Color: #FFFFFF
+
+Letter spacing: 0.5px
+
+Text-align: center
+
+Margin-top: 60px
+
+Subtitle (“Join local communities across Morocco’s most fascinating cities”)
+
+Font: Poppins Medium
+
+Size: 20px
+
+Color: #FFFFFFCC
+
+Text-align: center
+
+Margin-bottom: 40px
+
+Sidebar city list
+
+Font: Poppins Regular
+
+Size: 18px
+
+Color: #FFFFFF99
+
+Active city (e.g., “Al Hoceima”) → bold (Poppins SemiBold), color #FFFFFF
+
+Spacing: 20px between items
+
+🧩 Club Cards
+
+Layout: horizontally aligned, slightly elevated (shadow + rounded corners).
+
+Size: Width 330px × Height 160px.
+
+Background: #0B184A with 80% opacity, blurred glass effect (backdrop-filter: blur(10px)).
+
+Rounded corners: border-radius: 16px.
+
+Drop shadow: 0 4px 20px rgba(0, 0, 0, 0.2).
+
+Card contents:
+
+Club Icon: Left side, 48×48px circular, gradient background linear-gradient(135deg, #FFD645, #FFB800).
+
+Club Name:
+
+Font: Poppins SemiBold
+
+Size: 18px
+
+Color: #FFFFFF
+
+Positioned next to icon.
+
+Club Location:
+
+Font: Poppins Regular
+
+Size: 14px
+
+Color: #FFFFFFB3
+
+Badge (number of members):
+
+Small yellow circle (size: 28×28px) at top-right corner with white text.
+
+Active card state:
+
+Slightly larger (scale(1.05)), brighter background gradient.
+
+Display an expanded info box with club image + “Get More” button.
+
+Button:
+
+Color: linear-gradient(90deg, #FFD645 0%, #FFB800 100%)
+
+Font: Poppins SemiBold, size 14px, white text
+
+Rounded corners (12px), padding 10px 20px
+
+📍 Interactive Logic
+
+Click on Club Card
+
+Highlights the card (scale up + active glow).
+
+Shows a pin on the map at the club’s coordinates.
+
+Displays expanded info section with image + “Get More” button.
+
+Click on City (sidebar)
+
+Filters visible club cards by selected city.
+
+Smooth transition animation (fade-out/fade-in).
+
+Map Interaction
+
+The selected club’s pin remains active (different color or bounce animation).
+
+Zooms map smoothly to that club’s location.
+
+⚙️ Animations & Transitions
+
+Card hover: scale 1.03 + subtle glow (0 0 10px rgba(255, 214, 69, 0.5))
+
+Card selection: animated expansion with framer-motion spring effect.
+
+Sidebar hover: text color transition to white (0.3s ease).
+
+Map pin animation: gentle bounce on selection.
+
+🧠 Technical Implementation (React + Map API)
+
+Use React + Framer Motion for animations.
+
+Use Google Maps API or React Leaflet for map and marker logic.
+
+Each club has { id, name, city, description, coordinates, image }.
+
+Clicking a card → sets selectedClub, updates marker position, triggers zoom + popup.

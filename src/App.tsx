@@ -1,0 +1,430 @@
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Index from "./pages/Index";
+import Discover from "./pages/Discover";
+import EventsActivities from "./pages/EventsActivities";
+import Clubs from "./pages/Clubs";
+import Book from "./pages/Book";
+import BookingForm from "./pages/BookingForm";
+import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentFail from "./pages/PaymentFail";
+import DonateSuccess from "./pages/DonateSuccess";
+import DonateFail from "./pages/DonateFail";
+import Gallery from "./pages/Gallery";
+import News from "./pages/News";
+import BlogPost from "./pages/BlogPost";
+import Contact from "./pages/Contact";
+import SmartEvents from "./pages/SmartEvents";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
+import CookiePolicy from "./pages/CookiePolicy";
+import NotFound from "./pages/NotFound";
+import Projects from "./pages/Projects";
+import About from "./pages/About";
+
+// Error pages
+import Error400 from "./pages/Error400";
+import Error401 from "./pages/Error401";
+import Error403 from "./pages/Error403";
+import Error408 from "./pages/Error408";
+import Error429 from "./pages/Error429";
+import Error500 from "./pages/Error500";
+import Error501 from "./pages/Error501";
+import Error502 from "./pages/Error502";
+import Error503 from "./pages/Error503";
+import Error504 from "./pages/Error504";
+
+// Admin imports
+import AdminLogin from "./pages/admin/AdminLogin";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import Analytics from "./pages/admin/Analytics";
+import ClubsManagement from "./pages/admin/ClubsManagement";
+import ClubForm from "./pages/admin/ClubForm";
+import ClubsPendingApproval from "./pages/admin/ClubsPendingApproval";
+import EventsManagement from "./pages/admin/EventsManagement";
+import NewsManagement from "./pages/admin/NewsManagement";
+import UserManagement from "./pages/admin/UserManagement";
+import UserRolesManagement from "./pages/admin/UserRolesManagement";
+import MediaLibrary from "./pages/admin/MediaLibrary";
+import EmailCampaigns from "./pages/admin/EmailCampaigns";
+import SystemMonitoring from "./pages/admin/SystemMonitoring";
+import AdminSettings from "./pages/admin/AdminSettings";
+import LandingManagement from "./pages/admin/LandingManagement";
+import ApplicationsManagement from "./pages/admin/ApplicationsManagement";
+import JoinUsConfig from "./pages/admin/JoinUsConfig";
+import CookieSettings from "./pages/admin/CookieSettings";
+import LegalPagesSettings from "./pages/admin/LegalPagesSettings";
+import AuthSettings from "./pages/admin/AuthSettings";
+import PaymentSettings from "./pages/admin/PaymentSettings";
+import BookingManagement from "./pages/admin/BookingManagement";
+import GalleryManagement from "./pages/admin/GalleryManagement";
+import ThemeCustomization from "./pages/admin/ThemeCustomization";
+import ThemeSettings from "./pages/admin/ThemeSettings";
+import NavbarSettings from "./pages/admin/NavbarSettings";
+import HeroSettings from "./pages/admin/HeroSettings";
+import PresidentMessageSettings from "./pages/admin/PresidentMessageSettings";
+import AboutManagement from "./pages/admin/AboutManagement";
+import FocusAreasManagement from "./pages/admin/FocusAreasManagement";
+import ImpactManagement from "./pages/admin/ImpactManagement";
+import TeamMembersManagement from "./pages/admin/TeamMembersManagement";
+import TestimonialsManagement from "./pages/admin/TestimonialsManagement";
+import PartnersManagement from "./pages/admin/PartnersManagement";
+import ContactSubmissions from "./pages/admin/ContactSubmissions";
+import CitiesManagement from "./pages/admin/CitiesManagement";
+import PageHeroSettings from "./pages/admin/PageHeroSettings";
+import JoinUs from "./pages/JoinUs";
+import ClubDetail from "./pages/ClubDetail";
+import ActivityDetail from "./pages/ActivityDetail";
+import CityDetail from "./pages/CityDetail";
+import UserProfile from "./pages/UserProfile";
+import ForgotPassword from "./pages/ForgotPassword";
+import { UserProtectedRoute } from "./components/UserProtectedRoute";
+import ClubProfileEdit from "./pages/ClubProfileEdit";
+import UserLogin from "./pages/UserLogin";
+import UserSignup from "./pages/UserSignup";
+import { ProtectedRoute } from "./components/admin/ProtectedRoute";
+import CookieConsent from "./components/CookieConsent";
+
+// Talents pages
+import VolunteersSpontaneous from "./pages/VolunteersSpontaneous";
+import VolunteersPosts from "./pages/VolunteersPosts";
+import TalentsExperts from "./pages/TalentsExperts";
+import WorkOffers from "./pages/WorkOffers";
+
+// Talents & Projects admin pages
+import VolunteerOpportunitiesAdmin from "./pages/admin/VolunteerOpportunitiesAdmin";
+import VolunteerPostsAdmin from "./pages/admin/VolunteerPostsAdmin";
+import ExpertsAdmin from "./pages/admin/ExpertsAdmin";
+import WorkOffersAdmin from "./pages/admin/WorkOffersAdmin";
+import ProjectsAdmin from "./pages/admin/ProjectsAdmin";
+import TranslationsManagement from "./pages/admin/TranslationsManagement";
+import ContactSettings from "./pages/admin/ContactSettings";
+import ClubsPageSettingsAdmin from "./pages/admin/ClubsPageSettings";
+
+const queryClient = new QueryClient();
+
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/" element={<Index />} />
+          <Route path="/discover" element={<Discover />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/discover/cities" element={<CityDetail />} />
+          <Route path="/events" element={<EventsActivities />} />
+          <Route path="/projects" element={<Projects />} />
+          <Route path="/clubs" element={<Clubs />} />
+          <Route path="/club/:slug" element={<ClubDetail />} />
+          <Route path="/activities/:activityName" element={<ActivityDetail />} />
+          <Route path="/smart-events" element={<SmartEvents />} />
+          <Route path="/book" element={<Book />} />
+          <Route path="/book/form" element={<BookingForm />} />
+          <Route path="/book/payment/success" element={<PaymentSuccess />} />
+          <Route path="/book/payment/fail" element={<PaymentFail />} />
+          <Route path="/donate/success" element={<DonateSuccess />} />
+          <Route path="/donate/fail" element={<DonateFail />} />
+          <Route path="/gallery" element={<Gallery />} />
+          <Route path="/news" element={<News />} />
+          <Route path="/news/:slug" element={<BlogPost />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/terms-of-service" element={<TermsOfService />} />
+          <Route path="/cookie-policy" element={<CookiePolicy />} />
+          <Route path="/join" element={<JoinUs />} />
+          <Route path="/login" element={<UserLogin />} />
+          <Route path="/signup" element={<UserSignup />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/profile" element={<UserProtectedRoute><UserProfile /></UserProtectedRoute>} />
+          <Route path="/club/:clubId/edit" element={<ClubProfileEdit />} />
+          
+          {/* Talents Routes */}
+          <Route path="/talents/volunteers/spontaneous" element={<VolunteersSpontaneous />} />
+          <Route path="/talents/volunteers/posts" element={<VolunteersPosts />} />
+          <Route path="/talents/experts" element={<TalentsExperts />} />
+          <Route path="/talents/work-offers" element={<WorkOffers />} />
+          
+          {/* Admin Routes */}
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin" element={
+            <ProtectedRoute>
+              <AdminDashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/analytics" element={
+            <ProtectedRoute>
+              <Analytics />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/clubs" element={
+            <ProtectedRoute>
+              <ClubsManagement />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/clubs/new" element={
+            <ProtectedRoute>
+              <ClubForm />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/clubs/:id/edit" element={
+            <ProtectedRoute>
+              <ClubForm />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/events" element={
+            <ProtectedRoute>
+              <EventsManagement />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/news" element={
+            <ProtectedRoute>
+              <NewsManagement />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/users" element={
+            <ProtectedRoute>
+              <UserManagement />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/users/roles" element={
+            <ProtectedRoute>
+              <UserRolesManagement />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/clubs/pending" element={
+            <ProtectedRoute>
+              <ClubsPendingApproval />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/media" element={
+            <ProtectedRoute>
+              <MediaLibrary />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/gallery" element={
+            <ProtectedRoute>
+              <GalleryManagement />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/email" element={
+            <ProtectedRoute>
+              <EmailCampaigns />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/monitor" element={
+            <ProtectedRoute>
+              <SystemMonitoring />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/system" element={
+            <ProtectedRoute>
+              <SystemMonitoring />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/settings" element={
+            <ProtectedRoute>
+              <AdminSettings />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/landing" element={
+            <ProtectedRoute>
+              <LandingManagement />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/cms" element={
+            <ProtectedRoute>
+              <LandingManagement />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/applications" element={
+            <ProtectedRoute>
+              <ApplicationsManagement />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/contact-submissions" element={
+            <ProtectedRoute>
+              <ContactSubmissions />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/join-config" element={
+            <ProtectedRoute>
+              <JoinUsConfig />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/cookies" element={
+            <ProtectedRoute>
+              <CookieSettings />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/legal-pages" element={
+            <ProtectedRoute>
+              <LegalPagesSettings />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/auth" element={
+            <ProtectedRoute>
+              <AuthSettings />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/payments" element={
+            <ProtectedRoute>
+              <PaymentSettings />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/booking" element={
+            <ProtectedRoute>
+              <BookingManagement />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/bookings" element={
+            <ProtectedRoute>
+              <BookingManagement />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/theme-old" element={
+            <ProtectedRoute>
+              <ThemeCustomization />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/theme" element={
+            <ProtectedRoute>
+              <ThemeSettings />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/customization/navbar" element={
+            <ProtectedRoute>
+              <NavbarSettings />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/customization/hero" element={
+            <ProtectedRoute>
+              <HeroSettings />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/customization/about" element={
+            <ProtectedRoute>
+              <AboutManagement />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/customization/about-president" element={
+            <ProtectedRoute>
+              <PresidentMessageSettings />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/customization/focus-areas" element={
+            <ProtectedRoute>
+              <FocusAreasManagement />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/customization/clubs" element={
+            <ProtectedRoute>
+              <ClubsManagement />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/customization/events" element={
+            <ProtectedRoute>
+              <EventsManagement />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/customization/impact" element={
+            <ProtectedRoute>
+              <ImpactManagement />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/customization/testimonials" element={
+            <ProtectedRoute>
+              <TestimonialsManagement />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/customization/team" element={
+            <ProtectedRoute>
+              <TeamMembersManagement />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/customization/partners" element={
+            <ProtectedRoute>
+              <PartnersManagement />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/customization/page-heroes" element={
+            <ProtectedRoute>
+              <PageHeroSettings />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/customization/clubs-page" element={
+            <ProtectedRoute>
+              <ClubsPageSettingsAdmin />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/customization/contact" element={
+            <ProtectedRoute>
+              <ContactSettings />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/admin/cities" element={
+            <ProtectedRoute>
+              <CitiesManagement />
+            </ProtectedRoute>
+          } />
+
+          {/* Talents & Projects Admin Routes */}
+          <Route path="/admin/talents/opportunities" element={
+            <ProtectedRoute>
+              <VolunteerOpportunitiesAdmin />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/talents/posts" element={
+            <ProtectedRoute>
+              <VolunteerPostsAdmin />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/talents/experts" element={
+            <ProtectedRoute>
+              <ExpertsAdmin />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/talents/work-offers" element={
+            <ProtectedRoute>
+              <WorkOffersAdmin />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/projects" element={
+            <ProtectedRoute>
+              <ProjectsAdmin />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/translations" element={
+            <ProtectedRoute>
+              <TranslationsManagement />
+            </ProtectedRoute>
+          } />
+
+          {/* Error Pages */}
+          <Route path="/error/400" element={<Error400 />} />
+          <Route path="/error/401" element={<Error401 />} />
+          <Route path="/error/403" element={<Error403 />} />
+          <Route path="/error/408" element={<Error408 />} />
+          <Route path="/error/429" element={<Error429 />} />
+          <Route path="/error/500" element={<Error500 />} />
+          <Route path="/error/501" element={<Error501 />} />
+          <Route path="/error/502" element={<Error502 />} />
+          <Route path="/error/503" element={<Error503 />} />
+          <Route path="/error/504" element={<Error504 />} />
+          
+          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+        <CookieConsent />
+      </BrowserRouter>
+    </TooltipProvider>
+  </QueryClientProvider>
+);
+
+export default App;

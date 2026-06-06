@@ -1,0 +1,299 @@
+Visual Identity:
+
+Primary Colors: Deep navy blue (#1a365d), Adventure orange (#f56500), White (#ffffff)
+Secondary Colors: Light gray (#f7fafc), Medium gray (#e2e8f0), Dark gray (#2d3748)
+Accent Colors: Success green (#38a169), Warning yellow (#d69e2f), Error red (#e53e3e)
+Typography: Primary font "Inter" or "Poppins" for headings, "Open Sans" for body text
+Border radius: 8px for cards, 4px for buttons, 12px for hero sections
+Shadows: Subtle box-shadow for cards, deeper shadows for modals
+Spacing: 8px base unit system (8px, 16px, 24px, 32px, 48px, 64px)
+
+Hero Section Template (Consistent Across All Pages)
+Maintain the exact hero structure but customize content:
+
+Full-width background with overlay gradient (rgba(26, 54, 93, 0.7))
+Centered content with white text
+Large heading (48px desktop, 32px mobile)
+Subtitle text (18px desktop, 16px mobile)
+Two CTA buttons: Primary (orange) and Secondary (outlined white)
+Breadcrumb navigation when applicable
+Scroll indicator at bottom
+
+Complete Page Designs
+1. Home Page (Home.jsx)
+Hero: Exact same as shown - "Where Adventure Meets" with dynamic slider
+Layout Sections:
+
+Our Focus: 3-column grid (Safety First, Community Driven, Certified Guides) with icons
+Popular Destinations: Horizontal scrolling carousel with adventure cards
+Events Calendar: Mini calendar preview with upcoming events
+Our Clubs: 4-club showcase grid with "Join Now" buttons
+Statistics Footprint: 4-metric cards (1,200+ Adventures, 500+ Members, etc.)
+Member Testimonials: 3-testimonial carousel with photos and ratings
+Newsletter signup: Centered section with email input
+Contact Information: Split layout with contact details and message form
+
+2. Discover Page (Discover.jsx)
+Hero: "Discover Your Next Adventure" with mountain/hiking background
+Layout:
+
+Filter sidebar (25% width): Collapsible sections for Activity Type, Difficulty, Location, Duration, Price Range, Rating
+Main content area (75%):
+
+Map/Grid toggle buttons
+Adventure cards grid (3 columns desktop, 2 tablet, 1 mobile)
+Each card: Image, title, difficulty badge, duration, price, rating stars, "Book Now" button
+
+
+Featured Adventures: Highlighted section with 4 premium adventures
+Adventure Finder Quiz: Modal popup with step-by-step questionnaire
+Local Guides: Profile cards with photos, specialties, and ratings
+
+3. Clubs Page (Clubs.jsx)
+Hero: "Join Adventure Communities" with group hiking background
+Layout:
+
+Search bar with location and activity filters
+Map/List toggle view
+Club cards grid (3 columns):
+
+Club logo/image, name, member count badge
+Activity tags (hiking, climbing, cycling)
+Next meetup date and location
+"Join Club" button with member status indicator
+
+
+Benefits section: 4-column layout explaining club advantages
+Success stories: Member spotlight cards with before/after photos
+"Start Your Club" CTA: Modal form with club creation wizard
+
+4. Events Page (Events.jsx)
+Hero: "Upcoming Adventures" with calendar overlay design
+Layout:
+
+View toggles: Calendar, List, Map (top navigation tabs)
+Filter panel: Date picker, activity type, difficulty, location radius
+Calendar View: Full calendar with event dots, click for event popup
+List View: Event cards with image, details, RSVP count, weather icon
+Map View: Interactive map with event markers and info windows
+Weather alerts: Banner notifications for outdoor events
+Past events: Separate section with photo galleries and reviews
+
+5. Book/Booking Page (Book.jsx)
+Hero: "Book Your Adventure" with booking form overlay
+Multi-step Layout:
+
+Progress indicator (Step 1-4)
+Step 1: Adventure selection with image gallery and details
+Step 2: Calendar with real-time availability (green/red/yellow dates)
+Step 3: Participant forms, equipment rental checkboxes, insurance options
+Step 4: Payment gateway with multiple options, booking summary
+Confirmation page: QR code, itinerary, contact details, cancellation policy
+
+6. Gallery Page (Gallery.jsx)
+Hero: "Adventure Memories" with photo collage background
+Layout:
+
+Filter tabs: By adventure type, location, season, club
+Masonry grid layout (Pinterest-style)
+Lightbox viewer with image details, location, date, tags
+User upload section: Drag-and-drop interface with moderation queue
+Video showcase: Featured adventure videos with play buttons
+Social sharing: Instagram-style sharing interface
+Download options: High-res image downloads for members
+
+7. News/Blog Page (News.jsx)
+Hero: Featured article with large image and excerpt overlay
+Layout:
+
+Category navigation: Adventure Tips, Safety Updates, Member Spotlights, Gear Reviews
+Article grid: 3 columns with thumbnail, headline, excerpt, author, date
+Trending sidebar: Popular articles, tags cloud, newsletter signup
+Search functionality: Full-text search with filters
+Newsletter archive: Downloadable past newsletters
+Comment integration: Discussion threads for each article
+
+8. Blog Post Detail (BlogPost.jsx)
+Layout:
+
+Full-width featured image with article title overlay
+Article content: Rich text editor output with images, videos, embedded content
+Author bio sidebar: Photo, bio, social links, recent articles
+Related articles: 3-card recommendation section
+Social sharing: Fixed sidebar with share counts
+Comments: Threaded discussion system with moderation
+Reading progress: Sticky progress bar at top
+
+9. Learn More Page (LearnMore.jsx)
+Hero: "Safety is Our Priority" with certification badges overlay
+Layout:
+
+About section: Company story, mission, values with team photos
+Safety standards: Certification badges, compliance information
+Guide qualifications: Certification requirements, training process
+Equipment standards: Safety protocols, maintenance schedules
+Environmental responsibility: Sustainability practices, partnerships
+Insurance coverage: Policy details, claim process
+FAQ: Expandable accordion with categories
+Contact CTA: Multiple contact methods with response times
+
+10. Start Your Journey Page (StartJourney.jsx)
+Hero: "Begin Your Adventure Story" with onboarding illustration
+Wizard Layout:
+
+Welcome screen with platform overview
+Experience assessment: Skill level questionnaire with progress bar
+Interest selection: Adventure type grid with visual selection
+Location preferences: Map interface with radius selection
+Goal setting: Achievement targets and milestone tracking
+Personalized recommendations: AI-generated adventure suggestions
+Gear assessment: Starter pack recommendations with partner discounts
+Mentor matching: Guide/mentor selection based on interests
+Welcome package: Onboarding checklist and resources
+
+11. Partners Page (Partners.jsx)
+Hero: "Adventure Partners" with partner logos overlay
+Layout:
+
+Partner categories: Tabbed navigation (Gear, Accommodation, Guides, Transportation)
+Partner grid: Logo, name, description, member benefits, website link
+Interactive map: Partner locations with info windows
+Exclusive deals: Special offers section with discount codes
+Partner application: Business partnership form
+Member reviews: Rating and review system for partner services
+Featured partnerships: Highlighted strategic partners
+
+12. Login/Auth Page (Login.jsx)
+Split Layout:
+
+Left side (60%): Adventure imagery with overlay branding
+Right side (40%): Authentication forms
+Login form: Email, password, remember me, social login buttons
+Register form: Progressive disclosure with adventure preferences
+Password reset: Email verification flow
+Email verification: Confirmation process with resend option
+Terms acceptance: Safety waiver and terms checkboxes
+Age verification: Date picker with minimum age validation
+
+13. Profile/Account Page (Profile.jsx)
+Dashboard Layout:
+
+Profile header: Photo, name, member since, achievement badges
+Navigation tabs: Personal Info, Adventure History, Bookings, Favorites, Settings
+Adventure timeline: Visual journey map with completed adventures
+Upcoming bookings: Calendar view with booking details
+Photo memories: Personal adventure photo gallery
+Fitness tracking: Skill level progression and fitness metrics
+Emergency contacts: Editable contact information
+Notification preferences: Granular notification settings
+
+14. Adventure Detail Page (AdventureDetail.jsx)
+Layout:
+
+Image gallery: Hero carousel with thumbnail navigation
+Adventure overview: Title, difficulty, duration, price, rating
+Detailed itinerary: Day-by-day breakdown with timeline
+Inclusions/Exclusions: Clear lists with icons
+Requirements: Fitness level, age restrictions, medical considerations
+Weather information: Seasonal conditions and recommendations
+Gear list: Required and recommended equipment with rental options
+Reviews section: Photo reviews, ratings breakdown, filters
+Similar adventures: Recommendation carousel
+Sticky booking widget: Persistent CTA with date selection
+
+15. Safety & Guidelines Page (Safety.jsx)
+Hero: "Adventure Safely" with safety equipment imagery
+Layout:
+
+Safety protocols: Step-by-step guides with illustrations
+Emergency procedures: Quick reference cards and contact numbers
+Risk assessment: Interactive risk calculator
+Medical requirements: Health screening guidelines
+Weather safety: Condition-specific safety protocols
+Equipment standards: Safety certification requirements
+Guide certification: Training and qualification information
+Insurance details: Coverage information and claim process
+Emergency contacts: 24/7 support numbers with click-to-call
+
+16. Membership/Pricing Page (Membership.jsx)
+Hero: "Choose Your Adventure Level" with membership comparison
+Layout:
+
+Pricing comparison table: Feature comparison across tiers
+Membership benefits: Visual benefits breakdown with icons
+Payment options: Monthly/annual toggle with savings calculation
+Corporate packages: Business membership information
+Student discounts: Verification process and special rates
+Referral program: Referral tracking and rewards system
+FAQ section: Common membership questions
+Upgrade/downgrade: Easy tier switching with prorated billing
+
+17. Gear & Equipment Page (Gear.jsx)
+Hero: "Gear Up for Adventure" with equipment showcase
+Layout:
+
+Equipment categories: Tabbed navigation by activity type
+Rental service: Available gear with booking calendar
+Buying guides: Expert reviews and recommendations
+Size guides: Interactive fitting tools and size charts
+Maintenance tips: Care instructions with video tutorials
+Partner discounts: Exclusive member pricing with discount codes
+Safety standards: Equipment certification and testing information
+Gear swap: Member-to-member equipment exchange marketplace
+
+18. Community Forum Page (Forum.jsx)
+Layout:
+
+Category grid: Discussion topics by activity type
+Latest discussions: Recent posts with reply counts and activity
+Member Q&A: Question/answer format with voting system
+Trip planning: Collaborative planning tools and shared itineraries
+Gear marketplace: Buy/sell/trade equipment with user ratings
+Safety reports: Incident reporting and learning system
+Photo sharing: Trip reports with image galleries
+Member directory: Searchable member profiles with activity history
+
+19. Weather & Conditions Page (Weather.jsx)
+Hero: "Plan with Confidence" with weather visualization
+Layout:
+
+Location search: Map interface with weather overlays
+Current conditions: Real-time weather with hourly forecasts
+Seasonal reports: Historical data and trend analysis
+Trail conditions: Real-time updates from rangers and members
+Weather alerts: Push notifications and email warnings
+Planning tools: Optimal timing recommendations
+Micro-climate data: Location-specific weather patterns
+Historical data: Past weather for planning purposes
+
+20. Help & Support Page (Support.jsx)
+Layout:
+
+FAQ categories: Searchable accordion with quick answers
+Live chat: Embedded chat widget with agent availability
+Ticket system: Support request form with priority levels
+Video tutorials: Embedded help videos with categories
+Contact directory: Department-specific contact information
+Emergency support: 24/7 emergency contact prominently displayed
+System status: Real-time platform status and maintenance updates
+Knowledge base: Searchable help articles with ratings
+
+Responsive Design Requirements
+
+Mobile-first approach with breakpoints: 320px, 768px, 1024px, 1440px
+Touch-friendly interface with minimum 44px touch targets
+Swipe gestures for carousels and image galleries
+Collapsible navigation and filter panels
+Optimized images with lazy loading and WebP format
+Progressive Web App features with offline functionality
+
+Interactive Elements
+
+Hover states for all interactive elements
+Loading animations and skeleton screens
+Micro-interactions for form validation and feedback
+Smooth transitions between page states
+Infinite scroll or pagination for large datasets
+Real-time updates for bookings and availability
+Toast notifications for user feedback
+Modal dialogs for complex forms and confirmations
