@@ -4593,13 +4593,16 @@ app.put('/api/admin/smtp-settings', isAdmin, async (req, res) => {
 });
 
 app.post('/api/admin/smtp/test', isAdmin, async (req, res) => {
+  const userId = (req.user as any)?.id;
+  const { to } = req.body;
+  if (!to) return res.status(400).json({ error: 'Missing recipient email' });
+  const cfg = await storage.getSmtpSettings();
+  if (!cfg?.enabled || !cfg.host) {
+    return res.status(400).json({ error: 'SMTP is not configured or not enabled' });
+  }
+  const subject = 'Test Email — The Journey Association';
+  const body = 'This is a test email to confirm your SMTP configuration is working correctly.';
   try {
-    const { to } = req.body;
-    if (!to) return res.status(400).json({ error: 'Missing recipient email' });
-    const cfg = await storage.getSmtpSettings();
-    if (!cfg?.enabled || !cfg.host) {
-      return res.status(400).json({ error: 'SMTP is not configured or not enabled' });
-    }
     const nodemailer = await import('nodemailer');
     const transporter = nodemailer.default.createTransport({
       host: cfg.host,
@@ -4609,25 +4612,26 @@ app.post('/api/admin/smtp/test', isAdmin, async (req, res) => {
     });
     await transporter.sendMail({
       from: `"${cfg.fromName ?? 'Journey'}" <${cfg.fromEmail ?? cfg.username}>`,
-      to,
-      subject: 'Test Email — The Journey Association',
-      text: 'This is a test email to confirm your SMTP configuration is working correctly.',
+      to, subject, text: body,
     });
+    await storage.createEmailLog({ to, subject, body, status: 'sent', type: 'test', sentBy: userId });
     res.json({ ok: true });
   } catch (error: any) {
     console.error('❌ SMTP test error:', error);
+    await storage.createEmailLog({ to, subject, body, status: 'failed', errorMessage: error?.message, type: 'test', sentBy: userId }).catch(() => {});
     res.status(500).json({ error: error?.message ?? 'SMTP test failed' });
   }
 });
 
 app.post('/api/admin/smtp/send', isAdmin, async (req, res) => {
+  const userId = (req.user as any)?.id;
+  const { to, subject, body } = req.body;
+  if (!to || !subject || !body) return res.status(400).json({ error: 'Missing fields' });
+  const cfg = await storage.getSmtpSettings();
+  if (!cfg?.enabled || !cfg.host) {
+    return res.status(400).json({ error: 'SMTP is not configured or not enabled' });
+  }
   try {
-    const { to, subject, body } = req.body;
-    if (!to || !subject || !body) return res.status(400).json({ error: 'Missing fields' });
-    const cfg = await storage.getSmtpSettings();
-    if (!cfg?.enabled || !cfg.host) {
-      return res.status(400).json({ error: 'SMTP is not configured or not enabled' });
-    }
     const nodemailer = await import('nodemailer');
     const transporter = nodemailer.default.createTransport({
       host: cfg.host,
@@ -4637,14 +4641,25 @@ app.post('/api/admin/smtp/send', isAdmin, async (req, res) => {
     });
     await transporter.sendMail({
       from: `"${cfg.fromName ?? 'Journey'}" <${cfg.fromEmail ?? cfg.username}>`,
-      to,
-      subject,
-      text: body,
+      to, subject, text: body,
     });
+    await storage.createEmailLog({ to, subject, body, status: 'sent', type: 'manual', sentBy: userId });
     res.json({ ok: true });
   } catch (error: any) {
     console.error('❌ SMTP send error:', error);
+    await storage.createEmailLog({ to, subject, body, status: 'failed', errorMessage: error?.message, type: 'manual', sentBy: userId }).catch(() => {});
     res.status(500).json({ error: error?.message ?? 'Send failed' });
+  }
+});
+
+app.get('/api/admin/email-log', isAdmin, async (req, res) => {
+  try {
+    const limit = Math.min(parseInt(String(req.query.limit ?? '200')), 500);
+    const logs = await storage.getEmailLogs(limit);
+    res.json(logs);
+  } catch (error) {
+    console.error('❌ Error fetching email log:', error);
+    res.status(500).json({ error: 'Failed to fetch email log' });
   }
 });
 

@@ -35,12 +35,15 @@ import {
   landingPageSections,
   authSettings,
   smtpSettings,
+  emailLog,
   type LandingPageSection,
   type InsertLandingPageSection,
   type AuthSettings,
   type InsertAuthSettings,
   type SmtpSettings,
   type InsertSmtpSettings,
+  type EmailLog,
+  type InsertEmailLog,
   type LegalPage,
   type InsertLegalPage,
   type ContentTranslation,
@@ -1507,6 +1510,16 @@ export class DatabaseStorage implements IStorage {
     return await this.insertAndFetch<SmtpSettings>(
       smtpSettings, { ...data, id: 'default', updatedBy: userId } as InsertSmtpSettings
     );
+  }
+
+  // Email log operations
+  async createEmailLog(entry: Omit<InsertEmailLog, 'id' | 'sentAt'>): Promise<EmailLog> {
+    const [row] = await db.insert(emailLog).values(entry as InsertEmailLog).returning();
+    return row;
+  }
+
+  async getEmailLogs(limit = 100): Promise<EmailLog[]> {
+    return await db.select().from(emailLog).orderBy(desc(emailLog.sentAt)).limit(limit);
   }
 
   // Landing page section visibility

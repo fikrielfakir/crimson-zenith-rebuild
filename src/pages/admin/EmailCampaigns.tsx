@@ -7,7 +7,11 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
-import { Mail, Server, Send, Eye, EyeOff, AlertTriangle, FlaskConical } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import {
+  Mail, Server, Send, Eye, EyeOff, AlertTriangle, FlaskConical,
+  CheckCircle2, XCircle, History, RefreshCw,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   AdminPageHeader,
@@ -19,6 +23,8 @@ import {
   HINT_CN,
 } from '@/components/admin/AdminPageShell';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
+// ─── Types ───────────────────────────────────────────────────────────────────
 
 interface SmtpData {
   enabled: boolean;
@@ -48,7 +54,29 @@ interface ComposeForm {
   body: string;
 }
 
-function PasswordField({ value, onChange, placeholder }: { value: string; onChange: (v: string) => void; placeholder?: string }) {
+interface EmailLogEntry {
+  id: number;
+  to: string;
+  subject: string;
+  body: string | null;
+  status: string;
+  errorMessage: string | null;
+  type: string;
+  sentBy: string | null;
+  sentAt: string;
+}
+
+// ─── Sub-components ──────────────────────────────────────────────────────────
+
+function PasswordField({
+  value,
+  onChange,
+  placeholder,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+}) {
   const [show, setShow] = useState(false);
   return (
     <div className="relative">
@@ -69,6 +97,124 @@ function PasswordField({ value, onChange, placeholder }: { value: string; onChan
     </div>
   );
 }
+
+function StatusBadge({ status }: { status: string }) {
+  if (status === 'sent') {
+    return (
+      <Badge variant="outline" className="gap-1 border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-400">
+        <CheckCircle2 className="h-3 w-3" />
+        Sent
+      </Badge>
+    );
+  }
+  return (
+    <Badge variant="outline" className="gap-1 border-red-300 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-400">
+      <XCircle className="h-3 w-3" />
+      Failed
+    </Badge>
+  );
+}
+
+function TypeBadge({ type }: { type: string }) {
+  return (
+    <Badge variant="secondary" className="text-xs capitalize">
+      {type}
+    </Badge>
+  );
+}
+
+function SentTab() {
+  const { data: logs, isLoading, isError, refetch, isFetching } = useQuery<EmailLogEntry[]>({
+    queryKey: ['admin-email-log'],
+    queryFn: async () => {
+      const res = await apiFetch('/api/admin/email-log');
+      if (!res.ok) throw new Error('Failed to fetch email log');
+      return res.json();
+    },
+  });
+
+  if (isLoading) return <AdminFormSkeleton rows={4} className="max-w-4xl" />;
+  if (isError) return (
+    <AdminPageError
+      title="Couldn't load email history"
+      message="The email log failed to load."
+      onRetry={refetch}
+      className="max-w-4xl"
+    />
+  );
+
+  return (
+    <div className="space-y-4 max-w-4xl">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm font-medium">Email History</p>
+          <p className={HINT_CN}>All emails sent from this admin panel — both manual and test messages.</p>
+        </div>
+        <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching} className="gap-2">
+          <RefreshCw className={`h-3.5 w-3.5 ${isFetching ? 'animate-spin' : ''}`} />
+          Refresh
+        </Button>
+      </div>
+
+      {!logs?.length ? (
+        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed bg-muted/30 py-16 text-center gap-3">
+          <History className="h-8 w-8 text-muted-foreground/50" />
+          <div>
+            <p className="font-medium text-sm">No emails sent yet</p>
+            <p className={`${HINT_CN} mt-1`}>
+              Sent and failed emails will appear here once you start sending.
+            </p>
+          </div>
+        </div>
+      ) : (
+        <div className="rounded-lg border overflow-hidden">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b bg-muted/50">
+                <th className="text-left px-4 py-3 font-medium text-muted-foreground w-40">Date</th>
+                <th className="text-left px-4 py-3 font-medium text-muted-foreground">Recipient</th>
+                <th className="text-left px-4 py-3 font-medium text-muted-foreground">Subject</th>
+                <th className="text-left px-4 py-3 font-medium text-muted-foreground w-24">Type</th>
+                <th className="text-left px-4 py-3 font-medium text-muted-foreground w-28">Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y">
+              {logs.map(log => (
+                <tr key={log.id} className="hover:bg-muted/30 transition-colors group">
+                  <td className="px-4 py-3 text-muted-foreground text-xs whitespace-nowrap">
+                    {new Date(log.sentAt).toLocaleString('en-GB', {
+                      day: '2-digit', month: 'short', year: 'numeric',
+                      hour: '2-digit', minute: '2-digit',
+                    })}
+                  </td>
+                  <td className="px-4 py-3 font-mono text-xs max-w-[200px] truncate" title={log.to}>
+                    {log.to}
+                  </td>
+                  <td className="px-4 py-3 max-w-xs">
+                    <span className="block truncate" title={log.subject}>{log.subject}</span>
+                    {log.status === 'failed' && log.errorMessage && (
+                      <span className="block truncate text-xs text-red-600 dark:text-red-400 mt-0.5" title={log.errorMessage}>
+                        {log.errorMessage}
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3">
+                    <TypeBadge type={log.type} />
+                  </td>
+                  <td className="px-4 py-3">
+                    <StatusBadge status={log.status} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function EmailCampaigns() {
   const { toast } = useToast();
@@ -125,8 +271,10 @@ export default function EmailCampaigns() {
       const body = await res.json();
       if (!res.ok) throw new Error(body?.error ?? 'Test failed');
       toast({ title: 'Test email sent!', description: `Check ${testEmail} for the test message.` });
+      queryClient.invalidateQueries({ queryKey: ['admin-email-log'] });
     } catch (err: any) {
       toast({ title: 'Test failed', description: err.message, variant: 'destructive' });
+      queryClient.invalidateQueries({ queryKey: ['admin-email-log'] });
     } finally {
       setTesting(false);
     }
@@ -147,8 +295,10 @@ export default function EmailCampaigns() {
       if (!res.ok) throw new Error(body?.error ?? 'Send failed');
       toast({ title: 'Email sent!', description: `Message delivered to ${compose.to}` });
       setCompose({ to: '', subject: '', body: '' });
+      queryClient.invalidateQueries({ queryKey: ['admin-email-log'] });
     } catch (err: any) {
       toast({ title: 'Send failed', description: err.message, variant: 'destructive' });
+      queryClient.invalidateQueries({ queryKey: ['admin-email-log'] });
     } finally {
       setSending(false);
     }
@@ -165,6 +315,10 @@ export default function EmailCampaigns() {
         <TabsList className="mb-5">
           <TabsTrigger value="smtp">SMTP Configuration</TabsTrigger>
           <TabsTrigger value="compose">Compose &amp; Send</TabsTrigger>
+          <TabsTrigger value="sent" className="gap-1.5">
+            <History className="h-3.5 w-3.5" />
+            Sent
+          </TabsTrigger>
         </TabsList>
 
         {/* ── SMTP Tab ── */}
@@ -372,6 +526,11 @@ export default function EmailCampaigns() {
               <span>The message is sent as plain text. HTML support and bulk campaigns are coming soon.</span>
             </div>
           </AdminCard>
+        </TabsContent>
+
+        {/* ── Sent Tab ── */}
+        <TabsContent value="sent">
+          <SentTab />
         </TabsContent>
       </Tabs>
     </div>

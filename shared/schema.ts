@@ -941,3 +941,19 @@ export const smtpSettings = pgTable("smtp_settings", {
 
 export type SmtpSettings = typeof smtpSettings.$inferSelect;
 export type InsertSmtpSettings = typeof smtpSettings.$inferInsert;
+
+// Email send log table
+export const emailLog = pgTable("email_log", {
+  id: serial("id").primaryKey(),
+  to: varchar("to", { length: 500 }).notNull(),
+  subject: varchar("subject", { length: 500 }).notNull(),
+  body: text("body"),
+  status: varchar("status", { length: 20 }).notNull().default("sent"),
+  errorMessage: text("error_message"),
+  type: varchar("type", { length: 20 }).notNull().default("manual"),
+  sentBy: varchar("sent_by", { length: 255 }),
+  sentAt: timestamp("sent_at").defaultNow(),
+});
+
+export type EmailLog = typeof emailLog.$inferSelect;
+export type InsertEmailLog = typeof emailLog.$inferInsert;
