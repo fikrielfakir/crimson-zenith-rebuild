@@ -759,13 +759,40 @@ export default defineConfig(({ mode }: { mode: string }) => ({
               res.end(JSON.stringify({ message: "Unsupported language" }));
               return;
             }
-            const results: Record<string, string> = {};
-            for (const { key, value: text } of texts as Array<{ key: string; value: string }>) {
-              if (!text?.trim()) { results[key] = ""; continue; }
+            async function translateChunk(text: string): Promise<string> {
               const apiUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|${targetLang}`;
               const apiRes = await fetch(apiUrl);
               const data = await apiRes.json() as any;
-              results[key] = data?.responseStatus === 200 ? (data.responseData?.translatedText ?? "") : "";
+              return data?.responseStatus === 200 ? (data.responseData?.translatedText ?? text) : text;
+            }
+
+            async function translateLongText(value: string): Promise<string> {
+              const LIMIT = 450;
+              if (value.length <= LIMIT) return translateChunk(value);
+              const paragraphs = value.split(/\n\n/);
+              const out: string[] = [];
+              for (const para of paragraphs) {
+                if (!para.trim()) { out.push(para); continue; }
+                if (para.length <= LIMIT) { out.push(await translateChunk(para)); continue; }
+                const lines = para.split("\n");
+                const lineOut: string[] = [];
+                for (const line of lines) {
+                  if (!line.trim()) { lineOut.push(line); continue; }
+                  if (line.length <= LIMIT) { lineOut.push(await translateChunk(line)); continue; }
+                  const segs = line.match(/.{1,450}(?:\s|$)/g) ?? [line];
+                  const segOut: string[] = [];
+                  for (const seg of segs) segOut.push(await translateChunk(seg.trim()));
+                  lineOut.push(segOut.join(" "));
+                }
+                out.push(lineOut.join("\n"));
+              }
+              return out.join("\n\n");
+            }
+
+            const results: Record<string, string> = {};
+            for (const { key, value: text } of texts as Array<{ key: string; value: string }>) {
+              if (!text?.trim()) { results[key] = ""; continue; }
+              results[key] = await translateLongText(text);
             }
             res.statusCode = 200;
             res.setHeader("Content-Type", "application/json");
