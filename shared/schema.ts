@@ -908,3 +908,36 @@ export const landingPageSections = pgTable("landing_page_sections", {
 
 export type LandingPageSection = typeof landingPageSections.$inferSelect;
 export type InsertLandingPageSection = typeof landingPageSections.$inferInsert;
+
+// Auth settings table
+export const authSettings = pgTable("auth_settings", {
+  id: varchar("id", { length: 255 }).primaryKey().default("default"),
+  allowRegistration: boolean("allow_registration").default(true),
+  passwordMinLength: integer("password_min_length").default(8),
+  sessionDurationHours: integer("session_duration_hours").default(24),
+  requireEmailVerification: boolean("require_email_verification").default(false),
+  maxLoginAttempts: integer("max_login_attempts").default(5),
+  updatedBy: varchar("updated_by", { length: 255 }),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export type AuthSettings = typeof authSettings.$inferSelect;
+export type InsertAuthSettings = typeof authSettings.$inferInsert;
+
+// SMTP settings table
+export const smtpSettings = pgTable("smtp_settings", {
+  id: varchar("id", { length: 255 }).primaryKey().default("default"),
+  enabled: boolean("enabled").default(false),
+  host: varchar("host", { length: 255 }),
+  port: integer("port").default(587),
+  secure: boolean("secure").default(false),
+  username: varchar("username", { length: 255 }),
+  password: varchar("password", { length: 500 }),
+  fromName: varchar("from_name", { length: 255 }),
+  fromEmail: varchar("from_email", { length: 255 }),
+  updatedBy: varchar("updated_by", { length: 255 }),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export type SmtpSettings = typeof smtpSettings.$inferSelect;
+export type InsertSmtpSettings = typeof smtpSettings.$inferInsert;

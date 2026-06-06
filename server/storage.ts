@@ -33,8 +33,14 @@ import {
   legalPages,
   clubsPageSettings,
   landingPageSections,
+  authSettings,
+  smtpSettings,
   type LandingPageSection,
   type InsertLandingPageSection,
+  type AuthSettings,
+  type InsertAuthSettings,
+  type SmtpSettings,
+  type InsertSmtpSettings,
   type LegalPage,
   type InsertLegalPage,
   type ContentTranslation,
@@ -1465,6 +1471,42 @@ export class DatabaseStorage implements IStorage {
         { ...settingsData, id: 'default', updatedBy: userId } as InsertClubsPageSettings
       );
     }
+  }
+
+  // Auth settings operations
+  async getAuthSettings(): Promise<AuthSettings | undefined> {
+    const [row] = await db.select().from(authSettings).where(eq(authSettings.id, 'default'));
+    return row;
+  }
+
+  async updateAuthSettings(data: Partial<InsertAuthSettings>, userId?: string): Promise<AuthSettings> {
+    const existing = await this.getAuthSettings();
+    if (existing) {
+      return await this.updateAndFetch<AuthSettings>(
+        authSettings, 'default', { ...data, updatedBy: userId, updatedAt: new Date() }
+      );
+    }
+    return await this.insertAndFetch<AuthSettings>(
+      authSettings, { ...data, id: 'default', updatedBy: userId } as InsertAuthSettings
+    );
+  }
+
+  // SMTP settings operations
+  async getSmtpSettings(): Promise<SmtpSettings | undefined> {
+    const [row] = await db.select().from(smtpSettings).where(eq(smtpSettings.id, 'default'));
+    return row;
+  }
+
+  async updateSmtpSettings(data: Partial<InsertSmtpSettings>, userId?: string): Promise<SmtpSettings> {
+    const existing = await this.getSmtpSettings();
+    if (existing) {
+      return await this.updateAndFetch<SmtpSettings>(
+        smtpSettings, 'default', { ...data, updatedBy: userId, updatedAt: new Date() }
+      );
+    }
+    return await this.insertAndFetch<SmtpSettings>(
+      smtpSettings, { ...data, id: 'default', updatedBy: userId } as InsertSmtpSettings
+    );
   }
 
   // Landing page section visibility

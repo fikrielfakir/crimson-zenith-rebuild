@@ -4535,6 +4535,119 @@ app.put('/api/admin/cms/landing-sections', isAdmin, async (req, res) => {
   }
 });
 
+// ── Auth Settings ────────────────────────────────────────────────────────────
+app.get('/api/admin/auth-settings', isAdmin, async (req, res) => {
+  try {
+    const settings = await storage.getAuthSettings();
+    res.json(settings ?? {
+      allowRegistration: true,
+      passwordMinLength: 8,
+      sessionDurationHours: 24,
+      requireEmailVerification: false,
+      maxLoginAttempts: 5,
+    });
+  } catch (error) {
+    console.error('❌ Error fetching auth settings:', error);
+    res.status(500).json({ error: 'Failed to fetch auth settings' });
+  }
+});
+
+app.put('/api/admin/auth-settings', isAdmin, async (req, res) => {
+  try {
+    const userId = (req.user as any)?.id;
+    const settings = await storage.updateAuthSettings(req.body, userId);
+    res.json(settings);
+  } catch (error) {
+    console.error('❌ Error updating auth settings:', error);
+    res.status(500).json({ error: 'Failed to update auth settings' });
+  }
+});
+
+// ── SMTP Settings ─────────────────────────────────────────────────────────────
+app.get('/api/admin/smtp-settings', isAdmin, async (req, res) => {
+  try {
+    const settings = await storage.getSmtpSettings();
+    const safe = settings ? { ...settings, password: settings.password ? '••••••••' : '' } : {};
+    res.json(safe);
+  } catch (error) {
+    console.error('❌ Error fetching SMTP settings:', error);
+    res.status(500).json({ error: 'Failed to fetch SMTP settings' });
+  }
+});
+
+app.put('/api/admin/smtp-settings', isAdmin, async (req, res) => {
+  try {
+    const userId = (req.user as any)?.id;
+    const body = { ...req.body };
+    // If password is the masked sentinel, preserve existing
+    if (body.password === '••••••••') {
+      const existing = await storage.getSmtpSettings();
+      body.password = existing?.password ?? '';
+    }
+    const settings = await storage.updateSmtpSettings(body, userId);
+    res.json({ ...settings, password: settings.password ? '••••••••' : '' });
+  } catch (error) {
+    console.error('❌ Error updating SMTP settings:', error);
+    res.status(500).json({ error: 'Failed to update SMTP settings' });
+  }
+});
+
+app.post('/api/admin/smtp/test', isAdmin, async (req, res) => {
+  try {
+    const { to } = req.body;
+    if (!to) return res.status(400).json({ error: 'Missing recipient email' });
+    const cfg = await storage.getSmtpSettings();
+    if (!cfg?.enabled || !cfg.host) {
+      return res.status(400).json({ error: 'SMTP is not configured or not enabled' });
+    }
+    const nodemailer = await import('nodemailer');
+    const transporter = nodemailer.default.createTransport({
+      host: cfg.host,
+      port: cfg.port ?? 587,
+      secure: cfg.secure ?? false,
+      auth: { user: cfg.username ?? '', pass: cfg.password ?? '' },
+    });
+    await transporter.sendMail({
+      from: `"${cfg.fromName ?? 'Journey'}" <${cfg.fromEmail ?? cfg.username}>`,
+      to,
+      subject: 'Test Email — The Journey Association',
+      text: 'This is a test email to confirm your SMTP configuration is working correctly.',
+    });
+    res.json({ ok: true });
+  } catch (error: any) {
+    console.error('❌ SMTP test error:', error);
+    res.status(500).json({ error: error?.message ?? 'SMTP test failed' });
+  }
+});
+
+app.post('/api/admin/smtp/send', isAdmin, async (req, res) => {
+  try {
+    const { to, subject, body } = req.body;
+    if (!to || !subject || !body) return res.status(400).json({ error: 'Missing fields' });
+    const cfg = await storage.getSmtpSettings();
+    if (!cfg?.enabled || !cfg.host) {
+      return res.status(400).json({ error: 'SMTP is not configured or not enabled' });
+    }
+    const nodemailer = await import('nodemailer');
+    const transporter = nodemailer.default.createTransport({
+      host: cfg.host,
+      port: cfg.port ?? 587,
+      secure: cfg.secure ?? false,
+      auth: { user: cfg.username ?? '', pass: cfg.password ?? '' },
+    });
+    await transporter.sendMail({
+      from: `"${cfg.fromName ?? 'Journey'}" <${cfg.fromEmail ?? cfg.username}>`,
+      to,
+      subject,
+      text: body,
+    });
+    res.json({ ok: true });
+  } catch (error: any) {
+    console.error('❌ SMTP send error:', error);
+    res.status(500).json({ error: error?.message ?? 'Send failed' });
+  }
+});
+
 // In production, handle client-side routing
 if (process.env.NODE_ENV === 'production') {
   app.get('(.*)', (req, res) => {
