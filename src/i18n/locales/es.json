@@ -567,7 +567,25 @@
   },
   "gallery": {
     "title": "Galería",
-    "subtitle": "La cultura y la aventura marroquí en fotos"
+    "subtitle": "La cultura y la aventura marroquí en fotos",
+    "heroSubtitle": "Explora momentos impresionantes capturados a lo largo de Marruecos — desde picos montañosos hasta dunas del desierto.",
+    "searchPlaceholder": "Buscar lugares, títulos…",
+    "photoCount": "{{count}} fotos",
+    "selectFeatured": "Seleccionar imagen destacada",
+    "dragToRotate": "Arrastrar para rotar",
+    "scrollToMove": "Desplazar para mover",
+    "clickToOpen": "Clic para abrir",
+    "badgeFeatured": "DESTACADO",
+    "badge360Enter": "ENTRAR VISTA 360°",
+    "badgeSetFeatured": "FIJAR COMO DESTACADO",
+    "home": "Inicio",
+    "categories": {
+      "all": "Todos",
+      "mountain": "Montañas",
+      "desert": "Desierto",
+      "cultural": "Cultura",
+      "adventure": "Aventura"
+    }
   },
   "book": {
     "overview": "Descripción",

@@ -567,7 +567,25 @@
   },
   "gallery": {
     "title": "Galerie",
-    "subtitle": "La culture et l'aventure marocaine en photos"
+    "subtitle": "La culture et l'aventure marocaine en photos",
+    "heroSubtitle": "Explorez des moments époustouflants capturés à travers le Maroc — des sommets montagneux aux dunes du désert.",
+    "searchPlaceholder": "Rechercher des lieux, des titres…",
+    "photoCount": "{{count}} photos",
+    "selectFeatured": "Sélectionner l'image vedette",
+    "dragToRotate": "Glisser pour pivoter",
+    "scrollToMove": "Défiler pour se déplacer",
+    "clickToOpen": "Cliquer pour ouvrir",
+    "badgeFeatured": "À LA UNE",
+    "badge360Enter": "ENTRER VUE 360°",
+    "badgeSetFeatured": "DÉFINIR COMME VEDETTE",
+    "home": "Accueil",
+    "categories": {
+      "all": "Tout",
+      "mountain": "Montagnes",
+      "desert": "Désert",
+      "cultural": "Culture",
+      "adventure": "Aventure"
+    }
   },
   "book": {
     "overview": "Aperçu",

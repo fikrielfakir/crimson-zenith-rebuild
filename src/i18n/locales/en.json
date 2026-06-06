@@ -567,7 +567,25 @@
   },
   "gallery": {
     "title": "Gallery",
-    "subtitle": "Morocco's culture and adventure in photos"
+    "subtitle": "Morocco's culture and adventure in photos",
+    "heroSubtitle": "Explore stunning moments captured across Morocco — from mountain peaks to desert dunes.",
+    "searchPlaceholder": "Search locations, titles…",
+    "photoCount": "{{count}} photos",
+    "selectFeatured": "Select Featured Image",
+    "dragToRotate": "Drag to rotate",
+    "scrollToMove": "Scroll to move",
+    "clickToOpen": "Click to open",
+    "badgeFeatured": "FEATURED",
+    "badge360Enter": "ENTER 360° VIEW",
+    "badgeSetFeatured": "SET AS FEATURED",
+    "home": "Home",
+    "categories": {
+      "all": "All",
+      "mountain": "Mountains",
+      "desert": "Desert",
+      "cultural": "Culture",
+      "adventure": "Adventure"
+    }
   },
   "book": {
     "overview": "Overview",

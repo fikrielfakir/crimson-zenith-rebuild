@@ -567,7 +567,25 @@
   },
   "gallery": {
     "title": "المعرض",
-    "subtitle": "ثقافة المغرب ومغامراته في صور"
+    "subtitle": "ثقافة المغرب ومغامراته في صور",
+    "heroSubtitle": "استكشف لحظات رائعة التقطت عبر المغرب — من قمم الجبال إلى كثبان الصحراء.",
+    "searchPlaceholder": "ابحث عن مواقع، عناوين…",
+    "photoCount": "{{count}} صور",
+    "selectFeatured": "اختر الصورة المميزة",
+    "dragToRotate": "اسحب للتدوير",
+    "scrollToMove": "مرر للتنقل",
+    "clickToOpen": "انقر للفتح",
+    "badgeFeatured": "مميز",
+    "badge360Enter": "دخول عرض 360°",
+    "badgeSetFeatured": "تعيين كمميز",
+    "home": "الرئيسية",
+    "categories": {
+      "all": "الكل",
+      "mountain": "الجبال",
+      "desert": "الصحراء",
+      "cultural": "الثقافة",
+      "adventure": "المغامرة"
+    }
   },
   "book": {
     "overview": "نظرة عامة",

@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback, useMemo, lazy, Suspense } from "react";
+import { useTranslation } from "react-i18next";
 import { motion, useMotionValue, useSpring, AnimatePresence } from "framer-motion";
 import {
   MapPin, X, ChevronLeft, ChevronRight, Upload, Search,
@@ -99,11 +100,7 @@ const SLOTS = [
 const SCENE_H = 700;
 const PERSP   = 1200;
 
-const CATEGORIES = [
-  { id:"all", label:"All" }, { id:"mountain", label:"Mountains" },
-  { id:"desert", label:"Desert" }, { id:"cultural", label:"Culture" },
-  { id:"adventure", label:"Adventure" },
-];
+const CATEGORY_IDS = ["all", "mountain", "desert", "cultural", "adventure"];
 
 function cardDims(isCenter: boolean, isBlur: boolean, aspect?: "portrait"|"landscape") {
   const w = isCenter ? 300 : isBlur ? 168 : 238;
@@ -452,6 +449,7 @@ interface CardProps {
 }
 
 function GlassCard({ item, slot, isCenter, isFlying, onClick }: CardProps) {
+  const { t } = useTranslation();
   const [hovered, setHovered] = useState(false);
   const { w, h } = cardDims(isCenter, slot.blur, item.aspect);
 
@@ -635,7 +633,7 @@ function GlassCard({ item, slot, isCenter, isFlying, onClick }: CardProps) {
                   letterSpacing:"0.08em",
                   boxShadow:"0 0 12px rgba(37,99,235,0.45)",
                 }}>
-                FEATURED
+                {t("gallery.badgeFeatured")}
               </motion.div>
             )}
 
@@ -665,7 +663,7 @@ function GlassCard({ item, slot, isCenter, isFlying, onClick }: CardProps) {
                   boxShadow:"0 0 16px rgba(30,144,255,0.45)",
                   pointerEvents:"none",
                 }}>
-                ▶ ENTER 360° VIEW
+                {t("gallery.badge360Enter")}
               </motion.div>
             )}
 
@@ -696,7 +694,7 @@ function GlassCard({ item, slot, isCenter, isFlying, onClick }: CardProps) {
                   boxShadow:"0 0 14px rgba(37,99,235,0.50)",
                   pointerEvents:"none",
                 }}>
-                ★ SET AS FEATURED
+                {t("gallery.badgeSetFeatured")}
               </motion.div>
             )}
           </div>
@@ -867,6 +865,11 @@ function FullscreenModal({ item, onClose, onPrev, onNext }: {
 
 /* ─── main gallery page ──────────────────────────────────────────────── */
 export default function Gallery() {
+  const { t } = useTranslation();
+  const CATEGORIES = CATEGORY_IDS.map(id => ({
+    id,
+    label: t(`gallery.categories.${id}`),
+  }));
   const [category,     setCategory]     = useState("all");
   const [search,       setSearch]       = useState("");
   const [selected,     setSelected]     = useState<GalleryItem|null>(null);
@@ -1089,14 +1092,14 @@ export default function Gallery() {
               <li>
                 <Link to="/" className="flex items-center gap-1.5 text-white/75 hover:text-white transition-colors px-3 py-1.5 rounded-full backdrop-blur-sm"
                   style={{ background:"rgba(255,255,255,0.07)", border:"1px solid rgba(255,255,255,0.12)" }}>
-                  <Home className="w-3.5 h-3.5"/> Home
+                  <Home className="w-3.5 h-3.5"/> {t("gallery.home")}
                 </Link>
               </li>
               <CRight className="w-4 h-4 text-white/35"/>
               <li>
                 <span className="text-white font-semibold px-3 py-1.5 rounded-full"
                   style={{ background:"rgba(255,255,255,0.10)", border:"1px solid rgba(255,255,255,0.20)" }}>
-                  Gallery
+                  {t("gallery.title")}
                 </span>
               </li>
             </ol>
@@ -1105,11 +1108,11 @@ export default function Gallery() {
             className="text-3xl md:text-5xl lg:text-7xl font-bold text-white mb-3 md:mb-4"
             style={{ textShadow:"0 0 70px rgba(59,130,246,0.42)" }}
             initial={{ opacity:0, y:24 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.75 }}>
-            Gallery
+            {t("gallery.title")}
           </motion.h1>
           <motion.p className="text-lg text-white/68 max-w-xl leading-relaxed"
             initial={{ opacity:0, y:24 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.75, delay:0.15 }}>
-            Explore stunning moments captured across Morocco — from mountain peaks to desert dunes.
+            {t("gallery.heroSubtitle")}
           </motion.p>
         </div>
       </section>
@@ -1121,7 +1124,7 @@ export default function Gallery() {
             <div className="relative">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-sky-400/50"/>
               <input type="text" value={search} onChange={e => setSearch(e.target.value)}
-                placeholder="Search locations, titles…"
+                placeholder={t("gallery.searchPlaceholder")}
                 className="pl-10 pr-4 py-2.5 rounded-full text-sm text-white/90 placeholder-white/25 outline-none w-60"
                 style={{
                   background:"rgba(10,30,80,0.55)",
@@ -1151,7 +1154,7 @@ export default function Gallery() {
                 </button>
               ))}
             </div>
-            <span className="text-sm" style={{ color:"rgba(120,195,255,0.42)" }}>{filtered.length} photos</span>
+            <span className="text-sm" style={{ color:"rgba(120,195,255,0.42)" }}>{t("gallery.photoCount", { count: filtered.length })}</span>
           </div>
         </div>
       </section>
@@ -1287,15 +1290,15 @@ export default function Gallery() {
           }}
           initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ delay:1.2 }}>
           <span className="flex items-center gap-1.5">
-            <Move className="w-3.5 h-3.5" style={{ color:"#60a5fa" }}/> Drag to rotate
+            <Move className="w-3.5 h-3.5" style={{ color:"#60a5fa" }}/> {t("gallery.dragToRotate")}
           </span>
           <span className="w-px h-3" style={{ background:"rgba(100,160,255,0.18)" }}/>
           <span className="flex items-center gap-1.5">
-            <MousePointer className="w-3.5 h-3.5" style={{ color:"#60a5fa" }}/> Scroll to move
+            <MousePointer className="w-3.5 h-3.5" style={{ color:"#60a5fa" }}/> {t("gallery.scrollToMove")}
           </span>
           <span className="w-px h-3" style={{ background:"rgba(100,160,255,0.18)" }}/>
           <span className="flex items-center gap-1.5">
-            <MousePointer2 className="w-3.5 h-3.5" style={{ color:"#60a5fa" }}/> Click to open
+            <MousePointer2 className="w-3.5 h-3.5" style={{ color:"#60a5fa" }}/> {t("gallery.clickToOpen")}
           </span>
         </motion.div>
 
@@ -1307,7 +1310,7 @@ export default function Gallery() {
         <div className="container mx-auto px-6">
           <div className="flex items-center gap-3 mb-3">
             <span className="text-xs font-semibold tracking-widest uppercase" style={{ color:"rgba(120,195,255,0.55)" }}>
-              Select Featured Image
+              {t("gallery.selectFeatured")}
             </span>
             <div style={{ flex:1, height:1, background:"linear-gradient(90deg, rgba(37,99,235,0.25), transparent)" }}/>
             <span className="text-xs" style={{ color:"rgba(120,195,255,0.35)" }}>
