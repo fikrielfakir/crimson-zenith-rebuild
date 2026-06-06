@@ -4376,18 +4376,61 @@ app.post('/api/admin/translations/auto-translate', isAdminOrBearer, async (req, 
     const targetLang = langMap[targetLanguage];
     if (!targetLang) return res.status(400).json({ error: 'Unsupported language' });
 
+    // MyMemory API has a ~500 character limit per request.
+    // Split long text into chunks at paragraph boundaries, translate each, then rejoin.
+    async function translateChunk(text: string): Promise<string> {
+      const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|${targetLang}`;
+      const response = await fetch(url);
+      const data = await response.json() as any;
+      if (data?.responseStatus === 200) {
+        return data.responseData?.translatedText ?? text;
+      }
+      return text;
+    }
+
+    async function translateLongText(value: string): Promise<string> {
+      const CHUNK_LIMIT = 450;
+      if (value.length <= CHUNK_LIMIT) {
+        return translateChunk(value);
+      }
+      // Split on double newlines (paragraph breaks) to preserve structure
+      const paragraphs = value.split(/\n\n/);
+      const translatedParagraphs: string[] = [];
+
+      for (const para of paragraphs) {
+        if (!para.trim()) { translatedParagraphs.push(para); continue; }
+        if (para.length <= CHUNK_LIMIT) {
+          translatedParagraphs.push(await translateChunk(para));
+        } else {
+          // Split long paragraph on single newlines
+          const lines = para.split('\n');
+          const translatedLines: string[] = [];
+          for (const line of lines) {
+            if (!line.trim()) { translatedLines.push(line); continue; }
+            if (line.length <= CHUNK_LIMIT) {
+              translatedLines.push(await translateChunk(line));
+            } else {
+              // Split by sentence as last resort
+              const sentences = line.match(/.{1,450}(?:\s|$)/g) ?? [line];
+              const translatedSentences: string[] = [];
+              for (const sentence of sentences) {
+                translatedSentences.push(await translateChunk(sentence.trim()));
+              }
+              translatedLines.push(translatedSentences.join(' '));
+            }
+          }
+          translatedParagraphs.push(translatedLines.join('\n'));
+        }
+      }
+
+      return translatedParagraphs.join('\n\n');
+    }
+
     const results: Record<string, string> = {};
 
     for (const { key, value } of texts) {
       if (!value?.trim()) { results[key] = ''; continue; }
-      const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(value)}&langpair=en|${targetLang}`;
-      const response = await fetch(url);
-      const data = await response.json() as any;
-      if (data?.responseStatus === 200) {
-        results[key] = data.responseData?.translatedText ?? '';
-      } else {
-        results[key] = '';
-      }
+      results[key] = await translateLongText(value);
     }
 
     res.json({ results });
