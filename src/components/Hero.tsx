@@ -155,16 +155,46 @@ const Hero = () => {
 
   if (isLoading) {
     return (
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-primary">
-        <div className="relative z-10 text-center px-6 sm:px-8 lg:px-12 max-w-4xl mx-auto w-full">
-          <Skeleton className="h-16 w-3/4 mx-auto mb-6 bg-white/20" />
-          <Skeleton className="h-16 w-2/3 mx-auto mb-10 bg-white/20" />
-          <Skeleton className="h-6 w-full max-w-xl mx-auto mb-4 bg-white/20" />
-          <Skeleton className="h-6 w-4/5 max-w-lg mx-auto mb-12 bg-white/20" />
-          <div className="flex flex-col sm:flex-row gap-5 justify-center">
-            <Skeleton className="h-14 w-48 rounded-full bg-white/20" />
-            <Skeleton className="h-14 w-40 rounded-full bg-white/20" />
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden font-sans" style={{ background: 'linear-gradient(180deg,#0d1b42 0%,#112250 60%,#152d6e 100%)' }}>
+        {/* Faint blurred background image so the skeleton matches the loaded state */}
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-30 blur-sm scale-105"
+          style={{ backgroundImage: `url(${heroBackground})` }}
+        />
+        {/* Overlay matches the real hero gradient */}
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/40 via-primary/60 to-primary/80" />
+
+        {/* Content — mirrors the exact fixed-layout structure of the real hero */}
+        <div className="relative z-10 text-center px-6 sm:px-8 lg:px-12 max-w-7xl mx-auto w-full flex flex-col items-center" style={{ marginTop: '3rem' }}>
+
+          {/* h1-fixed-container equivalent: 180px tall title zone */}
+          <div className="w-full flex items-center justify-center" style={{ height: 180 }}>
+            <div className="w-full flex flex-col items-center gap-4">
+              <div className="h-14 rounded-lg bg-white/15 animate-pulse" style={{ width: '62%', animationDuration: '1.4s' }} />
+              <div className="h-14 rounded-lg bg-white/10 animate-pulse" style={{ width: '48%', animationDuration: '1.6s' }} />
+            </div>
           </div>
+
+          {/* subtitle-fixed-container equivalent */}
+          <div className="w-full max-w-2xl mx-auto flex flex-col items-center gap-3" style={{ marginTop: '1.5rem' }}>
+            <div className="h-5 rounded-md bg-white/12 animate-pulse w-full" style={{ animationDuration: '1.5s' }} />
+            <div className="h-5 rounded-md bg-white/10 animate-pulse" style={{ width: '80%', animationDuration: '1.7s' }} />
+          </div>
+
+          {/* buttons-fixed-container equivalent */}
+          <div className="flex flex-col sm:flex-row gap-5 justify-center items-center" style={{ marginTop: '2rem' }}>
+            <div className="h-14 rounded-full bg-secondary/40 animate-pulse" style={{ width: 188, animationDuration: '1.4s' }} />
+            <div className="h-14 rounded-full border-2 border-white/25 bg-white/8 animate-pulse" style={{ width: 160, animationDuration: '1.6s' }} />
+          </div>
+        </div>
+
+        {/* Decorative bottom pattern — same as the real hero so there's no pop */}
+        <div className="absolute bottom-0 left-0 right-0 w-full h-auto z-10 pointer-events-none opacity-70">
+          <img
+            src="/attached_assets/pattern 002_1762097803637.png"
+            alt=""
+            className="w-full h-auto object-cover"
+          />
         </div>
       </section>
     );
