@@ -2652,7 +2652,7 @@ app.get('/api/admin/settings', isAdmin, async (req, res) => {
     };
     
     console.log('✅ All settings retrieved');
-    res.json(settings);
+    res.json(settings ?? null);
   } catch (error) {
     console.error('❌ Error fetching settings:', error);
     res.status(500).json({ error: 'Failed to fetch settings', details: error.message });
@@ -3400,7 +3400,7 @@ app.put('/api/admin/cms/clubs-page', isAdmin, async (req, res) => {
   try {
     const userId = (req.user as any)?.id;
     const settings = await storage.updateClubsPageSettings(req.body, userId);
-    res.json(settings);
+    res.json(settings ?? null);
   } catch (error) {
     console.error('Error updating clubs-page settings:', error);
     res.status(500).json({ error: 'Failed to update clubs page settings' });
@@ -3599,7 +3599,7 @@ app.get('/api/config/map-style', async (req, res) => {
 app.get('/api/cms/hero', async (req, res) => {
   try {
     const settings = await storage.getHeroSettings();
-    res.json(settings);
+    res.json(settings ?? null);
   } catch (error) {
     console.error('❌ Error fetching hero settings:', error);
     res.status(500).json({ error: 'Failed to fetch hero settings' });
@@ -3609,7 +3609,7 @@ app.get('/api/cms/hero', async (req, res) => {
 app.put('/api/admin/cms/hero', isAdmin, async (req, res) => {
   try {
     const settings = await storage.updateHeroSettings(req.body);
-    res.json(settings);
+    res.json(settings ?? null);
   } catch (error) {
     console.error('❌ Error updating hero settings:', error);
     res.status(500).json({ error: 'Failed to update hero settings' });
@@ -3654,7 +3654,7 @@ app.get('/api/cms/seo', async (req, res) => {
 app.put('/api/admin/cms/seo', isAdmin, async (req, res) => {
   try {
     const settings = await storage.updateSeoSettings(req.body);
-    res.json(settings);
+    res.json(settings ?? null);
   } catch (error) {
     console.error('❌ Error updating SEO settings:', error);
     res.status(500).json({ error: 'Failed to update SEO settings' });
@@ -3665,7 +3665,7 @@ app.put('/api/admin/cms/seo', isAdmin, async (req, res) => {
 app.get('/api/cms/theme', async (req, res) => {
   try {
     const settings = await storage.getThemeSettings();
-    res.json(settings);
+    res.json(settings ?? null);
   } catch (error) {
     console.error('❌ Error fetching theme settings:', error);
     res.status(500).json({ error: 'Failed to fetch theme settings' });
@@ -3675,7 +3675,7 @@ app.get('/api/cms/theme', async (req, res) => {
 app.put('/api/admin/cms/theme', isAdmin, async (req, res) => {
   try {
     const settings = await storage.updateThemeSettings(req.body);
-    res.json(settings);
+    res.json(settings ?? null);
   } catch (error) {
     console.error('❌ Error updating theme settings:', error);
     res.status(500).json({ error: 'Failed to update theme settings' });
@@ -3686,7 +3686,7 @@ app.put('/api/admin/cms/theme', isAdmin, async (req, res) => {
 app.get('/api/cms/navbar', async (req, res) => {
   try {
     const settings = await storage.getNavbarSettings();
-    res.json(settings);
+    res.json(settings ?? null);
   } catch (error) {
     console.error('❌ Error fetching navbar settings:', error);
     res.status(500).json({ error: 'Failed to fetch navbar settings' });
@@ -3696,7 +3696,7 @@ app.get('/api/cms/navbar', async (req, res) => {
 app.put('/api/admin/cms/navbar', isAdmin, async (req, res) => {
   try {
     const settings = await storage.updateNavbarSettings(req.body);
-    res.json(settings);
+    res.json(settings ?? null);
   } catch (error) {
     console.error('❌ Error updating navbar settings:', error);
     res.status(500).json({ error: 'Failed to update navbar settings' });
@@ -3806,7 +3806,7 @@ app.get('/api/cms/testimonials', async (req, res) => {
 app.get('/api/cms/contact', async (req, res) => {
   try {
     const settings = await storage.getContactSettings();
-    res.json(settings);
+    res.json(settings ?? null);
   } catch (error) {
     console.error('❌ Error fetching contact settings:', error);
     res.status(500).json({ error: 'Failed to fetch contact settings' });
@@ -3817,7 +3817,7 @@ app.get('/api/cms/contact', async (req, res) => {
 app.get('/api/cms/footer', async (req, res) => {
   try {
     const settings = await storage.getFooterSettings();
-    res.json(settings);
+    res.json(settings ?? null);
   } catch (error) {
     console.error('❌ Error fetching footer settings:', error);
     res.status(500).json({ error: 'Failed to fetch footer settings' });
@@ -3850,7 +3850,7 @@ app.get('/api/cms/about', async (req, res) => {
 app.get('/api/admin/cms/about', isAdmin, async (req, res) => {
   try {
     const settings = await storage.getAboutSettings();
-    res.json(settings);
+    res.json(settings ?? null);
   } catch (error) {
     console.error('❌ Error fetching about settings:', error);
     res.status(500).json({ error: 'Failed to fetch about settings' });
@@ -3861,7 +3861,7 @@ app.put('/api/admin/cms/about', isAdmin, async (req, res) => {
   try {
     const userId = (req.user as any)?.id;
     const settings = await storage.updateAboutSettings(req.body, userId);
-    res.json(settings);
+    res.json(settings ?? null);
   } catch (error) {
     console.error('❌ Error updating about settings:', error);
     res.status(500).json({ error: 'Failed to update about settings' });
@@ -3894,7 +3894,7 @@ app.put('/api/admin/cms/president-message', isAdmin, async (req, res) => {
   try {
     const userId = (req.user as any)?.id;
     const settings = await storage.updatePresidentMessageSettings(req.body, userId);
-    res.json(settings);
+    res.json(settings ?? null);
   } catch (error) {
     console.error('❌ Error updating president message settings:', error);
     res.status(500).json({ error: 'Failed to update president message settings' });
@@ -3906,7 +3906,7 @@ app.put('/api/admin/cms/footer', isAdmin, async (req, res) => {
   try {
     const userId = (req.user as any)?.id;
     const settings = await storage.updateFooterSettings(req.body, userId);
-    res.json(settings);
+    res.json(settings ?? null);
   } catch (error) {
     console.error('❌ Error updating footer settings:', error);
     res.status(500).json({ error: 'Failed to update footer settings' });
@@ -3927,7 +3927,7 @@ app.get('/api/cms/partners', async (req, res) => {
 app.get('/api/cms/partner-settings', async (req, res) => {
   try {
     const settings = await storage.getPartnerSettings();
-    res.json(settings);
+    res.json(settings ?? null);
   } catch (error) {
     console.error('❌ Error fetching partner settings:', error);
     res.status(500).json({ error: 'Failed to fetch partner settings' });
@@ -3949,7 +3949,7 @@ app.get('/api/booking-events', async (req, res) => {
 app.get('/api/admin/cms/partner-settings', isAdmin, async (req, res) => {
   try {
     const settings = await storage.getPartnerSettings();
-    res.json(settings);
+    res.json(settings ?? null);
   } catch (error) {
     console.error('❌ Error fetching partner settings:', error);
     res.status(500).json({ error: 'Failed to fetch partner settings' });
@@ -3960,7 +3960,7 @@ app.put('/api/admin/cms/partner-settings', isAdmin, async (req, res) => {
   try {
     const userId = (req.user as any)?.id;
     const settings = await storage.updatePartnerSettings(req.body, userId);
-    res.json(settings);
+    res.json(settings ?? null);
   } catch (error) {
     console.error('❌ Error updating partner settings:', error);
     res.status(500).json({ error: 'Failed to update partner settings' });
@@ -4212,7 +4212,7 @@ app.put('/api/admin/cms/page-hero/:pageKey', isAdmin, async (req: any, res) => {
   try {
     const userId = req.user?.id;
     const settings = await storage.upsertPageHeroSettings(req.params.pageKey, req.body, userId);
-    res.json(settings);
+    res.json(settings ?? null);
   } catch (error) {
     console.error('❌ Error updating page hero settings:', error);
     res.status(500).json({ error: 'Failed to update page hero settings' });
