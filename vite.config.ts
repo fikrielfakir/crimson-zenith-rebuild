@@ -730,6 +730,81 @@ export default defineConfig(({ mode }: { mode: string }) => ({
       },
     },
     {
+      // Handle Cookie Consent settings locally:
+      //   GET /api/cms/cookie-settings          → public read
+      //   GET /api/admin/cms/cookie-settings    → admin read
+      //   PUT /api/admin/cms/cookie-settings    → admin write
+      name: "handle-cookie-settings",
+      configureServer(server) {
+        server.middlewares.use(async (req: any, res: any, next: any) => {
+          const url: string = req.url ?? "";
+          if (
+            !url.startsWith("/api/cms/cookie-settings") &&
+            !url.startsWith("/api/admin/cms/cookie-settings")
+          ) {
+            return next();
+          }
+
+          const fs = await import("fs/promises");
+          const pathMod = await import("path");
+          const settingsFile = pathMod.resolve(__dirname, "public/cookie-settings.json");
+
+          const DEFAULT = {
+            enabled: true,
+            delay: 1500,
+            title: "🍪 We use cookies to enhance your experience",
+            description: "Our cookies help us remember your preferences, analyze site traffic, and provide personalized content. Essential cookies are always active.",
+            categories: [
+              { key: "necessary", label: "Necessary Cookies", description: "Required for basic site functionality", enabled: true, locked: true },
+              { key: "functional", label: "Functional Cookies", description: "Remember your preferences and settings", enabled: true, locked: false },
+              { key: "analytics", label: "Analytics Cookies", description: "Help us understand how our website is being used", enabled: true, locked: false },
+              { key: "marketing", label: "Marketing Cookies", description: "Personalized content and ads", enabled: true, locked: false },
+            ],
+          };
+
+          async function readSettings(): Promise<any> {
+            try { return JSON.parse(await fs.readFile(settingsFile, "utf-8")); }
+            catch { return DEFAULT; }
+          }
+          async function writeSettings(data: any) {
+            await fs.mkdir(pathMod.dirname(settingsFile), { recursive: true });
+            await fs.writeFile(settingsFile, JSON.stringify(data, null, 2));
+          }
+
+          if (req.method === "GET") {
+            const settings = await readSettings();
+            res.statusCode = 200;
+            res.setHeader("Content-Type", "application/json");
+            res.end(JSON.stringify(settings));
+            return;
+          }
+
+          if (req.method === "PUT") {
+            try {
+              const chunks: Buffer[] = [];
+              for await (const chunk of req) chunks.push(chunk);
+              const body = JSON.parse(Buffer.concat(chunks).toString());
+              const existing = await readSettings();
+              const updated = { ...existing, ...body };
+              await writeSettings(updated);
+              res.statusCode = 200;
+              res.setHeader("Content-Type", "application/json");
+              res.end(JSON.stringify(updated));
+              console.log("[cookie-settings] Settings saved");
+            } catch (err) {
+              console.error("[cookie-settings] Error:", err);
+              res.statusCode = 500;
+              res.setHeader("Content-Type", "application/json");
+              res.end(JSON.stringify({ message: "Failed to save" }));
+            }
+            return;
+          }
+
+          next();
+        });
+      },
+    },
+    {
       // Handle auto-translate only — all other translation read/write goes through
       // the proxy to Laravel API which stores them in MySQL.
       //   POST /api/admin/translations/auto-translate → MyMemory free translation API
