@@ -1416,10 +1416,12 @@ const Header = ({ forceOpaque = false }: { forceOpaque?: boolean }) => {
     navbarSettings?.navigationLinks &&
     Array.isArray(navbarSettings.navigationLinks) &&
     navbarSettings.navigationLinks.length > 0
-      ? (navbarSettings.navigationLinks as NavLink[]).map((link) => ({
+      ? (navbarSettings.navigationLinks as unknown as Array<{ href: string; label: string; openInNewTab?: boolean; [key: string]: unknown }>).map((link) => ({
           ...link,
-          label: trNavLink(link.url, 'label', link.label),
-        }))
+          url: link.href,
+          isExternal: link.openInNewTab ?? false,
+          label: trNavLink(link.href, 'label', link.label),
+        } as NavLink))
       : defaultNavigationLinks;
 
   const availableLanguages =
