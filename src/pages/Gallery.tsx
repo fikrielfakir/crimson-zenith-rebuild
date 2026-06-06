@@ -766,6 +766,7 @@ function FullscreenModal({ item, onClose, onPrev, onNext }: {
 
           <motion.div
             className="relative z-10 flex items-center gap-5 px-4 max-w-4xl w-full"
+            style={{ direction: "ltr" }}
             initial={{ scale:0.80, y:40, opacity:0 }}
             animate={{ scale:1, y:0, opacity:1 }}
             exit={{ scale:0.88, y:22, opacity:0 }}
