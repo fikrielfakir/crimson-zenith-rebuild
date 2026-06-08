@@ -92,7 +92,7 @@ const TalentsExperts = () => {
       
       <main className="relative">
         {/* Hero Section */}
-        <section className="relative pt-24 pb-16 md:pt-52 md:pb-14 overflow-hidden">
+        <section className="relative pt-40 pb-16 md:pt-52 md:pb-14 overflow-hidden">
           <div 
             className="absolute inset-0 bg-cover bg-center bg-no-repeat"
             style={{

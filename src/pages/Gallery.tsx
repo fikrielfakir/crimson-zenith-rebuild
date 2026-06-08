@@ -1102,7 +1102,7 @@ export default function Gallery() {
       <Header/>
 
       {/* ── HERO ─────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden pt-24 pb-12 md:pt-60 md:pb-14">
+      <section className="relative overflow-hidden pt-40 pb-12 md:pt-60 md:pb-14">
         <div className="absolute inset-0"
           style={{ background:"linear-gradient(180deg, rgba(4,13,33,0.18) 0%, rgba(4,13,33,0.72) 100%)" }}/>
         <div className="relative container mx-auto px-6">
