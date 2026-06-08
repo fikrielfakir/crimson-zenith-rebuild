@@ -866,7 +866,8 @@ function FullscreenModal({ item, onClose, onPrev, onNext }: {
 
 /* ─── main gallery page ──────────────────────────────────────────────── */
 export default function Gallery() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
   const CATEGORIES = CATEGORY_IDS.map(id => ({
     id,
     label: t(`gallery.categories.${id}`),
@@ -1248,16 +1249,22 @@ export default function Gallery() {
 
         {/* nav arrows */}
         <button
-          onClick={goPrev}
+          onClick={isRTL ? goNext : goPrev}
           className="absolute left-6 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full flex items-center justify-center transition-all group hover:scale-110"
           style={{ background:"rgba(10,30,80,0.60)", border:"1px solid rgba(100,170,255,0.22)", backdropFilter:"blur(12px)", boxShadow:"0 0 20px rgba(37,99,235,0.18)" }}>
-          <ChevronLeft className="w-5 h-5 text-white/65 group-hover:text-white transition-colors"/>
+          {isRTL
+            ? <ChevronRight className="w-5 h-5 text-white/65 group-hover:text-white transition-colors"/>
+            : <ChevronLeft  className="w-5 h-5 text-white/65 group-hover:text-white transition-colors"/>
+          }
         </button>
         <button
-          onClick={goNext}
+          onClick={isRTL ? goPrev : goNext}
           className="absolute right-6 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full flex items-center justify-center transition-all group hover:scale-110"
           style={{ background:"rgba(10,30,80,0.60)", border:"1px solid rgba(100,170,255,0.22)", backdropFilter:"blur(12px)", boxShadow:"0 0 20px rgba(37,99,235,0.18)" }}>
-          <ChevronRight className="w-5 h-5 text-white/65 group-hover:text-white transition-colors"/>
+          {isRTL
+            ? <ChevronLeft  className="w-5 h-5 text-white/65 group-hover:text-white transition-colors"/>
+            : <ChevronRight className="w-5 h-5 text-white/65 group-hover:text-white transition-colors"/>
+          }
         </button>
 
         {/* 3-D perspective container */}
