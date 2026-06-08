@@ -1091,5 +1091,12 @@
     "loading": "Cargando...",
     "noPhotos": "No se encontraron fotos",
     "items": "{{count}} elementos"
+  },
+  "breadcrumbs": {
+    "home": "Inicio",
+    "eventsActivities": "Eventos y Actividades",
+    "events": "Eventos",
+    "smartCalendar": "Calendario Inteligente",
+    "learnMore": "Más información"
   }
 }

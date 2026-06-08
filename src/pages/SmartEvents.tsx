@@ -10,8 +10,8 @@ const SmartEvents = () => {
       
       {/* Breadcrumbs */}
       <Breadcrumbs items={[
-        { label: 'Events', href: '/events' },
-        { label: 'Smart Calendar' }
+        { label: 'Events', tKey: 'breadcrumbs.events', href: '/events' },
+        { label: 'Smart Calendar', tKey: 'breadcrumbs.smartCalendar' }
       ]} />
 
       {/* Hero Section */}
