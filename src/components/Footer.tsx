@@ -1,5 +1,5 @@
 import logo from "@/assets/logo.png";
-import { Facebook, Instagram, Twitter, Mail } from "lucide-react";
+import { Facebook, Instagram, Twitter, Mail, Phone, MapPin } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
@@ -41,107 +41,130 @@ const Footer = () => {
     ? `mailto:${socialLinks.email}`
     : `mailto:${contactEmail}`;
 
+  const socialItems = [
+    { href: mailLink, icon: Mail, label: "Email" },
+    { href: twitterUrl, icon: Twitter, label: "Twitter" },
+    { href: instagramUrl, icon: Instagram, label: "Instagram" },
+    { href: facebookUrl, icon: Facebook, label: "Facebook" },
+  ];
+
+  const quickLinks = [
+    { to: "/about", label: t("footer.aboutUs") },
+    { to: "/events", label: t("footer.events") },
+    { to: "/clubs", label: t("footer.ourClubs") },
+    { to: "/contact", label: t("footer.contact") },
+  ];
+
   return (
-    <footer className="bg-primary text-primary-foreground py-16">
-      <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 mb-12">
-          {/* Brand */}
-          <div className="col-span-1 md:col-span-2">
-            <div className="flex items-center mb-6">
-              <img src={logo} alt="The Journey Association" className="h-24 w-auto brightness-0 invert" />
-            </div>
-            <p className="text-primary-foreground/80 leading-relaxed mb-6 max-w-md font-body">
+    <footer className="bg-primary text-primary-foreground pt-12 pb-6">
+      <div className="container mx-auto px-5 sm:px-6">
+
+        {/* ── Main grid ─────────────────────────────────────── */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10 mb-10">
+
+          {/* Brand — centred on mobile, left-aligned on md+ */}
+          <div className="col-span-1 md:col-span-2 flex flex-col items-center md:items-start text-center md:text-start">
+            <img
+              src={logo}
+              alt="The Journey Association"
+              className="h-20 w-auto brightness-0 invert mb-5"
+            />
+            <p className="text-primary-foreground/75 leading-relaxed mb-6 max-w-sm font-body text-sm">
               {t("footer.tagline")}
             </p>
-            <div className="flex gap-4">
-              <a
-                href={facebookUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors cursor-pointer"
-              >
-                <Facebook className="w-5 h-5" />
-              </a>
-              <a
-                href={instagramUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors cursor-pointer"
-              >
-                <Instagram className="w-5 h-5" />
-              </a>
-              <a
-                href={twitterUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors cursor-pointer"
-              >
-                <Twitter className="w-5 h-5" />
-              </a>
-              <a
-                href={mailLink}
-                className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors cursor-pointer"
-              >
-                <Mail className="w-5 h-5" />
-              </a>
+
+            {/* Social icons — larger tap targets */}
+            <div className="flex gap-3">
+              {socialItems.map(({ href, icon: Icon, label }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target={href.startsWith("mailto") ? undefined : "_blank"}
+                  rel="noopener noreferrer"
+                  aria-label={label}
+                  className="w-11 h-11 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/25 active:scale-95 transition-all duration-200"
+                >
+                  <Icon className="w-4 h-4" />
+                </a>
+              ))}
             </div>
           </div>
 
-          {/* Quick Links */}
-          <div>
-            <h3 className="text-lg font-semibold mb-6 font-heading">{t("footer.quickLinks")}</h3>
-            <ul className="space-y-3">
-              <li>
-                <Link to="/about" className="text-primary-foreground/80 hover:text-white transition-colors">
-                  {t("footer.aboutUs")}
-                </Link>
-              </li>
-              <li>
-                <Link to="/events" className="text-primary-foreground/80 hover:text-white transition-colors">
-                  {t("footer.events")}
-                </Link>
-              </li>
-              <li>
-                <Link to="/clubs" className="text-primary-foreground/80 hover:text-white transition-colors">
-                  {t("footer.ourClubs")}
-                </Link>
-              </li>
-              <li>
-                <Link to="/contact" className="text-primary-foreground/80 hover:text-white transition-colors">
-                  {t("footer.contact")}
-                </Link>
-              </li>
+          {/* Quick Links — 2-col grid on mobile */}
+          <div className="sm:col-span-1">
+            <h3 className="text-base font-semibold mb-4 font-heading tracking-wide">
+              {t("footer.quickLinks")}
+            </h3>
+            <ul className="grid grid-cols-2 sm:grid-cols-1 gap-x-4 gap-y-3">
+              {quickLinks.map(({ to, label }) => (
+                <li key={to}>
+                  <Link
+                    to={to}
+                    className="text-primary-foreground/75 hover:text-white active:opacity-70 transition-colors text-sm"
+                  >
+                    {label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
-          {/* Contact Info */}
-          <div>
-            <h3 className="text-lg font-semibold mb-6">{t("footer.contact")}</h3>
-            <div className="space-y-3 text-primary-foreground/80">
-              <p>{contactPhone}</p>
-              <p>{contactEmail}</p>
-              <p>{contactAddress}</p>
+          {/* Contact Info — icons added */}
+          <div className="sm:col-span-1">
+            <h3 className="text-base font-semibold mb-4 font-heading tracking-wide">
+              {t("footer.contact")}
+            </h3>
+            <div className="space-y-3 text-primary-foreground/75 text-sm">
+              <a
+                href={`tel:${contactPhone.replace(/\s/g, "")}`}
+                className="flex items-center gap-2.5 hover:text-white active:opacity-70 transition-colors group"
+              >
+                <span className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center shrink-0 group-hover:bg-white/20 transition-colors">
+                  <Phone className="w-3.5 h-3.5" />
+                </span>
+                <span className="break-all">{contactPhone}</span>
+              </a>
+              <a
+                href={`mailto:${contactEmail}`}
+                className="flex items-center gap-2.5 hover:text-white active:opacity-70 transition-colors group"
+              >
+                <span className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center shrink-0 group-hover:bg-white/20 transition-colors">
+                  <Mail className="w-3.5 h-3.5" />
+                </span>
+                <span className="break-all">{contactEmail}</span>
+              </a>
+              <div className="flex items-start gap-2.5">
+                <span className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center shrink-0 mt-0.5">
+                  <MapPin className="w-3.5 h-3.5" />
+                </span>
+                <span>{contactAddress}</span>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="border-t border-white/20 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-primary-foreground/70 text-sm">
-            © {currentYear} The Journey Association. {t("footer.allRightsReserved")}
+        {/* ── Divider ───────────────────────────────────────── */}
+        <div className="border-t border-white/15" />
+
+        {/* ── Bottom bar ────────────────────────────────────── */}
+        <div className="pt-6 flex flex-col items-center gap-4 md:flex-row md:justify-between">
+          <p className="text-primary-foreground/60 text-xs text-center md:text-start">
+            © {currentYear} The Journey Association.{" "}
+            <span className="whitespace-nowrap">{t("footer.allRightsReserved")}</span>
           </p>
-          <div className="flex gap-6 text-sm text-primary-foreground/70">
-            <Link to="/privacy-policy" className="hover:text-white transition-colors">
+          <div className="flex flex-wrap justify-center gap-x-5 gap-y-2 text-xs text-primary-foreground/60">
+            <Link to="/privacy-policy" className="hover:text-white active:opacity-70 transition-colors">
               {t("footer.privacyPolicy")}
             </Link>
-            <Link to="/terms-of-service" className="hover:text-white transition-colors">
+            <Link to="/terms-of-service" className="hover:text-white active:opacity-70 transition-colors">
               {t("footer.termsOfService")}
             </Link>
-            <Link to="/cookie-policy" className="hover:text-white transition-colors">
+            <Link to="/cookie-policy" className="hover:text-white active:opacity-70 transition-colors">
               {t("footer.cookiePolicy")}
             </Link>
           </div>
         </div>
+
       </div>
     </footer>
   );
