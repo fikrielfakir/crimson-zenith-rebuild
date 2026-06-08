@@ -4,7 +4,7 @@ import { motion, useMotionValue, useSpring, AnimatePresence } from "framer-motio
 import {
   MapPin, X, ChevronLeft, ChevronRight, Upload, Search,
   Home, ChevronRight as CRight, Heart, Share2, Download,
-  Move, MousePointer, MousePointer2,
+  Move, MousePointer, MousePointer2, Maximize2, Minimize2,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
@@ -882,6 +882,23 @@ export default function Gallery() {
   const [mouseIdle,      setMouseIdle]      = useState(true);
   const [panoramaItem,   setPanoramaItem]   = useState<GalleryItem|null>(null);
   const [overlayOpacity, setOverlayOpacity] = useState(0.72);
+  const [isFullscreen,   setIsFullscreen]   = useState(false);
+
+  useEffect(() => {
+    const onFSChange = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener("fullscreenchange", onFSChange);
+    return () => document.removeEventListener("fullscreenchange", onFSChange);
+  }, []);
+
+  const toggleFullscreen = useCallback(() => {
+    const el = document.getElementById("gallery-scene-section");
+    if (!el) return;
+    if (!document.fullscreenElement) {
+      el.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
+  }, []);
 
   /* Z-axis dolly from scroll wheel */
   const sceneZ  = useMotionValue(0);
@@ -1216,6 +1233,18 @@ export default function Gallery() {
         <AuroraEffect/>
         <AmbientDust/>
         <VolumetricBloom/>
+
+        {/* fullscreen button */}
+        <button
+          onClick={toggleFullscreen}
+          title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+          className="absolute top-4 right-4 z-30 w-10 h-10 rounded-full flex items-center justify-center transition-all group hover:scale-110"
+          style={{ background:"rgba(10,30,80,0.70)", border:"1px solid rgba(100,170,255,0.30)", backdropFilter:"blur(12px)", boxShadow:"0 0 20px rgba(37,99,235,0.25)" }}>
+          {isFullscreen
+            ? <Minimize2 className="w-4 h-4 text-white/70 group-hover:text-white transition-colors"/>
+            : <Maximize2 className="w-4 h-4 text-white/70 group-hover:text-white transition-colors"/>
+          }
+        </button>
 
         {/* nav arrows */}
         <button
