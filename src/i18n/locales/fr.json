@@ -1111,5 +1111,12 @@
     "loading": "Chargement...",
     "noPhotos": "Aucune photo trouvée",
     "items": "{{count}} éléments"
+  },
+  "breadcrumbs": {
+    "home": "Accueil",
+    "eventsActivities": "Événements & Activités",
+    "events": "Événements",
+    "smartCalendar": "Calendrier Intelligent",
+    "learnMore": "En savoir plus"
   }
 }

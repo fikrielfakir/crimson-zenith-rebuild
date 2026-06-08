@@ -1111,5 +1111,12 @@
     "loading": "جار التحميل...",
     "noPhotos": "لا توجد صور",
     "items": "{{count}} عنصر"
+  },
+  "breadcrumbs": {
+    "home": "الرئيسية",
+    "eventsActivities": "الفعاليات والأنشطة",
+    "events": "الفعاليات",
+    "smartCalendar": "التقويم الذكي",
+    "learnMore": "اعرف المزيد"
   }
 }

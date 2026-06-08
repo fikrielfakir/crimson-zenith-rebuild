@@ -83,7 +83,7 @@ const Events = () => {
     <div className="min-h-screen bg-background">
       <Header />
       
-      <Breadcrumbs items={[{ label: 'Events' }]} />
+      <Breadcrumbs items={[{ label: 'Events', tKey: 'breadcrumbs.events' }]} />
 
       <div className="bg-warning/10 border-l-4 border-warning py-3">
         <div className="container mx-auto px-4">

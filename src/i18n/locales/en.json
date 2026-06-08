@@ -1111,5 +1111,12 @@
     "loading": "Loading...",
     "noPhotos": "No photos found",
     "items": "{{count}} items"
+  },
+  "breadcrumbs": {
+    "home": "Home",
+    "eventsActivities": "Events & Activities",
+    "events": "Events",
+    "smartCalendar": "Smart Calendar",
+    "learnMore": "Learn More"
   }
 }

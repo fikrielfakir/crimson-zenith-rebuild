@@ -193,7 +193,7 @@ const LearnMore = () => {
       <Header />
       
       {/* Breadcrumbs */}
-      <Breadcrumbs items={[{ label: 'Learn More' }]} />
+      <Breadcrumbs items={[{ label: 'Learn More', tKey: 'breadcrumbs.learnMore' }]} />
 
       {/* Navigation Tabs */}
       <section className="py-8 bg-muted/50">
