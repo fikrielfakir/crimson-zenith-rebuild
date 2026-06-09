@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useToast } from "@/hooks/use-toast";
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import {
@@ -119,12 +120,48 @@ const ClubDetail = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { toast } = useToast();
   const [isJoined, setIsJoined] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [scrollY, setScrollY] = useState(0);
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
+
+  const handleShare = async () => {
+    const url = window.location.href;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: document.title, url });
+      } catch {
+        // user cancelled — no toast needed
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(url);
+        toast({ title: t("clubDetail.linkCopied", "Link copied!"), description: url });
+      } catch {
+        toast({ title: t("clubDetail.shareFailed", "Could not copy link"), variant: "destructive" });
+      }
+    }
+  };
+
+  const handleSave = () => {
+    const next = !isFavorite;
+    setIsFavorite(next);
+    toast({
+      title: next
+        ? t("clubDetail.savedToFavorites", "Saved to favourites")
+        : t("clubDetail.removedFromFavorites", "Removed from favourites"),
+    });
+  };
+
+  const handleJoin = (clubName?: string) => {
+    const params = new URLSearchParams();
+    if (slug) params.set("club", slug);
+    if (clubName) params.set("clubName", clubName);
+    navigate(`/join?${params.toString()}`);
+  };
 
   useEffect(() => {
     setIsVisible(true);
@@ -307,16 +344,16 @@ const ClubDetail = () => {
               <Button
                 size="lg"
                 className="bg-primary hover:bg-primary/90 text-white shadow-xl hover:shadow-2xl transition-all duration-300"
-                onClick={() => setIsJoined(!isJoined)}
+                onClick={() => handleJoin(club?.name)}
               >
                 <UserPlus className="w-5 h-5 mr-2" />
-                {isJoined ? t("clubDetail.leaveClub") : t("clubDetail.joinClub")}
+                {t("clubDetail.joinClub")}
               </Button>
               <Button
                 size="lg"
                 variant="outline"
                 className="bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20 hover:border-white/40"
-                onClick={() => setIsFavorite(!isFavorite)}
+                onClick={handleSave}
               >
                 <Heart className={`w-5 h-5 mr-2 ${isFavorite ? 'fill-current text-red-400' : ''}`} />
                 {isFavorite ? t("clubDetail.saved") : t("clubDetail.save")}
@@ -325,6 +362,7 @@ const ClubDetail = () => {
                 size="lg"
                 variant="outline"
                 className="bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20 hover:border-white/40"
+                onClick={handleShare}
               >
                 <Share2 className="w-5 h-5 mr-2" />
                 {t("clubDetail.share")}
@@ -503,19 +541,10 @@ const ClubDetail = () => {
                 <Button
                   className="w-full mb-3"
                   size="lg"
-                  onClick={() => setIsJoined(!isJoined)}
+                  onClick={() => handleJoin(club?.name)}
                 >
-                  {isJoined ? (
-                    <>
-                      <CheckCircle2 className="w-4 h-4 mr-2" />
-                      {t("clubDetail.joined")}
-                    </>
-                  ) : (
-                    <>
-                      <Users className="w-4 h-4 mr-2" />
-                      {t("clubDetail.joinClub")}
-                    </>
-                  )}
+                  <UserPlus className="w-4 h-4 mr-2" />
+                  {t("clubDetail.joinClub")}
                 </Button>
 
                 <Button
