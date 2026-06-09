@@ -1233,7 +1233,7 @@ app.post('/api/admin/login', async (req, res) => {
       });
     }
     
-    // Generate token
+    // Generate Bearer token (in-memory, for stateless calls)
     const rawToken = `admin_token_${Date.now()}_${Math.random().toString(36).substring(7)}`;
     const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
     storeAdminToken(rawToken, user.id, expiresAt);
@@ -1247,6 +1247,14 @@ app.post('/api/admin/login', async (req, res) => {
       isAdmin: true,
       role: 'admin'
     };
+
+    // Also establish a Passport session (persisted in PostgreSQL) so auth
+    // survives server restarts even if the in-memory Bearer token is lost.
+    await new Promise<void>((resolve, reject) => {
+      (req as any).logIn(user, (err: any) => {
+        if (err) reject(err); else resolve();
+      });
+    });
 
     console.log(`✅ Admin login successful for user: ${username}`);
     res.json({
