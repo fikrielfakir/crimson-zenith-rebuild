@@ -354,7 +354,7 @@ export const isAdmin: RequestHandler = async (req: any, res, next) => {
   const auth = (req.headers.authorization as string) || '';
   if (auth.startsWith('Bearer ')) {
     const token = auth.slice(7);
-    const entry = validateAdminToken(token);
+    const entry = await validateAdminToken(token);
     if (entry?.isAdmin) return next();
   }
 

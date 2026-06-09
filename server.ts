@@ -25,7 +25,7 @@ import {
   cities
 } from './shared/schema.js';
 import { sendBookingConfirmationEmail, sendBookingApprovedEmail } from './server/emailService.js';
-import { storeAdminToken, revokeAdminToken } from './server/adminTokens.js';
+import { generateAdminToken, revokeAdminToken } from './server/adminTokens.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -1233,10 +1233,9 @@ app.post('/api/admin/login', async (req, res) => {
       });
     }
     
-    // Generate Bearer token (in-memory, for stateless calls)
-    const rawToken = `admin_token_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+    // Generate a signed JWT — survives server restarts, no server-side store needed
     const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
-    storeAdminToken(rawToken, user.id, expiresAt);
+    const rawToken = await generateAdminToken(user.id, expiresAt);
 
     const userPayload = {
       id: user.id,
