@@ -453,7 +453,7 @@ export default function ClubForm() {
         setValue('description',     data.description     ?? '');
         setValue('longDescription', data.longDescription ?? '');
         setValue('image',           data.image           ?? '');
-        setValue('heroImage',       data.heroImage       ?? '');
+        setValue('heroImage',       data.heroImage       ?? data.hero_image       ?? '');
         setValue('location',        data.location        ?? '');
         setValue('contactPhone',    data.contactPhone    ?? '');
         setValue('contactEmail',    data.contactEmail    ?? '');
@@ -490,6 +490,7 @@ export default function ClubForm() {
         longDescription: data.longDescription  || null,
         image:           data.image            || null,
         heroImage:       data.heroImage        || null,
+        hero_image:      data.heroImage        || null,
         location:        data.location,
         contactPhone:    data.contactPhone     || null,
         contactEmail:    data.contactEmail     || null,
