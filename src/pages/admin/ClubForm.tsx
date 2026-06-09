@@ -42,7 +42,12 @@ const clubFormSchema = z.object({
 type ClubFormValues = z.infer<typeof clubFormSchema>;
 
 // ─── Image Upload ─────────────────────────────────────────────────────────────
-function ImageUpload({ value, onChange }: { value?: string; onChange: (url: string) => void }) {
+function ImageUpload({ value, onChange, onUploadStart, onUploadEnd }: {
+  value?: string;
+  onChange: (url: string) => void;
+  onUploadStart?: () => void;
+  onUploadEnd?: () => void;
+}) {
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState<string>(value || '');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -61,6 +66,7 @@ function ImageUpload({ value, onChange }: { value?: string; onChange: (url: stri
     }
     setPreview(URL.createObjectURL(file));
     setUploading(true);
+    onUploadStart?.();
     try {
       const imageData = await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
@@ -82,6 +88,7 @@ function ImageUpload({ value, onChange }: { value?: string; onChange: (url: stri
       toast({ title: 'Upload failed', description: err.message, variant: 'destructive' });
     } finally {
       setUploading(false);
+      onUploadEnd?.();
     }
   };
 
@@ -386,6 +393,8 @@ export default function ClubForm() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(!!id);
+  const [uploadingCount, setUploadingCount] = useState(0);
+  const isUploading = uploadingCount > 0;
 
   const {
     register,
@@ -395,7 +404,25 @@ export default function ClubForm() {
     watch,
   } = useForm<ClubFormValues>({
     resolver: zodResolver(clubFormSchema),
-    defaultValues: { isActive: true, latitude: null, longitude: null },
+    defaultValues: {
+      isActive: true,
+      latitude: null,
+      longitude: null,
+      image: '',
+      heroImage: '',
+      name: '',
+      slug: '',
+      description: '',
+      longDescription: '',
+      location: '',
+      contactPhone: '',
+      contactEmail: '',
+      website: '',
+      established: '',
+      facebook: '',
+      instagram: '',
+      twitter: '',
+    },
   });
 
   const isActive        = watch('isActive');
@@ -558,14 +585,24 @@ export default function ClubForm() {
           <div className="space-y-2 md:col-span-2">
             <Label>Featured Image</Label>
             <p className="text-xs text-muted-foreground">Used in club listings and cards.</p>
-            <ImageUpload value={imageValue} onChange={(url) => setValue('image', url)} />
+            <ImageUpload
+              value={imageValue}
+              onChange={(url) => setValue('image', url)}
+              onUploadStart={() => setUploadingCount(c => c + 1)}
+              onUploadEnd={() => setUploadingCount(c => Math.max(0, c - 1))}
+            />
           </div>
 
           {/* Hero image */}
           <div className="space-y-2 md:col-span-2">
             <Label>Hero Banner Image</Label>
             <p className="text-xs text-muted-foreground">Full-width background shown at the top of the club's public page. If left empty, the Featured Image is used instead.</p>
-            <ImageUpload value={heroImageValue} onChange={(url) => setValue('heroImage', url)} />
+            <ImageUpload
+              value={heroImageValue}
+              onChange={(url) => setValue('heroImage', url)}
+              onUploadStart={() => setUploadingCount(c => c + 1)}
+              onUploadEnd={() => setUploadingCount(c => Math.max(0, c - 1))}
+            />
           </div>
 
           {/* ── Map location picker ── */}
@@ -627,9 +664,9 @@ export default function ClubForm() {
         </div>
 
         <div className="flex items-center gap-4">
-          <Button type="submit" disabled={isLoading}>
-            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {id ? 'Update Club' : 'Create Club'}
+          <Button type="submit" disabled={isLoading || isUploading}>
+            {(isLoading || isUploading) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isUploading ? 'Uploading image…' : id ? 'Update Club' : 'Create Club'}
           </Button>
           <Button type="button" variant="outline" onClick={() => navigate('/admin/clubs')}>
             Cancel
