@@ -1124,5 +1124,36 @@
     "events": "Événements",
     "smartCalendar": "Calendrier Intelligent",
     "learnMore": "En savoir plus"
+  },
+  "cookieConsent": {
+    "title": "Nous utilisons des cookies pour améliorer votre expérience 🍪",
+    "description": "Nos cookies nous aident à mémoriser vos préférences, analyser le trafic du site et fournir du contenu personnalisé. Les cookies essentiels sont toujours actifs.",
+    "acceptAll": "Tout accepter",
+    "necessaryOnly": "Nécessaires uniquement",
+    "customize": "Personnaliser",
+    "savePreferences": "Enregistrer les préférences",
+    "cancel": "Annuler",
+    "alwaysActive": "Toujours actif",
+    "privacy": "Confidentialité",
+    "cookies": "Cookies",
+    "terms": "Conditions",
+    "categories": {
+      "necessary": {
+        "label": "Cookies nécessaires",
+        "description": "Requis pour le fonctionnement de base du site"
+      },
+      "functional": {
+        "label": "Cookies fonctionnels",
+        "description": "Mémorisent vos préférences et paramètres"
+      },
+      "analytics": {
+        "label": "Cookies analytiques",
+        "description": "Nous aident à comprendre comment notre site est utilisé"
+      },
+      "marketing": {
+        "label": "Cookies marketing",
+        "description": "Contenu et publicités personnalisés"
+      }
+    }
   }
 }

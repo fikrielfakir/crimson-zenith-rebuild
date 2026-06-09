@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"tsx server.ts\" \"node_modules/.bin/vite\"",
+    "dev": "node start-dev.mjs",
     "dev:vite": "node_modules/.bin/vite",
     "dev:server": "tsx server.ts",
     "build": "node_modules/.bin/vite build",
