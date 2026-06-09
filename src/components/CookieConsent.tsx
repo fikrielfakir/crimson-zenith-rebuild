@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { X, Cookie, Shield, Settings } from "lucide-react";
@@ -22,39 +23,40 @@ interface CookieSettingsData {
   categories: CookieCategory[];
 }
 
-const DEFAULT_SETTINGS: CookieSettingsData = {
-  enabled: true,
-  delay: 1500,
-  title: '🍪 We use cookies to enhance your experience',
-  description: 'Our cookies help us remember your preferences, analyze site traffic, and provide personalized content. Essential cookies are always active.',
-  categories: [
-    { key: 'necessary', label: 'Necessary Cookies', description: 'Required for basic site functionality', enabled: true, locked: true },
-    { key: 'functional', label: 'Functional Cookies', description: 'Remember your preferences and settings', enabled: true, locked: false },
-    { key: 'analytics', label: 'Analytics Cookies', description: 'Help us understand how our website is being used', enabled: true, locked: false },
-    { key: 'marketing', label: 'Marketing Cookies', description: 'Personalized content and ads', enabled: true, locked: false },
-  ],
-};
-
 const CookieConsent = () => {
+  const { t } = useTranslation();
   const [isVisible, setIsVisible] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const [categoryPrefs, setCategoryPrefs] = useState<Record<string, boolean>>({});
+
+  const defaultSettings = useMemo<CookieSettingsData>(() => ({
+    enabled: true,
+    delay: 1500,
+    title: t('cookieConsent.title'),
+    description: t('cookieConsent.description'),
+    categories: [
+      { key: 'necessary', label: t('cookieConsent.categories.necessary.label'), description: t('cookieConsent.categories.necessary.description'), enabled: true, locked: true },
+      { key: 'functional', label: t('cookieConsent.categories.functional.label'), description: t('cookieConsent.categories.functional.description'), enabled: true, locked: false },
+      { key: 'analytics', label: t('cookieConsent.categories.analytics.label'), description: t('cookieConsent.categories.analytics.description'), enabled: true, locked: false },
+      { key: 'marketing', label: t('cookieConsent.categories.marketing.label'), description: t('cookieConsent.categories.marketing.description'), enabled: true, locked: false },
+    ],
+  }), [t]);
 
   const { data: settings } = useQuery<CookieSettingsData>({
     queryKey: ['/api/cms/cookie-settings'],
     queryFn: async () => {
       try {
         const res = await apiFetch('/api/cms/cookie-settings');
-        if (!res.ok) return DEFAULT_SETTINGS;
+        if (!res.ok) return defaultSettings;
         return res.json();
       } catch {
-        return DEFAULT_SETTINGS;
+        return defaultSettings;
       }
     },
     staleTime: 5 * 60 * 1000,
   });
 
-  const activeSettings = settings ?? DEFAULT_SETTINGS;
+  const activeSettings = settings ?? defaultSettings;
 
   useEffect(() => {
     if (!activeSettings.enabled) return;
@@ -69,7 +71,7 @@ const CookieConsent = () => {
 
     const timer = setTimeout(() => setIsVisible(true), activeSettings.delay ?? 1500);
     return () => clearTimeout(timer);
-  }, [activeSettings]);
+  }, [activeSettings.enabled, activeSettings.delay, activeSettings.categories]);
 
   const saveConsent = (prefs: Record<string, boolean>, type: string) => {
     localStorage.setItem('cookieConsent', type);
@@ -103,7 +105,7 @@ const CookieConsent = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <Cookie className="w-4 h-4" />
-                <h3 className="font-semibold text-base">{activeSettings.title}</h3>
+                <h3 className="font-semibold text-base">{activeSettings.title || t('cookieConsent.title')}</h3>
               </div>
               <button onClick={() => setIsVisible(false)} className="text-white/80 hover:text-white transition-colors">
                 <X className="w-4 h-4" />
@@ -114,7 +116,7 @@ const CookieConsent = () => {
           <div className="p-4 space-y-3">
             <div className="flex items-start space-x-3">
               <Shield className="w-4 h-4 mt-1 flex-shrink-0" style={{ color: 'hsl(var(--primary))' }} />
-              <p className="text-sm text-gray-700 leading-relaxed">{activeSettings.description}</p>
+              <p className="text-sm text-gray-700 leading-relaxed">{activeSettings.description || t('cookieConsent.description')}</p>
             </div>
 
             {showDetails && (
@@ -127,7 +129,7 @@ const CookieConsent = () => {
                         <p className="text-xs text-gray-500">{cat.description}</p>
                       </div>
                       {cat.locked ? (
-                        <div className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Always Active</div>
+                        <div className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">{t('cookieConsent.alwaysActive')}</div>
                       ) : (
                         <input
                           type="checkbox"
@@ -151,14 +153,14 @@ const CookieConsent = () => {
                     className="text-white font-medium px-6 hover:opacity-90 transition-opacity"
                     style={{ backgroundColor: 'hsl(var(--primary))' }}
                   >
-                    Accept All
+                    {t('cookieConsent.acceptAll')}
                   </Button>
                   <Button
                     onClick={handleAcceptNecessary}
                     variant="outline"
                     className="border-gray-300 text-gray-700 hover:bg-gray-50 px-4"
                   >
-                    Necessary Only
+                    {t('cookieConsent.necessaryOnly')}
                   </Button>
                   <Button
                     onClick={() => setShowDetails(true)}
@@ -167,7 +169,7 @@ const CookieConsent = () => {
                     style={{ borderColor: 'hsl(var(--primary))', color: 'hsl(var(--primary))' }}
                   >
                     <Settings className="w-4 h-4 mr-1" />
-                    Customize
+                    {t('cookieConsent.customize')}
                   </Button>
                 </div>
               ) : (
@@ -177,14 +179,14 @@ const CookieConsent = () => {
                     className="flex-1 text-white font-medium hover:opacity-90 transition-opacity"
                     style={{ backgroundColor: 'hsl(var(--primary))' }}
                   >
-                    Save Preferences
+                    {t('cookieConsent.savePreferences')}
                   </Button>
                   <Button
                     onClick={() => setShowDetails(false)}
                     variant="outline"
                     className="border-gray-300 text-gray-700 hover:bg-gray-50"
                   >
-                    Cancel
+                    {t('cookieConsent.cancel')}
                   </Button>
                 </div>
               )}
@@ -192,9 +194,9 @@ const CookieConsent = () => {
 
             <div className="text-center pt-2 border-t">
               <div className="flex justify-center space-x-3 text-xs text-gray-500">
-                <Link to="/privacy-policy" className="hover:opacity-80 transition-opacity" style={{ color: 'hsl(var(--primary))' }}>Privacy</Link>
-                <Link to="/cookie-policy" className="hover:opacity-80 transition-opacity" style={{ color: 'hsl(var(--primary))' }}>Cookies</Link>
-                <Link to="/terms-of-service" className="hover:opacity-80 transition-opacity" style={{ color: 'hsl(var(--primary))' }}>Terms</Link>
+                <Link to="/privacy-policy" className="hover:opacity-80 transition-opacity" style={{ color: 'hsl(var(--primary))' }}>{t('cookieConsent.privacy')}</Link>
+                <Link to="/cookie-policy" className="hover:opacity-80 transition-opacity" style={{ color: 'hsl(var(--primary))' }}>{t('cookieConsent.cookies')}</Link>
+                <Link to="/terms-of-service" className="hover:opacity-80 transition-opacity" style={{ color: 'hsl(var(--primary))' }}>{t('cookieConsent.terms')}</Link>
               </div>
             </div>
           </div>
