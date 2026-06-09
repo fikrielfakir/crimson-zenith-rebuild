@@ -1801,6 +1801,7 @@ app.post('/api/admin/clubs', isAdmin, async (req: any, res) => {
       description: clubData.description,
       longDescription: clubData.longDescription || null,
       image: clubData.image || null,
+      heroImage: clubData.heroImage || null,
       location: clubData.location,
       contactPhone: clubData.contactPhone || null,
       contactEmail: clubData.contactEmail || null,
@@ -1858,6 +1859,7 @@ app.put('/api/admin/clubs/:id', isAdmin, async (req, res) => {
     if (clubData.description !== undefined) updateData.description = clubData.description;
     if (clubData.longDescription !== undefined) updateData.longDescription = clubData.longDescription;
     if (clubData.image !== undefined) updateData.image = clubData.image;
+    if (clubData.heroImage !== undefined) updateData.heroImage = clubData.heroImage;
     if (clubData.location !== undefined) updateData.location = clubData.location;
     if (clubData.contactPhone !== undefined) updateData.contactPhone = clubData.contactPhone;
     if (clubData.contactEmail !== undefined) updateData.contactEmail = clubData.contactEmail;
