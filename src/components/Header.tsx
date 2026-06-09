@@ -213,7 +213,7 @@ const CitiesDropdown = () => {
 
 // Original Talents Dropdown
 const TalentsDropdown = () => {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isRtl = i18n.language === "ar";
   const [volunteersOpen, setVolunteersOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -256,7 +256,7 @@ const TalentsDropdown = () => {
             onMouseLeave={() => setVolunteersOpen(false)}
           >
             <div className="flex items-center justify-between px-4 py-3 text-foreground hover:bg-secondary/10 rounded-lg transition-colors cursor-pointer">
-              <span className="font-medium text-sm">Volunteers</span>
+              <span className="font-medium text-sm">{t("nav.volunteers")}</span>
               <ChevronRight className={`w-4 h-4 ${isRtl ? "rotate-180" : ""}`} />
             </div>
             {/* Volunteers submenu — opens opposite side in RTL */}
@@ -268,13 +268,13 @@ const TalentsDropdown = () => {
                   to="/talents/volunteers/spontaneous"
                   className="block px-4 py-2 text-foreground hover:bg-secondary/10 rounded-lg transition-colors text-sm"
                 >
-                  Spontaneous
+                  {t("nav.spontaneous")}
                 </Link>
                 <Link
                   to="/talents/volunteers/posts"
                   className="block px-4 py-2 text-foreground hover:bg-secondary/10 rounded-lg transition-colors text-sm"
                 >
-                  Available posts
+                  {t("nav.availablePosts")}
                 </Link>
               </div>
             </div>
@@ -285,7 +285,7 @@ const TalentsDropdown = () => {
             to="/talents/experts"
             className="block px-4 py-3 text-foreground hover:bg-secondary/10 rounded-lg transition-colors font-medium text-sm"
           >
-            Our Experts
+            {t("nav.experts")}
           </Link>
 
           {/* Work offers */}
@@ -293,7 +293,7 @@ const TalentsDropdown = () => {
             to="/talents/work-offers"
             className="block px-4 py-3 text-foreground hover:bg-secondary/10 rounded-lg transition-colors font-medium text-sm"
           >
-            Work offers
+            {t("nav.workOffers")}
           </Link>
         </div>
       </div>
@@ -1247,7 +1247,7 @@ const BottomNavbar = ({
                             onClick={() => setMobileMenuOpen(false)}
                             className="block px-3 py-2 text-[#D8C18D] hover:text-white text-sm font-medium transition-colors"
                           >
-                            See all destinations →
+                            {t("nav.seeAllDestinations")} →
                           </Link>
                         </div>
                       </AccordionContent>
@@ -1272,28 +1272,28 @@ const BottomNavbar = ({
                             onClick={() => setMobileMenuOpen(false)}
                             className="block px-3 py-2 text-white/70 hover:text-white hover:bg-white/5 rounded-lg text-sm transition-colors"
                           >
-                            Spontaneous Volunteers
+                            {t("nav.spontaneousVolunteers")}
                           </Link>
                           <Link
                             to="/talents/volunteers/posts"
                             onClick={() => setMobileMenuOpen(false)}
                             className="block px-3 py-2 text-white/70 hover:text-white hover:bg-white/5 rounded-lg text-sm transition-colors"
                           >
-                            Volunteer Posts
+                            {t("nav.volunteerPosts")}
                           </Link>
                           <Link
                             to="/talents/experts"
                             onClick={() => setMobileMenuOpen(false)}
                             className="block px-3 py-2 text-white/70 hover:text-white hover:bg-white/5 rounded-lg text-sm transition-colors"
                           >
-                            Our Experts
+                            {t("nav.experts")}
                           </Link>
                           <Link
                             to="/talents/work-offers"
                             onClick={() => setMobileMenuOpen(false)}
                             className="block px-3 py-2 text-white/70 hover:text-white hover:bg-white/5 rounded-lg text-sm transition-colors"
                           >
-                            Work Offers
+                            {t("nav.workOffers")}
                           </Link>
                         </div>
                       </AccordionContent>
