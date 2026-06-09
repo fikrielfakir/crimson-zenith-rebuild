@@ -1,0 +1,87 @@
+Bug 1 — The 500 error: Frontend sends JSON, Laravel expects multipart/form-data
+In ClubForm.tsx ImageUpload, the file is converted to a base64 string and sent as JSON:
+ts// ClubForm.tsx (line ~71) — WRONG
+const imageData = await new Promise(...readAsDataURL...);
+const res = await apiFetch('/api/admin/clubs/upload-image', {
+  method: 'POST',
+  body: JSON.stringify({ imageData }),  // ← sending base64 JSON
+});
+But uploadImage() in the controller uses $request->file('image') — which only works with multipart/form-data, not JSON. Laravel can't find the file → validation fails → 500.
+Bug 2 — heroImage field doesn't exist in the database or backend
+The form has a heroImage field, but:
+
+The clubs table has no hero_image column
+ClubController::mapInput() doesn't handle heroImage
+ClubController::mapOutput() doesn't return heroImage
+Club model $fillable doesn't include hero_image
+
+So even after fixing the upload, the hero image URL would be silently discarded on save.
+
+Fixes
+Fix 1 — ClubForm.tsx: Send FormData instead of base64 JSON
+tsx// BEFORE — sends base64 JSON (causes 500)
+const imageData = await new Promise<string>((resolve, reject) => {
+  const reader = new FileReader();
+  reader.onload = () => resolve(reader.result as string);
+  reader.onerror = reject;
+  reader.readAsDataURL(file);
+});
+const res = await apiFetch('/api/admin/clubs/upload-image', {
+  method: 'POST',
+  body: JSON.stringify({ imageData }),
+});
+tsx// AFTER — sends multipart/form-data (matches Laravel's $request->file())
+const formData = new FormData();
+formData.append('image', file);
+const res = await apiFetch('/api/admin/clubs/upload-image', {
+  method: 'POST',
+  body: formData,
+  // ⚠️ Do NOT set Content-Type — browser sets it with the boundary automatically
+});
+Also make sure apiFetch doesn't force Content-Type: application/json when the body is FormData. Check your apiFetch.ts:
+ts// apiFetch.ts — guard against overriding multipart uploads
+const headers: Record<string, string> = { ...options?.headers };
+if (!(options?.body instanceof FormData)) {
+  headers['Content-Type'] = 'application/json';
+}
+
+Fix 2 — Add hero_image to the database (new migration)
+Create database/migrations/2026_06_09_add_hero_image_to_clubs_table.php:
+php<?php
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration {
+    public function up(): void
+    {
+        Schema::table('clubs', function (Blueprint $table) {
+            $table->string('hero_image', 500)->nullable()->after('image');
+        });
+    }
+    public function down(): void
+    {
+        Schema::table('clubs', function (Blueprint $table) {
+            $table->dropColumn('hero_image');
+        });
+    }
+};
+Run: php artisan migrate
+
+Fix 3 — Club.php: Add hero_image to $fillable
+phpprotected $fillable = [
+    'name', 'slug', 'description', 'long_description', 'image', 'hero_image',
+    'location', 'member_count', 'features', 'contact_phone',
+    'contact_email', 'website', 'social_media', 'rating',
+    'established', 'is_active', 'is_featured', 'latitude', 'longitude', 'owner_id',
+];
+
+Fix 4 — ClubController.php: Wire heroImage through mapInput and mapOutput
+php// mapOutput — add hero_image
+'heroImage' => $c->hero_image,
+
+// mapInput — add heroImage
+'hero_image' => $r->input('heroImage'),
+
+Summary
+#WhereProblemFix1ClubForm.tsxSends base64 JSON; Laravel needs multipart/form-dataUse FormData, don't JSON-stringify1bapiFetch.tsLikely forces Content-Type: application/json on all requestsSkip header when body is FormData2MigrationNo hero_image column in DBNew migration to add the column3Club.phphero_image not in $fillableAdd it4ClubController.phpheroImage not in mapInput/mapOutputAdd to both methods
