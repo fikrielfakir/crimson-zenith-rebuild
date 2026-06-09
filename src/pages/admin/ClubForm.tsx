@@ -62,9 +62,16 @@ function ImageUpload({ value, onChange }: { value?: string; onChange: (url: stri
     setPreview(URL.createObjectURL(file));
     setUploading(true);
     try {
-      const fd = new FormData();
-      fd.append('image', file);
-      const res = await apiFetch('/api/admin/clubs/upload-image', { method: 'POST', body: fd });
+      const imageData = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+      const res = await apiFetch('/api/admin/clubs/upload-image', {
+        method: 'POST',
+        body: JSON.stringify({ imageData }),
+      });
       if (!res.ok) throw new Error((await res.json().catch(() => ({}))).message || 'Upload failed');
       const { url } = await res.json();
       setPreview(url);

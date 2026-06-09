@@ -46,7 +46,7 @@ const proxyOptions = {
 };
 
 const localProxyOptions = {
-  target: LARAVEL_API,
+  target: LOCAL_API,
   changeOrigin: true,
   secure: false,
   configure: (proxy: any) => {
@@ -82,6 +82,7 @@ export default defineConfig(({ mode }: { mode: string }) => ({
       "/api/payments":    localProxyOptions,
       "/api/cities":      localProxyOptions,
       "/api/cms":         localProxyOptions,
+      "/api/clubs":       localProxyOptions,
       "/api/placeholder": { target: LARAVEL_API, changeOrigin: true },
       "/api":             proxyOptions,
       "/sanctum":      laravelProxyOptions,
