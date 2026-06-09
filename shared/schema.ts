@@ -75,6 +75,7 @@ export const clubs = pgTable("clubs", {
   description: text("description").notNull(),
   longDescription: text("long_description"),
   image: varchar("image", { length: 500 }),
+  heroImage: varchar("hero_image", { length: 500 }),
   location: varchar("location", { length: 255 }).notNull(),
   memberCount: integer("member_count").default(0),
   features: jsonb("features").default(sql`'[]'::jsonb`),

@@ -25,6 +25,7 @@ const clubFormSchema = z.object({
   description: z.string().min(1, 'Description is required'),
   longDescription: z.string().optional(),
   image: z.string().optional(),
+  heroImage: z.string().optional(),
   location: z.string().min(1, 'Location is required').max(255),
   contactPhone: z.string().max(50).optional(),
   contactEmail: z.string().email('Must be a valid email').or(z.literal('')).optional(),
@@ -390,11 +391,12 @@ export default function ClubForm() {
     defaultValues: { isActive: true, latitude: null, longitude: null },
   });
 
-  const isActive   = watch('isActive');
-  const clubName   = watch('name');
-  const imageValue = watch('image');
-  const latValue   = watch('latitude');
-  const lngValue   = watch('longitude');
+  const isActive        = watch('isActive');
+  const clubName        = watch('name');
+  const imageValue      = watch('image');
+  const heroImageValue  = watch('heroImage');
+  const latValue        = watch('latitude');
+  const lngValue        = watch('longitude');
 
   const generateSlug = (name: string) =>
     name.toLowerCase().trim()
@@ -417,6 +419,7 @@ export default function ClubForm() {
         setValue('description',     data.description     ?? '');
         setValue('longDescription', data.longDescription ?? '');
         setValue('image',           data.image           ?? '');
+        setValue('heroImage',       data.heroImage       ?? '');
         setValue('location',        data.location        ?? '');
         setValue('contactPhone',    data.contactPhone    ?? '');
         setValue('contactEmail',    data.contactEmail    ?? '');
@@ -452,6 +455,7 @@ export default function ClubForm() {
         description:     data.description,
         longDescription: data.longDescription  || null,
         image:           data.image            || null,
+        heroImage:       data.heroImage        || null,
         location:        data.location,
         contactPhone:    data.contactPhone     || null,
         contactEmail:    data.contactEmail     || null,
@@ -546,7 +550,15 @@ export default function ClubForm() {
           {/* Featured image */}
           <div className="space-y-2 md:col-span-2">
             <Label>Featured Image</Label>
+            <p className="text-xs text-muted-foreground">Used in club listings and cards.</p>
             <ImageUpload value={imageValue} onChange={(url) => setValue('image', url)} />
+          </div>
+
+          {/* Hero image */}
+          <div className="space-y-2 md:col-span-2">
+            <Label>Hero Banner Image</Label>
+            <p className="text-xs text-muted-foreground">Full-width background shown at the top of the club's public page. If left empty, the Featured Image is used instead.</p>
+            <ImageUpload value={heroImageValue} onChange={(url) => setValue('heroImage', url)} />
           </div>
 
           {/* ── Map location picker ── */}
