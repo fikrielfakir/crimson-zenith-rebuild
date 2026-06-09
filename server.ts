@@ -760,6 +760,7 @@ app.get('/api/clubs', async (req, res) => {
         member_count: club.memberCount,
         rating: club.rating,
         image: club.image,
+        heroImage: club.heroImage,
         features: club.features,
         is_active: club.isActive,
         latitude: club.latitude,
@@ -806,6 +807,7 @@ app.get('/api/clubs/slug/:slug', async (req, res) => {
       memberCount: realMemberCount,
       rating: club.rating,
       image: club.image,
+      heroImage: club.heroImage,
       features: club.features,
       contactPhone: club.contactPhone,
       contactEmail: club.contactEmail,
@@ -1825,6 +1827,32 @@ app.post('/api/admin/clubs', isAdmin, async (req: any, res) => {
   } catch (error) {
     console.error('❌ Error creating club:', error);
     res.status(500).json({ error: 'Failed to create club', details: error.message });
+  }
+});
+
+// Clubs Management - Upload club image (accepts base64 JSON)
+app.post('/api/admin/clubs/upload-image', isAdmin, async (req: any, res) => {
+  try {
+    const { imageData } = req.body;
+    if (!imageData) return res.status(400).json({ message: 'No imageData provided' });
+    const match = imageData.match(/^data:([^;]+);base64,(.+)$/s);
+    if (!match) return res.status(400).json({ message: 'Invalid imageData format' });
+    const { promises: fsPromise } = await import('fs');
+    const pathMod = await import('path');
+    const crypto = await import('crypto');
+    const mime = match[1];
+    const ext = mime.split('/')[1]?.replace('jpeg', 'jpg') ?? 'jpg';
+    const binary = Buffer.from(match[2], 'base64');
+    const id = crypto.randomUUID();
+    const filename = `${id}.${ext}`;
+    const uploadsDir = pathMod.resolve(__dirname, 'public/uploads/clubs');
+    await fsPromise.mkdir(uploadsDir, { recursive: true });
+    await fsPromise.writeFile(pathMod.join(uploadsDir, filename), binary);
+    const url = `/uploads/clubs/${filename}`;
+    res.status(201).json({ url });
+  } catch (error) {
+    console.error('❌ Error uploading club image:', error);
+    res.status(500).json({ error: 'Upload failed' });
   }
 });
 
