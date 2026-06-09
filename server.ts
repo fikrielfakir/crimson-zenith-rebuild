@@ -11,6 +11,7 @@ import { eq, asc, desc, or, like, count, sql, and } from 'drizzle-orm';
 import { 
   users, 
   clubs, 
+  clubMemberships,
   clubEvents, 
   bookingEvents,
   bookingTickets,
@@ -785,8 +786,16 @@ app.get('/api/clubs/slug/:slug', async (req, res) => {
     if (!club) {
       return res.status(404).json({ error: 'Club not found' });
     }
-    
-    console.log(`✅ Found club: ${club.name}`);
+
+    // Fetch real member count from club_memberships table
+    const [memberCountResult] = await db
+      .select({ count: count() })
+      .from(clubMemberships)
+      .where(and(eq(clubMemberships.clubId, club.id), eq(clubMemberships.isActive, true)));
+
+    const realMemberCount = memberCountResult?.count ?? club.memberCount ?? 0;
+    console.log(`✅ Found club: ${club.name} (${realMemberCount} active members)`);
+
     res.json({
       id: club.id,
       name: club.name,
@@ -794,7 +803,7 @@ app.get('/api/clubs/slug/:slug', async (req, res) => {
       description: club.description,
       longDescription: club.longDescription,
       location: club.location,
-      memberCount: club.memberCount,
+      memberCount: realMemberCount,
       rating: club.rating,
       image: club.image,
       features: club.features,
