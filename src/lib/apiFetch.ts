@@ -1,6 +1,9 @@
 /**
  * Centralized fetch wrapper for all API calls.
  *
+ * In development: relative paths (/api/...) are proxied by Vite → Laravel API
+ * In production:  paths are prefixed with VITE_API_BASE_URL automatically
+ *
  * Priority auth order:
  *  1. Bearer token (Sanctum personal access token) — stored in tokenStore
  *  2. Session cookie fallback (credentials: 'include')
@@ -8,6 +11,9 @@
  */
 
 import { getActiveToken } from './tokenStore';
+
+/** Base URL of the API — empty in dev (Vite proxy handles it), absolute in production */
+const API_BASE: string = (import.meta.env.VITE_API_BASE_URL as string) ?? '';
 
 function getXsrfToken(): string | null {
   const match = document.cookie
@@ -21,10 +27,21 @@ function getXsrfToken(): string | null {
   }
 }
 
+/**
+ * Resolves a path to its full URL.
+ * In dev (API_BASE = ''), returns the path unchanged — Vite proxies it.
+ * In production, prepends the API base URL to relative paths.
+ */
+function resolveUrl(url: string): string {
+  if (!API_BASE || !url.startsWith('/')) return url;
+  return `${API_BASE}${url}`;
+}
+
 export async function apiFetch(
   url: string,
   options: RequestInit = {}
 ): Promise<Response> {
+  const fullUrl = resolveUrl(url);
   const method = (options.method ?? 'GET').toUpperCase();
 
   const headers = new Headers(options.headers ?? {});
@@ -60,7 +77,7 @@ export async function apiFetch(
     headers.set('Content-Type', 'application/json');
   }
 
-  return fetch(url, init);
+  return fetch(fullUrl, init);
 }
 
 /**
@@ -72,5 +89,5 @@ export async function apiFetch(
  */
 export function getMediaUrl(id: number | null | undefined): string | null {
   if (!id) return null;
-  return `/api/media/${id}`;
+  return resolveUrl(`/api/media/${id}`);
 }

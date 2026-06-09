@@ -69,7 +69,26 @@ const localProxyOptions = {
 
 const laravelProxyOptions = proxyOptions;
 
+const PROD_API_BASE = "https://api.thejourney-ma.org";
+
 export default defineConfig(({ mode }: { mode: string }) => ({
+  define: {
+    "import.meta.env.VITE_API_BASE_URL": JSON.stringify(
+      mode === "production" ? PROD_API_BASE : ""
+    ),
+  },
+  build: {
+    outDir: "dist",
+    sourcemap: false,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ["react", "react-dom", "react-router-dom"],
+          ui: ["@tanstack/react-query", "framer-motion"],
+        },
+      },
+    },
+  },
   optimizeDeps: {
     exclude: ["core-js"],
     esbuildOptions: {
