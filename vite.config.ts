@@ -46,7 +46,7 @@ const proxyOptions = {
 };
 
 const localProxyOptions = {
-  target: LOCAL_API,
+  target: LARAVEL_API,
   changeOrigin: true,
   secure: false,
   configure: (proxy: any) => {
@@ -261,6 +261,59 @@ export default defineConfig(({ mode }: { mode: string }) => ({
           }
 
           next();
+        });
+      },
+    },
+    {
+      // Intercept POST /api/admin/clubs/upload-image — handle locally so
+      // uploads work without the Express server:
+      //   1. Decode base64 imageData from JSON body
+      //   2. Save to public/uploads/clubs/{uuid}.{ext}
+      //   3. Return { url: '/uploads/clubs/{uuid}.{ext}' }
+      name: "handle-clubs-image-upload",
+      configureServer(server) {
+        server.middlewares.use(async (req: any, res: any, next: any) => {
+          if (req.method !== "POST" || req.url !== "/api/admin/clubs/upload-image") {
+            return next();
+          }
+          try {
+            const fs = await import("fs/promises");
+            const path = await import("path");
+            const crypto = await import("crypto");
+
+            const chunks: Buffer[] = [];
+            for await (const chunk of req) chunks.push(chunk);
+            const body = JSON.parse(Buffer.concat(chunks).toString());
+
+            const dataUrl: string = body.imageData ?? "";
+            const match = dataUrl.match(/^data:([^;]+);base64,(.+)$/s);
+            if (!match) {
+              res.statusCode = 400;
+              res.setHeader("Content-Type", "application/json");
+              res.end(JSON.stringify({ message: "Invalid imageData" }));
+              return;
+            }
+
+            const mime = match[1];
+            const ext = mime.split("/")[1]?.replace("jpeg", "jpg") ?? "jpg";
+            const binary = Buffer.from(match[2], "base64");
+            const id = (crypto as any).randomUUID();
+            const filename = `${id}.${ext}`;
+            const uploadsDir = path.resolve(__dirname, "public/uploads/clubs");
+            await fs.mkdir(uploadsDir, { recursive: true });
+            await fs.writeFile(path.join(uploadsDir, filename), binary);
+
+            const url = `/uploads/clubs/${filename}`;
+            res.statusCode = 201;
+            res.setHeader("Content-Type", "application/json");
+            res.end(JSON.stringify({ url }));
+            console.log(`[clubs-image-upload] Saved ${filename} (${binary.length} bytes)`);
+          } catch (err) {
+            console.error("[clubs-image-upload] Error:", err);
+            res.statusCode = 500;
+            res.setHeader("Content-Type", "application/json");
+            res.end(JSON.stringify({ message: "Upload failed" }));
+          }
         });
       },
     },
