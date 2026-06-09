@@ -1,19 +1,32 @@
-const tokens = new Map<string, { userId: string; isAdmin: boolean; expires: Date }>();
+import { SignJWT, jwtVerify } from 'jose';
 
-export function storeAdminToken(token: string, userId: string, expiresAt: Date): void {
-  tokens.set(token, { userId, isAdmin: true, expires: expiresAt });
+const JWT_SECRET = new TextEncoder().encode(
+  process.env.SESSION_SECRET || 'journey-association-admin-jwt-2024'
+);
+
+export async function generateAdminToken(userId: string, expiresAt: Date): Promise<string> {
+  return await new SignJWT({ userId, isAdmin: true })
+    .setProtectedHeader({ alg: 'HS256' })
+    .setIssuedAt()
+    .setExpirationTime(Math.floor(expiresAt.getTime() / 1000))
+    .sign(JWT_SECRET);
 }
 
-export function validateAdminToken(token: string): { userId: string; isAdmin: boolean } | null {
-  const entry = tokens.get(token);
-  if (!entry) return null;
-  if (entry.expires < new Date()) {
-    tokens.delete(token);
+export async function validateAdminToken(
+  token: string
+): Promise<{ userId: string; isAdmin: boolean } | null> {
+  try {
+    const { payload } = await jwtVerify(token, JWT_SECRET);
+    return { userId: payload.userId as string, isAdmin: true };
+  } catch {
     return null;
   }
-  return { userId: entry.userId, isAdmin: entry.isAdmin };
 }
 
-export function revokeAdminToken(token: string): void {
-  tokens.delete(token);
+export function revokeAdminToken(_token: string): void {
+  // JWT tokens are stateless — they expire automatically.
+  // The client clears the token from sessionStorage on logout.
 }
+
+// Legacy no-ops kept for import compatibility during migration.
+export function storeAdminToken(_token: string, _userId: string, _expiresAt: Date): void {}

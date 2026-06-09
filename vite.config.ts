@@ -46,10 +46,17 @@ const proxyOptions = {
 };
 
 const localProxyOptions = {
-  target: LARAVEL_API,
+  target: LOCAL_API,
   changeOrigin: true,
   secure: false,
   configure: (proxy: any) => {
+    // Preserve Authorization + Cookie headers across the proxy hop
+    proxy.on("proxyReq", (proxyReq: any, req: any) => {
+      const auth = req.headers["authorization"];
+      if (auth) proxyReq.setHeader("Authorization", auth);
+      const cookie = req.headers["cookie"];
+      if (cookie) proxyReq.setHeader("Cookie", cookie);
+    });
     proxy.on("error", (err: any, _req: any, res: any) => {
       console.error("[proxy] Local API unavailable:", err.message);
       if (res && !res.headersSent) {
