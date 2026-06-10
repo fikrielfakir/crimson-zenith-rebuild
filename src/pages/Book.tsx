@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -41,6 +42,7 @@ import useEmblaCarousel from 'embla-carousel-react';
 import AutoScroll from 'embla-carousel-auto-scroll';
 
 const Book = () => {
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { isAuthenticated, user, isLoading: authLoading } = useAuth();
@@ -860,7 +862,7 @@ const Book = () => {
                             <textarea
                               value={reviewText}
                               onChange={e => setReviewText(e.target.value)}
-                              placeholder="Share your experience…"
+                              placeholder={t('common.placeholders.shareExperience')}
                               rows={3}
                               className="w-full rounded-xl border border-gray-200 px-4 py-3 font-['Inter'] text-sm text-gray-700 resize-none focus:outline-none focus:ring-2 focus:ring-[#D4B26A]/40 focus:border-[#D4B26A]"
                             />
@@ -1065,15 +1067,15 @@ const Book = () => {
                 {/* Price Breakdown */}
                 <div className="border-t-2 border-gray-200 pt-6 space-y-3">
                   <div className="flex justify-between items-center font-['Inter'] text-gray-700">
-                    <span>Price per person</span>
+                    <span>{t('common.pricePerPerson')}</span>
                     <span className="font-semibold">${selectedEvent.price}</span>
                   </div>
                   <div className="flex justify-between items-center font-['Inter'] text-gray-700">
-                    <span>Number of travelers</span>
+                    <span>{t('common.numberOfTravelers')}</span>
                     <span className="font-semibold">{participants}</span>
                   </div>
                   <div className="flex justify-between items-center font-['Poppins'] text-2xl font-bold text-[#111f50] border-t-2 border-gray-200 pt-4 mt-4">
-                    <span>Total</span>
+                    <span>{t('common.total')}</span>
                     <span className="text-[#D4B26A]">${totalPrice}</span>
                   </div>
                 </div>

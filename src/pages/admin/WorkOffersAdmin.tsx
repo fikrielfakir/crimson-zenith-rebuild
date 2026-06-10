@@ -151,9 +151,9 @@ export default function WorkOffersAdmin() {
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All statuses</SelectItem>
-                <SelectItem value="published">Published</SelectItem>
-                <SelectItem value="draft">Draft</SelectItem>
+                <SelectItem value="all">{t('admin.common.allStatuses', 'All statuses')}</SelectItem>
+                <SelectItem value="published">{t('admin.common.published')}</SelectItem>
+                <SelectItem value="draft">{t('admin.common.draft')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -238,27 +238,27 @@ export default function WorkOffersAdmin() {
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>{editing ? 'Edit Work Offer' : 'New Work Offer'}</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{editing ? t('admin.workOffers.dialogEdit', 'Edit Work Offer') : t('admin.workOffers.dialogNew', 'New Work Offer')}</DialogTitle></DialogHeader>
           <div className="space-y-4 mt-2">
             <div className="grid grid-cols-2 gap-4">
-              <div className="col-span-2 space-y-1.5"><Label>Title *</Label><Input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="Eco-Tourism Guide" /></div>
+              <div className="col-span-2 space-y-1.5"><Label>{t('admin.workOffers.fieldTitle', 'Title')} *</Label><Input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="Eco-Tourism Guide" /></div>
               <div className="space-y-1.5"><Label>{t('admin.workOffers.colCompany')}</Label><Input value={form.company} onChange={e => setForm(f => ({ ...f, company: e.target.value }))} placeholder="Journey Association" /></div>
               <div className="space-y-1.5"><Label>{t('admin.workOffers.colLocation')}</Label><Input value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} placeholder="Agadir" /></div>
               <div className="space-y-1.5"><Label>{t('admin.workOffers.colType')}</Label><Input value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value }))} placeholder="Full-time, Seasonal…" /></div>
-              <div className="space-y-1.5"><Label>Salary</Label><Input value={form.salary} onChange={e => setForm(f => ({ ...f, salary: e.target.value }))} placeholder="5,000–8,000 MAD/month" /></div>
-              <div className="space-y-1.5"><Label>Experience Level</Label><Input value={form.experience_level} onChange={e => setForm(f => ({ ...f, experience_level: e.target.value }))} placeholder="2+ years" /></div>
-              <div className="space-y-1.5"><Label>Category</Label><Input value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))} placeholder="Tourism" /></div>
+              <div className="space-y-1.5"><Label>{t('admin.workOffers.fieldSalary', 'Salary')}</Label><Input value={form.salary} onChange={e => setForm(f => ({ ...f, salary: e.target.value }))} placeholder="5,000–8,000 MAD/month" /></div>
+              <div className="space-y-1.5"><Label>{t('admin.workOffers.fieldExperience', 'Experience Level')}</Label><Input value={form.experience_level} onChange={e => setForm(f => ({ ...f, experience_level: e.target.value }))} placeholder="2+ years" /></div>
+              <div className="space-y-1.5"><Label>{t('admin.workOffers.fieldCategory', 'Category')}</Label><Input value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))} placeholder="Tourism" /></div>
               <div className="space-y-1.5 col-span-2">
                 <Label>{t('admin.common.status')}</Label>
                 <Select value={form.status} onValueChange={v => setForm(f => ({ ...f, status: v as any }))}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent><SelectItem value="draft">Draft</SelectItem><SelectItem value="published">Published</SelectItem></SelectContent>
+                  <SelectContent><SelectItem value="draft">{t('admin.common.draft')}</SelectItem><SelectItem value="published">{t('admin.common.published')}</SelectItem></SelectContent>
                 </Select>
               </div>
-              <div className="col-span-2 space-y-1.5"><Label>Description</Label><Textarea rows={3} value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="Describe the role…" /></div>
-              <div className="col-span-2 space-y-1.5"><Label>Responsibilities (one per line)</Label><Textarea rows={3} value={form.responsibilities} onChange={e => setForm(f => ({ ...f, responsibilities: e.target.value }))} /></div>
-              <div className="col-span-2 space-y-1.5"><Label>Requirements (one per line)</Label><Textarea rows={3} value={form.requirements} onChange={e => setForm(f => ({ ...f, requirements: e.target.value }))} /></div>
-              <div className="col-span-2 space-y-1.5"><Label>Benefits (one per line)</Label><Textarea rows={3} value={form.benefits} onChange={e => setForm(f => ({ ...f, benefits: e.target.value }))} /></div>
+              <div className="col-span-2 space-y-1.5"><Label>{t('admin.workOffers.fieldDescription', 'Description')}</Label><Textarea rows={3} value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="Describe the role…" /></div>
+              <div className="col-span-2 space-y-1.5"><Label>{t('admin.workOffers.fieldResponsibilities', 'Responsibilities (one per line)')}</Label><Textarea rows={3} value={form.responsibilities} onChange={e => setForm(f => ({ ...f, responsibilities: e.target.value }))} /></div>
+              <div className="col-span-2 space-y-1.5"><Label>{t('admin.workOffers.fieldRequirements', 'Requirements (one per line)')}</Label><Textarea rows={3} value={form.requirements} onChange={e => setForm(f => ({ ...f, requirements: e.target.value }))} /></div>
+              <div className="col-span-2 space-y-1.5"><Label>{t('admin.workOffers.fieldBenefits', 'Benefits (one per line)')}</Label><Textarea rows={3} value={form.benefits} onChange={e => setForm(f => ({ ...f, benefits: e.target.value }))} /></div>
             </div>
             <div className="flex justify-end gap-2 pt-2">
               <Button variant="outline" onClick={() => setDialogOpen(false)}>{t('admin.common.cancel')}</Button>

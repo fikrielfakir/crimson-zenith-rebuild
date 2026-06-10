@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -44,6 +45,7 @@ interface Article {
 }
 
 const News = () => {
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [isVisible, setIsVisible] = useState(false);
@@ -181,7 +183,7 @@ const News = () => {
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                   <Input 
-                    placeholder="Search articles..."
+                    placeholder={t('common.placeholders.searchArticles')}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="pl-10 w-full sm:w-64"
@@ -209,7 +211,7 @@ const News = () => {
                 {error && (
                   <div className="text-center py-16">
                     <p className="text-destructive font-body mb-4">Could not load articles: {error}</p>
-                    <Button variant="outline" onClick={() => window.location.reload()}>Retry</Button>
+                    <Button variant="outline" onClick={() => window.location.reload()}>{t('common.retry')}</Button>
                   </div>
                 )}
                 {!loading && !error && filteredArticles.length === 0 && (
@@ -337,7 +339,7 @@ const News = () => {
                     </p>
                     <div className="space-y-3">
                       <Input 
-                        placeholder="Your email address"
+                        placeholder={t('common.placeholders.yourEmail')}
                         className="bg-white/10 border-white/20 text-white placeholder:text-white/60"
                       />
                       <Button className="w-full bg-secondary hover:bg-secondary/90 text-white">

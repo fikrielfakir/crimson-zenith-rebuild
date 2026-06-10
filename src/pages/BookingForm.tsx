@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -40,6 +41,7 @@ interface PaymentMethods {
 }
 
 const BookingForm = () => {
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user, isLoading: authLoading, isAuthenticated } = useAuth();
@@ -615,7 +617,7 @@ const BookingForm = () => {
                           id="name"
                           value={customerName}
                           onChange={(e) => setCustomerName(e.target.value)}
-                          placeholder="Enter your full name"
+                          placeholder={t('common.placeholders.enterFullName')}
                           className="font-['Inter'] h-14 rounded-xl border-2 border-gray-200 focus:border-[#D4B26A] pl-12 pr-4 text-base transition-all duration-200 hover:border-gray-300"
                         />
                       </div>
@@ -649,7 +651,7 @@ const BookingForm = () => {
                               id="cin"
                               value={cin}
                               onChange={(e) => setCin(e.target.value)}
-                              placeholder="National ID Number"
+                              placeholder={t('common.placeholders.nationalId')}
                               className="font-['Inter'] h-14 rounded-xl border-2 border-gray-200 focus:border-[#D4B26A] px-4 text-base"
                             />
                           </div>
@@ -661,7 +663,7 @@ const BookingForm = () => {
                               id="cne"
                               value={cne}
                               onChange={(e) => setCne(e.target.value)}
-                              placeholder="Student ID Number"
+                              placeholder={t('common.placeholders.studentId')}
                               className="font-['Inter'] h-14 rounded-xl border-2 border-gray-200 focus:border-[#D4B26A] px-4 text-base"
                             />
                           </div>
@@ -704,7 +706,7 @@ const BookingForm = () => {
                             id="address"
                             value={address}
                             onChange={(e) => setAddress(e.target.value)}
-                            placeholder="Enter your full address"
+                            placeholder={t('common.placeholders.enterFullAddress')}
                             rows={3}
                             className="font-['Inter'] rounded-xl border-2 border-gray-200 focus:border-[#D4B26A] px-4 py-3 resize-none text-base"
                           />
@@ -720,7 +722,7 @@ const BookingForm = () => {
                         id="requests"
                         value={specialRequests}
                         onChange={(e) => setSpecialRequests(e.target.value)}
-                        placeholder="Any special requirements or notes?"
+                        placeholder={t('common.placeholders.specialRequirements')}
                         rows={3}
                         className="font-['Inter'] rounded-xl border-2 border-gray-200 focus:border-[#D4B26A] px-4 py-3 resize-none text-base"
                       />

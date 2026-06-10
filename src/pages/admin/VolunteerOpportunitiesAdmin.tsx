@@ -150,9 +150,9 @@ export default function VolunteerOpportunitiesAdmin() {
             <Select value={statusFilter} onValueChange={v => setStatusFilter(v)}>
               <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All statuses</SelectItem>
-                <SelectItem value="published">Published</SelectItem>
-                <SelectItem value="draft">Draft</SelectItem>
+                <SelectItem value="all">{t('admin.common.allStatuses', 'All statuses')}</SelectItem>
+                <SelectItem value="published">{t('admin.common.published')}</SelectItem>
+                <SelectItem value="draft">{t('admin.common.draft')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -230,11 +230,11 @@ export default function VolunteerOpportunitiesAdmin() {
       {/* Create/Edit Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>{editing ? 'Edit Opportunity' : 'New Opportunity'}</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{editing ? t('admin.volunteers.dialogEdit', 'Edit Opportunity') : t('admin.volunteers.dialogNew', 'New Opportunity')}</DialogTitle></DialogHeader>
           <div className="space-y-4 mt-2">
             <div className="grid grid-cols-2 gap-4">
               <div className="col-span-2 space-y-1.5">
-                <Label>Title *</Label>
+                <Label>{t('admin.volunteers.fieldTitle', 'Title')} *</Label>
                 <Input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="Trail clean-up weekend" />
               </div>
               <div className="space-y-1.5">
@@ -246,11 +246,11 @@ export default function VolunteerOpportunitiesAdmin() {
                 <Input value={form.duration} onChange={e => setForm(f => ({ ...f, duration: e.target.value }))} placeholder="2 days" />
               </div>
               <div className="space-y-1.5">
-                <Label>Max Participants</Label>
+                <Label>{t('admin.volunteers.fieldMaxParticipants', 'Max Participants')}</Label>
                 <Input type="number" min={1} value={form.max_participants} onChange={e => setForm(f => ({ ...f, max_participants: +e.target.value }))} />
               </div>
               <div className="space-y-1.5">
-                <Label>Current Participants</Label>
+                <Label>{t('admin.volunteers.fieldCurrentParticipants', 'Current Participants')}</Label>
                 <Input type="number" min={0} value={form.current_participants} onChange={e => setForm(f => ({ ...f, current_participants: +e.target.value }))} />
               </div>
               <div className="space-y-1.5">
@@ -258,9 +258,9 @@ export default function VolunteerOpportunitiesAdmin() {
                 <Select value={form.urgency} onValueChange={v => setForm(f => ({ ...f, urgency: v as any }))}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="high">High</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="low">Low</SelectItem>
+                    <SelectItem value="high">{t('admin.volunteers.urgencyHigh', 'High')}</SelectItem>
+                    <SelectItem value="medium">{t('admin.volunteers.urgencyMedium', 'Medium')}</SelectItem>
+                    <SelectItem value="low">{t('admin.volunteers.urgencyLow', 'Low')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -269,17 +269,17 @@ export default function VolunteerOpportunitiesAdmin() {
                 <Select value={form.status} onValueChange={v => setForm(f => ({ ...f, status: v as any }))}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="draft">Draft</SelectItem>
-                    <SelectItem value="published">Published</SelectItem>
+                    <SelectItem value="draft">{t('admin.common.draft')}</SelectItem>
+                    <SelectItem value="published">{t('admin.common.published')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="col-span-2 space-y-1.5">
-                <Label>Skills (comma-separated)</Label>
+                <Label>{t('admin.volunteers.fieldSkills', 'Skills (comma-separated)')}</Label>
                 <Input value={form.skills} onChange={e => setForm(f => ({ ...f, skills: e.target.value }))} placeholder="Hiking, First Aid, Photography" />
               </div>
               <div className="col-span-2 space-y-1.5">
-                <Label>Description</Label>
+                <Label>{t('admin.volunteers.fieldDescription', 'Description')}</Label>
                 <Textarea rows={4} value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="Describe the opportunity…" />
               </div>
             </div>

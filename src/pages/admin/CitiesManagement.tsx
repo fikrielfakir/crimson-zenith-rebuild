@@ -341,7 +341,7 @@ function MediaPickerDialog({
           {tab === 'url' && (
             <div className="space-y-4 p-1 py-4">
               <div className="space-y-2">
-                <Label>Image URL</Label>
+                <Label>{t('admin.cities.imageUrl', 'Image URL')}</Label>
                 <div className="flex gap-2">
                   <Input
                     value={urlInput}
@@ -571,7 +571,7 @@ function IconPickerDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Choose Icon</DialogTitle>
+          <DialogTitle>{t('admin.cities.chooseIcon', 'Choose Icon')}</DialogTitle>
           <DialogDescription>Pick an icon for this activity</DialogDescription>
         </DialogHeader>
         <div className="relative">
@@ -1192,11 +1192,11 @@ export default function CitiesManagement() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label>Page Title</Label>
+                    <Label>{t('admin.cities.pageTitle', 'Page Title')}</Label>
                     <Input value={currentDiscover.hero_title ?? ''} onChange={e => setDiscoverField('hero_title', e.target.value)} placeholder="Discover" />
                   </div>
                   <div className="space-y-2">
-                    <Label>Subtitle</Label>
+                    <Label>{t('admin.cities.subtitle', 'Subtitle')}</Label>
                     <Textarea rows={3} value={currentDiscover.hero_subtitle ?? ''} onChange={e => setDiscoverField('hero_subtitle', e.target.value)} placeholder="Embark on a journey…" />
                   </div>
                   <ImageField
@@ -1232,11 +1232,11 @@ export default function CitiesManagement() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label>Heading</Label>
+                    <Label>{t('admin.cities.heading', 'Heading')}</Label>
                     <Input value={currentDiscover.intro_heading ?? ''} onChange={e => setDiscoverField('intro_heading', e.target.value)} placeholder="Morocco, a melting pot…" />
                   </div>
                   <div className="space-y-2">
-                    <Label>Description</Label>
+                    <Label>{t('admin.cities.descriptionLabel', 'Description')}</Label>
                     <Textarea rows={5} value={currentDiscover.intro_description ?? ''} onChange={e => setDiscoverField('intro_description', e.target.value)} />
                   </div>
                 </CardContent>
@@ -1269,20 +1269,20 @@ export default function CitiesManagement() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label>Heading</Label>
+                    <Label>{t('admin.cities.heading', 'Heading')}</Label>
                     <Input value={currentDiscover.cta_heading ?? ''} onChange={e => setDiscoverField('cta_heading', e.target.value)} placeholder="Ready to Start Your Journey?" />
                   </div>
                   <div className="space-y-2">
-                    <Label>Description</Label>
+                    <Label>{t('admin.cities.descriptionLabel', 'Description')}</Label>
                     <Textarea rows={2} value={currentDiscover.cta_description ?? ''} onChange={e => setDiscoverField('cta_description', e.target.value)} />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label>Button Text</Label>
+                      <Label>{t('admin.cities.buttonText', 'Button Text')}</Label>
                       <Input value={currentDiscover.cta_button_text ?? ''} onChange={e => setDiscoverField('cta_button_text', e.target.value)} placeholder="JOIN THE JOURNEY" />
                     </div>
                     <div className="space-y-2">
-                      <Label>Button Link</Label>
+                      <Label>{t('admin.cities.buttonLink', 'Button Link')}</Label>
                       <div className="relative">
                         <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <Input value={currentDiscover.cta_button_link ?? ''} onChange={e => setDiscoverField('cta_button_link', e.target.value)} placeholder="/join-us" className="pl-9" />

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -32,6 +33,7 @@ interface BookingEvent {
 }
 
 const Events = () => {
+  const { t } = useTranslation();
   const [viewMode, setViewMode] = useState<"calendar" | "list" | "map">("list");
   const [events, setEvents] = useState<BookingEvent[]>([]);
   const [loading, setLoading] = useState(true);
@@ -106,18 +108,18 @@ const Events = () => {
                 Filters
               </Button>
               <select className="px-3 py-2 border rounded-button text-sm font-body min-h-[44px]">
-                <option>All Categories</option>
-                <option>Trekking</option>
-                <option>Photography</option>
-                <option>Cultural</option>
-                <option>Water Sports</option>
-                <option>Climbing</option>
+                <option>{t('common.allCategories')}</option>
+                <option>{t('common.trekking')}</option>
+                <option>{t('common.photography')}</option>
+                <option>{t('common.cultural')}</option>
+                <option>{t('common.waterSports')}</option>
+                <option>{t('common.climbing')}</option>
               </select>
               <select className="px-3 py-2 border rounded-button text-sm font-body min-h-[44px]">
-                <option>All Difficulties</option>
-                <option>Easy</option>
-                <option>Moderate</option>
-                <option>Hard</option>
+                <option>{t('common.allDifficulties')}</option>
+                <option>{t('common.easy')}</option>
+                <option>{t('common.moderate')}</option>
+                <option>{t('common.hard')}</option>
               </select>
             </div>
             
@@ -165,7 +167,7 @@ const Events = () => {
             {error && (
               <div className="text-center py-16">
                 <p className="text-destructive font-body mb-4">Could not load events: {error}</p>
-                <Button variant="outline" onClick={() => window.location.reload()}>Retry</Button>
+                <Button variant="outline" onClick={() => window.location.reload()}>{t('common.retry')}</Button>
               </div>
             )}
             {!loading && !error && events.length === 0 && (
@@ -271,7 +273,7 @@ const Events = () => {
             <div className="mt-16">
               <div className="flex items-center justify-between mb-8">
                 <h2 className="text-3xl font-bold font-heading">Past Events</h2>
-                <Button variant="outline">View All</Button>
+                <Button variant="outline">{t('common.viewAll')}</Button>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

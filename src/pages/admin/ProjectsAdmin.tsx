@@ -161,11 +161,11 @@ export default function ProjectsAdmin() {
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All statuses</SelectItem>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="ongoing">Ongoing</SelectItem>
-                <SelectItem value="planning">Planning</SelectItem>
-                <SelectItem value="completed">Completed</SelectItem>
+                <SelectItem value="all">{t('admin.common.allStatuses', 'All statuses')}</SelectItem>
+                <SelectItem value="active">{t('admin.common.active')}</SelectItem>
+                <SelectItem value="ongoing">{t('admin.common.ongoing')}</SelectItem>
+                <SelectItem value="planning">{t('admin.common.planning')}</SelectItem>
+                <SelectItem value="completed">{t('admin.common.completed')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -257,10 +257,10 @@ export default function ProjectsAdmin() {
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>{editing ? 'Edit Project' : 'New Project'}</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{editing ? t('admin.projects.dialogEdit') : t('admin.projects.dialogNew')}</DialogTitle></DialogHeader>
           <div className="space-y-4 mt-2">
             <div className="grid grid-cols-2 gap-4">
-              <div className="col-span-2 space-y-1.5"><Label>Title *</Label><Input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="Atlas Reforestation Initiative" /></div>
+              <div className="col-span-2 space-y-1.5"><Label>{t('admin.projects.fieldTitle')} *</Label><Input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="Atlas Reforestation Initiative" /></div>
               <div className="space-y-1.5"><Label>{t('admin.projects.colCategory')}</Label><Input value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))} placeholder="Environment" /></div>
               <div className="space-y-1.5"><Label>{t('admin.projects.colLocation')}</Label><Input value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} placeholder="High Atlas Mountains" /></div>
               <div className="space-y-1.5">
@@ -268,24 +268,24 @@ export default function ProjectsAdmin() {
                 <Select value={form.status} onValueChange={v => setForm(f => ({ ...f, status: v as any }))}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="planning">Planning</SelectItem>
-                    <SelectItem value="active">Active</SelectItem>
-                    <SelectItem value="ongoing">Ongoing</SelectItem>
-                    <SelectItem value="completed">Completed</SelectItem>
+                    <SelectItem value="planning">{t('admin.common.planning')}</SelectItem>
+                    <SelectItem value="active">{t('admin.common.active')}</SelectItem>
+                    <SelectItem value="ongoing">{t('admin.common.ongoing')}</SelectItem>
+                    <SelectItem value="completed">{t('admin.common.completed')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-1.5"><Label>Progress (%)</Label><Input type="number" min={0} max={100} value={form.progress} onChange={e => setForm(f => ({ ...f, progress: +e.target.value }))} /></div>
-              <div className="space-y-1.5"><Label>Cover Image URL</Label><Input value={form.image} onChange={e => setForm(f => ({ ...f, image: e.target.value }))} placeholder="https://…" /></div>
-              <div className="space-y-1.5"><Label>Participants</Label><Input type="number" min={0} value={form.participants_count} onChange={e => setForm(f => ({ ...f, participants_count: +e.target.value }))} /></div>
-              <div className="space-y-1.5"><Label>Impact: People</Label><Input type="number" min={0} value={form.impact_people} onChange={e => setForm(f => ({ ...f, impact_people: +e.target.value }))} /></div>
-              <div className="space-y-1.5"><Label>Impact: CO₂ reduction</Label><Input value={form.impact_co2} onChange={e => setForm(f => ({ ...f, impact_co2: e.target.value }))} placeholder="50 tons" /></div>
-              <div className="space-y-1.5"><Label>Impact: Sites</Label><Input type="number" min={0} value={form.impact_sites} onChange={e => setForm(f => ({ ...f, impact_sites: +e.target.value }))} /></div>
+              <div className="space-y-1.5"><Label>{t('admin.projects.fieldProgress')}</Label><Input type="number" min={0} max={100} value={form.progress} onChange={e => setForm(f => ({ ...f, progress: +e.target.value }))} /></div>
+              <div className="space-y-1.5"><Label>{t('admin.projects.fieldCoverImage')}</Label><Input value={form.image} onChange={e => setForm(f => ({ ...f, image: e.target.value }))} placeholder="https://…" /></div>
+              <div className="space-y-1.5"><Label>{t('admin.projects.fieldParticipants')}</Label><Input type="number" min={0} value={form.participants_count} onChange={e => setForm(f => ({ ...f, participants_count: +e.target.value }))} /></div>
+              <div className="space-y-1.5"><Label>{t('admin.projects.fieldImpactPeopleLabel')}</Label><Input type="number" min={0} value={form.impact_people} onChange={e => setForm(f => ({ ...f, impact_people: +e.target.value }))} /></div>
+              <div className="space-y-1.5"><Label>{t('admin.projects.fieldImpactCO2Label')}</Label><Input value={form.impact_co2} onChange={e => setForm(f => ({ ...f, impact_co2: e.target.value }))} placeholder="50 tons" /></div>
+              <div className="space-y-1.5"><Label>{t('admin.projects.fieldImpactSitesLabel')}</Label><Input type="number" min={0} value={form.impact_sites} onChange={e => setForm(f => ({ ...f, impact_sites: +e.target.value }))} /></div>
               <div className="col-span-2 flex items-center gap-3">
                 <Switch checked={form.is_featured} onCheckedChange={v => setForm(f => ({ ...f, is_featured: v }))} />
-                <Label>Featured on homepage</Label>
+                <Label>{t('admin.projects.fieldFeatured')}</Label>
               </div>
-              <div className="col-span-2 space-y-1.5"><Label>Description</Label><Textarea rows={4} value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="Describe the project…" /></div>
+              <div className="col-span-2 space-y-1.5"><Label>{t('admin.projects.fieldDescription')}</Label><Textarea rows={4} value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="Describe the project…" /></div>
             </div>
             <div className="flex justify-end gap-2 pt-2">
               <Button variant="outline" onClick={() => setDialogOpen(false)}>{t('admin.common.cancel')}</Button>
