@@ -133,7 +133,9 @@ export default function UserManagement() {
         phone:     editingUser.phone     || '',
         location:  editingUser.location  || '',
         bio:       editingUser.bio       || '',
-        interests: editingUser.interests || '',
+        interests: Array.isArray(editingUser.interests)
+          ? editingUser.interests.join(', ')
+          : (editingUser.interests || ''),
         role:      editingUser.role      || 'user',
         isActive:  editingUser.isActive  !== undefined ? editingUser.isActive : true,
       });
