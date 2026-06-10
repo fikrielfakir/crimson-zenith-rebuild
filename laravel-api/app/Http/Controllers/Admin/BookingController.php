@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\BookingTicket;
+use App\Models\Club;
 use Illuminate\Http\Request;
 
 class BookingController extends Controller
@@ -46,6 +47,17 @@ class BookingController extends Controller
     public function index(Request $request)
     {
         $query = BookingTicket::with('event');
+
+        // Club managers only see bookings for events that belong to their club
+        $authUser = auth()->user();
+        if ($authUser && $authUser->role === 'club_manager') {
+            $club = Club::where('owner_id', $authUser->id)->first();
+            if ($club) {
+                $query->whereHas('event', fn($q) => $q->where('club_id', $club->id));
+            } else {
+                $query->whereRaw('1 = 0');
+            }
+        }
 
         if ($request->filled('status'))  $query->where('status', $request->status);
         if ($request->filled('eventId')) $query->where('event_id', $request->eventId);
