@@ -20,6 +20,8 @@ use App\Models\Partner;
 use App\Models\PartnerSettings;
 use App\Models\ClubsPageSettings;
 use App\Models\LegalPage;
+use App\Models\LandingPageSection;
+use App\Models\CookieSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -635,5 +637,72 @@ class CmsAdminController extends Controller
         );
 
         return response()->json($page->fresh()->toApiArray());
+    }
+
+    public function getLandingSections()
+    {
+        $sections = LandingPageSection::orderBy('ordering')->get();
+        return response()->json($sections->map(fn($s) => [
+            'id'         => $s->id,
+            'sectionKey' => $s->section_key,
+            'label'      => $s->label,
+            'isEnabled'  => (bool) $s->is_enabled,
+            'ordering'   => $s->ordering,
+        ]));
+    }
+
+    public function updateLandingSections(Request $request)
+    {
+        $updates = $request->validate([
+            '*'             => 'array',
+            '*.sectionKey'  => 'required|string',
+            '*.isEnabled'   => 'required|boolean',
+        ]);
+
+        foreach ($updates as $item) {
+            LandingPageSection::where('section_key', $item['sectionKey'])
+                ->update(['is_enabled' => $item['isEnabled']]);
+        }
+
+        return response()->json(['message' => 'Saved']);
+    }
+
+    public function getCookieSettings()
+    {
+        $s = CookieSetting::firstOrCreate(['id' => 'default'], [
+            'enabled' => true, 'delay' => 1500,
+            'title' => '🍪 We use cookies to enhance your experience',
+            'description' => 'Our cookies help us remember your preferences.',
+            'categories' => [],
+        ]);
+        return response()->json([
+            'enabled'     => (bool) $s->enabled,
+            'delay'       => (int) $s->delay,
+            'title'       => $s->title,
+            'description' => $s->description,
+            'categories'  => $s->categories ?? [],
+        ]);
+    }
+
+    public function updateCookieSettings(Request $request)
+    {
+        $data = $request->validate([
+            'enabled'     => 'boolean',
+            'delay'       => 'integer|min:0',
+            'title'       => 'string|max:500',
+            'description' => 'nullable|string',
+            'categories'  => 'nullable|array',
+        ]);
+
+        $s = CookieSetting::firstOrCreate(['id' => 'default']);
+        $s->update($data);
+
+        return response()->json([
+            'enabled'     => (bool) $s->enabled,
+            'delay'       => (int) $s->delay,
+            'title'       => $s->title,
+            'description' => $s->description,
+            'categories'  => $s->categories ?? [],
+        ]);
     }
 }

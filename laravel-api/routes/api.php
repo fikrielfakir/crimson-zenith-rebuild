@@ -133,6 +133,8 @@ Route::prefix('cms')->group(function () {
     Route::get('/partners',          [\App\Http\Controllers\CmsController::class, 'partners']);
     Route::get('/partner-settings',  [\App\Http\Controllers\CmsController::class, 'partnerSettings']);
     Route::get('/legal/{pageKey}',   [\App\Http\Controllers\CmsController::class, 'legalPage']);
+    Route::get('/landing-sections',  [\App\Http\Controllers\CmsController::class, 'landingSections']);
+    Route::get('/cookie-settings',   [\App\Http\Controllers\CmsController::class, 'cookieSettings']);
 });
 
 Route::get('/landing', [\App\Http\Controllers\LandingController::class, 'index']);
@@ -322,6 +324,10 @@ Route::prefix('admin')->middleware(['admin'])->group(function () {
     Route::put('/cms/page-hero/{page}',        [\App\Http\Controllers\Admin\CmsAdminController::class, 'updatePageHero']);
     Route::get('/cms/partner-settings',        [\App\Http\Controllers\Admin\CmsAdminController::class, 'getPartnerSettings']);
     Route::put('/cms/partner-settings',        [\App\Http\Controllers\Admin\CmsAdminController::class, 'updatePartnerSettings']);
+    Route::get('/cms/landing-sections',        [\App\Http\Controllers\Admin\CmsAdminController::class, 'getLandingSections']);
+    Route::put('/cms/landing-sections',        [\App\Http\Controllers\Admin\CmsAdminController::class, 'updateLandingSections']);
+    Route::get('/cms/cookie-settings',         [\App\Http\Controllers\Admin\CmsAdminController::class, 'getCookieSettings']);
+    Route::put('/cms/cookie-settings',         [\App\Http\Controllers\Admin\CmsAdminController::class, 'updateCookieSettings']);
 
     // Partners CRUD
     Route::get('/cms/partners',               [\App\Http\Controllers\Admin\CmsAdminController::class, 'listPartners']);
