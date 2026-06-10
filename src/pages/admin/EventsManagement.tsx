@@ -1,5 +1,6 @@
 import { apiFetch } from '@/lib/apiFetch';
 import { useState, useEffect } from 'react';
+import { useAdminRole, useAdminUser } from '@/hooks/useAdminRole';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
@@ -118,6 +119,11 @@ async function fetchClubs() {
 }
 
 export default function EventsManagement() {
+  const adminRole = useAdminRole();
+  const adminUser = useAdminUser() as any;
+  const isClubManager = adminRole === 'club_manager';
+  const managedClubId = adminUser?.managedClubId ? String(adminUser.managedClubId) : null;
+
   const [search, setSearch] = useState('');
   const [eventTypeFilter, setEventTypeFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -400,8 +406,12 @@ export default function EventsManagement() {
         !event.location?.toLowerCase().includes(search.toLowerCase())) {
       return false;
     }
-    
-    if (eventTypeFilter !== 'all') {
+
+    // Club managers only see club-type events for their assigned club
+    if (isClubManager) {
+      if (event.isAssociationEvent) return false;
+      if (managedClubId && String(event.clubId) !== managedClubId) return false;
+    } else if (eventTypeFilter !== 'all') {
       if (eventTypeFilter === 'association' && !event.isAssociationEvent) return false;
       if (eventTypeFilter === 'club' && event.isAssociationEvent) return false;
     }
@@ -539,21 +549,34 @@ export default function EventsManagement() {
                       name="clubId"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Select Club</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value}>
+                          <FormLabel>Club</FormLabel>
+                          {isClubManager ? (
                             <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Choose a club" />
-                              </SelectTrigger>
+                              <Input
+                                disabled
+                                value={
+                                  clubsData?.clubs?.find((c: any) => String(c.id) === managedClubId)?.name
+                                  ?? managedClubId
+                                  ?? 'Your Club'
+                                }
+                              />
                             </FormControl>
-                            <SelectContent>
-                              {clubsData?.clubs?.map((club: any) => (
-                                <SelectItem key={club.id} value={club.id.toString()}>
-                                  {club.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                          ) : (
+                            <Select onValueChange={field.onChange} value={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Choose a club" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {clubsData?.clubs?.map((club: any) => (
+                                  <SelectItem key={club.id} value={club.id.toString()}>
+                                    {club.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          )}
                           <FormMessage />
                         </FormItem>
                       )}
@@ -959,7 +982,24 @@ export default function EventsManagement() {
           <h1 className="text-3xl font-bold">Journey Events Management</h1>
           <p className="text-muted-foreground mt-1">Manage bookable events for The Journey Association</p>
         </div>
-        <Button onClick={() => { setEditingEvent({}); setShowForm(true); }}>
+        <Button onClick={() => {
+          if (isClubManager) {
+            // Club managers skip the type selector — always creates a Club Event
+            setSelectedEventType('club');
+            setShowForm(true);
+            setEditingEvent({});
+            form.reset({
+              title: '', description: '', isAssociationEvent: false,
+              clubId: managedClubId ?? '', location: '', locationDetails: '',
+              startDate: '', endDate: '', duration: '', category: '',
+              languages: '', minAge: '', maxPeople: '', maxAttendees: '',
+              price: '', image: '', highlights: '', included: '',
+              notIncluded: '', importantInfo: '', status: 'upcoming',
+            });
+          } else {
+            setEditingEvent({}); setShowForm(true);
+          }
+        }}>
           <Plus className="mr-2 h-4 w-4" />
           Create Event
         </Button>
@@ -975,16 +1015,18 @@ export default function EventsManagement() {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        <Select value={eventTypeFilter} onValueChange={setEventTypeFilter}>
-          <SelectTrigger className="w-40">
-            <SelectValue placeholder="Event Type" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Events</SelectItem>
-            <SelectItem value="club">Club Events</SelectItem>
-            <SelectItem value="association">Association Events</SelectItem>
-          </SelectContent>
-        </Select>
+        {!isClubManager && (
+          <Select value={eventTypeFilter} onValueChange={setEventTypeFilter}>
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="Event Type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Events</SelectItem>
+              <SelectItem value="club">Club Events</SelectItem>
+              <SelectItem value="association">Association Events</SelectItem>
+            </SelectContent>
+          </Select>
+        )}
         <Select value={categoryFilter} onValueChange={setCategoryFilter}>
           <SelectTrigger className="w-40">
             <SelectValue placeholder="Category" />
