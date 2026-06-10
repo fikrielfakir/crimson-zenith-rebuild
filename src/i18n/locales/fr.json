@@ -1300,7 +1300,21 @@
       "updateEvent": "Mettre à jour l'événement",
       "viewDetails": "Voir les détails",
       "deleteEvent": "Supprimer l'événement",
-      "failedLoad": "Échec du chargement des événements"
+      "failedLoad": "Échec du chargement des événements",
+      "viewNotSpecified": "Non spécifié",
+      "viewCapacity": "Capacité",
+      "viewAttendees": "participants",
+      "viewNoDescription": "Aucune description",
+      "viewDuration": "Durée",
+      "viewFree": "Gratuit",
+      "viewDate": "Date",
+      "viewLocation": "Lieu",
+      "viewPrice": "Prix",
+      "viewHighlights": "Points forts",
+      "viewIncluded": "Ce qui est inclus",
+      "viewNotIncluded": "Ce qui n'est pas inclus",
+      "viewImportantInfo": "Informations importantes",
+      "deleteDescConfirm": "Cette action supprimera définitivement cet événement. Cette action est irréversible."
     },
     "navbar": {
       "title": "Paramètres barre de navigation",

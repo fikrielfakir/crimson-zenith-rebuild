@@ -1134,7 +1134,21 @@
       "updateEvent": "تحديث الفعالية",
       "viewDetails": "عرض التفاصيل",
       "deleteEvent": "حذف الفعالية",
-      "failedLoad": "فشل تحميل الفعاليات"
+      "failedLoad": "فشل تحميل الفعاليات",
+      "viewNotSpecified": "غير محدد",
+      "viewCapacity": "السعة",
+      "viewAttendees": "مشاركون",
+      "viewNoDescription": "لا يوجد وصف",
+      "viewDuration": "المدة",
+      "viewFree": "مجاني",
+      "viewDate": "التاريخ",
+      "viewLocation": "الموقع",
+      "viewPrice": "السعر",
+      "viewHighlights": "أبرز النقاط",
+      "viewIncluded": "ما هو مشمول",
+      "viewNotIncluded": "ما هو غير مشمول",
+      "viewImportantInfo": "معلومات مهمة",
+      "deleteDescConfirm": "سيؤدي هذا إلى حذف هذا الحدث نهائيًا. لا يمكن التراجع عن هذا الإجراء."
     },
     "navbar": {
       "title": "إعدادات شريط التنقل",
