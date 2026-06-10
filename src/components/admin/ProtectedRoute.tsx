@@ -1,31 +1,29 @@
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { AdminLayout } from './AdminLayout';
 import { BackendOfflinePage } from './BackendOfflinePage';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ShieldOff } from 'lucide-react';
 import { apiFetch } from '@/lib/apiFetch';
 import { getAdminToken, clearAdminToken } from '@/lib/tokenStore';
 import { useCallback } from 'react';
+import { canAccessRoute, STAFF_ROLES, ADMIN_ROLE_META, type AdminRole } from '@/lib/adminPermissions';
+import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 
-// Return value shape — null means "not authenticated", throws on network error
 async function fetchAdminMe() {
   let response: Response;
   try {
     response = await apiFetch('/api/admin/me');
   } catch (err) {
-    // Network error (no internet, server down, etc.) — re-throw so useQuery
-    // sets isError=true and we can show the offline page instead of redirecting.
     throw err;
   }
 
   if (response.status === 401 || response.status === 403) {
-    // Token is invalid or expired — clear it
     clearAdminToken();
     return null;
   }
 
   if (!response.ok) {
-    // 5xx or unexpected error — also treat as network problem
     throw new Error(`Server error: ${response.status}`);
   }
 
@@ -43,6 +41,9 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
 }
 
 function TokenValidatedRoute({ children }: { children: React.ReactNode }) {
+  const location = useLocation();
+  const navigate = useNavigate();
+
   const {
     data: user,
     isLoading,
@@ -52,14 +53,13 @@ function TokenValidatedRoute({ children }: { children: React.ReactNode }) {
   } = useQuery({
     queryKey: ['adminMe'],
     queryFn: fetchAdminMe,
-    retry: 1,           // one auto-retry before showing error page
+    retry: 1,
     retryDelay: 2000,
     staleTime: 5 * 60 * 1000,
   });
 
   const handleRetry = useCallback(() => { refetch(); }, [refetch]);
 
-  // ── Loading ────────────────────────────────────────────────────────────────
   if (isLoading) {
     return (
       <div className="flex h-screen items-center justify-center bg-background">
@@ -71,7 +71,6 @@ function TokenValidatedRoute({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // ── Network / server error — show the offline page ─────────────────────────
   if (isError) {
     const msg = (error as Error)?.message ?? '';
     const kind =
@@ -81,7 +80,6 @@ function TokenValidatedRoute({ children }: { children: React.ReactNode }) {
 
     return (
       <div className="flex h-screen flex-col bg-background">
-        {/* Minimal header so the user knows which app this is */}
         <div className="flex h-14 items-center gap-3 border-b px-6 shrink-0">
           <div className="h-7 w-7 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs font-bold select-none">
             JA
@@ -93,11 +91,36 @@ function TokenValidatedRoute({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // ── Not authenticated / not admin — redirect to login ──────────────────────
-  if (!user || !user.isAdmin) {
+  const hasValidRole = user && (user.isAdmin || STAFF_ROLES.includes(user.role));
+
+  if (!user || !hasValidRole) {
     return <Navigate to="/admin/login" replace />;
   }
 
-  // ── Authenticated ──────────────────────────────────────────────────────────
+  const role: AdminRole = STAFF_ROLES.includes(user.role) ? user.role : 'admin';
+
+  if (!canAccessRoute(location.pathname, role)) {
+    const meta = ADMIN_ROLE_META[role];
+    return (
+      <AdminLayout>
+        <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6 text-center">
+          <div className="h-20 w-20 rounded-full bg-destructive/10 flex items-center justify-center">
+            <ShieldOff className="h-10 w-10 text-destructive" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold mb-2">Access Restricted</h1>
+            <p className="text-muted-foreground max-w-md">
+              Your role <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium mx-1 ${meta.colorClass}`}>{meta.label}</span>
+              does not have permission to view this page.
+            </p>
+          </div>
+          <Button onClick={() => navigate('/admin')} variant="outline">
+            Go to Dashboard
+          </Button>
+        </div>
+      </AdminLayout>
+    );
+  }
+
   return <AdminLayout>{children}</AdminLayout>;
 }

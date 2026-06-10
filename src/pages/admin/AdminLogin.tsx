@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { setAdminToken } from '@/lib/tokenStore';
+import { STAFF_ROLES } from '@/lib/adminPermissions';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
@@ -66,10 +67,11 @@ export default function AdminLogin() {
       return response.json();
     },
     onSuccess: (data) => {
-      if (!data.user?.isAdmin) {
+      const hasAccess = data.user?.isAdmin || STAFF_ROLES.includes(data.user?.role);
+      if (!hasAccess) {
         toast({
           title: 'Access Denied',
-          description: 'You do not have admin privileges.',
+          description: 'You do not have admin panel access.',
           variant: 'destructive',
         });
         return;

@@ -26,7 +26,6 @@ import {
   User,
   Palette,
   MapPin,
-  Images,
   Inbox,
   Languages,
   Globe,
@@ -35,7 +34,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import {
   DropdownMenu,
@@ -49,6 +47,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { canSeeNav, ADMIN_ROLE_META, type AdminRole } from '@/lib/adminPermissions';
+import { useAdminRole, useAdminUser } from '@/hooks/useAdminRole';
 
 const ADMIN_LANGUAGES = [
   { code: 'en', flag: '🇬🇧', label: 'English', dir: 'ltr' as const },
@@ -146,6 +146,7 @@ const navigationItems: NavigationItem[] = [
 ];
 
 interface SidebarContentProps {
+  role: AdminRole;
   sidebarCollapsed: boolean;
   setSidebarCollapsed: (v: boolean) => void;
   expandedItems: string[];
@@ -155,9 +156,20 @@ interface SidebarContentProps {
   onLogout: () => void;
   currentPath: string;
   t: (key: string) => string;
+  adminUser: { username: string; email: string; firstName?: string; lastName?: string } | null;
+}
+
+function RoleBadge({ role }: { role: AdminRole }) {
+  const meta = ADMIN_ROLE_META[role];
+  return (
+    <span className={cn('inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-semibold leading-none', meta.colorClass)}>
+      {meta.label}
+    </span>
+  );
 }
 
 function SidebarContent({
+  role,
   sidebarCollapsed,
   setSidebarCollapsed,
   expandedItems,
@@ -167,8 +179,17 @@ function SidebarContent({
   onLogout,
   currentPath,
   t,
+  adminUser,
 }: SidebarContentProps) {
   const isActive = (href: string) => currentPath === href;
+
+  const visibleItems = navigationItems.filter(item => canSeeNav(item.labelKey, role));
+
+  const displayName = adminUser
+    ? [adminUser.firstName, adminUser.lastName].filter(Boolean).join(' ') || adminUser.username
+    : 'Admin';
+  const displayEmail = adminUser?.email ?? '';
+  const initials = displayName.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || 'AD';
 
   return (
     <div className="flex h-full flex-col">
@@ -192,7 +213,7 @@ function SidebarContent({
 
       <ScrollArea className="flex-1 px-3 py-4">
         <nav className="space-y-1">
-          {navigationItems.map((item) => {
+          {visibleItems.map((item) => {
             const Icon = item.icon;
             const isExpanded = expandedItems.includes(item.labelKey);
             const hasChildren = item.children && item.children.length > 0;
@@ -254,16 +275,19 @@ function SidebarContent({
         </nav>
       </ScrollArea>
 
-      <div className="border-t p-4">
+      <div className="border-t p-4 space-y-3">
         {!sidebarCollapsed && (
-          <div className="flex items-center space-x-3 mb-3">
-            <Avatar className="h-10 w-10">
+          <div className="flex items-center space-x-3">
+            <Avatar className="h-9 w-9 shrink-0">
               <AvatarImage src="/placeholder-avatar.jpg" />
-              <AvatarFallback>AD</AvatarFallback>
+              <AvatarFallback className="text-xs">{initials}</AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">Admin User</p>
-              <p className="text-xs text-muted-foreground truncate">admin@journey.ma</p>
+              <p className="text-sm font-medium truncate">{displayName}</p>
+              <p className="text-xs text-muted-foreground truncate">{displayEmail}</p>
+              <div className="mt-0.5">
+                <RoleBadge role={role} />
+              </div>
             </div>
           </div>
         )}
@@ -286,6 +310,8 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   const { toast } = useToast();
   const { t, i18n } = useTranslation();
   const { isOffline, status, retrying, retry } = useBackendHealth();
+  const role = useAdminRole();
+  const adminUser = useAdminUser();
 
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     const saved = localStorage.getItem('admin-sidebar-collapsed');
@@ -305,17 +331,12 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   const currentAdminLang = ADMIN_LANGUAGES.find((l) => l.code === adminLang) ?? ADMIN_LANGUAGES[0];
 
   useEffect(() => {
-    // Capture the public-site language BEFORE i18n.changeLanguage overwrites tja_language
     const publicLangBackup = localStorage.getItem('tja_language') || 'en';
-
     localStorage.setItem('tja_admin_language', adminLang);
     const isRTL = adminLang === 'ar';
     document.documentElement.setAttribute('dir', isRTL ? 'rtl' : 'ltr');
     document.documentElement.setAttribute('lang', adminLang);
     i18n.changeLanguage(adminLang);
-
-    // i18n.changeLanguage() writes adminLang into tja_language — immediately restore
-    // the public value so a hard reload always sees the correct public language.
     localStorage.setItem('tja_language', publicLangBackup);
 
     return () => {
@@ -366,7 +387,15 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
 
   const breadcrumbs = generateBreadcrumbs();
 
+  const meta = ADMIN_ROLE_META[role];
+  const displayName = adminUser
+    ? [adminUser.firstName, adminUser.lastName].filter(Boolean).join(' ') || adminUser.username
+    : 'Admin';
+  const initials = displayName.split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0, 2) || 'AD';
+
   const sharedSidebarProps = {
+    role,
+    adminUser,
     sidebarCollapsed,
     setSidebarCollapsed,
     expandedItems,
@@ -503,20 +532,26 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
               <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                 <Avatar className="h-10 w-10">
                   <AvatarImage src="/placeholder-avatar.jpg" />
-                  <AvatarFallback>AD</AvatarFallback>
+                  <AvatarFallback>{initials}</AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel>{t('admin.header.adminAccount')}</DropdownMenuLabel>
+            <DropdownMenuContent align="end" className="w-64">
+              <DropdownMenuLabel>
+                <div>
+                  <p className="font-medium">{displayName}</p>
+                  <p className="text-xs text-muted-foreground font-normal">{adminUser?.email}</p>
+                  <div className="mt-1">
+                    <span className={cn('inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-semibold', meta.colorClass)}>
+                      {meta.label}
+                    </span>
+                  </div>
+                </div>
+              </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem>
                 <User className="mr-2 h-4 w-4" />
                 {t('admin.header.profile')}
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Settings className="mr-2 h-4 w-4" />
-                {t('admin.header.settings')}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout}>
