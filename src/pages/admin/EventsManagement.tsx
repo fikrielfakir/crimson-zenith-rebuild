@@ -219,12 +219,13 @@ export default function EventsManagement() {
       });
     } else if (editingEvent && (!editingEvent.id || editingEvent.id === '')) {
       setShowForm(true);
-      setSelectedEventType(null);
+      // Club managers always create club-type events — skip the type selector
+      setSelectedEventType(isClubManager ? 'club' : null);
       form.reset({
         title: '',
         description: '',
         isAssociationEvent: false,
-        clubId: '',
+        clubId: isClubManager ? (managedClubId ?? '') : '',
         location: '',
         locationDetails: '',
         startDate: '',
