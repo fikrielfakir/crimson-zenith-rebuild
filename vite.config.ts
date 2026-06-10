@@ -349,8 +349,8 @@ export default defineConfig(({ mode }: { mode: string }) => ({
             const url = `/uploads/${filename}`;
             res.statusCode = 201;
             res.setHeader("Content-Type", "application/json");
-            res.end(JSON.stringify({ url, id, alt: body.alt ?? "" }));
-            console.log(`[handle-media-upload] Saved ${filename} (${binary.length} bytes)`);
+            res.end(JSON.stringify({ url, id: nextId, fileUrl: url, alt: body.alt ?? "" }));
+            console.log(`[handle-media-upload] Saved ${filename} (${binary.length} bytes), id=${nextId}`);
           } catch (err) {
             console.error("[handle-media-upload] Error:", err);
             res.statusCode = 500;
