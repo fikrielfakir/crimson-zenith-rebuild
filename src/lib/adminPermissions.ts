@@ -14,20 +14,33 @@ export const ADMIN_ROLE_META: Record<AdminRole, {
   },
   moderator: {
     label: 'Moderator',
-    description: 'Content, clubs, events, analytics & CMS',
+    description: 'Dashboard, content, clubs, events, analytics & CMS — no user or system settings',
     colorClass: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400',
   },
   club_manager: {
     label: 'Club Manager',
-    description: 'Clubs, events, bookings & applications',
+    description: 'Manage their club details, events, bookings & membership applications only',
     colorClass: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
   },
   event_organizer: {
     label: 'Event Organizer',
-    description: 'Events & bookings only',
+    description: 'Manage events and bookings only — no club or user access',
     colorClass: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400',
   },
 };
+
+/**
+ * Returns the default landing page for a given role after login or on access-denied redirect.
+ */
+export function getDefaultRoute(role: AdminRole): string {
+  switch (role) {
+    case 'club_manager':    return '/admin/clubs';
+    case 'event_organizer': return '/admin/events';
+    case 'moderator':       return '/admin';
+    case 'admin':
+    default:                return '/admin';
+  }
+}
 
 /**
  * Which roles can see each sidebar navigation section.
@@ -35,7 +48,7 @@ export const ADMIN_ROLE_META: Record<AdminRole, {
  * Omitted keys → visible to all authenticated staff.
  */
 export const NAV_ROLES: Record<string, AdminRole[]> = {
-  'admin.nav.dashboard':     ['admin', 'moderator', 'club_manager', 'event_organizer'],
+  'admin.nav.dashboard':     ['admin', 'moderator'],
   'admin.nav.users':         ['admin'],
   'admin.nav.clubs':         ['admin', 'moderator', 'club_manager'],
   'admin.nav.events':        ['admin', 'moderator', 'club_manager', 'event_organizer'],
@@ -86,6 +99,7 @@ export const ROUTE_ROLES: Record<string, AdminRole[]> = {
   '/admin/talents':             ['admin', 'moderator'],
   '/admin/translations':        ['admin', 'moderator'],
   '/admin/projects':            ['admin', 'moderator'],
+  '/admin':                     ['admin', 'moderator'],
 };
 
 /** Returns true if the role is allowed to see this nav section. */

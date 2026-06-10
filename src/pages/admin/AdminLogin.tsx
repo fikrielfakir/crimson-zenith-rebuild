@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { setAdminToken } from '@/lib/tokenStore';
-import { STAFF_ROLES } from '@/lib/adminPermissions';
+import { STAFF_ROLES, getDefaultRoute, type AdminRole } from '@/lib/adminPermissions';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
@@ -91,7 +91,8 @@ export default function AdminLogin() {
         title: 'Login successful',
         description: 'Welcome back to the admin dashboard!',
       });
-      navigate('/admin');
+      const userRole = (data.user?.role as AdminRole) ?? 'admin';
+      navigate(getDefaultRoute(userRole));
     },
     onError: (error: Error) => {
       toast({
