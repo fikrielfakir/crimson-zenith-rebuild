@@ -67,9 +67,22 @@ class ClubController extends Controller
     // CRUD
     // ------------------------------------------------------------------ //
 
+    /** Lightweight list for dropdowns: returns id + name of all clubs. */
+    public function simpleList()
+    {
+        $clubs = Club::select('id', 'name')->orderBy('name')->get();
+        return response()->json($clubs);
+    }
+
     public function index(Request $request)
     {
         $query = Club::query();
+
+        // Club managers only see their own club
+        $authUser = auth()->user();
+        if ($authUser && $authUser->role === 'club_manager') {
+            $query->where('owner_id', $authUser->id);
+        }
 
         if ($request->filled('search')) {
             $s = $request->search;
