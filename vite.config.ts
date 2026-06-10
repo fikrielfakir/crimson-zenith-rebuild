@@ -328,10 +328,11 @@ export default defineConfig(({ mode }: { mode: string }) => ({
             await fs.writeFile(path.join(uploadsDir, filename), binary);
 
             // Also register in the media library index
+            let nextId = 1;
             try {
               let items: any[] = [];
               try { items = JSON.parse(await fs.readFile(indexFile, "utf-8")); } catch {}
-              const nextId = items.length > 0 ? Math.max(...items.map((x: any) => x.id)) + 1 : 1;
+              nextId = items.length > 0 ? Math.max(...items.map((x: any) => x.id)) + 1 : 1;
               const altName: string = body.alt ?? filename;
               items.push({
                 id: nextId,
