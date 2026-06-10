@@ -170,6 +170,7 @@ interface DetailDialogProps {
 }
 
 function DetailDialog({ submissionId, onClose, onUpdated }: DetailDialogProps) {
+  const { t } = useTranslation();
   const [notes, setNotes] = useState('');
   const [notesLoaded, setNotesLoaded] = useState(false);
   const { toast } = useToast();

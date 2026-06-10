@@ -202,6 +202,7 @@ function PageHeroForm({ pageKey, config, isLanding }: {
   config: typeof PAGE_CONFIGS[number];
   isLanding?: boolean;
 }) {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const [form, setForm] = useState<HeroFormData>(DEFAULT_FORM);
   const [saving, setSaving] = useState(false);

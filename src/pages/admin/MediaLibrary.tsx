@@ -76,6 +76,7 @@ function getFileIcon(fileType: string) {
 }
 
 function MediaCard({ file, onDelete }: { file: MediaFile; onDelete: (id: number) => void }) {
+  const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
 
   const handleCopyUrl = () => {
