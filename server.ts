@@ -627,6 +627,8 @@ await setupAuth(app);
 // Serve static files from public directory
 app.use('/static', express.static(join(__dirname, 'public')));
 app.use('/uploads', express.static(join(__dirname, 'public/uploads')));
+// Serve attached_assets directory (images, patterns, generated images)
+app.use('/attached_assets', express.static(join(__dirname, 'attached_assets')));
 
 // In production, serve the built frontend files
 if (process.env.NODE_ENV === 'production') {
@@ -3933,6 +3935,21 @@ app.get('/api/admin/cms/media', isAdmin, async (req, res) => {
   } catch (error) {
     console.error('❌ Error fetching media assets:', error);
     res.status(500).json({ error: 'Failed to fetch media assets' });
+  }
+});
+
+// Media Assets - Get single by ID (public)
+app.get('/api/cms/media/:id', async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) return res.status(400).json({ error: 'Invalid media ID' });
+    const media = await storage.getMediaAssets();
+    const asset = media.find((m: any) => m.id === id);
+    if (!asset) return res.status(404).json({ error: 'Media asset not found' });
+    res.json(asset);
+  } catch (error) {
+    console.error('❌ Error fetching media asset:', error);
+    res.status(500).json({ error: 'Failed to fetch media asset' });
   }
 });
 
