@@ -77,6 +77,7 @@ class UserController extends Controller
         $data = $request->validate([
             'firstName' => 'required|string',
             'lastName'  => 'required|string',
+            'username'  => 'nullable|string|unique:users,username',
             'email'     => 'required|email|unique:users,email',
             'password'  => 'required|string|min:6',
             'role'      => 'nullable|in:user,admin,moderator,club_manager,event_organizer',
@@ -84,7 +85,7 @@ class UserController extends Controller
 
         $user = User::create([
             'id'         => 'user_'.time().'_'.Str::random(9),
-            'username'   => explode('@', $data['email'])[0],
+            'username'   => $data['username'] ?? explode('@', $data['email'])[0],
             'email'      => $data['email'],
             'name'       => trim(($data['firstName'] ?? '') . ' ' . ($data['lastName'] ?? '')),
             'first_name' => $data['firstName'],
@@ -105,6 +106,7 @@ class UserController extends Controller
         $data = $request->validate([
             'firstName' => 'nullable|string',
             'lastName'  => 'nullable|string',
+            'username'  => 'nullable|string|unique:users,username,' . $user->id,
             'email'     => 'nullable|email|unique:users,email,' . $user->id,
             'phone'     => 'nullable|string',
             'location'  => 'nullable|string',
@@ -116,6 +118,7 @@ class UserController extends Controller
         $update = [];
         if (isset($data['firstName'])) $update['first_name'] = $data['firstName'];
         if (isset($data['lastName']))  $update['last_name']  = $data['lastName'];
+        if (isset($data['username']) && $data['username'] !== '') $update['username'] = $data['username'];
         if (isset($data['firstName']) || isset($data['lastName'])) {
             $update['name'] = trim(($data['firstName'] ?? $user->first_name) . ' ' . ($data['lastName'] ?? $user->last_name));
         }
