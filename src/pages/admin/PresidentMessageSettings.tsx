@@ -538,7 +538,7 @@ export default function PresidentMessageSettings() {
             <CardContent className="space-y-4">
               {signatureUrl && (
                 <div className="border rounded-lg p-4 bg-muted/30 flex items-center justify-center">
-                  <img src={signatureUrl} alt="Signature" className="h-20 object-contain rounded" />
+                  <img src={signatureUrl} alt="Signature" className="h-40 object-contain rounded" />
                 </div>
               )}
               <input
