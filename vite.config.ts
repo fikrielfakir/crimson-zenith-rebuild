@@ -159,11 +159,12 @@ export default defineConfig(({ mode }: { mode: string }) => ({
           }
 
           // ── GET /api/admin/media ─────────────────────────────────────────
-          if (req.method === "GET" && url === "/api/admin/media") {
+          const urlPath = url.split("?")[0];
+          if (req.method === "GET" && (urlPath === "/api/admin/media" || urlPath === "/api/admin/cms/media")) {
             const items = await readIndex();
             res.statusCode = 200;
             res.setHeader("Content-Type", "application/json");
-            res.end(JSON.stringify(items));
+            res.end(JSON.stringify({ data: items, media: items }));
             return;
           }
 
@@ -388,11 +389,26 @@ export default defineConfig(({ mode }: { mode: string }) => ({
             try { items = JSON.parse(await fs.readFile(indexFile, "utf-8")); } catch {}
 
             const entry = items.find((x: any) => x.id === id);
-            if (!entry) return next();
+            if (!entry) {
+              // Return a placeholder SVG for missing media IDs
+              const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300"><rect width="400" height="300" fill="#1a2a5e"/><text x="200" y="155" font-family="sans-serif" font-size="14" fill="#D8C18D" text-anchor="middle">Image unavailable</text></svg>`;
+              res.statusCode = 200;
+              res.setHeader("Content-Type", "image/svg+xml");
+              res.setHeader("Cache-Control", "no-cache");
+              res.end(svg);
+              return;
+            }
 
             const filePath = path.join(uploadsDir, entry.fileName);
             let binary: Buffer;
-            try { binary = await fs.readFile(filePath); } catch { return next(); }
+            try { binary = await fs.readFile(filePath); } catch {
+              const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300"><rect width="400" height="300" fill="#1a2a5e"/><text x="200" y="155" font-family="sans-serif" font-size="14" fill="#D8C18D" text-anchor="middle">Image unavailable</text></svg>`;
+              res.statusCode = 200;
+              res.setHeader("Content-Type", "image/svg+xml");
+              res.setHeader("Cache-Control", "no-cache");
+              res.end(svg);
+              return;
+            }
 
             const ext = entry.fileName.split(".").pop()?.toLowerCase() ?? "jpg";
             const mimeMap: Record<string, string> = {

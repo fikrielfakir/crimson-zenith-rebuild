@@ -279,7 +279,6 @@ function SidebarContent({
         {!sidebarCollapsed && (
           <div className="flex items-center space-x-3">
             <Avatar className="h-9 w-9 shrink-0">
-              <AvatarImage src="/placeholder-avatar.jpg" />
               <AvatarFallback className="text-xs">{initials}</AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
@@ -531,7 +530,6 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                 <Avatar className="h-10 w-10">
-                  <AvatarImage src="/placeholder-avatar.jpg" />
                   <AvatarFallback>{initials}</AvatarFallback>
                 </Avatar>
               </Button>
