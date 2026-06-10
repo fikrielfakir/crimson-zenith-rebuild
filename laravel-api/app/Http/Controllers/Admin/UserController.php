@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Club;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -12,6 +13,10 @@ class UserController extends Controller
 {
     private function transformUser(User $user, int $clubCount = 0): array
     {
+        $managedClub = ($user->role === 'club_manager')
+            ? Club::where('owner_id', $user->id)->select('id', 'name')->first()
+            : null;
+
         return [
             'id'              => $user->id,
             'firstName'       => $user->first_name,
@@ -29,6 +34,8 @@ class UserController extends Controller
             'createdAt'       => $user->created_at,
             'updatedAt'       => $user->updated_at,
             'clubCount'       => $clubCount,
+            'managedClubId'   => $managedClub?->id,
+            'managedClubName' => $managedClub?->name,
         ];
     }
 
@@ -75,12 +82,13 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'firstName' => 'required|string',
-            'lastName'  => 'required|string',
-            'username'  => 'nullable|string|unique:users,username',
-            'email'     => 'required|email|unique:users,email',
-            'password'  => 'required|string|min:6',
-            'role'      => 'nullable|in:user,admin,moderator,club_manager,event_organizer',
+            'firstName'     => 'required|string',
+            'lastName'      => 'required|string',
+            'username'      => 'nullable|string|unique:users,username',
+            'email'         => 'required|email|unique:users,email',
+            'password'      => 'required|string|min:6',
+            'role'          => 'nullable|in:user,admin,moderator,club_manager,event_organizer',
+            'managedClubId' => 'nullable|exists:clubs,id',
         ]);
 
         $user = User::create([
@@ -97,22 +105,28 @@ class UserController extends Controller
             'interests'  => [],
         ]);
 
-        return response()->json($this->transformUser($user), 201);
+        // Assign club to club_manager
+        if (($data['role'] ?? 'user') === 'club_manager' && !empty($data['managedClubId'])) {
+            Club::where('id', $data['managedClubId'])->update(['owner_id' => $user->id]);
+        }
+
+        return response()->json($this->transformUser($user->fresh()), 201);
     }
 
     public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);
         $data = $request->validate([
-            'firstName' => 'nullable|string',
-            'lastName'  => 'nullable|string',
-            'username'  => 'nullable|string|unique:users,username,' . $user->id,
-            'email'     => 'nullable|email|unique:users,email,' . $user->id,
-            'phone'     => 'nullable|string',
-            'location'  => 'nullable|string',
-            'bio'       => 'nullable|string',
-            'role'      => 'nullable|in:user,admin,moderator,club_manager,event_organizer',
-            'isActive'  => 'nullable|boolean',
+            'firstName'     => 'nullable|string',
+            'lastName'      => 'nullable|string',
+            'username'      => 'nullable|string|unique:users,username,' . $user->id,
+            'email'         => 'nullable|email|unique:users,email,' . $user->id,
+            'phone'         => 'nullable|string',
+            'location'      => 'nullable|string',
+            'bio'           => 'nullable|string',
+            'role'          => 'nullable|in:user,admin,moderator,club_manager,event_organizer',
+            'isActive'      => 'nullable|boolean',
+            'managedClubId' => 'nullable|exists:clubs,id',
         ]);
 
         $update = [];
@@ -133,6 +147,21 @@ class UserController extends Controller
         }
 
         $user->update($update);
+
+        // Handle managed club assignment for club_manager role
+        $newRole = $data['role'] ?? $user->role;
+        if (array_key_exists('managedClubId', $data)) {
+            // Remove old club assignment for this user
+            Club::where('owner_id', $user->id)->update(['owner_id' => null]);
+            // Assign new club if provided and role is club_manager
+            if ($newRole === 'club_manager' && !empty($data['managedClubId'])) {
+                Club::where('id', $data['managedClubId'])->update(['owner_id' => $user->id]);
+            }
+        } elseif (isset($data['role']) && $data['role'] !== 'club_manager') {
+            // Role changed away from club_manager — clear assignment
+            Club::where('owner_id', $user->id)->update(['owner_id' => null]);
+        }
+
         return response()->json($this->transformUser($user->fresh()));
     }
 

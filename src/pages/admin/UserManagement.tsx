@@ -60,17 +60,18 @@ function RoleBadge({ role }: { role: string }) {
 
 // ── Form schema ────────────────────────────────────────────────────────────────
 const userSchema = z.object({
-  firstName: z.string().min(1, 'First name is required'),
-  lastName:  z.string().min(1, 'Last name is required'),
-  username:  z.string().optional(),
-  email:     z.string().email('Invalid email address'),
-  password:  z.union([z.string().min(6), z.string().length(0)]).optional(),
-  phone:     z.string().optional(),
-  location:  z.string().optional(),
-  bio:       z.string().optional(),
-  interests: z.string().optional(),
-  role:      z.string().default('user'),
-  isActive:  z.boolean().default(true),
+  firstName:      z.string().min(1, 'First name is required'),
+  lastName:       z.string().min(1, 'Last name is required'),
+  username:       z.string().optional(),
+  email:          z.string().email('Invalid email address'),
+  password:       z.union([z.string().min(6), z.string().length(0)]).optional(),
+  phone:          z.string().optional(),
+  location:       z.string().optional(),
+  bio:            z.string().optional(),
+  interests:      z.string().optional(),
+  role:           z.string().default('user'),
+  isActive:       z.boolean().default(true),
+  managedClubId:  z.string().optional(),
 });
 type UserFormData = z.infer<typeof userSchema>;
 
@@ -113,37 +114,49 @@ export default function UserManagement() {
     queryFn:  () => fetchUsers({ search, role: roleFilter, status: statusFilter, page, perPage }),
   });
 
+  const { data: clubsList } = useQuery({
+    queryKey: ['clubs-simple'],
+    queryFn: async () => {
+      const res = await apiFetch('/api/admin/clubs/simple', { credentials: 'include' });
+      if (!res.ok) return [];
+      return res.json() as Promise<{ id: number; name: string }[]>;
+    },
+  });
+
   const form = useForm<UserFormData>({
     resolver: zodResolver(userSchema),
     defaultValues: {
       firstName: '', lastName: '', username: '', email: '',
       password: '', phone: '', location: '', bio: '',
-      interests: '', role: 'user', isActive: true,
+      interests: '', role: 'user', isActive: true, managedClubId: '',
     },
   });
+
+  const watchedRole = form.watch('role');
 
   useEffect(() => {
     if (editingUser?.id) {
       form.reset({
-        firstName: editingUser.firstName || '',
-        lastName:  editingUser.lastName  || '',
-        username:  editingUser.username  || '',
-        email:     editingUser.email     || '',
-        password:  '',
-        phone:     editingUser.phone     || '',
-        location:  editingUser.location  || '',
-        bio:       editingUser.bio       || '',
-        interests: Array.isArray(editingUser.interests)
+        firstName:     editingUser.firstName || '',
+        lastName:      editingUser.lastName  || '',
+        username:      editingUser.username  || '',
+        email:         editingUser.email     || '',
+        password:      '',
+        phone:         editingUser.phone     || '',
+        location:      editingUser.location  || '',
+        bio:           editingUser.bio       || '',
+        interests:     Array.isArray(editingUser.interests)
           ? editingUser.interests.join(', ')
           : (editingUser.interests || ''),
-        role:      editingUser.role      || 'user',
-        isActive:  editingUser.isActive  !== undefined ? editingUser.isActive : true,
+        role:          editingUser.role      || 'user',
+        isActive:      editingUser.isActive  !== undefined ? editingUser.isActive : true,
+        managedClubId: editingUser.managedClubId ? String(editingUser.managedClubId) : '',
       });
     } else {
       form.reset({
         firstName: '', lastName: '', username: '', email: '',
         password: '', phone: '', location: '', bio: '',
-        interests: '', role: 'user', isActive: true,
+        interests: '', role: 'user', isActive: true, managedClubId: '',
       });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -409,12 +422,21 @@ export default function UserManagement() {
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <Link
-                      to={`/admin/clubs?search=${encodeURIComponent(user.firstName + ' ' + user.lastName)}`}
-                      className="text-sm hover:underline text-muted-foreground hover:text-foreground"
-                    >
-                      {user.clubCount || 0} clubs
-                    </Link>
+                    {user.role === 'club_manager' && user.managedClubName ? (
+                      <Link
+                        to={`/admin/clubs`}
+                        className="text-sm hover:underline text-blue-600 hover:text-blue-800 font-medium"
+                      >
+                        {user.managedClubName}
+                      </Link>
+                    ) : (
+                      <Link
+                        to={`/admin/clubs?search=${encodeURIComponent(user.firstName + ' ' + user.lastName)}`}
+                        className="text-sm hover:underline text-muted-foreground hover:text-foreground"
+                      >
+                        {user.clubCount || 0} clubs
+                      </Link>
+                    )}
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">
                     {user.createdAt && format(new Date(user.createdAt), 'MMM d, yyyy')}
@@ -533,7 +555,7 @@ export default function UserManagement() {
                 <FormField control={form.control} name="role" render={({ field }) => (
                   <FormItem>
                     <FormLabel>{t('admin.users.form.role')}</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select onValueChange={(v) => { field.onChange(v); if (v !== 'club_manager') form.setValue('managedClubId', ''); }} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue />
@@ -549,6 +571,27 @@ export default function UserManagement() {
                     <FormMessage />
                   </FormItem>
                 )} />
+                {watchedRole === 'club_manager' && (
+                  <FormField control={form.control} name="managedClubId" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Assigned Club <span className="text-destructive">*</span></FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value ?? ''}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a club to manage…" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {(clubsList ?? []).map(club => (
+                            <SelectItem key={club.id} value={String(club.id)}>{club.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <p className="text-xs text-muted-foreground">Club Managers can only access and edit the club assigned to them.</p>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                )}
                 <FormField control={form.control} name="bio" render={({ field }) => (
                   <FormItem><FormLabel>{t('admin.users.form.bio')}</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
                 )} />

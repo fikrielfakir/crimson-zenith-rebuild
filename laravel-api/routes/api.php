@@ -249,6 +249,7 @@ Route::prefix('admin')->middleware(['admin'])->group(function () {
     Route::put('/users/{id}/role',             [\App\Http\Controllers\Admin\RolesController::class, 'updateUserRole']);
 
     // Clubs
+    Route::get('/clubs/simple',                [\App\Http\Controllers\Admin\ClubController::class, 'simpleList']);
     Route::get('/clubs',                       [\App\Http\Controllers\Admin\ClubController::class, 'index']);
     Route::post('/clubs/upload-image',         [\App\Http\Controllers\Admin\ClubController::class, 'uploadImage']);
     Route::get('/clubs/{id}',                  [\App\Http\Controllers\Admin\ClubController::class, 'show']);
