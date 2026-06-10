@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -384,6 +385,7 @@ function MapLocationPicker({
 
 // ─── Main Form ────────────────────────────────────────────────────────────────
 export default function ClubForm() {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();

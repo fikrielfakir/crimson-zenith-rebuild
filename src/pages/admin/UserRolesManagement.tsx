@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from '@/lib/apiFetch';
@@ -337,8 +338,8 @@ function UserAssignment({ roles }: { roles: RoleDef[] }) {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>User</TableHead>
-                  <TableHead>Current Role</TableHead>
+                  <TableHead>{t('admin.roles.colUser')}</TableHead>
+                  <TableHead>{t('admin.roles.colCurrentRole')}</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Joined</TableHead>
                   <TableHead className="text-right">Change Role</TableHead>
@@ -411,6 +412,7 @@ function UserAssignment({ roles }: { roles: RoleDef[] }) {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function UserRolesManagement() {
+  const { t } = useTranslation();
   const { data, isLoading } = useQuery({
     queryKey: ['roles'],
     queryFn: fetchRoles,

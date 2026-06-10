@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from '@/lib/apiFetch';
@@ -115,6 +116,7 @@ function ImageUploader({ value, onChange }: { value: string; onChange: (url: str
 }
 
 export default function ExpertsAdmin() {
+  const { t } = useTranslation();
   const [statusFilter, setStatusFilter] = useState('all');
   const [search, setSearch] = useState('');
   const [searchInput, setSearchInput] = useState('');
@@ -189,7 +191,7 @@ export default function ExpertsAdmin() {
   return (
     <div className="space-y-6">
       <AdminPageHeader
-        title="Experts"
+        title={t('admin.experts.title')}
         description="Manage expert profiles"
         action={
           <div className="flex gap-2">
@@ -240,13 +242,13 @@ export default function ExpertsAdmin() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="pl-6">Name</TableHead>
-                  <TableHead>Location</TableHead>
-                  <TableHead>Rating</TableHead>
+                  <TableHead className="pl-6">{t('admin.experts.colName')}</TableHead>
+                  <TableHead>{t('admin.experts.colLocation')}</TableHead>
+                  <TableHead>{t('admin.experts.colRating')}</TableHead>
                   <TableHead>Experience</TableHead>
                   <TableHead>Available</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right pr-6">Actions</TableHead>
+                  <TableHead>{t('admin.common.status')}</TableHead>
+                  <TableHead className="text-right pr-6">{t('admin.common.actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -306,18 +308,18 @@ export default function ExpertsAdmin() {
               </div>
               <div className="flex-1 space-y-4 mt-0.5">
                 <div className="space-y-1.5"><Label>Name *</Label><Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Amina Benali" /></div>
-                <div className="space-y-1.5"><Label>Title</Label><Input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="Mountain Guide & Ecologist" /></div>
-                <div className="space-y-1.5"><Label>Location</Label><Input value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} placeholder="Agadir" /></div>
+                <div className="space-y-1.5"><Label>{t('admin.experts.colTitle')}</Label><Input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="Mountain Guide & Ecologist" /></div>
+                <div className="space-y-1.5"><Label>{t('admin.experts.colLocation')}</Label><Input value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} placeholder="Agadir" /></div>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5"><Label>Contact Email</Label><Input type="email" value={form.contact_email} onChange={e => setForm(f => ({ ...f, contact_email: e.target.value }))} placeholder="expert@example.com" /></div>
               <div className="space-y-1.5"><Label>LinkedIn URL</Label><Input value={form.linkedin_url} onChange={e => setForm(f => ({ ...f, linkedin_url: e.target.value }))} placeholder="https://linkedin.com/in/username" /></div>
               <div className="space-y-1.5"><Label>Rating (0–5)</Label><Input type="number" min={0} max={5} step={0.1} value={form.rating} onChange={e => setForm(f => ({ ...f, rating: +e.target.value }))} /></div>
-              <div className="space-y-1.5"><Label>Projects</Label><Input type="number" min={0} value={form.projects_count} onChange={e => setForm(f => ({ ...f, projects_count: +e.target.value }))} /></div>
+              <div className="space-y-1.5"><Label>{t('admin.experts.colProjects')}</Label><Input type="number" min={0} value={form.projects_count} onChange={e => setForm(f => ({ ...f, projects_count: +e.target.value }))} /></div>
               <div className="space-y-1.5"><Label>Years Experience</Label><Input type="number" min={0} value={form.years_experience} onChange={e => setForm(f => ({ ...f, years_experience: +e.target.value }))} /></div>
               <div className="space-y-1.5">
-                <Label>Status</Label>
+                <Label>{t('admin.common.status')}</Label>
                 <Select value={form.status} onValueChange={v => setForm(f => ({ ...f, status: v as any }))}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent><SelectItem value="draft">Draft</SelectItem><SelectItem value="published">Published</SelectItem></SelectContent>

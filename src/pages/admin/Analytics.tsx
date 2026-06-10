@@ -1,6 +1,7 @@
 import { apiFetch } from '@/lib/apiFetch';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { Calendar, Download, TrendingUp, Users, Calendar as CalendarIcon, DollarSign, Building } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -36,6 +37,7 @@ async function fetchAnalytics(period: string) {
 
 export default function Analytics() {
   const [period, setPeriod] = useState('30days');
+  const { t } = useTranslation();
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['analytics', period],
@@ -45,7 +47,7 @@ export default function Analytics() {
   const { toast } = useToast();
 
   const handleExport = () => {
-    toast({ title: 'Export not available yet', description: 'Analytics CSV export is coming soon.' });
+    toast({ title: t('admin.analytics.exportNotReady'), description: t('admin.analytics.exportSoon') });
   };
 
   if (isLoading) {
@@ -62,8 +64,8 @@ export default function Analytics() {
   if (isError) {
     return (
       <AdminPageError
-        title="Failed to load analytics"
-        message="Could not fetch analytics data from the server. Check your connection and try again."
+        title={t('admin.analytics.failedTitle')}
+        message={t('admin.analytics.failedDesc')}
         onRetry={refetch}
       />
     );
@@ -72,34 +74,34 @@ export default function Analytics() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Analytics</h1>
+        <h1 className="text-3xl font-bold">{t('admin.analytics.title')}</h1>
         <div className="flex items-center space-x-2">
           <Select value={period} onValueChange={setPeriod}>
             <SelectTrigger className="w-40">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="7days">Last 7 days</SelectItem>
-              <SelectItem value="30days">Last 30 days</SelectItem>
-              <SelectItem value="3months">Last 3 months</SelectItem>
-              <SelectItem value="6months">Last 6 months</SelectItem>
-              <SelectItem value="1year">Last year</SelectItem>
+              <SelectItem value="7days">{t('admin.analytics.last7days')}</SelectItem>
+              <SelectItem value="30days">{t('admin.analytics.last30days')}</SelectItem>
+              <SelectItem value="3months">{t('admin.analytics.last3months')}</SelectItem>
+              <SelectItem value="6months">{t('admin.analytics.last6months')}</SelectItem>
+              <SelectItem value="1year">{t('admin.analytics.lastYear')}</SelectItem>
             </SelectContent>
           </Select>
           <Button onClick={handleExport} variant="outline">
             <Download className="mr-2 h-4 w-4" />
-            Export
+            {t('admin.analytics.export')}
           </Button>
         </div>
       </div>
 
       <Tabs defaultValue="traffic" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="traffic">Traffic</TabsTrigger>
-          <TabsTrigger value="users">Users</TabsTrigger>
-          <TabsTrigger value="events">Events</TabsTrigger>
-          <TabsTrigger value="revenue">Revenue</TabsTrigger>
-          <TabsTrigger value="clubs">Clubs</TabsTrigger>
+          <TabsTrigger value="traffic">{t('admin.analytics.tabTraffic')}</TabsTrigger>
+          <TabsTrigger value="users">{t('admin.analytics.tabUsers')}</TabsTrigger>
+          <TabsTrigger value="events">{t('admin.analytics.tabEvents')}</TabsTrigger>
+          <TabsTrigger value="revenue">{t('admin.analytics.tabRevenue')}</TabsTrigger>
+          <TabsTrigger value="clubs">{t('admin.analytics.tabClubs')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="traffic" className="space-y-4">

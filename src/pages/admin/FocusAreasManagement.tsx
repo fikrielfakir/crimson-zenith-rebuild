@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { apiFetch } from '@/lib/apiFetch';
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -93,6 +94,7 @@ function getIconComponent(iconValue: string) {
 }
 
 export default function FocusAreasManagement() {
+  const { t } = useTranslation();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [showForm, setShowForm] = useState(false);
@@ -337,10 +339,10 @@ export default function FocusAreasManagement() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-16">Order</TableHead>
+              <TableHead className="w-16">{t('admin.focusAreas.colOrder')}</TableHead>
               <TableHead className="w-20">Icon</TableHead>
-              <TableHead>Title</TableHead>
-              <TableHead>Description</TableHead>
+              <TableHead>{t('admin.focusAreas.colTitle')}</TableHead>
+              <TableHead>{t('admin.focusAreas.colDescription')}</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="w-12"></TableHead>
             </TableRow>
@@ -438,7 +440,7 @@ export default function FocusAreasManagement() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuLabel>{t('admin.common.actions')}</DropdownMenuLabel>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => handleEdit(item)}>
                               <Pencil className="mr-2 h-4 w-4" />

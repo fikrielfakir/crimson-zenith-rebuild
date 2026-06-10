@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -84,6 +85,7 @@ const SECTION_META: Record<string, {
 export default function LandingManagement() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [pendingChanges, setPendingChanges] = useState<Record<string, boolean>>({});
   const [saving, setSaving] = useState(false);
@@ -138,7 +140,7 @@ export default function LandingManagement() {
     <div className="space-y-6">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Landing Page</h1>
+          <h1 className="text-3xl font-bold">{t('admin.landing.title')}</h1>
           <p className="text-muted-foreground mt-1">
             Toggle each section on or off, then save. Click "Settings" to edit the section's content.
           </p>

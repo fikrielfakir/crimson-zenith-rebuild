@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiFetch } from '@/lib/apiFetch';
@@ -84,6 +85,7 @@ function SecretInput({
 }
 
 export default function PaymentSettings() {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [settings, setSettings] = useState<PaymentSettingsData>(defaultSettings);
@@ -174,7 +176,7 @@ export default function PaymentSettings() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-[#111f50]">Payment Settings</h1>
+          <h1 className="text-3xl font-bold text-[#111f50]">{t('admin.payments.title')}</h1>
           <p className="text-muted-foreground mt-1">Configure payment gateways and methods for bookings</p>
         </div>
         <div className="flex gap-2">

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from '@/lib/apiFetch';
@@ -173,9 +174,9 @@ function SentTab() {
               <tr className="border-b bg-muted/50">
                 <th className="text-left px-4 py-3 font-medium text-muted-foreground w-40">Date</th>
                 <th className="text-left px-4 py-3 font-medium text-muted-foreground">Recipient</th>
-                <th className="text-left px-4 py-3 font-medium text-muted-foreground">Subject</th>
+                <th className="text-left px-4 py-3 font-medium text-muted-foreground">{t('admin.email.colSubject')}</th>
                 <th className="text-left px-4 py-3 font-medium text-muted-foreground w-24">Type</th>
-                <th className="text-left px-4 py-3 font-medium text-muted-foreground w-28">Status</th>
+                <th className="text-left px-4 py-3 font-medium text-muted-foreground w-28">{t('admin.common.status')}</th>
               </tr>
             </thead>
             <tbody className="divide-y">
@@ -217,6 +218,7 @@ function SentTab() {
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function EmailCampaigns() {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [smtp, setSmtp] = useState<SmtpData>(smtpDefaults);
@@ -502,7 +504,7 @@ export default function EmailCampaigns() {
             </div>
 
             <div className="space-y-1.5">
-              <Label className={LABEL_CN}>Subject</Label>
+              <Label className={LABEL_CN}>{t('admin.email.colSubject')}</Label>
               <Input
                 placeholder="Email subject"
                 value={compose.subject}

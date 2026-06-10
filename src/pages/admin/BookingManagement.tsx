@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { apiFetch } from '@/lib/apiFetch';
 import { generateTicketPDF } from '@/lib/generateTicketPDF';
 import { useState, useRef } from 'react';
@@ -343,11 +344,11 @@ function ViewBookingModal({ booking, isOpen, onClose }: { booking: Booking | nul
         <div className="space-y-4 py-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label className="text-muted-foreground text-sm">Event</Label>
+              <Label className="text-muted-foreground text-sm">{t('admin.bookings.colEvent')}</Label>
               <p className="font-medium">{booking.eventTitle}</p>
             </div>
             <div>
-              <Label className="text-muted-foreground text-sm">Status</Label>
+              <Label className="text-muted-foreground text-sm">{t('admin.common.status')}</Label>
               <p className="font-medium">"{booking.status}"</p>
             </div>
             <div>
@@ -363,7 +364,7 @@ function ViewBookingModal({ booking, isOpen, onClose }: { booking: Booking | nul
               <p className="font-medium">{new Date(booking.eventDate).toLocaleDateString()}</p>
             </div>
             <div>
-              <Label className="text-muted-foreground text-sm">Attendees</Label>
+              <Label className="text-muted-foreground text-sm">{t('admin.bookings.colAttendees')}</Label>
               <p className="font-medium">{booking.attendees}</p>
             </div>
             <div>
@@ -400,15 +401,15 @@ function EditBookingModal({ booking, isOpen, onClose, onSave }: { booking: Booki
         
         <div className="space-y-4 py-4">
           <div>
-            <Label>Event</Label>
+            <Label>{t('admin.bookings.colEvent')}</Label>
             <p className="font-medium text-muted-foreground">{booking.eventTitle}</p>
           </div>
           <div>
-            <Label>Guest</Label>
+            <Label>{t('admin.bookings.colGuest')}</Label>
             <p className="font-medium text-muted-foreground">{booking.userName}</p>
           </div>
           <div>
-            <Label>Status</Label>
+            <Label>{t('admin.common.status')}</Label>
             <Select value={status} onValueChange={setStatus}>
               <SelectTrigger className="mt-2">
                 <SelectValue />
@@ -542,7 +543,7 @@ function NewBookingModal({ isOpen, onClose, onCreated }: { isOpen: boolean; onCl
               <Input type="email" value={userEmail} onChange={e => setUserEmail(e.target.value)} placeholder="guest@example.com" />
             </div>
             <div className="space-y-1">
-              <Label>Attendees</Label>
+              <Label>{t('admin.bookings.colAttendees')}</Label>
               <Input type="number" min="1" value={attendees} onChange={e => handleAttendeesChange(e.target.value)} />
             </div>
             <div className="space-y-1">
@@ -552,7 +553,7 @@ function NewBookingModal({ isOpen, onClose, onCreated }: { isOpen: boolean; onCl
           </div>
 
           <div className="space-y-1">
-            <Label>Status</Label>
+            <Label>{t('admin.common.status')}</Label>
             <Select value={status} onValueChange={setStatus}>
               <SelectTrigger>
                 <SelectValue />
@@ -578,6 +579,7 @@ function NewBookingModal({ isOpen, onClose, onCreated }: { isOpen: boolean; onCl
 }
 
 export default function BookingManagement() {
+  const { t } = useTranslation();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
@@ -830,14 +832,14 @@ export default function BookingManagement() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Event</TableHead>
+                  <TableHead>{t('admin.bookings.colEvent')}</TableHead>
                   <TableHead>Type</TableHead>
                   <TableHead>User</TableHead>
                   <TableHead>Date</TableHead>
-                  <TableHead>Attendees</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead>{t('admin.bookings.colAttendees')}</TableHead>
+                  <TableHead>{t('admin.bookings.colAmount')}</TableHead>
+                  <TableHead>{t('admin.common.status')}</TableHead>
+                  <TableHead className="text-right">{t('admin.common.actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -52,6 +53,7 @@ function StarRating({ value }: { value: number }) {
 }
 
 export default function TestimonialsManagement() {
+  const { t } = useTranslation();
   const [showForm, setShowForm] = useState(false);
   const [editingItem, setEditingItem] = useState<Testimonial | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
@@ -130,18 +132,18 @@ export default function TestimonialsManagement() {
             <div className="text-center py-8 text-muted-foreground">
               <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>No testimonials yet</p>
-              <p className="text-sm mt-2">Click "Add Testimonial" to get started</p>
+              <p className="text-sm mt-2">Click t('admin.testimonials.addTestimonial') to get started</p>
             </div>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Name</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Rating</TableHead>
+                  <TableHead>{t('admin.testimonials.colRole')}</TableHead>
+                  <TableHead>{t('admin.testimonials.colRating')}</TableHead>
                   <TableHead>Feedback</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead>{t('admin.common.status')}</TableHead>
+                  <TableHead className="text-right">{t('admin.common.actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -221,7 +223,7 @@ export default function TestimonialsManagement() {
               <Textarea id="t-feedback" value={form.feedback} onChange={(e) => setForm({ ...form, feedback: e.target.value })} rows={4} placeholder="Their testimonial text…" />
             </div>
             <div className="space-y-2">
-              <Label>Rating</Label>
+              <Label>{t('admin.testimonials.colRating')}</Label>
               <Select value={String(form.rating)} onValueChange={(v) => setForm({ ...form, rating: Number(v) })}>
                 <SelectTrigger>
                   <SelectValue />

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { apiFetch } from '@/lib/apiFetch';
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -34,6 +35,7 @@ const FONT_SIZES = {
 };
 
 export default function ThemeSettings() {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -167,7 +169,7 @@ export default function ThemeSettings() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Theme Settings</h1>
+          <h1 className="text-3xl font-bold">{t('admin.theme.title')}</h1>
           <p className="text-muted-foreground mt-1">Customize global colors, fonts, and styling</p>
         </div>
         <div className="flex space-x-2">

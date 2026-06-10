@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/apiFetch";
@@ -62,6 +63,7 @@ const DEFAULT_FORM: AboutForm = {
 };
 
 export default function AboutManagement() {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -171,7 +173,7 @@ export default function AboutManagement() {
           </Button>
           <Button onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending}>
             <Save className="w-4 h-4 mr-2" />
-            {saveMutation.isPending ? "Saving..." : "Save Changes"}
+            {saveMutation.isPending ? "Saving..." : t('admin.common.save')}
           </Button>
         </div>
       </div>

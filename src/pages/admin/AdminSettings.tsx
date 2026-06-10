@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -287,10 +288,11 @@ function IntegrationsTab() {
 // ── Main Component ────────────────────────────────────────────────────────────
 
 export default function AdminSettings() {
+  const { t } = useTranslation();
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Site Settings</h1>
+        <h1 className="text-3xl font-bold">{t('admin.settings.title')}</h1>
         <p className="text-muted-foreground mt-1">Configure your website settings and preferences</p>
       </div>
 

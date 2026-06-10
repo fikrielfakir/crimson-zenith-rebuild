@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { apiFetch } from '@/lib/apiFetch';
 import { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -731,6 +732,7 @@ async function fetchDiscoverSettings(): Promise<DiscoverSettings> {
    Main component
 ═══════════════════════════════════════════════════════════════════ */
 export default function CitiesManagement() {
+  const { t } = useTranslation();
   const [showForm, setShowForm]     = useState(false);
   const [editing, setEditing]       = useState<City | null>(null);
   const [form, setForm]             = useState<any>(emptyCity);
@@ -1019,7 +1021,7 @@ export default function CitiesManagement() {
                     <MapPin className="w-14 h-14 mx-auto text-muted-foreground/30 mb-4" />
                     <h3 className="font-semibold text-foreground mb-1">No cities yet</h3>
                     <p className="text-muted-foreground text-sm mb-6">
-                      Click "Seed Defaults" to populate with Morocco's best destinations, or create a city from scratch.
+                      Click t('admin.cities.seedDefaults') to populate with Morocco's best destinations, or create a city from scratch.
                     </p>
                     <div className="flex gap-3 justify-center">
                       <Button variant="outline" onClick={() => seedMutation.mutate()} disabled={seedMutation.isPending}>
@@ -1365,7 +1367,7 @@ export default function CitiesManagement() {
               </div>
             </div>
             <div className="space-y-2">
-              <Label>Tagline</Label>
+              <Label>{t('admin.cities.colTagline')}</Label>
               <Input value={form.title} onChange={e => setField('title', e.target.value)} placeholder="The Red City" />
             </div>
             <div className="space-y-2">

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from '@/lib/apiFetch';
@@ -34,6 +35,7 @@ const defaults: AuthSettingsData = {
 };
 
 export default function AuthSettings() {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [form, setForm] = useState<AuthSettingsData>(defaults);
@@ -83,7 +85,7 @@ export default function AuthSettings() {
   return (
     <div className="space-y-6 max-w-xl">
       <AdminPageHeader
-        title="Authentication Settings"
+        title={t('admin.auth.title')}
         description="Control how users sign up and log in to the site."
       />
 

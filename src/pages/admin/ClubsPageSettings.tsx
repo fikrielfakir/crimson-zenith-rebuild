@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
@@ -36,6 +37,7 @@ async function fetchSettings(): Promise<ClubsPageSettings> {
 }
 
 export default function ClubsPageSettings() {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [form, setForm] = useState<ClubsPageSettings | null>(null);
@@ -90,7 +92,7 @@ export default function ClubsPageSettings() {
     <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Clubs Page</h1>
+            <h1 className="text-3xl font-bold text-foreground">{t('admin.clubsPage.title')}</h1>
             <p className="text-muted-foreground mt-1">
               Manage the content shown on the public /clubs page
             </p>

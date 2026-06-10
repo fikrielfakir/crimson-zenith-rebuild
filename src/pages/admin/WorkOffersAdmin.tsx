@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from '@/lib/apiFetch';
@@ -52,6 +53,7 @@ async function fetchOffers(status: string, search: string) {
 }
 
 export default function WorkOffersAdmin() {
+  const { t } = useTranslation();
   const [statusFilter, setStatusFilter] = useState('all');
   const [search, setSearch] = useState('');
   const [searchInput, setSearchInput] = useState('');
@@ -124,7 +126,7 @@ export default function WorkOffersAdmin() {
   return (
     <div className="space-y-6">
       <AdminPageHeader
-        title="Work Offers"
+        title={t('admin.workOffers.title')}
         description="Job and work opportunity listings"
         action={
           <div className="flex gap-2">
@@ -175,13 +177,13 @@ export default function WorkOffersAdmin() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="pl-6">Title</TableHead>
-                  <TableHead>Company</TableHead>
-                  <TableHead>Location</TableHead>
-                  <TableHead>Type</TableHead>
+                  <TableHead className="pl-6">{t('admin.workOffers.colTitle')}</TableHead>
+                  <TableHead>{t('admin.workOffers.colCompany')}</TableHead>
+                  <TableHead>{t('admin.workOffers.colLocation')}</TableHead>
+                  <TableHead>{t('admin.workOffers.colType')}</TableHead>
                   <TableHead>Salary</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right pr-6">Actions</TableHead>
+                  <TableHead>{t('admin.common.status')}</TableHead>
+                  <TableHead className="text-right pr-6">{t('admin.common.actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -240,14 +242,14 @@ export default function WorkOffersAdmin() {
           <div className="space-y-4 mt-2">
             <div className="grid grid-cols-2 gap-4">
               <div className="col-span-2 space-y-1.5"><Label>Title *</Label><Input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="Eco-Tourism Guide" /></div>
-              <div className="space-y-1.5"><Label>Company</Label><Input value={form.company} onChange={e => setForm(f => ({ ...f, company: e.target.value }))} placeholder="Journey Association" /></div>
-              <div className="space-y-1.5"><Label>Location</Label><Input value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} placeholder="Agadir" /></div>
-              <div className="space-y-1.5"><Label>Type</Label><Input value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value }))} placeholder="Full-time, Seasonal…" /></div>
+              <div className="space-y-1.5"><Label>{t('admin.workOffers.colCompany')}</Label><Input value={form.company} onChange={e => setForm(f => ({ ...f, company: e.target.value }))} placeholder="Journey Association" /></div>
+              <div className="space-y-1.5"><Label>{t('admin.workOffers.colLocation')}</Label><Input value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} placeholder="Agadir" /></div>
+              <div className="space-y-1.5"><Label>{t('admin.workOffers.colType')}</Label><Input value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value }))} placeholder="Full-time, Seasonal…" /></div>
               <div className="space-y-1.5"><Label>Salary</Label><Input value={form.salary} onChange={e => setForm(f => ({ ...f, salary: e.target.value }))} placeholder="5,000–8,000 MAD/month" /></div>
               <div className="space-y-1.5"><Label>Experience Level</Label><Input value={form.experience_level} onChange={e => setForm(f => ({ ...f, experience_level: e.target.value }))} placeholder="2+ years" /></div>
               <div className="space-y-1.5"><Label>Category</Label><Input value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))} placeholder="Tourism" /></div>
               <div className="space-y-1.5 col-span-2">
-                <Label>Status</Label>
+                <Label>{t('admin.common.status')}</Label>
                 <Select value={form.status} onValueChange={v => setForm(f => ({ ...f, status: v as any }))}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent><SelectItem value="draft">Draft</SelectItem><SelectItem value="published">Published</SelectItem></SelectContent>

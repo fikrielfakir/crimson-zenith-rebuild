@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from '@/lib/apiFetch';
@@ -61,6 +62,7 @@ async function fetchProjects(status: string, search: string) {
 }
 
 export default function ProjectsAdmin() {
+  const { t } = useTranslation();
   const [statusFilter, setStatusFilter] = useState('all');
   const [search, setSearch] = useState('');
   const [searchInput, setSearchInput] = useState('');
@@ -134,7 +136,7 @@ export default function ProjectsAdmin() {
   return (
     <div className="space-y-6">
       <AdminPageHeader
-        title="Projects"
+        title={t('admin.projects.title')}
         description="Manage association projects"
         action={
           <div className="flex gap-2">
@@ -188,12 +190,12 @@ export default function ProjectsAdmin() {
               <TableHeader>
                 <TableRow>
                   <TableHead className="pl-6">Project</TableHead>
-                  <TableHead>Location</TableHead>
-                  <TableHead>Progress</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableHead>{t('admin.projects.colLocation')}</TableHead>
+                  <TableHead>{t('admin.projects.colProgress')}</TableHead>
+                  <TableHead>{t('admin.common.status')}</TableHead>
                   <TableHead>Participants</TableHead>
                   <TableHead>Featured</TableHead>
-                  <TableHead className="text-right pr-6">Actions</TableHead>
+                  <TableHead className="text-right pr-6">{t('admin.common.actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -259,10 +261,10 @@ export default function ProjectsAdmin() {
           <div className="space-y-4 mt-2">
             <div className="grid grid-cols-2 gap-4">
               <div className="col-span-2 space-y-1.5"><Label>Title *</Label><Input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="Atlas Reforestation Initiative" /></div>
-              <div className="space-y-1.5"><Label>Category</Label><Input value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))} placeholder="Environment" /></div>
-              <div className="space-y-1.5"><Label>Location</Label><Input value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} placeholder="High Atlas Mountains" /></div>
+              <div className="space-y-1.5"><Label>{t('admin.projects.colCategory')}</Label><Input value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))} placeholder="Environment" /></div>
+              <div className="space-y-1.5"><Label>{t('admin.projects.colLocation')}</Label><Input value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} placeholder="High Atlas Mountains" /></div>
               <div className="space-y-1.5">
-                <Label>Status</Label>
+                <Label>{t('admin.common.status')}</Label>
                 <Select value={form.status} onValueChange={v => setForm(f => ({ ...f, status: v as any }))}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
