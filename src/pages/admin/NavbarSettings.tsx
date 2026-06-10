@@ -301,7 +301,7 @@ function SortableNavLink({
               </div>
             ) : (
               <p className="text-sm text-muted-foreground text-center py-4">
-                No dropdown items yet. Click t('admin.navbar.addItem') to create one.
+                {t('admin.navbar.noDropdownItems')}
               </p>
             )}
           </div>

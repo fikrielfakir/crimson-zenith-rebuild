@@ -510,10 +510,10 @@ export default function ClubForm() {
         throw new Error(err.message || 'Failed to save club');
       }
 
-      toast({ title: 'Success', description: `Club ${id ? 'updated' : 'created'} successfully` });
+      toast({ title: t('admin.common.success'), description: id ? t('admin.clubs.toastUpdated') : t('admin.clubs.toastCreated') });
       navigate('/admin/clubs');
     } catch (error: any) {
-      toast({ title: 'Error', description: error.message || `Failed to ${id ? 'update' : 'create'} club`, variant: 'destructive' });
+      toast({ title: t('admin.common.error'), description: error.message || t('admin.clubs.toastSaveFailed'), variant: 'destructive' });
     } finally {
       setIsLoading(false);
     }
@@ -533,7 +533,7 @@ export default function ClubForm() {
         <Button variant="ghost" size="icon" onClick={() => navigate('/admin/clubs')}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        <h1 className="text-3xl font-bold">{id ? 'Edit Club' : 'Add New Club'}</h1>
+        <h1 className="text-3xl font-bold">{id ? t('admin.clubs.formEditTitle') : t('admin.clubs.formAddTitle')}</h1>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -541,14 +541,14 @@ export default function ClubForm() {
 
           {/* Name */}
           <div className="space-y-2">
-            <Label htmlFor="name">Club Name *</Label>
+            <Label htmlFor="name">{t('admin.clubs.fieldName')} *</Label>
             <Input id="name" {...register('name')} placeholder="Enter club name" />
             {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
           </div>
 
           {/* Slug */}
           <div className="space-y-2">
-            <Label htmlFor="slug">Slug (URL) *</Label>
+            <Label htmlFor="slug">{t('admin.clubs.fieldSlug')} *</Label>
             <Input id="slug" {...register('slug')} placeholder="club-slug" />
             <p className="text-xs text-muted-foreground">Auto-generated from name (lowercase, hyphens only).</p>
             {errors.slug && <p className="text-sm text-destructive">{errors.slug.message}</p>}
@@ -556,27 +556,27 @@ export default function ClubForm() {
 
           {/* Location */}
           <div className="space-y-2">
-            <Label htmlFor="location">Location *</Label>
+            <Label htmlFor="location">{t('admin.clubs.fieldLocation')} *</Label>
             <Input id="location" {...register('location')} placeholder="e.g. Casablanca, Morocco" />
             {errors.location && <p className="text-sm text-destructive">{errors.location.message}</p>}
           </div>
 
           {/* Established */}
           <div className="space-y-2">
-            <Label htmlFor="established">Established</Label>
+            <Label htmlFor="established">{t('admin.clubs.fieldEstablished')}</Label>
             <Input id="established" {...register('established')} placeholder="e.g., 2020 or January 2020" />
           </div>
 
           {/* Short description */}
           <div className="space-y-2 md:col-span-2">
-            <Label htmlFor="description">Short Description *</Label>
+            <Label htmlFor="description">{t('admin.clubs.fieldShortDesc')} *</Label>
             <Textarea id="description" {...register('description')} placeholder="Enter a brief description" rows={3} />
             {errors.description && <p className="text-sm text-destructive">{errors.description.message}</p>}
           </div>
 
           {/* Long description */}
           <div className="space-y-2 md:col-span-2">
-            <Label htmlFor="longDescription">Long Description</Label>
+            <Label htmlFor="longDescription">{t('admin.clubs.fieldLongDesc')}</Label>
             <Textarea id="longDescription" {...register('longDescription')} placeholder="Enter detailed description" rows={6} />
           </div>
 
@@ -606,7 +606,7 @@ export default function ClubForm() {
 
           {/* ── Map location picker ── */}
           <div className="space-y-2 md:col-span-2">
-            <Label>Location on Map</Label>
+            <Label>{t('admin.clubs.fieldMapLocation')}</Label>
             <MapLocationPicker
               lat={latValue}
               lng={lngValue}
@@ -637,7 +637,7 @@ export default function ClubForm() {
 
           {/* Social media */}
           <div className="space-y-2 md:col-span-2">
-            <Label className="text-base font-semibold">Social Media</Label>
+            <Label className="text-base font-semibold">{t('admin.clubs.fieldSocialMedia')}</Label>
           </div>
           <div className="space-y-2">
             <Label htmlFor="facebook">Facebook</Label>
@@ -648,7 +648,7 @@ export default function ClubForm() {
             <Input id="instagram" {...register('instagram')} placeholder="https://instagram.com/club" />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="twitter">Twitter / X</Label>
+            <Label htmlFor="twitter">{t('admin.clubs.fieldTwitter')}</Label>
             <Input id="twitter" {...register('twitter')} placeholder="https://twitter.com/club" />
           </div>
 
@@ -656,7 +656,7 @@ export default function ClubForm() {
           <div className="space-y-2 md:col-span-2">
             <div className="flex items-center space-x-2">
               <Switch id="isActive" checked={isActive} onCheckedChange={(v) => setValue('isActive', v)} />
-              <Label htmlFor="isActive" className="cursor-pointer">Active Club</Label>
+              <Label htmlFor="isActive" className="cursor-pointer">{t('admin.clubs.fieldActiveClub')}</Label>
             </div>
             <p className="text-sm text-muted-foreground">Inactive clubs won't appear in public listings</p>
           </div>
@@ -665,7 +665,7 @@ export default function ClubForm() {
         <div className="flex items-center gap-4">
           <Button type="submit" disabled={isLoading || isUploading}>
             {(isLoading || isUploading) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {isUploading ? 'Uploading image…' : id ? 'Update Club' : 'Create Club'}
+            {isUploading ? t('admin.clubs.uploadingImage') : id ? t('admin.clubs.updateClub') : t('admin.clubs.createClub')}
           </Button>
           <Button type="button" variant="outline" onClick={() => navigate('/admin/clubs')}>
             Cancel

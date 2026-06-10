@@ -108,7 +108,7 @@ function MediaUploadField({
     const maxSizeMB = mediaType === "video" ? 200 : 10;
     if (file.size > maxSizeMB * 1024 * 1024) {
       toast({
-        title: "File too large",
+        title: t('admin.pageHero.fileTooLarge'),
         description: `Maximum file size is ${maxSizeMB}MB.`,
         variant: "destructive",
       });
@@ -134,12 +134,12 @@ function MediaUploadField({
       const data = await res.json();
       onChange(data.url);
       toast({
-        title: "Uploaded",
+        title: t('admin.pageHero.uploadedTitle'),
         description: `${mediaType === "image" ? "Image" : "Video"} uploaded successfully.`,
       });
     } catch (err: any) {
       toast({
-        title: "Upload failed",
+        title: t('admin.pageHero.uploadFailed'),
         description: err.message || "Could not upload file.",
         variant: "destructive",
       });
@@ -190,7 +190,7 @@ function MediaUploadField({
       {uploading && (
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <Loader2 className="w-3 h-3 animate-spin" />
-          Uploading {mediaType}…
+          {t('admin.pageHero.uploadingMedia', { type: mediaType })}
         </div>
       )}
     </div>
@@ -247,12 +247,12 @@ function PageHeroForm({ pageKey, config, isLanding }: {
       });
 
       if (res.ok) {
-        toast({ title: "Saved", description: "Hero settings updated successfully." });
+        toast({ title: t('admin.pageHero.savedTitle'), description: t('admin.pageHero.savedDesc') });
       } else {
         throw new Error("Failed to save");
       }
     } catch {
-      toast({ title: "Error", description: "Failed to save hero settings.", variant: "destructive" });
+      toast({ title: t('admin.pageHero.saveErrorTitle'), description: t('admin.pageHero.saveErrorDesc'), variant: "destructive" });
     } finally {
       setSaving(false);
     }
@@ -272,7 +272,7 @@ function PageHeroForm({ pageKey, config, isLanding }: {
         <div className="flex items-start gap-3 p-4 rounded-lg bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800">
           <AlertCircle className="w-5 h-5 text-blue-500 mt-0.5 shrink-0" />
           <div className="text-sm text-blue-800 dark:text-blue-200">
-            <p className="font-semibold mb-1">Landing page — limited controls here</p>
+            <p className="font-semibold mb-1">{t('admin.pageHero.landingNote')}</p>
             <p>This tab manages only the background type and video URL for the landing hero. For full control (typewriter texts, buttons, overlay color, typography) visit <Link to="/admin/customization/hero" className="underline font-medium">Hero Section Settings →</Link></p>
           </div>
         </div>
@@ -292,13 +292,13 @@ function PageHeroForm({ pageKey, config, isLanding }: {
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
-              <Palette className="w-4 h-4" /> Background
+              <Palette className="w-4 h-4" /> {t('admin.pageHero.backgroundTitle')}
             </CardTitle>
-            <CardDescription>Choose the background type and upload or link media</CardDescription>
+            <CardDescription>{t('admin.pageHero.backgroundDesc')}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-1.5">
-              <Label>Background Type</Label>
+              <Label>{t('admin.pageHero.backgroundType')}</Label>
               <Select
                 value={form.backgroundType}
                 onValueChange={v => setForm(f => ({ ...f, backgroundType: v }))}
@@ -308,13 +308,13 @@ function PageHeroForm({ pageKey, config, isLanding }: {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="image">
-                    <span className="flex items-center gap-2"><Image className="w-4 h-4" /> Image</span>
+                    <span className="flex items-center gap-2"><Image className="w-4 h-4" /> {t('admin.pageHero.bgImage')}</span>
                   </SelectItem>
                   <SelectItem value="video">
-                    <span className="flex items-center gap-2"><Video className="w-4 h-4" /> Video</span>
+                    <span className="flex items-center gap-2"><Video className="w-4 h-4" /> {t('admin.pageHero.bgVideo')}</span>
                   </SelectItem>
                   <SelectItem value="gradient">
-                    <span className="flex items-center gap-2"><Palette className="w-4 h-4" /> Gradient</span>
+                    <span className="flex items-center gap-2"><Palette className="w-4 h-4" /> {t('admin.pageHero.bgGradient')}</span>
                   </SelectItem>
                 </SelectContent>
               </Select>
@@ -323,7 +323,7 @@ function PageHeroForm({ pageKey, config, isLanding }: {
             {form.backgroundType === "image" && (
               <div className="space-y-1.5">
                 <Label className="flex items-center gap-1.5">
-                  <Image className="w-3.5 h-3.5" /> Background Image
+                  <Image className="w-3.5 h-3.5" /> {t('admin.pageHero.bgImageLabel')}
                 </Label>
                 <MediaUploadField
                   mediaType="image"
@@ -360,7 +360,7 @@ function PageHeroForm({ pageKey, config, isLanding }: {
             {form.backgroundType === "video" && (
               <div className="space-y-1.5">
                 <Label className="flex items-center gap-1.5">
-                  <Video className="w-3.5 h-3.5" /> Background Video
+                  <Video className="w-3.5 h-3.5" /> {t('admin.pageHero.bgVideoLabel')}
                 </Label>
                 <MediaUploadField
                   mediaType="video"
@@ -387,7 +387,7 @@ function PageHeroForm({ pageKey, config, isLanding }: {
             )}
 
             <div className="space-y-2">
-              <Label>Overlay Opacity: {form.overlayOpacity}%</Label>
+              <Label>{t('admin.pageHero.overlayOpacityLabel')}: {form.overlayOpacity}%</Label>
               <Slider
                 min={0}
                 max={90}
@@ -403,12 +403,12 @@ function PageHeroForm({ pageKey, config, isLanding }: {
         {!isLanding && (
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-base">Content Override</CardTitle>
-              <CardDescription>Leave blank to use the page defaults</CardDescription>
+              <CardTitle className="text-base">{t('admin.pageHero.contentOverrideTitle')}</CardTitle>
+              <CardDescription>{t('admin.pageHero.contentOverrideDesc')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-1.5">
-                <Label>Title</Label>
+                <Label>{t('admin.pageHero.titleLabel')}</Label>
                 <div className="flex gap-2 items-start">
                   <Input
                     placeholder={config.defaultTitle}
@@ -426,7 +426,7 @@ function PageHeroForm({ pageKey, config, isLanding }: {
                 </div>
               </div>
               <div className="space-y-1.5">
-                <Label>Subtitle</Label>
+                <Label>{t('admin.pageHero.subtitleLabel')}</Label>
                 <div className="flex gap-2 items-start">
                   <Textarea
                     placeholder={config.defaultSubtitle}
@@ -452,12 +452,12 @@ function PageHeroForm({ pageKey, config, isLanding }: {
       <div className="flex gap-2">
         <Button onClick={handleSave} disabled={saving}>
           <Save className="w-4 h-4 mr-2" />
-          {saving ? "Saving…" : t('admin.common.save')}
+          {saving ? t('admin.common.saving') : t('admin.common.save')}
         </Button>
         <Button variant="outline" asChild>
           <a href={config.previewUrl} target="_blank" rel="noopener noreferrer">
             <Eye className="w-4 h-4 mr-2" />
-            Preview Page
+            {t('admin.pageHero.previewPage')}
             <ExternalLink className="w-3 h-3 ml-1.5" />
           </a>
         </Button>
@@ -471,9 +471,9 @@ export default function PageHeroSettings() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Page Hero Settings</h1>
+        <h1 className="text-3xl font-bold">{t('admin.pageHero.title')}</h1>
         <p className="text-muted-foreground mt-1">
-          Upload or link background images and videos for each page's hero section.
+          {t('admin.pageHero.subtitle')}
         </p>
       </div>
 

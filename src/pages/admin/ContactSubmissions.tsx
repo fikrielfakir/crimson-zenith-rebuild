@@ -201,14 +201,24 @@ function DetailDialog({ submissionId, onClose, onUpdated }: DetailDialogProps) {
     },
   });
 
+  const getStatusLabel = (status: Status): string => {
+    const map: Record<Status, string> = {
+      new: t('admin.contact.statusNew'),
+      read: t('admin.contact.statusRead'),
+      replied: t('admin.contact.statusReplied'),
+      archived: t('admin.contact.statusArchived'),
+    };
+    return map[status];
+  };
+
   const handleStatusChange = (status: Status) => {
     updateMutation.mutate({ status });
-    toast({ title: `Marked as ${STATUS_CONFIG[status].label}` });
+    toast({ title: t('admin.contact.markedAs', { status: getStatusLabel(status) }) });
   };
 
   const handleSaveNotes = () => {
     updateMutation.mutate({ admin_notes: notes });
-    toast({ title: 'Notes saved' });
+    toast({ title: t('admin.contact.notesSaved') });
   };
 
   const handleClose = () => {
@@ -222,10 +232,10 @@ function DetailDialog({ submissionId, onClose, onUpdated }: DetailDialogProps) {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <MessageSquare className="h-5 w-5" />
-            Contact Message
+            {t('admin.contact.dialogTitle')}
           </DialogTitle>
           <DialogDescription>
-            View the full message and manage its status
+            {t('admin.contact.dialogDesc')}
           </DialogDescription>
         </DialogHeader>
 
@@ -271,7 +281,7 @@ function DetailDialog({ submissionId, onClose, onUpdated }: DetailDialogProps) {
             {/* Subject */}
             {sub.subject && (
               <div>
-                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-1">Subject</p>
+                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-1">{t('admin.contact.subjectLabel')}</p>
                 <p className="font-medium">{sub.subject}</p>
               </div>
             )}
@@ -280,7 +290,7 @@ function DetailDialog({ submissionId, onClose, onUpdated }: DetailDialogProps) {
 
             {/* Message body */}
             <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-2">Message</p>
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-2">{t('admin.contact.messageLabel')}</p>
               <div className="bg-muted/40 rounded-lg p-4 text-sm leading-relaxed whitespace-pre-wrap border">
                 {sub.message}
               </div>
@@ -290,7 +300,7 @@ function DetailDialog({ submissionId, onClose, onUpdated }: DetailDialogProps) {
 
             {/* Status actions */}
             <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-3">Change Status</p>
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-3">{t('admin.contact.changeStatus')}</p>
               <div className="flex flex-wrap gap-2">
                 {(Object.keys(STATUS_CONFIG) as Status[]).map((s) => {
                   const cfg = STATUS_CONFIG[s];
@@ -304,7 +314,7 @@ function DetailDialog({ submissionId, onClose, onUpdated }: DetailDialogProps) {
                       disabled={sub.status === s || updateMutation.isPending}
                     >
                       <Icon className="mr-1.5 h-3.5 w-3.5" />
-                      {cfg.label}
+                      {getStatusLabel(s)}
                     </Button>
                   );
                 })}
@@ -317,7 +327,7 @@ function DetailDialog({ submissionId, onClose, onUpdated }: DetailDialogProps) {
             <div className="space-y-2">
               <Label className="text-xs font-medium uppercase tracking-wide text-muted-foreground flex items-center gap-1.5">
                 <StickyNote className="h-3.5 w-3.5" />
-                Admin Notes (internal only)
+                {t('admin.contact.adminNotes')}
               </Label>
               <Textarea
                 value={notes}
@@ -386,20 +396,30 @@ export default function ContactSubmissions() {
     mutationFn: deleteSubmission,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['contact-submissions'] });
-      toast({ title: 'Submission deleted' });
+      toast({ title: t('admin.contactInbox.toastDeleted') });
       setDeletingId(null);
     },
     onError: (err: Error) => {
-      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+      toast({ title: t('admin.common.error'), description: err.message, variant: 'destructive' });
     },
   });
+
+  const getQuickStatusLabel = (status: Status): string => {
+    const map: Record<Status, string> = {
+      new: t('admin.contact.statusNew'),
+      read: t('admin.contact.statusRead'),
+      replied: t('admin.contact.statusReplied'),
+      archived: t('admin.contact.statusArchived'),
+    };
+    return map[status];
+  };
 
   const quickStatusMutation = useMutation({
     mutationFn: ({ id, status }: { id: number; status: Status }) =>
       updateSubmission(id, { status }),
     onSuccess: (_, vars) => {
       queryClient.invalidateQueries({ queryKey: ['contact-submissions'] });
-      toast({ title: `Marked as ${STATUS_CONFIG[vars.status].label}` });
+      toast({ title: t('admin.contact.markedAs', { status: getQuickStatusLabel(vars.status) }) });
     },
   });
 
@@ -432,22 +452,22 @@ export default function ContactSubmissions() {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Contact Inbox</h1>
-          <p className="text-muted-foreground mt-1">Messages submitted via the contact form</p>
+          <h1 className="text-3xl font-bold">{t('admin.nav.contactInbox')}</h1>
+          <p className="text-muted-foreground mt-1">{t('admin.contactInbox.subtitle')}</p>
         </div>
         <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching}>
           <RefreshCw className={`mr-2 h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
-          Refresh
+          {t('admin.common.refresh')}
         </Button>
       </div>
 
       {/* Stats row */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
-          { label: 'Total', value: total, color: 'text-foreground' },
-          { label: 'New', value: data?.data.filter ? (data.data as Submission[]).filter(s => s.status === 'new').length : '—', color: 'text-blue-600' },
-          { label: 'Replied', value: data?.data ? (data.data as Submission[]).filter(s => s.status === 'replied').length : '—', color: 'text-green-600' },
-          { label: 'Archived', value: data?.data ? (data.data as Submission[]).filter(s => s.status === 'archived').length : '—', color: 'text-amber-600' },
+          { label: t('admin.common.total'), value: total, color: 'text-foreground' },
+          { label: t('admin.contact.statusNew'), value: data?.data.filter ? (data.data as Submission[]).filter(s => s.status === 'new').length : '—', color: 'text-blue-600' },
+          { label: t('admin.contact.statusReplied'), value: data?.data ? (data.data as Submission[]).filter(s => s.status === 'replied').length : '—', color: 'text-green-600' },
+          { label: t('admin.contact.statusArchived'), value: data?.data ? (data.data as Submission[]).filter(s => s.status === 'archived').length : '—', color: 'text-amber-600' },
         ].map(stat => (
           <Card key={stat.label}>
             <CardContent className="pt-5 pb-4">
@@ -507,7 +527,7 @@ export default function ContactSubmissions() {
             {t('admin.contact.messages')}
           </CardTitle>
           <CardDescription>
-            {isLoading ? 'Loading…' : `${total} message${total !== 1 ? 's' : ''}${search ? ` matching "${search}"` : ''}${statusFilter !== 'all' ? ` — ${STATUS_CONFIG[statusFilter as Status]?.label ?? statusFilter}` : ''}`}
+            {isLoading ? t('admin.contact.loadingMessages') : `${total} ${total !== 1 ? t('admin.contact.messagesPlural') : t('admin.contact.messageSingular')}${search ? ` matching "${search}"` : ''}${statusFilter !== 'all' ? ` — ${getQuickStatusLabel(statusFilter as Status) ?? statusFilter}` : ''}`}
           </CardDescription>
         </CardHeader>
         <CardContent className="p-0 overflow-x-auto">
@@ -515,7 +535,7 @@ export default function ContactSubmissions() {
             <div className="flex items-center justify-center py-16 text-muted-foreground">
               <div className="text-center space-y-3">
                 <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent mx-auto" />
-                <p className="text-sm">Loading messages…</p>
+                <p className="text-sm">{t('admin.contact.loadingMessages')}</p>
               </div>
             </div>
           ) : submissions.length === 0 ? (
@@ -523,7 +543,7 @@ export default function ContactSubmissions() {
               <Inbox className="h-12 w-12 mx-auto mb-4 opacity-30" />
               <p className="font-medium text-base">{t('admin.contact.noMessages')}</p>
               <p className="text-sm mt-1">
-                {search || statusFilter !== 'all' ? 'Try adjusting your filters' : 'When visitors submit the contact form, messages will appear here'}
+                {search || statusFilter !== 'all' ? t('admin.contact.noMessagesFilter') : t('admin.contact.noMessagesHint')}
               </p>
             </div>
           ) : (
@@ -561,7 +581,7 @@ export default function ContactSubmissions() {
                       </TableCell>
                       <TableCell>
                         <span className={`text-sm truncate max-w-[160px] block ${sub.status === 'new' ? 'font-medium' : ''}`}>
-                          {sub.subject || '(No subject)'}
+                          {sub.subject || t('admin.contact.noSubject')}
                         </span>
                       </TableCell>
                       <TableCell className="max-w-xs">
@@ -629,7 +649,7 @@ export default function ContactSubmissions() {
               {lastPage > 1 && (
                 <div className="flex items-center justify-between px-6 py-4 border-t">
                   <p className="text-sm text-muted-foreground">
-                    Page {data?.current_page} of {lastPage} · {total} total
+                    {t('admin.contact.paginationInfo', { page: data?.current_page, last: lastPage, count: total })}
                   </p>
                   <div className="flex gap-2">
                     <Button
@@ -638,7 +658,7 @@ export default function ContactSubmissions() {
                       onClick={() => setPage(p => Math.max(1, p - 1))}
                       disabled={page <= 1 || isFetching}
                     >
-                      Previous
+                      {t('admin.common.previous')}
                     </Button>
                     <Button
                       variant="outline"
@@ -646,7 +666,7 @@ export default function ContactSubmissions() {
                       onClick={() => setPage(p => Math.min(lastPage, p + 1))}
                       disabled={page >= lastPage || isFetching}
                     >
-                      Next
+                      {t('admin.common.next')}
                     </Button>
                   </div>
                 </div>
@@ -669,7 +689,7 @@ export default function ContactSubmissions() {
           <AlertDialogHeader>
             <AlertDialogTitle>{t('admin.contact.deleteMessage')}</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently remove the contact submission. This action cannot be undone.
+              {t('admin.contact.deleteDesc')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

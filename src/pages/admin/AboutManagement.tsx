@@ -112,10 +112,10 @@ export default function AboutManagement() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-about-settings"] });
-      toast({ title: "Saved", description: "About page content has been updated." });
+      toast({ title: t('admin.about.savedTitle'), description: t('admin.about.savedDesc') });
     },
     onError: () => {
-      toast({ title: "Error", description: "Failed to save changes.", variant: "destructive" });
+      toast({ title: t('admin.common.error'), description: t('admin.about.saveError'), variant: "destructive" });
     },
   });
 
@@ -134,10 +134,10 @@ export default function AboutManagement() {
           ...prev,
           [langCode]: { ...prev[langCode], ...data.results },
         }));
-        toast({ title: "Translated!", description: `Auto-translated to ${LANGUAGES.find(l => l.code === langCode)?.label}.` });
+        toast({ title: t('admin.about.translatedTitle'), description: `Auto-translated to ${LANGUAGES.find(l => l.code === langCode)?.label}.` });
       }
     } catch {
-      toast({ title: "Error", description: "Translation failed. Please try again.", variant: "destructive" });
+      toast({ title: t('admin.common.error'), description: t('admin.about.translationFailed'), variant: "destructive" });
     } finally {
       setTranslating(null);
     }
@@ -169,18 +169,18 @@ export default function AboutManagement() {
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" asChild>
-            <a href="/about" target="_blank"><Eye className="w-4 h-4 mr-1" /> Preview</a>
+            <a href="/about" target="_blank"><Eye className="w-4 h-4 mr-1" /> {t('admin.common.preview')}</a>
           </Button>
           <Button onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending}>
             <Save className="w-4 h-4 mr-2" />
-            {saveMutation.isPending ? "Saving..." : t('admin.common.save')}
+            {saveMutation.isPending ? t('admin.common.saving') : t('admin.common.save')}
           </Button>
         </div>
       </div>
 
       <Tabs defaultValue="en">
         <TabsList>
-          <TabsTrigger value="en">🇬🇧 English</TabsTrigger>
+          <TabsTrigger value="en">🇬🇧 {t('admin.about.englishTabLabel')}</TabsTrigger>
           {LANGUAGES.map((lang) => (
             <TabsTrigger key={lang.code} value={lang.code}>
               {lang.flag} {lang.label}
@@ -227,9 +227,9 @@ export default function AboutManagement() {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle>{lang.flag} {lang.label} Translation</CardTitle>
+                    <CardTitle>{lang.flag} {lang.label} {t('admin.about.translationSuffix')}</CardTitle>
                     <CardDescription>
-                      Translated content for {lang.label} visitors. Edit manually or auto-translate from English.
+                      {t('admin.about.translationCardDesc', { lang: lang.label })}
                     </CardDescription>
                   </div>
                   <Button
@@ -238,7 +238,7 @@ export default function AboutManagement() {
                     disabled={translating === lang.code}
                   >
                     <RefreshCw className={`w-4 h-4 mr-2 ${translating === lang.code ? "animate-spin" : ""}`} />
-                    {translating === lang.code ? "Translating..." : "Auto-Translate"}
+                    {translating === lang.code ? t('admin.about.translating') : t('admin.about.autoTranslate')}
                   </Button>
                 </div>
               </CardHeader>
@@ -265,10 +265,10 @@ export default function AboutManagement() {
                 ) : (
                   <div className="text-center py-10 text-muted-foreground space-y-3">
                     <Languages className="w-10 h-10 mx-auto opacity-40" />
-                    <p>No {lang.label} translation yet.</p>
+                    <p>{t('admin.about.noTranslation', { lang: lang.label })}</p>
                     <Button variant="outline" onClick={() => handleAutoTranslate(lang.code)}>
                       <RefreshCw className="w-4 h-4 mr-2" />
-                      Generate Translation
+                      {t('admin.about.generateTranslation')}
                     </Button>
                   </div>
                 )}
