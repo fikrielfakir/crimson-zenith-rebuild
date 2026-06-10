@@ -105,36 +105,36 @@ export default function ClubsPendingApproval() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold">{t('admin.clubs.pendingTitle')}</h1>
-        <p className="text-muted-foreground mt-1">Review and approve new club registrations</p>
+        <p className="text-muted-foreground mt-1">{t('admin.clubs.pendingSubtitle')}</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending Approval</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('admin.clubs.pendingApproval')}</CardTitle>
             <Clock className="h-4 w-4 text-orange-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{isLoading ? '—' : pendingCount}</div>
-            <p className="text-xs text-muted-foreground">Awaiting review</p>
+            <p className="text-xs text-muted-foreground">{t('admin.clubs.awaitingReview')}</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Pending</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('admin.clubs.totalPending')}</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{isLoading ? '—' : (data?.total ?? 0)}</div>
-            <p className="text-xs text-muted-foreground">Across all pages</p>
+            <p className="text-xs text-muted-foreground">{t('admin.clubs.acrossAllPages')}</p>
           </CardContent>
         </Card>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Clubs Awaiting Approval</CardTitle>
-          <CardDescription>Review club applications and approve or reject them</CardDescription>
+          <CardTitle>{t('admin.clubs.clubsAwaitingApproval')}</CardTitle>
+          <CardDescription>{t('admin.clubs.reviewDesc')}</CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -144,19 +144,19 @@ export default function ClubsPendingApproval() {
           ) : pendingCount === 0 ? (
             <div className="flex flex-col items-center justify-center p-8 text-center">
               <Check className="h-12 w-12 text-green-500 mb-4" />
-              <p className="text-lg font-medium">All caught up!</p>
-              <p className="text-muted-foreground">No clubs pending approval at the moment</p>
+              <p className="text-lg font-medium">{t('admin.clubs.allCaughtUp')}</p>
+              <p className="text-muted-foreground">{t('admin.clubs.noPendingClubs')}</p>
             </div>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Club</TableHead>
-                  <TableHead>Location</TableHead>
-                  <TableHead>Members</TableHead>
-                  <TableHead>Submitted</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead>{t('admin.clubs.colClub')}</TableHead>
+                  <TableHead>{t('admin.clubs.colLocation')}</TableHead>
+                  <TableHead>{t('admin.clubs.colMembers')}</TableHead>
+                  <TableHead>{t('admin.applications.submittedCol')}</TableHead>
+                  <TableHead>{t('admin.common.status')}</TableHead>
+                  <TableHead className="text-right">{t('admin.common.actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -192,7 +192,7 @@ export default function ClubsPendingApproval() {
                     <TableCell>
                       <Badge variant="secondary">
                         <Clock className="mr-1 h-3 w-3" />
-                        Pending
+                        {t('admin.common.pending')}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right space-x-2">
@@ -208,7 +208,7 @@ export default function ClubsPendingApproval() {
                         onClick={() => setPendingAction({ clubId: club.id, clubName: club.name, action: 'approve' })}
                       >
                         <Check className="mr-1 h-4 w-4" />
-                        Approve
+                        {t('admin.clubs.approveBtn')}
                       </Button>
                       <Button
                         variant="destructive"
@@ -217,7 +217,7 @@ export default function ClubsPendingApproval() {
                         onClick={() => setPendingAction({ clubId: club.id, clubName: club.name, action: 'reject' })}
                       >
                         <X className="mr-1 h-4 w-4" />
-                        Reject
+                        {t('admin.clubs.rejectBtn')}
                       </Button>
                     </TableCell>
                   </TableRow>
@@ -232,7 +232,7 @@ export default function ClubsPendingApproval() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {isApproving ? 'Approve this club?' : 'Reject this club?'}
+              {isApproving ? t('admin.clubs.approveConfirm') : t('admin.clubs.rejectConfirm')}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {isApproving
@@ -242,13 +242,13 @@ export default function ClubsPendingApproval() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('admin.common.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirm}
               className={isApproving ? '' : 'bg-destructive text-destructive-foreground hover:bg-destructive/90'}
             >
               {isMutating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {isApproving ? 'Yes, approve' : 'Yes, reject'}
+              {isApproving ? t('admin.clubs.yesApprove') : t('admin.clubs.yesReject')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

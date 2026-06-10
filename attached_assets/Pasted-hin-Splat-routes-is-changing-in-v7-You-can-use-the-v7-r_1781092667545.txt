@@ -1,0 +1,58 @@
+hin Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+warnOnce @ react-router-dom.js?v=8e1fcad9:4435Understand this warning
+2GalleryManagement.tsx:451 Uncaught ReferenceError: t is not defined
+    at ItemFormDialog (GalleryManagement.tsx:451:60)
+    at renderWithHooks (chunk-O3VNRDW5.js?v=8e1fcad9:11596:26)
+    at mountIndeterminateComponent (chunk-O3VNRDW5.js?v=8e1fcad9:14974:21)
+    at beginWork (chunk-O3VNRDW5.js?v=8e1fcad9:15962:22)
+    at HTMLUnknownElement.callCallback2 (chunk-O3VNRDW5.js?v=8e1fcad9:3680:22)
+    at Object.invokeGuardedCallbackDev (chunk-O3VNRDW5.js?v=8e1fcad9:3705:24)
+    at invokeGuardedCallback (chunk-O3VNRDW5.js?v=8e1fcad9:3739:39)
+    at beginWork$1 (chunk-O3VNRDW5.js?v=8e1fcad9:19818:15)
+    at performUnitOfWork (chunk-O3VNRDW5.js?v=8e1fcad9:19251:20)
+    at workLoopSync (chunk-O3VNRDW5.js?v=8e1fcad9:19190:13)Understand this error
+chunk-O3VNRDW5.js?v=8e1fcad9:14080 The above error occurred in the <ItemFormDialog> component:
+
+    at ItemFormDialog (http://192.168.56.1:5000/src/pages/admin/GalleryManagement.tsx?t=1781091726568:542:104)
+    at div
+    at GalleryManagement (http://192.168.56.1:5000/src/pages/admin/GalleryManagement.tsx?t=1781091726568:1410:23)
+    at div
+    at div
+    at div
+    at http://192.168.56.1:5000/node_modules/.vite/deps/chunk-CUQRY4JX.js?v=8e1fcad9:227:13
+    at http://192.168.56.1:5000/node_modules/.vite/deps/@radix-ui_react-scroll-area.js?v=8e1fcad9:114:13
+    at div
+    at http://192.168.56.1:5000/node_modules/.vite/deps/chunk-CUQRY4JX.js?v=8e1fcad9:227:13
+    at Provider (http://192.168.56.1:5000/node_modules/.vite/deps/chunk-CUQRY4JX.js?v=8e1fcad9:43:15)
+    at http://192.168.56.1:5000/node_modules/.vite/deps/@radix-ui_react-scroll-area.js?v=8e1fcad9:52:7
+    at _c (http://192.168.56.1:5000/src/components/ui/scroll-area.tsx:24:59)
+    at main
+    at div
+    at div
+    at AdminLayout (http://192.168.56.1:5000/src/components/admin/AdminLayout.tsx?t=1781086651170:598:31)
+    at TokenValidatedRoute (http://192.168.56.1:5000/src/components/admin/ProtectedRoute.tsx?t=1781086651170:70:32)
+    at ProtectedRoute (http://192.168.56.1:5000/src/components/admin/ProtectedRoute.tsx?t=1781086651170:49:34)
+    at RenderedRoute (http://192.168.56.1:5000/node_modules/.vite/deps/react-router-dom.js?v=8e1fcad9:4130:5)
+    at Routes (http://192.168.56.1:5000/node_modules/.vite/deps/react-router-dom.js?v=8e1fcad9:4600:5)
+    at Router (http://192.168.56.1:5000/node_modules/.vite/deps/react-router-dom.js?v=8e1fcad9:4543:15)
+    at BrowserRouter (http://192.168.56.1:5000/node_modules/.vite/deps/react-router-dom.js?v=8e1fcad9:5289:5)
+    at Provider (http://192.168.56.1:5000/node_modules/.vite/deps/chunk-CUQRY4JX.js?v=8e1fcad9:43:15)
+    at TooltipProvider (http://192.168.56.1:5000/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=8e1fcad9:157:5)
+    at QueryClientProvider (http://192.168.56.1:5000/node_modules/.vite/deps/@tanstack_react-query.js?v=8e1fcad9:3170:3)
+    at App
+    at _HelmetProvider (http://192.168.56.1:5000/node_modules/.vite/deps/react-helmet-async.js?v=8e1fcad9:627:5)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+logCapturedError @ chunk-O3VNRDW5.js?v=8e1fcad9:14080Understand this error
+chunk-O3VNRDW5.js?v=8e1fcad9:9176 Uncaught ReferenceError: t is not defined
+    at ItemFormDialog (GalleryManagement.tsx:451:60)
+    at renderWithHooks (chunk-O3VNRDW5.js?v=8e1fcad9:11596:26)
+    at mountIndeterminateComponent (chunk-O3VNRDW5.js?v=8e1fcad9:14974:21)
+    at beginWork (chunk-O3VNRDW5.js?v=8e1fcad9:15962:22)
+    at beginWork$1 (chunk-O3VNRDW5.js?v=8e1fcad9:19806:22)
+    at performUnitOfWork (chunk-O3VNRDW5.js?v=8e1fcad9:19251:20)
+    at workLoopSync (chunk-O3VNRDW5.js?v=8e1fcad9:19190:13)
+    at renderRootSync (chunk-O3VNRDW5.js?v=8e1fcad9:19169:15)
+    at recoverFromConcurrentError (chunk-O3VNRDW5.js?v=8e1fcad9:18786:28)
+    at performSyncWorkOnRoot (chunk-O3VNRDW5.js?v=8e1fcad9:18932:28)Understand this error

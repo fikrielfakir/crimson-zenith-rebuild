@@ -310,7 +310,7 @@ function TicketModal({ booking, isOpen, onClose }: { booking: Booking | null; is
           <p className="mt-3 px-1 text-center text-[11px] text-red-600 font-medium">{dlError}</p>
         )}
         <div className="flex gap-2 mt-3 px-1">
-          <Button variant="outline" className="flex-1" onClick={onClose}>Close</Button>
+          <Button variant="outline" className="flex-1" onClick={onClose}>{t('admin.bookings.closeBtn')}</Button>
           <Button
             onClick={handleDownload}
             disabled={downloading}
@@ -318,9 +318,9 @@ function TicketModal({ booking, isOpen, onClose }: { booking: Booking | null; is
             style={{ background: 'linear-gradient(90deg,#D4B26A,#C9A758)', color: '#07153A' }}
           >
             {downloading ? (
-              <><span className="animate-spin mr-2">⟳</span> Generating…</>
+              <><span className="animate-spin mr-2">⟳</span> {t('admin.bookings.generatingPdf')}</>
             ) : (
-              <><Download className="mr-2 h-4 w-4" /> Download PDF</>
+              <><Download className="mr-2 h-4 w-4" /> {t('admin.bookings.downloadPdfBtn')}</>
             )}
           </Button>
         </div>
@@ -331,14 +331,15 @@ function TicketModal({ booking, isOpen, onClose }: { booking: Booking | null; is
 }
 
 function ViewBookingModal({ booking, isOpen, onClose }: { booking: Booking | null; isOpen: boolean; onClose: () => void }) {
+  const { t } = useTranslation();
   if (!booking) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Booking Details</DialogTitle>
-          <DialogDescription>View complete booking information</DialogDescription>
+          <DialogTitle>{t('admin.bookings.viewBookingDetails')}</DialogTitle>
+          <DialogDescription>{t('admin.bookings.viewBookingDesc')}</DialogDescription>
         </DialogHeader>
         
         <div className="space-y-4 py-4">
@@ -352,15 +353,15 @@ function ViewBookingModal({ booking, isOpen, onClose }: { booking: Booking | nul
               <p className="font-medium">"{booking.status}"</p>
             </div>
             <div>
-              <Label className="text-muted-foreground text-sm">Guest Name</Label>
+              <Label className="text-muted-foreground text-sm">{t('admin.bookings.guestNameCol')}</Label>
               <p className="font-medium">{booking.userName}</p>
             </div>
             <div>
-              <Label className="text-muted-foreground text-sm">Email</Label>
-              <p className="font-medium">{booking.userEmail || 'N/A'}</p>
+              <Label className="text-muted-foreground text-sm">{t('admin.common.email')}</Label>
+              <p className="font-medium">{booking.userEmail || t('admin.common.na')}</p>
             </div>
             <div>
-              <Label className="text-muted-foreground text-sm">Event Date</Label>
+              <Label className="text-muted-foreground text-sm">{t('admin.bookings.eventDateCol')}</Label>
               <p className="font-medium">{new Date(booking.eventDate).toLocaleDateString()}</p>
             </div>
             <div>
@@ -368,18 +369,18 @@ function ViewBookingModal({ booking, isOpen, onClose }: { booking: Booking | nul
               <p className="font-medium">{booking.attendees}</p>
             </div>
             <div>
-              <Label className="text-muted-foreground text-sm">Total Amount</Label>
+              <Label className="text-muted-foreground text-sm">{t('admin.bookings.totalAmountCol')}</Label>
               <p className="font-medium">${booking.totalAmount}</p>
             </div>
             <div>
-              <Label className="text-muted-foreground text-sm">Booking Date</Label>
+              <Label className="text-muted-foreground text-sm">{t('admin.bookings.bookingDateCol')}</Label>
               <p className="font-medium">{new Date(booking.createdAt).toLocaleDateString()}</p>
             </div>
           </div>
         </div>
         
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Close</Button>
+          <Button variant="outline" onClick={onClose}>{t('admin.bookings.closeBtn')}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -387,6 +388,7 @@ function ViewBookingModal({ booking, isOpen, onClose }: { booking: Booking | nul
 }
 
 function EditBookingModal({ booking, isOpen, onClose, onSave }: { booking: Booking | null; isOpen: boolean; onClose: () => void; onSave: (status: string) => void }) {
+  const { t } = useTranslation();
   const [status, setStatus] = useState(booking?.status || 'pending');
 
   if (!booking) return null;
@@ -395,8 +397,8 @@ function EditBookingModal({ booking, isOpen, onClose, onSave }: { booking: Booki
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit Booking</DialogTitle>
-          <DialogDescription>Update booking status</DialogDescription>
+          <DialogTitle>{t('admin.bookings.editBookingTitle')}</DialogTitle>
+          <DialogDescription>{t('admin.bookings.editStatusDesc')}</DialogDescription>
         </DialogHeader>
         
         <div className="space-y-4 py-4">
@@ -415,17 +417,17 @@ function EditBookingModal({ booking, isOpen, onClose, onSave }: { booking: Booki
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="pending">"pending"</SelectItem>
-                <SelectItem value="confirmed">"confirmed"</SelectItem>
-                <SelectItem value="cancelled">"cancelled"</SelectItem>
+                <SelectItem value="pending">{t('admin.bookings.statusPendingLabel')}</SelectItem>
+                <SelectItem value="confirmed">{t('admin.bookings.statusConfirmedLabel')}</SelectItem>
+                <SelectItem value="cancelled">{t('admin.bookings.statusCancelledLabel')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
         </div>
         
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
-          <Button onClick={() => onSave(status)}>Save Changes</Button>
+          <Button variant="outline" onClick={onClose}>{t('admin.common.cancel')}</Button>
+          <Button onClick={() => onSave(status)}>{t('admin.common.save')}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -497,7 +499,7 @@ function NewBookingModal({ isOpen, onClose, onCreated }: { isOpen: boolean; onCl
         const err = await res.json().catch(() => ({}));
         throw new Error(err.message || 'Failed to create booking');
       }
-      toast({ title: 'Booking created successfully' });
+      toast({ title: t('admin.bookings.toastCreated') });
       onCreated();
       onClose();
       setEventId(''); setUserName(''); setUserEmail('');
@@ -509,16 +511,17 @@ function NewBookingModal({ isOpen, onClose, onCreated }: { isOpen: boolean; onCl
     }
   };
 
+  const { t } = useTranslation();
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>New Booking</DialogTitle>
-          <DialogDescription>Manually create a booking for an event</DialogDescription>
+          <DialogTitle>{t('admin.bookings.newBookingTitle')}</DialogTitle>
+          <DialogDescription>{t('admin.bookings.newBookingDesc')}</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 py-2">
           <div className="space-y-1">
-            <Label>Event <span className="text-red-500">*</span></Label>
+            <Label>{t('admin.bookings.selectEventLabel')} <span className="text-red-500">*</span></Label>
             <Select value={eventId} onValueChange={handleEventChange}>
               <SelectTrigger>
                 <SelectValue placeholder="Select an event" />
@@ -535,11 +538,11 @@ function NewBookingModal({ isOpen, onClose, onCreated }: { isOpen: boolean; onCl
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1 col-span-2">
-              <Label>Guest Name <span className="text-red-500">*</span></Label>
-              <Input value={userName} onChange={e => setUserName(e.target.value)} placeholder="Full name" />
+              <Label>{t('admin.bookings.guestNameLabel')} <span className="text-red-500">*</span></Label>
+              <Input value={userName} onChange={e => setUserName(e.target.value)} placeholder={t('admin.bookings.guestNamePlaceholder')} />
             </div>
             <div className="space-y-1 col-span-2">
-              <Label>Email <span className="text-red-500">*</span></Label>
+              <Label>{t('admin.bookings.emailLabel')} <span className="text-red-500">*</span></Label>
               <Input type="email" value={userEmail} onChange={e => setUserEmail(e.target.value)} placeholder="guest@example.com" />
             </div>
             <div className="space-y-1">
@@ -547,7 +550,7 @@ function NewBookingModal({ isOpen, onClose, onCreated }: { isOpen: boolean; onCl
               <Input type="number" min="1" value={attendees} onChange={e => handleAttendeesChange(e.target.value)} />
             </div>
             <div className="space-y-1">
-              <Label>Total Amount (MAD)</Label>
+              <Label>{t('admin.bookings.totalAmountLabel')}</Label>
               <Input type="number" min="0" step="0.01" value={totalAmount} onChange={e => setTotalAmount(e.target.value)} placeholder="0.00" />
             </div>
           </div>
@@ -559,17 +562,17 @@ function NewBookingModal({ isOpen, onClose, onCreated }: { isOpen: boolean; onCl
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="confirmed">Confirmed</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="cancelled">Cancelled</SelectItem>
+                <SelectItem value="confirmed">{t('admin.bookings.statusConfirmedLabel')}</SelectItem>
+                <SelectItem value="pending">{t('admin.bookings.statusPendingLabel')}</SelectItem>
+                <SelectItem value="cancelled">{t('admin.bookings.statusCancelledLabel')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <DialogFooter className="pt-2">
-            <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
+            <Button type="button" variant="outline" onClick={onClose}>{t('admin.common.cancel')}</Button>
             <Button type="submit" disabled={submitting}>
-              {submitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Creating…</> : 'Create Booking'}
+              {submitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />{t('admin.bookings.creatingBtn')}</> : t('admin.bookings.createBookingBtn')}
             </Button>
           </DialogFooter>
         </form>
@@ -714,17 +717,17 @@ export default function BookingManagement() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Booking Management</h1>
-          <p className="text-muted-foreground mt-1">Track and manage event bookings</p>
+          <h1 className="text-3xl font-bold">{t('admin.bookings.title')}</h1>
+          <p className="text-muted-foreground mt-1">{t('admin.bookings.subtitle')}</p>
         </div>
         <div className="flex space-x-2">
           <Button variant="outline">
             <Download className="mr-2 h-4 w-4" />
-            Export
+            {t('admin.common.export')}
           </Button>
           <Button onClick={() => setNewBookingModalOpen(true)}>
             <Plus className="mr-2 h-4 w-4" />
-            New Booking
+            {t('admin.bookings.newBookingTitle')}
           </Button>
         </div>
       </div>
@@ -732,57 +735,57 @@ export default function BookingManagement() {
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Bookings</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('admin.bookings.totalBookings')}</CardTitle>
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.total}</div>
-            <p className="text-xs text-muted-foreground">All time</p>
+            <p className="text-xs text-muted-foreground">{t('admin.common.allTime')}</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Bookings</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('admin.bookings.activeBookings')}</CardTitle>
             <Users className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.active}</div>
-            <p className="text-xs text-muted-foreground">Confirmed bookings</p>
+            <p className="text-xs text-muted-foreground">{t('admin.bookings.confirmedBookings')}</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Revenue</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('admin.bookings.revenue')}</CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">${stats.revenue.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">Total earnings</p>
+            <p className="text-xs text-muted-foreground">{t('admin.bookings.totalEarnings')}</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('admin.common.pending')}</CardTitle>
             <Calendar className="h-4 w-4 text-orange-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.pending}</div>
-            <p className="text-xs text-muted-foreground">Awaiting confirmation</p>
+            <p className="text-xs text-muted-foreground">{t('admin.bookings.awaitingConfirmation')}</p>
           </CardContent>
         </Card>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>All Bookings</CardTitle>
-          <CardDescription>View and manage event bookings</CardDescription>
+          <CardTitle>{t('admin.bookings.allBookings')}</CardTitle>
+          <CardDescription>{t('admin.bookings.subtitle')}</CardDescription>
         </CardHeader>
         <CardContent className="overflow-x-auto">
           <div className="flex flex-col md:flex-row gap-4 mb-4">
             <div className="relative flex-1">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search bookings..."
+                placeholder={t('admin.bookings.searchPlaceholder')}
                 className="pl-8"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -790,23 +793,23 @@ export default function BookingManagement() {
             </div>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-40">
-                <SelectValue placeholder="Status" />
+                <SelectValue placeholder={t('admin.common.status')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="confirmed">"confirmed"</SelectItem>
-                <SelectItem value="pending">"pending"</SelectItem>
-                <SelectItem value="cancelled">"cancelled"</SelectItem>
+                <SelectItem value="all">{t('admin.bookings.filterAll')}</SelectItem>
+                <SelectItem value="confirmed">{t('admin.bookings.statusConfirmedLabel')}</SelectItem>
+                <SelectItem value="pending">{t('admin.bookings.statusPendingLabel')}</SelectItem>
+                <SelectItem value="cancelled">{t('admin.bookings.statusCancelledLabel')}</SelectItem>
               </SelectContent>
             </Select>
             <Select value={typeFilter} onValueChange={setTypeFilter}>
               <SelectTrigger className="w-44">
-                <SelectValue placeholder="Event Type" />
+                <SelectValue placeholder={t('admin.bookings.filterEventType')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="club">Club Event</SelectItem>
-                <SelectItem value="association">Association Event</SelectItem>
+                <SelectItem value="all">{t('admin.bookings.filterAllTypes')}</SelectItem>
+                <SelectItem value="club">{t('admin.bookings.filterClub')}</SelectItem>
+                <SelectItem value="association">{t('admin.bookings.filterAssociation')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -819,23 +822,23 @@ export default function BookingManagement() {
             </div>
           ) : isError ? (
             <div className="flex flex-col items-center gap-2 py-12 text-center text-muted-foreground">
-              <p className="text-sm font-medium text-foreground">Failed to load bookings</p>
-              <button onClick={() => refetch()} className="text-xs text-primary underline">Retry</button>
+              <p className="text-sm font-medium text-foreground">{t('admin.bookings.failedLoad')}</p>
+              <button onClick={() => refetch()} className="text-xs text-primary underline">{t('admin.common.retry')}</button>
             </div>
           ) : filteredBookings.length === 0 ? (
             <div className="flex flex-col items-center justify-center p-8 text-center">
               <Calendar className="h-12 w-12 text-muted-foreground mb-4" />
-              <p className="text-lg font-medium">No bookings found</p>
-              <p className="text-muted-foreground">Create your first booking to get started</p>
+              <p className="text-lg font-medium">{t('admin.bookings.noBookings')}</p>
+              <p className="text-muted-foreground">{t('admin.bookings.createFirst')}</p>
             </div>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>{t('admin.bookings.colEvent')}</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>User</TableHead>
-                  <TableHead>Date</TableHead>
+                  <TableHead>{t('admin.common.type')}</TableHead>
+                  <TableHead>{t('admin.bookings.colGuest')}</TableHead>
+                  <TableHead>{t('admin.bookings.colDate')}</TableHead>
                   <TableHead>{t('admin.bookings.colAttendees')}</TableHead>
                   <TableHead>{t('admin.bookings.colAmount')}</TableHead>
                   <TableHead>{t('admin.common.status')}</TableHead>
@@ -849,11 +852,11 @@ export default function BookingManagement() {
                     <TableCell>
                       {booking.isAssociationEvent ? (
                         <Badge variant="outline" className="text-xs bg-purple-50 text-purple-700 border-purple-200 whitespace-nowrap">
-                          Association
+                          {t('admin.bookings.associationBadge')}
                         </Badge>
                       ) : (
                         <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200 whitespace-nowrap">
-                          Club Event
+                          {t('admin.bookings.clubBadge')}
                         </Badge>
                       )}
                     </TableCell>
@@ -884,11 +887,11 @@ export default function BookingManagement() {
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem onClick={() => handleView(booking)}>
                               <Eye className="mr-2 h-4 w-4" />
-                              View
+                              {t('admin.common.view')}
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => handleEdit(booking)}>
                               <Edit className="mr-2 h-4 w-4" />
-                              Edit
+                              {t('admin.common.edit')}
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             {booking.status !== 'cancelled' && (
@@ -897,7 +900,7 @@ export default function BookingManagement() {
                                 className="text-orange-600"
                               >
                                 <XCircle className="mr-2 h-4 w-4" />
-                                Cancel
+                                {t('admin.common.cancel')}
                               </DropdownMenuItem>
                             )}
                             <DropdownMenuItem 
@@ -905,7 +908,7 @@ export default function BookingManagement() {
                               className="text-red-600"
                             >
                               <Trash2 className="mr-2 h-4 w-4" />
-                              Delete
+                              {t('admin.common.delete')}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -947,16 +950,15 @@ export default function BookingManagement() {
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Booking</AlertDialogTitle>
+            <AlertDialogTitle>{t('admin.common.deleteTitle')}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this booking for "{selectedBooking?.eventTitle}"? 
-              This action cannot be undone.
+              {t('admin.bookings.deleteBookingDesc', { title: selectedBooking?.eventTitle })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('admin.common.cancel')}</AlertDialogCancel>
             <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
-              Delete
+              {t('admin.common.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -965,16 +967,15 @@ export default function BookingManagement() {
       <AlertDialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Cancel Booking</AlertDialogTitle>
+            <AlertDialogTitle>{t('admin.bookings.cancelBookingTitle')}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to cancel this booking for "{selectedBooking?.eventTitle}"? 
-              The booking status will be changed to "cancelled".
+              {t('admin.bookings.cancelBookingDesc')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>No, keep it</AlertDialogCancel>
+            <AlertDialogCancel>{t('admin.bookings.keepItBtn')}</AlertDialogCancel>
             <AlertDialogAction onClick={confirmCancel} className="bg-orange-600 hover:bg-orange-700">
-              Yes, cancel booking
+              {t('admin.bookings.confirmCancelBtn')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

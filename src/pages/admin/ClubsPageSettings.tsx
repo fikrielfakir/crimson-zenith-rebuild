@@ -103,7 +103,7 @@ export default function ClubsPageSettings() {
             className="gap-2"
           >
             {saveMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-            Save Changes
+            {t('admin.settings.saveChanges')}
           </Button>
         </div>
 
@@ -240,7 +240,7 @@ export default function ClubsPageSettings() {
             className="gap-2"
           >
             {saveMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-            Save Changes
+            {t('admin.settings.saveChanges')}
           </Button>
         </div>
     </div>

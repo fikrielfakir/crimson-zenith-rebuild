@@ -125,6 +125,7 @@ function TypeBadge({ type }: { type: string }) {
 }
 
 function SentTab() {
+  const { t } = useTranslation();
   const { data: logs, isLoading, isError, refetch, isFetching } = useQuery<EmailLogEntry[]>({
     queryKey: ['admin-email-log'],
     queryFn: async () => {
@@ -161,7 +162,7 @@ function SentTab() {
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed bg-muted/30 py-16 text-center gap-3">
           <History className="h-8 w-8 text-muted-foreground/50" />
           <div>
-            <p className="font-medium text-sm">No emails sent yet</p>
+            <p className="font-medium text-sm">{t('admin.email.noEmailsSent')}</p>
             <p className={`${HINT_CN} mt-1`}>
               Sent and failed emails will appear here once you start sending.
             </p>
@@ -315,11 +316,11 @@ export default function EmailCampaigns() {
 
       <Tabs defaultValue="smtp">
         <TabsList className="mb-5">
-          <TabsTrigger value="smtp">SMTP Configuration</TabsTrigger>
-          <TabsTrigger value="compose">Compose &amp; Send</TabsTrigger>
+          <TabsTrigger value="smtp">{t('admin.email.tabSMTP')}</TabsTrigger>
+          <TabsTrigger value="compose">{t('admin.email.tabCompose')}</TabsTrigger>
           <TabsTrigger value="sent" className="gap-1.5">
             <History className="h-3.5 w-3.5" />
-            Sent
+            {t('admin.email.tabSent')}
           </TabsTrigger>
         </TabsList>
 
@@ -343,8 +344,8 @@ export default function EmailCampaigns() {
                   <AdminSaveButton
                     isPending={saveMutation.isPending}
                     onClick={() => saveMutation.mutate(smtp)}
-                    label="Save SMTP Settings"
-                    pendingLabel="Saving…"
+                    label={t('admin.email.saveSMTP')}
+                    pendingLabel={t('admin.common.saving')}
                     icon={<Server className="h-4 w-4" />}
                   />
                 }
@@ -453,7 +454,7 @@ export default function EmailCampaigns() {
                     ) : (
                       <FlaskConical className="h-4 w-4 mr-2" />
                     )}
-                    {testing ? 'Sending…' : 'Send Test'}
+                    {testing ? t('admin.email.sendingTest') : t('admin.email.sendTest')}
                   </Button>
                 </div>
                 {!smtp.enabled && (
@@ -485,7 +486,7 @@ export default function EmailCampaigns() {
                   ) : (
                     <Send className="h-4 w-4" />
                   )}
-                  {sending ? 'Sending…' : 'Send Email'}
+                  {sending ? t('admin.email.sending') : t('admin.email.sendEmail')}
                 </Button>
                 {!smtp.enabled && (
                   <span className="text-xs text-muted-foreground">Enable SMTP first</span>

@@ -275,7 +275,7 @@ export default function PartnersManagement() {
                 </div>
                 <Button onClick={() => settingsMutation.mutate(section)} disabled={settingsMutation.isPending}>
                   <Save className="mr-2 h-4 w-4" />
-                  {settingsMutation.isPending ? 'Saving…' : 'Save Settings'}
+                  {settingsMutation.isPending ? t('admin.common.saving') : t('admin.settings.saveSettings')}
                 </Button>
               </div>
 
@@ -305,11 +305,11 @@ export default function PartnersManagement() {
             <AdminTableSkeleton cols={7} rows={4} />
           ) : crud.data.length === 0 ? (
             <AdminEmptyState
-              title="No partners yet"
-              message='Click Add Partner to add your first partner logo.'
+              title={t('admin.partners.noItems')}
+              message={t('admin.partners.noItemsDesc')}
               action={
                 <Button size="sm" onClick={() => setShowForm(true)}>
-                  <Plus className="mr-2 h-4 w-4" />Add Partner
+                  <Plus className="mr-2 h-4 w-4" />{t('admin.partners.addPartner')}
                 </Button>
               }
             />
@@ -320,9 +320,9 @@ export default function PartnersManagement() {
                   <TableHead className="w-20">Logo</TableHead>
                   <TableHead>{t('admin.partners.colName')}</TableHead>
                   <TableHead>{t('admin.partners.colWebsite')}</TableHead>
-                  <TableHead>Description</TableHead>
+                  <TableHead>{t('admin.common.description')}</TableHead>
                   <TableHead>{t('admin.partners.colOrder')}</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableHead>{t('admin.common.status')}</TableHead>
                   <TableHead className="text-right">{t('admin.common.actions')}</TableHead>
                 </TableRow>
               </TableHeader>
@@ -348,7 +348,7 @@ export default function PartnersManagement() {
                           ? 'bg-green-50 text-green-700 ring-1 ring-green-600/20'
                           : 'bg-gray-50 text-gray-600 ring-1 ring-gray-400/20'
                       }`}>
-                        {partner.isActive ? 'Visible' : 'Hidden'}
+                        {partner.isActive ? t('admin.common.visible') : t('admin.common.hidden')}
                       </span>
                     </TableCell>
                     <TableCell className="text-right">
@@ -382,20 +382,20 @@ export default function PartnersManagement() {
       <Dialog open={showForm} onOpenChange={(open) => { if (!open) handleClose(); }}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>{editingItem ? 'Edit Partner' : 'Add Partner'}</DialogTitle>
+            <DialogTitle>{editingItem ? t('admin.partners.editTitle') : t('admin.partners.addTitle')}</DialogTitle>
             <DialogDescription>
-              {editingItem ? 'Update partner details' : 'Add a new partner to the scrolling carousel'}
+              {editingItem ? t('admin.partners.editDesc') : t('admin.partners.addDesc')}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-2">
             <div className="space-y-2">
-              <Label htmlFor="p-name">Partner Name *</Label>
+              <Label htmlFor="p-name">{t('admin.partners.nameLabel')} *</Label>
               <Input id="p-name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="e.g., Royal Air Maroc" />
             </div>
 
             <div className="space-y-2">
-              <Label>Logo</Label>
+              <Label>{t('admin.partners.logoLabel')}</Label>
               <div className="flex items-center gap-2">
                 <input ref={logoFileRef} type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
                 <Button type="button" variant="outline" size="sm" disabled={uploadingLogo} onClick={() => logoFileRef.current?.click()} className="flex items-center gap-2">
@@ -419,25 +419,25 @@ export default function PartnersManagement() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="p-website">Website URL</Label>
+              <Label htmlFor="p-website">{t('admin.common.website')}</Label>
               <Input id="p-website" type="url" value={form.websiteUrl} onChange={(e) => setForm({ ...form, websiteUrl: e.target.value })} placeholder="https://www.example.com" />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="p-desc">Description</Label>
+              <Label htmlFor="p-desc">{t('admin.common.description')}</Label>
               <Textarea id="p-desc" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={3} placeholder="Brief description of the partnership…" />
             </div>
 
             <div className="flex items-center space-x-2">
               <Switch id="p-active" checked={form.isActive} onCheckedChange={(v) => setForm({ ...form, isActive: v })} />
-              <Label htmlFor="p-active">Visible on site</Label>
+              <Label htmlFor="p-active">{t('admin.common.visibleOnSite')}</Label>
             </div>
           </div>
 
           <div className="flex justify-end gap-2 pt-2">
-            <Button variant="outline" onClick={handleClose}>Cancel</Button>
+            <Button variant="outline" onClick={handleClose}>{t('admin.common.cancel')}</Button>
             <Button onClick={handleSavePartner} disabled={isPending}>
-              {isPending ? 'Saving…' : editingItem ? 'Update Partner' : 'Add Partner'}
+              {isPending ? t('admin.events.saving') : editingItem ? t('admin.partners.updatePartner') : t('admin.partners.addPartner')}
             </Button>
           </div>
         </DialogContent>

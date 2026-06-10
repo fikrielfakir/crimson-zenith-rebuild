@@ -316,7 +316,7 @@ export default function FocusAreasManagement() {
         <div className="relative flex-1">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search focus items..."
+            placeholder={t('admin.focusAreas.searchPlaceholder')}
             className="pl-8"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -327,9 +327,9 @@ export default function FocusAreasManagement() {
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="inactive">Inactive</SelectItem>
+            <SelectItem value="all">{t('admin.events.filterAllStatus')}</SelectItem>
+            <SelectItem value="active">{t('admin.common.active')}</SelectItem>
+            <SelectItem value="inactive">{t('admin.common.inactive')}</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -343,7 +343,7 @@ export default function FocusAreasManagement() {
               <TableHead className="w-20">Icon</TableHead>
               <TableHead>{t('admin.focusAreas.colTitle')}</TableHead>
               <TableHead>{t('admin.focusAreas.colDescription')}</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead>{t('admin.common.status')}</TableHead>
               <TableHead className="w-12"></TableHead>
             </TableRow>
           </TableHeader>
@@ -545,12 +545,12 @@ export default function FocusAreasManagement() {
             </div>
           </div>
           <div className="flex justify-end gap-2 pt-2">
-            <Button variant="outline" onClick={handleCloseForm}>Cancel</Button>
+            <Button variant="outline" onClick={handleCloseForm}>{t('admin.common.cancel')}</Button>
             <Button onClick={handleSave} disabled={saveMutation.isPending}>
               {saveMutation.isPending ? (
-                <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Saving...</>
+                <><Loader2 className="mr-2 h-4 w-4 animate-spin" />{t('admin.common.saving')}</>
               ) : (
-                <><Save className="mr-2 h-4 w-4" />{editingItem ? 'Update' : 'Create'}</>
+                <><Save className="mr-2 h-4 w-4" />{editingItem ? t('admin.common.update') : t('admin.common.create')}</>
               )}
             </Button>
           </div>
@@ -561,22 +561,22 @@ export default function FocusAreasManagement() {
       <Dialog open={deletingItemId !== null} onOpenChange={(open) => { if (!open) setDeletingItemId(null); }}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Focus Item</DialogTitle>
+            <DialogTitle>{t('admin.focusAreas.deleteFocusItem')}</DialogTitle>
             <DialogDescription>
               Are you sure you want to delete this focus item? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end gap-2 pt-2">
-            <Button variant="outline" onClick={() => setDeletingItemId(null)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setDeletingItemId(null)}>{t('admin.common.cancel')}</Button>
             <Button
               variant="destructive"
               disabled={deleteMutation.isPending}
               onClick={() => deletingItemId && deleteMutation.mutate(deletingItemId)}
             >
               {deleteMutation.isPending ? (
-                <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Deleting...</>
+                <><Loader2 className="mr-2 h-4 w-4 animate-spin" />{t('admin.common.deleting')}</>
               ) : (
-                <><Trash2 className="mr-2 h-4 w-4" />Delete</>
+                <><Trash2 className="mr-2 h-4 w-4" />{t('admin.common.delete')}</>
               )}
             </Button>
           </div>
@@ -638,15 +638,15 @@ export default function FocusAreasManagement() {
             </div>
           )}
           <div className="flex justify-end gap-2 pt-2">
-            <Button variant="outline" onClick={() => setShowSectionSettings(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setShowSectionSettings(false)}>{t('admin.common.cancel')}</Button>
             <Button
               onClick={() => saveSectionMutation.mutate()}
               disabled={saveSectionMutation.isPending}
             >
               {saveSectionMutation.isPending ? (
-                <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Saving...</>
+                <><Loader2 className="mr-2 h-4 w-4 animate-spin" />{t('admin.common.saving')}</>
               ) : (
-                <><Save className="mr-2 h-4 w-4" />Save Settings</>
+                <><Save className="mr-2 h-4 w-4" />{t('admin.settings.saveSettings')}</>
               )}
             </Button>
           </div>

@@ -601,18 +601,18 @@ export default function NavbarSettings() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Navbar Settings</h1>
-          <p className="text-muted-foreground mt-1">Customize your website's navigation bar</p>
+          <h1 className="text-3xl font-bold">{t('admin.navbar.title')}</h1>
+          <p className="text-muted-foreground mt-1">{t('admin.navbar.subtitle')}</p>
         </div>
         {!isLoading && !error && navbarData ? (
           <div className="flex space-x-2">
             <Button variant="outline" onClick={() => window.open('/', '_blank')}>
               <Eye className="mr-2 h-4 w-4" />
-              Preview
+              {t('admin.theme.preview')}
             </Button>
             <Button onClick={handleSave} disabled={updateNavbar.isPending}>
               <Save className="mr-2 h-4 w-4" />
-              {updateNavbar.isPending ? 'Saving...' : 'Save Changes'}
+              {updateNavbar.isPending ? t('admin.events.saving') : t('admin.settings.saveChanges')}
             </Button>
           </div>
         ) : null}
@@ -634,19 +634,19 @@ export default function NavbarSettings() {
       {navbarData && !isLoading && !error ? (
         <Tabs defaultValue="logo" className="w-full">
           <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="logo">Logo</TabsTrigger>
-            <TabsTrigger value="navigation">Navigation</TabsTrigger>
-            <TabsTrigger value="buttons">Buttons</TabsTrigger>
-            <TabsTrigger value="features">Features</TabsTrigger>
-            <TabsTrigger value="styling">Styling</TabsTrigger>
+            <TabsTrigger value="logo">{t('admin.navbar.tabLogo')}</TabsTrigger>
+            <TabsTrigger value="navigation">{t('admin.navbar.tabNavigation')}</TabsTrigger>
+            <TabsTrigger value="buttons">{t('admin.navbar.tabButtons')}</TabsTrigger>
+            <TabsTrigger value="features">{t('admin.navbar.tabFeatures')}</TabsTrigger>
+            <TabsTrigger value="styling">{t('admin.navbar.tabStyling')}</TabsTrigger>
           </TabsList>
 
           {/* Logo Tab */}
           <TabsContent value="logo" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Logo Configuration</CardTitle>
-                <CardDescription>Choose between text or image logo and customize appearance</CardDescription>
+                <CardTitle>{t('admin.navbar.logoTitle')}</CardTitle>
+                <CardDescription>{t('admin.navbar.logoDesc')}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-2">
@@ -728,8 +728,8 @@ export default function NavbarSettings() {
           <TabsContent value="navigation" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Navigation Menu</CardTitle>
-                <CardDescription>Drag to reorder, add, remove, or edit navigation links</CardDescription>
+                <CardTitle>{t('admin.navbar.navMenuTitle')}</CardTitle>
+                <CardDescription>{t('admin.navbar.navMenuDesc')}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <DndContext 
@@ -754,7 +754,7 @@ export default function NavbarSettings() {
                 </DndContext>
                 <Button onClick={addNavLink} variant="outline" className="w-full">
                   <Plus className="mr-2 h-4 w-4" />
-                  Add Navigation Link
+                  {t('admin.navbar.addNavLink')}
                 </Button>
               </CardContent>
             </Card>
@@ -764,8 +764,8 @@ export default function NavbarSettings() {
           <TabsContent value="buttons" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>CTA Buttons</CardTitle>
-                <CardDescription>Configure login and join/donate buttons</CardDescription>
+                <CardTitle>{t('admin.navbar.ctaButtonsTitle')}</CardTitle>
+                <CardDescription>{t('admin.navbar.ctaButtonsDesc')}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-4 border-b pb-6">
@@ -845,8 +845,8 @@ export default function NavbarSettings() {
           <TabsContent value="features" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Navbar Features</CardTitle>
-                <CardDescription>Toggle additional navbar functionality</CardDescription>
+                <CardTitle>{t('admin.navbar.featuresTitle')}</CardTitle>
+                <CardDescription>{t('admin.navbar.featuresDesc')}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-4">
@@ -878,8 +878,8 @@ export default function NavbarSettings() {
           <TabsContent value="styling" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Navbar Styling</CardTitle>
-                <CardDescription>Customize colors, typography, and behavior</CardDescription>
+                <CardTitle>{t('admin.navbar.stylingTitle')}</CardTitle>
+                <CardDescription>{t('admin.navbar.stylingDesc')}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-4">

@@ -97,8 +97,8 @@ export default function AuthSettings() {
           <AdminSaveButton
             isPending={saveMutation.isPending}
             onClick={() => saveMutation.mutate(form)}
-            label="Save Settings"
-            pendingLabel="Saving…"
+            label={t('admin.settings.saveSettings')}
+            pendingLabel={t('admin.common.saving')}
             icon={<ShieldCheck className="h-4 w-4" />}
           />
         }

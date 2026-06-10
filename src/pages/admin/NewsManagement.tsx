@@ -232,12 +232,12 @@ export default function NewsManagement() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">News & Blog Management</h1>
-          <p className="text-muted-foreground mt-1">Create and manage blog posts and news articles</p>
+          <h1 className="text-3xl font-bold">{t('admin.news.title')}</h1>
+          <p className="text-muted-foreground mt-1">{t('admin.news.subtitle')}</p>
         </div>
         <Button onClick={() => setEditingPost({})}>
           <Plus className="mr-2 h-4 w-4" />
-          New Post
+          {t('admin.news.newPost')}
         </Button>
       </div>
 
@@ -245,7 +245,7 @@ export default function NewsManagement() {
         <div className="relative flex-1">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search posts..."
+            placeholder={t('admin.news.searchPlaceholder')}
             className="pl-8"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -256,11 +256,11 @@ export default function NewsManagement() {
             <SelectValue placeholder="Category" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Categories</SelectItem>
-            <SelectItem value="news">News</SelectItem>
-            <SelectItem value="announcement">Announcement</SelectItem>
-            <SelectItem value="event">Event</SelectItem>
-            <SelectItem value="blog">Blog</SelectItem>
+            <SelectItem value="all">{t('admin.events.filterAllCategories')}</SelectItem>
+            <SelectItem value="news">{t('admin.news.categoryNews')}</SelectItem>
+            <SelectItem value="announcement">{t('admin.news.categoryAnnouncement')}</SelectItem>
+            <SelectItem value="event">{t('admin.nav.events')}</SelectItem>
+            <SelectItem value="blog">{t('admin.news.categoryBlog')}</SelectItem>
           </SelectContent>
         </Select>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -268,9 +268,9 @@ export default function NewsManagement() {
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="published">Published</SelectItem>
-            <SelectItem value="draft">Draft</SelectItem>
+            <SelectItem value="all">{t('admin.events.filterAllStatus')}</SelectItem>
+            <SelectItem value="published">{t('admin.common.published')}</SelectItem>
+            <SelectItem value="draft">{t('admin.common.draft')}</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -283,8 +283,8 @@ export default function NewsManagement() {
               <TableHead>{t('admin.news.colTitle')}</TableHead>
               <TableHead>{t('admin.news.colAuthor')}</TableHead>
               <TableHead>{t('admin.news.colCategory')}</TableHead>
-              <TableHead>Published</TableHead>
-              <TableHead>Views</TableHead>
+              <TableHead>{t('admin.news.colPublished')}</TableHead>
+              <TableHead>{t('admin.news.colViews')}</TableHead>
               <TableHead>{t('admin.common.status')}</TableHead>
               <TableHead className="w-12"></TableHead>
             </TableRow>
@@ -302,8 +302,8 @@ export default function NewsManagement() {
               <TableRow>
                 <TableCell colSpan={8} className="py-12 text-center">
                   <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                    <p className="text-sm font-medium text-foreground">Failed to load posts</p>
-                    <button onClick={() => refetch()} className="text-xs text-primary underline">Retry</button>
+                    <p className="text-sm font-medium text-foreground">{t('admin.news.failedLoad')}</p>
+                    <button onClick={() => refetch()} className="text-xs text-primary underline">{t('admin.common.retry')}</button>
                   </div>
                 </TableCell>
               </TableRow>
@@ -312,8 +312,8 @@ export default function NewsManagement() {
                 <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                   <div className="flex flex-col items-center">
                     <FileText className="h-12 w-12 mb-4 text-muted-foreground" />
-                    <p className="text-lg font-medium">No posts yet</p>
-                    <p className="text-muted-foreground">Create your first blog post to get started</p>
+                    <p className="text-lg font-medium">{t('admin.news.noPosts')}</p>
+                    <p className="text-muted-foreground">{t('admin.news.createFirst')}</p>
                   </div>
                 </TableCell>
               </TableRow>
@@ -565,18 +565,18 @@ export default function NewsManagement() {
       <AlertDialog open={deletingPostId !== null} onOpenChange={(open) => !open && setDeletingPostId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Post</AlertDialogTitle>
+            <AlertDialogTitle>{t('admin.news.deletePost')}</AlertDialogTitle>
             <AlertDialogDescription>
               Are you sure you want to delete this post? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('admin.common.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={() => deletingPostId && deletePostMutation.mutate(deletingPostId)}
             >
-              Delete
+              {t('admin.common.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

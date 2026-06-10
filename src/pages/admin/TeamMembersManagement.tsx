@@ -100,28 +100,28 @@ export default function TeamMembersManagement() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Team Members</h1>
-          <p className="text-muted-foreground mt-1">Manage the team section on the landing page</p>
+          <h1 className="text-3xl font-bold">{t('admin.team.title')}</h1>
+          <p className="text-muted-foreground mt-1">{t('admin.team.subtitle')}</p>
         </div>
         <Button onClick={() => setShowForm(true)}>
           <Plus className="mr-2 h-4 w-4" />
-          Add Member
+          {t('admin.team.addMember')}
         </Button>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Team</CardTitle>
+          <CardTitle>{t('admin.team.cardTitle')}</CardTitle>
           <CardDescription>{crud.data.length} member{crud.data.length !== 1 ? 's' : ''}</CardDescription>
         </CardHeader>
         <CardContent className="overflow-x-auto">
           {crud.isLoading ? (
-            <div className="flex items-center justify-center py-8 text-muted-foreground">Loading…</div>
+            <div className="flex items-center justify-center py-8 text-muted-foreground">{t('admin.common.loading')}</div>
           ) : crud.data.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>No team members yet</p>
-              <p className="text-sm mt-2">Click t('admin.team.addMember') to get started</p>
+              <p>{t('admin.team.noMembers')}</p>
+              <p className="text-sm mt-2">{t('admin.team.clickToAdd')}</p>
             </div>
           ) : (
             <Table>
@@ -129,8 +129,8 @@ export default function TeamMembersManagement() {
                 <TableRow>
                   <TableHead>{t('admin.team.colName')}</TableHead>
                   <TableHead>{t('admin.team.colRole')}</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableHead>{t('admin.common.email')}</TableHead>
+                  <TableHead>{t('admin.common.status')}</TableHead>
                   <TableHead className="text-right">{t('admin.common.actions')}</TableHead>
                 </TableRow>
               </TableHeader>
@@ -146,7 +146,7 @@ export default function TeamMembersManagement() {
                           ? 'bg-green-50 text-green-700 ring-1 ring-green-600/20'
                           : 'bg-gray-50 text-gray-700 ring-1 ring-gray-600/20'
                       }`}>
-                        {member.isActive ? 'Active' : 'Inactive'}
+                        {member.isActive ? t('admin.common.active') : t('admin.common.inactive')}
                       </span>
                     </TableCell>
                     <TableCell className="text-right">
@@ -181,45 +181,45 @@ export default function TeamMembersManagement() {
       <Dialog open={showForm} onOpenChange={(open) => { if (!open) handleClose(); }}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>{editingMember ? 'Edit Team Member' : 'Add Team Member'}</DialogTitle>
+            <DialogTitle>{editingMember ? t('admin.team.editTitle') : t('admin.team.addTitle')}</DialogTitle>
             <DialogDescription>
-              {editingMember ? 'Update member details' : 'Add a new team member to the landing page'}
+              {editingMember ? t('admin.team.editDesc') : t('admin.team.addDesc')}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-2">
             <div className="space-y-2">
-              <Label htmlFor="tm-name">Name *</Label>
-              <Input id="tm-name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Full name" />
+              <Label htmlFor="tm-name">{t('admin.common.name')} *</Label>
+              <Input id="tm-name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder={t('admin.team.namePlaceholder')} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="tm-role">Role *</Label>
+              <Label htmlFor="tm-role">{t('admin.common.role')} *</Label>
               <Input id="tm-role" value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} placeholder="e.g., President, Treasurer" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="tm-bio">Bio</Label>
+              <Label htmlFor="tm-bio">{t('admin.team.bioLabel')}</Label>
               <Textarea id="tm-bio" value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} rows={3} placeholder="Short biography…" />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="tm-email">Email</Label>
+                <Label htmlFor="tm-email">{t('admin.common.email')}</Label>
                 <Input id="tm-email" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="name@example.com" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="tm-phone">Phone</Label>
+                <Label htmlFor="tm-phone">{t('admin.common.phone')}</Label>
                 <Input id="tm-phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="+212 600 000000" />
               </div>
             </div>
             <div className="flex items-center space-x-2">
               <Switch id="tm-active" checked={form.isActive} onCheckedChange={(v) => setForm({ ...form, isActive: v })} />
-              <Label htmlFor="tm-active">Visible on site</Label>
+              <Label htmlFor="tm-active">{t('admin.common.visibleOnSite')}</Label>
             </div>
           </div>
 
           <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={handleClose}>Cancel</Button>
+            <Button variant="outline" onClick={handleClose}>{t('admin.common.cancel')}</Button>
             <Button onClick={handleSave} disabled={isPending}>
-              {isPending ? 'Saving…' : 'Save'}
+              {isPending ? t('admin.events.saving') : t('admin.common.save')}
             </Button>
           </div>
         </DialogContent>
@@ -228,18 +228,18 @@ export default function TeamMembersManagement() {
       <AlertDialog open={deletingId !== null} onOpenChange={(open) => !open && setDeletingId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete team member?</AlertDialogTitle>
+            <AlertDialogTitle>{t('admin.team.deleteTitle')}</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently remove the team member from the landing page.
+              {t('admin.team.deleteDesc')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('admin.common.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={handleDelete}
             >
-              {crud.isRemoving ? 'Deleting…' : 'Delete'}
+              {crud.isRemoving ? t('admin.common.deleting') : t('admin.common.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

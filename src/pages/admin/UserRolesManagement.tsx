@@ -304,7 +304,7 @@ function UserAssignment({ roles }: { roles: RoleDef[] }) {
         <div className="relative flex-1 min-w-[220px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search by name or email…"
+            placeholder={t('admin.roles.searchPlaceholder')}
             value={search}
             onChange={e => setSearch(e.target.value)}
             className="pl-9"
@@ -312,10 +312,10 @@ function UserAssignment({ roles }: { roles: RoleDef[] }) {
         </div>
         <Select value={roleFilter} onValueChange={setRoleFilter}>
           <SelectTrigger className="w-48">
-            <SelectValue placeholder="Filter by role" />
+            <SelectValue placeholder={t('admin.roles.filterByRole')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All roles</SelectItem>
+            <SelectItem value="all">{t('admin.roles.allRoles')}</SelectItem>
             {roles.map(r => (
               <SelectItem key={r.key} value={r.key}>{r.label}</SelectItem>
             ))}
@@ -327,12 +327,12 @@ function UserAssignment({ roles }: { roles: RoleDef[] }) {
         <CardContent className="p-0">
           {isLoading ? (
             <div className="flex items-center justify-center py-12 text-muted-foreground gap-2">
-              <Loader2 className="h-5 w-5 animate-spin" /> Loading users…
+              <Loader2 className="h-5 w-5 animate-spin" /> {t('admin.roles.loadingUsers')}
             </div>
           ) : users.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <User className="h-10 w-10 text-muted-foreground/40 mb-3" />
-              <p className="font-medium text-muted-foreground">No users found</p>
+              <p className="font-medium text-muted-foreground">{t('admin.roles.noUsers')}</p>
             </div>
           ) : (
             <Table>
@@ -340,9 +340,9 @@ function UserAssignment({ roles }: { roles: RoleDef[] }) {
                 <TableRow>
                   <TableHead>{t('admin.roles.colUser')}</TableHead>
                   <TableHead>{t('admin.roles.colCurrentRole')}</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Joined</TableHead>
-                  <TableHead className="text-right">Change Role</TableHead>
+                  <TableHead>{t('admin.common.status')}</TableHead>
+                  <TableHead>{t('admin.roles.colJoined')}</TableHead>
+                  <TableHead className="text-right">{t('admin.roles.changeRole')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -364,7 +364,7 @@ function UserAssignment({ roles }: { roles: RoleDef[] }) {
                       </TableCell>
                       <TableCell>
                         <Badge variant={u.is_active ? 'default' : 'secondary'}>
-                          {u.is_active ? 'Active' : 'Inactive'}
+                          {u.is_active ? t('admin.common.active') : t('admin.common.inactive')}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground">
@@ -394,7 +394,7 @@ function UserAssignment({ roles }: { roles: RoleDef[] }) {
                             disabled={!isDirty || isSaving}
                             onClick={() => updateRole.mutate({ userId: u.id, role: selectedRole })}
                           >
-                            {isSaving ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Save'}
+                            {isSaving ? <Loader2 className="h-3 w-3 animate-spin" /> : t('admin.common.save')}
                           </Button>
                         </div>
                       </TableCell>
@@ -433,26 +433,26 @@ export default function UserRolesManagement() {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-3xl font-bold">Roles & Permissions</h1>
-          <p className="text-muted-foreground mt-1">View role access levels and manage user assignments</p>
+          <h1 className="text-3xl font-bold">{t('admin.roles.title')}</h1>
+          <p className="text-muted-foreground mt-1">{t('admin.roles.subtitle')}</p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" asChild>
             <Link to="/admin/users">
               <Users className="mr-2 h-4 w-4" />
-              All Users
+              {t('admin.roles.allUsers')}
             </Link>
           </Button>
           <Button variant="outline" size="sm" asChild>
             <Link to="/admin/applications">
               <FileText className="mr-2 h-4 w-4" />
-              Applications
+              {t('admin.roles.applications')}
             </Link>
           </Button>
           <Button variant="outline" size="sm" asChild>
             <Link to="/admin/clubs">
               <Building className="mr-2 h-4 w-4" />
-              Clubs
+              {t('admin.roles.clubs')}
             </Link>
           </Button>
         </div>
@@ -462,42 +462,42 @@ export default function UserRolesManagement() {
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Staff Roles</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('admin.roles.staffRoles')}</CardTitle>
             <Shield className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{isLoading ? '—' : ROLES_ORDER.length}</div>
-            <p className="text-xs text-muted-foreground">Admin panel roles</p>
+            <p className="text-xs text-muted-foreground">{t('admin.roles.adminPanelRoles')}</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('admin.roles.totalUsers')}</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{isLoading ? '—' : totalUsers}</div>
-            <p className="text-xs text-muted-foreground">All registered</p>
+            <p className="text-xs text-muted-foreground">{t('admin.roles.allRegistered')}</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Administrators</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('admin.roles.administrators')}</CardTitle>
             <Shield className="h-4 w-4 text-red-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{isLoading ? '—' : adminCount}</div>
-            <p className="text-xs text-muted-foreground">Full access</p>
+            <p className="text-xs text-muted-foreground">{t('admin.roles.fullAccess')}</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Protected Sections</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('admin.roles.protectedSections')}</CardTitle>
             <Lock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{ADMIN_SECTIONS.length}</div>
-            <p className="text-xs text-muted-foreground">Admin panel areas</p>
+            <p className="text-xs text-muted-foreground">{t('admin.roles.adminPanelAreas')}</p>
           </CardContent>
         </Card>
       </div>
@@ -505,16 +505,16 @@ export default function UserRolesManagement() {
       {/* Tabs */}
       <Tabs defaultValue="overview">
         <TabsList>
-          <TabsTrigger value="overview">Role Overview</TabsTrigger>
-          <TabsTrigger value="matrix">Permissions Matrix</TabsTrigger>
-          <TabsTrigger value="users">User Assignment</TabsTrigger>
+          <TabsTrigger value="overview">{t('admin.roles.tabOverview')}</TabsTrigger>
+          <TabsTrigger value="matrix">{t('admin.roles.tabMatrix')}</TabsTrigger>
+          <TabsTrigger value="users">{t('admin.roles.tabUsers')}</TabsTrigger>
         </TabsList>
 
         {/* ── Role Overview ──────────────────────────────────────────────── */}
         <TabsContent value="overview" className="mt-4">
           {isLoading ? (
             <div className="flex items-center justify-center py-16 text-muted-foreground gap-2">
-              <Loader2 className="h-5 w-5 animate-spin" /> Loading roles…
+              <Loader2 className="h-5 w-5 animate-spin" /> {t('admin.roles.loadingRoles')}
             </div>
           ) : (
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">

@@ -605,7 +605,7 @@ export default function EventsManagement() {
                       name="locationDetails"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Location Details (optional)</FormLabel>
+                          <FormLabel>{t('admin.events.locationDetailsLabel')}</FormLabel>
                           <FormControl>
                             <Input {...field} placeholder="e.g., Atlas Mountains, Morocco" />
                           </FormControl>
@@ -621,18 +621,18 @@ export default function EventsManagement() {
                       name="category"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Category</FormLabel>
+                          <FormLabel>{t('admin.events.categoryLabel')}</FormLabel>
                           <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
                               <SelectTrigger>
-                                <SelectValue placeholder="Select category" />
+                                <SelectValue placeholder={t('admin.events.selectCategory')} />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="workshop">Workshop</SelectItem>
-                              <SelectItem value="conference">Conference</SelectItem>
-                              <SelectItem value="meetup">Meetup</SelectItem>
-                              <SelectItem value="webinar">Webinar</SelectItem>
+                              <SelectItem value="workshop">{t('admin.events.workshop')}</SelectItem>
+                              <SelectItem value="conference">{t('admin.events.conference')}</SelectItem>
+                              <SelectItem value="meetup">{t('admin.events.meetup')}</SelectItem>
+                              <SelectItem value="webinar">{t('admin.events.webinar')}</SelectItem>
                             </SelectContent>
                           </Select>
                           <FormMessage />
@@ -644,9 +644,9 @@ export default function EventsManagement() {
                       name="duration"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Duration (optional)</FormLabel>
+                          <FormLabel>{t('admin.events.durationLabel')}</FormLabel>
                           <FormControl>
-                            <Input {...field} placeholder="e.g., 3 Days / 2 Nights" />
+                            <Input {...field} placeholder={t('admin.events.durationPlaceholder')} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -660,7 +660,7 @@ export default function EventsManagement() {
                       name="startDate"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Start Date & Time</FormLabel>
+                          <FormLabel>{t('admin.events.startDateLabel')}</FormLabel>
                           <FormControl>
                             <Input type="datetime-local" {...field} />
                           </FormControl>
@@ -673,7 +673,7 @@ export default function EventsManagement() {
                       name="endDate"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>End Date & Time</FormLabel>
+                          <FormLabel>{t('admin.events.endDateLabel')}</FormLabel>
                           <FormControl>
                             <Input type="datetime-local" {...field} />
                           </FormControl>
@@ -689,9 +689,9 @@ export default function EventsManagement() {
                       name="maxAttendees"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Max Attendees (optional)</FormLabel>
+                          <FormLabel>{t('admin.events.maxAttendeesLabel')}</FormLabel>
                           <FormControl>
-                            <Input type="number" {...field} placeholder="Unlimited" />
+                            <Input type="number" {...field} placeholder={t('admin.events.maxAttendeesPlaceholder')} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -702,9 +702,9 @@ export default function EventsManagement() {
                       name="price"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Price (optional)</FormLabel>
+                          <FormLabel>{t('admin.events.priceLabel')}</FormLabel>
                           <FormControl>
-                            <Input type="number" step="0.01" {...field} placeholder="Free" />
+                            <Input type="number" step="0.01" {...field} placeholder={t('admin.events.pricePlaceholderFree')} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -718,9 +718,9 @@ export default function EventsManagement() {
                       name="languages"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Languages (optional)</FormLabel>
+                          <FormLabel>{t('admin.events.languagesLabel')}</FormLabel>
                           <FormControl>
-                            <Input {...field} placeholder="e.g., English, French" />
+                            <Input {...field} placeholder={t('admin.events.languagesPlaceholder')} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -731,7 +731,7 @@ export default function EventsManagement() {
                       name="minAge"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Min Age (optional)</FormLabel>
+                          <FormLabel>{t('admin.events.minAgeLabel')}</FormLabel>
                           <FormControl>
                             <Input type="number" {...field} placeholder="12+" />
                           </FormControl>
@@ -744,7 +744,7 @@ export default function EventsManagement() {
                       name="maxPeople"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Max People (optional)</FormLabel>
+                          <FormLabel>{t('admin.events.maxPeopleLabel')}</FormLabel>
                           <FormControl>
                             <Input type="number" {...field} placeholder="12" />
                           </FormControl>
@@ -759,9 +759,9 @@ export default function EventsManagement() {
                     name="highlights"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Highlights (optional)</FormLabel>
+                        <FormLabel>{t('admin.events.highlightsLabel')}</FormLabel>
                         <FormControl>
-                          <Textarea {...field} placeholder="Enter each highlight on a new line" rows={3} />
+                          <Textarea {...field} placeholder={t('admin.events.highlightsPlaceholder')} rows={3} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -773,9 +773,9 @@ export default function EventsManagement() {
                     name="included"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>What's Included (optional)</FormLabel>
+                        <FormLabel>{t('admin.events.includedLabel')}</FormLabel>
                         <FormControl>
-                          <Textarea {...field} placeholder="Enter each item on a new line" rows={3} />
+                          <Textarea {...field} placeholder={t('admin.events.includedPlaceholder')} rows={3} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -787,9 +787,9 @@ export default function EventsManagement() {
                     name="notIncluded"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>What's Not Included (optional)</FormLabel>
+                        <FormLabel>{t('admin.events.notIncludedLabel')}</FormLabel>
                         <FormControl>
-                          <Textarea {...field} placeholder="Enter each item on a new line" rows={3} />
+                          <Textarea {...field} placeholder={t('admin.events.includedPlaceholder')} rows={3} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -801,9 +801,9 @@ export default function EventsManagement() {
                     name="importantInfo"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Important Information (optional)</FormLabel>
+                        <FormLabel>{t('admin.events.importantInfoLabel')}</FormLabel>
                         <FormControl>
-                          <Textarea {...field} placeholder="Any important information for participants" rows={4} />
+                          <Textarea {...field} placeholder={t('admin.events.importantInfoPlaceholder')} rows={4} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -813,9 +813,9 @@ export default function EventsManagement() {
                   {/* ── Translations Section ─────────────────────────── */}
                   <div className="border rounded-lg overflow-hidden">
                     <div className="bg-muted px-4 py-3 border-b">
-                      <h3 className="font-semibold text-sm">Translations</h3>
+                      <h3 className="font-semibold text-sm">{t('admin.events.translations')}</h3>
                       <p className="text-xs text-muted-foreground mt-0.5">
-                        Provide translations for the key content fields. Leave blank to fall back to English.
+                        {t('admin.events.translationsFallbackNote')}
                       </p>
                     </div>
                     {/* Language tabs */}
@@ -838,20 +838,20 @@ export default function EventsManagement() {
                     {/* Translation fields */}
                     <div className="p-4 space-y-4" dir={activeLangTab === 'ar' ? 'rtl' : 'ltr'}>
                       <div className="space-y-1.5">
-                        <Label>Title</Label>
+                        <Label>{t('admin.events.translatedTitle')}</Label>
                         <Input
                           value={translations[activeLangTab]?.title ?? ''}
                           onChange={e => setTranslations(prev => ({ ...prev, [activeLangTab]: { ...prev[activeLangTab], title: e.target.value } }))}
-                          placeholder="Translated title"
+                          placeholder={t('admin.events.translatedTitle')}
                         />
                       </div>
                       <div className="space-y-1.5">
-                        <Label>Description</Label>
+                        <Label>{t('admin.events.translatedDesc')}</Label>
                         <Textarea
                           rows={3}
                           value={translations[activeLangTab]?.description ?? ''}
                           onChange={e => setTranslations(prev => ({ ...prev, [activeLangTab]: { ...prev[activeLangTab], description: e.target.value } }))}
-                          placeholder="Translated description"
+                          placeholder={t('admin.events.translatedDesc')}
                         />
                       </div>
                       <div className="grid md:grid-cols-2 gap-4">
@@ -864,16 +864,16 @@ export default function EventsManagement() {
                           />
                         </div>
                         <div className="space-y-1.5">
-                          <Label>Location Details</Label>
+                          <Label>{t('admin.events.translatedLocationDetails')}</Label>
                           <Input
                             value={translations[activeLangTab]?.locationDetails ?? ''}
                             onChange={e => setTranslations(prev => ({ ...prev, [activeLangTab]: { ...prev[activeLangTab], locationDetails: e.target.value } }))}
-                            placeholder="Translated location details"
+                            placeholder={t('admin.events.translatedLocationDetails')}
                           />
                         </div>
                       </div>
                       <div className="space-y-1.5">
-                        <Label>Highlights</Label>
+                        <Label>{t('admin.events.translatedHighlights')}</Label>
                         <Textarea
                           rows={3}
                           value={translations[activeLangTab]?.highlights ?? ''}
@@ -883,31 +883,31 @@ export default function EventsManagement() {
                       </div>
                       <div className="grid md:grid-cols-2 gap-4">
                         <div className="space-y-1.5">
-                          <Label>What's Included</Label>
+                          <Label>{t('admin.events.translatedIncluded')}</Label>
                           <Textarea
                             rows={3}
                             value={translations[activeLangTab]?.included ?? ''}
                             onChange={e => setTranslations(prev => ({ ...prev, [activeLangTab]: { ...prev[activeLangTab], included: e.target.value } }))}
-                            placeholder="One item per line"
+                            placeholder={t('admin.events.includedPlaceholder')}
                           />
                         </div>
                         <div className="space-y-1.5">
-                          <Label>What's Not Included</Label>
+                          <Label>{t('admin.events.translatedNotIncluded')}</Label>
                           <Textarea
                             rows={3}
                             value={translations[activeLangTab]?.notIncluded ?? ''}
                             onChange={e => setTranslations(prev => ({ ...prev, [activeLangTab]: { ...prev[activeLangTab], notIncluded: e.target.value } }))}
-                            placeholder="One item per line"
+                            placeholder={t('admin.events.includedPlaceholder')}
                           />
                         </div>
                       </div>
                       <div className="space-y-1.5">
-                        <Label>Important Information</Label>
+                        <Label>{t('admin.events.importantInfoLabel')}</Label>
                         <Textarea
                           rows={3}
                           value={translations[activeLangTab]?.importantInfo ?? ''}
                           onChange={e => setTranslations(prev => ({ ...prev, [activeLangTab]: { ...prev[activeLangTab], importantInfo: e.target.value } }))}
-                          placeholder="Translated important info"
+                          placeholder={t('admin.events.importantInfoPlaceholder')}
                         />
                       </div>
                     </div>
@@ -943,10 +943,10 @@ export default function EventsManagement() {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="upcoming">Upcoming</SelectItem>
-                            <SelectItem value="ongoing">Ongoing</SelectItem>
-                            <SelectItem value="completed">Completed</SelectItem>
-                            <SelectItem value="cancelled">Cancelled</SelectItem>
+                            <SelectItem value="upcoming">{t('admin.events.statusUpcoming')}</SelectItem>
+                            <SelectItem value="ongoing">{t('admin.events.statusOngoing')}</SelectItem>
+                            <SelectItem value="completed">{t('admin.events.statusCompleted')}</SelectItem>
+                            <SelectItem value="cancelled">{t('admin.events.statusCancelled')}</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -956,16 +956,16 @@ export default function EventsManagement() {
 
                   <div className="flex gap-3 justify-end pt-4">
                     <Button type="button" variant="outline" onClick={handleCancelForm}>
-                      Cancel
+                      {t('admin.common.cancel')}
                     </Button>
                     <Button type="submit" disabled={saveEventMutation.isPending}>
                       {saveEventMutation.isPending ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Saving...
+                          {t('admin.events.saving')}
                         </>
                       ) : (
-                        isEditingExistingEvent ? 'Update Event' : 'Create Event'
+                        isEditingExistingEvent ? t('admin.events.updateEvent') : t('admin.events.createEvent')
                       )}
                     </Button>
                   </div>
@@ -982,8 +982,8 @@ export default function EventsManagement() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Journey Events Management</h1>
-          <p className="text-muted-foreground mt-1">Manage bookable events for The Journey Association</p>
+          <h1 className="text-3xl font-bold">{t('admin.events.title')}</h1>
+          <p className="text-muted-foreground mt-1">{t('admin.events.subtitle')}</p>
         </div>
         <Button onClick={() => {
           if (isClubManager) {
@@ -1004,7 +1004,7 @@ export default function EventsManagement() {
           }
         }}>
           <Plus className="mr-2 h-4 w-4" />
-          Create Event
+          {t('admin.events.createEvent')}
         </Button>
       </div>
 
@@ -1012,7 +1012,7 @@ export default function EventsManagement() {
         <div className="relative flex-1">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search events..."
+            placeholder={t('admin.events.searchPlaceholder')}
             className="pl-8"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -1021,37 +1021,37 @@ export default function EventsManagement() {
         {!isClubManager && (
           <Select value={eventTypeFilter} onValueChange={setEventTypeFilter}>
             <SelectTrigger className="w-40">
-              <SelectValue placeholder="Event Type" />
+              <SelectValue placeholder={t('admin.events.filterEventType')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Events</SelectItem>
-              <SelectItem value="club">Club Events</SelectItem>
-              <SelectItem value="association">Association Events</SelectItem>
+              <SelectItem value="all">{t('admin.events.filterAllEvents')}</SelectItem>
+              <SelectItem value="club">{t('admin.events.filterClub')}</SelectItem>
+              <SelectItem value="association">{t('admin.events.filterAssociation')}</SelectItem>
             </SelectContent>
           </Select>
         )}
         <Select value={categoryFilter} onValueChange={setCategoryFilter}>
           <SelectTrigger className="w-40">
-            <SelectValue placeholder="Category" />
+            <SelectValue placeholder={t('admin.events.categoryLabel')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Categories</SelectItem>
-            <SelectItem value="workshop">Workshop</SelectItem>
-            <SelectItem value="conference">Conference</SelectItem>
-            <SelectItem value="meetup">Meetup</SelectItem>
-            <SelectItem value="webinar">Webinar</SelectItem>
+            <SelectItem value="all">{t('admin.events.filterAllCategories')}</SelectItem>
+            <SelectItem value="workshop">{t('admin.events.workshop')}</SelectItem>
+            <SelectItem value="conference">{t('admin.events.conference')}</SelectItem>
+            <SelectItem value="meetup">{t('admin.events.meetup')}</SelectItem>
+            <SelectItem value="webinar">{t('admin.events.webinar')}</SelectItem>
           </SelectContent>
         </Select>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
           <SelectTrigger className="w-40">
-            <SelectValue placeholder="Status" />
+            <SelectValue placeholder={t('admin.common.status')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="upcoming">Upcoming</SelectItem>
-            <SelectItem value="ongoing">Ongoing</SelectItem>
-            <SelectItem value="completed">Completed</SelectItem>
-            <SelectItem value="cancelled">Cancelled</SelectItem>
+            <SelectItem value="all">{t('admin.events.filterAllStatus')}</SelectItem>
+            <SelectItem value="upcoming">{t('admin.events.statusUpcoming')}</SelectItem>
+            <SelectItem value="ongoing">{t('admin.events.statusOngoing')}</SelectItem>
+            <SelectItem value="completed">{t('admin.events.statusCompleted')}</SelectItem>
+            <SelectItem value="cancelled">{t('admin.events.statusCancelled')}</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -1063,7 +1063,7 @@ export default function EventsManagement() {
               <TableHead>{t('admin.events.colTitle')}</TableHead>
               <TableHead>{t('admin.events.colDate')}</TableHead>
               <TableHead>{t('admin.events.colLocation')}</TableHead>
-              <TableHead>Category</TableHead>
+              <TableHead>{t('admin.events.categoryLabel')}</TableHead>
               <TableHead>{t('admin.events.colType')}</TableHead>
               <TableHead>{t('admin.common.status')}</TableHead>
               <TableHead>{t('admin.events.colAttendees')}</TableHead>
@@ -1083,15 +1083,15 @@ export default function EventsManagement() {
               <TableRow>
                 <TableCell colSpan={8} className="py-12 text-center">
                   <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                    <p className="text-sm font-medium text-foreground">Failed to load events</p>
-                    <button onClick={() => refetch()} className="text-xs text-primary underline">Retry</button>
+                    <p className="text-sm font-medium text-foreground">{t('admin.events.failedLoad')}</p>
+                    <button onClick={() => refetch()} className="text-xs text-primary underline">{t('admin.common.retry')}</button>
                   </div>
                 </TableCell>
               </TableRow>
             ) : events.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
-                  No events found
+                  {t('admin.events.noEvents')}
                 </TableCell>
               </TableRow>
             ) : (
@@ -1120,7 +1120,7 @@ export default function EventsManagement() {
                   </TableCell>
                   <TableCell>
                     <Badge variant={event.isAssociationEvent ? 'default' : 'secondary'}>
-                      {event.isAssociationEvent ? 'Association' : 'Club'}
+                      {event.isAssociationEvent ? t('admin.bookings.associationBadge') : t('admin.bookings.clubBadge')}
                     </Badge>
                   </TableCell>
                   <TableCell>
@@ -1171,18 +1171,18 @@ export default function EventsManagement() {
                         <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={() => setViewingEvent(event)}>
                           <Eye className="mr-2 h-4 w-4" />
-                          View Details
+                          {t('admin.events.viewDetails')}
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => { setEditingEvent(event); setShowForm(true); }}>
                           <Edit className="mr-2 h-4 w-4" />
-                          Edit Event
+                          {t('admin.events.editEvent')}
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() => duplicateEventMutation.mutate(event)}
                           disabled={duplicateEventMutation.isPending}
                         >
                           <Copy className="mr-2 h-4 w-4" />
-                          Duplicate Event
+                          {t('admin.events.duplicateEvent')}
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
@@ -1190,7 +1190,7 @@ export default function EventsManagement() {
                           onClick={() => setDeletingEventId(event.id)}
                         >
                           <Trash2 className="mr-2 h-4 w-4" />
-                          Delete Event
+                          {t('admin.events.deleteEvent')}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -1206,18 +1206,18 @@ export default function EventsManagement() {
       <AlertDialog open={deletingEventId !== null} onOpenChange={(open) => !open && setDeletingEventId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogTitle>{t('admin.common.areYouSure')}</AlertDialogTitle>
             <AlertDialogDescription>
               This will permanently delete this event. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('admin.common.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => deletingEventId && deleteEventMutation.mutate(deletingEventId)}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              Delete
+              {t('admin.common.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -1321,9 +1321,9 @@ export default function EventsManagement() {
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Close</AlertDialogCancel>
+              <AlertDialogCancel>{t('admin.common.close')}</AlertDialogCancel>
               <AlertDialogAction onClick={() => { setViewingEvent(null); setEditingEvent(viewingEvent); setShowForm(true); }}>
-                Edit Event
+                {t('admin.events.editEvent')}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

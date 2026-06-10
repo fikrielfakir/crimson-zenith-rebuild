@@ -283,8 +283,8 @@ export default function ExpertsAdmin() {
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button></DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => openEdit(e)}><Pencil className="mr-2 h-4 w-4" />Edit</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => setDeletingId(e.id)} className="text-destructive"><Trash2 className="mr-2 h-4 w-4" />Delete</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => openEdit(e)}><Pencil className="mr-2 h-4 w-4" />{t('admin.common.edit')}</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setDeletingId(e.id)} className="text-destructive"><Trash2 className="mr-2 h-4 w-4" />{t('admin.common.delete')}</DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </div>
@@ -336,9 +336,9 @@ export default function ExpertsAdmin() {
               <div className="col-span-2 space-y-1.5"><Label>Certifications (one per line)</Label><Textarea rows={3} value={form.certifications} onChange={e => setForm(f => ({ ...f, certifications: e.target.value }))} /></div>
             </div>
             <div className="flex justify-end gap-2 pt-2">
-              <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
+              <Button variant="outline" onClick={() => setDialogOpen(false)}>{t('admin.common.cancel')}</Button>
               <Button onClick={() => saveMutation.mutate(form)} disabled={!form.name.trim() || saveMutation.isPending}>
-                {saveMutation.isPending ? 'Saving…' : editing ? 'Update' : 'Create'}
+                {saveMutation.isPending ? t('admin.common.saving') : editing ? t('admin.common.update') : t('admin.common.create')}
               </Button>
             </div>
           </div>

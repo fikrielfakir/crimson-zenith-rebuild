@@ -108,49 +108,49 @@ export default function Analytics() {
           <div className="grid gap-4 md:grid-cols-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Page Views</CardTitle>
+                <CardTitle className="text-sm font-medium">{t('admin.analytics.pageViews')}</CardTitle>
                 <TrendingUp className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{data?.traffic?.pageViews || '0'}</div>
-                <p className="text-xs text-muted-foreground">+12% from last period</p>
+                <p className="text-xs text-muted-foreground">+12% {t('admin.analytics.fromLastPeriod')}</p>
               </CardContent>
             </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Unique Visitors</CardTitle>
+                <CardTitle className="text-sm font-medium">{t('admin.analytics.uniqueVisitors')}</CardTitle>
                 <Users className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{data?.traffic?.uniqueVisitors || '0'}</div>
-                <p className="text-xs text-muted-foreground">+8% from last period</p>
+                <p className="text-xs text-muted-foreground">+8% {t('admin.analytics.fromLastPeriod')}</p>
               </CardContent>
             </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Bounce Rate</CardTitle>
+                <CardTitle className="text-sm font-medium">{t('admin.analytics.bounceRate')}</CardTitle>
                 <TrendingUp className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{data?.traffic?.bounceRate || '0'}%</div>
-                <p className="text-xs text-muted-foreground">-3% from last period</p>
+                <p className="text-xs text-muted-foreground">-3% {t('admin.analytics.fromLastPeriod')}</p>
               </CardContent>
             </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Avg Session</CardTitle>
+                <CardTitle className="text-sm font-medium">{t('admin.analytics.avgSession')}</CardTitle>
                 <CalendarIcon className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{data?.traffic?.avgSession || '0'}m</div>
-                <p className="text-xs text-muted-foreground">+5% from last period</p>
+                <p className="text-xs text-muted-foreground">+5% {t('admin.analytics.fromLastPeriod')}</p>
               </CardContent>
             </Card>
           </div>
 
           <Card>
             <CardHeader>
-              <CardTitle>Page Views Over Time</CardTitle>
+              <CardTitle>{t('admin.analytics.pageViewsOverTime')}</CardTitle>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
@@ -168,16 +168,16 @@ export default function Analytics() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Top Pages</CardTitle>
+              <CardTitle>{t('admin.analytics.topPages')}</CardTitle>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Page</TableHead>
-                    <TableHead>Views</TableHead>
-                    <TableHead>Unique Visitors</TableHead>
-                    <TableHead>Avg Time</TableHead>
+                    <TableHead>{t('admin.analytics.page')}</TableHead>
+                    <TableHead>{t('admin.analytics.views')}</TableHead>
+                    <TableHead>{t('admin.analytics.uniqueVisitors')}</TableHead>
+                    <TableHead>{t('admin.analytics.avgTime')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -198,7 +198,7 @@ export default function Analytics() {
         <TabsContent value="users" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>New User Registrations</CardTitle>
+              <CardTitle>{t('admin.analytics.newUserRegistrations')}</CardTitle>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
@@ -217,16 +217,16 @@ export default function Analytics() {
           <div className="grid gap-4 md:grid-cols-2">
             <Card>
               <CardHeader>
-                <CardTitle>Active Users</CardTitle>
+                <CardTitle>{t('admin.analytics.activeUsers')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   <div>
-                    <p className="text-sm text-muted-foreground">Daily Active Users</p>
+                    <p className="text-sm text-muted-foreground">{t('admin.analytics.dailyActiveUsers')}</p>
                     <p className="text-2xl font-bold">{data?.users?.dau || 0}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Monthly Active Users</p>
+                    <p className="text-sm text-muted-foreground">{t('admin.analytics.monthlyActiveUsers')}</p>
                     <p className="text-2xl font-bold">{data?.users?.mau || 0}</p>
                   </div>
                 </div>
@@ -235,14 +235,14 @@ export default function Analytics() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Most Active Users</CardTitle>
+                <CardTitle>{t('admin.analytics.mostActiveUsers')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>User</TableHead>
-                      <TableHead>Actions</TableHead>
+                      <TableHead>{t('admin.analytics.user')}</TableHead>
+                      <TableHead>{t('admin.analytics.actions')}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -262,7 +262,7 @@ export default function Analytics() {
         <TabsContent value="events" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Events Created Over Time</CardTitle>
+              <CardTitle>{t('admin.analytics.eventsCreatedOverTime')}</CardTitle>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
@@ -281,7 +281,7 @@ export default function Analytics() {
           <div className="grid gap-4 md:grid-cols-2">
             <Card>
               <CardHeader>
-                <CardTitle>Event Categories</CardTitle>
+                <CardTitle>{t('admin.analytics.eventCategories')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
@@ -308,14 +308,14 @@ export default function Analytics() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Most Popular Events</CardTitle>
+                <CardTitle>{t('admin.analytics.mostPopularEvents')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Event</TableHead>
-                      <TableHead>Participants</TableHead>
+                      <TableHead>{t('admin.analytics.event')}</TableHead>
+                      <TableHead>{t('admin.analytics.participants')}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -335,7 +335,7 @@ export default function Analytics() {
         <TabsContent value="revenue" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Revenue Over Time</CardTitle>
+              <CardTitle>{t('admin.analytics.revenueOverTime')}</CardTitle>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
@@ -354,7 +354,7 @@ export default function Analytics() {
           <div className="grid gap-4 md:grid-cols-3">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+                <CardTitle className="text-sm font-medium">{t('admin.analytics.totalRevenue')}</CardTitle>
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -363,7 +363,7 @@ export default function Analytics() {
             </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Avg Transaction</CardTitle>
+                <CardTitle className="text-sm font-medium">{t('admin.analytics.avgTransaction')}</CardTitle>
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -372,7 +372,7 @@ export default function Analytics() {
             </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Transactions</CardTitle>
+                <CardTitle className="text-sm font-medium">{t('admin.analytics.transactions')}</CardTitle>
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -385,7 +385,7 @@ export default function Analytics() {
         <TabsContent value="clubs" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>New Clubs Over Time</CardTitle>
+              <CardTitle>{t('admin.analytics.newClubsOverTime')}</CardTitle>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
@@ -403,16 +403,16 @@ export default function Analytics() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Most Popular Clubs</CardTitle>
+              <CardTitle>{t('admin.analytics.mostPopularClubs')}</CardTitle>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Club</TableHead>
-                    <TableHead>Members</TableHead>
-                    <TableHead>Events</TableHead>
-                    <TableHead>Rating</TableHead>
+                    <TableHead>{t('admin.analytics.club')}</TableHead>
+                    <TableHead>{t('admin.analytics.members')}</TableHead>
+                    <TableHead>{t('admin.analytics.events')}</TableHead>
+                    <TableHead>{t('admin.analytics.rating')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>

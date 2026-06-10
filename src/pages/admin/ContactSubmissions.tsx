@@ -322,7 +322,7 @@ function DetailDialog({ submissionId, onClose, onUpdated }: DetailDialogProps) {
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 rows={4}
-                placeholder="Add private notes about this message (not visible to sender)…"
+                placeholder={t('admin.contact.notesPlaceholder')}
                 className="resize-none"
               />
               <div className="flex justify-end">
@@ -331,7 +331,7 @@ function DetailDialog({ submissionId, onClose, onUpdated }: DetailDialogProps) {
                   onClick={handleSaveNotes}
                   disabled={updateMutation.isPending}
                 >
-                  {updateMutation.isPending ? 'Saving…' : 'Save Notes'}
+                  {updateMutation.isPending ? t('admin.events.saving') : t('admin.contact.saveNotes')}
                 </Button>
               </div>
             </div>
@@ -339,8 +339,8 @@ function DetailDialog({ submissionId, onClose, onUpdated }: DetailDialogProps) {
             {/* Quick reply link */}
             <div className="rounded-lg border bg-blue-50 p-3 flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-blue-900">Reply via email</p>
-                <p className="text-xs text-blue-700 mt-0.5">Opens your mail client addressed to the sender</p>
+                <p className="text-sm font-medium text-blue-900">{t('admin.contact.replyViaEmail')}</p>
+                <p className="text-xs text-blue-700 mt-0.5">{t('admin.contact.replyDesc')}</p>
               </div>
               <a
                 href={`mailto:${sub.email}?subject=Re: ${encodeURIComponent(sub.subject ?? 'Your message')}`}
@@ -348,13 +348,13 @@ function DetailDialog({ submissionId, onClose, onUpdated }: DetailDialogProps) {
               >
                 <Button size="sm" className="bg-blue-700 hover:bg-blue-800 text-white">
                   <Mail className="mr-1.5 h-3.5 w-3.5" />
-                  Reply
+                  {t('admin.contact.statusReplied')}
                 </Button>
               </a>
             </div>
           </div>
         ) : (
-          <p className="text-center text-muted-foreground py-8">Submission not found.</p>
+          <p className="text-center text-muted-foreground py-8">{t('admin.contact.submissionNotFound')}</p>
         )}
       </DialogContent>
     </Dialog>
@@ -465,16 +465,16 @@ export default function ContactSubmissions() {
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Search by name, email or message…"
+                  placeholder={t('admin.contact.searchPlaceholder')}
                   className="pl-9"
                   value={searchInput}
                   onChange={e => setSearchInput(e.target.value)}
                 />
               </div>
-              <Button type="submit" variant="secondary">Search</Button>
+              <Button type="submit" variant="secondary">{t('admin.common.search')}</Button>
               {search && (
                 <Button type="button" variant="ghost" onClick={() => { setSearch(''); setSearchInput(''); setPage(1); }}>
-                  Clear
+                  {t('admin.common.clear')}
                 </Button>
               )}
             </form>
@@ -483,14 +483,14 @@ export default function ContactSubmissions() {
               <Filter className="h-4 w-4 text-muted-foreground flex-shrink-0" />
               <Select value={statusFilter} onValueChange={handleFilterChange}>
                 <SelectTrigger className="w-36">
-                  <SelectValue placeholder="All statuses" />
+                  <SelectValue placeholder={t('admin.contact.allStatuses')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All statuses</SelectItem>
-                  <SelectItem value="new">New</SelectItem>
-                  <SelectItem value="read">Read</SelectItem>
-                  <SelectItem value="replied">Replied</SelectItem>
-                  <SelectItem value="archived">Archived</SelectItem>
+                  <SelectItem value="all">{t('admin.contact.allStatuses')}</SelectItem>
+                  <SelectItem value="new">{t('admin.contact.statusNew')}</SelectItem>
+                  <SelectItem value="read">{t('admin.contact.statusRead')}</SelectItem>
+                  <SelectItem value="replied">{t('admin.contact.statusReplied')}</SelectItem>
+                  <SelectItem value="archived">{t('admin.contact.statusArchived')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -503,7 +503,7 @@ export default function ContactSubmissions() {
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2">
             <Inbox className="h-5 w-5" />
-            Messages
+            {t('admin.contact.messages')}
           </CardTitle>
           <CardDescription>
             {isLoading ? 'Loading…' : `${total} message${total !== 1 ? 's' : ''}${search ? ` matching "${search}"` : ''}${statusFilter !== 'all' ? ` — ${STATUS_CONFIG[statusFilter as Status]?.label ?? statusFilter}` : ''}`}
@@ -520,7 +520,7 @@ export default function ContactSubmissions() {
           ) : submissions.length === 0 ? (
             <div className="text-center py-16 text-muted-foreground">
               <Inbox className="h-12 w-12 mx-auto mb-4 opacity-30" />
-              <p className="font-medium text-base">No messages found</p>
+              <p className="font-medium text-base">{t('admin.contact.noMessages')}</p>
               <p className="text-sm mt-1">
                 {search || statusFilter !== 'all' ? 'Try adjusting your filters' : 'When visitors submit the contact form, messages will appear here'}
               </p>
@@ -530,12 +530,12 @@ export default function ContactSubmissions() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="pl-6">Sender</TableHead>
-                    <TableHead>Subject</TableHead>
-                    <TableHead className="max-w-xs">Preview</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Received</TableHead>
-                    <TableHead className="text-right pr-6">Actions</TableHead>
+                    <TableHead className="pl-6">{t('admin.contact.colSender')}</TableHead>
+                    <TableHead>{t('admin.common.subject')}</TableHead>
+                    <TableHead className="max-w-xs">{t('admin.contact.colPreview')}</TableHead>
+                    <TableHead>{t('admin.common.status')}</TableHead>
+                    <TableHead>{t('admin.contact.colReceived')}</TableHead>
+                    <TableHead className="text-right pr-6">{t('admin.common.actions')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -666,18 +666,18 @@ export default function ContactSubmissions() {
       <AlertDialog open={deletingId !== null} onOpenChange={(open) => !open && setDeletingId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete this message?</AlertDialogTitle>
+            <AlertDialogTitle>{t('admin.contact.deleteMessage')}</AlertDialogTitle>
             <AlertDialogDescription>
               This will permanently remove the contact submission. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('admin.common.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={() => deletingId !== null && deleteMutation.mutate(deletingId)}
             >
-              {deleteMutation.isPending ? 'Deleting…' : 'Delete'}
+              {deleteMutation.isPending ? t('admin.common.deleting') : t('admin.common.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

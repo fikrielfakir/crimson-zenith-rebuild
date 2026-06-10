@@ -111,37 +111,37 @@ export default function TestimonialsManagement() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Testimonials</h1>
-          <p className="text-muted-foreground mt-1">Manage community testimonials shown on the landing page</p>
+          <h1 className="text-3xl font-bold">{t('admin.testimonials.title')}</h1>
+          <p className="text-muted-foreground mt-1">{t('admin.testimonials.subtitle')}</p>
         </div>
         <Button onClick={() => setShowForm(true)}>
           <Plus className="mr-2 h-4 w-4" />
-          Add Testimonial
+          {t('admin.testimonials.addTestimonial')}
         </Button>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>All Testimonials</CardTitle>
+          <CardTitle>{t('admin.testimonials.cardTitle')}</CardTitle>
           <CardDescription>{crud.data.length} testimonial{crud.data.length !== 1 ? 's' : ''}</CardDescription>
         </CardHeader>
         <CardContent className="overflow-x-auto">
           {crud.isLoading ? (
-            <div className="flex items-center justify-center py-8 text-muted-foreground">Loading…</div>
+            <div className="flex items-center justify-center py-8 text-muted-foreground">{t('admin.common.loading')}</div>
           ) : crud.data.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>No testimonials yet</p>
-              <p className="text-sm mt-2">Click t('admin.testimonials.addTestimonial') to get started</p>
+              <p>{t('admin.testimonials.noItems')}</p>
+              <p className="text-sm mt-2">{t('admin.testimonials.clickToAdd')}</p>
             </div>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Name</TableHead>
+                  <TableHead>{t('admin.common.name')}</TableHead>
                   <TableHead>{t('admin.testimonials.colRole')}</TableHead>
                   <TableHead>{t('admin.testimonials.colRating')}</TableHead>
-                  <TableHead>Feedback</TableHead>
+                  <TableHead>{t('admin.testimonials.colFeedback')}</TableHead>
                   <TableHead>{t('admin.common.status')}</TableHead>
                   <TableHead className="text-right">{t('admin.common.actions')}</TableHead>
                 </TableRow>
@@ -160,14 +160,14 @@ export default function TestimonialsManagement() {
                             ? 'bg-green-50 text-green-700 ring-1 ring-green-600/20'
                             : 'bg-yellow-50 text-yellow-700 ring-1 ring-yellow-600/20'
                         }`}>
-                          {item.isApproved ? 'Approved' : 'Pending'}
+                          {item.isApproved ? t('admin.common.approved') : t('admin.common.pending')}
                         </span>
                         <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
                           item.isActive
                             ? 'bg-blue-50 text-blue-700 ring-1 ring-blue-600/20'
                             : 'bg-gray-50 text-gray-700 ring-1 ring-gray-600/20'
                         }`}>
-                          {item.isActive ? 'Visible' : 'Hidden'}
+                          {item.isActive ? t('admin.common.visible') : t('admin.common.hidden')}
                         </span>
                       </div>
                     </TableCell>
@@ -203,23 +203,23 @@ export default function TestimonialsManagement() {
       <Dialog open={showForm} onOpenChange={(open) => { if (!open) handleClose(); }}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>{editingItem ? 'Edit Testimonial' : 'Add Testimonial'}</DialogTitle>
+            <DialogTitle>{editingItem ? t('admin.testimonials.editTitle') : t('admin.testimonials.addTitle')}</DialogTitle>
             <DialogDescription>
-              {editingItem ? 'Update testimonial details' : 'Add a new testimonial to the landing page'}
+              {editingItem ? t('admin.testimonials.editDesc') : t('admin.testimonials.addDesc')}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-2">
             <div className="space-y-2">
-              <Label htmlFor="t-name">Name *</Label>
-              <Input id="t-name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Member name" />
+              <Label htmlFor="t-name">{t('admin.common.name')} *</Label>
+              <Input id="t-name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder={t('admin.testimonials.namePlaceholder')} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="t-role">Role / Title</Label>
-              <Input id="t-role" value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} placeholder="e.g., Club Member, Volunteer" />
+              <Label htmlFor="t-role">{t('admin.testimonials.roleTitle')}</Label>
+              <Input id="t-role" value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} placeholder={t('admin.testimonials.rolePlaceholder')} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="t-feedback">Feedback *</Label>
+              <Label htmlFor="t-feedback">{t('admin.testimonials.colFeedback')} *</Label>
               <Textarea id="t-feedback" value={form.feedback} onChange={(e) => setForm({ ...form, feedback: e.target.value })} rows={4} placeholder="Their testimonial text…" />
             </div>
             <div className="space-y-2">
@@ -240,19 +240,19 @@ export default function TestimonialsManagement() {
             <div className="flex items-center gap-6">
               <div className="flex items-center space-x-2">
                 <Switch id="t-approved" checked={form.isApproved} onCheckedChange={(v) => setForm({ ...form, isApproved: v })} />
-                <Label htmlFor="t-approved">Approved</Label>
+                <Label htmlFor="t-approved">{t('admin.common.approved')}</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <Switch id="t-active" checked={form.isActive} onCheckedChange={(v) => setForm({ ...form, isActive: v })} />
-                <Label htmlFor="t-active">Visible on site</Label>
+                <Label htmlFor="t-active">{t('admin.common.visibleOnSite')}</Label>
               </div>
             </div>
           </div>
 
           <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={handleClose}>Cancel</Button>
+            <Button variant="outline" onClick={handleClose}>{t('admin.common.cancel')}</Button>
             <Button onClick={handleSave} disabled={isPending}>
-              {isPending ? 'Saving…' : 'Save'}
+              {isPending ? t('admin.events.saving') : t('admin.common.save')}
             </Button>
           </div>
         </DialogContent>
@@ -261,18 +261,18 @@ export default function TestimonialsManagement() {
       <AlertDialog open={deletingId !== null} onOpenChange={(open) => !open && setDeletingId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete testimonial?</AlertDialogTitle>
+            <AlertDialogTitle>{t('admin.testimonials.deleteTitle')}</AlertDialogTitle>
             <AlertDialogDescription>
               This will permanently remove the testimonial from the site.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('admin.common.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={handleDelete}
             >
-              {crud.isRemoving ? 'Deleting…' : 'Delete'}
+              {crud.isRemoving ? t('admin.common.deleting') : t('admin.common.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
