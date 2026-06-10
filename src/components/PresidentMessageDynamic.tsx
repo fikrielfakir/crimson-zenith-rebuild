@@ -317,7 +317,7 @@ const PresidentMessageDynamic = () => {
                     <img 
                       src={signatureUrl} 
                       alt="Signature" 
-                      className="h-16 object-contain"
+                      className="h-32 object-contain"
                     />
                   </div>
                 )}
