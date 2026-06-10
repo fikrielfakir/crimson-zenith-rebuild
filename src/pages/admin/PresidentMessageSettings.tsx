@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { apiFetch } from '@/lib/apiFetch';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -97,6 +97,51 @@ export default function PresidentMessageSettings() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+
+  const photoInputRef = useRef<HTMLInputElement>(null);
+  const signatureInputRef = useRef<HTMLInputElement>(null);
+  const bgInputRef = useRef<HTMLInputElement>(null);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [uploadingSignature, setUploadingSignature] = useState(false);
+  const [uploadingBg, setUploadingBg] = useState(false);
+
+  async function uploadImageFromDevice(
+    file: File,
+    setUploading: (v: boolean) => void,
+    onSuccess: (id: number, url: string) => void,
+  ) {
+    if (!file.type.startsWith('image/')) {
+      toast({ title: 'Invalid file', description: 'Please select an image file.', variant: 'destructive' });
+      return;
+    }
+    setUploading(true);
+    try {
+      const reader = new FileReader();
+      const base64 = await new Promise<string>((res, rej) => {
+        reader.onload = () => res(reader.result as string);
+        reader.onerror = rej;
+        reader.readAsDataURL(file);
+      });
+      const response = await apiFetch('/api/admin/cms/media', {
+        method: 'POST',
+        body: JSON.stringify({ imageData: base64, alt: file.name }),
+      });
+      if (!response.ok) throw new Error(`Upload failed (${response.status})`);
+      const data = await response.json();
+      const url: string = data.url || data.fileUrl || data.file_url || '';
+      const id: number = typeof data.id === 'number' ? data.id : parseInt(data.id ?? '0', 10);
+      if (url) {
+        onSuccess(id, url);
+        toast({ title: 'Uploaded', description: 'Image uploaded successfully.' });
+      } else {
+        throw new Error('No URL returned from server');
+      }
+    } catch (err: any) {
+      toast({ title: 'Upload failed', description: err?.message ?? 'Unknown error', variant: 'destructive' });
+    } finally {
+      setUploading(false);
+    }
+  }
 
   // Content
   const [isActive, setIsActive] = useState(true);
@@ -443,21 +488,45 @@ export default function PresidentMessageSettings() {
                   <img src={photoUrl} alt="President" className="h-48 object-contain rounded" />
                 </div>
               )}
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button variant="outline" className="w-full">
-                    <ImageIcon className="mr-2 h-4 w-4" />
-                    {photoId ? t('admin.presidentMsg.changeSignature').replace('Signature', 'Photo') : t('admin.presidentMsg.selectSignature').replace('Signature', 'Photo')}
-                  </Button>
-                </DialogTrigger>
-                <MediaLibraryDialog 
-                  onSelectMedia={(id, url) => {
-                    setPhotoId(id);
-                    setPhotoUrl(url);
-                  }} 
-                  title="Select President Photo"
-                />
-              </Dialog>
+              <input
+                ref={photoInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) uploadImageFromDevice(file, setUploadingPhoto, (id, url) => { setPhotoId(id); setPhotoUrl(url); });
+                  e.target.value = '';
+                }}
+              />
+              <div className="flex gap-2">
+                <Button
+                  variant="default"
+                  className="flex-1"
+                  disabled={uploadingPhoto}
+                  onClick={() => photoInputRef.current?.click()}
+                >
+                  <Upload className="mr-2 h-4 w-4" />
+                  {uploadingPhoto ? 'Uploading…' : 'Upload from device'}
+                </Button>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" className="flex-1">
+                      <ImageIcon className="mr-2 h-4 w-4" />
+                      Media library
+                    </Button>
+                  </DialogTrigger>
+                  <MediaLibraryDialog
+                    onSelectMedia={(id, url) => { setPhotoId(id); setPhotoUrl(url); }}
+                    title="Select President Photo"
+                  />
+                </Dialog>
+              </div>
+              {photoId && (
+                <Button variant="ghost" className="w-full" onClick={() => { setPhotoId(null); setPhotoUrl(''); }}>
+                  Remove photo
+                </Button>
+              )}
             </CardContent>
           </Card>
 
@@ -472,30 +541,42 @@ export default function PresidentMessageSettings() {
                   <img src={signatureUrl} alt="Signature" className="h-20 object-contain rounded" />
                 </div>
               )}
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button variant="outline" className="w-full">
-                    <ImageIcon className="mr-2 h-4 w-4" />
-                    {signatureId ? t('admin.presidentMsg.changeSignature') : t('admin.presidentMsg.selectSignature')}
-                  </Button>
-                </DialogTrigger>
-                <MediaLibraryDialog 
-                  onSelectMedia={(id, url) => {
-                    setSignatureId(id);
-                    setSignatureUrl(url);
-                  }} 
-                  title="Select Signature Image"
-                />
-              </Dialog>
-              {signatureId && (
-                <Button 
-                  variant="ghost" 
-                  className="w-full" 
-                  onClick={() => {
-                    setSignatureId(null);
-                    setSignatureUrl('');
-                  }}
+              <input
+                ref={signatureInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) uploadImageFromDevice(file, setUploadingSignature, (id, url) => { setSignatureId(id); setSignatureUrl(url); });
+                  e.target.value = '';
+                }}
+              />
+              <div className="flex gap-2">
+                <Button
+                  variant="default"
+                  className="flex-1"
+                  disabled={uploadingSignature}
+                  onClick={() => signatureInputRef.current?.click()}
                 >
+                  <Upload className="mr-2 h-4 w-4" />
+                  {uploadingSignature ? 'Uploading…' : 'Upload from device'}
+                </Button>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" className="flex-1">
+                      <ImageIcon className="mr-2 h-4 w-4" />
+                      Media library
+                    </Button>
+                  </DialogTrigger>
+                  <MediaLibraryDialog
+                    onSelectMedia={(id, url) => { setSignatureId(id); setSignatureUrl(url); }}
+                    title="Select Signature Image"
+                  />
+                </Dialog>
+              </div>
+              {signatureId && (
+                <Button variant="ghost" className="w-full" onClick={() => { setSignatureId(null); setSignatureUrl(''); }}>
                   Remove Signature
                 </Button>
               )}
@@ -513,30 +594,42 @@ export default function PresidentMessageSettings() {
                   <img src={backgroundImageUrl} alt={t('admin.presidentMsg.tabBackground')} className="h-32 object-cover rounded w-full" />
                 </div>
               )}
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button variant="outline" className="w-full">
-                    <ImageIcon className="mr-2 h-4 w-4" />
-                    {backgroundImageId ? t('admin.presidentMsg.changeBg') : t('admin.presidentMsg.selectBg')}
-                  </Button>
-                </DialogTrigger>
-                <MediaLibraryDialog 
-                  onSelectMedia={(id, url) => {
-                    setBackgroundImageId(id);
-                    setBackgroundImageUrl(url);
-                  }} 
-                  title="Select Background Image"
-                />
-              </Dialog>
-              {backgroundImageId && (
-                <Button 
-                  variant="ghost" 
-                  className="w-full" 
-                  onClick={() => {
-                    setBackgroundImageId(null);
-                    setBackgroundImageUrl('');
-                  }}
+              <input
+                ref={bgInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) uploadImageFromDevice(file, setUploadingBg, (id, url) => { setBackgroundImageId(id); setBackgroundImageUrl(url); });
+                  e.target.value = '';
+                }}
+              />
+              <div className="flex gap-2">
+                <Button
+                  variant="default"
+                  className="flex-1"
+                  disabled={uploadingBg}
+                  onClick={() => bgInputRef.current?.click()}
                 >
+                  <Upload className="mr-2 h-4 w-4" />
+                  {uploadingBg ? 'Uploading…' : 'Upload from device'}
+                </Button>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" className="flex-1">
+                      <ImageIcon className="mr-2 h-4 w-4" />
+                      Media library
+                    </Button>
+                  </DialogTrigger>
+                  <MediaLibraryDialog
+                    onSelectMedia={(id, url) => { setBackgroundImageId(id); setBackgroundImageUrl(url); }}
+                    title="Select Background Image"
+                  />
+                </Dialog>
+              </div>
+              {backgroundImageId && (
+                <Button variant="ghost" className="w-full" onClick={() => { setBackgroundImageId(null); setBackgroundImageUrl(''); }}>
                   Remove Background Image
                 </Button>
               )}
