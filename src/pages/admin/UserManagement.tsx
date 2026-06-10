@@ -162,9 +162,10 @@ export default function UserManagement() {
 
   const saveUserMutation = useMutation({
     mutationFn: async (formData: UserFormData) => {
-      const url    = editingUser?.id ? `/api/admin/users/${editingUser.id}` : '/api/admin/users';
-      const method = editingUser?.id ? 'PUT' : 'POST';
-      const body   = { ...formData };
+      const isEditing = !!editingUser?.id;
+      const url    = isEditing ? `/api/admin/users/${editingUser.id}` : '/api/admin/users';
+      const method = isEditing ? 'PATCH' : 'POST';
+      const body: Record<string, unknown> = { ...formData };
       if (!body.password) delete body.password;
       const res = await apiFetch(url, {
         method,
@@ -172,12 +173,20 @@ export default function UserManagement() {
         body: JSON.stringify(body),
         credentials: 'include',
       });
-      if (!res.ok) throw new Error('Failed to save user');
+      if (!res.ok) {
+        let msg = `Server error (${res.status})`;
+        try {
+          const err = await res.json();
+          if (err.message) msg = err.message;
+          else if (err.errors) msg = Object.values(err.errors).flat().join(', ');
+        } catch { /* ignore parse errors */ }
+        throw new Error(msg);
+      }
       return res.json();
     },
-    onSuccess: () => {
+    onSuccess: (_data, _vars, _ctx) => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
-      toast({ title: `User ${editingUser?.id ? 'updated' : 'created'} successfully` });
+      toast({ title: editingUser?.id ? 'User updated successfully' : 'User created successfully' });
       setEditingUser(null);
       form.reset();
     },

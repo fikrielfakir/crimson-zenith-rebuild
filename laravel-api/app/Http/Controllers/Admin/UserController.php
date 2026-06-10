@@ -105,7 +105,7 @@ class UserController extends Controller
         $data = $request->validate([
             'firstName' => 'nullable|string',
             'lastName'  => 'nullable|string',
-            'email'     => 'nullable|email',
+            'email'     => 'nullable|email|unique:users,email,' . $user->id,
             'phone'     => 'nullable|string',
             'location'  => 'nullable|string',
             'bio'       => 'nullable|string',

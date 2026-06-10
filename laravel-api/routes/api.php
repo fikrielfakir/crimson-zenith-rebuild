@@ -236,6 +236,7 @@ Route::prefix('admin')->middleware(['admin'])->group(function () {
     Route::get('/users',                       [\App\Http\Controllers\Admin\UserController::class, 'index']);
     Route::post('/users',                      [\App\Http\Controllers\Admin\UserController::class, 'store']);
     Route::put('/users/{id}',                  [\App\Http\Controllers\Admin\UserController::class, 'update']);
+    Route::patch('/users/{id}',                [\App\Http\Controllers\Admin\UserController::class, 'update']);
     Route::delete('/users/{id}',               [\App\Http\Controllers\Admin\UserController::class, 'destroy']);
     Route::post('/users/{id}/toggle-admin',    [\App\Http\Controllers\Admin\UserController::class, 'toggleAdmin']);
     Route::post('/users/{id}/toggle-active',   [\App\Http\Controllers\Admin\UserController::class, 'toggleActive']);
