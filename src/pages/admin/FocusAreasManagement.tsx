@@ -153,10 +153,10 @@ export default function FocusAreasManagement() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['focusSection'] });
-      toast({ title: 'Section settings saved successfully' });
+      toast({ title: t('admin.focusAreas.toastSectionSaved') });
     },
     onError: (error: Error) => {
-      toast({ title: 'Save failed', description: error.message, variant: 'destructive' });
+      toast({ title: t('admin.common.error'), description: error.message, variant: 'destructive' });
     },
   });
 
@@ -178,11 +178,11 @@ export default function FocusAreasManagement() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['focusItems'] });
       queryClient.invalidateQueries({ queryKey: ['cms', 'focus-items'] });
-      toast({ title: `Focus item ${editingItem?.id ? 'updated' : 'created'} successfully` });
+      toast({ title: editingItem?.id ? t('admin.focusAreas.toastItemUpdated') : t('admin.focusAreas.toastItemCreated') });
       handleCloseForm();
     },
     onError: (error: Error) => {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      toast({ title: t('admin.common.error'), description: error.message, variant: 'destructive' });
     },
   });
 
@@ -197,11 +197,11 @@ export default function FocusAreasManagement() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['focusItems'] });
       queryClient.invalidateQueries({ queryKey: ['cms', 'focus-items'] });
-      toast({ title: 'Focus item deleted successfully' });
+      toast({ title: t('admin.focusAreas.toastItemDeleted') });
       setDeletingItemId(null);
     },
     onError: (error: Error) => {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      toast({ title: t('admin.common.error'), description: error.message, variant: 'destructive' });
     },
   });
 
@@ -217,10 +217,10 @@ export default function FocusAreasManagement() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['focusItems'] });
-      toast({ title: 'Items reordered successfully' });
+      toast({ title: t('admin.focusAreas.toastReordered') });
     },
     onError: (error: Error) => {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      toast({ title: t('admin.common.error'), description: error.message, variant: 'destructive' });
     },
   });
 
@@ -246,7 +246,7 @@ export default function FocusAreasManagement() {
 
   const handleSave = () => {
     if (!title.trim() || !description.trim()) {
-      toast({ title: 'Error', description: 'Title and description are required', variant: 'destructive' });
+      toast({ title: t('admin.common.error'), description: t('admin.focusAreas.validationRequired'), variant: 'destructive' });
       return;
     }
     saveMutation.mutate({
@@ -298,15 +298,15 @@ export default function FocusAreasManagement() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <h1 className="text-3xl font-bold">Focus Areas Management</h1>
+        <h1 className="text-3xl font-bold">{t('admin.focusAreas.title')}</h1>
         <div className="flex items-center gap-2 flex-wrap">
           <Button variant="outline" onClick={() => setShowSectionSettings(true)}>
             <AlignLeft className="mr-2 h-4 w-4" />
-            Section Settings
+            {t('admin.focusAreas.sectionSettings')}
           </Button>
           <Button onClick={() => { setEditingItem(null); setShowForm(true); }}>
             <Plus className="mr-2 h-4 w-4" />
-            Add Focus Item
+            {t('admin.focusAreas.addFocusItem')}
           </Button>
         </div>
       </div>
@@ -340,7 +340,7 @@ export default function FocusAreasManagement() {
           <TableHeader>
             <TableRow>
               <TableHead className="w-16">{t('admin.focusAreas.colOrder')}</TableHead>
-              <TableHead className="w-20">Icon</TableHead>
+              <TableHead className="w-20">{t('admin.focusAreas.colIcon')}</TableHead>
               <TableHead>{t('admin.focusAreas.colTitle')}</TableHead>
               <TableHead>{t('admin.focusAreas.colDescription')}</TableHead>
               <TableHead>{t('admin.common.status')}</TableHead>
@@ -358,9 +358,9 @@ export default function FocusAreasManagement() {
               <TableRow>
                 <TableCell colSpan={6} className="text-center py-12 text-muted-foreground">
                   <Target className="h-10 w-10 mx-auto mb-3 opacity-40" />
-                  <p>{search || statusFilter !== 'all' ? 'No items match your filters' : 'No focus items yet'}</p>
+                  <p>{search || statusFilter !== 'all' ? t('admin.focusAreas.noItemsFilter') : t('admin.focusAreas.noItems')}</p>
                   {!search && statusFilter === 'all' && (
-                    <p className="text-sm mt-1">Click "Add Focus Item" to get started</p>
+                    <p className="text-sm mt-1">{t('admin.focusAreas.addHint')}</p>
                   )}
                 </TableCell>
               </TableRow>
@@ -417,7 +417,7 @@ export default function FocusAreasManagement() {
                     </TableCell>
                     <TableCell>
                       <Badge variant={item.isActive ? 'default' : 'outline'}>
-                        {item.isActive ? 'Active' : 'Inactive'}
+                        {item.isActive ? t('admin.common.active') : t('admin.common.inactive')}
                       </Badge>
                     </TableCell>
                     <TableCell>
@@ -444,7 +444,7 @@ export default function FocusAreasManagement() {
                             <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => handleEdit(item)}>
                               <Pencil className="mr-2 h-4 w-4" />
-                              Edit
+                              {t('admin.common.edit')}
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
@@ -452,7 +452,7 @@ export default function FocusAreasManagement() {
                               onClick={() => setDeletingItemId(item.id)}
                             >
                               <Trash2 className="mr-2 h-4 w-4" />
-                              Delete
+                              {t('admin.common.delete')}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -470,14 +470,14 @@ export default function FocusAreasManagement() {
       <Dialog open={showForm} onOpenChange={(open) => { if (!open) handleCloseForm(); }}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{editingItem ? 'Edit Focus Item' : 'Add Focus Item'}</DialogTitle>
+            <DialogTitle>{editingItem ? t('admin.focusAreas.editFocusItem') : t('admin.focusAreas.addFocusItem')}</DialogTitle>
             <DialogDescription>
-              {editingItem ? 'Update the focus item details' : 'Create a new focus area item'}
+              {editingItem ? t('admin.focusAreas.editFocusDesc') : t('admin.focusAreas.addFocusDesc')}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="space-y-2">
-              <Label htmlFor="title">Title *</Label>
+              <Label htmlFor="title">{t('admin.focusAreas.fieldTitle')}</Label>
               <Input
                 id="title"
                 value={title}
@@ -486,7 +486,7 @@ export default function FocusAreasManagement() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="description">Description *</Label>
+              <Label htmlFor="description">{t('admin.focusAreas.fieldDescription')}</Label>
               <Textarea
                 id="description"
                 value={description}
@@ -498,7 +498,7 @@ export default function FocusAreasManagement() {
             <div className="space-y-2">
               <Label htmlFor="imageUrl" className="flex items-center gap-2">
                 <ImageIcon className="h-4 w-4" />
-                Background Image URL
+                {t('admin.focusAreas.fieldImageUrl')}
               </Label>
               <Input
                 id="imageUrl"
@@ -518,7 +518,7 @@ export default function FocusAreasManagement() {
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="icon">Icon (shown when no image)</Label>
+              <Label htmlFor="icon">{t('admin.focusAreas.fieldIconFallback')}</Label>
               <Select value={selectedIcon} onValueChange={setSelectedIcon}>
                 <SelectTrigger>
                   <SelectValue />
@@ -536,12 +536,12 @@ export default function FocusAreasManagement() {
               </Select>
               <div className="flex items-center gap-2 mt-2 p-3 border rounded-md bg-muted/30">
                 <SelectedIconComponent className="h-6 w-6 text-primary" />
-                <span className="text-sm text-muted-foreground">Icon preview</span>
+                <span className="text-sm text-muted-foreground">{t('admin.focusAreas.iconPreview')}</span>
               </div>
             </div>
             <div className="flex items-center space-x-2">
               <Switch id="isActive" checked={isActive} onCheckedChange={setIsActive} />
-              <Label htmlFor="isActive">Active</Label>
+              <Label htmlFor="isActive">{t('admin.focusAreas.fieldActive')}</Label>
             </div>
           </div>
           <div className="flex justify-end gap-2 pt-2">
@@ -563,7 +563,7 @@ export default function FocusAreasManagement() {
           <DialogHeader>
             <DialogTitle>{t('admin.focusAreas.deleteFocusItem')}</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this focus item? This action cannot be undone.
+              {t('admin.focusAreas.deleteDesc')}
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end gap-2 pt-2">
@@ -589,9 +589,9 @@ export default function FocusAreasManagement() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <AlignLeft className="h-5 w-5" />
-              Section Header Settings
+              {t('admin.focusAreas.sectionHeaderTitle')}
             </DialogTitle>
-            <DialogDescription>Edit the main title and subtitle of the Focus Areas section</DialogDescription>
+            <DialogDescription>{t('admin.focusAreas.sectionHeaderDesc')}</DialogDescription>
           </DialogHeader>
           {sectionLoading ? (
             <div className="flex items-center justify-center py-8">
@@ -600,7 +600,7 @@ export default function FocusAreasManagement() {
           ) : (
             <div className="space-y-4 py-2">
               <div className="space-y-2">
-                <Label htmlFor="sectionTitle">Section Title</Label>
+                <Label htmlFor="sectionTitle">{t('admin.focusAreas.sectionTitleLabel')}</Label>
                 <div className="flex gap-2">
                   <Input
                     id="sectionTitle"
@@ -618,7 +618,7 @@ export default function FocusAreasManagement() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="sectionSubtitle">Section Subtitle</Label>
+                <Label htmlFor="sectionSubtitle">{t('admin.focusAreas.sectionSubtitleLabel')}</Label>
                 <div className="flex gap-2">
                   <Input
                     id="sectionSubtitle"

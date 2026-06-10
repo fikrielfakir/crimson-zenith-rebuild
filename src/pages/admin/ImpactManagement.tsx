@@ -93,30 +93,30 @@ export default function ImpactManagement() {
     mutationFn: createStat,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEY });
-      toast({ title: 'Stat added' });
+      toast({ title: t('admin.impact.toastCreated') });
       handleClose();
     },
-    onError: (err: Error) => toast({ title: 'Error', description: err.message, variant: 'destructive' }),
+    onError: (err: Error) => toast({ title: t('admin.common.error'), description: err.message, variant: 'destructive' }),
   });
 
   const updateMutation = useMutation({
     mutationFn: ({ id, ...data }: { id: number } & Partial<SiteStat>) => updateStat(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEY });
-      toast({ title: 'Stat updated' });
+      toast({ title: t('admin.impact.toastUpdated') });
       handleClose();
     },
-    onError: (err: Error) => toast({ title: 'Error', description: err.message, variant: 'destructive' }),
+    onError: (err: Error) => toast({ title: t('admin.common.error'), description: err.message, variant: 'destructive' }),
   });
 
   const deleteMutation = useMutation({
     mutationFn: deleteStat,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEY });
-      toast({ title: 'Stat deleted' });
+      toast({ title: t('admin.impact.toastDeleted') });
       setDeletingId(null);
     },
-    onError: (err: Error) => toast({ title: 'Error', description: err.message, variant: 'destructive' }),
+    onError: (err: Error) => toast({ title: t('admin.common.error'), description: err.message, variant: 'destructive' }),
   });
 
   const handleEdit = (stat: SiteStat) => {
@@ -139,7 +139,7 @@ export default function ImpactManagement() {
 
   const handleSave = () => {
     if (!form.label.trim() || !form.value.trim()) {
-      toast({ title: 'Validation error', description: 'Label and value are required', variant: 'destructive' });
+      toast({ title: t('admin.common.error'), description: t('admin.impact.validationError'), variant: 'destructive' });
       return;
     }
     if (editingStat) {
@@ -155,19 +155,19 @@ export default function ImpactManagement() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Impact Stats</h1>
-          <p className="text-muted-foreground mt-1">Manage the key impact numbers shown on the landing page</p>
+          <h1 className="text-3xl font-bold">{t('admin.impact.title')}</h1>
+          <p className="text-muted-foreground mt-1">{t('admin.impact.subtitle')}</p>
         </div>
         <Button onClick={() => setShowForm(true)}>
           <Plus className="mr-2 h-4 w-4" />
-          Add Stat
+          {t('admin.impact.addStat')}
         </Button>
       </div>
 
       {/* Preview strip */}
       {stats.filter(s => s.isActive).length > 0 && (
         <div className="rounded-xl border bg-[#112250] p-6">
-          <p className="text-xs text-white/50 uppercase tracking-widest mb-4 text-center">Live preview</p>
+          <p className="text-xs text-white/50 uppercase tracking-widest mb-4 text-center">{t('admin.impact.livePreview')}</p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {stats.filter(s => s.isActive).slice(0, 4).map((stat) => (
               <div key={stat.id} className="text-center">
@@ -271,12 +271,12 @@ export default function ImpactManagement() {
               <div className="space-y-2">
                 <Label htmlFor="s-value">{t('admin.impact.valueField')} *</Label>
                 <Input id="s-value" value={form.value} onChange={(e) => setForm({ ...form, value: e.target.value })} placeholder="e.g., 1200, 50" />
-                <p className="text-xs text-muted-foreground">The displayed number</p>
+                <p className="text-xs text-muted-foreground">{t('admin.impact.valueHint')}</p>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="s-suffix">{t('admin.impact.suffixField')}</Label>
                 <Input id="s-suffix" value={form.suffix} onChange={(e) => setForm({ ...form, suffix: e.target.value })} placeholder="e.g., +, k" />
-                <p className="text-xs text-muted-foreground">Shown after value in gold</p>
+                <p className="text-xs text-muted-foreground">{t('admin.impact.suffixHint')}</p>
               </div>
             </div>
             <div className="space-y-2">

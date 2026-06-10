@@ -109,9 +109,9 @@ export default function PartnersManagement() {
     writeEndpoint: '/api/admin/cms/partners',
     queryKey: ['admin-partners'],
     messages: {
-      created: 'Partner added',
-      updated: 'Partner updated',
-      deleted: 'Partner removed',
+      created: t('admin.partners.toastCreated'),
+      updated: t('admin.partners.toastUpdated'),
+      deleted: t('admin.partners.toastDeleted'),
     },
   });
 
@@ -131,9 +131,9 @@ export default function PartnersManagement() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: SETTINGS_KEY });
       setSectionDraft(null);
-      toast({ title: 'Section settings saved' });
+      toast({ title: t('admin.partners.toastSectionSaved') });
     },
-    onError: (err: Error) => toast({ title: 'Error', description: err.message, variant: 'destructive' }),
+    onError: (err: Error) => toast({ title: t('admin.common.error'), description: err.message, variant: 'destructive' }),
   });
 
   const handleEdit = (item: Partner) => {
@@ -156,7 +156,7 @@ export default function PartnersManagement() {
 
   const handleSavePartner = async () => {
     if (!form.name.trim()) {
-      toast({ title: 'Validation error', description: 'Partner name is required', variant: 'destructive' });
+      toast({ title: t('admin.common.error'), description: t('admin.partners.validationError'), variant: 'destructive' });
       return;
     }
     if (editingItem) {
@@ -180,10 +180,10 @@ export default function PartnersManagement() {
       const fileUrl: string = data.fileUrl ?? data.url ?? data.thumbnailUrl ?? '';
       if (fileUrl) {
         setForm(f => ({ ...f, logoUrl: fileUrl }));
-        toast({ title: 'Logo uploaded' });
+        toast({ title: t('admin.partners.toastLogoUploaded') });
       }
     } catch (err) {
-      toast({ title: 'Upload failed', description: (err as Error).message, variant: 'destructive' });
+      toast({ title: t('admin.partners.uploadFailed'), description: (err as Error).message, variant: 'destructive' });
     } finally {
       setUploadingLogo(false);
       if (logoFileRef.current) logoFileRef.current.value = '';
@@ -197,28 +197,28 @@ export default function PartnersManagement() {
     <div className="space-y-8">
       <AdminPageHeader
         title={t('admin.partners.title')}
-        description="Manage the Partners & Supporters section on the landing page"
+        description={t('admin.partners.headerDescription')}
         action={
           <Button onClick={() => setShowForm(true)}>
             <Plus className="mr-2 h-4 w-4" />
-            Add Partner
+            {t('admin.partners.addPartner')}
           </Button>
         }
       />
 
       <Card>
         <CardHeader>
-          <CardTitle>Section Header</CardTitle>
-          <CardDescription>Control the title, subtitle and visibility of the partners section</CardDescription>
+          <CardTitle>{t('admin.partners.sectionHeaderTitle')}</CardTitle>
+          <CardDescription>{t('admin.partners.sectionHeaderDesc')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
           {settingsLoading ? (
-            <div className="text-sm text-muted-foreground py-4">Loading settings…</div>
+            <div className="text-sm text-muted-foreground py-4">{t('admin.partners.loadingSettings')}</div>
           ) : (
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="sec-subtitle">Eyebrow / Subtitle</Label>
+                  <Label htmlFor="sec-subtitle">{t('admin.partners.eyebrowLabel')}</Label>
                   <div className="flex gap-2 items-start">
                     <Input
                       id="sec-subtitle"
@@ -237,7 +237,7 @@ export default function PartnersManagement() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="sec-title">Main Title</Label>
+                  <Label htmlFor="sec-title">{t('admin.partners.mainTitleLabel')}</Label>
                   <div className="flex gap-2 items-start">
                     <Input
                       id="sec-title"
@@ -268,8 +268,8 @@ export default function PartnersManagement() {
                   />
                   <Label htmlFor="sec-active" className="cursor-pointer">
                     {section.isActive
-                      ? <span className="flex items-center gap-1.5 text-green-700"><Eye className="h-4 w-4" /> Section visible on site</span>
-                      : <span className="flex items-center gap-1.5 text-muted-foreground"><EyeOff className="h-4 w-4" /> Section hidden from site</span>
+                      ? <span className="flex items-center gap-1.5 text-green-700"><Eye className="h-4 w-4" /> {t('admin.partners.sectionVisible')}</span>
+                      : <span className="flex items-center gap-1.5 text-muted-foreground"><EyeOff className="h-4 w-4" /> {t('admin.partners.sectionHidden')}</span>
                     }
                   </Label>
                 </div>
@@ -290,15 +290,15 @@ export default function PartnersManagement() {
       </Card>
 
       <div className="grid grid-cols-3 gap-4">
-        <Card><CardContent className="pt-6"><div className="text-2xl font-bold">{crud.data.length}</div><div className="text-sm text-muted-foreground mt-1">Total partners</div></CardContent></Card>
-        <Card><CardContent className="pt-6"><div className="text-2xl font-bold text-green-600">{activeCount}</div><div className="text-sm text-muted-foreground mt-1">Visible on site</div></CardContent></Card>
-        <Card><CardContent className="pt-6"><div className="text-2xl font-bold text-gray-400">{crud.data.length - activeCount}</div><div className="text-sm text-muted-foreground mt-1">Hidden</div></CardContent></Card>
+        <Card><CardContent className="pt-6"><div className="text-2xl font-bold">{crud.data.length}</div><div className="text-sm text-muted-foreground mt-1">{t('admin.partners.totalPartnersLabel')}</div></CardContent></Card>
+        <Card><CardContent className="pt-6"><div className="text-2xl font-bold text-green-600">{activeCount}</div><div className="text-sm text-muted-foreground mt-1">{t('admin.common.visibleOnSite')}</div></CardContent></Card>
+        <Card><CardContent className="pt-6"><div className="text-2xl font-bold text-gray-400">{crud.data.length - activeCount}</div><div className="text-sm text-muted-foreground mt-1">{t('admin.common.hidden')}</div></CardContent></Card>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Partner Logos</CardTitle>
-          <CardDescription>{crud.data.length} partner{crud.data.length !== 1 ? 's' : ''} · shown in the scrolling carousel</CardDescription>
+          <CardTitle>{t('admin.partners.partnerLogosTitle')}</CardTitle>
+          <CardDescription>{t('admin.partners.partnerLogosDesc', { count: crud.data.length })}</CardDescription>
         </CardHeader>
         <CardContent className="overflow-x-auto">
           {crud.isLoading ? (
@@ -399,19 +399,19 @@ export default function PartnersManagement() {
               <div className="flex items-center gap-2">
                 <input ref={logoFileRef} type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
                 <Button type="button" variant="outline" size="sm" disabled={uploadingLogo} onClick={() => logoFileRef.current?.click()} className="flex items-center gap-2">
-                  {uploadingLogo ? <><Loader2 className="h-4 w-4 animate-spin" /> Uploading…</> : <><Upload className="h-4 w-4" /> Upload image</>}
+                  {uploadingLogo ? <><Loader2 className="h-4 w-4 animate-spin" /> {t('admin.partners.uploadingLogo')}</> : <><Upload className="h-4 w-4" /> {t('admin.partners.uploadImageBtn')}</>}
                 </Button>
                 <span className="text-xs text-muted-foreground">PNG, JPG, SVG, WebP</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="h-px flex-1 bg-border" />
-                <span className="text-xs text-muted-foreground px-1">or paste URL</span>
+                <span className="text-xs text-muted-foreground px-1">{t('admin.partners.orPasteUrl')}</span>
                 <div className="h-px flex-1 bg-border" />
               </div>
               <Input id="p-logo" value={form.logoUrl} onChange={(e) => setForm({ ...form, logoUrl: e.target.value })} placeholder="https://example.com/logo.png" />
               {form.logoUrl && (
                 <div className="flex items-center gap-3 p-3 rounded-md border bg-gray-50">
-                  <span className="text-xs text-muted-foreground shrink-0">Preview:</span>
+                  <span className="text-xs text-muted-foreground shrink-0">{t('admin.partners.previewLabel')}</span>
                   <img src={form.logoUrl} alt="Logo preview" className="h-10 max-w-[160px] object-contain"
                     onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
                 </div>

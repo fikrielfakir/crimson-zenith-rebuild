@@ -208,13 +208,13 @@ export default function HeroSettings() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Hero Section</h1>
-          <p className="text-muted-foreground mt-1">Customize your homepage hero section</p>
+          <h1 className="text-3xl font-bold">{t('admin.hero.title')}</h1>
+          <p className="text-muted-foreground mt-1">{t('admin.hero.subtitle')}</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => window.open('/', '_blank')}>
             <Eye className="mr-2 h-4 w-4" />
-            Preview
+            {t('admin.common.preview')}
           </Button>
           <Button onClick={handleSave} disabled={isSaving}>
             <Save className="mr-2 h-4 w-4" />
@@ -225,11 +225,11 @@ export default function HeroSettings() {
 
       <Tabs defaultValue="content" className="w-full">
         <TabsList>
-          <TabsTrigger value="content">Content</TabsTrigger>
-          <TabsTrigger value="buttons">Buttons</TabsTrigger>
-          <TabsTrigger value="background">Background</TabsTrigger>
-          <TabsTrigger value="typography">Typography</TabsTrigger>
-          <TabsTrigger value="layout">Layout</TabsTrigger>
+          <TabsTrigger value="content">{t('admin.hero.tabContent')}</TabsTrigger>
+          <TabsTrigger value="buttons">{t('admin.hero.tabButtons')}</TabsTrigger>
+          <TabsTrigger value="background">{t('admin.hero.tabBackground')}</TabsTrigger>
+          <TabsTrigger value="typography">{t('admin.hero.tabTypography')}</TabsTrigger>
+          <TabsTrigger value="layout">{t('admin.hero.tabLayout')}</TabsTrigger>
         </TabsList>
 
         {/* ── Content Tab ─────────────────────────────────────────────── */}
@@ -242,11 +242,10 @@ export default function HeroSettings() {
                 <div>
                   <CardTitle className="flex items-center gap-2">
                     <Type className="h-4 w-4" />
-                    Animated Titles
+                    {t('admin.hero.animatedTitles')}
                   </CardTitle>
                   <CardDescription className="mt-1">
-                    Each title rotates with a typewriter animation. Add as many as you like.
-                    Use <code className="bg-muted px-1 rounded text-xs">\n</code> in the text to create a two-line title.
+                    {t('admin.hero.animatedTitlesDesc')}
                   </CardDescription>
                 </div>
                 <Button variant="outline" size="sm" onClick={addTagline}>
@@ -273,7 +272,7 @@ export default function HeroSettings() {
                   <div className="flex-1 space-y-2">
                     <div className="flex items-center gap-2">
                       <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                        Title {i + 1}
+                        {t('admin.hero.titleN', { n: i + 1 })}
                       </span>
                       <Switch
                         id={`twolines-${i}`}
@@ -282,7 +281,7 @@ export default function HeroSettings() {
                         className="scale-75"
                       />
                       <Label htmlFor={`twolines-${i}`} className="text-xs text-muted-foreground cursor-pointer">
-                        Two-line layout
+                        {t('admin.hero.twoLineLayout')}
                       </Label>
                     </div>
 
@@ -438,22 +437,22 @@ export default function HeroSettings() {
             </CardHeader>
             <CardContent className="space-y-5">
               <div className="space-y-2">
-                <Label>Background Type</Label>
+                <Label>{t('admin.hero.backgroundType')}</Label>
                 <Select value={backgroundType} onValueChange={(v: 'image' | 'video' | 'gradient') => setBackgroundType(v)}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="image">Image</SelectItem>
-                    <SelectItem value="video">Video</SelectItem>
-                    <SelectItem value="gradient">Gradient</SelectItem>
+                    <SelectItem value="image">{t('admin.hero.bgImage')}</SelectItem>
+                    <SelectItem value="video">{t('admin.hero.bgVideo')}</SelectItem>
+                    <SelectItem value="gradient">{t('admin.hero.bgGradient')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               {backgroundType === 'image' && (
                 <div className="space-y-3">
-                  <Label>Background Image</Label>
+                  <Label>{t('admin.hero.backgroundImage')}</Label>
                   {backgroundImageUrl && (
                     <div className="border rounded-lg overflow-hidden bg-gray-50">
                       <img src={backgroundImageUrl} alt="Background preview" className="w-full h-40 object-cover" />
@@ -462,12 +461,12 @@ export default function HeroSettings() {
                   <div className="flex items-center gap-2">
                     <input ref={bgFileRef} type="file" accept="image/*" className="hidden" onChange={handleBgUpload} />
                     <Button variant="outline" size="sm" disabled={uploadingBg} onClick={() => bgFileRef.current?.click()}>
-                      {uploadingBg ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Uploading…</> : <><Upload className="h-4 w-4 mr-2" /> Upload image</>}
+                      {uploadingBg ? <><Loader2 className="h-4 w-4 animate-spin mr-2" />{t('admin.hero.uploading')}</> : <><Upload className="h-4 w-4 mr-2" />{t('admin.hero.uploadImage')}</>}
                     </Button>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="h-px flex-1 bg-border" />
-                    <span className="text-xs text-muted-foreground">or paste URL</span>
+                    <span className="text-xs text-muted-foreground">{t('admin.hero.orPasteUrl')}</span>
                     <div className="h-px flex-1 bg-border" />
                   </div>
                   <Input
@@ -480,7 +479,7 @@ export default function HeroSettings() {
 
               {backgroundType === 'video' && (
                 <div className="space-y-2">
-                  <Label>Video URL</Label>
+                  <Label>{t('admin.hero.videoUrl')}</Label>
                   <Input
                     value={backgroundImageUrl}
                     onChange={(e) => setBackgroundImageUrl(e.target.value)}
@@ -491,7 +490,7 @@ export default function HeroSettings() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Overlay Color</Label>
+                  <Label>{t('admin.hero.overlayColor')}</Label>
                   <div className="flex gap-2">
                     <Input
                       type="color"
@@ -507,7 +506,7 @@ export default function HeroSettings() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label>Overlay Opacity (%)</Label>
+                  <Label>{t('admin.hero.overlayOpacity')}</Label>
                   <Input
                     type="number"
                     value={backgroundOverlayOpacity}
@@ -530,10 +529,10 @@ export default function HeroSettings() {
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-4 border-b pb-6">
-                <h4 className="font-semibold">Title Styling</h4>
+                <h4 className="font-semibold">{t('admin.hero.titleStyling')}</h4>
                 <div className="grid grid-cols-3 gap-4">
                   <div className="space-y-2">
-                    <Label>Font Size</Label>
+                    <Label>{t('admin.hero.fontSizeLabel')}</Label>
                     <Select value={titleFontSize} onValueChange={setTitleFontSize}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
@@ -542,14 +541,14 @@ export default function HeroSettings() {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label>Text Color</Label>
+                    <Label>{t('admin.hero.textColorLabel')}</Label>
                     <div className="flex gap-2">
                       <Input type="color" value={titleColor} onChange={(e) => setTitleColor(e.target.value)} className="w-14 h-10 p-1 cursor-pointer" />
                       <Input value={titleColor} onChange={(e) => setTitleColor(e.target.value)} />
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label>Alignment</Label>
+                    <Label>{t('admin.hero.alignmentLabel')}</Label>
                     <Select value={titleAlignment} onValueChange={setTitleAlignment}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
@@ -561,10 +560,10 @@ export default function HeroSettings() {
               </div>
 
               <div className="space-y-4">
-                <h4 className="font-semibold">Subtitle Styling</h4>
+                <h4 className="font-semibold">{t('admin.hero.subtitleStyling')}</h4>
                 <div className="grid grid-cols-3 gap-4">
                   <div className="space-y-2">
-                    <Label>Font Size</Label>
+                    <Label>{t('admin.hero.fontSizeLabel')}</Label>
                     <Select value={subtitleFontSize} onValueChange={setSubtitleFontSize}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
@@ -573,14 +572,14 @@ export default function HeroSettings() {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label>Text Color</Label>
+                    <Label>{t('admin.hero.textColorLabel')}</Label>
                     <div className="flex gap-2">
                       <Input type="color" value={subtitleColor} onChange={(e) => setSubtitleColor(e.target.value)} className="w-14 h-10 p-1 cursor-pointer" />
                       <Input value={subtitleColor} onChange={(e) => setSubtitleColor(e.target.value)} />
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label>Alignment</Label>
+                    <Label>{t('admin.hero.alignmentLabel')}</Label>
                     <Select value={subtitleAlignment} onValueChange={setSubtitleAlignment}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
@@ -604,11 +603,11 @@ export default function HeroSettings() {
             <CardContent>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Hero Height (px)</Label>
+                  <Label>{t('admin.hero.heroHeight')}</Label>
                   <Input type="number" value={heroHeight} onChange={(e) => setHeroHeight(e.target.value)} min="400" max="1000" />
                 </div>
                 <div className="space-y-2">
-                  <Label>Content Max Width (px)</Label>
+                  <Label>{t('admin.hero.contentMaxWidth')}</Label>
                   <Input type="number" value={contentMaxWidth} onChange={(e) => setContentMaxWidth(e.target.value)} min="600" max="1400" />
                 </div>
               </div>

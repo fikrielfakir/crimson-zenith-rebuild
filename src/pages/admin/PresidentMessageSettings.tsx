@@ -253,7 +253,7 @@ export default function PresidentMessageSettings() {
       });
 
       if (response.ok) {
-        toast({ title: 'Success', description: 'President message settings saved successfully' });
+        toast({ title: t('admin.common.success'), description: t('admin.presidentMsg.savedDesc') });
       } else {
         let detail = `HTTP ${response.status}`;
         try {
@@ -267,8 +267,8 @@ export default function PresidentMessageSettings() {
     } catch (error: any) {
       console.error('Error saving president message settings:', error);
       toast({ 
-        title: 'Error', 
-        description: error?.message ?? 'Failed to save president message settings', 
+        title: t('admin.common.error'), 
+        description: error?.message ?? t('admin.presidentMsg.saveError'), 
         variant: 'destructive' 
       });
     } finally {
@@ -320,7 +320,7 @@ export default function PresidentMessageSettings() {
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="section-title">Section Title</Label>
+                <Label htmlFor="section-title">{t('admin.presidentMsg.sectionTitleLabel')}</Label>
                 <div className="flex gap-2 items-start">
                   <Input
                     id="section-title"
@@ -332,8 +332,8 @@ export default function PresidentMessageSettings() {
                   <TranslateDialog
                     entityType="president_message"
                     entityId="title"
-                    entityLabel="Section Title"
-                    fields={[{ key: 'title', label: 'Section Title' }]}
+                    entityLabel={t('admin.presidentMsg.sectionTitleLabel')}
+                    fields={[{ key: 'title', label: t('admin.presidentMsg.sectionTitleLabel') }]}
                     sourceValues={{ title }}
                   />
                 </div>
@@ -341,7 +341,7 @@ export default function PresidentMessageSettings() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="president-name">President Name</Label>
+                  <Label htmlFor="president-name">{t('admin.presidentMsg.presidentNameLabel')}</Label>
                   <div className="flex gap-2 items-start">
                     <Input
                       id="president-name"
@@ -353,14 +353,14 @@ export default function PresidentMessageSettings() {
                     <TranslateDialog
                       entityType="president_message"
                       entityId="presidentName"
-                      entityLabel="President Name"
-                      fields={[{ key: 'presidentName', label: 'President Name' }]}
+                      entityLabel={t('admin.presidentMsg.presidentNameLabel')}
+                      fields={[{ key: 'presidentName', label: t('admin.presidentMsg.presidentNameLabel') }]}
                       sourceValues={{ presidentName }}
                     />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="president-role">President Role/Title</Label>
+                  <Label htmlFor="president-role">{t('admin.presidentMsg.presidentRoleLabel')}</Label>
                   <div className="flex gap-2 items-start">
                     <Input
                       id="president-role"
@@ -372,8 +372,8 @@ export default function PresidentMessageSettings() {
                     <TranslateDialog
                       entityType="president_message"
                       entityId="presidentRole"
-                      entityLabel="President Role"
-                      fields={[{ key: 'presidentRole', label: 'President Role' }]}
+                      entityLabel={t('admin.presidentMsg.presidentRoleLabel')}
+                      fields={[{ key: 'presidentRole', label: t('admin.presidentMsg.presidentRoleLabel') }]}
                       sourceValues={{ presidentRole }}
                     />
                   </div>
@@ -381,7 +381,7 @@ export default function PresidentMessageSettings() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="message">Message (Rich Text)</Label>
+                <Label htmlFor="message">{t('admin.presidentMsg.messageLabel')}</Label>
                 <div className="flex gap-2 items-start">
                   <Textarea
                     id="message"
@@ -394,8 +394,8 @@ export default function PresidentMessageSettings() {
                   <TranslateDialog
                     entityType="president_message"
                     entityId="message"
-                    entityLabel="President Message"
-                    fields={[{ key: 'message', label: 'Message', multiline: true }]}
+                    entityLabel={t('admin.presidentMsg.messageLabel')}
+                    fields={[{ key: 'message', label: t('admin.presidentMsg.messageLabel'), multiline: true }]}
                     sourceValues={{ message }}
                   />
                 </div>
@@ -405,7 +405,7 @@ export default function PresidentMessageSettings() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="quote">Optional Quote</Label>
+                <Label htmlFor="quote">{t('admin.presidentMsg.quoteLabel')}</Label>
                 <div className="flex gap-2 items-start">
                   <Input
                     id="quote"
@@ -417,8 +417,8 @@ export default function PresidentMessageSettings() {
                   <TranslateDialog
                     entityType="president_message"
                     entityId="quote"
-                    entityLabel="President Quote"
-                    fields={[{ key: 'quote', label: 'Quote' }]}
+                    entityLabel={t('admin.presidentMsg.quoteLabel')}
+                    fields={[{ key: 'quote', label: t('admin.presidentMsg.quoteLabel') }]}
                     sourceValues={{ quote }}
                   />
                 </div>
@@ -434,8 +434,8 @@ export default function PresidentMessageSettings() {
         <TabsContent value="media" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>President Photo</CardTitle>
-              <CardDescription>Upload or select the president's photo</CardDescription>
+              <CardTitle>{t('admin.presidentMsg.photoTitle')}</CardTitle>
+              <CardDescription>{t('admin.presidentMsg.photoUploadDesc')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {photoUrl && (
@@ -447,7 +447,7 @@ export default function PresidentMessageSettings() {
                 <DialogTrigger asChild>
                   <Button variant="outline" className="w-full">
                     <ImageIcon className="mr-2 h-4 w-4" />
-                    {photoId ? 'Change Photo' : 'Select Photo'}
+                    {photoId ? t('admin.presidentMsg.changeSignature').replace('Signature', 'Photo') : t('admin.presidentMsg.selectSignature').replace('Signature', 'Photo')}
                   </Button>
                 </DialogTrigger>
                 <MediaLibraryDialog 
@@ -463,8 +463,8 @@ export default function PresidentMessageSettings() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Signature Image (Optional)</CardTitle>
-              <CardDescription>Upload or select a signature image</CardDescription>
+              <CardTitle>{t('admin.presidentMsg.signatureTitle')}</CardTitle>
+              <CardDescription>{t('admin.presidentMsg.signatureDesc')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {signatureUrl && (
@@ -476,7 +476,7 @@ export default function PresidentMessageSettings() {
                 <DialogTrigger asChild>
                   <Button variant="outline" className="w-full">
                     <ImageIcon className="mr-2 h-4 w-4" />
-                    {signatureId ? 'Change Signature' : 'Select Signature'}
+                    {signatureId ? t('admin.presidentMsg.changeSignature') : t('admin.presidentMsg.selectSignature')}
                   </Button>
                 </DialogTrigger>
                 <MediaLibraryDialog 
@@ -504,8 +504,8 @@ export default function PresidentMessageSettings() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Background Image (Optional)</CardTitle>
-              <CardDescription>Upload or select a background image for the section</CardDescription>
+              <CardTitle>{t('admin.presidentMsg.bgTitle')}</CardTitle>
+              <CardDescription>{t('admin.presidentMsg.bgDesc')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {backgroundImageUrl && (
@@ -517,7 +517,7 @@ export default function PresidentMessageSettings() {
                 <DialogTrigger asChild>
                   <Button variant="outline" className="w-full">
                     <ImageIcon className="mr-2 h-4 w-4" />
-                    {backgroundImageId ? 'Change Background' : 'Select Background'}
+                    {backgroundImageId ? t('admin.presidentMsg.changeBg') : t('admin.presidentMsg.selectBg')}
                   </Button>
                 </DialogTrigger>
                 <MediaLibraryDialog 
@@ -548,8 +548,8 @@ export default function PresidentMessageSettings() {
         <TabsContent value="typography" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Section Title Typography</CardTitle>
-              <CardDescription>Customize the main title appearance</CardDescription>
+              <CardTitle>{t('admin.presidentMsg.titleTypographyTitle')}</CardTitle>
+              <CardDescription>{t('admin.presidentMsg.titleTypographyDesc')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-3 gap-4">
@@ -597,7 +597,7 @@ export default function PresidentMessageSettings() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label>Text Alignment</Label>
+                <Label>{t('admin.presidentMsg.textAlignment')}</Label>
                 <Select value={titleAlignment} onValueChange={setTitleAlignment}>
                   <SelectTrigger>
                     <SelectValue />
@@ -614,8 +614,8 @@ export default function PresidentMessageSettings() {
 
           <Card>
             <CardHeader>
-              <CardTitle>President Name & Role Typography</CardTitle>
-              <CardDescription>Customize name and role text appearance</CardDescription>
+              <CardTitle>{t('admin.presidentMsg.nameRoleTypographyTitle')}</CardTitle>
+              <CardDescription>{t('admin.presidentMsg.nameRoleTypographyDesc')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-4">
@@ -718,8 +718,8 @@ export default function PresidentMessageSettings() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Message & Quote Typography</CardTitle>
-              <CardDescription>Customize message and quote text appearance</CardDescription>
+              <CardTitle>{t('admin.presidentMsg.msgQuoteTypographyTitle')}</CardTitle>
+              <CardDescription>{t('admin.presidentMsg.msgQuoteTypographyDesc')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-4">
@@ -812,8 +812,8 @@ export default function PresidentMessageSettings() {
         <TabsContent value="layout" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Background Settings</CardTitle>
-              <CardDescription>Configure the section background appearance</CardDescription>
+              <CardTitle>{t('admin.presidentMsg.bgSettingsTitle')}</CardTitle>
+              <CardDescription>{t('admin.presidentMsg.bgSettingsDesc')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
@@ -851,8 +851,8 @@ export default function PresidentMessageSettings() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Image Positioning</CardTitle>
-              <CardDescription>Control where the president's photo appears</CardDescription>
+              <CardTitle>{t('admin.presidentMsg.imgPositioningTitle')}</CardTitle>
+              <CardDescription>{t('admin.presidentMsg.imgPositioningDesc')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-3 gap-4">
@@ -906,8 +906,8 @@ export default function PresidentMessageSettings() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Spacing & Layout</CardTitle>
-              <CardDescription>Adjust section padding and content spacing</CardDescription>
+              <CardTitle>{t('admin.presidentMsg.spacingTitle')}</CardTitle>
+              <CardDescription>{t('admin.presidentMsg.spacingDesc')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
