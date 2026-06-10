@@ -531,7 +531,6 @@ export default function UserManagement() {
                       <SelectItem value="moderator">{t('admin.users.roles.moderator')}</SelectItem>
                       <SelectItem value="club_manager">{t('admin.users.roles.clubManager')}</SelectItem>
                       <SelectItem value="event_organizer">{t('admin.users.roles.eventOrganizer')}</SelectItem>
-                      <SelectItem value="admin">{t('admin.users.roles.admin')}</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
