@@ -200,23 +200,27 @@ const OurPartners = () => {
                     boxShadow: "0 4px 24px rgba(0,0,0,0.25)",
                   }}
                   onMouseEnter={e => {
-                    (e.currentTarget as HTMLDivElement).style.background = "rgba(255,255,255,0.13)";
-                    (e.currentTarget as HTMLDivElement).style.border = "1px solid rgba(201,163,91,0.55)";
-                    (e.currentTarget as HTMLDivElement).style.boxShadow = "0 8px 32px rgba(201,163,91,0.2)";
+                    const card = e.currentTarget as HTMLDivElement;
+                    card.style.background = "rgba(255,255,255,0.13)";
+                    card.style.border = "1px solid rgba(201,163,91,0.55)";
+                    card.style.boxShadow = "0 8px 32px rgba(201,163,91,0.2)";
+                    const img = card.querySelector('img');
+                    if (img) img.style.filter = "brightness(0) invert(1) opacity(1)";
                   }}
                   onMouseLeave={e => {
-                    (e.currentTarget as HTMLDivElement).style.background = "rgba(255,255,255,0.07)";
-                    (e.currentTarget as HTMLDivElement).style.border = "1px solid rgba(201,163,91,0.25)";
-                    (e.currentTarget as HTMLDivElement).style.boxShadow = "0 4px 24px rgba(0,0,0,0.25)";
+                    const card = e.currentTarget as HTMLDivElement;
+                    card.style.background = "rgba(255,255,255,0.07)";
+                    card.style.border = "1px solid rgba(201,163,91,0.25)";
+                    card.style.boxShadow = "0 4px 24px rgba(0,0,0,0.25)";
+                    const img = card.querySelector('img');
+                    if (img) img.style.filter = "brightness(0) invert(1) opacity(0.6)";
                   }}
                 >
                   <img
                     src={logo}
                     alt={partner.name}
-                    className="max-w-full h-auto transition-all duration-300"
-                    style={{ maxHeight: "70px", objectFit: "contain", filter: "brightness(0) invert(1) opacity(0.6)", transition: "all 0.3s ease" }}
-                    onMouseEnter={e => { e.currentTarget.style.filter = "brightness(0) invert(1) opacity(1)"; }}
-                    onMouseLeave={e => { e.currentTarget.style.filter = "brightness(0) invert(1) opacity(0.6)"; }}
+                    className="max-w-full h-auto"
+                    style={{ maxHeight: "70px", objectFit: "contain", filter: "brightness(0) invert(1) opacity(0.6)", transition: "filter 0.3s ease" }}
                     onError={e => {
                       (e.target as HTMLImageElement).src = makeSvgPlaceholder(partner.name);
                     }}
