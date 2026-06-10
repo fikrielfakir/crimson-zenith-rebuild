@@ -13,7 +13,8 @@
     "lint": "node_modules/.bin/eslint .",
     "preview": "node_modules/.bin/vite preview",
     "db:push": "node_modules/.bin/drizzle-kit push",
-    "db:studio": "node_modules/.bin/drizzle-kit studio"
+    "db:studio": "node_modules/.bin/drizzle-kit studio",
+    "check:translations": "node scripts/check-translations.js"
   },
   "dependencies": {
     "@amcharts/amcharts5": "^5.14.2",
