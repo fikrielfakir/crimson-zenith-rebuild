@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { apiFetch } from '@/lib/apiFetch';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -36,6 +37,7 @@ async function fetchApplications(status?: string, search?: string) {
 }
 
 export default function ApplicationsManagement() {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [statusFilter, setStatusFilter] = useState('all');
@@ -214,12 +216,12 @@ export default function ApplicationsManagement() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Applicant</TableHead>
+                  <TableHead>{t('admin.applications.colApplicant')}</TableHead>
                   <TableHead>Contact</TableHead>
                   <TableHead>Type</TableHead>
                   <TableHead>Submitted</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead>{t('admin.common.status')}</TableHead>
+                  <TableHead className="text-right">{t('admin.common.actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

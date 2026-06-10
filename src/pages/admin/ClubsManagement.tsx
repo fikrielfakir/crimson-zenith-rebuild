@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { apiFetch } from '@/lib/apiFetch';
 import { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -171,6 +172,7 @@ async function fetchClubs(params: any) {
 }
 
 export default function ClubsManagement() {
+  const { t } = useTranslation();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [page, setPage] = useState(1);
@@ -355,12 +357,12 @@ export default function ClubsManagement() {
                   />
                 </TableHead>
                 <TableHead>Club</TableHead>
-                <TableHead>Location</TableHead>
+                <TableHead>{t('admin.clubs.colLocation')}</TableHead>
                 <TableHead>Owner</TableHead>
-                <TableHead>Members</TableHead>
+                <TableHead>{t('admin.clubs.colMembers')}</TableHead>
                 <TableHead>Events</TableHead>
-                <TableHead>Rating</TableHead>
-                <TableHead>Status</TableHead>
+                <TableHead>{t('admin.clubs.colRating')}</TableHead>
+                <TableHead>{t('admin.common.status')}</TableHead>
                 <TableHead className="w-12"></TableHead>
               </TableRow>
             </TableHeader>
@@ -474,7 +476,7 @@ export default function ClubsManagement() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <DropdownMenuLabel>{t('admin.common.actions')}</DropdownMenuLabel>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem asChild>
                             <Link to={`/club/${encodeURIComponent(club.slug || club.name)}`}>

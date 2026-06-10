@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { apiFetch } from '@/lib/apiFetch';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -363,6 +364,7 @@ function DetailDialog({ submissionId, onClose, onUpdated }: DetailDialogProps) {
 /* ── Main page ───────────────────────────────────────────── */
 
 export default function ContactSubmissions() {
+  const { t } = useTranslation();
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [search, setSearch] = useState('');
   const [searchInput, setSearchInput] = useState('');
@@ -610,7 +612,7 @@ export default function ContactSubmissions() {
                             variant="ghost"
                             size="sm"
                             className="h-8 w-8 p-0 text-destructive hover:text-destructive/80"
-                            title="Delete"
+                            title={t('admin.common.delete')}
                             onClick={() => setDeletingId(sub.id)}
                           >
                             <Trash2 className="h-4 w-4" />

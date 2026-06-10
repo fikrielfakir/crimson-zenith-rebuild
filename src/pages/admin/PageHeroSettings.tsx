@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useRef } from "react";
 import { apiFetch } from "@/lib/apiFetch";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -450,7 +451,7 @@ function PageHeroForm({ pageKey, config, isLanding }: {
       <div className="flex gap-2">
         <Button onClick={handleSave} disabled={saving}>
           <Save className="w-4 h-4 mr-2" />
-          {saving ? "Saving…" : "Save Changes"}
+          {saving ? "Saving…" : t('admin.common.save')}
         </Button>
         <Button variant="outline" asChild>
           <a href={config.previewUrl} target="_blank" rel="noopener noreferrer">
@@ -465,6 +466,7 @@ function PageHeroForm({ pageKey, config, isLanding }: {
 }
 
 export default function PageHeroSettings() {
+  const { t } = useTranslation();
   return (
     <div className="space-y-6">
       <div>

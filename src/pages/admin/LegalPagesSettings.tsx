@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from '@/lib/apiFetch';
@@ -167,10 +168,11 @@ function LegalPageEditor({ pageKey, label, defaultTitle, defaultContent }: { pag
 }
 
 export default function LegalPagesSettings() {
+  const { t } = useTranslation();
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Legal Pages</h1>
+        <h1 className="text-3xl font-bold">{t('admin.legal.title')}</h1>
         <p className="text-muted-foreground mt-1">
           Edit the content of your Privacy Policy, Terms of Service, and Cookie Policy pages. Use the translate button to add Arabic, French, and Spanish versions.
         </p>

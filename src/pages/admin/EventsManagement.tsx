@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { apiFetch } from '@/lib/apiFetch';
 import { useState, useEffect } from 'react';
 import { useAdminRole, useAdminUser } from '@/hooks/useAdminRole';
@@ -119,6 +120,7 @@ async function fetchClubs() {
 }
 
 export default function EventsManagement() {
+  const { t } = useTranslation();
   const adminRole = useAdminRole();
   const adminUser = useAdminUser() as any;
   const isClubManager = adminRole === 'club_manager';
@@ -590,7 +592,7 @@ export default function EventsManagement() {
                       name="location"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Location</FormLabel>
+                          <FormLabel>{t('admin.events.colLocation')}</FormLabel>
                           <FormControl>
                             <Input {...field} placeholder="Event location" />
                           </FormControl>
@@ -854,7 +856,7 @@ export default function EventsManagement() {
                       </div>
                       <div className="grid md:grid-cols-2 gap-4">
                         <div className="space-y-1.5">
-                          <Label>Location</Label>
+                          <Label>{t('admin.events.colLocation')}</Label>
                           <Input
                             value={translations[activeLangTab]?.location ?? ''}
                             onChange={e => setTranslations(prev => ({ ...prev, [activeLangTab]: { ...prev[activeLangTab], location: e.target.value } }))}
@@ -933,7 +935,7 @@ export default function EventsManagement() {
                     name="status"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Status</FormLabel>
+                        <FormLabel>{t('admin.common.status')}</FormLabel>
                         <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger>
@@ -1058,13 +1060,13 @@ export default function EventsManagement() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Event</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead>Location</TableHead>
+              <TableHead>{t('admin.events.colTitle')}</TableHead>
+              <TableHead>{t('admin.events.colDate')}</TableHead>
+              <TableHead>{t('admin.events.colLocation')}</TableHead>
               <TableHead>Category</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Attendees</TableHead>
+              <TableHead>{t('admin.events.colType')}</TableHead>
+              <TableHead>{t('admin.common.status')}</TableHead>
+              <TableHead>{t('admin.events.colAttendees')}</TableHead>
               <TableHead className="w-12"></TableHead>
             </TableRow>
           </TableHeader>
@@ -1165,7 +1167,7 @@ export default function EventsManagement() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuLabel>{t('admin.common.actions')}</DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={() => setViewingEvent(event)}>
                           <Eye className="mr-2 h-4 w-4" />

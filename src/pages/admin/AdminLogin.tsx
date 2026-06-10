@@ -13,6 +13,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
+import { useTranslation } from 'react-i18next';
 
 const loginSchema = z.object({
   username: z.string().min(1, 'Username or email is required'),
@@ -26,6 +27,7 @@ export default function AdminLogin() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm<LoginFormData>({
@@ -114,16 +116,14 @@ export default function AdminLogin() {
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary text-primary-foreground">
             <span className="text-2xl font-bold">JA</span>
           </div>
-          <h1 className="text-3xl font-bold">Journey Association</h1>
-          <p className="text-muted-foreground mt-2">Admin Dashboard</p>
+          <h1 className="text-3xl font-bold">{t('admin.login.title')}</h1>
+          <p className="text-muted-foreground mt-2">{t('admin.login.subtitle')}</p>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle>Sign In</CardTitle>
-            <CardDescription>
-              Enter your credentials to access the admin panel
-            </CardDescription>
+            <CardTitle>{t('admin.login.heading')}</CardTitle>
+            <CardDescription>{t('admin.login.description')}</CardDescription>
           </CardHeader>
           <CardContent>
             <Form {...form}>
@@ -133,10 +133,10 @@ export default function AdminLogin() {
                   name="username"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Username or Email</FormLabel>
+                      <FormLabel>{t('admin.login.usernameLabel')}</FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="admin@journey.ma"
+                          placeholder={t('admin.login.usernamePlaceholder')}
                           autoComplete="username"
                           {...field}
                           disabled={loginMutation.isPending}
@@ -152,12 +152,12 @@ export default function AdminLogin() {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Password</FormLabel>
+                      <FormLabel>{t('admin.login.passwordLabel')}</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Input
                             type={showPassword ? 'text' : 'password'}
-                            placeholder="••••••••"
+                            placeholder={t('admin.login.passwordPlaceholder')}
                             autoComplete="current-password"
                             {...field}
                             disabled={loginMutation.isPending}
@@ -196,7 +196,7 @@ export default function AdminLogin() {
                         />
                       </FormControl>
                       <FormLabel className="cursor-pointer text-sm font-normal">
-                        Remember me
+                        {t('admin.login.rememberMe')}
                       </FormLabel>
                     </FormItem>
                   )}
@@ -210,10 +210,10 @@ export default function AdminLogin() {
                   {loginMutation.isPending ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Signing in...
+                      {t('admin.login.signingIn')}
                     </>
                   ) : (
-                    'Sign In'
+                    t('admin.login.signIn')
                   )}
                 </Button>
               </form>
@@ -221,14 +221,14 @@ export default function AdminLogin() {
 
             <div className="mt-4 text-center">
               <Button variant="link" className="text-sm text-muted-foreground">
-                Forgot password?
+                {t('admin.login.forgotPassword')}
               </Button>
             </div>
           </CardContent>
         </Card>
 
         <p className="mt-6 text-center text-sm text-muted-foreground">
-          © 2024 Journey Association. All rights reserved.
+          {t('admin.login.copyright')}
         </p>
       </div>
     </div>

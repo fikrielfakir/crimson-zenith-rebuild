@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { apiFetch } from '@/lib/apiFetch';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -74,6 +75,7 @@ const emptyForm = { label: '', value: '', icon: '', suffix: '', isActive: true }
 const ICON_SUGGESTIONS = ['Users', 'MapPin', 'Calendar', 'Award', 'Globe', 'Heart', 'Star', 'TrendingUp', 'Zap', 'Mountain'];
 
 export default function ImpactManagement() {
+  const { t } = useTranslation();
   const [showForm, setShowForm] = useState(false);
   const [editingStat, setEditingStat] = useState<SiteStat | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
@@ -191,19 +193,19 @@ export default function ImpactManagement() {
             <div className="text-center py-8 text-muted-foreground">
               <BarChart3 className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>No stats yet</p>
-              <p className="text-sm mt-2">Click "Add Stat" to get started</p>
+              <p className="text-sm mt-2">Click t('admin.impact.addStat') to get started</p>
             </div>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Label</TableHead>
-                  <TableHead>Value</TableHead>
+                  <TableHead>{t('admin.impact.colLabel')}</TableHead>
+                  <TableHead>{t('admin.impact.colValue')}</TableHead>
                   <TableHead>Suffix</TableHead>
                   <TableHead>Icon</TableHead>
-                  <TableHead>Order</TableHead>
+                  <TableHead>{t('admin.impact.colOrder')}</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead className="text-right">{t('admin.common.actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

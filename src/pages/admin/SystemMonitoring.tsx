@@ -1,9 +1,11 @@
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function SystemMonitoring() {
+  const { t } = useTranslation();
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">System Monitoring</h1>
+      <h1 className="text-3xl font-bold">{t('admin.system.title')}</h1>
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader>

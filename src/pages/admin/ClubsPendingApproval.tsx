@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { apiFetch } from '@/lib/apiFetch';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -41,6 +42,7 @@ type PendingAction = {
 };
 
 export default function ClubsPendingApproval() {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [pendingAction, setPendingAction] = useState<PendingAction | null>(null);
@@ -102,7 +104,7 @@ export default function ClubsPendingApproval() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Pending Club Approvals</h1>
+        <h1 className="text-3xl font-bold">{t('admin.clubs.pendingTitle')}</h1>
         <p className="text-muted-foreground mt-1">Review and approve new club registrations</p>
       </div>
 

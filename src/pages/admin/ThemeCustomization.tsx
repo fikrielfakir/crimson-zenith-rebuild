@@ -1,9 +1,11 @@
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function ThemeCustomization() {
+  const { t } = useTranslation();
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Theme Customization</h1>
+      <h1 className="text-3xl font-bold">{t('admin.theme.title')}</h1>
       <Card>
         <CardHeader>
           <CardTitle>Theme Settings</CardTitle>

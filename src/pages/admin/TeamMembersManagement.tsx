@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -41,6 +42,7 @@ interface TeamMember {
 const emptyForm = { name: '', role: '', bio: '', email: '', phone: '', isActive: true };
 
 export default function TeamMembersManagement() {
+  const { t } = useTranslation();
   const [showForm, setShowForm] = useState(false);
   const [editingMember, setEditingMember] = useState<TeamMember | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
@@ -119,17 +121,17 @@ export default function TeamMembersManagement() {
             <div className="text-center py-8 text-muted-foreground">
               <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>No team members yet</p>
-              <p className="text-sm mt-2">Click "Add Member" to get started</p>
+              <p className="text-sm mt-2">Click t('admin.team.addMember') to get started</p>
             </div>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Role</TableHead>
+                  <TableHead>{t('admin.team.colName')}</TableHead>
+                  <TableHead>{t('admin.team.colRole')}</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead className="text-right">{t('admin.common.actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

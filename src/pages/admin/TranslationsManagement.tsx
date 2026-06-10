@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/apiFetch";
@@ -103,6 +104,7 @@ interface Translation {
 
 
 export default function TranslationsManagement() {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [activeEntityType, setActiveEntityType] = useState("club");
@@ -443,7 +445,7 @@ export default function TranslationsManagement() {
                     onClick={saveAll}
                     disabled={saveMutation.isPending}
                   >
-                    {saveMutation.isPending ? "Saving..." : "Save Translations"}
+                    {saveMutation.isPending ? "Saving..." : t('admin.translations.saveTranslations')}
                   </Button>
                 </div>
               </div>

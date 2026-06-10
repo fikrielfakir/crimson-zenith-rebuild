@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { apiFetch } from '@/lib/apiFetch';
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -447,7 +448,7 @@ function ItemFormDialog({
             </div>
 
             <div className="space-y-1.5">
-              <Label className="flex items-center gap-1.5"><Tag className="h-3.5 w-3.5" />Category</Label>
+              <Label className="flex items-center gap-1.5"><Tag className="h-3.5 w-3.5" />{t('admin.gallery.colCategory')}</Label>
               <Select value={form.category} onValueChange={v => setForm(f => ({ ...f, category: v }))}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -626,6 +627,7 @@ function PreviewDialog({ item, onClose }: { item: GalleryItem | null; onClose: (
 
 /* ─── main page ──────────────────────────────────────────────────────── */
 export default function GalleryManagement() {
+  const { t } = useTranslation();
   const [category, setCategory]       = useState('all');
   const [search,   setSearch]         = useState('');
   const [viewMode, setViewMode]       = useState<ViewMode>('grid');

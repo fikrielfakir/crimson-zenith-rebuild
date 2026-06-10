@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { apiFetch } from '@/lib/apiFetch';
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -94,6 +95,7 @@ async function fetchPosts(params: { search?: string; status?: string; category?:
 }
 
 export default function NewsManagement() {
+  const { t } = useTranslation();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
@@ -278,12 +280,12 @@ export default function NewsManagement() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Title</TableHead>
-              <TableHead>Author</TableHead>
-              <TableHead>Category</TableHead>
+              <TableHead>{t('admin.news.colTitle')}</TableHead>
+              <TableHead>{t('admin.news.colAuthor')}</TableHead>
+              <TableHead>{t('admin.news.colCategory')}</TableHead>
               <TableHead>Published</TableHead>
               <TableHead>Views</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead>{t('admin.common.status')}</TableHead>
               <TableHead className="w-12"></TableHead>
             </TableRow>
           </TableHeader>
@@ -367,7 +369,7 @@ export default function NewsManagement() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <DropdownMenuLabel>{t('admin.common.actions')}</DropdownMenuLabel>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem>
                             <Eye className="mr-2 h-4 w-4" />
@@ -453,7 +455,7 @@ export default function NewsManagement() {
                 name="title"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Title</FormLabel>
+                    <FormLabel>{t('admin.news.colTitle')}</FormLabel>
                     <FormControl>
                       <Input {...field} placeholder="Post title" />
                     </FormControl>
@@ -493,7 +495,7 @@ export default function NewsManagement() {
                   name="category"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Category</FormLabel>
+                      <FormLabel>{t('admin.news.colCategory')}</FormLabel>
                       <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
@@ -516,7 +518,7 @@ export default function NewsManagement() {
                   name="status"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Status</FormLabel>
+                      <FormLabel>{t('admin.common.status')}</FormLabel>
                       <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger>

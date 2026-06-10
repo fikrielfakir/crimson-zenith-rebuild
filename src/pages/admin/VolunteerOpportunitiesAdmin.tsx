@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from '@/lib/apiFetch';
@@ -54,6 +55,7 @@ async function fetchOpportunities(status: string, search: string) {
 }
 
 export default function VolunteerOpportunitiesAdmin() {
+  const { t } = useTranslation();
   const [statusFilter, setStatusFilter] = useState('all');
   const [search, setSearch] = useState('');
   const [searchInput, setSearchInput] = useState('');
@@ -173,12 +175,12 @@ export default function VolunteerOpportunitiesAdmin() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="pl-6">Title</TableHead>
-                  <TableHead>Location</TableHead>
+                  <TableHead className="pl-6">{t('admin.volunteers.colTitle')}</TableHead>
+                  <TableHead>{t('admin.volunteers.colLocation')}</TableHead>
                   <TableHead>Participants</TableHead>
-                  <TableHead>Urgency</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right pr-6">Actions</TableHead>
+                  <TableHead>{t('admin.volunteers.colUrgency')}</TableHead>
+                  <TableHead>{t('admin.common.status')}</TableHead>
+                  <TableHead className="text-right pr-6">{t('admin.common.actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -236,11 +238,11 @@ export default function VolunteerOpportunitiesAdmin() {
                 <Input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="Trail clean-up weekend" />
               </div>
               <div className="space-y-1.5">
-                <Label>Location</Label>
+                <Label>{t('admin.volunteers.colLocation')}</Label>
                 <Input value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} placeholder="Marrakech" />
               </div>
               <div className="space-y-1.5">
-                <Label>Duration</Label>
+                <Label>{t('admin.volunteers.colDuration')}</Label>
                 <Input value={form.duration} onChange={e => setForm(f => ({ ...f, duration: e.target.value }))} placeholder="2 days" />
               </div>
               <div className="space-y-1.5">
@@ -252,7 +254,7 @@ export default function VolunteerOpportunitiesAdmin() {
                 <Input type="number" min={0} value={form.current_participants} onChange={e => setForm(f => ({ ...f, current_participants: +e.target.value }))} />
               </div>
               <div className="space-y-1.5">
-                <Label>Urgency</Label>
+                <Label>{t('admin.volunteers.colUrgency')}</Label>
                 <Select value={form.urgency} onValueChange={v => setForm(f => ({ ...f, urgency: v as any }))}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -263,7 +265,7 @@ export default function VolunteerOpportunitiesAdmin() {
                 </Select>
               </div>
               <div className="space-y-1.5">
-                <Label>Status</Label>
+                <Label>{t('admin.common.status')}</Label>
                 <Select value={form.status} onValueChange={v => setForm(f => ({ ...f, status: v as any }))}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>

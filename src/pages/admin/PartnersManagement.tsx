@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from '@/lib/apiFetch';
@@ -91,6 +92,7 @@ function LogoPreview({ src, name }: { src?: string | null; name: string }) {
 }
 
 export default function PartnersManagement() {
+  const { t } = useTranslation();
   const [showForm, setShowForm] = useState(false);
   const [editingItem, setEditingItem] = useState<Partner | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
@@ -194,7 +196,7 @@ export default function PartnersManagement() {
   return (
     <div className="space-y-8">
       <AdminPageHeader
-        title="Partners"
+        title={t('admin.partners.title')}
         description="Manage the Partners & Supporters section on the landing page"
         action={
           <Button onClick={() => setShowForm(true)}>
@@ -304,7 +306,7 @@ export default function PartnersManagement() {
           ) : crud.data.length === 0 ? (
             <AdminEmptyState
               title="No partners yet"
-              message='Click "Add Partner" to add your first partner logo.'
+              message='Click Add Partner to add your first partner logo.'
               action={
                 <Button size="sm" onClick={() => setShowForm(true)}>
                   <Plus className="mr-2 h-4 w-4" />Add Partner
@@ -316,12 +318,12 @@ export default function PartnersManagement() {
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-20">Logo</TableHead>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Website</TableHead>
+                  <TableHead>{t('admin.partners.colName')}</TableHead>
+                  <TableHead>{t('admin.partners.colWebsite')}</TableHead>
                   <TableHead>Description</TableHead>
-                  <TableHead>Order</TableHead>
+                  <TableHead>{t('admin.partners.colOrder')}</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead className="text-right">{t('admin.common.actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

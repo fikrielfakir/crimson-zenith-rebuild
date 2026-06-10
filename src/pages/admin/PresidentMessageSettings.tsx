@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { apiFetch } from '@/lib/apiFetch';
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -92,6 +93,7 @@ function MediaLibraryDialog({
 }
 
 export default function PresidentMessageSettings() {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -508,7 +510,7 @@ export default function PresidentMessageSettings() {
             <CardContent className="space-y-4">
               {backgroundImageUrl && (
                 <div className="border rounded-lg p-4 bg-muted/30 flex items-center justify-center">
-                  <img src={backgroundImageUrl} alt="Background" className="h-32 object-cover rounded w-full" />
+                  <img src={backgroundImageUrl} alt={t('admin.presidentMsg.tabBackground')} className="h-32 object-cover rounded w-full" />
                 </div>
               )}
               <Dialog>

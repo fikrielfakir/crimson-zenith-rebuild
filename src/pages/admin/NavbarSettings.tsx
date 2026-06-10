@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -300,7 +301,7 @@ function SortableNavLink({
               </div>
             ) : (
               <p className="text-sm text-muted-foreground text-center py-4">
-                No dropdown items yet. Click "Add Item" to create one.
+                No dropdown items yet. Click t('admin.navbar.addItem') to create one.
               </p>
             )}
           </div>
@@ -381,6 +382,7 @@ function MediaLibraryDialog({ onSelectMedia }: { onSelectMedia: (mediaId: number
 }
 
 export default function NavbarSettings() {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const { data: navbarData, isLoading, error, refetch } = useNavbarSettings();
   const updateNavbar = useUpdateNavbarSettings();

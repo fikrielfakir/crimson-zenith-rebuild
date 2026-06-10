@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { apiFetch } from '@/lib/apiFetch';
 import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,6 +22,7 @@ interface TaglineEntry {
 }
 
 export default function HeroSettings() {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -257,7 +259,7 @@ export default function HeroSettings() {
               {taglines.length === 0 && (
                 <div className="rounded-lg border border-dashed p-6 text-center text-muted-foreground">
                   <Type className="h-8 w-8 mx-auto mb-2 opacity-40" />
-                  <p className="text-sm">No titles yet — click "Add Title" above</p>
+                  <p className="text-sm">No titles yet — click t('admin.hero.addTitle') above</p>
                 </div>
               )}
 

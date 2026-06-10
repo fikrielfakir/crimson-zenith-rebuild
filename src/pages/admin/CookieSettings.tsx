@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from '@/lib/apiFetch';
@@ -42,6 +43,7 @@ const DEFAULT: CookieSettingsData = {
 };
 
 export default function CookieSettings() {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [form, setForm] = useState<CookieSettingsData>(DEFAULT);
@@ -100,7 +102,7 @@ export default function CookieSettings() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Cookie Settings</h1>
+          <h1 className="text-3xl font-bold">{t('admin.cookies.title')}</h1>
           <p className="text-muted-foreground mt-1">
             Configure the cookie consent banner shown to visitors and manage cookie categories.
           </p>

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { apiFetch } from '@/lib/apiFetch';
 import { useState, useRef, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -160,6 +161,7 @@ function QueueItemRow({ item, onRemove }: { item: QueueItem; onRemove: (id: stri
 }
 
 export default function MediaLibrary() {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -310,7 +312,7 @@ export default function MediaLibrary() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Media Library</h1>
+        <h1 className="text-3xl font-bold">{t('admin.media.title')}</h1>
         <Button onClick={() => fileInputRef.current?.click()} disabled={isUploading}>
           <Upload className="mr-2 h-4 w-4" />
           Upload Files
