@@ -62,6 +62,7 @@ interface Booking {
   attendees: number;
   totalAmount: number;
   status: string;
+  isAssociationEvent: boolean;
   ticketNumber?: string;
   createdAt: string;
 }
@@ -432,6 +433,7 @@ function EditBookingModal({ booking, isOpen, onClose, onSave }: { booking: Booki
 export default function BookingManagement() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [typeFilter, setTypeFilter] = useState('all');
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -475,7 +477,11 @@ export default function BookingManagement() {
     const matchesSearch = booking.eventTitle.toLowerCase().includes(search.toLowerCase()) ||
                          booking.userName.toLowerCase().includes(search.toLowerCase());
     const matchesStatus = statusFilter === 'all' || booking.status === statusFilter;
-    return matchesSearch && matchesStatus;
+    const matchesType =
+      typeFilter === 'all' ||
+      (typeFilter === 'club' && !booking.isAssociationEvent) ||
+      (typeFilter === 'association' && booking.isAssociationEvent);
+    return matchesSearch && matchesStatus && matchesType;
   });
 
   const getStatusBadge = (status: string) => {
@@ -639,6 +645,16 @@ export default function BookingManagement() {
                 <SelectItem value="cancelled">"cancelled"</SelectItem>
               </SelectContent>
             </Select>
+            <Select value={typeFilter} onValueChange={setTypeFilter}>
+              <SelectTrigger className="w-44">
+                <SelectValue placeholder="Event Type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Types</SelectItem>
+                <SelectItem value="club">Club Event</SelectItem>
+                <SelectItem value="association">Association Event</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           {isLoading ? (
@@ -663,6 +679,7 @@ export default function BookingManagement() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Event</TableHead>
+                  <TableHead>Type</TableHead>
                   <TableHead>User</TableHead>
                   <TableHead>Date</TableHead>
                   <TableHead>Attendees</TableHead>
@@ -675,6 +692,17 @@ export default function BookingManagement() {
                 {filteredBookings.map((booking: Booking) => (
                   <TableRow key={booking.id}>
                     <TableCell className="font-medium">{booking.eventTitle}</TableCell>
+                    <TableCell>
+                      {booking.isAssociationEvent ? (
+                        <Badge variant="outline" className="text-xs bg-purple-50 text-purple-700 border-purple-200 whitespace-nowrap">
+                          Association
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200 whitespace-nowrap">
+                          Club Event
+                        </Badge>
+                      )}
+                    </TableCell>
                     <TableCell>{booking.userName}</TableCell>
                     <TableCell>{new Date(booking.eventDate).toLocaleDateString()}</TableCell>
                     <TableCell>{booking.attendees}</TableCell>

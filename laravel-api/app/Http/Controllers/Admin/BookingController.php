@@ -21,6 +21,8 @@ class BookingController extends Controller
             'eventId'              => $t->event_id,
             'eventTitle'           => $t->event?->title ?? 'N/A',
             'eventDate'            => $t->event?->start_date,
+            'isAssociationEvent'   => (bool) ($t->event?->is_association_event ?? false),
+            'clubId'               => $t->event?->club_id,
             'userName'             => $t->customer_name,
             'userEmail'            => $t->customer_email,
             'customerPhone'        => $t->customer_phone,
