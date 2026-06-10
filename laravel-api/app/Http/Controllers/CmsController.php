@@ -22,6 +22,8 @@ use App\Models\PartnerSettings;
 use App\Models\FocusSectionSettings;
 use App\Models\ClubsPageSettings;
 use App\Models\LegalPage;
+use App\Models\LandingPageSection;
+use App\Models\CookieSetting;
 
 class CmsController extends Controller
 {
@@ -216,6 +218,55 @@ class CmsController extends Controller
             return response()->json(null, 404);
         }
         return response()->json($page->toApiArray());
+    }
+
+    public function landingSections()
+    {
+        try {
+            $sections = LandingPageSection::orderBy('ordering')->get();
+            return response()->json($sections->map(fn($s) => [
+                'id'         => $s->id,
+                'sectionKey' => $s->section_key,
+                'label'      => $s->label,
+                'isEnabled'  => (bool) $s->is_enabled,
+                'ordering'   => $s->ordering,
+            ]));
+        } catch (\Throwable $e) {
+            return response()->json([]);
+        }
+    }
+
+    public function cookieSettings()
+    {
+        try {
+            $s = CookieSetting::firstOrCreate(['id' => 'default'], [
+                'enabled'     => true,
+                'delay'       => 1500,
+                'title'       => '🍪 We use cookies to enhance your experience',
+                'description' => 'Our cookies help us remember your preferences, analyze site traffic, and provide personalized content. Essential cookies are always active.',
+                'categories'  => [
+                    ['key' => 'necessary',  'label' => 'Necessary Cookies',  'description' => 'Required for basic site functionality',            'enabled' => true, 'locked' => true],
+                    ['key' => 'functional', 'label' => 'Functional Cookies', 'description' => 'Remember your preferences and settings',           'enabled' => true, 'locked' => false],
+                    ['key' => 'analytics',  'label' => 'Analytics Cookies',  'description' => 'Help us understand how our website is being used', 'enabled' => true, 'locked' => false],
+                    ['key' => 'marketing',  'label' => 'Marketing Cookies',  'description' => 'Personalized content and ads',                     'enabled' => true, 'locked' => false],
+                ],
+            ]);
+            return response()->json([
+                'enabled'     => (bool) $s->enabled,
+                'delay'       => (int) $s->delay,
+                'title'       => $s->title,
+                'description' => $s->description,
+                'categories'  => $s->categories ?? [],
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'enabled'     => true,
+                'delay'       => 1500,
+                'title'       => '🍪 We use cookies to enhance your experience',
+                'description' => 'Our cookies help us remember your preferences, analyze site traffic, and provide personalized content.',
+                'categories'  => [],
+            ]);
+        }
     }
 
     public function media($id)
