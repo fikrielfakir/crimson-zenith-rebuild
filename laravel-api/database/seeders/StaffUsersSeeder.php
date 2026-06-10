@@ -14,6 +14,7 @@ class StaffUsersSeeder extends Seeder
             'username'   => 'moderator',
             'email'      => 'moderator@journey.ma',
             'password'   => 'moderator123',
+            'name'       => 'Sarah Alami',
             'first_name' => 'Sarah',
             'last_name'  => 'Alami',
             'role'       => 'moderator',
@@ -23,6 +24,7 @@ class StaffUsersSeeder extends Seeder
             'username'   => 'clubmanager',
             'email'      => 'clubmanager@journey.ma',
             'password'   => 'clubmanager123',
+            'name'       => 'Youssef Bennani',
             'first_name' => 'Youssef',
             'last_name'  => 'Bennani',
             'role'       => 'club_manager',
@@ -32,6 +34,7 @@ class StaffUsersSeeder extends Seeder
             'username'   => 'eventorg',
             'email'      => 'eventorg@journey.ma',
             'password'   => 'eventorg123',
+            'name'       => 'Fatima Zahra',
             'first_name' => 'Fatima',
             'last_name'  => 'Zahra',
             'role'       => 'event_organizer',
@@ -48,6 +51,7 @@ class StaffUsersSeeder extends Seeder
                     'username'   => $staff['username'],
                     'email'      => $staff['email'],
                     'password'   => Hash::make($staff['password']),
+                    'name'       => $staff['name'],
                     'first_name' => $staff['first_name'],
                     'last_name'  => $staff['last_name'],
                     'role'       => $staff['role'],
@@ -58,6 +62,7 @@ class StaffUsersSeeder extends Seeder
                 $this->command->info("Created: {$staff['username']} ({$staff['role']})");
             } else {
                 User::where('username', $staff['username'])->update([
+                    'name'     => $staff['name'],
                     'role'     => $staff['role'],
                     'is_admin' => $staff['is_admin'],
                 ]);
