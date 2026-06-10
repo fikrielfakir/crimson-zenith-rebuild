@@ -18,9 +18,12 @@ import { useToast } from '@/hooks/use-toast';
 import { Link } from 'react-router-dom';
 import {
   Shield, Users, Settings, Search,
-  ChevronDown, ChevronUp, Loader2, User,
-  FileText, Building,
+  Loader2, User, FileText, Building,
+  LayoutDashboard, CalendarDays, BookOpen,
+  Image, Globe, BarChart3, Mail, Lock,
+  Check, X, MapPin, Newspaper,
 } from 'lucide-react';
+import { NAV_ROLES, ROUTE_ROLES, type AdminRole } from '@/lib/adminPermissions';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface RoleDef {
@@ -41,27 +44,40 @@ interface UserRow {
   created_at: string;
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-const ROLE_COLORS: Record<string, string> = {
-  admin:           'bg-red-100 text-red-700 border-red-200',
-  moderator:       'bg-orange-100 text-orange-700 border-orange-200',
-  club_manager:    'bg-blue-100 text-blue-700 border-blue-200',
-  event_organizer: 'bg-purple-100 text-purple-700 border-purple-200',
-  user:            'bg-gray-100 text-gray-600 border-gray-200',
-};
+// ─── Admin Section Definitions ────────────────────────────────────────────────
+// Maps actual nav/route keys to display info
+const ADMIN_SECTIONS = [
+  { key: 'admin.nav.dashboard',     label: 'Dashboard',          icon: LayoutDashboard, route: '/admin' },
+  { key: 'admin.nav.users',         label: 'User Management',    icon: Users,            route: '/admin/users' },
+  { key: 'admin.nav.clubs',         label: 'Clubs',              icon: Building,         route: '/admin/clubs' },
+  { key: 'admin.nav.events',        label: 'Events',             icon: CalendarDays,     route: '/admin/events' },
+  { key: 'admin.nav.bookings',      label: 'Bookings',           icon: BookOpen,         route: '/admin/bookings' },
+  { key: 'admin.nav.applications',  label: 'Applications',       icon: FileText,         route: '/admin/applications' },
+  { key: 'admin.nav.content',       label: 'Blog / Content',     icon: Newspaper,        route: '/admin/news' },
+  { key: 'admin.nav.cities',        label: 'Cities',             icon: MapPin,           route: '/admin/cities' },
+  { key: 'admin.nav.analytics',     label: 'Analytics',          icon: BarChart3,        route: '/admin/analytics' },
+  { key: 'admin.nav.customization', label: 'CMS & Landing',      icon: Globe,            route: '/admin/cms' },
+  { key: 'admin.nav.contactInbox',  label: 'Contact Inbox',      icon: Mail,             route: '/admin/contact-submissions' },
+  { key: 'admin.nav.translations',  label: 'Translations',       icon: Globe,            route: '/admin/translations' },
+  { key: 'admin.nav.settings',      label: 'Settings',           icon: Settings,         route: '/admin/settings' },
+  { key: 'admin.nav.system',        label: 'System / Security',  icon: Lock,             route: '/admin/system' },
+] as const;
 
-const ROLE_BADGE_VARIANT: Record<string, 'destructive' | 'default' | 'secondary' | 'outline'> = {
-  admin:           'destructive',
-  moderator:       'default',
-  club_manager:    'default',
-  event_organizer: 'secondary',
-  user:            'outline',
+const ROLES_ORDER: AdminRole[] = ['admin', 'moderator', 'club_manager', 'event_organizer'];
+
+// ─── Role color helpers ───────────────────────────────────────────────────────
+const ROLE_STYLES: Record<string, { bar: string; icon: string; badge: string; header: string }> = {
+  admin:           { bar: 'bg-red-500',    icon: 'text-red-600',    badge: 'bg-red-100 text-red-700 border-red-200',       header: 'from-red-50' },
+  moderator:       { bar: 'bg-orange-500', icon: 'text-orange-600', badge: 'bg-orange-100 text-orange-700 border-orange-200', header: 'from-orange-50' },
+  club_manager:    { bar: 'bg-blue-500',   icon: 'text-blue-600',   badge: 'bg-blue-100 text-blue-700 border-blue-200',    header: 'from-blue-50' },
+  event_organizer: { bar: 'bg-purple-500', icon: 'text-purple-600', badge: 'bg-purple-100 text-purple-700 border-purple-200', header: 'from-purple-50' },
+  user:            { bar: 'bg-gray-400',   icon: 'text-gray-500',   badge: 'bg-gray-100 text-gray-600 border-gray-200',    header: 'from-gray-50' },
 };
 
 function RoleBadge({ role, label }: { role: string; label?: string }) {
-  const cls = ROLE_COLORS[role] ?? ROLE_COLORS.user;
+  const s = ROLE_STYLES[role] ?? ROLE_STYLES.user;
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${cls}`}>
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${s.badge}`}>
       {label ?? role}
     </span>
   );
@@ -77,75 +93,93 @@ async function fetchRoles(): Promise<{ roles: RoleDef[]; totalUsers: number; tot
 async function fetchAllUsers(search: string, roleFilter: string): Promise<{ users: UserRow[] }> {
   const params = new URLSearchParams();
   if (search) params.set('search', search);
-  if (roleFilter) params.set('role', roleFilter);
+  if (roleFilter && roleFilter !== 'all') params.set('role', roleFilter);
   const res = await apiFetch(`/api/admin/roles/users?${params}`, { credentials: 'include' });
   if (!res.ok) throw new Error('Failed to load users');
   return res.json();
 }
 
-// ─── Permissions matrix (all available permissions) ───────────────────────────
-const ALL_PERMISSIONS = [
-  { key: 'users.manage',        label: 'Manage Users' },
-  { key: 'clubs.manage',        label: 'Manage Clubs' },
-  { key: 'clubs.edit',          label: 'Edit Clubs' },
-  { key: 'clubs.join',          label: 'Join Clubs' },
-  { key: 'events.manage',       label: 'Manage Events' },
-  { key: 'events.create',       label: 'Create Events' },
-  { key: 'events.edit',         label: 'Edit Events' },
-  { key: 'events.book',         label: 'Book Events' },
-  { key: 'content.manage',      label: 'Manage Content' },
-  { key: 'settings.manage',     label: 'Manage Settings' },
-  { key: 'applications.manage', label: 'Manage Applications' },
-  { key: 'applications.review', label: 'Review Applications' },
-  { key: 'members.view',        label: 'View Members' },
-  { key: 'profile.edit',        label: 'Edit Profile' },
-];
+// Check whether a role has access to a given admin section
+function roleHasAccess(role: AdminRole, sectionKey: string): boolean {
+  const allowed = NAV_ROLES[sectionKey];
+  if (!allowed) return true; // no restriction = everyone
+  return allowed.includes(role);
+}
 
-// ─── Role Card ────────────────────────────────────────────────────────────────
-function RoleCard({ role, expanded, onToggle }: { role: RoleDef; expanded: boolean; onToggle: () => void }) {
-  const colorCls = ROLE_COLORS[role.key] ?? ROLE_COLORS.user;
+// ─── Role Detail Card ─────────────────────────────────────────────────────────
+function RoleDetailCard({ role, userCount }: { role: RoleDef; userCount: number }) {
+  const s = ROLE_STYLES[role.key] ?? ROLE_STYLES.user;
+  const accessibleSections = ADMIN_SECTIONS.filter(sec =>
+    roleHasAccess(role.key as AdminRole, sec.key)
+  );
+  const blockedSections = ADMIN_SECTIONS.filter(sec =>
+    !roleHasAccess(role.key as AdminRole, sec.key)
+  );
+
   return (
-    <Card className="overflow-hidden">
-      <div className={`h-1.5 w-full ${colorCls.split(' ')[0]}`} />
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-2">
-            <Shield className={`h-5 w-5 ${colorCls.split(' ')[1]}`} />
-            <CardTitle className="text-base">{role.label}</CardTitle>
+    <Card className="overflow-hidden flex flex-col">
+      <div className={`h-1.5 w-full ${s.bar}`} />
+      <CardHeader className={`pb-3 bg-gradient-to-b ${s.header} to-transparent`}>
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex items-center gap-2.5">
+            <div className={`p-1.5 rounded-lg bg-white shadow-sm`}>
+              <Shield className={`h-4 w-4 ${s.icon}`} />
+            </div>
+            <div>
+              <CardTitle className="text-base leading-tight">{role.label}</CardTitle>
+              <p className="text-xs text-muted-foreground mt-0.5">{userCount} user{userCount !== 1 ? 's' : ''}</p>
+            </div>
           </div>
-          <RoleBadge role={role.key} label={`${role.userCount} users`} />
+          <RoleBadge role={role.key} label={role.key} />
         </div>
-        <CardDescription className="text-xs mt-1">{role.description}</CardDescription>
+        <CardDescription className="text-xs mt-2 leading-relaxed">{role.description}</CardDescription>
       </CardHeader>
-      <CardContent className="pt-0 space-y-3">
+
+      <CardContent className="pt-0 pb-4 flex-1 space-y-4">
+        {/* Accessible sections */}
         <div>
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
-            Permissions ({role.permissions.length})
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2 flex items-center gap-1.5">
+            <Check className="h-3.5 w-3.5 text-green-500" />
+            Has Access ({accessibleSections.length})
           </p>
-          <div className="flex flex-wrap gap-1">
-            {(expanded ? role.permissions : role.permissions.slice(0, 3)).map(p => (
-              <Badge key={p} variant="outline" className="text-xs font-normal">
-                {ALL_PERMISSIONS.find(a => a.key === p)?.label ?? p}
-              </Badge>
-            ))}
-            {!expanded && role.permissions.length > 3 && (
-              <button
-                onClick={onToggle}
-                className="text-xs text-primary font-medium hover:underline"
-              >
-                +{role.permissions.length - 3} more
-              </button>
-            )}
+          <div className="flex flex-wrap gap-1.5">
+            {accessibleSections.map(sec => {
+              const Icon = sec.icon;
+              return (
+                <span
+                  key={sec.key}
+                  className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs bg-green-50 text-green-700 border border-green-100 font-medium"
+                >
+                  <Icon className="h-3 w-3" />
+                  {sec.label}
+                </span>
+              );
+            })}
           </div>
         </div>
-        {role.permissions.length > 3 && (
-          <button
-            onClick={onToggle}
-            className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
-          >
-            {expanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-            {expanded ? 'Show less' : 'Show all'}
-          </button>
+
+        {/* Blocked sections */}
+        {blockedSections.length > 0 && (
+          <div>
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2 flex items-center gap-1.5">
+              <X className="h-3.5 w-3.5 text-red-400" />
+              No Access ({blockedSections.length})
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {blockedSections.map(sec => {
+                const Icon = sec.icon;
+                return (
+                  <span
+                    key={sec.key}
+                    className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs bg-gray-50 text-gray-400 border border-gray-100"
+                  >
+                    <Icon className="h-3 w-3" />
+                    {sec.label}
+                  </span>
+                );
+              })}
+            </div>
+          </div>
         )}
       </CardContent>
     </Card>
@@ -154,48 +188,62 @@ function RoleCard({ role, expanded, onToggle }: { role: RoleDef; expanded: boole
 
 // ─── Permissions Matrix ───────────────────────────────────────────────────────
 function PermissionsMatrix({ roles }: { roles: RoleDef[] }) {
+  // Only show the 4 staff roles in the matrix
+  const staffRoles = roles.filter(r => ROLES_ORDER.includes(r.key as AdminRole));
+
   return (
     <Card>
       <CardHeader>
         <CardTitle className="text-base">Permissions Matrix</CardTitle>
-        <CardDescription>Which roles have which permissions</CardDescription>
+        <CardDescription>Admin panel section access by role — based on enforced route permissions</CardDescription>
       </CardHeader>
-      <CardContent className="overflow-x-auto p-0">
+      <CardContent className="p-0 overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b bg-muted/30">
-              <th className="text-left py-3 px-4 font-medium text-muted-foreground min-w-[160px]">Permission</th>
-              {roles.map(r => (
-                <th key={r.key} className="text-center py-3 px-3 font-medium min-w-[120px]">
-                  <RoleBadge role={r.key} label={r.label} />
-                </th>
-              ))}
+              <th className="text-left py-3 px-4 font-medium text-muted-foreground min-w-[180px] sticky left-0 bg-muted/30">
+                Section
+              </th>
+              {staffRoles.map(r => {
+                const s = ROLE_STYLES[r.key] ?? ROLE_STYLES.user;
+                return (
+                  <th key={r.key} className="text-center py-3 px-4 font-medium min-w-[140px]">
+                    <div className="flex flex-col items-center gap-1">
+                      <Shield className={`h-4 w-4 ${s.icon}`} />
+                      <span className="text-xs">{r.label}</span>
+                    </div>
+                  </th>
+                );
+              })}
             </tr>
           </thead>
           <tbody>
-            {ALL_PERMISSIONS.map((perm, i) => {
-              const anyHas = roles.some(r => r.permissions.includes(perm.key));
-              if (!anyHas) return null;
+            {ADMIN_SECTIONS.map((sec, i) => {
+              const Icon = sec.icon;
               return (
-                <tr key={perm.key} className={i % 2 === 0 ? 'bg-background' : 'bg-muted/20'}>
-                  <td className="py-2.5 px-4 text-sm text-foreground font-medium">{perm.label}</td>
-                  {roles.map(r => (
-                    <td key={r.key} className="py-2.5 px-3 text-center">
-                      {r.permissions.includes(perm.key) ? (
-                        <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-green-100 text-green-600">
-                          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                          </svg>
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-100 text-gray-300">
-                          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </span>
-                      )}
-                    </td>
-                  ))}
+                <tr key={sec.key} className={`border-b last:border-0 ${i % 2 === 0 ? 'bg-background' : 'bg-muted/10'}`}>
+                  <td className="py-2.5 px-4 sticky left-0 bg-inherit">
+                    <div className="flex items-center gap-2">
+                      <Icon className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                      <span className="font-medium text-sm">{sec.label}</span>
+                    </div>
+                  </td>
+                  {staffRoles.map(r => {
+                    const hasAccess = roleHasAccess(r.key as AdminRole, sec.key);
+                    return (
+                      <td key={r.key} className="py-2.5 px-4 text-center">
+                        {hasAccess ? (
+                          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-green-100 text-green-600 mx-auto">
+                            <Check className="w-3.5 h-3.5" strokeWidth={2.5} />
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-100 text-gray-300 mx-auto">
+                            <X className="w-3.5 h-3.5" strokeWidth={2.5} />
+                          </span>
+                        )}
+                      </td>
+                    );
+                  })}
                 </tr>
               );
             })}
@@ -211,7 +259,7 @@ function UserAssignment({ roles }: { roles: RoleDef[] }) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
-  const [roleFilter, setRoleFilter] = useState('');
+  const [roleFilter, setRoleFilter] = useState('all');
   const [pendingRoles, setPendingRoles] = useState<Record<string, string>>({});
 
   const { data, isLoading } = useQuery({
@@ -230,7 +278,7 @@ function UserAssignment({ roles }: { roles: RoleDef[] }) {
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        throw new Error(err.message ?? 'Failed to update role');
+        throw new Error((err as any).message ?? 'Failed to update role');
       }
       return res.json();
     },
@@ -246,7 +294,6 @@ function UserAssignment({ roles }: { roles: RoleDef[] }) {
   });
 
   const users = data?.users ?? [];
-
   const getRoleLabel = (key: string) => roles.find(r => r.key === key)?.label ?? key;
 
   return (
@@ -267,7 +314,7 @@ function UserAssignment({ roles }: { roles: RoleDef[] }) {
             <SelectValue placeholder="Filter by role" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All roles</SelectItem>
+            <SelectItem value="all">All roles</SelectItem>
             {roles.map(r => (
               <SelectItem key={r.key} value={r.key}>{r.label}</SelectItem>
             ))}
@@ -326,9 +373,7 @@ function UserAssignment({ roles }: { roles: RoleDef[] }) {
                         <div className="flex items-center justify-end gap-2">
                           <Select
                             value={selectedRole}
-                            onValueChange={val =>
-                              setPendingRoles(p => ({ ...p, [u.id]: val }))
-                            }
+                            onValueChange={val => setPendingRoles(p => ({ ...p, [u.id]: val }))}
                             disabled={isSaving}
                           >
                             <SelectTrigger className="w-44 h-8 text-xs">
@@ -366,8 +411,6 @@ function UserAssignment({ roles }: { roles: RoleDef[] }) {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function UserRolesManagement() {
-  const [expandedRoles, setExpandedRoles] = useState<Record<string, boolean>>({});
-
   const { data, isLoading } = useQuery({
     queryKey: ['roles'],
     queryFn: fetchRoles,
@@ -376,11 +419,12 @@ export default function UserRolesManagement() {
 
   const roles = data?.roles ?? [];
   const totalUsers = data?.totalUsers ?? 0;
-  const totalPermissions = data?.totalPermissions ?? 0;
   const adminCount = roles.find(r => r.key === 'admin')?.userCount ?? 0;
 
-  const toggleExpanded = (key: string) =>
-    setExpandedRoles(prev => ({ ...prev, [key]: !prev[key] }));
+  // Only the 4 staff roles shown as cards
+  const staffRoles = ROLES_ORDER
+    .map(key => roles.find(r => r.key === key))
+    .filter(Boolean) as RoleDef[];
 
   return (
     <div className="space-y-6">
@@ -388,7 +432,7 @@ export default function UserRolesManagement() {
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-3xl font-bold">Roles & Permissions</h1>
-          <p className="text-muted-foreground mt-1">Manage user roles and their access permissions</p>
+          <p className="text-muted-foreground mt-1">View role access levels and manage user assignments</p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" asChild>
@@ -416,12 +460,12 @@ export default function UserRolesManagement() {
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Roles</CardTitle>
+            <CardTitle className="text-sm font-medium">Staff Roles</CardTitle>
             <Shield className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{isLoading ? '—' : roles.length}</div>
-            <p className="text-xs text-muted-foreground">Defined in system</p>
+            <div className="text-2xl font-bold">{isLoading ? '—' : ROLES_ORDER.length}</div>
+            <p className="text-xs text-muted-foreground">Admin panel roles</p>
           </CardContent>
         </Card>
         <Card>
@@ -431,7 +475,7 @@ export default function UserRolesManagement() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{isLoading ? '—' : totalUsers}</div>
-            <p className="text-xs text-muted-foreground">All time</p>
+            <p className="text-xs text-muted-foreground">All registered</p>
           </CardContent>
         </Card>
         <Card>
@@ -446,12 +490,12 @@ export default function UserRolesManagement() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Permissions</CardTitle>
-            <Settings className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Protected Sections</CardTitle>
+            <Lock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{isLoading ? '—' : totalPermissions}</div>
-            <p className="text-xs text-muted-foreground">Unique permissions</p>
+            <div className="text-2xl font-bold">{ADMIN_SECTIONS.length}</div>
+            <p className="text-xs text-muted-foreground">Admin panel areas</p>
           </CardContent>
         </Card>
       </div>
@@ -459,25 +503,24 @@ export default function UserRolesManagement() {
       {/* Tabs */}
       <Tabs defaultValue="overview">
         <TabsList>
-          <TabsTrigger value="overview">Roles Overview</TabsTrigger>
+          <TabsTrigger value="overview">Role Overview</TabsTrigger>
           <TabsTrigger value="matrix">Permissions Matrix</TabsTrigger>
           <TabsTrigger value="users">User Assignment</TabsTrigger>
         </TabsList>
 
-        {/* ── Roles Overview ─────────────────────────────────────────────── */}
+        {/* ── Role Overview ──────────────────────────────────────────────── */}
         <TabsContent value="overview" className="mt-4">
           {isLoading ? (
             <div className="flex items-center justify-center py-16 text-muted-foreground gap-2">
               <Loader2 className="h-5 w-5 animate-spin" /> Loading roles…
             </div>
           ) : (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {roles.map(role => (
-                <RoleCard
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+              {staffRoles.map(role => (
+                <RoleDetailCard
                   key={role.key}
                   role={role}
-                  expanded={!!expandedRoles[role.key]}
-                  onToggle={() => toggleExpanded(role.key)}
+                  userCount={role.userCount}
                 />
               ))}
             </div>
