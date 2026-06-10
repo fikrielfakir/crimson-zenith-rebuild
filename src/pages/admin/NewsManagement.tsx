@@ -253,7 +253,7 @@ export default function NewsManagement() {
         </div>
         <Select value={categoryFilter} onValueChange={setCategoryFilter}>
           <SelectTrigger className="w-40">
-            <SelectValue placeholder="Category" />
+            <SelectValue placeholder={t('admin.news.selectCategory')} />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">{t('admin.events.filterAllCategories')}</SelectItem>
@@ -265,7 +265,7 @@ export default function NewsManagement() {
         </Select>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
           <SelectTrigger className="w-40">
-            <SelectValue placeholder="Status" />
+            <SelectValue placeholder={t('admin.common.status')} />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">{t('admin.events.filterAllStatus')}</SelectItem>
@@ -341,7 +341,7 @@ export default function NewsManagement() {
                     <Badge variant="outline">{post.category}</Badge>
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">
-                    {post.publishedAt ? format(new Date(post.publishedAt), 'MMM d, yyyy') : 'Not published'}
+                    {post.publishedAt ? format(new Date(post.publishedAt), 'MMM d, yyyy') : t('admin.news.notPublished')}
                   </TableCell>
                   <TableCell>{post.views || 0}</TableCell>
                   <TableCell>
@@ -373,11 +373,11 @@ export default function NewsManagement() {
                           <DropdownMenuSeparator />
                           <DropdownMenuItem>
                             <Eye className="mr-2 h-4 w-4" />
-                            View Post
+                            {t('admin.news.viewPost')}
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => setEditingPost(post)}>
                             <Edit className="mr-2 h-4 w-4" />
-                            Edit Post
+                            {t('admin.news.editPost')}
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
@@ -385,7 +385,7 @@ export default function NewsManagement() {
                             onClick={() => setDeletingPostId(post.id)}
                           >
                             <Trash2 className="mr-2 h-4 w-4" />
-                            Delete Post
+                            {t('admin.news.deletePost')}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -402,7 +402,7 @@ export default function NewsManagement() {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <span className="text-sm text-muted-foreground">
-              Showing {((page - 1) * perPage) + 1} to {Math.min(page * perPage, data?.total || 0)} of {data?.total || 0} posts
+              {t('admin.news.showing', { from: ((page - 1) * perPage) + 1, to: Math.min(page * perPage, data?.total || 0), total: data?.total || 0 })}
             </span>
           </div>
           <div className="flex items-center space-x-2">
@@ -412,7 +412,7 @@ export default function NewsManagement() {
               onClick={() => setPage(p => Math.max(1, p - 1))}
               disabled={page === 1}
             >
-              Previous
+              {t('admin.common.previous')}
             </Button>
             {Array.from({ length: Math.min(data?.totalPages || 0, 5) }, (_, i) => {
               const pageNum = page <= 3 ? i + 1 : page - 2 + i;
@@ -434,7 +434,7 @@ export default function NewsManagement() {
               onClick={() => setPage(p => Math.min(data?.totalPages || 1, p + 1))}
               disabled={page === data?.totalPages}
             >
-              Next
+              {t('admin.common.next')}
             </Button>
           </div>
         </div>
@@ -443,9 +443,9 @@ export default function NewsManagement() {
       <Dialog open={editingPost !== null} onOpenChange={(open) => !open && setEditingPost(null)}>
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{editingPost?.id ? 'Edit Post' : 'Create New Post'}</DialogTitle>
+            <DialogTitle>{editingPost?.id ? t('admin.news.editPost') : t('admin.news.createPostTitle')}</DialogTitle>
             <DialogDescription>
-              {editingPost?.id ? 'Update post information' : 'Create a new blog post or news article'}
+              {editingPost?.id ? t('admin.news.updatePostDesc') : t('admin.news.createPostDesc')}
             </DialogDescription>
           </DialogHeader>
           <Form {...form}>
@@ -457,7 +457,7 @@ export default function NewsManagement() {
                   <FormItem>
                     <FormLabel>{t('admin.news.colTitle')}</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="Post title" />
+                      <Input {...field} placeholder={t('admin.news.fieldTitlePlaceholder')} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -468,9 +468,9 @@ export default function NewsManagement() {
                 name="excerpt"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Excerpt (optional)</FormLabel>
+                    <FormLabel>{t('admin.news.fieldExcerpt')}</FormLabel>
                     <FormControl>
-                      <Textarea {...field} placeholder="Brief summary of the post" rows={2} />
+                      <Textarea {...field} placeholder={t('admin.news.fieldExcerptPlaceholder')} rows={2} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -481,9 +481,9 @@ export default function NewsManagement() {
                 name="content"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Content</FormLabel>
+                    <FormLabel>{t('admin.news.fieldContent')}</FormLabel>
                     <FormControl>
-                      <Textarea {...field} placeholder="Post content" rows={12} />
+                      <Textarea {...field} placeholder={t('admin.news.fieldContentPlaceholder')} rows={12} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -499,14 +499,14 @@ export default function NewsManagement() {
                       <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select category" />
+                            <SelectValue placeholder={t('admin.news.selectCategory')} />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="news">News</SelectItem>
-                          <SelectItem value="announcement">Announcement</SelectItem>
-                          <SelectItem value="event">Event</SelectItem>
-                          <SelectItem value="blog">Blog</SelectItem>
+                          <SelectItem value="news">{t('admin.news.categoryNews')}</SelectItem>
+                          <SelectItem value="announcement">{t('admin.news.categoryAnnouncement')}</SelectItem>
+                          <SelectItem value="event">{t('admin.nav.events')}</SelectItem>
+                          <SelectItem value="blog">{t('admin.news.categoryBlog')}</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -526,8 +526,8 @@ export default function NewsManagement() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="draft">Draft</SelectItem>
-                          <SelectItem value="published">Published</SelectItem>
+                          <SelectItem value="draft">{t('admin.common.draft')}</SelectItem>
+                          <SelectItem value="published">{t('admin.common.published')}</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -540,9 +540,9 @@ export default function NewsManagement() {
                 name="featuredImage"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Featured Image URL (optional)</FormLabel>
+                    <FormLabel>{t('admin.news.featuredImageOptional')}</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="https://example.com/image.jpg" />
+                      <Input {...field} placeholder={t('admin.news.featuredImagePlaceholder')} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -550,11 +550,11 @@ export default function NewsManagement() {
               />
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setEditingPost(null)}>
-                  Cancel
+                  {t('admin.common.cancel')}
                 </Button>
                 <Button type="submit" disabled={savePostMutation.isPending}>
                   {savePostMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  {editingPost?.id ? 'Update Post' : 'Create Post'}
+                  {editingPost?.id ? t('admin.news.updatePost') : t('admin.news.createPost')}
                 </Button>
               </DialogFooter>
             </form>
@@ -567,7 +567,7 @@ export default function NewsManagement() {
           <AlertDialogHeader>
             <AlertDialogTitle>{t('admin.news.deletePost')}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this post? This action cannot be undone.
+              {t('admin.news.deleteConfirm')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

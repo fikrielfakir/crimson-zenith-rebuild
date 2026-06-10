@@ -316,7 +316,7 @@ export default function MediaLibrary() {
         <h1 className="text-3xl font-bold">{t('admin.media.title')}</h1>
         <Button onClick={() => fileInputRef.current?.click()} disabled={isUploading}>
           <Upload className="mr-2 h-4 w-4" />
-          Upload Files
+          {t('admin.media.uploadFiles')}
         </Button>
         <input
           ref={fileInputRef}
@@ -350,16 +350,16 @@ export default function MediaLibrary() {
         </div>
         <div>
           <p className="text-sm font-semibold text-foreground">
-            {isDragOver ? 'Drop files to upload' : 'Drag & drop files here, or click to browse'}
+            {isDragOver ? t('admin.media.dropzoneActive') : t('admin.media.dropzone')}
           </p>
           <p className="text-xs text-muted-foreground mt-1">
-            Images, videos, audio, PDFs — up to 10 MB each · Multiple files supported
+            {t('admin.media.dropzoneHint')}
           </p>
         </div>
         {isUploading && (
           <div className="flex items-center gap-2 text-sm text-primary font-medium">
             <Loader2 className="w-4 h-4 animate-spin" />
-            Uploading {pendingCount} file{pendingCount !== 1 ? 's' : ''}…
+            {t('admin.media.uploadingCount', { count: pendingCount })}
           </div>
         )}
       </div>
@@ -369,10 +369,10 @@ export default function MediaLibrary() {
         <div className="rounded-xl border border-border bg-card p-4 space-y-2">
           <div className="flex items-center justify-between mb-3">
             <p className="text-sm font-semibold">
-              Upload Queue
+              {t('admin.media.uploadQueue')}
               {pendingCount > 0 && (
                 <span className="ml-2 text-xs font-normal text-muted-foreground">
-                  {pendingCount} in progress
+                  {t('admin.media.inProgress', { count: pendingCount })}
                 </span>
               )}
             </p>
@@ -381,7 +381,7 @@ export default function MediaLibrary() {
                 onClick={clearDoneItems}
                 className="text-xs text-muted-foreground hover:text-foreground transition-colors"
               >
-                Clear completed
+                {t('admin.media.clearCompleted')}
               </button>
             )}
           </div>
@@ -394,16 +394,16 @@ export default function MediaLibrary() {
             <div className="pt-2 border-t border-border/50 flex items-center gap-4 text-xs text-muted-foreground">
               <span className="flex items-center gap-1">
                 <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
-                {queue.filter(x => x.status === 'done').length} done
+                {queue.filter(x => x.status === 'done').length} {t('admin.media.statusDone')}
               </span>
               <span className="flex items-center gap-1">
                 <Loader2 className="w-3.5 h-3.5 text-primary" />
-                {queue.filter(x => x.status === 'uploading').length} uploading
+                {queue.filter(x => x.status === 'uploading').length} {t('admin.media.statusUploading')}
               </span>
               {queue.filter(x => x.status === 'error').length > 0 && (
                 <span className="flex items-center gap-1">
                   <AlertCircle className="w-3.5 h-3.5 text-destructive" />
-                  {queue.filter(x => x.status === 'error').length} failed
+                  {queue.filter(x => x.status === 'error').length} {t('admin.media.statusError')}
                 </span>
               )}
             </div>
@@ -423,14 +423,14 @@ export default function MediaLibrary() {
           />
         </div>
         <div className="flex gap-2">
-          {['all', 'image', 'video', 'other'].map((t) => (
+          {(['all', 'image', 'video', 'other'] as const).map((tab) => (
             <Button
-              key={t}
-              variant={typeFilter === t ? 'default' : 'outline'}
+              key={tab}
+              variant={typeFilter === tab ? 'default' : 'outline'}
               size="sm"
-              onClick={() => setTypeFilter(t)}
+              onClick={() => setTypeFilter(tab)}
             >
-              {t.charAt(0).toUpperCase() + t.slice(1)}
+              {t(`admin.media.filter${tab.charAt(0).toUpperCase() + tab.slice(1)}` as any)}
             </Button>
           ))}
         </div>

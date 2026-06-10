@@ -74,10 +74,10 @@ export default function CookieSettings() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/cms/cookie-settings'] });
-      toast({ title: 'Saved', description: 'Cookie settings have been updated.' });
+      toast({ title: t('admin.cookies.saveSuccess') });
     },
     onError: (e: any) => {
-      toast({ title: 'Save failed', description: e.message, variant: 'destructive' });
+      toast({ title: t('admin.cookies.saveError'), description: e.message, variant: 'destructive' });
     },
   });
 
@@ -104,7 +104,7 @@ export default function CookieSettings() {
         <div>
           <h1 className="text-3xl font-bold">{t('admin.cookies.title')}</h1>
           <p className="text-muted-foreground mt-1">
-            Configure the cookie consent banner shown to visitors and manage cookie categories.
+            {t('admin.cookies.subtitle')}
           </p>
         </div>
         <Button onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending}>
@@ -121,9 +121,9 @@ export default function CookieSettings() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Cookie className="h-5 w-5 text-primary" />
-            Banner Visibility
+            {t('admin.cookies.bannerVisibility')}
           </CardTitle>
-          <CardDescription>Control whether the cookie consent banner is shown to visitors.</CardDescription>
+          <CardDescription>{t('admin.cookies.bannerVisibilityDesc')}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-between rounded-lg border p-4">
@@ -134,11 +134,11 @@ export default function CookieSettings() {
                 <EyeOff className="h-5 w-5 text-muted-foreground" />
               )}
               <div>
-                <p className="font-medium">{form.enabled ? 'Banner is visible' : 'Banner is hidden'}</p>
+                <p className="font-medium">{form.enabled ? t('admin.cookies.bannerVisible') : t('admin.cookies.bannerHidden')}</p>
                 <p className="text-sm text-muted-foreground">
                   {form.enabled
-                    ? 'Visitors will see the cookie consent popup.'
-                    : 'The banner is disabled and will not appear.'}
+                    ? t('admin.cookies.bannerVisibleDesc')
+                    : t('admin.cookies.bannerHiddenDesc')}
                 </p>
               </div>
             </div>
@@ -155,8 +155,8 @@ export default function CookieSettings() {
         <CardHeader>
           <div className="flex items-start justify-between">
             <div>
-              <CardTitle>Banner Text</CardTitle>
-              <CardDescription>Customize the title and description shown in the cookie banner.</CardDescription>
+              <CardTitle>{t('admin.cookies.bannerText')}</CardTitle>
+              <CardDescription>{t('admin.cookies.bannerTextDesc')}</CardDescription>
             </div>
             <TranslateDialog
               entityType="cookie_settings"
@@ -172,24 +172,24 @@ export default function CookieSettings() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label>Banner Title</Label>
+            <Label>{t('admin.cookies.bannerTitleLabel')}</Label>
             <Input
               value={form.title}
               onChange={(e) => setForm((prev) => ({ ...prev, title: e.target.value }))}
-              placeholder="Cookie banner title"
+              placeholder={t('admin.cookies.bannerTitlePlaceholder')}
             />
           </div>
           <div className="space-y-2">
-            <Label>Banner Description</Label>
+            <Label>{t('admin.cookies.bannerDescLabel')}</Label>
             <Textarea
               value={form.description}
               onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))}
               rows={3}
-              placeholder="Explain why you use cookies…"
+              placeholder={t('admin.cookies.bannerDescPlaceholder')}
             />
           </div>
           <div className="space-y-2">
-            <Label>Show Delay (milliseconds)</Label>
+            <Label>{t('admin.cookies.showDelay')}</Label>
             <Input
               type="number"
               min={0}
@@ -199,7 +199,7 @@ export default function CookieSettings() {
               className="w-40"
             />
             <p className="text-xs text-muted-foreground">
-              How long to wait after page load before showing the banner. 0 = immediate.
+              {t('admin.cookies.showDelayDesc')}
             </p>
           </div>
         </CardContent>
@@ -208,9 +208,9 @@ export default function CookieSettings() {
       {/* Cookie Categories */}
       <Card>
         <CardHeader>
-          <CardTitle>Cookie Categories</CardTitle>
+          <CardTitle>{t('admin.cookies.categories')}</CardTitle>
           <CardDescription>
-            Configure which cookie categories are offered to visitors. Necessary cookies cannot be disabled.
+            {t('admin.cookies.categoriesDesc')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -223,7 +223,7 @@ export default function CookieSettings() {
                     {cat.locked && (
                       <Badge variant="secondary" className="text-xs flex items-center gap-1">
                         <Lock className="h-3 w-3" />
-                        Always Active
+                        {t('admin.cookies.alwaysActive')}
                       </Badge>
                     )}
                     <div className="ml-auto">
@@ -241,20 +241,20 @@ export default function CookieSettings() {
                   </div>
                   <div className="space-y-2">
                     <div className="space-y-1">
-                      <Label className="text-xs text-muted-foreground">Category Name</Label>
+                      <Label className="text-xs text-muted-foreground">{t('admin.cookies.categoryName')}</Label>
                       <Input
                         value={cat.label}
                         onChange={(e) => updateCategory(cat.key, 'label', e.target.value)}
-                        placeholder="Cookie category name"
+                        placeholder={t('admin.cookies.categoryNamePlaceholder')}
                         disabled={cat.locked}
                       />
                     </div>
                     <div className="space-y-1">
-                      <Label className="text-xs text-muted-foreground">Description</Label>
+                      <Label className="text-xs text-muted-foreground">{t('admin.common.description')}</Label>
                       <Input
                         value={cat.description}
                         onChange={(e) => updateCategory(cat.key, 'description', e.target.value)}
-                        placeholder="What these cookies do"
+                        placeholder={t('admin.cookies.categoryDescPlaceholder')}
                       />
                     </div>
                   </div>
@@ -275,8 +275,8 @@ export default function CookieSettings() {
       {/* Preview */}
       <Card>
         <CardHeader>
-          <CardTitle>Preview</CardTitle>
-          <CardDescription>How the banner will appear to visitors.</CardDescription>
+          <CardTitle>{t('admin.cookies.preview')}</CardTitle>
+          <CardDescription>{t('admin.cookies.previewDesc')}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="rounded-lg border shadow-md overflow-hidden max-w-xl">
@@ -293,19 +293,19 @@ export default function CookieSettings() {
                       <p className="text-xs text-gray-500">{cat.description}</p>
                     </div>
                     {cat.locked ? (
-                      <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Always Active</span>
+                      <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">{t('admin.cookies.alwaysActive')}</span>
                     ) : (
                       <span className={`text-xs px-2 py-1 rounded-full ${cat.enabled ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-500'}`}>
-                        {cat.enabled ? 'On by default' : 'Off by default'}
+                        {cat.enabled ? t('admin.cookies.onByDefault') : t('admin.cookies.offByDefault')}
                       </span>
                     )}
                   </div>
                 ))}
               </div>
               <div className="flex gap-2 pt-1">
-                <span className="text-xs bg-primary/10 text-primary font-medium px-3 py-1.5 rounded">Accept All</span>
-                <span className="text-xs border border-gray-300 text-gray-600 px-3 py-1.5 rounded">Necessary Only</span>
-                <span className="text-xs border px-3 py-1.5 rounded text-primary border-primary/40">Customize</span>
+                <span className="text-xs bg-primary/10 text-primary font-medium px-3 py-1.5 rounded">{t('admin.cookies.acceptAll')}</span>
+                <span className="text-xs border border-gray-300 text-gray-600 px-3 py-1.5 rounded">{t('admin.cookies.necessaryOnly')}</span>
+                <span className="text-xs border px-3 py-1.5 rounded text-primary border-primary/40">{t('admin.cookies.customize')}</span>
               </div>
             </div>
           </div>
