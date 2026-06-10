@@ -62,7 +62,7 @@ function RoleBadge({ role }: { role: string }) {
 const userSchema = z.object({
   firstName: z.string().min(1, 'First name is required'),
   lastName:  z.string().min(1, 'Last name is required'),
-  username:  z.string().min(3, 'Username must be at least 3 characters'),
+  username:  z.string().optional(),
   email:     z.string().email('Invalid email address'),
   password:  z.union([z.string().min(6), z.string().length(0)]).optional(),
   phone:     z.string().optional(),
@@ -144,7 +144,8 @@ export default function UserManagement() {
         interests: '', role: 'user', isActive: true,
       });
     }
-  }, [editingUser, form]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editingUser]);
 
   // Mutations
   const deleteUserMutation = useMutation({
