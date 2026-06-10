@@ -48,12 +48,15 @@ class BookingController extends Controller
     {
         $query = BookingTicket::with('event');
 
-        // Club managers only see bookings for events that belong to their club
+        // Club managers only see bookings for their club's own events (not association events)
         $authUser = auth()->user();
         if ($authUser && $authUser->role === 'club_manager') {
             $club = Club::where('owner_id', $authUser->id)->first();
             if ($club) {
-                $query->whereHas('event', fn($q) => $q->where('club_id', $club->id));
+                $query->whereHas('event', fn($q) => $q
+                    ->where('club_id', $club->id)
+                    ->where('is_association_event', false)
+                );
             } else {
                 $query->whereRaw('1 = 0');
             }
