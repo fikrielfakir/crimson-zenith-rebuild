@@ -2630,33 +2630,63 @@ app.get('/api/admin/media', isAdmin, async (req, res) => {
   }
 });
 
-// Media Library - Upload media (placeholder - actual file upload would need multer)
-app.post('/api/admin/media', isAdmin, async (req, res) => {
-  try {
-    console.log('🔗 Uploading media...');
-    const mediaData = req.body;
-    
-    const result: any = await db.insert(mediaAssets).values({
-      fileName: mediaData.fileName,
-      fileType: mediaData.fileType,
-      fileUrl: mediaData.fileUrl,
-      thumbnailUrl: mediaData.thumbnailUrl,
-      altText: mediaData.altText,
-      focalPoint: mediaData.focalPoint,
-      metadata: mediaData.metadata || {},
-      uploadedBy: mediaData.uploadedBy
-    });
-    
-    const insertedId = result[0]?.insertId || result.insertId;
-    const [newMedia] = await db.select().from(mediaAssets).where(eq(mediaAssets.id, insertedId));
-    
-    console.log(`✅ Media uploaded`);
-    res.json({ media: newMedia });
-  } catch (error) {
-    console.error('❌ Error uploading media:', error);
-    res.status(500).json({ error: 'Failed to upload media', details: error.message });
-  }
-});
+// Media Library - Upload media (multipart/form-data via multer)
+{
+  const multer = (await import('multer')).default;
+  const pathMod = await import('path');
+  const { promises: fsPromise } = await import('fs');
+  const crypto = await import('crypto');
+
+  const mediaStorage = multer.memoryStorage();
+  const mediaUpload = multer({ storage: mediaStorage, limits: { fileSize: 50 * 1024 * 1024 } });
+
+  app.post('/api/admin/media', isAdmin, mediaUpload.single('file'), async (req: any, res) => {
+    try {
+      const uploadsDir = pathMod.resolve(__dirname, 'public/uploads/media');
+      await fsPromise.mkdir(uploadsDir, { recursive: true });
+
+      let fileName: string;
+      let fileType: string;
+      let fileUrl: string;
+      const userId = req.user?.id ?? null;
+
+      if (req.file) {
+        // multipart file upload
+        fileType = req.file.mimetype;
+        const ext = (req.file.originalname.split('.').pop() ?? 'bin').toLowerCase();
+        const id = crypto.randomUUID();
+        fileName = `${id}.${ext}`;
+        await fsPromise.writeFile(pathMod.join(uploadsDir, fileName), req.file.buffer);
+        fileUrl = `/uploads/media/${fileName}`;
+      } else if (req.body?.imageData) {
+        // base64 fallback
+        const match = (req.body.imageData as string).match(/^data:([^;]+);base64,(.+)$/s);
+        if (!match) return res.status(400).json({ error: 'Invalid imageData format' });
+        fileType = match[1];
+        const ext = fileType.split('/')[1]?.replace('jpeg', 'jpg') ?? 'bin';
+        const id = crypto.randomUUID();
+        fileName = `${id}.${ext}`;
+        await fsPromise.writeFile(pathMod.join(uploadsDir, fileName), Buffer.from(match[2], 'base64'));
+        fileUrl = `/uploads/media/${fileName}`;
+      } else {
+        return res.status(400).json({ error: 'No file provided' });
+      }
+
+      const [newMedia] = await db.insert(mediaAssets).values({
+        fileName,
+        fileType,
+        fileUrl,
+        altText: req.body?.altText ?? req.file?.originalname ?? null,
+        uploadedBy: userId,
+      }).returning();
+
+      res.json({ ...newMedia, url: newMedia.fileUrl });
+    } catch (error: any) {
+      console.error('❌ Error uploading media:', error);
+      res.status(500).json({ error: 'Failed to upload media', details: error.message });
+    }
+  });
+}
 
 // Media Library - Delete media
 app.delete('/api/admin/media/:id', isAdmin, async (req, res) => {
@@ -3662,27 +3692,52 @@ app.put('/api/admin/cms/hero', isAdmin, async (req, res) => {
   }
 });
 
-// Media Upload
-app.post('/api/admin/cms/media', isAdmin, async (req, res) => {
+// Media Upload — handles both base64 { imageData, alt } and explicit { fileName, fileType, fileUrl }
+app.post('/api/admin/cms/media', isAdmin, async (req: any, res) => {
   try {
-    const { fileName, fileType, fileUrl, altText } = req.body;
-    
-    if (!fileName || !fileType || !fileUrl) {
-      return res.status(400).json({ error: 'Missing required fields' });
+    const { imageData, alt, fileName: fName, fileType: fType, fileUrl: fUrl, altText } = req.body;
+    const userId = req.user?.id ?? null;
+
+    let fileName: string;
+    let fileType: string;
+    let fileUrl: string;
+
+    if (imageData) {
+      // base64 data-URL path (used by PresidentMessageSettings, etc.)
+      const match = (imageData as string).match(/^data:([^;]+);base64,(.+)$/s);
+      if (!match) return res.status(400).json({ error: 'Invalid imageData format' });
+      const { promises: fsPromise } = await import('fs');
+      const pathMod = await import('path');
+      const crypto = await import('crypto');
+      fileType = match[1];
+      const ext = fileType.split('/')[1]?.replace('jpeg', 'jpg') ?? 'bin';
+      const id = crypto.randomUUID();
+      fileName = `${id}.${ext}`;
+      const uploadsDir = pathMod.resolve(__dirname, 'public/uploads/media');
+      await fsPromise.mkdir(uploadsDir, { recursive: true });
+      await fsPromise.writeFile(pathMod.join(uploadsDir, fileName), Buffer.from(match[2], 'base64'));
+      fileUrl = `/uploads/media/${fileName}`;
+    } else if (fName && fType && fUrl) {
+      // explicit fields path
+      fileName = fName;
+      fileType = fType;
+      fileUrl = fUrl;
+    } else {
+      return res.status(400).json({ error: 'Provide either imageData or fileName+fileType+fileUrl' });
     }
 
     const mediaAsset = await storage.createMediaAsset({
       fileName,
       fileType,
       fileUrl,
-      altText: altText || null,
-      uploadedBy: null,
+      altText: altText ?? alt ?? null,
+      uploadedBy: userId,
     });
 
-    res.json(mediaAsset);
-  } catch (error) {
+    res.json({ ...mediaAsset, url: mediaAsset.fileUrl });
+  } catch (error: any) {
     console.error('❌ Error uploading media:', error);
-    res.status(500).json({ error: 'Failed to upload media' });
+    res.status(500).json({ error: 'Failed to upload media', details: error.message });
   }
 });
 
