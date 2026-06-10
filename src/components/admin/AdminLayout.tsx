@@ -47,7 +47,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { canSeeNav, ADMIN_ROLE_META, type AdminRole } from '@/lib/adminPermissions';
+import { canSeeNav, getDefaultRoute, ADMIN_ROLE_META, type AdminRole } from '@/lib/adminPermissions';
 import { useAdminRole, useAdminUser } from '@/hooks/useAdminRole';
 
 const ADMIN_LANGUAGES = [
@@ -194,7 +194,7 @@ function SidebarContent({
   return (
     <div className="flex h-full flex-col">
       <div className="flex h-16 items-center justify-between border-b px-4">
-        <Link to="/admin" className="flex items-center space-x-2">
+        <Link to={getDefaultRoute(role)} className="flex items-center space-x-2">
           <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold">
             JA
           </div>

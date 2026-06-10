@@ -6,7 +6,7 @@ import { Loader2, ShieldOff } from 'lucide-react';
 import { apiFetch } from '@/lib/apiFetch';
 import { getAdminToken, clearAdminToken } from '@/lib/tokenStore';
 import { useCallback } from 'react';
-import { canAccessRoute, STAFF_ROLES, ADMIN_ROLE_META, type AdminRole } from '@/lib/adminPermissions';
+import { canAccessRoute, getDefaultRoute, STAFF_ROLES, ADMIN_ROLE_META, type AdminRole } from '@/lib/adminPermissions';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 
@@ -114,8 +114,8 @@ function TokenValidatedRoute({ children }: { children: React.ReactNode }) {
               does not have permission to view this page.
             </p>
           </div>
-          <Button onClick={() => navigate('/admin')} variant="outline">
-            Go to Dashboard
+          <Button onClick={() => navigate(getDefaultRoute(role))} variant="outline">
+            {role === 'club_manager' ? 'Go to My Clubs' : role === 'event_organizer' ? 'Go to Events' : 'Go to Dashboard'}
           </Button>
         </div>
       </AdminLayout>
