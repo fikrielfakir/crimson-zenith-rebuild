@@ -1,6 +1,7 @@
 import { apiFetch } from '@/lib/apiFetch';
 import { generateTicketPDF } from '@/lib/generateTicketPDF';
 import { useState, useRef } from 'react';
+import { useAdminRole } from '@/hooks/useAdminRole';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -441,6 +442,7 @@ export default function BookingManagement() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
 
+  const adminRole = useAdminRole();
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -474,6 +476,9 @@ export default function BookingManagement() {
   const bookings = data?.bookings || [];
 
   const filteredBookings = bookings.filter((booking: Booking) => {
+    // Club managers must never see association event bookings
+    if (adminRole === 'club_manager' && booking.isAssociationEvent) return false;
+
     const matchesSearch = booking.eventTitle.toLowerCase().includes(search.toLowerCase()) ||
                          booking.userName.toLowerCase().includes(search.toLowerCase());
     const matchesStatus = statusFilter === 'all' || booking.status === statusFilter;
