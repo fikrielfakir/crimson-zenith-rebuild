@@ -26,7 +26,8 @@ class AdminAuthController extends Controller
             return response()->json(['message' => 'Invalid username or password'], 401);
         }
 
-        if (!$user->is_admin) {
+        $staffRoles = ['admin', 'moderator', 'club_manager', 'event_organizer'];
+        if (!$user->is_admin && !in_array($user->role ?? '', $staffRoles)) {
             return response()->json(['message' => 'Admin access required'], 403);
         }
 
@@ -44,7 +45,7 @@ class AdminAuthController extends Controller
                 'email'     => $user->email,
                 'firstName' => $user->first_name,
                 'lastName'  => $user->last_name,
-                'isAdmin'   => true,
+                'isAdmin'   => (bool) $user->is_admin,
                 'role'      => $user->role ?? 'admin',
             ],
         ]);

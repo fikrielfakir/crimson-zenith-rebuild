@@ -212,10 +212,13 @@ Route::prefix('admin')->middleware(['admin'])->group(function () {
     Route::get('/me', function (\Illuminate\Http\Request $request) {
         $user = $request->user();
         return response()->json([
-            'id'       => $user->id,
-            'username' => $user->username ?? $user->email,
-            'email'    => $user->email,
-            'isAdmin'  => (bool) $user->is_admin,
+            'id'        => $user->id,
+            'username'  => $user->username ?? $user->email,
+            'email'     => $user->email,
+            'firstName' => $user->first_name,
+            'lastName'  => $user->last_name,
+            'isAdmin'   => (bool) $user->is_admin,
+            'role'      => $user->role ?? 'admin',
         ]);
     });
 

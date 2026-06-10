@@ -9,6 +9,13 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AdminMiddleware
 {
+    const STAFF_ROLES = ['admin', 'moderator', 'club_manager', 'event_organizer'];
+
+    private static function hasStaffRole($user): bool
+    {
+        return $user->is_admin || in_array($user->role ?? '', self::STAFF_ROLES);
+    }
+
     public function handle(Request $request, Closure $next): Response
     {
         // 1. HMAC Bearer token — stateless, no session side-effects.
@@ -17,7 +24,7 @@ class AdminMiddleware
         $bearer = $request->bearerToken();
         if ($bearer) {
             $user = AdminTokenService::verify($bearer);
-            if ($user && $user->is_admin) {
+            if ($user && self::hasStaffRole($user)) {
                 $request->setUserResolver(fn () => $user);
                 return $next($request);
             }
@@ -31,7 +38,7 @@ class AdminMiddleware
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
-        if (!$user->is_admin) {
+        if (!self::hasStaffRole($user)) {
             return response()->json(['message' => 'Forbidden - Admin access required'], 403);
         }
 
