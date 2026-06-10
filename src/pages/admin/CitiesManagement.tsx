@@ -565,6 +565,7 @@ function renderLucideIcon(iconName: string, className = 'w-5 h-5') {
 function IconPickerDialog({
   open, onOpenChange, onSelect, current,
 }: { open: boolean; onOpenChange: (v: boolean) => void; onSelect: (name: string) => void; current?: string }) {
+  const { t } = useTranslation();
   const [search, setSearch] = useState('');
   const filtered = COMMON_ICONS.filter(i => i.name.includes(search.toLowerCase()));
   return (
