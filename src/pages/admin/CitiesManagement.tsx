@@ -974,14 +974,14 @@ export default function CitiesManagement() {
           <TabsList className="mb-6">
             <TabsTrigger value="cities" className="flex items-center gap-2">
               <Globe className="w-4 h-4" />
-              Cities
+              {t('admin.cities.citiesTab')}
               {cities.length > 0 && (
                 <Badge variant="secondary" className="ml-1 px-1.5 py-0 text-xs">{cities.length}</Badge>
               )}
             </TabsTrigger>
             <TabsTrigger value="page-settings" className="flex items-center gap-2">
               <Settings className="w-4 h-4" />
-              Page Settings
+              {t('admin.cities.pageSettingsTab')}
             </TabsTrigger>
           </TabsList>
 
@@ -992,19 +992,19 @@ export default function CitiesManagement() {
               <div className="flex items-center justify-between">
                 <p className="text-sm text-muted-foreground">
                   {cities.length > 0
-                    ? `${cities.filter(c => c.isActive).length} active · ${cities.filter(c => !c.isActive).length} hidden`
-                    : 'No cities yet'}
+                    ? t('admin.cities.activeCount', { active: cities.filter(c => c.isActive).length, hidden: cities.filter(c => !c.isActive).length })
+                    : t('admin.cities.noCities')}
                 </p>
                 <div className="flex gap-2">
                   {cities.length === 0 && (
                     <Button variant="outline" size="sm" onClick={() => seedMutation.mutate()} disabled={seedMutation.isPending}>
                       <RefreshCw className={`w-4 h-4 mr-2 ${seedMutation.isPending ? 'animate-spin' : ''}`} />
-                      Seed Defaults
+                      {t('admin.cities.seedDefaults')}
                     </Button>
                   )}
                   <Button onClick={openCreate} size="sm">
                     <Plus className="w-4 h-4 mr-2" />
-                    Add City
+                    {t('admin.cities.addCity')}
                   </Button>
                 </div>
               </div>
@@ -1020,18 +1020,18 @@ export default function CitiesManagement() {
                 <Card className="border-dashed">
                   <CardContent className="py-20 text-center">
                     <MapPin className="w-14 h-14 mx-auto text-muted-foreground/30 mb-4" />
-                    <h3 className="font-semibold text-foreground mb-1">No cities yet</h3>
+                    <h3 className="font-semibold text-foreground mb-1">{t('admin.cities.noCities')}</h3>
                     <p className="text-muted-foreground text-sm mb-6">
-                      Click t('admin.cities.seedDefaults') to populate with Morocco's best destinations, or create a city from scratch.
+                      {t('admin.cities.noCitiesDescSeed')}
                     </p>
                     <div className="flex gap-3 justify-center">
                       <Button variant="outline" onClick={() => seedMutation.mutate()} disabled={seedMutation.isPending}>
                         <RefreshCw className="w-4 h-4 mr-2" />
-                        Seed Defaults
+                        {t('admin.cities.seedDefaults')}
                       </Button>
                       <Button onClick={openCreate}>
                         <Plus className="w-4 h-4 mr-2" />
-                        Add City
+                        {t('admin.cities.addCity')}
                       </Button>
                     </div>
                   </CardContent>
@@ -1066,7 +1066,7 @@ export default function CitiesManagement() {
                             variant={city.isActive ? 'default' : 'secondary'}
                             className="text-xs shadow"
                           >
-                            {city.isActive ? 'Active' : 'Hidden'}
+                            {city.isActive ? t('admin.cities.active') : t('admin.cities.hidden')}
                           </Badge>
                         </div>
 
@@ -1085,7 +1085,7 @@ export default function CitiesManagement() {
                       {/* card body */}
                       <div className="p-4 space-y-3">
                         <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
-                          {city.description || <span className="italic opacity-50">No description</span>}
+                          {city.description || <span className="italic opacity-50">{t('admin.cities.noDescription')}</span>}
                         </p>
 
                         {/* highlights */}
@@ -1149,7 +1149,7 @@ export default function CitiesManagement() {
                           {/* edit */}
                           <Button size="sm" variant="outline" onClick={() => openEdit(city)} className="h-8 gap-1.5">
                             <Pencil className="w-3.5 h-3.5" />
-                            Edit
+                            {t('admin.common.edit')}
                           </Button>
                           {/* delete */}
                           <Button size="sm" variant="destructive" onClick={() => setDeleteId(city.id)} className="h-8">
@@ -1308,7 +1308,7 @@ export default function CitiesManagement() {
           <DialogHeader>
             <div className="flex items-start justify-between gap-2">
               <div>
-                <DialogTitle>{editing ? `Edit ${editing.name}` : 'Add New City'}</DialogTitle>
+                <DialogTitle>{editing ? t('admin.cities.editCity', { city: editing.name }) : t('admin.cities.newCity')}</DialogTitle>
                 <DialogDescription>
                   {editing
                     ? `Changes will appear on /discover and /discover/cities?city=${editing.slug}`
@@ -1359,11 +1359,11 @@ export default function CitiesManagement() {
             {/* Basic */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>City Name *</Label>
+                <Label>{t('admin.cities.fieldNameRequired')}</Label>
                 <Input value={form.name} onChange={e => setField('name', e.target.value)} placeholder="Marrakech" />
               </div>
               <div className="space-y-2">
-                <Label>URL Slug</Label>
+                <Label>{t('admin.cities.fieldSlug')}</Label>
                 <Input value={form.slug} onChange={e => setField('slug', e.target.value)} placeholder="marrakech" />
               </div>
             </div>
@@ -1372,13 +1372,13 @@ export default function CitiesManagement() {
               <Input value={form.title} onChange={e => setField('title', e.target.value)} placeholder="The Red City" />
             </div>
             <div className="space-y-2">
-              <Label>Description</Label>
+              <Label>{t('admin.cities.fieldDescription')}</Label>
               <Textarea rows={4} value={form.description} onChange={e => setField('description', e.target.value)} placeholder="Describe this city…" />
             </div>
 
             {/* Hero media */}
             <div className="space-y-3 border rounded-xl p-4 bg-muted/30">
-              <h3 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">City Hero</h3>
+              <h3 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">{t('admin.cities.heroSection')}</h3>
               <div className="flex gap-2">
                 <button
                   type="button"
@@ -1440,19 +1440,19 @@ export default function CitiesManagement() {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Display Order</Label>
+                <Label>{t('admin.cities.fieldOrder')}</Label>
                 <Input type="number" value={form.ordering} onChange={e => setField('ordering', e.target.value)} />
               </div>
               <div className="flex items-center gap-3 pt-6">
                 <Switch checked={form.isActive} onCheckedChange={v => setField('isActive', v)} />
-                <Label>Active (visible on site)</Label>
+                <Label>{t('admin.cities.fieldActive')}</Label>
               </div>
             </div>
 
             {/* Highlights */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <Label>Highlights</Label>
+                <Label>{t('admin.cities.highlights')}</Label>
               </div>
               <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={e => handleDragEnd('highlights', 'hl-main', e)}>
                 <SortableContext items={(form.highlights ?? []).map((_: any, i: number) => `hl-main-${i}`)} strategy={verticalListSortingStrategy}>
@@ -1470,9 +1470,9 @@ export default function CitiesManagement() {
                                   : <div className="w-10 h-10 rounded border bg-muted flex items-center justify-center shrink-0"><ImageIcon className="w-4 h-4 text-muted-foreground" /></div>
                                 }
                                 <button type="button" onClick={() => setHlPickerFor({ section: 'main', idx: i })} className="text-xs text-muted-foreground border rounded px-2 py-1 hover:bg-muted transition-colors">
-                                  {h.image ? 'Change Image' : '+ Image'}
+                                  {h.image ? t('admin.cities.changeImage') : t('admin.cities.addImage')}
                                 </button>
-                                {h.image && <button type="button" onClick={() => updateHighlight('main', i, 'image', '')} className="text-xs text-destructive hover:underline">Remove</button>}
+                                {h.image && <button type="button" onClick={() => updateHighlight('main', i, 'image', '')} className="text-xs text-destructive hover:underline">{t('admin.common.remove')}</button>}
                               </div>
                             </div>
                             <button type="button" onClick={() => removeHighlight('main', i)} className="text-muted-foreground hover:text-destructive mt-1 shrink-0"><X className="w-4 h-4" /></button>
@@ -1481,7 +1481,7 @@ export default function CitiesManagement() {
                       </SortableCard>
                     ))}
                     <button type="button" onClick={() => addHighlight('main')} className="w-full border-dashed border-2 rounded-lg py-3 text-muted-foreground hover:text-foreground hover:border-primary text-sm transition-colors flex items-center justify-center gap-2">
-                      <Plus className="w-4 h-4" /> Add Highlight
+                      <Plus className="w-4 h-4" /> {t('admin.cities.addHighlight')}
                     </button>
                   </div>
                 </SortableContext>
@@ -1490,17 +1490,17 @@ export default function CitiesManagement() {
 
             {/* Culture */}
             <div className="border rounded-xl p-4 space-y-3 bg-muted/30">
-              <h3 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">Culture & Heritage</h3>
+              <h3 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">{t('admin.cities.cultureSection')}</h3>
               <div className="space-y-2">
-                <Label>Section Title</Label>
+                <Label>{t('admin.cities.sectionTitle')}</Label>
                 <Input value={form.culture?.title ?? ''} onChange={e => setField('culture.title', e.target.value)} />
               </div>
               <div className="space-y-2">
-                <Label>Description</Label>
+                <Label>{t('admin.cities.fieldDescription')}</Label>
                 <Textarea rows={2} value={form.culture?.description ?? ''} onChange={e => setField('culture.description', e.target.value)} />
               </div>
               <div className="space-y-3">
-                <Label>Highlights</Label>
+                <Label>{t('admin.cities.highlights')}</Label>
                 <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={e => handleDragEnd('cultureHighlights', 'hl-culture', e)}>
                   <SortableContext items={(form.cultureHighlights ?? []).map((_: any, i: number) => `hl-culture-${i}`)} strategy={verticalListSortingStrategy}>
                     <div className="space-y-2">
@@ -1517,9 +1517,9 @@ export default function CitiesManagement() {
                                     : <div className="w-10 h-10 rounded border bg-muted flex items-center justify-center shrink-0"><ImageIcon className="w-4 h-4 text-muted-foreground" /></div>
                                   }
                                   <button type="button" onClick={() => setHlPickerFor({ section: 'culture', idx: i })} className="text-xs text-muted-foreground border rounded px-2 py-1 hover:bg-muted transition-colors">
-                                    {h.image ? 'Change Image' : '+ Image'}
+                                    {h.image ? t('admin.cities.changeImage') : t('admin.cities.addImage')}
                                   </button>
-                                  {h.image && <button type="button" onClick={() => updateHighlight('culture', i, 'image', '')} className="text-xs text-destructive hover:underline">Remove</button>}
+                                  {h.image && <button type="button" onClick={() => updateHighlight('culture', i, 'image', '')} className="text-xs text-destructive hover:underline">{t('admin.common.remove')}</button>}
                                 </div>
                               </div>
                               <button type="button" onClick={() => removeHighlight('culture', i)} className="text-muted-foreground hover:text-destructive mt-1 shrink-0"><X className="w-4 h-4" /></button>
@@ -1528,7 +1528,7 @@ export default function CitiesManagement() {
                         </SortableCard>
                       ))}
                       <button type="button" onClick={() => addHighlight('culture')} className="w-full border-dashed border-2 rounded-lg py-3 text-muted-foreground hover:text-foreground hover:border-primary text-sm transition-colors flex items-center justify-center gap-2">
-                        <Plus className="w-4 h-4" /> Add Culture Highlight
+                        <Plus className="w-4 h-4" /> {t('admin.cities.addCultureHighlight')}
                       </button>
                     </div>
                   </SortableContext>
@@ -1538,13 +1538,13 @@ export default function CitiesManagement() {
 
             {/* Cuisine */}
             <div className="border rounded-xl p-4 space-y-3 bg-muted/30">
-              <h3 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">Local Cuisine</h3>
+              <h3 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">{t('admin.cities.cuisineSection')}</h3>
               <div className="space-y-2">
-                <Label>Section Title</Label>
+                <Label>{t('admin.cities.sectionTitle')}</Label>
                 <Input value={form.cuisine?.title ?? ''} onChange={e => setField('cuisine.title', e.target.value)} />
               </div>
               <div className="space-y-3">
-                <Label>Dishes</Label>
+                <Label>{t('admin.cities.dishes')}</Label>
                 <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={e => handleDragEnd('dishes', 'dish', e)}>
                   <SortableContext items={(form.dishes ?? []).map((_: any, i: number) => `dish-${i}`)} strategy={verticalListSortingStrategy}>
                     <div className="space-y-2">
@@ -1563,7 +1563,7 @@ export default function CitiesManagement() {
                         </SortableCard>
                       ))}
                       <button type="button" onClick={addDish} className="w-full border-dashed border-2 rounded-lg py-3 text-muted-foreground hover:text-foreground hover:border-primary text-sm transition-colors flex items-center justify-center gap-2">
-                        <Plus className="w-4 h-4" /> Add Dish
+                        <Plus className="w-4 h-4" /> {t('admin.cities.addDish')}
                       </button>
                     </div>
                   </SortableContext>
@@ -1573,7 +1573,7 @@ export default function CitiesManagement() {
 
             {/* Activities */}
             <div className="border rounded-xl p-4 space-y-3 bg-muted/30">
-              <h3 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">Activities</h3>
+              <h3 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">{t('admin.cities.activitiesSection')}</h3>
               <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={e => handleDragEnd('activities', 'act', e)}>
                 <SortableContext items={(form.activities ?? []).map((_: any, i: number) => `act-${i}`)} strategy={verticalListSortingStrategy}>
                   <div className="space-y-2">
@@ -1600,7 +1600,7 @@ export default function CitiesManagement() {
                       </SortableCard>
                     ))}
                     <button type="button" onClick={addActivity} className="w-full border-dashed border-2 rounded-lg py-3 text-muted-foreground hover:text-foreground hover:border-primary text-sm transition-colors flex items-center justify-center gap-2">
-                      <Plus className="w-4 h-4" /> Add Activity
+                      <Plus className="w-4 h-4" /> {t('admin.cities.addActivity')}
                     </button>
                   </div>
                 </SortableContext>
@@ -1609,47 +1609,47 @@ export default function CitiesManagement() {
 
             {/* Best Time */}
             <div className="border rounded-xl p-4 space-y-3 bg-muted/30">
-              <h3 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">Best Time to Visit</h3>
+              <h3 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">{t('admin.cities.bestTimeSection')}</h3>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
-                  <Label>Season</Label>
+                  <Label>{t('admin.cities.season')}</Label>
                   <Input value={form.bestTime?.season ?? ''} onChange={e => setField('bestTime.season', e.target.value)} placeholder="Spring & Fall" />
                 </div>
                 <div className="space-y-2">
-                  <Label>Months</Label>
+                  <Label>{t('admin.cities.months')}</Label>
                   <Input value={form.bestTime?.months ?? ''} onChange={e => setField('bestTime.months', e.target.value)} placeholder="April-May, Sept-Oct" />
                 </div>
               </div>
               <div className="space-y-2">
-                <Label>Description</Label>
+                <Label>{t('admin.cities.fieldDescription')}</Label>
                 <Textarea rows={2} value={form.bestTime?.description ?? ''} onChange={e => setField('bestTime.description', e.target.value)} />
               </div>
               <div className="space-y-2">
-                <Label>Temperature Range</Label>
+                <Label>{t('admin.cities.temperature')}</Label>
                 <Input value={form.bestTime?.temperature ?? ''} onChange={e => setField('bestTime.temperature', e.target.value)} placeholder="18-25°C (64-77°F)" />
               </div>
             </div>
 
             {/* Getting There */}
             <div className="border rounded-xl p-4 space-y-3 bg-muted/30">
-              <h3 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">Getting There</h3>
+              <h3 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">{t('admin.cities.gettingThereSection')}</h3>
               <div className="space-y-2">
-                <Label>Airport</Label>
+                <Label>{t('admin.cities.airport')}</Label>
                 <Input value={form.gettingThere?.airport ?? ''} onChange={e => setField('gettingThere.airport', e.target.value)} placeholder="City Airport (IATA)" />
               </div>
               <div className="space-y-2">
-                <Label>Transport Options <span className="text-muted-foreground font-normal text-xs ml-1">— one per line</span></Label>
+                <Label>{t('admin.cities.transportOptions')} <span className="text-muted-foreground font-normal text-xs ml-1">— one per line</span></Label>
                 <Textarea rows={3} value={form.transportText ?? (form.gettingThere?.transport ?? []).join('\n')} onChange={e => setField('transportText', e.target.value)} />
               </div>
               <div className="space-y-2">
-                <Label>Local Transport</Label>
+                <Label>{t('admin.cities.localTransport')}</Label>
                 <Textarea rows={2} value={form.gettingThere?.localTransport ?? ''} onChange={e => setField('gettingThere.localTransport', e.target.value)} />
               </div>
             </div>
 
             {/* Travel Tips */}
             <div className="space-y-2">
-              <Label>Travel Tips <span className="text-muted-foreground font-normal text-xs ml-1">— one per line</span></Label>
+              <Label>{t('admin.cities.travelTipsLabel')} <span className="text-muted-foreground font-normal text-xs ml-1">— one per line</span></Label>
               <Textarea rows={5} value={form.travelTipsText ?? (form.travelTips ?? []).join('\n')} onChange={e => setField('travelTipsText', e.target.value)} placeholder="Wear comfortable shoes…" />
             </div>
 
@@ -1689,7 +1689,7 @@ export default function CitiesManagement() {
           <DialogHeader>
             <DialogTitle>{t('admin.cities.deleteCity')}</DialogTitle>
             <DialogDescription>
-              This will permanently remove this city from the Discover page. This action cannot be undone.
+              {t('admin.cities.deleteCityDesc')}
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end gap-3 pt-2">
