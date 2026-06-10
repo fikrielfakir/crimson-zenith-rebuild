@@ -69,9 +69,9 @@ export default function ClubsPageSettings() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-clubs-page-settings'] });
       queryClient.invalidateQueries({ queryKey: ['clubs-page-settings-public'] });
-      toast({ title: 'Clubs page settings saved' });
+      toast({ title: t('admin.common.successSaved') });
     },
-    onError: (e: any) => toast({ title: 'Save failed', description: e.message, variant: 'destructive' }),
+    onError: (e: any) => toast({ title: t('admin.common.errorSave'), description: e.message, variant: 'destructive' }),
   });
 
   const current = form ?? DEFAULTS;
@@ -126,8 +126,8 @@ export default function ClubsPageSettings() {
               <div className="flex items-center gap-2">
                 <Building2 className="w-5 h-5 text-primary" />
                 <div>
-                  <CardTitle>Introduction Section</CardTitle>
-                  <CardDescription>Text shown below the stats bar</CardDescription>
+                  <CardTitle>{t('admin.common.introSection')}</CardTitle>
+                  <CardDescription>{t('admin.common.introSectionDesc')}</CardDescription>
                 </div>
               </div>
               <TranslateDialog
@@ -173,8 +173,8 @@ export default function ClubsPageSettings() {
               <div className="flex items-center gap-2">
                 <Megaphone className="w-5 h-5 text-primary" />
                 <div>
-                  <CardTitle>Call-to-Action Section</CardTitle>
-                  <CardDescription>Bottom banner encouraging new club creation</CardDescription>
+                  <CardTitle>{t('admin.common.ctaSection')}</CardTitle>
+                  <CardDescription>{t('admin.common.ctaSectionDesc')}</CardDescription>
                 </div>
               </div>
               <TranslateDialog

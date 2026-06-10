@@ -252,9 +252,9 @@ export default function EmailCampaigns() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-smtp-settings'] });
-      toast({ title: 'SMTP settings saved' });
+      toast({ title: t('admin.email.toastSmtpSaved') });
     },
-    onError: () => toast({ title: 'Save failed', variant: 'destructive' }),
+    onError: () => toast({ title: t('admin.email.toastSmtpSaveFailed'), variant: 'destructive' }),
   });
 
   const setS = <K extends keyof SmtpData>(key: K, value: SmtpData[K]) =>
@@ -262,7 +262,7 @@ export default function EmailCampaigns() {
 
   const handleTest = async () => {
     if (!testEmail) {
-      toast({ title: 'Enter a test email address', variant: 'destructive' });
+      toast({ title: t('admin.email.toastEnterTestEmail'), variant: 'destructive' });
       return;
     }
     setTesting(true);
@@ -273,10 +273,10 @@ export default function EmailCampaigns() {
       });
       const body = await res.json();
       if (!res.ok) throw new Error(body?.error ?? 'Test failed');
-      toast({ title: 'Test email sent!', description: `Check ${testEmail} for the test message.` });
+      toast({ title: t('admin.email.toastTestEmailSent'), description: t('admin.email.toastTestEmailSentDesc', { email: testEmail }) });
       queryClient.invalidateQueries({ queryKey: ['admin-email-log'] });
     } catch (err: any) {
-      toast({ title: 'Test failed', description: err.message, variant: 'destructive' });
+      toast({ title: t('admin.email.toastTestFailed'), description: err.message, variant: 'destructive' });
       queryClient.invalidateQueries({ queryKey: ['admin-email-log'] });
     } finally {
       setTesting(false);
@@ -285,7 +285,7 @@ export default function EmailCampaigns() {
 
   const handleSend = async () => {
     if (!compose.to || !compose.subject || !compose.body) {
-      toast({ title: 'Fill in all fields', variant: 'destructive' });
+      toast({ title: t('admin.email.toastFillAllFields'), variant: 'destructive' });
       return;
     }
     setSending(true);
@@ -296,11 +296,11 @@ export default function EmailCampaigns() {
       });
       const body = await res.json();
       if (!res.ok) throw new Error(body?.error ?? 'Send failed');
-      toast({ title: 'Email sent!', description: `Message delivered to ${compose.to}` });
+      toast({ title: t('admin.email.toastEmailSent'), description: t('admin.email.toastEmailSentDesc', { to: compose.to }) });
       setCompose({ to: '', subject: '', body: '' });
       queryClient.invalidateQueries({ queryKey: ['admin-email-log'] });
     } catch (err: any) {
-      toast({ title: 'Send failed', description: err.message, variant: 'destructive' });
+      toast({ title: t('admin.email.toastSendFailed'), description: err.message, variant: 'destructive' });
       queryClient.invalidateQueries({ queryKey: ['admin-email-log'] });
     } finally {
       setSending(false);

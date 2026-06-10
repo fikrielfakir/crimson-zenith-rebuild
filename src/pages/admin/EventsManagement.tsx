@@ -259,11 +259,11 @@ export default function EventsManagement() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-club-events'] });
-      toast({ title: 'Event deleted successfully' });
+      toast({ title: t('admin.events.toastDeleted') });
       setDeletingEventId(null);
     },
     onError: (error: Error) => {
-      toast({ title: 'Failed to delete event', description: error.message, variant: 'destructive' });
+      toast({ title: t('admin.events.toastDeleteFailed'), description: error.message, variant: 'destructive' });
     },
   });
 
@@ -308,7 +308,7 @@ export default function EventsManagement() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-club-events'] });
-      toast({ title: `Event ${editingEvent?.id ? 'updated' : 'created'} successfully` });
+      toast({ title: editingEvent?.id ? t('admin.events.toastSaved') : t('admin.events.toastSaved') });
       setEditingEvent(null);
       setShowForm(false);
       setSelectedEventType(null);
@@ -316,7 +316,7 @@ export default function EventsManagement() {
       form.reset();
     },
     onError: (error: Error) => {
-      toast({ title: 'Failed to save event', description: error.message, variant: 'destructive' });
+      toast({ title: t('admin.events.toastSaveFailed'), description: error.message, variant: 'destructive' });
     },
   });
 
@@ -355,10 +355,10 @@ export default function EventsManagement() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-club-events'] });
-      toast({ title: 'Event duplicated', description: 'A copy has been created with status "upcoming".' });
+      toast({ title: t('admin.events.toastDuplicated'), description: t('admin.events.toastDuplicatedDesc') });
     },
     onError: (error: Error) => {
-      toast({ title: 'Failed to duplicate event', description: error.message, variant: 'destructive' });
+      toast({ title: t('admin.events.toastDuplicateFailed'), description: error.message, variant: 'destructive' });
     },
   });
 
@@ -379,12 +379,12 @@ export default function EventsManagement() {
   };
 
   const handleExport = () => {
-    toast({ title: 'Exporting events...', description: 'Download will start shortly' });
+    toast({ title: t('admin.events.toastExporting'), description: t('admin.events.toastExportDesc') });
   };
 
   const handleBulkDelete = () => {
     if (selectedEvents.length === 0) return;
-    toast({ title: `Deleting ${selectedEvents.length} events...` });
+    toast({ title: t('admin.events.toastDeletingBulk', { count: selectedEvents.length }) });
   };
 
   const handleCancelForm = () => {
@@ -525,7 +525,7 @@ export default function EventsManagement() {
                       <FormItem>
                         <FormLabel>{t('admin.events.fieldTitle')}</FormLabel>
                         <FormControl>
-                          <Input {...field} placeholder="Enter event title" />
+                          <Input {...field} placeholder={t('admin.events.fieldTitlePlaceholder')} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -594,7 +594,7 @@ export default function EventsManagement() {
                         <FormItem>
                           <FormLabel>{t('admin.events.colLocation')}</FormLabel>
                           <FormControl>
-                            <Input {...field} placeholder="Event location" />
+                            <Input {...field} placeholder={t('admin.events.fieldLocationPlaceholder')} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -860,7 +860,7 @@ export default function EventsManagement() {
                           <Input
                             value={translations[activeLangTab]?.location ?? ''}
                             onChange={e => setTranslations(prev => ({ ...prev, [activeLangTab]: { ...prev[activeLangTab], location: e.target.value } }))}
-                            placeholder="Translated location"
+                            placeholder={t('admin.events.translatedLocation')}
                           />
                         </div>
                         <div className="space-y-1.5">
@@ -878,7 +878,7 @@ export default function EventsManagement() {
                           rows={3}
                           value={translations[activeLangTab]?.highlights ?? ''}
                           onChange={e => setTranslations(prev => ({ ...prev, [activeLangTab]: { ...prev[activeLangTab], highlights: e.target.value } }))}
-                          placeholder="One highlight per line"
+                          placeholder={t('admin.events.highlightsPlaceholder')}
                         />
                       </div>
                       <div className="grid md:grid-cols-2 gap-4">

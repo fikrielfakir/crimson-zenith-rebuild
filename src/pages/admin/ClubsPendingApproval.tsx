@@ -62,10 +62,10 @@ export default function ClubsPendingApproval() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['clubs', 'pending'] });
-      toast({ title: 'Club approved successfully' });
+      toast({ title: t('admin.clubs.toastApproved') });
     },
     onError: () => {
-      toast({ title: 'Failed to approve club', variant: 'destructive' });
+      toast({ title: t('admin.clubs.toastApprovalFailed'), variant: 'destructive' });
     },
   });
 
@@ -79,10 +79,10 @@ export default function ClubsPendingApproval() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['clubs', 'pending'] });
-      toast({ title: 'Club rejected' });
+      toast({ title: t('admin.clubs.toastRejected') });
     },
     onError: () => {
-      toast({ title: 'Failed to reject club', variant: 'destructive' });
+      toast({ title: t('admin.clubs.toastRejectionFailed'), variant: 'destructive' });
     },
   });
 

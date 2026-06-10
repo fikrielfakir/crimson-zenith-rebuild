@@ -53,9 +53,9 @@ function useSaveMutation(writeUrl: string, queryKeys: string[][], label: string)
     },
     onSuccess: () => {
       queryKeys.forEach((k) => queryClient.invalidateQueries({ queryKey: k }));
-      toast({ title: `${label} saved` });
+      toast({ title: t('admin.common.labelSaved', { label }) });
     },
-    onError: () => toast({ title: 'Save failed', variant: 'destructive' }),
+    onError: () => toast({ title: t('admin.common.errorSave'), variant: 'destructive' }),
   });
 }
 
@@ -97,40 +97,40 @@ function GeneralTab() {
         <CardContent className="space-y-4">
           {isLoading ? (
             <div className="flex items-center gap-2 text-muted-foreground text-sm">
-              <Loader2 className="h-4 w-4 animate-spin" /> Loading…
+              <Loader2 className="h-4 w-4 animate-spin" /> {t('admin.common.loading')}
             </div>
           ) : (
             <>
               <div className="space-y-2">
-                <Label htmlFor="site-title">Site Name / Title</Label>
+                <Label htmlFor="site-title">{t('admin.common.siteNameLabel')}</Label>
                 <Input
                   id="site-title"
                   value={siteTitle}
                   onChange={(e) => setSiteTitle(e.target.value)}
-                  placeholder="Your site name"
+                  placeholder={t('admin.settings.siteNamePlaceholder')}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="site-description">Site Description</Label>
+                <Label htmlFor="site-description">{t('admin.common.siteDescLabel')}</Label>
                 <Textarea
                   id="site-description"
                   rows={3}
                   value={siteDescription}
                   onChange={(e) => setSiteDescription(e.target.value)}
-                  placeholder="Brief description of your site"
+                  placeholder={t('admin.settings.siteDescPlaceholder')}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="contact-email">Contact Email</Label>
+                <Label htmlFor="contact-email">{t('admin.common.contactEmailLabel')}</Label>
                 <Input
                   id="contact-email"
                   type="email"
                   value={contactEmail}
                   onChange={(e) => setContactEmail(e.target.value)}
-                  placeholder="contact@example.com"
+                  placeholder={t('admin.settings.contactEmailPlaceholder')}
                 />
                 <p className="text-xs text-muted-foreground">
-                  Full contact details can be edited in <strong>Contact Settings</strong>.
+                  {t('admin.common.contactFullDetails')}
                 </p>
               </div>
             </>
@@ -168,48 +168,48 @@ function SeoTab() {
         <CardContent className="space-y-4">
           {isLoading ? (
             <div className="flex items-center gap-2 text-muted-foreground text-sm">
-              <Loader2 className="h-4 w-4 animate-spin" /> Loading…
+              <Loader2 className="h-4 w-4 animate-spin" /> {t('admin.common.loading')}
             </div>
           ) : (
             <>
               <div className="space-y-2">
-                <Label htmlFor="meta-title">Meta Title</Label>
+                <Label htmlFor="meta-title">{t('admin.common.metaTitle')}</Label>
                 <Input
                   id="meta-title"
                   value={form.siteTitle ?? ''}
                   onChange={(e) => set('siteTitle', e.target.value)}
-                  placeholder="Site title for search engines"
+                  placeholder={t('admin.settings.metaTitlePlaceholder')}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="meta-description">Meta Description</Label>
+                <Label htmlFor="meta-description">{t('admin.common.metaDescription')}</Label>
                 <Textarea
                   id="meta-description"
                   rows={3}
                   value={form.siteDescription ?? ''}
                   onChange={(e) => set('siteDescription', e.target.value)}
-                  placeholder="Description shown in search results (150–160 chars)"
+                  placeholder={t('admin.settings.metaDescPlaceholder')}
                 />
                 <p className="text-xs text-muted-foreground">
-                  {(form.siteDescription ?? '').length} / 160 characters
+                  {(form.siteDescription ?? '').length} / 160
                 </p>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="meta-keywords">Keywords</Label>
+                <Label htmlFor="meta-keywords">{t('admin.common.keywords')}</Label>
                 <Input
                   id="meta-keywords"
                   value={form.keywords ?? ''}
                   onChange={(e) => set('keywords', e.target.value)}
-                  placeholder="Comma-separated keywords"
+                  placeholder={t('admin.settings.keywordsPlaceholder')}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="twitter-handle">Twitter / X Handle</Label>
+                <Label htmlFor="twitter-handle">{t('admin.common.twitterHandle')}</Label>
                 <Input
                   id="twitter-handle"
                   value={form.twitterHandle ?? ''}
                   onChange={(e) => set('twitterHandle', e.target.value)}
-                  placeholder="@yourhandle"
+                  placeholder={t('admin.settings.twitterHandlePlaceholder')}
                 />
               </div>
             </>
@@ -227,16 +227,17 @@ function SeoTab() {
 // ── Integrations Tab ─────────────────────────────────────────────────────────
 
 function IntegrationsTab() {
+  const { t } = useTranslation();
   return (
     <div className="space-y-4">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <ShieldCheck className="h-5 w-5" />
-            Third-Party Integrations
+            {t('admin.settings.integrationsTitle')}
           </CardTitle>
           <CardDescription>
-            API keys and secrets are managed securely through Replit environment variables — not stored in the database.
+            {t('admin.settings.integrationsDesc')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">

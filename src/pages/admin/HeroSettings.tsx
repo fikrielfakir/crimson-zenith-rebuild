@@ -112,7 +112,7 @@ export default function HeroSettings() {
 
   const handleSave = async () => {
     if (taglines.length === 0 || taglines.every(t => !t.text.trim())) {
-      toast({ title: 'Validation error', description: 'Add at least one title', variant: 'destructive' });
+      toast({ title: t('admin.hero.validationError'), description: 'Add at least one title', variant: 'destructive' });
       return;
     }
     setIsSaving(true);
@@ -149,14 +149,14 @@ export default function HeroSettings() {
       });
 
       if (response.ok) {
-        toast({ title: 'Hero settings saved' });
+        toast({ title: t('admin.hero.saved') });
       } else {
         const err = await response.text();
         throw new Error(err || 'Failed to save settings');
       }
     } catch (error: any) {
       console.error('Error saving hero settings:', error);
-      toast({ title: 'Error', description: error.message ?? 'Failed to save hero settings', variant: 'destructive' });
+      toast({ title: t('admin.hero.saveError'), description: error.message, variant: 'destructive' });
     } finally {
       setIsSaving(false);
     }
@@ -176,10 +176,10 @@ export default function HeroSettings() {
       const url: string = data.fileUrl ?? data.url ?? data.thumbnailUrl ?? '';
       if (url) {
         setBackgroundImageUrl(url);
-        toast({ title: 'Background image uploaded' });
+        toast({ title: t('admin.hero.bgUploaded') });
       }
     } catch (err: any) {
-      toast({ title: 'Upload failed', description: err.message, variant: 'destructive' });
+      toast({ title: t('admin.hero.bgUploadFailed'), description: err.message, variant: 'destructive' });
     } finally {
       setUploadingBg(false);
       if (bgFileRef.current) bgFileRef.current.value = '';
@@ -314,7 +314,7 @@ export default function HeroSettings() {
                       size="sm"
                       onClick={() => removeTagline(i)}
                       disabled={taglines.length === 1}
-                      title="Remove this title"
+                      title={t('admin.pageHero.removeTitle')}
                     >
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>

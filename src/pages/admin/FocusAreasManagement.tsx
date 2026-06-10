@@ -324,7 +324,7 @@ export default function FocusAreasManagement() {
         </div>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
           <SelectTrigger className="w-40">
-            <SelectValue placeholder="Status" />
+            <SelectValue placeholder={t('admin.focusAreas.statusPlaceholder')} />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">{t('admin.events.filterAllStatus')}</SelectItem>

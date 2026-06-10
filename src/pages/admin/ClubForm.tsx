@@ -53,16 +53,17 @@ function ImageUpload({ value, onChange, onUploadStart, onUploadEnd }: {
   const [preview, setPreview] = useState<string>(value || '');
   const inputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   useEffect(() => { setPreview(value || ''); }, [value]);
 
   const handleFile = async (file: File) => {
     if (!file.type.startsWith('image/')) {
-      toast({ title: 'Invalid file', description: 'Please select an image file.', variant: 'destructive' });
+      toast({ title: t('admin.clubs.toastInvalidFile'), description: t('admin.clubs.toastInvalidFileDesc'), variant: 'destructive' });
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      toast({ title: 'File too large', description: 'Image must be under 5 MB.', variant: 'destructive' });
+      toast({ title: t('admin.clubs.toastFileTooLarge'), description: t('admin.clubs.toastFileTooLargeDesc'), variant: 'destructive' });
       return;
     }
     setPreview(URL.createObjectURL(file));
@@ -79,10 +80,10 @@ function ImageUpload({ value, onChange, onUploadStart, onUploadEnd }: {
       const { url } = await res.json();
       setPreview(url);
       onChange(url);
-      toast({ title: 'Image uploaded successfully' });
+      toast({ title: t('admin.clubs.toastImageUploaded') });
     } catch (err: any) {
       setPreview(value || '');
-      toast({ title: 'Upload failed', description: err.message, variant: 'destructive' });
+      toast({ title: t('admin.clubs.toastUploadFailed'), description: err.message, variant: 'destructive' });
     } finally {
       setUploading(false);
       onUploadEnd?.();
@@ -187,6 +188,7 @@ function MapLocationPicker({
     lat != null && lng != null ? { lat, lng } : null,
   );
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const enableScrollZoom = () => {
     mapRef.current?.scrollWheelZoom.enable();
@@ -295,7 +297,7 @@ function MapLocationPicker({
       );
       const results = await res.json();
       if (!results.length) {
-        toast({ title: 'No results', description: 'Try a different search term.', variant: 'destructive' });
+        toast({ title: t('admin.clubs.toastNoResults'), description: t('admin.clubs.toastNoResultsDesc'), variant: 'destructive' });
         return;
       }
       const { lat: rlat, lon: rlon } = results[0];
@@ -304,7 +306,7 @@ function MapLocationPicker({
       placeMarker({ lat: rl, lng: rn });
       mapRef.current?.flyTo([rl, rn], 13, { duration: 0.8 });
     } catch {
-      toast({ title: 'Search failed', description: 'Could not reach geocoding service.', variant: 'destructive' });
+      toast({ title: t('admin.clubs.toastSearchFailed'), description: t('admin.clubs.toastSearchFailedDesc'), variant: 'destructive' });
     } finally {
       setSearching(false);
     }
@@ -467,7 +469,7 @@ export default function ClubForm() {
         }
       })
       .catch((err) => {
-        toast({ title: 'Error', description: err.message || 'Failed to load club', variant: 'destructive' });
+        toast({ title: t('admin.common.errorTitle'), description: err.message || t('admin.clubs.toastLoadFailed'), variant: 'destructive' });
         navigate('/admin/clubs');
       })
       .finally(() => setIsFetching(false));

@@ -86,10 +86,10 @@ export default function VolunteerOpportunitiesAdmin() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-volunteer-opps'] });
-      toast({ title: editing ? 'Opportunity updated' : 'Opportunity created' });
+      toast({ title: editing ? t('admin.volunteers.toastUpdated') : t('admin.volunteers.toastCreated') });
       setDialogOpen(false);
     },
-    onError: (e: Error) => toast({ title: 'Error', description: e.message, variant: 'destructive' }),
+    onError: (e: Error) => toast({ title: t('admin.common.errorTitle'), description: e.message, variant: 'destructive' }),
   });
 
   const deleteMutation = useMutation({
@@ -99,10 +99,10 @@ export default function VolunteerOpportunitiesAdmin() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-volunteer-opps'] });
-      toast({ title: 'Deleted' });
+      toast({ title: t('admin.volunteers.toastDeleted') });
       setDeletingId(null);
     },
-    onError: (e: Error) => toast({ title: 'Error', description: e.message, variant: 'destructive' }),
+    onError: (e: Error) => toast({ title: t('admin.common.errorTitle'), description: e.message, variant: 'destructive' }),
   });
 
   function openCreate() {
@@ -145,7 +145,7 @@ export default function VolunteerOpportunitiesAdmin() {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input placeholder="Search…" className="pl-9" value={searchInput} onChange={e => setSearchInput(e.target.value)} />
               </div>
-              <Button type="submit" variant="secondary">Search</Button>
+              <Button type="submit" variant="secondary">{t('admin.common.searchBtn')}</Button>
             </form>
             <Select value={statusFilter} onValueChange={v => setStatusFilter(v)}>
               <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>

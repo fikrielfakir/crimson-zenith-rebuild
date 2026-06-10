@@ -197,7 +197,7 @@ function DetailDialog({ submissionId, onClose, onUpdated }: DetailDialogProps) {
       onUpdated();
     },
     onError: (err: Error) => {
-      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+      toast({ title: t('admin.common.errorTitle'), description: err.message, variant: 'destructive' });
     },
   });
 

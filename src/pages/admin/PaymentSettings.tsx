@@ -107,7 +107,7 @@ export default function PaymentSettings() {
         setSettings({ ...defaultSettings, ...data });
       }
     } catch {
-      toast({ title: 'Error', description: 'Failed to load payment settings', variant: 'destructive' });
+      toast({ title: t('admin.common.errorTitle'), description: t('admin.payment.toastLoadFailed'), variant: 'destructive' });
     } finally {
       setLoading(false);
     }
@@ -132,18 +132,18 @@ export default function PaymentSettings() {
       const data = await safeJson(res);
       if (res.ok) {
         setSettings({ ...defaultSettings, ...data });
-        toast({ title: 'Saved', description: 'Payment settings updated successfully.' });
+        toast({ title: t('admin.payment.toastSaved'), description: t('admin.payment.toastSavedDesc') });
       } else if (res.status === 401) {
         clearAdminToken();
-        toast({ title: 'Session expired', description: 'Redirecting to login…', variant: 'destructive' });
+        toast({ title: t('admin.payment.toastSessionExpired'), description: t('admin.payment.toastSessionExpiredDesc'), variant: 'destructive' });
         setTimeout(() => navigate('/admin/login'), 1500);
       } else if (res.status === 503) {
-        toast({ title: 'API unavailable', description: 'The local API is starting up — please wait a moment and try again.', variant: 'destructive' });
+        toast({ title: t('admin.payment.toastApiUnavailable'), description: t('admin.payment.toastApiUnavailableDesc'), variant: 'destructive' });
       } else {
         throw new Error(data.message || `Server error ${res.status}`);
       }
     } catch (e: any) {
-      toast({ title: 'Error', description: e.message, variant: 'destructive' });
+      toast({ title: t('admin.common.errorTitle'), description: e.message, variant: 'destructive' });
     } finally {
       setSaving(false);
     }
@@ -157,7 +157,7 @@ export default function PaymentSettings() {
       const data = await safeJson(res);
       setTestResult(data.checks || {});
     } catch {
-      toast({ title: 'Test failed', variant: 'destructive' });
+      toast({ title: t('admin.payment.toastTestFailed'), variant: 'destructive' });
     } finally {
       setTesting(false);
     }
@@ -338,7 +338,7 @@ export default function PaymentSettings() {
                 label="Store Key (StoreKey)"
                 value={settings.cmi_store_key}
                 onChange={v => set('cmi_store_key', v)}
-                placeholder="Your secret CMI store key"
+                placeholder={t('admin.payment.cmiStoreKeyPlaceholder')}
                 hint="Used to generate HMAC-SHA512 signatures. Keep this confidential."
               />
             </div>

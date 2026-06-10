@@ -8,7 +8,7 @@ export default function JoinUsConfig() {
       <h1 className="text-3xl font-bold">{t('admin.joinUs.title')}</h1>
       <Card>
         <CardHeader>
-          <CardTitle>Form Settings</CardTitle>
+          <CardTitle>{t('admin.common.formSettings')}</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground">Join Us form configuration will be here</p>

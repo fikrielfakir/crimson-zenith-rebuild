@@ -381,20 +381,20 @@ function ItemFormDialog({
     mutationFn: createItem,
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['admin-gallery'] });
-      toast({ title: 'Gallery item created' });
+      toast({ title: t('admin.gallery.toastCreated') });
       onClose();
     },
-    onError: () => toast({ title: 'Failed to create item', variant: 'destructive' }),
+    onError: () => toast({ title: t('admin.gallery.toastSaveFailed'), variant: 'destructive' }),
   });
 
   const updateMut = useMutation({
     mutationFn: ({ id, data }: { id: number; data: Partial<typeof BLANK_FORM> }) => updateItem(id, data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['admin-gallery'] });
-      toast({ title: 'Gallery item updated' });
+      toast({ title: t('admin.gallery.toastUpdated') });
       onClose();
     },
-    onError: () => toast({ title: 'Failed to update item', variant: 'destructive' }),
+    onError: () => toast({ title: t('admin.gallery.toastSaveFailed'), variant: 'destructive' }),
   });
 
   const isPending = createMut.isPending || updateMut.isPending;
@@ -402,7 +402,7 @@ function ItemFormDialog({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.title || !form.image_url) {
-      toast({ title: 'Title and image are required', variant: 'destructive' });
+      toast({ title: t('admin.gallery.titleImageRequired'), variant: 'destructive' });
       return;
     }
     if (item) {
@@ -604,7 +604,7 @@ function PreviewDialog({ item, onClose }: { item: GalleryItem | null; onClose: (
                 <h2 className="text-xl font-bold">{item.title}</h2>
                 {item.has_360 && (
                   <Badge className="bg-gradient-to-r from-blue-600 to-cyan-500 text-white gap-1 shrink-0">
-                    <Globe className="h-3 w-3" /> 360° Tour
+                    <Globe className="h-3 w-3" /> {t('admin.gallery.tour360Badge')}
                   </Badge>
                 )}
               </div>

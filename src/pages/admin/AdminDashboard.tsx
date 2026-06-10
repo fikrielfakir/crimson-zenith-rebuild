@@ -216,7 +216,7 @@ export default function AdminDashboard() {
               <Skeleton className="h-80 w-full rounded-lg" />
             ) : chartsError ? (
               <div className="flex h-80 items-center justify-center text-sm text-muted-foreground">
-                Chart data unavailable
+                {t('admin.dashboard.chartDataUnavailable')}
               </div>
             ) : (
               <ResponsiveContainer width="100%" height={300}>
@@ -243,7 +243,7 @@ export default function AdminDashboard() {
               <Skeleton className="h-80 w-full rounded-lg" />
             ) : chartsError ? (
               <div className="flex h-80 items-center justify-center text-sm text-muted-foreground">
-                Chart data unavailable
+                {t('admin.dashboard.chartDataUnavailable')}
               </div>
             ) : (
               <ResponsiveContainer width="100%" height={300}>
@@ -282,7 +282,7 @@ export default function AdminDashboard() {
                 ))}
               </div>
             ) : activityError ? (
-              <p className="text-sm text-muted-foreground text-center py-6">Activity unavailable</p>
+              <p className="text-sm text-muted-foreground text-center py-6">{t('admin.dashboard.activityUnavailable')}</p>
             ) : (
               <div className="space-y-4">
                 {activity?.slice(0, 5).map((item) => (
@@ -323,7 +323,7 @@ export default function AdminDashboard() {
                 ))}
               </div>
             ) : eventsError ? (
-              <p className="text-sm text-muted-foreground text-center py-6">Events unavailable</p>
+              <p className="text-sm text-muted-foreground text-center py-6">{t('admin.dashboard.eventsUnavailable')}</p>
             ) : (
               <div className="space-y-4">
                 {upcomingEvents?.slice(0, 5).map((event) => (
@@ -337,7 +337,7 @@ export default function AdminDashboard() {
                   </div>
                 ))}
                 <Button variant="outline" className="w-full mt-4" asChild>
-                  <Link to="/admin/events">Manage Events</Link>
+                  <Link to="/admin/events">{t('admin.common.manageEvents')}</Link>
                 </Button>
               </div>
             )}
@@ -355,31 +355,31 @@ export default function AdminDashboard() {
             <Button asChild>
               <Link to="/admin/clubs/new">
                 <Plus className="mr-2 h-4 w-4" />
-                Add New Club
+                {t('admin.dashboard.addNewClub')}
               </Link>
             </Button>
             <Button asChild variant="outline">
               <Link to="/admin/events/new">
                 <Plus className="mr-2 h-4 w-4" />
-                Create Event
+                {t('admin.events.createEvent')}
               </Link>
             </Button>
             <Button asChild variant="outline">
               <Link to="/admin/applications">
                 <FileText className="mr-2 h-4 w-4" />
-                Review Applications
+                {t('admin.dashboard.reviewApplications')}
               </Link>
             </Button>
             <Button asChild variant="outline">
               <Link to="/admin/email">
                 <Mail className="mr-2 h-4 w-4" />
-                Send Email Campaign
+                {t('admin.dashboard.sendEmailCampaign')}
               </Link>
             </Button>
             <Button asChild variant="outline">
               <Link to="/admin/analytics">
                 <TrendingUp className="mr-2 h-4 w-4" />
-                View Reports
+                {t('admin.dashboard.viewReports')}
               </Link>
             </Button>
           </div>

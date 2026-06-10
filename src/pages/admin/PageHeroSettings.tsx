@@ -330,7 +330,7 @@ function PageHeroForm({ pageKey, config, isLanding }: {
                   value={form.backgroundImageUrl}
                   onChange={url => setForm(f => ({ ...f, backgroundImageUrl: url }))}
                   accept="image/jpeg,image/png,image/webp,image/gif"
-                  placeholder="https://example.com/hero.jpg or upload ↑"
+                  placeholder={t('admin.pageHero.imageUrlPlaceholder')}
                 />
                 <p className="text-xs text-muted-foreground">
                   Upload an image file (JPG, PNG, WebP · max 10 MB) or paste a direct URL. Leave blank to use the page default.
@@ -367,7 +367,7 @@ function PageHeroForm({ pageKey, config, isLanding }: {
                   value={form.backgroundVideoUrl}
                   onChange={url => setForm(f => ({ ...f, backgroundVideoUrl: url }))}
                   accept="video/mp4,video/webm,video/ogg"
-                  placeholder="https://example.com/hero.mp4 or upload ↑"
+                  placeholder={t('admin.pageHero.videoUrlPlaceholder')}
                 />
                 <p className="text-xs text-muted-foreground">
                   Upload an MP4 or WebM file (max 200 MB) or paste a direct video URL. Video plays automatically, muted, on loop.
