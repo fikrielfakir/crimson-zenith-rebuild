@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Plus, Search, Calendar, Users, DollarSign, Download, MoreHorizontal, Eye, Edit, Trash2, XCircle, Ticket, X } from 'lucide-react';
+import { Plus, Search, Calendar, Users, DollarSign, Download, MoreHorizontal, Eye, Edit, Trash2, XCircle, Ticket, X, Loader2 } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -431,6 +431,152 @@ function EditBookingModal({ booking, isOpen, onClose, onSave }: { booking: Booki
   );
 }
 
+function NewBookingModal({ isOpen, onClose, onCreated }: { isOpen: boolean; onClose: () => void; onCreated: () => void }) {
+  const { toast } = useToast();
+  const [eventId, setEventId] = useState('');
+  const [userName, setUserName] = useState('');
+  const [userEmail, setUserEmail] = useState('');
+  const [attendees, setAttendees] = useState('1');
+  const [totalAmount, setTotalAmount] = useState('');
+  const [status, setStatus] = useState('confirmed');
+  const [submitting, setSubmitting] = useState(false);
+
+  const { data: eventsData } = useQuery({
+    queryKey: ['admin-events-for-booking'],
+    queryFn: async () => {
+      const r = await apiFetch('/api/admin/events', { credentials: 'include' });
+      if (!r.ok) throw new Error('Failed to fetch events');
+      return r.json();
+    },
+    enabled: isOpen,
+  });
+
+  const events: any[] = eventsData?.events || [];
+
+  const selectedEvent = events.find((e: any) => String(e.id) === eventId);
+
+  // Auto-fill total amount when event or attendees change
+  const handleEventChange = (id: string) => {
+    setEventId(id);
+    const ev = events.find((e: any) => String(e.id) === id);
+    if (ev?.price) {
+      setTotalAmount(String(Number(ev.price) * Number(attendees || 1)));
+    }
+  };
+
+  const handleAttendeesChange = (val: string) => {
+    setAttendees(val);
+    if (selectedEvent?.price && val) {
+      setTotalAmount(String(Number(selectedEvent.price) * Number(val)));
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!eventId || !userName || !userEmail) {
+      toast({ title: 'Please fill in all required fields', variant: 'destructive' });
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const res = await apiFetch('/api/admin/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          eventId: parseInt(eventId),
+          userName,
+          userEmail,
+          attendees: parseInt(attendees) || 1,
+          totalAmount: parseFloat(totalAmount) || 0,
+          status,
+        }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || 'Failed to create booking');
+      }
+      toast({ title: 'Booking created successfully' });
+      onCreated();
+      onClose();
+      setEventId(''); setUserName(''); setUserEmail('');
+      setAttendees('1'); setTotalAmount(''); setStatus('confirmed');
+    } catch (err: any) {
+      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>New Booking</DialogTitle>
+          <DialogDescription>Manually create a booking for an event</DialogDescription>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4 py-2">
+          <div className="space-y-1">
+            <Label>Event <span className="text-red-500">*</span></Label>
+            <Select value={eventId} onValueChange={handleEventChange}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select an event" />
+              </SelectTrigger>
+              <SelectContent>
+                {events.map((ev: any) => (
+                  <SelectItem key={ev.id} value={String(ev.id)}>
+                    {ev.title}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1 col-span-2">
+              <Label>Guest Name <span className="text-red-500">*</span></Label>
+              <Input value={userName} onChange={e => setUserName(e.target.value)} placeholder="Full name" />
+            </div>
+            <div className="space-y-1 col-span-2">
+              <Label>Email <span className="text-red-500">*</span></Label>
+              <Input type="email" value={userEmail} onChange={e => setUserEmail(e.target.value)} placeholder="guest@example.com" />
+            </div>
+            <div className="space-y-1">
+              <Label>Attendees</Label>
+              <Input type="number" min="1" value={attendees} onChange={e => handleAttendeesChange(e.target.value)} />
+            </div>
+            <div className="space-y-1">
+              <Label>Total Amount (MAD)</Label>
+              <Input type="number" min="0" step="0.01" value={totalAmount} onChange={e => setTotalAmount(e.target.value)} placeholder="0.00" />
+            </div>
+          </div>
+
+          <div className="space-y-1">
+            <Label>Status</Label>
+            <Select value={status} onValueChange={setStatus}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="confirmed">Confirmed</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="cancelled">Cancelled</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <DialogFooter className="pt-2">
+            <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
+            <Button type="submit" disabled={submitting}>
+              {submitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Creating…</> : 'Create Booking'}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export default function BookingManagement() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -441,6 +587,7 @@ export default function BookingManagement() {
   const [ticketModalOpen, setTicketModalOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+  const [newBookingModalOpen, setNewBookingModalOpen] = useState(false);
 
   const adminRole = useAdminRole();
   const queryClient = useQueryClient();
@@ -573,7 +720,7 @@ export default function BookingManagement() {
             <Download className="mr-2 h-4 w-4" />
             Export
           </Button>
-          <Button>
+          <Button onClick={() => setNewBookingModalOpen(true)}>
             <Plus className="mr-2 h-4 w-4" />
             New Booking
           </Button>
@@ -769,6 +916,12 @@ export default function BookingManagement() {
           )}
         </CardContent>
       </Card>
+
+      <NewBookingModal
+        isOpen={newBookingModalOpen}
+        onClose={() => setNewBookingModalOpen(false)}
+        onCreated={() => queryClient.invalidateQueries({ queryKey: ['bookings'] })}
+      />
 
       <ViewBookingModal 
         booking={selectedBooking} 
