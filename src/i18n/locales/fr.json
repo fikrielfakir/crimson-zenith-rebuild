@@ -1169,6 +1169,8 @@
     },
     "events": {
       "title": "Gestion des événements",
+      "subtitle": "Gérer et organiser les événements de votre communauté",
+      "translations": "Traductions",
       "createNew": "Créer un événement",
       "editEvent": "Modifier l'événement",
       "updateInfo": "Mettre à jour",

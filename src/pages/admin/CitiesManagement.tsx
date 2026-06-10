@@ -95,6 +95,7 @@ function MediaPickerDialog({
   onOpenChange: (v: boolean) => void;
   onSelect: (url: string) => void;
 }) {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const [tab, setTab]           = useState<'builtin' | 'library' | 'url'>('builtin');
   const [search, setSearch]     = useState('');

@@ -1169,6 +1169,8 @@
     },
     "events": {
       "title": "Events Management",
+      "subtitle": "Manage and organize your community events",
+      "translations": "Translations",
       "createNew": "Create New Event",
       "editEvent": "Edit Event",
       "updateInfo": "Update event information",
