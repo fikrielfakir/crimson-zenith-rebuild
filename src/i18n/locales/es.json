@@ -2704,6 +2704,26 @@
       "successTitle": "¡Cuenta creada!",
       "successMessage": "Redirigiéndote a la página de inicio de sesión..."
     },
+    "forgotPassword": {
+      "pageTitle": "Restablecer tu",
+      "pageHighlight": "Contraseña",
+      "pageSubtitle": "Introduce el correo electrónico asociado a tu cuenta y te enviaremos instrucciones para restablecer tu contraseña.",
+      "backToLogin": "Volver al inicio de sesión",
+      "formTitle": "¿Olvidaste tu contraseña?",
+      "formSubtitle": "No te preocupes — te enviaremos las instrucciones de restablecimiento.",
+      "emailLabel": "Correo electrónico",
+      "emailPlaceholder": "Introduce tu correo electrónico",
+      "sending": "Enviando...",
+      "sendButton": "Enviar instrucciones de restablecimiento",
+      "rememberPassword": "¿Recuerdas tu contraseña?",
+      "signIn": "Iniciar sesión",
+      "successTitle": "Revisa tu correo electrónico",
+      "successMessage": "Si existe una cuenta con {{email}}, recibirás las instrucciones de restablecimiento en breve.",
+      "returnToLogin": "Volver al inicio de sesión",
+      "resendEmail": "Reenviar correo",
+      "resending": "Reenviando...",
+      "resendIn": "Reenviar en {{seconds}}s"
+    },
     "errors": {
       "passwordsDoNotMatch": "Las contraseñas no coinciden.",
       "passwordTooShort": "La contraseña debe tener al menos 6 caracteres.",
