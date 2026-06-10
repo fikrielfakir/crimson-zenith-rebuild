@@ -86,6 +86,7 @@ class UserController extends Controller
             'id'         => 'user_'.time().'_'.Str::random(9),
             'username'   => explode('@', $data['email'])[0],
             'email'      => $data['email'],
+            'name'       => trim(($data['firstName'] ?? '') . ' ' . ($data['lastName'] ?? '')),
             'first_name' => $data['firstName'],
             'last_name'  => $data['lastName'],
             'password'   => Hash::make($data['password']),
@@ -115,6 +116,9 @@ class UserController extends Controller
         $update = [];
         if (isset($data['firstName'])) $update['first_name'] = $data['firstName'];
         if (isset($data['lastName']))  $update['last_name']  = $data['lastName'];
+        if (isset($data['firstName']) || isset($data['lastName'])) {
+            $update['name'] = trim(($data['firstName'] ?? $user->first_name) . ' ' . ($data['lastName'] ?? $user->last_name));
+        }
         if (isset($data['email']))     $update['email']      = $data['email'];
         if (isset($data['phone']))     $update['phone']      = $data['phone'];
         if (isset($data['location']))  $update['location']   = $data['location'];

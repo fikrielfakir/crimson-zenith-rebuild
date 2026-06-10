@@ -17,6 +17,7 @@ class AdminUserSeeder extends Seeder
                 'username'   => 'admin',
                 'email'      => 'admin@morocclubs.com',
                 'password'   => Hash::make('admin123'),
+                'name'       => 'Admin User',
                 'first_name' => 'Admin',
                 'last_name'  => 'User',
                 'role'       => 'admin',
