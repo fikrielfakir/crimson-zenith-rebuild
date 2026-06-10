@@ -435,9 +435,9 @@ export default function EventsManagement() {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold">{isEditingExistingEvent ? 'Edit Event' : 'Create New Event'}</h1>
+            <h1 className="text-3xl font-bold">{isEditingExistingEvent ? t('admin.events.editEvent') : t('admin.events.createNew')}</h1>
             <p className="text-muted-foreground mt-1">
-              {isEditingExistingEvent ? 'Update event information' : 'Add a new event to your community'}
+              {isEditingExistingEvent ? t('admin.events.updateInfo') : t('admin.events.addNew')}
             </p>
           </div>
         </div>
@@ -445,9 +445,9 @@ export default function EventsManagement() {
         {!isEditingExistingEvent && !selectedEventType && (
           <div className="space-y-4">
             <div>
-              <h2 className="text-xl font-semibold mb-2">Select Event Type</h2>
+              <h2 className="text-xl font-semibold mb-2">{t('admin.events.selectTypeTitle')}</h2>
               <p className="text-sm text-muted-foreground mb-4">
-                Choose whether this is a club event or an association event
+                {t('admin.events.selectTypeDesc')}
               </p>
             </div>
             <div className="grid md:grid-cols-2 gap-6">
@@ -461,14 +461,14 @@ export default function EventsManagement() {
                       <Building2 className="h-6 w-6 text-blue-600" />
                     </div>
                     <div>
-                      <CardTitle>Club Event</CardTitle>
-                      <CardDescription>Event organized by a specific club</CardDescription>
+                      <CardTitle>{t('admin.events.clubEventTitle')}</CardTitle>
+                      <CardDescription>{t('admin.events.clubEventDesc')}</CardDescription>
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground">
-                    Create an event for a specific club in your community. The event will be associated with the club you select.
+                    {t('admin.events.clubEventInfo')}
                   </p>
                 </CardContent>
               </Card>
@@ -483,14 +483,14 @@ export default function EventsManagement() {
                       <Globe className="h-6 w-6 text-purple-600" />
                     </div>
                     <div>
-                      <CardTitle>Journey Association Event</CardTitle>
-                      <CardDescription>Event organized by the main association</CardDescription>
+                      <CardTitle>{t('admin.events.assocEventTitle')}</CardTitle>
+                      <CardDescription>{t('admin.events.assocEventDesc')}</CardDescription>
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground">
-                    Create an event organized by The Journey Association. This event will be visible to all members.
+                    {t('admin.events.assocEventInfo')}
                   </p>
                 </CardContent>
               </Card>
@@ -505,12 +505,12 @@ export default function EventsManagement() {
                 {form.watch('isAssociationEvent') ? (
                   <Badge className="bg-purple-100 text-purple-700 hover:bg-purple-200">
                     <Globe className="h-3 w-3 mr-1" />
-                    Journey Association Event
+                    {t('admin.events.assocEventTitle')}
                   </Badge>
                 ) : (
                   <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200">
                     <Building2 className="h-3 w-3 mr-1" />
-                    Club Event
+                    {t('admin.events.clubEventTitle')}
                   </Badge>
                 )}
               </div>
@@ -523,7 +523,7 @@ export default function EventsManagement() {
                     name="title"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Event Title</FormLabel>
+                        <FormLabel>{t('admin.events.fieldTitle')}</FormLabel>
                         <FormControl>
                           <Input {...field} placeholder="Enter event title" />
                         </FormControl>
@@ -537,9 +537,9 @@ export default function EventsManagement() {
                     name="description"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Description</FormLabel>
+                        <FormLabel>{t('admin.events.fieldDescription')}</FormLabel>
                         <FormControl>
-                          <Textarea {...field} placeholder="Describe your event" rows={4} />
+                          <Textarea {...field} placeholder={t('admin.events.fieldDescPlaceholder')} rows={4} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -552,7 +552,7 @@ export default function EventsManagement() {
                       name="clubId"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Club</FormLabel>
+                          <FormLabel>{t('admin.events.fieldClub')}</FormLabel>
                           {isClubManager ? (
                             <FormControl>
                               <Input
@@ -560,7 +560,7 @@ export default function EventsManagement() {
                                 value={
                                   clubsData?.clubs?.find((c: any) => String(c.id) === managedClubId)?.name
                                   ?? managedClubId
-                                  ?? 'Your Club'
+                                  ?? t('admin.events.yourClub')
                                 }
                               />
                             </FormControl>
@@ -568,7 +568,7 @@ export default function EventsManagement() {
                             <Select onValueChange={field.onChange} value={field.value}>
                               <FormControl>
                                 <SelectTrigger>
-                                  <SelectValue placeholder="Choose a club" />
+                                  <SelectValue placeholder={t('admin.events.fieldChooseClub')} />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
@@ -918,7 +918,7 @@ export default function EventsManagement() {
                     name="image"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Event Image <span className="text-red-500">*</span></FormLabel>
+                        <FormLabel>{t('admin.events.fieldImage')} <span className="text-red-500">*</span></FormLabel>
                         <FormControl>
                           <ImageUpload
                             value={field.value}
@@ -1208,7 +1208,7 @@ export default function EventsManagement() {
           <AlertDialogHeader>
             <AlertDialogTitle>{t('admin.common.areYouSure')}</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete this event. This action cannot be undone.
+              {t('admin.events.deleteDescConfirm')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -1232,7 +1232,7 @@ export default function EventsManagement() {
                 <div className="space-y-4 text-left">
                   <div className="flex flex-wrap gap-2">
                     <Badge variant={viewingEvent.isAssociationEvent ? 'default' : 'secondary'}>
-                      {viewingEvent.isAssociationEvent ? 'Association Event' : 'Club Event'}
+                      {viewingEvent.isAssociationEvent ? t('admin.events.assocEventTitle') : t('admin.events.clubEventTitle')}
                     </Badge>
                     <Badge variant="outline">{viewingEvent.category}</Badge>
                     <Badge variant={
@@ -1246,29 +1246,29 @@ export default function EventsManagement() {
                   </div>
                   
                   <div>
-                    <h4 className="font-semibold text-foreground mb-1">Description</h4>
-                    <p className="text-sm">{viewingEvent.description || 'No description'}</p>
+                    <h4 className="font-semibold text-foreground mb-1">{t('admin.events.fieldDescription')}</h4>
+                    <p className="text-sm">{viewingEvent.description || t('admin.events.viewNoDescription')}</p>
                   </div>
                   
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <h4 className="font-semibold text-foreground mb-1 flex items-center gap-1">
-                        <MapPin className="h-4 w-4" /> Location
+                        <MapPin className="h-4 w-4" /> {t('admin.events.viewLocation')}
                       </h4>
-                      <p className="text-sm">{viewingEvent.location || 'Not specified'}</p>
+                      <p className="text-sm">{viewingEvent.location || t('admin.events.viewNotSpecified')}</p>
                       {viewingEvent.locationDetails && (
                         <p className="text-sm text-muted-foreground">{viewingEvent.locationDetails}</p>
                       )}
                     </div>
                     <div>
                       <h4 className="font-semibold text-foreground mb-1 flex items-center gap-1">
-                        <Calendar className="h-4 w-4" /> Date
+                        <Calendar className="h-4 w-4" /> {t('admin.events.viewDate')}
                       </h4>
                       <p className="text-sm">
-                        {viewingEvent.eventDate ? format(new Date(viewingEvent.eventDate), 'PPP') : 'Not specified'}
+                        {viewingEvent.eventDate ? format(new Date(viewingEvent.eventDate), 'PPP') : t('admin.events.viewNotSpecified')}
                       </p>
                       {viewingEvent.duration && (
-                        <p className="text-sm text-muted-foreground">Duration: {viewingEvent.duration}</p>
+                        <p className="text-sm text-muted-foreground">{t('admin.events.viewDuration')}: {viewingEvent.duration}</p>
                       )}
                     </div>
                   </div>
@@ -1276,44 +1276,44 @@ export default function EventsManagement() {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <h4 className="font-semibold text-foreground mb-1 flex items-center gap-1">
-                        <Users className="h-4 w-4" /> Capacity
+                        <Users className="h-4 w-4" /> {t('admin.events.viewCapacity')}
                       </h4>
                       <p className="text-sm">
-                        {viewingEvent.attendees || 0} / {viewingEvent.maxAttendees || '∞'} attendees
+                        {viewingEvent.attendees || 0} / {viewingEvent.maxAttendees || '∞'} {t('admin.events.viewAttendees')}
                       </p>
                     </div>
                     <div>
-                      <h4 className="font-semibold text-foreground mb-1">Price</h4>
+                      <h4 className="font-semibold text-foreground mb-1">{t('admin.events.viewPrice')}</h4>
                       <p className="text-sm">
-                        {viewingEvent.price ? `$${viewingEvent.price}` : 'Free'}
+                        {viewingEvent.price ? `$${viewingEvent.price}` : t('admin.events.viewFree')}
                       </p>
                     </div>
                   </div>
 
                   {viewingEvent.highlights && (
                     <div>
-                      <h4 className="font-semibold text-foreground mb-1">Highlights</h4>
+                      <h4 className="font-semibold text-foreground mb-1">{t('admin.events.viewHighlights')}</h4>
                       <p className="text-sm whitespace-pre-line">{viewingEvent.highlights}</p>
                     </div>
                   )}
 
                   {viewingEvent.included && (
                     <div>
-                      <h4 className="font-semibold text-foreground mb-1">What's Included</h4>
+                      <h4 className="font-semibold text-foreground mb-1">{t('admin.events.viewIncluded')}</h4>
                       <p className="text-sm whitespace-pre-line">{viewingEvent.included}</p>
                     </div>
                   )}
 
                   {viewingEvent.notIncluded && (
                     <div>
-                      <h4 className="font-semibold text-foreground mb-1">What's Not Included</h4>
+                      <h4 className="font-semibold text-foreground mb-1">{t('admin.events.viewNotIncluded')}</h4>
                       <p className="text-sm whitespace-pre-line">{viewingEvent.notIncluded}</p>
                     </div>
                   )}
 
                   {viewingEvent.importantInfo && (
                     <div>
-                      <h4 className="font-semibold text-foreground mb-1">Important Information</h4>
+                      <h4 className="font-semibold text-foreground mb-1">{t('admin.events.viewImportantInfo')}</h4>
                       <p className="text-sm whitespace-pre-line">{viewingEvent.importantInfo}</p>
                     </div>
                   )}

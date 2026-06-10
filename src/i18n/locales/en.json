@@ -1300,7 +1300,21 @@
       "updateEvent": "Update Event",
       "viewDetails": "View Details",
       "deleteEvent": "Delete Event",
-      "failedLoad": "Failed to load events"
+      "failedLoad": "Failed to load events",
+      "viewNotSpecified": "Not specified",
+      "viewCapacity": "Capacity",
+      "viewAttendees": "attendees",
+      "viewNoDescription": "No description",
+      "viewDuration": "Duration",
+      "viewFree": "Free",
+      "viewDate": "Date",
+      "viewLocation": "Location",
+      "viewPrice": "Price",
+      "viewHighlights": "Highlights",
+      "viewIncluded": "What's Included",
+      "viewNotIncluded": "What's Not Included",
+      "viewImportantInfo": "Important Information",
+      "deleteDescConfirm": "This will permanently delete this event. This action cannot be undone."
     },
     "navbar": {
       "title": "Navbar Settings",

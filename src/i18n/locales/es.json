@@ -1300,7 +1300,21 @@
       "updateEvent": "Actualizar evento",
       "viewDetails": "Ver detalles",
       "deleteEvent": "Eliminar evento",
-      "failedLoad": "Error al cargar eventos"
+      "failedLoad": "Error al cargar eventos",
+      "viewNotSpecified": "No especificado",
+      "viewCapacity": "Capacidad",
+      "viewAttendees": "asistentes",
+      "viewNoDescription": "Sin descripción",
+      "viewDuration": "Duración",
+      "viewFree": "Gratis",
+      "viewDate": "Fecha",
+      "viewLocation": "Ubicación",
+      "viewPrice": "Precio",
+      "viewHighlights": "Aspectos destacados",
+      "viewIncluded": "Qué incluye",
+      "viewNotIncluded": "Qué no incluye",
+      "viewImportantInfo": "Información importante",
+      "deleteDescConfirm": "Esto eliminará permanentemente este evento. Esta acción no se puede deshacer."
     },
     "navbar": {
       "title": "Configuración de navegación",
