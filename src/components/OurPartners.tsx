@@ -174,14 +174,14 @@ const OurPartners = () => {
 
         {/* Carousel — always LTR so auto-scroll direction is unaffected by RTL */}
         <div
-          className="overflow-hidden pb-8"
-          style={{ minHeight: "200px" }}
+          className="overflow-hidden"
+          style={{ minHeight: "200px", padding: "12px 0 24px" }}
           dir="ltr"
           ref={emblaRef}
           onMouseEnter={onMouseEnter}
           onMouseLeave={onMouseLeave}
         >
-          <div className="flex gap-8">
+          <div className="flex gap-6">
             {loopedPartners.map((partner, index) => {
               const isRealUrl = partner.logo_url &&
                 (partner.logo_url.startsWith('/') ||
@@ -190,15 +190,15 @@ const OurPartners = () => {
 
               const card = (
                 <div
-                  className="partner-card group flex items-center justify-center p-8 rounded-xl transition-all duration-300 hover:scale-105"
+                  className="partner-card group flex items-center justify-center p-8 rounded-2xl"
                   style={{
                     minHeight: "140px",
                     width: "100%",
-                    background: "rgba(255,255,255,0.07)",
-                    border: "1px solid rgba(201,163,91,0.25)",
-                    backdropFilter: "blur(8px)",
-                    boxShadow: "0 4px 24px rgba(0,0,0,0.25)",
-                    transition: "all 0.3s ease",
+                    background: "rgba(255,255,255,0.06)",
+                    border: "1.5px solid rgba(255,255,255,0.18)",
+                    backdropFilter: "blur(10px)",
+                    boxShadow: "0 2px 16px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1)",
+                    transition: "background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease",
                   }}
                 >
                   <img

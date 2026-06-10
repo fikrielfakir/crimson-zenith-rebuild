@@ -624,12 +624,12 @@ html[dir="rtl"] {
   overflow-x: hidden;
 }
 
-/* ── 12. Partner cards — logo brightens on card hover ───────── */
+/* ── 12. Partner cards — logo brightens + card glows on hover ── */
 .partner-card:hover .partner-logo {
   opacity: 1 !important;
 }
 .partner-card:hover {
-  background: rgba(255, 255, 255, 0.15) !important;
-  border-color: rgba(201, 163, 91, 0.6) !important;
-  box-shadow: 0 8px 32px rgba(201, 163, 91, 0.25) !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  border-color: rgba(201, 163, 91, 0.7) !important;
+  box-shadow: 0 4px 28px rgba(201, 163, 91, 0.22), inset 0 1px 0 rgba(255,255,255,0.15) !important;
 }
