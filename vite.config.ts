@@ -113,6 +113,8 @@ export default defineConfig(({ mode }: { mode: string }) => ({
       "/api":             proxyOptions,
       "/sanctum":      laravelProxyOptions,
       "/storage":      laravelProxyOptions,
+      "/attached_assets": { target: LOCAL_API, changeOrigin: false },
+      "/uploads":         { target: LOCAL_API, changeOrigin: false },
     },
     watch: {
       ignored: [
