@@ -361,6 +361,57 @@ export default defineConfig(({ mode }: { mode: string }) => ({
       },
     },
     {
+      // Intercept GET /api/cms/media/:id — look up numeric ID in media-index.json
+      // and serve the corresponding file from public/uploads/ directly.
+      // This prevents the request from being proxied to the external Laravel server
+      // where locally-uploaded files don't exist.
+      name: "serve-cms-media-by-id",
+      configureServer(server) {
+        server.middlewares.use(async (req: any, res: any, next: any) => {
+          if (req.method !== "GET") return next();
+          const url: string = req.url ?? "";
+          const match = url.match(/^\/api\/cms\/media\/(\d+)/);
+          if (!match) return next();
+
+          const id = parseInt(match[1], 10);
+
+          try {
+            const fs = await import("fs/promises");
+            const path = await import("path");
+            const uploadsDir = path.resolve(__dirname, "public/uploads");
+            const indexFile = path.join(uploadsDir, "media-index.json");
+
+            let items: any[] = [];
+            try { items = JSON.parse(await fs.readFile(indexFile, "utf-8")); } catch {}
+
+            const entry = items.find((x: any) => x.id === id);
+            if (!entry) return next();
+
+            const filePath = path.join(uploadsDir, entry.fileName);
+            let binary: Buffer;
+            try { binary = await fs.readFile(filePath); } catch { return next(); }
+
+            const ext = entry.fileName.split(".").pop()?.toLowerCase() ?? "jpg";
+            const mimeMap: Record<string, string> = {
+              jpg: "image/jpeg", jpeg: "image/jpeg",
+              png: "image/png", gif: "image/gif", webp: "image/webp",
+              svg: "image/svg+xml",
+            };
+            const mime = mimeMap[ext] ?? "image/jpeg";
+
+            res.statusCode = 200;
+            res.setHeader("Content-Type", mime);
+            res.setHeader("Cache-Control", "public, max-age=3600");
+            res.end(binary);
+            console.log(`[cms-media] Served id=${id} → ${entry.fileName}`);
+          } catch (err) {
+            console.error("[cms-media] Error:", err);
+            next();
+          }
+        });
+      },
+    },
+    {
       // Intercept GET /api/media/{id} — check local uploads first, then
       // fetch the media asset JSON from production, decode the base64 data
       // URL, and serve binary image data so <img src="/api/media/{id}"> works.
