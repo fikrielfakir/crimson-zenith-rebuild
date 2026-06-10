@@ -110,28 +110,34 @@ const OurPartners = () => {
   return (
     <section
       id="partners"
-      className="relative w-full py-20 scroll-mt-32 bg-white overflow-hidden"
+      className="relative w-full py-20 scroll-mt-32 overflow-hidden"
+      style={{ background: "linear-gradient(160deg, #0b1a40 0%, #112250 40%, #1a3366 75%, #0e2057 100%)" }}
     >
-      {/* Moroccan Pattern Background */}
+      {/* Moroccan star-tile pattern — full section */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
           backgroundImage: `url("data:image/svg+xml,${encodeURIComponent(moroccanPattern)}")`,
           backgroundRepeat: 'repeat',
-          backgroundPosition: 'top center',
           backgroundSize: '120px 120px',
-          opacity: 0.4,
+          opacity: 0.55,
           zIndex: 0,
         }}
       />
 
-      {/* Top Gradient Overlay */}
+      {/* Radial glow — centre highlight */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: "linear-gradient(180deg, #112250 0%, rgba(17,34,80,0.7) 15%, rgba(17,34,80,0.3) 30%, transparent 50%)",
+          background: "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(201,163,91,0.12) 0%, transparent 70%)",
           zIndex: 1,
         }}
+      />
+
+      {/* Thin gold top border */}
+      <div
+        className="absolute top-0 left-0 right-0 h-[3px] pointer-events-none"
+        style={{ background: "linear-gradient(90deg, transparent, #C9A35B 30%, #D4AF37 50%, #C9A35B 70%, transparent)", zIndex: 2 }}
       />
 
       <div className="container mx-auto px-4 relative z-10">
@@ -141,12 +147,11 @@ const OurPartners = () => {
             className="mb-3"
             style={{
               fontFamily: "Poppins, sans-serif",
-              fontSize: "14px",
+              fontSize: "13px",
               fontWeight: 600,
-              color: "#FFFFFF",
-              letterSpacing: "2px",
+              color: "#C9A35B",
+              letterSpacing: "3px",
               textTransform: "uppercase",
-              textShadow: "0 2px 4px rgba(0,0,0,0.2)",
             }}
           >
             {tr('subtitle', 'subtitle', lang !== 'en' ? t('partners.subtitle') : settings.subtitle)}
@@ -158,11 +163,13 @@ const OurPartners = () => {
               fontSize: "42px",
               fontWeight: 700,
               color: "#FFFFFF",
-              textShadow: "0 2px 8px rgba(0,0,0,0.3)",
+              textShadow: "0 2px 12px rgba(0,0,0,0.4)",
             }}
           >
             {tr('title', 'title', lang !== 'en' ? t('partners.title') : settings.title)}
           </h2>
+          {/* Gold underline accent */}
+          <div className="mx-auto mt-4 h-[2px] w-20 rounded-full" style={{ background: "linear-gradient(90deg, transparent, #C9A35B, transparent)" }} />
         </div>
 
         {/* Carousel — always LTR so auto-scroll direction is unaffected by RTL */}
@@ -183,16 +190,33 @@ const OurPartners = () => {
 
               const card = (
                 <div
-                  className="group flex items-center justify-center p-8 bg-white rounded-xl transition-all duration-300 hover:shadow-2xl hover:scale-105"
-                  style={{ border: "2px solid #f3f4f6", minHeight: "140px", width: "100%" }}
+                  className="group flex items-center justify-center p-8 rounded-xl transition-all duration-300 hover:scale-105"
+                  style={{
+                    minHeight: "140px",
+                    width: "100%",
+                    background: "rgba(255,255,255,0.07)",
+                    border: "1px solid rgba(201,163,91,0.25)",
+                    backdropFilter: "blur(8px)",
+                    boxShadow: "0 4px 24px rgba(0,0,0,0.25)",
+                  }}
+                  onMouseEnter={e => {
+                    (e.currentTarget as HTMLDivElement).style.background = "rgba(255,255,255,0.13)";
+                    (e.currentTarget as HTMLDivElement).style.border = "1px solid rgba(201,163,91,0.55)";
+                    (e.currentTarget as HTMLDivElement).style.boxShadow = "0 8px 32px rgba(201,163,91,0.2)";
+                  }}
+                  onMouseLeave={e => {
+                    (e.currentTarget as HTMLDivElement).style.background = "rgba(255,255,255,0.07)";
+                    (e.currentTarget as HTMLDivElement).style.border = "1px solid rgba(201,163,91,0.25)";
+                    (e.currentTarget as HTMLDivElement).style.boxShadow = "0 4px 24px rgba(0,0,0,0.25)";
+                  }}
                 >
                   <img
                     src={logo}
                     alt={partner.name}
-                    className="max-w-full h-auto opacity-50 group-hover:opacity-100 transition-all duration-300"
-                    style={{ maxHeight: "70px", objectFit: "contain", filter: "grayscale(100%)", transition: "all 0.3s ease" }}
-                    onMouseEnter={e => { e.currentTarget.style.filter = "grayscale(0%)"; }}
-                    onMouseLeave={e => { e.currentTarget.style.filter = "grayscale(100%)"; }}
+                    className="max-w-full h-auto transition-all duration-300"
+                    style={{ maxHeight: "70px", objectFit: "contain", filter: "brightness(0) invert(1) opacity(0.6)", transition: "all 0.3s ease" }}
+                    onMouseEnter={e => { e.currentTarget.style.filter = "brightness(0) invert(1) opacity(1)"; }}
+                    onMouseLeave={e => { e.currentTarget.style.filter = "brightness(0) invert(1) opacity(0.6)"; }}
                     onError={e => {
                       (e.target as HTMLImageElement).src = makeSvgPlaceholder(partner.name);
                     }}
