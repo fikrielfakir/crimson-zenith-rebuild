@@ -481,71 +481,73 @@ export default function UserManagement() {
 
       {/* Add/Edit Dialog */}
       <Dialog open={editingUser !== null} onOpenChange={open => !open && setEditingUser(null)}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
+        <DialogContent className="max-w-2xl flex flex-col max-h-[90vh]">
+          <DialogHeader className="flex-shrink-0">
             <DialogTitle>{editingUser?.id ? t('admin.users.editUser') : t('admin.users.addUser')}</DialogTitle>
             <DialogDescription>
               {editingUser?.id ? t('admin.users.editUser') : t('admin.users.addUser')}
             </DialogDescription>
           </DialogHeader>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <FormField control={form.control} name="firstName" render={({ field }) => (
-                  <FormItem><FormLabel>{t('admin.users.form.firstName')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col flex-1 min-h-0">
+              <div className="overflow-y-auto flex-1 space-y-4 pr-1">
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField control={form.control} name="firstName" render={({ field }) => (
+                    <FormItem><FormLabel>{t('admin.users.form.firstName')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                  )} />
+                  <FormField control={form.control} name="lastName" render={({ field }) => (
+                    <FormItem><FormLabel>{t('admin.users.form.lastName')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                  )} />
+                </div>
+                <FormField control={form.control} name="username" render={({ field }) => (
+                  <FormItem><FormLabel>{t('admin.users.form.username')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                 )} />
-                <FormField control={form.control} name="lastName" render={({ field }) => (
-                  <FormItem><FormLabel>{t('admin.users.form.lastName')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                <FormField control={form.control} name="email" render={({ field }) => (
+                  <FormItem><FormLabel>{t('admin.users.form.email')}</FormLabel><FormControl><Input type="email" {...field} /></FormControl><FormMessage /></FormItem>
+                )} />
+                {!editingUser?.id && (
+                  <FormField control={form.control} name="password" render={({ field }) => (
+                    <FormItem><FormLabel>{t('admin.users.form.password')}</FormLabel><FormControl><Input type="password" {...field} /></FormControl><FormMessage /></FormItem>
+                  )} />
+                )}
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField control={form.control} name="phone" render={({ field }) => (
+                    <FormItem><FormLabel>{t('admin.users.form.phone')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                  )} />
+                  <FormField control={form.control} name="location" render={({ field }) => (
+                    <FormItem><FormLabel>{t('admin.users.form.location')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                  )} />
+                </div>
+                <FormField control={form.control} name="role" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('admin.users.form.role')}</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="user">{t('admin.users.roles.member')}</SelectItem>
+                        <SelectItem value="moderator">{t('admin.users.roles.moderator')}</SelectItem>
+                        <SelectItem value="club_manager">{t('admin.users.roles.clubManager')}</SelectItem>
+                        <SelectItem value="event_organizer">{t('admin.users.roles.eventOrganizer')}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+                <FormField control={form.control} name="bio" render={({ field }) => (
+                  <FormItem><FormLabel>{t('admin.users.form.bio')}</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
+                )} />
+                <FormField control={form.control} name="isActive" render={({ field }) => (
+                  <FormItem className="flex items-center gap-2 space-y-0">
+                    <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                    <FormLabel className="!mt-0">{t('admin.users.form.isActive')}</FormLabel>
+                  </FormItem>
                 )} />
               </div>
-              <FormField control={form.control} name="username" render={({ field }) => (
-                <FormItem><FormLabel>{t('admin.users.form.username')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-              )} />
-              <FormField control={form.control} name="email" render={({ field }) => (
-                <FormItem><FormLabel>{t('admin.users.form.email')}</FormLabel><FormControl><Input type="email" {...field} /></FormControl><FormMessage /></FormItem>
-              )} />
-              {!editingUser?.id && (
-                <FormField control={form.control} name="password" render={({ field }) => (
-                  <FormItem><FormLabel>{t('admin.users.form.password')}</FormLabel><FormControl><Input type="password" {...field} /></FormControl><FormMessage /></FormItem>
-                )} />
-              )}
-              <div className="grid grid-cols-2 gap-4">
-                <FormField control={form.control} name="phone" render={({ field }) => (
-                  <FormItem><FormLabel>{t('admin.users.form.phone')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                )} />
-                <FormField control={form.control} name="location" render={({ field }) => (
-                  <FormItem><FormLabel>{t('admin.users.form.location')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                )} />
-              </div>
-              <FormField control={form.control} name="role" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t('admin.users.form.role')}</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="user">{t('admin.users.roles.member')}</SelectItem>
-                      <SelectItem value="moderator">{t('admin.users.roles.moderator')}</SelectItem>
-                      <SelectItem value="club_manager">{t('admin.users.roles.clubManager')}</SelectItem>
-                      <SelectItem value="event_organizer">{t('admin.users.roles.eventOrganizer')}</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )} />
-              <FormField control={form.control} name="bio" render={({ field }) => (
-                <FormItem><FormLabel>{t('admin.users.form.bio')}</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
-              )} />
-              <FormField control={form.control} name="isActive" render={({ field }) => (
-                <FormItem className="flex items-center gap-2 space-y-0">
-                  <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
-                  <FormLabel className="!mt-0">{t('admin.users.form.isActive')}</FormLabel>
-                </FormItem>
-              )} />
-              <DialogFooter>
+              <DialogFooter className="flex-shrink-0 pt-4 border-t mt-4">
                 <Button type="button" variant="outline" onClick={() => setEditingUser(null)}>{t('admin.common.cancel')}</Button>
                 <Button type="submit" disabled={saveUserMutation.isPending}>
                   {saveUserMutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
