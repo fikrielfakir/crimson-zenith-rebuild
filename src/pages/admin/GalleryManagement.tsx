@@ -334,6 +334,7 @@ function ItemFormDialog({
   item: GalleryItem | null;
   onClose: () => void;
 }) {
+  const { t } = useTranslation();
   const [form, setForm] = useState<typeof BLANK_FORM>(
     item
       ? {
@@ -413,15 +414,15 @@ function ItemFormDialog({
     <Dialog open={open} onOpenChange={v => { if (!v) onClose(); }}>
       <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{item ? 'Edit Gallery Item' : 'Add Gallery Item'}</DialogTitle>
+          <DialogTitle>{item ? t('admin.gallery.editTitle') : t('admin.gallery.addTitle')}</DialogTitle>
           <DialogDescription>
-            {item ? 'Update this gallery image and its metadata.' : 'Upload a new image to the public gallery.'}
+            {item ? t('admin.gallery.editDesc') : t('admin.gallery.addDesc')}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1.5">
-            <Label>Image *</Label>
+            <Label>{t('admin.gallery.imageLabel')} *</Label>
             <ImageUploader
               value={form.image_url}
               onChange={url => setForm(f => ({ ...f, image_url: url }))}
@@ -430,7 +431,7 @@ function ItemFormDialog({
 
           <div className="grid grid-cols-2 gap-3">
             <div className="col-span-2 space-y-1.5">
-              <Label>Title *</Label>
+              <Label>{t('admin.gallery.titleLabel')} *</Label>
               <Input
                 value={form.title}
                 onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
@@ -439,7 +440,7 @@ function ItemFormDialog({
             </div>
 
             <div className="space-y-1.5">
-              <Label className="flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5" />Location</Label>
+              <Label className="flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5" />{t('admin.gallery.locationLabel')}</Label>
               <Input
                 value={form.location}
                 onChange={e => setForm(f => ({ ...f, location: e.target.value }))}
@@ -460,7 +461,7 @@ function ItemFormDialog({
             </div>
 
             <div className="space-y-1.5">
-              <Label className="flex items-center gap-1.5"><User className="h-3.5 w-3.5" />Photographer</Label>
+              <Label className="flex items-center gap-1.5"><User className="h-3.5 w-3.5" />{t('admin.gallery.photographerLabel')}</Label>
               <Input
                 value={form.photographer}
                 onChange={e => setForm(f => ({ ...f, photographer: e.target.value }))}
@@ -469,19 +470,19 @@ function ItemFormDialog({
             </div>
 
             <div className="space-y-1.5">
-              <Label>Aspect Ratio</Label>
+              <Label>{t('admin.gallery.aspectRatioLabel')}</Label>
               <Select value={form.aspect} onValueChange={v => setForm(f => ({ ...f, aspect: v as any }))}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="landscape">Landscape (wide)</SelectItem>
-                  <SelectItem value="portrait">Portrait (tall)</SelectItem>
+                  <SelectItem value="landscape">{t('admin.gallery.aspectLandscape')}</SelectItem>
+                  <SelectItem value="portrait">{t('admin.gallery.aspectPortrait')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
 
           <div className="space-y-1.5">
-            <Label>Description</Label>
+            <Label>{t('admin.common.description')}</Label>
             <Textarea
               value={form.description}
               onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
@@ -498,8 +499,8 @@ function ItemFormDialog({
                   <Globe className="h-4 w-4 text-white" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold">360° Panorama View</p>
-                  <p className="text-xs text-muted-foreground">Optional — enables immersive virtual tour on this image</p>
+                  <p className="text-sm font-semibold">{t('admin.gallery.panoramaTitle')}</p>
+                  <p className="text-xs text-muted-foreground">{t('admin.gallery.panoramaDesc')}</p>
                 </div>
               </div>
               <Switch
@@ -525,8 +526,8 @@ function ItemFormDialog({
           <div className="flex items-center gap-3 p-3 rounded-lg border bg-muted/30">
             <Star className="h-4 w-4 text-yellow-500" />
             <div className="flex-1">
-              <p className="text-sm font-medium">Featured Image</p>
-              <p className="text-xs text-muted-foreground">Featured images appear prominently in the public gallery</p>
+              <p className="text-sm font-medium">{t('admin.gallery.featuredLabel')}</p>
+              <p className="text-xs text-muted-foreground">{t('admin.gallery.featuredDesc')}</p>
             </div>
             <Switch
               checked={form.is_featured}
@@ -535,10 +536,10 @@ function ItemFormDialog({
           </div>
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose} disabled={isPending}>Cancel</Button>
+            <Button type="button" variant="outline" onClick={onClose} disabled={isPending}>{t('admin.common.cancel')}</Button>
             <Button type="submit" disabled={isPending}>
               {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {item ? 'Save Changes' : 'Add to Gallery'}
+              {item ? t('admin.gallery.saveChanges') : t('admin.gallery.addToGallery')}
             </Button>
           </DialogFooter>
         </form>
@@ -711,7 +712,7 @@ export default function GalleryManagement() {
         <div className="relative flex-1 max-w-xs">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search title, location…"
+            placeholder={t('admin.gallery.searchPlaceholder')}
             value={search}
             onChange={e => setSearch(e.target.value)}
             className="pl-9"
@@ -755,9 +756,9 @@ export default function GalleryManagement() {
       ) : isError ? (
         <Card>
           <CardContent className="py-12 text-center">
-            <p className="text-muted-foreground mb-3">Could not load gallery items. Make sure the Laravel API is running.</p>
+            <p className="text-muted-foreground mb-3">{t('admin.gallery.failedLoad')}</p>
             <Button variant="outline" onClick={() => qc.invalidateQueries({ queryKey: ['admin-gallery'] })}>
-              Retry
+              {t('admin.common.retry')}
             </Button>
           </CardContent>
         </Card>
@@ -766,11 +767,11 @@ export default function GalleryManagement() {
           <CardContent className="py-16 flex flex-col items-center gap-4">
             <ImageIcon className="h-12 w-12 text-muted-foreground/40" />
             <div className="text-center">
-              <p className="font-medium">No gallery images yet</p>
-              <p className="text-sm text-muted-foreground">Add your first image to get started</p>
+              <p className="font-medium">{t('admin.gallery.noImages')}</p>
+              <p className="text-sm text-muted-foreground">{t('admin.gallery.addFirst')}</p>
             </div>
             <Button onClick={openAdd} className="gap-2">
-              <Plus className="h-4 w-4" /> Add First Image
+              <Plus className="h-4 w-4" /> {t('admin.gallery.addFirstBtn')}
             </Button>
           </CardContent>
         </Card>
@@ -848,7 +849,7 @@ export default function GalleryManagement() {
             onClick={openAdd}
           >
             <Upload className="h-8 w-8 text-muted-foreground/50" />
-            <p className="text-sm text-muted-foreground">Add Image</p>
+            <p className="text-sm text-muted-foreground">{t('admin.gallery.addImage')}</p>
           </Card>
         </div>
       ) : (
@@ -937,19 +938,19 @@ export default function GalleryManagement() {
       <AlertDialog open={deleteId !== null} onOpenChange={v => { if (!v) setDeleteId(null); }}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete gallery image?</AlertDialogTitle>
+            <AlertDialogTitle>{t('admin.gallery.deleteTitle')}</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently remove the image from the gallery. This action cannot be undone.
+              {t('admin.gallery.deleteDesc')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('admin.common.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={() => deleteId !== null && deleteMut.mutate(deleteId)}
             >
               {deleteMut.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-              Delete
+              {t('admin.common.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

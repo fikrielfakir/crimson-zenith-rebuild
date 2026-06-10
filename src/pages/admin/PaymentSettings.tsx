@@ -177,16 +177,16 @@ export default function PaymentSettings() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-[#111f50]">{t('admin.payments.title')}</h1>
-          <p className="text-muted-foreground mt-1">Configure payment gateways and methods for bookings</p>
+          <p className="text-muted-foreground mt-1">{t('admin.payments.subtitle')}</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={handleTest} disabled={testing}>
             {testing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <RefreshCw className="w-4 h-4 mr-2" />}
-            Test Connections
+            {t('admin.payments.testConnections')}
           </Button>
           <Button onClick={handleSave} disabled={saving} className="bg-[#111f50] hover:bg-[#1a2d5a]">
             {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
-            Save Changes
+            {t('admin.payments.saveChanges')}
           </Button>
         </div>
       </div>
@@ -210,7 +210,7 @@ export default function PaymentSettings() {
               </div>
             ))}
             {Object.keys(testResult).length === 0 && (
-              <p className="text-sm text-muted-foreground">No payment gateways are currently enabled.</p>
+              <p className="text-sm text-muted-foreground">{t('admin.payments.noGateways')}</p>
             )}
           </CardContent>
         </Card>
@@ -225,13 +225,13 @@ export default function PaymentSettings() {
                 <Banknote className="w-5 h-5 text-green-600" />
               </div>
               <div>
-                <CardTitle className="text-base">Cash Payment</CardTitle>
-                <CardDescription>Accept payments on-site; requires manual admin approval</CardDescription>
+                <CardTitle className="text-base">{t('admin.payments.cashTitle')}</CardTitle>
+                <CardDescription>{t('admin.payments.cashDesc')}</CardDescription>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <Badge variant={settings.cash_enabled ? 'default' : 'secondary'} className={settings.cash_enabled ? 'bg-green-500' : ''}>
-                {settings.cash_enabled ? 'Enabled' : 'Disabled'}
+                {settings.cash_enabled ? t('admin.payments.enabled') : t('admin.payments.disabled')}
               </Badge>
               <Switch
                 checked={settings.cash_enabled}
@@ -262,15 +262,15 @@ export default function PaymentSettings() {
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <CardTitle className="text-base">CMI Payment Gateway</CardTitle>
+                  <CardTitle className="text-base">{t('admin.payments.cmiTitle')}</CardTitle>
                   <Badge variant="outline" className="text-xs font-normal">Centre Monétique Interbancaire</Badge>
                 </div>
-                <CardDescription>Moroccan bank card payment via CMI 3D Secure hosted page</CardDescription>
+                <CardDescription>{t('admin.payments.cmiDesc')}</CardDescription>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <Badge variant={settings.cmi_enabled ? 'default' : 'secondary'} className={settings.cmi_enabled ? 'bg-[#111f50]' : ''}>
-                {settings.cmi_enabled ? 'Enabled' : 'Disabled'}
+                {settings.cmi_enabled ? t('admin.payments.enabled') : t('admin.payments.disabled')}
               </Badge>
               <Switch
                 checked={settings.cmi_enabled}
@@ -472,12 +472,12 @@ export default function PaymentSettings() {
               </div>
               <div>
                 <CardTitle className="text-base">Stripe</CardTitle>
-                <CardDescription>International card payments via Stripe</CardDescription>
+                <CardDescription>{t('admin.payments.stripeDesc')}</CardDescription>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <Badge variant={settings.stripe_enabled ? 'default' : 'secondary'} className={settings.stripe_enabled ? 'bg-purple-500' : ''}>
-                {settings.stripe_enabled ? 'Enabled' : 'Disabled'}
+                {settings.stripe_enabled ? t('admin.payments.enabled') : t('admin.payments.disabled')}
               </Badge>
               <Switch
                 checked={settings.stripe_enabled}
@@ -518,7 +518,7 @@ export default function PaymentSettings() {
       <div className="flex justify-end pt-2">
         <Button onClick={handleSave} disabled={saving} size="lg" className="bg-[#111f50] hover:bg-[#1a2d5a] px-8">
           {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
-          Save Payment Settings
+          {t('admin.payments.savePaymentSettings')}
         </Button>
       </div>
     </div>

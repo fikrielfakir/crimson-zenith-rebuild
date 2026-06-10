@@ -369,7 +369,7 @@ function MediaPickerDialog({
         )}
 
         <div className="flex justify-end gap-3 shrink-0 pt-2 border-t">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>{t('admin.common.cancel')}</Button>
           <Button
             onClick={confirm}
             disabled={tab === 'url' ? !urlInput : !selected}
@@ -966,7 +966,7 @@ export default function CitiesManagement() {
     <>
         <div>
           <h1 className="text-3xl font-bold text-foreground">Discover Page</h1>
-          <p className="text-muted-foreground mt-1">Edit the Discover page content and manage city destination cards</p>
+          <p className="text-muted-foreground mt-1">{t('admin.cities.subtitle')}</p>
         </div>
 
         <Tabs defaultValue="cities">
@@ -1294,7 +1294,7 @@ export default function CitiesManagement() {
               <div className="flex justify-end">
                 <Button onClick={() => saveDiscoverMutation.mutate()} disabled={saveDiscoverMutation.isPending} size="lg">
                   <Save className="w-4 h-4 mr-2" />
-                  {saveDiscoverMutation.isPending ? 'Saving…' : 'Save Page Settings'}
+                  {saveDiscoverMutation.isPending ? t('admin.common.saving') : t('admin.cities.savePageSettings')}
                 </Button>
               </div>
             </div>
@@ -1653,9 +1653,9 @@ export default function CitiesManagement() {
             </div>
 
             <div className="flex justify-end gap-3 pt-2 border-t">
-              <Button variant="outline" onClick={() => setShowForm(false)}>Cancel</Button>
+              <Button variant="outline" onClick={() => setShowForm(false)}>{t('admin.common.cancel')}</Button>
               <Button onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending || !form.name}>
-                {saveMutation.isPending ? 'Saving…' : editing ? 'Save Changes' : 'Create City'}
+                {saveMutation.isPending ? t('admin.common.saving') : editing ? t('admin.settings.saveChanges') : t('admin.cities.createCity')}
               </Button>
             </div>
           </div>
@@ -1686,19 +1686,19 @@ export default function CitiesManagement() {
       <Dialog open={deleteId !== null} onOpenChange={() => setDeleteId(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete City</DialogTitle>
+            <DialogTitle>{t('admin.cities.deleteCity')}</DialogTitle>
             <DialogDescription>
               This will permanently remove this city from the Discover page. This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end gap-3 pt-2">
-            <Button variant="outline" onClick={() => setDeleteId(null)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setDeleteId(null)}>{t('admin.common.cancel')}</Button>
             <Button
               variant="destructive"
               onClick={() => deleteId && deleteMutation.mutate(deleteId)}
               disabled={deleteMutation.isPending}
             >
-              {deleteMutation.isPending ? 'Deleting…' : 'Delete City'}
+              {deleteMutation.isPending ? t('admin.common.deleting') : t('admin.cities.deleteCity')}
             </Button>
           </div>
         </DialogContent>

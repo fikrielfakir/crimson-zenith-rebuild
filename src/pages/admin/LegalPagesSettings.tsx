@@ -48,6 +48,7 @@ interface LegalPageData {
 }
 
 function LegalPageEditor({ pageKey, label, defaultTitle, defaultContent }: { pageKey: string; label: string; defaultTitle: string; defaultContent: string }) {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [title, setTitle] = useState('');
@@ -123,9 +124,9 @@ function LegalPageEditor({ pageKey, label, defaultTitle, defaultContent }: { pag
           />
           <Button onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending}>
             {saveMutation.isPending ? (
-              <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Saving…</>
+              <><Loader2 className="h-4 w-4 mr-2 animate-spin" />{t('admin.common.saving')}</>
             ) : (
-              <><Save className="h-4 w-4 mr-2" />Save</>
+              <><Save className="h-4 w-4 mr-2" />{t('admin.common.save')}</>
             )}
           </Button>
         </div>

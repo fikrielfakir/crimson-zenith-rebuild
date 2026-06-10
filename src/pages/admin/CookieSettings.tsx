@@ -109,9 +109,9 @@ export default function CookieSettings() {
         </div>
         <Button onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending}>
           {saveMutation.isPending ? (
-            <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Saving…</>
+            <><Loader2 className="h-4 w-4 mr-2 animate-spin" />{t('admin.common.saving')}</>
           ) : (
-            <><Save className="h-4 w-4 mr-2" />Save Changes</>
+            <><Save className="h-4 w-4 mr-2" />{t('admin.settings.saveChanges')}</>
           )}
         </Button>
       </div>
@@ -315,9 +315,9 @@ export default function CookieSettings() {
       <div className="flex justify-end pb-6">
         <Button onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending} size="lg">
           {saveMutation.isPending ? (
-            <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Saving…</>
+            <><Loader2 className="h-4 w-4 mr-2 animate-spin" />{t('admin.common.saving')}</>
           ) : (
-            <><Save className="h-4 w-4 mr-2" />Save Changes</>
+            <><Save className="h-4 w-4 mr-2" />{t('admin.settings.saveChanges')}</>
           )}
         </Button>
       </div>

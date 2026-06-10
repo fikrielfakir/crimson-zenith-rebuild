@@ -218,7 +218,7 @@ export default function HeroSettings() {
           </Button>
           <Button onClick={handleSave} disabled={isSaving}>
             <Save className="mr-2 h-4 w-4" />
-            {isSaving ? 'Saving…' : 'Save Changes'}
+            {isSaving ? t('admin.common.saving') : t('admin.settings.saveChanges')}
           </Button>
         </div>
       </div>
@@ -251,7 +251,7 @@ export default function HeroSettings() {
                 </div>
                 <Button variant="outline" size="sm" onClick={addTagline}>
                   <Plus className="mr-1.5 h-4 w-4" />
-                  Add Title
+                  {t('admin.hero.addTitle')}
                 </Button>
               </div>
             </CardHeader>
@@ -259,7 +259,7 @@ export default function HeroSettings() {
               {taglines.length === 0 && (
                 <div className="rounded-lg border border-dashed p-6 text-center text-muted-foreground">
                   <Type className="h-8 w-8 mx-auto mb-2 opacity-40" />
-                  <p className="text-sm">No titles yet — click t('admin.hero.addTitle') above</p>
+                  <p className="text-sm">{t('admin.hero.noTitles')}</p>
                 </div>
               )}
 
@@ -325,7 +325,7 @@ export default function HeroSettings() {
 
               <Button variant="outline" size="sm" onClick={addTagline} className="w-full border-dashed">
                 <Plus className="mr-2 h-4 w-4" />
-                Add Another Title
+                {t('admin.hero.addAnotherTitle')}
               </Button>
             </CardContent>
           </Card>
@@ -333,8 +333,8 @@ export default function HeroSettings() {
           {/* Subtitle */}
           <Card>
             <CardHeader>
-              <CardTitle>Subtitle</CardTitle>
-              <CardDescription>The short description shown below the animated titles</CardDescription>
+              <CardTitle>{t('admin.hero.subtitleLabel')}</CardTitle>
+              <CardDescription>{t('admin.hero.subtitleDesc')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex gap-2 items-start">
@@ -367,14 +367,14 @@ export default function HeroSettings() {
         <TabsContent value="buttons" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Call-to-Action Buttons</CardTitle>
-              <CardDescription>Configure hero section buttons</CardDescription>
+              <CardTitle>{t('admin.hero.ctaButtonsTitle')}</CardTitle>
+              <CardDescription>{t('admin.hero.ctaButtonsDesc')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-4 border-b pb-6">
                 <div className="flex items-center space-x-2">
                   <Switch checked={showPrimaryButton} onCheckedChange={setShowPrimaryButton} />
-                  <Label>Show Primary Button</Label>
+                  <Label>{t('admin.hero.showPrimaryBtn')}</Label>
                 </div>
                 {showPrimaryButton && (
                   <div className="grid grid-cols-2 gap-4 pl-6">
@@ -401,7 +401,7 @@ export default function HeroSettings() {
               <div className="space-y-4">
                 <div className="flex items-center space-x-2">
                   <Switch checked={showSecondaryButton} onCheckedChange={setShowSecondaryButton} />
-                  <Label>Show Secondary Button</Label>
+                  <Label>{t('admin.hero.showSecondaryBtn')}</Label>
                 </div>
                 {showSecondaryButton && (
                   <div className="grid grid-cols-2 gap-4 pl-6">
@@ -433,8 +433,8 @@ export default function HeroSettings() {
         <TabsContent value="background" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Background Media</CardTitle>
-              <CardDescription>Set hero background image or video</CardDescription>
+              <CardTitle>{t('admin.hero.backgroundTitle')}</CardTitle>
+              <CardDescription>{t('admin.hero.backgroundDesc')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-5">
               <div className="space-y-2">
@@ -525,8 +525,8 @@ export default function HeroSettings() {
         <TabsContent value="typography" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Typography & Colors</CardTitle>
-              <CardDescription>Customize text appearance</CardDescription>
+              <CardTitle>{t('admin.hero.typographyTitle')}</CardTitle>
+              <CardDescription>{t('admin.hero.typographyDesc')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-4 border-b pb-6">
@@ -598,8 +598,8 @@ export default function HeroSettings() {
         <TabsContent value="layout" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Layout Settings</CardTitle>
-              <CardDescription>Control hero dimensions and spacing</CardDescription>
+              <CardTitle>{t('admin.hero.layoutTitle')}</CardTitle>
+              <CardDescription>{t('admin.hero.layoutDesc')}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 gap-4">

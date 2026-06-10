@@ -415,7 +415,7 @@ export default function MediaLibrary() {
         <div className="relative flex-1 min-w-48 max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search files..."
+            placeholder={t('admin.media.searchPlaceholder')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-9"
@@ -442,13 +442,13 @@ export default function MediaLibrary() {
       {isLoading ? (
         <div className="flex items-center justify-center h-48 text-muted-foreground gap-2">
           <Loader2 className="h-5 w-5 animate-spin" />
-          Loading media files…
+          {t('admin.media.loading')}
         </div>
       ) : error ? (
         <Card>
           <CardContent className="flex flex-col items-center justify-center h-48 gap-3 text-destructive">
             <AlertCircle className="h-10 w-10 opacity-50" />
-            <p>Failed to load media files. Please try again.</p>
+            <p>{t('admin.media.failedLoad')}</p>
           </CardContent>
         </Card>
       ) : filteredFiles.length === 0 ? (
@@ -457,8 +457,8 @@ export default function MediaLibrary() {
             <ImageIcon className="h-12 w-12 opacity-30" />
             <p>
               {search || typeFilter !== 'all'
-                ? 'No files match your filters.'
-                : 'No media files yet — drag files above to get started.'}
+                ? t('admin.media.noFilesFilter')
+                : t('admin.media.noFiles')}
             </p>
           </CardContent>
         </Card>
@@ -474,18 +474,18 @@ export default function MediaLibrary() {
       <AlertDialog open={deletingId !== null} onOpenChange={(open) => !open && setDeletingId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete file?</AlertDialogTitle>
+            <AlertDialogTitle>{t('admin.media.deleteTitle')}</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete the file. Any content using this file will lose its reference.
+              {t('admin.media.deleteDesc')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('admin.common.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={() => deletingId !== null && deleteMutation.mutate(deletingId)}
             >
-              Delete
+              {t('admin.common.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

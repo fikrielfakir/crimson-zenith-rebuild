@@ -284,39 +284,39 @@ export default function PresidentMessageSettings() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">President Message Settings</h1>
-          <p className="text-muted-foreground mt-1">Customize the president's message section</p>
+          <h1 className="text-3xl font-bold">{t('admin.president.title')}</h1>
+          <p className="text-muted-foreground mt-1">{t('admin.president.subtitle')}</p>
         </div>
         <div className="flex space-x-2">
           <div className="flex items-center space-x-2 mr-4">
             <Switch checked={isActive} onCheckedChange={setIsActive} />
-            <Label>Show Section</Label>
+            <Label>{t('admin.president.showSection')}</Label>
           </div>
           <Button variant="outline" onClick={() => window.open('/', '_blank')}>
             <Eye className="mr-2 h-4 w-4" />
-            Preview
+            {t('admin.theme.preview')}
           </Button>
           <Button onClick={handleSave} disabled={isSaving}>
             <Save className="mr-2 h-4 w-4" />
-            {isSaving ? 'Saving...' : 'Save Changes'}
+            {isSaving ? t('admin.events.saving') : t('admin.settings.saveChanges')}
           </Button>
         </div>
       </div>
 
       <Tabs defaultValue="content" className="w-full">
         <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="content">Content</TabsTrigger>
-          <TabsTrigger value="media">Media</TabsTrigger>
-          <TabsTrigger value="typography">Typography</TabsTrigger>
-          <TabsTrigger value="layout">Layout & Styling</TabsTrigger>
+          <TabsTrigger value="content">{t('admin.president.tabContent')}</TabsTrigger>
+          <TabsTrigger value="media">{t('admin.president.tabMedia')}</TabsTrigger>
+          <TabsTrigger value="typography">{t('admin.president.tabTypography')}</TabsTrigger>
+          <TabsTrigger value="layout">{t('admin.president.tabLayout')}</TabsTrigger>
         </TabsList>
 
         {/* Content Tab */}
         <TabsContent value="content" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Section Content</CardTitle>
-              <CardDescription>Edit the text content for the president message section</CardDescription>
+              <CardTitle>{t('admin.president.sectionContent')}</CardTitle>
+              <CardDescription>{t('admin.president.sectionContentDesc')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-2">

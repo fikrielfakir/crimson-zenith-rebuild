@@ -147,7 +147,7 @@ export default function LandingManagement() {
         </div>
         <Button onClick={saveAll} disabled={!hasPending || saving}>
           {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-          {saving ? 'Saving…' : 'Save Changes'}
+          {saving ? t('admin.common.saving') : t('admin.settings.saveChanges')}
         </Button>
       </div>
 

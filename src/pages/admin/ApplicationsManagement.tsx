@@ -58,7 +58,7 @@ export default function ApplicationsManagement() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['applications'] });
-      toast({ title: 'Application approved successfully' });
+      toast({ title: t('admin.applications.toastApproved') });
     },
   });
 
@@ -72,7 +72,7 @@ export default function ApplicationsManagement() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['applications'] });
-      toast({ title: 'Application rejected' });
+      toast({ title: t('admin.applications.toastDeclined') });
     },
   });
 
@@ -86,20 +86,20 @@ export default function ApplicationsManagement() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Applications Management</h1>
-          <p className="text-muted-foreground mt-1">Review membership applications and requests</p>
+          <h1 className="text-3xl font-bold">{t('admin.applications.title')}</h1>
+          <p className="text-muted-foreground mt-1">{t('admin.applications.subtitle')}</p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" asChild>
             <Link to="/admin/users">
               <Users className="mr-2 h-4 w-4" />
-              All Users
+              {t('admin.applications.allUsers')}
             </Link>
           </Button>
           <Button variant="outline" size="sm" asChild>
             <Link to="/admin/users/roles">
               <ExternalLink className="mr-2 h-4 w-4" />
-              Roles & Permissions
+              {t('admin.applications.rolesPermissions')}
             </Link>
           </Button>
         </div>
@@ -112,12 +112,12 @@ export default function ApplicationsManagement() {
           onClick={() => setStatusFilter('pending')}
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('admin.applications.filterPending')}</CardTitle>
             <Clock className="h-4 w-4 text-orange-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{isLoading ? '—' : pendingCount}</div>
-            <p className="text-xs text-muted-foreground">Awaiting review</p>
+            <p className="text-xs text-muted-foreground">{t('admin.applications.awaitingReview')}</p>
           </CardContent>
         </Card>
         <Card
@@ -125,12 +125,12 @@ export default function ApplicationsManagement() {
           onClick={() => setStatusFilter('approved')}
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Approved</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('admin.applications.filterApproved')}</CardTitle>
             <Check className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{isLoading ? '—' : approvedCount}</div>
-            <p className="text-xs text-muted-foreground">All time</p>
+            <p className="text-xs text-muted-foreground">{t('admin.common.allTime')}</p>
           </CardContent>
         </Card>
         <Card
@@ -138,12 +138,12 @@ export default function ApplicationsManagement() {
           onClick={() => setStatusFilter('rejected')}
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Rejected</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('admin.applications.rejected')}</CardTitle>
             <X className="h-4 w-4 text-red-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{isLoading ? '—' : rejectedCount}</div>
-            <p className="text-xs text-muted-foreground">All time</p>
+            <p className="text-xs text-muted-foreground">{t('admin.common.allTime')}</p>
           </CardContent>
         </Card>
         <Card
@@ -151,12 +151,12 @@ export default function ApplicationsManagement() {
           onClick={() => setStatusFilter('all')}
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('admin.applications.total')}</CardTitle>
             <Mail className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{isLoading ? '—' : totalCount}</div>
-            <p className="text-xs text-muted-foreground">All time</p>
+            <p className="text-xs text-muted-foreground">{t('admin.common.allTime')}</p>
           </CardContent>
         </Card>
       </div>
@@ -165,14 +165,14 @@ export default function ApplicationsManagement() {
         <CardHeader>
           <div className="flex items-center justify-between gap-4 flex-wrap">
             <div>
-              <CardTitle>Applications</CardTitle>
-              <CardDescription>Review and process membership applications</CardDescription>
+              <CardTitle>{t('admin.applications.title')}</CardTitle>
+              <CardDescription>{t('admin.applications.reviewProcess')}</CardDescription>
             </div>
             <div className="flex items-center gap-2">
               <div className="relative">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Search by name or email…"
+                  placeholder={t('admin.applications.searchPlaceholder')}
                   className="pl-8 w-56"
                   value={search}
                   onChange={e => setSearch(e.target.value)}
@@ -180,13 +180,13 @@ export default function ApplicationsManagement() {
               </div>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="w-36">
-                  <SelectValue placeholder="Status" />
+                  <SelectValue placeholder={t('admin.common.status')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="approved">Approved</SelectItem>
-                  <SelectItem value="rejected">Rejected</SelectItem>
+                  <SelectItem value="all">{t('admin.applications.filterAll')}</SelectItem>
+                  <SelectItem value="pending">{t('admin.applications.filterPending')}</SelectItem>
+                  <SelectItem value="approved">{t('admin.applications.filterApproved')}</SelectItem>
+                  <SelectItem value="rejected">{t('admin.applications.rejected')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -201,15 +201,15 @@ export default function ApplicationsManagement() {
             </div>
           ) : isError ? (
             <div className="flex flex-col items-center gap-2 py-12 text-center text-muted-foreground">
-              <p className="text-sm font-medium text-foreground">Failed to load applications</p>
-              <button onClick={() => refetch()} className="text-xs text-primary underline">Retry</button>
+              <p className="text-sm font-medium text-foreground">{t('admin.common.errorLoad')}</p>
+              <button onClick={() => refetch()} className="text-xs text-primary underline">{t('admin.common.retry')}</button>
             </div>
           ) : applications.length === 0 ? (
             <div className="flex flex-col items-center justify-center p-8 text-center">
               <Check className="h-12 w-12 text-green-500 mb-4" />
-              <p className="text-lg font-medium">No applications found</p>
+              <p className="text-lg font-medium">{t('admin.applications.noApplications')}</p>
               <p className="text-muted-foreground">
-                {statusFilter !== 'all' ? `No ${statusFilter} applications` : 'No applications at the moment'}
+                {statusFilter !== 'all' ? t('admin.applications.noAppsStatus', { status: statusFilter }) : t('admin.applications.noAppsYet')}
               </p>
             </div>
           ) : (
@@ -217,9 +217,9 @@ export default function ApplicationsManagement() {
               <TableHeader>
                 <TableRow>
                   <TableHead>{t('admin.applications.colApplicant')}</TableHead>
-                  <TableHead>Contact</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Submitted</TableHead>
+                  <TableHead>{t('admin.applications.contactCol')}</TableHead>
+                  <TableHead>{t('admin.common.type')}</TableHead>
+                  <TableHead>{t('admin.applications.submittedCol')}</TableHead>
                   <TableHead>{t('admin.common.status')}</TableHead>
                   <TableHead className="text-right">{t('admin.common.actions')}</TableHead>
                 </TableRow>
@@ -304,7 +304,7 @@ export default function ApplicationsManagement() {
                           disabled={approveApplicationMutation.isPending || app.status !== 'pending'}
                         >
                           <Check className="mr-1 h-4 w-4" />
-                          Approve
+                          {t('admin.applications.approve')}
                         </Button>
                         <Button
                           variant="destructive"
@@ -313,7 +313,7 @@ export default function ApplicationsManagement() {
                           disabled={rejectApplicationMutation.isPending || app.status !== 'pending'}
                         >
                           <X className="mr-1 h-4 w-4" />
-                          Reject
+                          {t('admin.applications.decline')}
                         </Button>
                       </div>
                     </TableCell>

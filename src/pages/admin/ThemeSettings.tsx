@@ -175,33 +175,33 @@ export default function ThemeSettings() {
         <div className="flex space-x-2">
           <Button variant="outline" onClick={resetToDefaults}>
             <RefreshCw className="mr-2 h-4 w-4" />
-            Reset to Defaults
+            {t('admin.theme.resetToDefaults')}
           </Button>
           <Button variant="outline" onClick={() => window.open('/', '_blank')}>
             <Eye className="mr-2 h-4 w-4" />
-            Preview
+            {t('admin.theme.preview')}
           </Button>
           <Button onClick={handleSave} disabled={isSaving}>
             <Save className="mr-2 h-4 w-4" />
-            {isSaving ? 'Saving...' : 'Save & Apply'}
+            {isSaving ? t('admin.events.saving') : t('admin.theme.saveApply')}
           </Button>
         </div>
       </div>
 
       <Tabs defaultValue="colors" className="w-full">
         <TabsList>
-          <TabsTrigger value="colors">Colors</TabsTrigger>
-          <TabsTrigger value="typography">Typography</TabsTrigger>
-          <TabsTrigger value="spacing">Spacing & Borders</TabsTrigger>
-          <TabsTrigger value="custom">Custom CSS</TabsTrigger>
+          <TabsTrigger value="colors">{t('admin.theme.tabColors')}</TabsTrigger>
+          <TabsTrigger value="typography">{t('admin.theme.tabTypography')}</TabsTrigger>
+          <TabsTrigger value="spacing">{t('admin.theme.tabSpacing')}</TabsTrigger>
+          <TabsTrigger value="custom">{t('admin.theme.tabCustomCSS')}</TabsTrigger>
         </TabsList>
 
         {/* Colors Tab */}
         <TabsContent value="colors" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Color Palette</CardTitle>
-              <CardDescription>Define your brand colors used throughout the site</CardDescription>
+              <CardTitle>{t('admin.theme.colorPalette')}</CardTitle>
+              <CardDescription>{t('admin.theme.colorPaletteDesc')}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 gap-6">
@@ -344,7 +344,7 @@ export default function ThemeSettings() {
 
               {/* Font Sizes */}
               <div className="space-y-4">
-                <h4 className="font-semibold">Font Sizes</h4>
+                <h4 className="font-semibold">{t('admin.theme.fontSizes')}</h4>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>H1 Size</Label>

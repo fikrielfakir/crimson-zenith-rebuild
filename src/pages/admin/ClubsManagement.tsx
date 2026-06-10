@@ -260,28 +260,28 @@ export default function ClubsManagement() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <h1 className="text-3xl font-bold">Clubs Management</h1>
+        <h1 className="text-3xl font-bold">{t('admin.clubs.title')}</h1>
         <div className="flex items-center gap-2 flex-wrap">
           <Button variant="outline" size="sm" asChild>
             <Link to="/admin/users">
               <Users className="mr-2 h-4 w-4" />
-              Users
+              {t('admin.applications.allUsers')}
             </Link>
           </Button>
           <Button variant="outline" size="sm" asChild>
             <Link to="/admin/applications">
               <FileText className="mr-2 h-4 w-4" />
-              Applications
+              {t('admin.nav.applications')}
             </Link>
           </Button>
           <Button variant="outline" onClick={handleExport}>
             <Download className="mr-2 h-4 w-4" />
-            Export
+            {t('admin.common.export')}
           </Button>
           <Button asChild>
             <Link to="/admin/clubs/new">
               <Plus className="mr-2 h-4 w-4" />
-              Add Club
+              {t('admin.clubs.addClub')}
             </Link>
           </Button>
         </div>
@@ -292,7 +292,7 @@ export default function ClubsManagement() {
         <div className="relative flex-1">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search clubs..."
+            placeholder={t('admin.clubs.searchPlaceholder')}
             className="pl-8"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -300,13 +300,13 @@ export default function ClubsManagement() {
         </div>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
           <SelectTrigger className="w-40">
-            <SelectValue placeholder="Status" />
+            <SelectValue placeholder={t('admin.common.status')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="inactive">Inactive</SelectItem>
+            <SelectItem value="all">{t('admin.clubs.filterAll')}</SelectItem>
+            <SelectItem value="active">{t('admin.common.active')}</SelectItem>
+            <SelectItem value="pending">{t('admin.common.pending')}</SelectItem>
+            <SelectItem value="inactive">{t('admin.common.inactive')}</SelectItem>
           </SelectContent>
         </Select>
         <div className="flex items-center border rounded-lg">
@@ -330,15 +330,15 @@ export default function ClubsManagement() {
       {/* Bulk Actions */}
       {selectedClubs.length > 0 && (
         <div className="flex items-center justify-between bg-muted p-4 rounded-lg">
-          <span className="text-sm">{selectedClubs.length} clubs selected</span>
+          <span className="text-sm">{t('admin.clubs.clubsSelected', { count: selectedClubs.length })}</span>
           <div className="space-x-2">
             <Button variant="outline" size="sm">
               <Trash2 className="mr-2 h-4 w-4" />
-              Delete Selected
+              {t('admin.clubs.deleteSelected')}
             </Button>
             <Button variant="outline" size="sm">
               <Download className="mr-2 h-4 w-4" />
-              Export Selected
+              {t('admin.clubs.exportSelected')}
             </Button>
           </div>
         </div>
@@ -358,9 +358,9 @@ export default function ClubsManagement() {
                 </TableHead>
                 <TableHead>Club</TableHead>
                 <TableHead>{t('admin.clubs.colLocation')}</TableHead>
-                <TableHead>Owner</TableHead>
+                <TableHead>{t('admin.clubs.colOwner')}</TableHead>
                 <TableHead>{t('admin.clubs.colMembers')}</TableHead>
-                <TableHead>Events</TableHead>
+                <TableHead>{t('admin.clubs.colEvents')}</TableHead>
                 <TableHead>{t('admin.clubs.colRating')}</TableHead>
                 <TableHead>{t('admin.common.status')}</TableHead>
                 <TableHead className="w-12"></TableHead>
@@ -379,15 +379,15 @@ export default function ClubsManagement() {
                 <TableRow>
                   <TableCell colSpan={9} className="py-12 text-center">
                     <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                      <p className="text-sm font-medium text-foreground">Failed to load clubs</p>
-                      <button onClick={() => refetch()} className="text-xs text-primary underline">Retry</button>
+                      <p className="text-sm font-medium text-foreground">{t('admin.clubs.failedLoad')}</p>
+                      <button onClick={() => refetch()} className="text-xs text-primary underline">{t('admin.common.retry')}</button>
                     </div>
                   </TableCell>
                 </TableRow>
               ) : data?.clubs?.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
-                    No clubs found
+                    {t('admin.clubs.noClubs')}
                   </TableCell>
                 </TableRow>
               ) : (
@@ -451,9 +451,9 @@ export default function ClubsManagement() {
                           'secondary'
                         }
                       >
-                        {club.isActive === true ? 'Active' :
-                         club.isActive === false ? 'Inactive' :
-                         'Pending'}
+                        {club.isActive === true ? t('admin.common.active') :
+                         club.isActive === false ? t('admin.common.inactive') :
+                         t('admin.common.pending')}
                       </Badge>
                     </TableCell>
                     <TableCell>
@@ -481,30 +481,30 @@ export default function ClubsManagement() {
                           <DropdownMenuItem asChild>
                             <Link to={`/club/${encodeURIComponent(club.slug || club.name)}`}>
                               <Eye className="mr-2 h-4 w-4" />
-                              View Club Page
+                              {t('admin.clubs.viewClubPage')}
                             </Link>
                           </DropdownMenuItem>
                           <DropdownMenuItem asChild>
                             <Link to={`/admin/users?search=${encodeURIComponent(club.name)}`}>
                               <UserCheck className="mr-2 h-4 w-4" />
-                              View Members
+                              {t('admin.clubs.viewMembers')}
                             </Link>
                           </DropdownMenuItem>
                           <DropdownMenuItem asChild>
                             <Link to={`/admin/clubs/${club.id}/edit`}>
                               <Edit className="mr-2 h-4 w-4" />
-                              Edit Club
+                              {t('admin.clubs.editClub')}
                             </Link>
                           </DropdownMenuItem>
                           {club.isActive === null && (
                             <DropdownMenuItem onClick={() => approveClubMutation.mutate(club.id)}>
                               <Check className="mr-2 h-4 w-4" />
-                              Approve Club
+                              {t('admin.clubs.approve')}
                             </DropdownMenuItem>
                           )}
                           <DropdownMenuItem onClick={() => toggleFeatureMutation.mutate({ clubId: club.id, featured: club.featured })}>
                             <Star className="mr-2 h-4 w-4" />
-                            {club.featured ? 'Unfeature' : 'Feature on Homepage'}
+                            {club.featured ? t('admin.clubs.unfeature') : t('admin.clubs.featureHomepage')}
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
@@ -512,7 +512,7 @@ export default function ClubsManagement() {
                             onClick={() => deleteClubMutation.mutate(club.id)}
                           >
                             <Trash2 className="mr-2 h-4 w-4" />
-                            Delete Club
+                            {t('admin.clubs.deleteClub')}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -532,7 +532,7 @@ export default function ClubsManagement() {
           <Skeleton className="h-64 w-full rounded-lg" />
         ) : isError ? (
           <div className="flex items-center justify-center h-64 border rounded-lg">
-            <p className="text-sm text-muted-foreground">Map unavailable — <button onClick={() => refetch()} className="text-primary underline">retry</button></p>
+            <p className="text-sm text-muted-foreground">{t('admin.clubs.mapUnavailable')} — <button onClick={() => refetch()} className="text-primary underline">{t('admin.clubs.mapRetry')}</button></p>
           </div>
         ) : (
           <ClubsMap clubs={data?.clubs ?? []} />
@@ -543,7 +543,7 @@ export default function ClubsManagement() {
       {data?.totalPages > 1 && (
         <div className="flex items-center justify-between">
           <div className="text-sm text-muted-foreground">
-            Showing {((page - 1) * perPage) + 1} to {Math.min(page * perPage, data?.total || 0)} of {data?.total || 0} clubs
+            {t('admin.clubs.showingPagination', { from: ((page - 1) * perPage) + 1, to: Math.min(page * perPage, data?.total || 0), total: data?.total || 0 })}
           </div>
           <div className="flex items-center space-x-2">
             <Button
@@ -552,7 +552,7 @@ export default function ClubsManagement() {
               onClick={() => setPage(p => Math.max(1, p - 1))}
               disabled={page === 1}
             >
-              Previous
+              {t('admin.common.previous')}
             </Button>
             {Array.from({ length: Math.min(5, data?.totalPages || 0) }, (_, i) => i + 1).map((p) => (
               <Button
@@ -570,7 +570,7 @@ export default function ClubsManagement() {
               onClick={() => setPage(p => Math.min(data?.totalPages || 1, p + 1))}
               disabled={page === data?.totalPages}
             >
-              Next
+              {t('admin.common.next')}
             </Button>
           </div>
         </div>

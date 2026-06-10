@@ -183,17 +183,17 @@ export default function ImpactManagement() {
 
       <Card>
         <CardHeader>
-          <CardTitle>All Stats</CardTitle>
+          <CardTitle>{t('admin.impact.allStats')}</CardTitle>
           <CardDescription>{stats.length} stat{stats.length !== 1 ? 's' : ''} · {stats.filter(s => s.isActive).length} active</CardDescription>
         </CardHeader>
         <CardContent className="overflow-x-auto">
           {isLoading ? (
-            <div className="flex items-center justify-center py-8 text-muted-foreground">Loading…</div>
+            <div className="flex items-center justify-center py-8 text-muted-foreground">{t('admin.common.loading')}</div>
           ) : stats.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <BarChart3 className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>No stats yet</p>
-              <p className="text-sm mt-2">Click t('admin.impact.addStat') to get started</p>
+              <p>{t('admin.impact.noStats')}</p>
+              <p className="text-sm mt-2">{t('admin.impact.clickToAdd')}</p>
             </div>
           ) : (
             <Table>
@@ -201,10 +201,10 @@ export default function ImpactManagement() {
                 <TableRow>
                   <TableHead>{t('admin.impact.colLabel')}</TableHead>
                   <TableHead>{t('admin.impact.colValue')}</TableHead>
-                  <TableHead>Suffix</TableHead>
-                  <TableHead>Icon</TableHead>
+                  <TableHead>{t('admin.impact.colSuffix')}</TableHead>
+                  <TableHead>{t('admin.impact.colIcon')}</TableHead>
                   <TableHead>{t('admin.impact.colOrder')}</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableHead>{t('admin.common.status')}</TableHead>
                   <TableHead className="text-right">{t('admin.common.actions')}</TableHead>
                 </TableRow>
               </TableHeader>
@@ -222,7 +222,7 @@ export default function ImpactManagement() {
                           ? 'bg-green-50 text-green-700 ring-1 ring-green-600/20'
                           : 'bg-gray-50 text-gray-700 ring-1 ring-gray-600/20'
                       }`}>
-                        {stat.isActive ? 'Visible' : 'Hidden'}
+                        {stat.isActive ? t('admin.common.visible') : t('admin.common.hidden')}
                       </span>
                     </TableCell>
                     <TableCell className="text-right">
@@ -256,31 +256,31 @@ export default function ImpactManagement() {
       <Dialog open={showForm} onOpenChange={(open) => { if (!open) handleClose(); }}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>{editingStat ? 'Edit Stat' : 'Add Impact Stat'}</DialogTitle>
+            <DialogTitle>{editingStat ? t('admin.impact.editTitle') : t('admin.impact.addTitle')}</DialogTitle>
             <DialogDescription>
-              {editingStat ? 'Update this impact number' : 'Add a new key metric to the landing page'}
+              {editingStat ? t('admin.impact.editDesc') : t('admin.impact.addDesc')}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-2">
             <div className="space-y-2">
-              <Label htmlFor="s-label">Label *</Label>
+              <Label htmlFor="s-label">{t('admin.impact.labelField')} *</Label>
               <Input id="s-label" value={form.label} onChange={(e) => setForm({ ...form, label: e.target.value })} placeholder="e.g., Active Members, Events Organized" />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="s-value">Value *</Label>
+                <Label htmlFor="s-value">{t('admin.impact.valueField')} *</Label>
                 <Input id="s-value" value={form.value} onChange={(e) => setForm({ ...form, value: e.target.value })} placeholder="e.g., 1200, 50" />
                 <p className="text-xs text-muted-foreground">The displayed number</p>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="s-suffix">Suffix</Label>
+                <Label htmlFor="s-suffix">{t('admin.impact.suffixField')}</Label>
                 <Input id="s-suffix" value={form.suffix} onChange={(e) => setForm({ ...form, suffix: e.target.value })} placeholder="e.g., +, k" />
                 <p className="text-xs text-muted-foreground">Shown after value in gold</p>
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="s-icon">Icon (Lucide name)</Label>
+              <Label htmlFor="s-icon">{t('admin.impact.iconField')}</Label>
               <Input id="s-icon" value={form.icon} onChange={(e) => setForm({ ...form, icon: e.target.value })} placeholder="e.g., Users, MapPin, Calendar" />
               <div className="flex flex-wrap gap-1 mt-1">
                 {ICON_SUGGESTIONS.map(ic => (
@@ -295,14 +295,14 @@ export default function ImpactManagement() {
             </div>
             <div className="flex items-center space-x-2">
               <Switch id="s-active" checked={form.isActive} onCheckedChange={(v) => setForm({ ...form, isActive: v })} />
-              <Label htmlFor="s-active">Visible on site</Label>
+              <Label htmlFor="s-active">{t('admin.common.visibleOnSite')}</Label>
             </div>
           </div>
 
           <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={handleClose}>Cancel</Button>
+            <Button variant="outline" onClick={handleClose}>{t('admin.common.cancel')}</Button>
             <Button onClick={handleSave} disabled={isPending}>
-              {isPending ? 'Saving…' : 'Save'}
+              {isPending ? t('admin.events.saving') : t('admin.common.save')}
             </Button>
           </div>
         </DialogContent>
@@ -311,16 +311,16 @@ export default function ImpactManagement() {
       <AlertDialog open={deletingId !== null} onOpenChange={(open) => !open && setDeletingId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete stat?</AlertDialogTitle>
-            <AlertDialogDescription>This will permanently remove this impact number from the site.</AlertDialogDescription>
+            <AlertDialogTitle>{t('admin.impact.deleteTitle')}</AlertDialogTitle>
+            <AlertDialogDescription>{t('admin.impact.deleteDesc')}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('admin.common.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={() => deletingId !== null && deleteMutation.mutate(deletingId)}
             >
-              {deleteMutation.isPending ? 'Deleting…' : 'Delete'}
+              {deleteMutation.isPending ? t('admin.common.deleting') : t('admin.common.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

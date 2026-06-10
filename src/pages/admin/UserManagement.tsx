@@ -316,7 +316,7 @@ export default function UserManagement() {
         </div>
         <Select value={roleFilter} onValueChange={setRoleFilter}>
           <SelectTrigger className="w-44">
-            <SelectValue placeholder="Role" />
+            <SelectValue placeholder={t('admin.common.role')} />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">{t('admin.users.allRoles')}</SelectItem>
@@ -329,7 +329,7 @@ export default function UserManagement() {
         </Select>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
           <SelectTrigger className="w-40">
-            <SelectValue placeholder="Status" />
+            <SelectValue placeholder={t('admin.common.status')} />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">{t('admin.users.allStatus')}</SelectItem>

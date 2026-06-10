@@ -62,6 +62,7 @@ function useSaveMutation(writeUrl: string, queryKeys: string[][], label: string)
 // ── General Tab ──────────────────────────────────────────────────────────────
 
 function GeneralTab() {
+  const { t } = useTranslation();
   const { data: seo, isLoading: seoLoading } = useSettings<SeoSettings>('/api/cms/seo', ['settings-seo']);
   const { data: contact, isLoading: contactLoading } = useSettings<ContactSettings>('/api/cms/contact', ['settings-contact']);
 
@@ -90,8 +91,8 @@ function GeneralTab() {
     <div className="space-y-4">
       <Card>
         <CardHeader>
-          <CardTitle>General Settings</CardTitle>
-          <CardDescription>Basic site information shown in the browser and search results.</CardDescription>
+          <CardTitle>{t('admin.settings.generalTitle')}</CardTitle>
+          <CardDescription>{t('admin.settings.generalDesc')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {isLoading ? (
@@ -136,7 +137,7 @@ function GeneralTab() {
           )}
           <Button onClick={handleSave} disabled={saving || isLoading}>
             {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-            {saving ? 'Saving…' : 'Save Changes'}
+            {saving ? t('admin.events.saving') : t('admin.settings.saveChanges')}
           </Button>
         </CardContent>
       </Card>
@@ -147,6 +148,7 @@ function GeneralTab() {
 // ── SEO Tab ──────────────────────────────────────────────────────────────────
 
 function SeoTab() {
+  const { t } = useTranslation();
   const { data, isLoading } = useSettings<SeoSettings>('/api/cms/seo', ['settings-seo']);
   const [form, setForm] = useState<SeoSettings>({});
 
@@ -160,8 +162,8 @@ function SeoTab() {
     <div className="space-y-4">
       <Card>
         <CardHeader>
-          <CardTitle>SEO Settings</CardTitle>
-          <CardDescription>Control how your site appears in search engines and social shares.</CardDescription>
+          <CardTitle>{t('admin.settings.seoTitle')}</CardTitle>
+          <CardDescription>{t('admin.settings.seoDesc')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {isLoading ? (
@@ -214,7 +216,7 @@ function SeoTab() {
           )}
           <Button onClick={() => mutation.mutate(form)} disabled={mutation.isPending || isLoading}>
             {mutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-            {mutation.isPending ? 'Saving…' : 'Save SEO Settings'}
+            {mutation.isPending ? t('admin.events.saving') : t('admin.settings.saveSEO')}
           </Button>
         </CardContent>
       </Card>
@@ -293,22 +295,22 @@ export default function AdminSettings() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold">{t('admin.settings.title')}</h1>
-        <p className="text-muted-foreground mt-1">Configure your website settings and preferences</p>
+        <p className="text-muted-foreground mt-1">{t('admin.settings.subtitle')}</p>
       </div>
 
       <Tabs defaultValue="general">
         <TabsList>
           <TabsTrigger value="general">
             <Globe className="mr-2 h-4 w-4" />
-            General
+            {t('admin.settings.tabGeneral')}
           </TabsTrigger>
           <TabsTrigger value="seo">
             <Search className="mr-2 h-4 w-4" />
-            SEO
+            {t('admin.settings.tabSEO')}
           </TabsTrigger>
           <TabsTrigger value="integrations">
             <ShieldCheck className="mr-2 h-4 w-4" />
-            Integrations
+            {t('admin.settings.tabIntegrations')}
           </TabsTrigger>
         </TabsList>
 

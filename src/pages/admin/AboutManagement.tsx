@@ -162,7 +162,7 @@ export default function AboutManagement() {
     <div className="space-y-6 max-w-4xl">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">About Page</h1>
+          <h1 className="text-2xl font-bold">{t('admin.about.title')}</h1>
           <p className="text-muted-foreground text-sm mt-1">
             Manage the content for the public <a href="/about" target="_blank" className="underline text-primary">/about</a> page. Use auto-translate to generate French, Arabic, and Spanish versions.
           </p>
@@ -192,9 +192,9 @@ export default function AboutManagement() {
         <TabsContent value="en" className="space-y-4 pt-4">
           <Card>
             <CardHeader>
-              <CardTitle>English Content</CardTitle>
+              <CardTitle>{t('admin.about.englishContent')}</CardTitle>
               <CardDescription>
-                This is the primary (English) content. Other languages are generated from this.
+                {t('admin.about.englishContentDesc')}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -281,7 +281,7 @@ export default function AboutManagement() {
       <div className="flex justify-end">
         <Button onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending} size="lg">
           <Save className="w-4 h-4 mr-2" />
-          {saveMutation.isPending ? "Saving..." : "Save All Changes"}
+          {saveMutation.isPending ? t('admin.common.saving') : t('admin.about.saveAllChanges')}
         </Button>
       </div>
     </div>
