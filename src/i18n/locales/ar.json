@@ -2751,7 +2751,15 @@
       "buttonText": "نص الزر",
       "buttonLink": "رابط الزر",
       "imageUrl": "رابط الصورة",
-      "chooseIcon": "اختر أيقونة"
+      "chooseIcon": "اختر أيقونة",
+      "toastCityDeleted": "تم حذف المدينة",
+      "toastCityDeleteFailed": "فشل الحذف",
+      "toastSeedFailed": "فشلت التهيئة",
+      "toastVisibilityFailed": "فشل تغيير الظهور",
+      "toastFileTooLarge": "الملف كبير جداً",
+      "toastVideoTooLargeDesc": "الحد الأقصى لحجم الفيديو 200 ميغابايت.",
+      "toastImagesUploaded": "تم رفع {{count}} صورة",
+      "toastUploadsFailed": "فشل رفع {{count}} ملف"
     },
     "auth": {
       "title": "إعدادات المصادقة",
