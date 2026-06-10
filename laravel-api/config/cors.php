@@ -9,6 +9,8 @@ return [
     'allowed_origins' => [
         'http://localhost:5000',
         'http://localhost:3000',
+        'https://thejourney-ma.org',
+        'https://www.thejourney-ma.org',
         'https://*.replit.dev',
         'https://*.repl.co',
         'https://*.replit.app',
