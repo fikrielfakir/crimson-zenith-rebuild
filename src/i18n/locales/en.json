@@ -59,7 +59,11 @@
     "cvv": "CVV",
     "donateButton": "Donate ${{amount}} {{period}}",
     "perMonth": "/month",
-    "secureNote": "Your donation is secure and tax-deductible. You will receive a receipt via email."
+    "secureNote": "Your donation is secure and tax-deductible. You will receive a receipt via email.",
+    "back": "Back",
+    "continue": "Continue",
+    "donation": "donation",
+    "phone": "Phone Number"
   },
   "lang": {
     "en": "English",

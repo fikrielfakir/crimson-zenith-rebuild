@@ -257,6 +257,7 @@ function PermissionsMatrix({ roles }: { roles: RoleDef[] }) {
 
 // ─── User Assignment Tab ──────────────────────────────────────────────────────
 function UserAssignment({ roles }: { roles: RoleDef[] }) {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
