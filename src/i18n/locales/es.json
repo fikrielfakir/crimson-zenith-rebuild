@@ -2932,7 +2932,15 @@
       "buttonText": "Texto del botón",
       "buttonLink": "Enlace del botón",
       "imageUrl": "URL de imagen",
-      "chooseIcon": "Elegir icono"
+      "chooseIcon": "Elegir icono",
+      "toastCityDeleted": "Ciudad eliminada",
+      "toastCityDeleteFailed": "Error al eliminar",
+      "toastSeedFailed": "Error al inicializar",
+      "toastVisibilityFailed": "Error al cambiar visibilidad",
+      "toastFileTooLarge": "Archivo demasiado grande",
+      "toastVideoTooLargeDesc": "El tamaño máximo de vídeo es 200 MB.",
+      "toastImagesUploaded": "{{count}} imagen(es) subida(s)",
+      "toastUploadsFailed": "{{count}} carga(s) fallida(s)"
     },
     "auth": {
       "title": "Configuración de autenticación",

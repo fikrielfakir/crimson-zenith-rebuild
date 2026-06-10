@@ -320,6 +320,7 @@ function SortableNavLink({
 }
 
 function MediaLibraryDialog({ onSelectMedia }: { onSelectMedia: (mediaId: number, url: string) => void }) {
+  const { t } = useTranslation();
   const [media, setMedia] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
