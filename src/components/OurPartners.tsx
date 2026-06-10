@@ -175,13 +175,13 @@ const OurPartners = () => {
         {/* Carousel — always LTR so auto-scroll direction is unaffected by RTL */}
         <div
           className="overflow-hidden"
-          style={{ minHeight: "200px", padding: "12px 0 24px" }}
+          style={{ minHeight: "200px", padding: "12px 0 28px" }}
           dir="ltr"
           ref={emblaRef}
           onMouseEnter={onMouseEnter}
           onMouseLeave={onMouseLeave}
         >
-          <div className="flex gap-6">
+          <div className="flex" style={{ marginLeft: "-24px" }}>
             {loopedPartners.map((partner, index) => {
               const isRealUrl = partner.logo_url &&
                 (partner.logo_url.startsWith('/') ||
@@ -220,7 +220,7 @@ const OurPartners = () => {
               );
 
               return (
-                <div key={`${partner.id}-${index}`} className="flex-[0_0_280px] min-w-0">
+                <div key={`${partner.id}-${index}`} className="flex-[0_0_280px] min-w-0" style={{ paddingLeft: "24px" }}>
                   {partner.website_url ? (
                     <a href={partner.website_url} target="_blank" rel="noopener noreferrer">
                       {card}
