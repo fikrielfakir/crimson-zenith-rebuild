@@ -1,8 +1,13 @@
 uploads = []
-outputs = []
 
 [[generated]]
 id = "Lm5ndluWwatxmvAU_Qp4m"
 uri = "file://public/panoramas/nebula.png"
 type = "image"
 title = "deep space nebula equirectangular panorama"
+
+[[outputs]]
+id = "rpnyx2PPe9IF2jNQ7V-oa"
+uri = "file://untranslated-strings-report.md"
+type = "text"
+title = "Untranslated Strings Report — src/pages/admin"
