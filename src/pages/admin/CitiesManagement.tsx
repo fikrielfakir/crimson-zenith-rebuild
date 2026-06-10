@@ -127,12 +127,12 @@ function MediaPickerDialog({
       if (res.ok) {
         if (selected === fileUrl) setSelected('');
         setMedia(prev => prev.filter(m => m.id !== id));
-        toast({ title: 'Image deleted' });
+        toast({ title: t('admin.cities.toastImageDeleted') });
       } else {
-        toast({ title: 'Failed to delete image', variant: 'destructive' });
+        toast({ title: t('admin.cities.toastImageDeleteFailed'), variant: 'destructive' });
       }
     } catch {
-      toast({ title: 'Failed to delete image', variant: 'destructive' });
+      toast({ title: t('admin.cities.toastImageDeleteFailed'), variant: 'destructive' });
     }
     setDeletingId(null);
   }
@@ -153,10 +153,10 @@ function MediaPickerDialog({
     setIsUploading(false);
     if (uploadRef.current) uploadRef.current.value = '';
     if (ok > 0) {
-      toast({ title: `${ok} image${ok > 1 ? 's' : ''} uploaded` });
+      toast({ title: t('admin.cities.toastImagesUploaded', { count: ok }) });
       loadLibrary();
     }
-    if (fail > 0) toast({ title: `${fail} upload${fail > 1 ? 's' : ''} failed`, variant: 'destructive' });
+    if (fail > 0) toast({ title: t('admin.cities.toastUploadsFailed', { count: fail }), variant: 'destructive' });
   }
 
   function confirm() {
@@ -394,13 +394,14 @@ function VideoUploadField({
 }) {
   const fileRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [uploading, setUploading] = useState(false);
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
     if (file.size > 200 * 1024 * 1024) {
-      toast({ title: 'File too large', description: 'Maximum video size is 200 MB.', variant: 'destructive' });
+      toast({ title: t('admin.cities.toastFileTooLarge'), description: t('admin.cities.toastVideoTooLargeDesc'), variant: 'destructive' });
       return;
     }
     setUploading(true);
@@ -412,9 +413,9 @@ function VideoUploadField({
       if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error(err.message || 'Upload failed'); }
       const data = await res.json();
       onChange(data.url);
-      toast({ title: 'Video uploaded successfully' });
+      toast({ title: t('admin.cities.toastVideoUploaded') });
     } catch (err: any) {
-      toast({ title: 'Upload failed', description: err.message || 'Could not upload video.', variant: 'destructive' });
+      toast({ title: t('admin.clubs.toastUploadFailed'), description: err.message || 'Could not upload video.', variant: 'destructive' });
     } finally {
       setUploading(false);
       if (fileRef.current) fileRef.current.value = '';
@@ -879,10 +880,10 @@ export default function CitiesManagement() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-cities'] });
-      toast({ title: editing ? 'City updated' : 'City created' });
+      toast({ title: editing ? t('admin.cities.toastCityUpdated') : t('admin.cities.toastCityCreated') });
       setShowForm(false);
     },
-    onError: (e: any) => toast({ title: 'Error', description: e.message, variant: 'destructive' }),
+    onError: (e: any) => toast({ title: t('admin.common.errorTitle'), description: e.message, variant: 'destructive' }),
   });
 
   const deleteMutation = useMutation({
@@ -892,10 +893,10 @@ export default function CitiesManagement() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-cities'] });
-      toast({ title: 'City deleted' });
+      toast({ title: t('admin.cities.toastCityDeleted') });
       setDeleteId(null);
     },
-    onError: () => toast({ title: 'Error deleting city', variant: 'destructive' }),
+    onError: () => toast({ title: t('admin.cities.toastCityDeleteFailed'), variant: 'destructive' }),
   });
 
   const seedMutation = useMutation({
@@ -908,7 +909,7 @@ export default function CitiesManagement() {
       queryClient.invalidateQueries({ queryKey: ['admin-cities'] });
       toast({ title: d.message });
     },
-    onError: () => toast({ title: 'Seed failed', variant: 'destructive' }),
+    onError: () => toast({ title: t('admin.cities.toastSeedFailed'), variant: 'destructive' }),
   });
 
   const toggleActiveMutation = useMutation({
@@ -921,7 +922,7 @@ export default function CitiesManagement() {
       return res.json();
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-cities'] }),
-    onError: () => toast({ title: 'Failed to toggle visibility', variant: 'destructive' }),
+    onError: () => toast({ title: t('admin.cities.toastVisibilityFailed'), variant: 'destructive' }),
   });
 
   const reorderMutation = useMutation({
@@ -947,9 +948,9 @@ export default function CitiesManagement() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['discover-settings'] });
-      toast({ title: 'Discover page settings saved' });
+      toast({ title: t('admin.cities.toastPageSaved') });
     },
-    onError: (e: any) => toast({ title: 'Error saving settings', description: e.message, variant: 'destructive' }),
+    onError: (e: any) => toast({ title: t('admin.common.errorTitle'), description: e.message, variant: 'destructive' }),
   });
 
   /* sorted cities */

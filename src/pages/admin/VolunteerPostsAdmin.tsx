@@ -95,10 +95,10 @@ export default function VolunteerPostsAdmin() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-volunteer-posts'] });
-      toast({ title: editing ? 'Post updated' : 'Post created' });
+      toast({ title: editing ? t('admin.volunteerPosts.toastUpdated') : t('admin.volunteerPosts.toastCreated') });
       setDialogOpen(false);
     },
-    onError: (e: Error) => toast({ title: 'Error', description: e.message, variant: 'destructive' }),
+    onError: (e: Error) => toast({ title: t('admin.common.errorTitle'), description: e.message, variant: 'destructive' }),
   });
 
   const deleteMutation = useMutation({
@@ -108,10 +108,10 @@ export default function VolunteerPostsAdmin() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-volunteer-posts'] });
-      toast({ title: 'Deleted' });
+      toast({ title: t('admin.volunteerPosts.toastDeleted') });
       setDeletingId(null);
     },
-    onError: (e: Error) => toast({ title: 'Error', description: e.message, variant: 'destructive' }),
+    onError: (e: Error) => toast({ title: t('admin.common.errorTitle'), description: e.message, variant: 'destructive' }),
   });
 
   function openCreate() { setEditing(null); setForm(emptyForm); setDialogOpen(true); }
@@ -153,7 +153,7 @@ export default function VolunteerPostsAdmin() {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input placeholder="Search…" className="pl-9" value={searchInput} onChange={e => setSearchInput(e.target.value)} />
               </div>
-              <Button type="submit" variant="secondary">Search</Button>
+              <Button type="submit" variant="secondary">{t('admin.common.searchBtn')}</Button>
             </form>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
@@ -187,7 +187,7 @@ export default function VolunteerPostsAdmin() {
                   <TableHead className="pl-6">{t('admin.volunteerPosts.colTitle')}</TableHead>
                   <TableHead>{t('admin.volunteerPosts.colLocation')}</TableHead>
                   <TableHead>{t('admin.volunteerPosts.colType')}</TableHead>
-                  <TableHead>Deadline</TableHead>
+                  <TableHead>{t('admin.common.deadline')}</TableHead>
                   <TableHead>{t('admin.common.status')}</TableHead>
                   <TableHead className="text-right pr-6">{t('admin.common.actions')}</TableHead>
                 </TableRow>

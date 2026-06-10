@@ -72,8 +72,8 @@ export default function AdminLogin() {
       const hasAccess = data.user?.isAdmin || STAFF_ROLES.includes(data.user?.role);
       if (!hasAccess) {
         toast({
-          title: 'Access Denied',
-          description: 'You do not have admin panel access.',
+          title: t('admin.login.accessDeniedTitle'),
+          description: t('admin.login.accessDeniedDesc'),
           variant: 'destructive',
         });
         return;
@@ -90,16 +90,16 @@ export default function AdminLogin() {
       queryClient.setQueryData(['adminMe'], data.user);
 
       toast({
-        title: 'Login successful',
-        description: 'Welcome back to the admin dashboard!',
+        title: t('admin.login.successTitle'),
+        description: t('admin.login.successDesc'),
       });
       const userRole = (data.user?.role as AdminRole) ?? 'admin';
       navigate(getDefaultRoute(userRole));
     },
     onError: (error: Error) => {
       toast({
-        title: 'Login failed',
-        description: error.message || 'Invalid username or password',
+        title: t('admin.login.failedTitle'),
+        description: error.message || t('admin.login.failedDesc'),
         variant: 'destructive',
       });
     },

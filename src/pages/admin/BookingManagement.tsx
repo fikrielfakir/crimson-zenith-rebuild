@@ -99,6 +99,7 @@ function TicketModal({ booking, isOpen, onClose }: { booking: Booking | null; is
   const [downloading, setDownloading] = useState(false);
   const [dlError, setDlError] = useState<string | null>(null);
   const { toast } = useToast();
+  const { t } = useTranslation();
   const ticketRef = useRef<HTMLDivElement>(null);
 
   if (!booking) return null;
@@ -125,8 +126,8 @@ function TicketModal({ booking, isOpen, onClose }: { booking: Booking | null; is
         ticketRef.current ?? undefined,
       );
       toast({
-        title: 'Ticket downloaded',
-        description: `ticket-${booking.bookingReference}.pdf saved to your downloads folder.`,
+        title: t('admin.bookings.ticketDownloaded'),
+        description: t('admin.bookings.ticketDownloadedDesc', { ref: booking.bookingReference }),
       });
     } catch (err) {
       console.error('[TicketPDF] download failed:', err);
@@ -139,7 +140,7 @@ function TicketModal({ booking, isOpen, onClose }: { booking: Booking | null; is
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-sm p-0 overflow-hidden bg-transparent border-0 shadow-none">
-        <DialogTitle className="sr-only">Event Ticket</DialogTitle>
+        <DialogTitle className="sr-only">{t('admin.bookings.ticketDialogTitle')}</DialogTitle>
 
         {/* ── Luxury vertical ticket ── */}
         <div
@@ -166,23 +167,23 @@ function TicketModal({ booking, isOpen, onClose }: { booking: Booking | null; is
                 {/* Logo */}
                 <img src={logoImg} alt="Logo" className="w-14 h-14 mx-auto mb-2 object-contain drop-shadow-lg" />
 
-                <p className="font-bold tracking-widest text-white text-[11px] leading-tight">THE JOURNEY</p>
+                <p className="font-bold tracking-widest text-white text-[11px] leading-tight">{t('admin.bookings.theJourney')}</p>
 
                 {/* Flanking rules */}
                 <div className="flex items-center gap-2 my-1 px-4">
                   <div className="flex-1 h-px" style={{ background: 'linear-gradient(90deg,transparent,#D4B26A)' }} />
-                  <p className="text-[8px] tracking-[3px] font-medium" style={{ color: '#D4B26A' }}>ASSOCIATION</p>
+                  <p className="text-[8px] tracking-[3px] font-medium" style={{ color: '#D4B26A' }}>{t('admin.bookings.association')}</p>
                   <div className="flex-1 h-px" style={{ background: 'linear-gradient(270deg,transparent,#D4B26A)' }} />
                 </div>
 
                 <div className="h-px w-4/5 mx-auto mb-3 opacity-40" style={{ background: '#D4B26A' }} />
 
-                <p className="font-bold text-white text-base tracking-[2px]">EVENT  TICKET</p>
+                <p className="font-bold text-white text-base tracking-[2px]">{t('admin.bookings.eventTicket')}</p>
 
                 {/* Confirmed pill */}
                 <div className="inline-block mt-2 px-5 py-1 rounded-full text-[9px] font-bold tracking-widest"
                   style={{ background: 'linear-gradient(90deg,#D4B26A,#C9A758)', color: '#07153A' }}>
-                  *&nbsp;&nbsp;CONFIRMED&nbsp;&nbsp;*
+                  *&nbsp;&nbsp;{t('admin.bookings.ticketConfirmed')}&nbsp;&nbsp;*
                 </div>
               </div>
 
@@ -219,7 +220,7 @@ function TicketModal({ booking, isOpen, onClose }: { booking: Booking | null; is
 
                 {/* Event label + title */}
                 <p className="text-center text-[8px] tracking-[3px] font-bold mb-1" style={{ color: '#B8952A' }}>
-                  E &nbsp; V &nbsp; E &nbsp; N &nbsp; T
+                  {t('admin.bookings.ticketEventLabel')}
                 </p>
                 <p className="text-center font-bold text-[13px] leading-snug mb-3 line-clamp-2" style={{ color: '#07153A' }}>
                   {booking.eventTitle}
@@ -236,8 +237,8 @@ function TicketModal({ booking, isOpen, onClose }: { booking: Booking | null; is
 
                 {/* Info grid */}
                 {[
-                  [['GUEST NAME', booking.userName], ['ATTENDEES', `${booking.attendees} person${booking.attendees !== 1 ? 's' : ''}`]],
-                  [['DATE', fmtDate], ['TIME', fmtTime]],
+                  [[t('admin.bookings.ticketGuestName'), booking.userName], [t('admin.bookings.ticketAttendees'), `${booking.attendees} ${booking.attendees !== 1 ? t('admin.bookings.ticketPersons') : t('admin.bookings.ticketPerson')}`]],
+                  [[t('admin.bookings.ticketDate'), fmtDate], [t('admin.bookings.ticketTime'), fmtTime]],
                 ].map((row, ri) => (
                   <div key={ri}>
                     <div className="grid grid-cols-2 gap-3 py-2">
@@ -255,7 +256,7 @@ function TicketModal({ booking, isOpen, onClose }: { booking: Booking | null; is
                 <div className="h-px opacity-20 mt-1 mb-2" style={{ background: '#B8952A' }} />
 
                 <div className="py-2">
-                  <p className="text-[7px] tracking-[2px] font-bold mb-1" style={{ color: '#B8952A' }}>TOTAL AMOUNT</p>
+                  <p className="text-[7px] tracking-[2px] font-bold mb-1" style={{ color: '#B8952A' }}>{t('admin.bookings.ticketTotalAmount')}</p>
                   <p className="font-bold text-[13px]" style={{ color: '#07153A' }}>{Number(booking.totalAmount).toFixed(2)} MAD</p>
                 </div>
 
@@ -264,7 +265,7 @@ function TicketModal({ booking, isOpen, onClose }: { booking: Booking | null; is
 
                 {/* Booking reference */}
                 <p className="text-center text-[7px] tracking-[3px] font-bold mb-1" style={{ color: '#B8952A' }}>
-                  BOOKING  REFERENCE
+                  {t('admin.bookings.ticketBookingRef')}
                 </p>
                 <p className="text-center font-bold text-[11px] tracking-wider mb-3" style={{ color: '#07153A' }}>
                   {booking.bookingReference}
@@ -298,7 +299,7 @@ function TicketModal({ booking, isOpen, onClose }: { booking: Booking | null; is
                 {/* Footer rule */}
                 <div className="h-px opacity-30 mb-2" style={{ background: '#B8952A' }} />
                 <p className="text-center text-[7px] tracking-[1.5px] font-medium" style={{ color: '#B8952A' }}>
-                  PRESENT THIS TICKET AT THE EVENT ENTRANCE
+                  {t('admin.bookings.ticketFooter')}
                 </p>
               </div>
             </div>
@@ -477,7 +478,7 @@ function NewBookingModal({ isOpen, onClose, onCreated }: { isOpen: boolean; onCl
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!eventId || !userName || !userEmail) {
-      toast({ title: 'Please fill in all required fields', variant: 'destructive' });
+      toast({ title: t('admin.bookings.fillRequired'), variant: 'destructive' });
       return;
     }
     setSubmitting(true);
@@ -505,7 +506,7 @@ function NewBookingModal({ isOpen, onClose, onCreated }: { isOpen: boolean; onCl
       setEventId(''); setUserName(''); setUserEmail('');
       setAttendees('1'); setTotalAmount(''); setStatus('confirmed');
     } catch (err: any) {
-      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+      toast({ title: t('admin.common.errorTitle'), description: err.message, variant: 'destructive' });
     } finally {
       setSubmitting(false);
     }
@@ -524,7 +525,7 @@ function NewBookingModal({ isOpen, onClose, onCreated }: { isOpen: boolean; onCl
             <Label>{t('admin.bookings.selectEventLabel')} <span className="text-red-500">*</span></Label>
             <Select value={eventId} onValueChange={handleEventChange}>
               <SelectTrigger>
-                <SelectValue placeholder="Select an event" />
+                <SelectValue placeholder={t('admin.common.selectEvent')} />
               </SelectTrigger>
               <SelectContent>
                 {events.map((ev: any) => (
@@ -607,10 +608,10 @@ export default function BookingManagement() {
     mutationFn: ({ bookingReference, status }: { bookingReference: string; status: string }) => updateBookingStatus(bookingReference, status),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['bookings'] });
-      toast({ title: 'Success', description: 'Booking status updated successfully' });
+      toast({ title: t('admin.common.success'), description: t('admin.bookings.toastStatusOk') });
     },
     onError: () => {
-      toast({ title: 'Error', description: 'Failed to update booking status', variant: 'destructive' });
+      toast({ title: t('admin.common.errorTitle'), description: t('admin.bookings.toastUpdateFail'), variant: 'destructive' });
     },
   });
 
@@ -618,10 +619,10 @@ export default function BookingManagement() {
     mutationFn: (bookingReference: string) => deleteBooking(bookingReference),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['bookings'] });
-      toast({ title: 'Success', description: 'Booking deleted successfully' });
+      toast({ title: t('admin.common.success'), description: t('admin.bookings.toastDeleteOk') });
     },
     onError: () => {
-      toast({ title: 'Error', description: 'Failed to delete booking', variant: 'destructive' });
+      toast({ title: t('admin.common.errorTitle'), description: t('admin.bookings.toastDeleteFail'), variant: 'destructive' });
     },
   });
 

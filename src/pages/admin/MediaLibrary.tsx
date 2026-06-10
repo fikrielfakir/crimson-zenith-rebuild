@@ -104,10 +104,10 @@ function MediaCard({ file, onDelete }: { file: MediaFile; onDelete: (id: number)
           </div>
         )}
         <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-          <Button size="sm" variant="secondary" onClick={handleCopyUrl} title="Copy URL">
+          <Button size="sm" variant="secondary" onClick={handleCopyUrl} title={t('admin.media.copyUrl')}>
             {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
           </Button>
-          <Button size="sm" variant="destructive" onClick={() => onDelete(file.id)} title="Delete">
+          <Button size="sm" variant="destructive" onClick={() => onDelete(file.id)} title={t('admin.common.delete')}>
             <Trash2 className="h-4 w-4" />
           </Button>
         </div>
@@ -183,11 +183,11 @@ export default function MediaLibrary() {
     mutationFn: deleteMedia,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-media'] });
-      toast({ title: 'File deleted successfully' });
+      toast({ title: t('admin.media.toastDeleted') });
       setDeletingId(null);
     },
     onError: (err: Error) => {
-      toast({ title: 'Failed to delete file', description: err.message, variant: 'destructive' });
+      toast({ title: t('admin.media.toastDeleteFailed'), description: err.message, variant: 'destructive' });
     },
   });
 
@@ -253,7 +253,7 @@ export default function MediaLibrary() {
       }, 2000);
     }
     if (successCount === 0) {
-      toast({ title: 'All uploads failed', description: 'Check the queue for details', variant: 'destructive' });
+      toast({ title: t('admin.media.toastAllFailed'), description: t('admin.media.toastAllFailedDesc'), variant: 'destructive' });
     }
   }, [queryClient, toast]);
 

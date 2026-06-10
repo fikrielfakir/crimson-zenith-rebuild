@@ -9,18 +9,18 @@ export default function SystemMonitoring() {
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Server Status</CardTitle>
+            <CardTitle>{t('admin.common.serverStatus')}</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground">System monitoring interface will be implemented here</p>
+            <p className="text-muted-foreground">{t('admin.system.monitoringPlaceholder', 'System monitoring interface will be implemented here')}</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Database Status</CardTitle>
+            <CardTitle>{t('admin.common.databaseStatus')}</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground">Database monitoring will be shown here</p>
+            <p className="text-muted-foreground">{t('admin.system.dbPlaceholder', 'Database monitoring will be shown here')}</p>
           </CardContent>
         </Card>
       </div>

@@ -203,7 +203,7 @@ export default function ClubsManagement() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['clubs'] });
-      toast({ title: 'Club approved successfully' });
+      toast({ title: t('admin.clubs.toastApproved') });
     },
   });
 
@@ -217,7 +217,7 @@ export default function ClubsManagement() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['clubs'] });
-      toast({ title: 'Club deleted successfully' });
+      toast({ title: t('admin.clubs.toastDeleted') });
     },
   });
 
@@ -233,7 +233,7 @@ export default function ClubsManagement() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['clubs'] });
-      toast({ title: 'Feature status updated' });
+      toast({ title: t('admin.clubs.toastFeatured') });
     },
   });
 
@@ -254,7 +254,7 @@ export default function ClubsManagement() {
   };
 
   const handleExport = () => {
-    toast({ title: 'Exporting clubs...', description: 'Download will start shortly' });
+    toast({ title: t('admin.clubs.toastExporting'), description: t('admin.clubs.toastExportDesc') });
   };
 
   return (

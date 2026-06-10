@@ -163,11 +163,11 @@ export default function NewsManagement() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-news'] });
-      toast({ title: 'Post deleted successfully' });
+      toast({ title: t('admin.news.toastDeleted') });
       setDeletingPostId(null);
     },
     onError: (error: Error) => {
-      toast({ title: 'Failed to delete post', description: error.message, variant: 'destructive' });
+      toast({ title: t('admin.news.toastDeleteFailed'), description: error.message, variant: 'destructive' });
     },
   });
 
@@ -188,12 +188,12 @@ export default function NewsManagement() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-news'] });
-      toast({ title: `Post ${editingPost ? 'updated' : 'created'} successfully` });
+      toast({ title: editingPost ? t('admin.news.toastUpdated') : t('admin.news.toastCreated') });
       setEditingPost(null);
       form.reset();
     },
     onError: (error: Error) => {
-      toast({ title: 'Failed to save post', description: error.message, variant: 'destructive' });
+      toast({ title: t('admin.news.toastSaveFailed'), description: error.message, variant: 'destructive' });
     },
   });
 
@@ -214,12 +214,12 @@ export default function NewsManagement() {
   };
 
   const handleExport = () => {
-    toast({ title: 'Exporting posts...', description: 'Download will start shortly' });
+    toast({ title: t('admin.news.toastExporting'), description: t('admin.news.toastExportDesc') });
   };
 
   const handleBulkDelete = () => {
     if (selectedPosts.length === 0) return;
-    toast({ title: `Deleting ${selectedPosts.length} posts...` });
+    toast({ title: t('admin.news.toastDeletingBulk', { count: selectedPosts.length }) });
   };
 
   const onSubmit = (data: PostFormData) => {

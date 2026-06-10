@@ -1033,7 +1033,56 @@
       "contentGap": "Content Gap",
       "planning": "Planning",
       "ongoing": "Ongoing",
-      "completed": "Completed"
+      "completed": "Completed",
+      "searchBtn": "Search",
+      "deadline": "Deadline",
+      "salary": "Salary",
+      "uploadFromDevice": "Upload from device",
+      "mediaLibraryBtn": "Media library",
+      "smtpCmiStoreKeyPlaceholder": "Your secret CMI store key",
+      "copyUrl": "Copy URL",
+      "removeBtn": "Remove",
+      "browseBtn": "Browse",
+      "useImageBtn": "Use This Image",
+      "clearBtn": "Clear",
+      "uploadingVideo": "Uploading video…",
+      "fileTooLargeTitle": "File too large",
+      "videoTooLargeDesc": "Maximum video size is 200 MB.",
+      "videoUploaded": "Video uploaded successfully",
+      "videoUploadFailedDesc": "Could not upload video.",
+      "imageDeleted": "Image deleted",
+      "imageDeleteFailed": "Failed to delete image",
+      "imagesUploaded": "{{count}} image(s) uploaded",
+      "uploadsFailed": "{{count}} upload(s) failed",
+      "searchImagesPlaceholder": "Search images…",
+      "noImagesMatch": "No images match your search.",
+      "loadingMediaLibrary": "Loading media library…",
+      "uploadFirstImage": "Upload Your First Image",
+      "invalidFileTitle": "Invalid file",
+      "invalidFileDesc": "Please select an image file.",
+      "fileTooLargeDesc": "Image must be under 5 MB.",
+      "imageUploaded": "Image uploaded successfully",
+      "noSearchResults": "No results",
+      "noSearchResultsDesc": "Try a different search term.",
+      "geocodingFailed": "Search failed",
+      "geocodingFailedDesc": "Could not reach geocoding service.",
+      "clubLoadFailed": "Failed to load club",
+      "galleryItemCreated": "Gallery item created",
+      "galleryItemCreateFailed": "Failed to create item",
+      "galleryItemUpdated": "Gallery item updated",
+      "galleryItemUpdateFailed": "Failed to update item",
+      "titleImageRequired": "Title and image are required",
+      "roleUpdated": "Role updated successfully",
+      "roleUpdateFailed": "Failed to update role",
+      "smtpSaved": "SMTP settings saved",
+      "selectStatusPlaceholder": "Status",
+      "pageTitleLabel": "Page Title",
+      "removePhotoBtn": "Remove photo",
+      "removeSignatureBtn": "Remove Signature",
+      "removeBgBtn": "Remove Background Image",
+      "errorTitle": "Error",
+      "deletedOk": "Deleted",
+      "labelSaved": "{{label}} saved"
     },
     "contact": {
       "description": "Manage contact information, social links, and page labels shown on the Contact page.",
@@ -1088,7 +1137,20 @@
       "noMessagesHint": "When visitors submit the contact form, messages will appear here.",
       "noSubject": "(No subject)",
       "notesSaved": "Notes saved",
-      "subjectLabel": "Subject"
+      "subjectLabel": "Subject",
+      "toastInfoSaved": "Contact info saved",
+      "toastSocialSaved": "Social links saved",
+      "toastTranslationsSaved": "Translations saved",
+      "toastNoEnglish": "No English text to translate",
+      "toastAutoTranslated": "Auto-translation complete",
+      "toastTranslFailed": "Translation failed",
+      "toastTranslFailedDesc": "Could not reach the translation service.",
+      "cantLoad": "Couldn't load contact info",
+      "cantLoadDesc": "The contact settings failed to load. The server may be unavailable.",
+      "cantLoadSocial": "Couldn't load social links",
+      "cantLoadSocialDesc": "The footer settings failed to load. The server may be unavailable.",
+      "autoTranslDesc": "{{count}} fields translated to {{lang}}",
+      "toastAutoTranslDesc": "fields translated to {{lang}}"
     },
     "users": {
       "title": "User Management",
@@ -1138,7 +1200,17 @@
         "interests": "Interests",
         "role": "Role",
         "isActive": "Active Account"
-      }
+      },
+      "toastDeleted": "User deleted successfully",
+      "toastDeleteFailed": "Failed to delete user",
+      "toastUpdated": "User updated successfully",
+      "toastCreated": "User created successfully",
+      "toastSaveFailed": "Failed to save user",
+      "toastAdminUpdated": "Admin status updated",
+      "toastStatusUpdated": "User status updated",
+      "toastPasswordReset": "Password reset successfully",
+      "toastPasswordRequired": "Password required",
+      "toastPasswordRequiredDesc": "Please enter a password for the new user"
     },
     "dashboard": {
       "title": "Dashboard",
@@ -1155,7 +1227,14 @@
       "recentActivity": "Recent Activity",
       "upcomingEventsSection": "Upcoming Events",
       "viewAll": "View all",
-      "noActivity": "No recent activity"
+      "noActivity": "No recent activity",
+      "chartDataUnavailable": "Chart data unavailable",
+      "activityUnavailable": "Activity unavailable",
+      "eventsUnavailable": "Events unavailable",
+      "addNewClub": "Add New Club",
+      "reviewApplications": "Review Applications",
+      "sendEmailCampaign": "Send Email Campaign",
+      "viewReports": "View Reports"
     },
     "login": {
       "title": "Journey Association",
@@ -1178,7 +1257,8 @@
       "successTitle": "Login successful",
       "successDesc": "Welcome back to the admin dashboard!",
       "failedTitle": "Login failed",
-      "failedDesc": "Invalid username or password"
+      "failedDesc": "Invalid username or password",
+      "accessDeniedDesc": "You do not have admin panel access."
     },
     "analytics": {
       "title": "Analytics",
@@ -1339,7 +1419,24 @@
       "filterAssociation": "Association Event",
       "filterAll": "All Status",
       "createFirst": "Create your first booking to get started",
-      "failedLoad": "Failed to load bookings"
+      "failedLoad": "Failed to load bookings",
+      "theJourney": "THE JOURNEY",
+      "association": "ASSOCIATION",
+      "eventTicket": "EVENT TICKET",
+      "ticketConfirmed": "CONFIRMED",
+      "ticketEventLabel": "E V E N T",
+      "ticketGuestName": "GUEST NAME",
+      "ticketAttendees": "ATTENDEES",
+      "ticketPerson": "person",
+      "ticketPersons": "persons",
+      "ticketDate": "DATE",
+      "ticketTime": "TIME",
+      "ticketTotalAmount": "TOTAL AMOUNT",
+      "ticketBookingRef": "BOOKING REFERENCE",
+      "ticketFooter": "PRESENT THIS TICKET AT THE EVENT ENTRANCE",
+      "ticketDialogTitle": "Event Ticket",
+      "ticketDownloadedDesc": "ticket-{{ref}}.pdf saved to your downloads folder.",
+      "createError": "Error"
     },
     "events": {
       "title": "Events Management",
@@ -1484,7 +1581,8 @@
       "viewIncluded": "What's Included",
       "viewNotIncluded": "What's Not Included",
       "viewImportantInfo": "Important Information",
-      "deleteDescConfirm": "This will permanently delete this event. This action cannot be undone."
+      "deleteDescConfirm": "This will permanently delete this event. This action cannot be undone.",
+      "toastDeletingBulk": "Deleting {{count}} events…"
     },
     "navbar": {
       "title": "Navbar Settings",
@@ -1625,7 +1723,10 @@
       "fontSize": "Font Size",
       "textColor": "Text Color",
       "imagePosition": "Image Position",
-      "imageAlignment": "Image Alignment"
+      "imageAlignment": "Image Alignment",
+      "toastUploaded": "Uploaded",
+      "toastUploadedDesc": "Image uploaded successfully.",
+      "toastUploadFailed": "Upload failed"
     },
     "hero": {
       "title": "Hero Section",
@@ -1809,7 +1910,10 @@
       "maxParticipants": "Max Participants",
       "currentParticipants": "Current Participants",
       "dialogEdit": "Edit Opportunity",
-      "dialogNew": "New Opportunity"
+      "dialogNew": "New Opportunity",
+      "toastOpportunityUpdated": "Opportunity updated",
+      "toastOpportunityCreated": "Opportunity created",
+      "toastDeletedOk": "Deleted"
     },
     "volunteerPosts": {
       "title": "Volunteer Posts",
@@ -1854,7 +1958,10 @@
       "fieldStartDate": "Start Date",
       "fieldDeadline": "Deadline",
       "fieldResponsibilities": "Responsibilities (one per line)",
-      "fieldBenefits": "Benefits (one per line)"
+      "fieldBenefits": "Benefits (one per line)",
+      "toastPostUpdated": "Post updated",
+      "toastPostCreated": "Post created",
+      "toastDeletedOk": "Deleted"
     },
     "workOffers": {
       "title": "Work Offers",
@@ -1905,7 +2012,11 @@
       "deleteDesc": "This will permanently delete this work offer.",
       "dialogEdit": "Edit Work Offer",
       "dialogNew": "New Work Offer",
-      "fieldExperience": "Experience Level"
+      "fieldExperience": "Experience Level",
+      "toastOfferUpdated": "Offer updated",
+      "toastOfferCreated": "Offer created",
+      "toastDeletedOk": "Deleted",
+      "colSalary": "Salary"
     },
     "experts": {
       "title": "Experts",
@@ -1970,7 +2081,8 @@
       "fieldLinkedIn": "LinkedIn URL",
       "fieldProfilePhoto": "Profile Photo",
       "dialogEdit": "Edit Expert",
-      "dialogNew": "New Expert"
+      "dialogNew": "New Expert",
+      "toastImageUploaded": "Image uploaded"
     },
     "applications": {
       "title": "Applications Management",
@@ -2187,7 +2299,20 @@
       "fieldContactPhone": "Contact Phone",
       "fieldContactEmail": "Contact Email",
       "fieldFacebook": "Facebook",
-      "fieldInstagram": "Instagram"
+      "fieldInstagram": "Instagram",
+      "toastInvalidFile": "Invalid file",
+      "toastInvalidFileDesc": "Please select an image file.",
+      "toastFileTooLarge": "File too large",
+      "toastFileTooLargeDesc": "Image must be under 5 MB.",
+      "toastImageUploaded": "Image uploaded successfully",
+      "toastUploadFailed": "Upload failed",
+      "toastNoResults": "No results",
+      "toastNoResultsDesc": "Try a different search term.",
+      "toastSearchFailed": "Search failed",
+      "toastSearchFailedDesc": "Could not reach geocoding service.",
+      "toastLoadFailed": "Failed to load club",
+      "toastApprovalFailed": "Failed to approve club",
+      "toastRejectionFailed": "Failed to reject club"
     },
     "payments": {
       "title": "Payment Settings",
@@ -2277,7 +2402,8 @@
       "noItemsFilter": "No items match your search",
       "noItems": "No focus areas yet",
       "addHint": "Click Add Focus Item to get started",
-      "validationRequired": "Title is required"
+      "validationRequired": "Title is required",
+      "statusPlaceholder": "Status"
     },
     "impact": {
       "title": "Impact Management",
@@ -2398,7 +2524,9 @@
       "removeFeatured": "Remove featured",
       "viewPhoto": "View Photo",
       "view360": "View 360°",
-      "colPublished": "Published"
+      "colPublished": "Published",
+      "titleImageRequired": "Title and image are required",
+      "tour360Badge": "360° Tour"
     },
     "email": {
       "title": "Email Campaigns",
@@ -2439,7 +2567,18 @@
       "sendTest": "Send Test",
       "sendingTest": "Sending…",
       "sendEmail": "Send Email",
-      "saveSMTP": "Save SMTP Settings"
+      "saveSMTP": "Save SMTP Settings",
+      "toastSmtpSaved": "SMTP settings saved",
+      "toastSmtpSaveFailed": "Save failed",
+      "toastEnterTestEmail": "Enter a test email address",
+      "toastTestEmailSent": "Test email sent!",
+      "toastTestEmailSentDesc": "Check {{email}} for the test message.",
+      "toastTestFailed": "Test failed",
+      "toastFillAllFields": "Fill in all fields",
+      "toastEmailSent": "Email sent!",
+      "toastEmailSentDesc": "Message delivered to {{to}}",
+      "toastSendFailed": "Send failed",
+      "emailDesc": "Configure outgoing email (SMTP) and send messages to members."
     },
     "cookies": {
       "title": "Cookie Settings",
@@ -2615,7 +2754,10 @@
       "updatePost": "Update Post",
       "createPost": "Create Post",
       "deleteConfirm": "Are you sure you want to delete this post? This action cannot be undone.",
-      "showing": "Showing {{from}} to {{to}} of {{total}} posts"
+      "showing": "Showing {{from}} to {{to}} of {{total}} posts",
+      "toastExporting": "Exporting posts…",
+      "toastExportDesc": "Download will start shortly",
+      "toastDeletingBulk": "Deleting {{count}} posts…"
     },
     "testimonials": {
       "title": "Testimonials Management",
@@ -2714,7 +2856,24 @@
       "seoTitle": "SEO Settings",
       "seoDesc": "Control how your site appears in search engines and social shares.",
       "saveSEO": "Save SEO Settings",
-      "saveSettings": "Save Settings"
+      "saveSettings": "Save Settings",
+      "siteNamePlaceholder": "Your site name",
+      "siteDescPlaceholder": "Brief description of your site",
+      "contactEmailPlaceholder": "contact@example.com",
+      "metaTitlePlaceholder": "Site title for search engines",
+      "metaDescPlaceholder": "Description shown in search results (150–160 chars)",
+      "keywordsPlaceholder": "Comma-separated keywords",
+      "twitterHandlePlaceholder": "@yourhandle",
+      "integrationsTitle": "Third-Party Integrations",
+      "integrationsDesc": "API keys and secrets are managed securely through Replit environment variables — not stored in the database.",
+      "integrationsStripe": "Stripe",
+      "integrationsPayPal": "PayPal",
+      "integrationsSMTP": "SMTP Email",
+      "integrationsCMI": "CMI Payment Gateway",
+      "integrationsStripeDesc": "Payment processing — configured via STRIPE_SECRET_KEY env var.",
+      "integrationsPayPalDesc": "PayPal payments — configured via PAYPAL_CLIENT_ID / PAYPAL_CLIENT_SECRET env vars.",
+      "integrationsSMTPDesc": "Email delivery — configured via SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS env vars.",
+      "integrationsCMIDesc": "Moroccan CMI gateway — configure via the Payments admin page."
     },
     "team": {
       "title": "Team Members",
@@ -2790,7 +2949,10 @@
       "savedTitle": "Saved",
       "savedDesc": "Hero settings updated successfully.",
       "saveErrorTitle": "Error",
-      "saveErrorDesc": "Failed to save hero settings."
+      "saveErrorDesc": "Failed to save hero settings.",
+      "imageUrlPlaceholder": "https://example.com/hero.jpg or upload ↑",
+      "videoUrlPlaceholder": "https://example.com/hero.mp4 or upload ↑",
+      "removeTitle": "Remove this title"
     },
     "about": {
       "title": "About Management",
@@ -2932,7 +3094,15 @@
       "buttonText": "Button Text",
       "buttonLink": "Button Link",
       "imageUrl": "Image URL",
-      "chooseIcon": "Choose Icon"
+      "chooseIcon": "Choose Icon",
+      "toastCityDeleted": "City deleted",
+      "toastCityDeleteFailed": "Error deleting city",
+      "toastSeedFailed": "Seed failed",
+      "toastVisibilityFailed": "Failed to toggle visibility",
+      "toastFileTooLarge": "File too large",
+      "toastVideoTooLargeDesc": "Maximum video size is 200 MB.",
+      "toastImagesUploaded": "{{count}} image(s) uploaded",
+      "toastUploadsFailed": "{{count}} upload(s) failed"
     },
     "auth": {
       "title": "Auth Settings",
@@ -2945,7 +3115,27 @@
       "jwtSecret": "JWT Secret",
       "sessionSecret": "Session Secret",
       "saveSuccess": "Auth settings saved",
-      "saveError": "Failed to save auth settings"
+      "saveError": "Failed to save auth settings",
+      "toastSaved": "Authentication settings saved",
+      "toastSaveFailed": "Save failed",
+      "loadFailed": "Couldn’t load auth settings",
+      "loadFailedDesc": "Authentication settings failed to load.",
+      "pageDesc": "Control how users sign up and log in to the site.",
+      "registrationTitle": "User Registration",
+      "registrationDesc": "Allow or block new users from creating accounts.",
+      "allowNewRegistrations": "Allow New Registrations",
+      "allowNewRegistrationsHint": "When off, only existing users can log in. New sign-ups are blocked.",
+      "requireEmailVerificationLabel": "Require Email Verification",
+      "requireEmailVerificationHint": "New accounts must verify their email before they can log in.",
+      "passwordPolicy": "Password Policy",
+      "passwordPolicyHint": "Minimum requirements for user passwords.",
+      "minPasswordLength": "Minimum Password Length",
+      "minPasswordLengthHint": "characters (4 – 32)",
+      "sessionSecurity": "Session & Security",
+      "sessionDuration": "Session Duration (hours)",
+      "sessionDurationHint": "hours before users are logged out (1 – 720)",
+      "maxLoginAttemptsLabel": "Max Login Attempts",
+      "maxLoginAttemptsHint": "failed attempts before account is temporarily locked"
     },
     "system": {
       "title": "System Monitoring",
@@ -2963,7 +3153,9 @@
       "lastChecked": "Last checked",
       "healthy": "Healthy",
       "warning": "Warning",
-      "critical": "Critical"
+      "critical": "Critical",
+      "monitoringPlaceholder": "System monitoring interface will be implemented here",
+      "dbPlaceholder": "Database monitoring will be shown here"
     },
     "theme": {
       "title": "Theme Settings",
@@ -3094,7 +3286,8 @@
       "visibleAt": "Visible at",
       "toastSaved": "{{label}} has been updated.",
       "toastSaveFailed": "Save failed",
-      "translate": "Translate"
+      "translate": "Translate",
+      "pageTitleLabel": "Page Title"
     },
     "translations": {
       "title": "Content Translations",
@@ -3131,7 +3324,22 @@
       "sectionContentDesc": "Edit the text content for the president message section"
     },
     "userRoles": {
-      "accessByRoleDesc": "Admin panel section access by role — based on enforced route permissions"
+      "accessByRoleDesc": "Admin panel section access by role — based on enforced route permissions",
+      "toastRoleUpdated": "Role updated successfully",
+      "toastRoleFailed": "Failed to update role"
+    },
+    "payment": {
+      "toastLoadFailed": "Failed to load payment settings",
+      "toastSaved": "Saved",
+      "toastSavedDesc": "Payment settings updated successfully.",
+      "toastSessionExpired": "Session expired",
+      "toastSessionExpiredDesc": "Redirecting to login…",
+      "toastApiUnavailable": "API unavailable",
+      "toastApiUnavailableDesc": "The local API is starting up — please wait a moment and try again.",
+      "toastTestFailed": "Test failed",
+      "cmiStorePlaceholder": "e.g. 123456789",
+      "cmiStoreKeyPlaceholder": "Your secret CMI store key",
+      "cmiPortPlaceholder": "504"
     }
   },
   "auth": {

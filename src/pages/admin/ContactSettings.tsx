@@ -94,9 +94,9 @@ export default function ContactSettings() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cms-contact'] });
-      toast({ title: 'Contact info saved' });
+      toast({ title: t('admin.contact.toastInfoSaved') });
     },
-    onError: () => toast({ title: 'Save failed', variant: 'destructive' }),
+    onError: () => toast({ title: t('admin.common.errorSave'), variant: 'destructive' }),
   });
 
   // ── Social Links ────────────────────────────────────────────────────────────
@@ -152,9 +152,9 @@ export default function ContactSettings() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cms-footer'] });
-      toast({ title: 'Social links saved' });
+      toast({ title: t('admin.contact.toastSocialSaved') });
     },
-    onError: () => toast({ title: 'Save failed', variant: 'destructive' }),
+    onError: () => toast({ title: t('admin.common.errorSave'), variant: 'destructive' }),
   });
 
   // ── Translations ───────────────────────────────────────────────────────────
@@ -192,9 +192,9 @@ export default function ContactSettings() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-i18n-contact'] });
-      toast({ title: 'Translations saved' });
+      toast({ title: t('admin.contact.toastTranslationsSaved') });
     },
-    onError: () => toast({ title: 'Save failed', variant: 'destructive' }),
+    onError: () => toast({ title: t('admin.common.errorSave'), variant: 'destructive' }),
   });
 
   const setLabel = (lang: string, key: string, value: string) =>
@@ -209,7 +209,7 @@ export default function ContactSettings() {
       .filter(item => item.value.trim() !== '');
 
     if (texts.length === 0) {
-      toast({ title: 'No English text to translate', variant: 'destructive' });
+      toast({ title: t('admin.contact.toastNoEnglish'), variant: 'destructive' });
       return;
     }
     setTranslating(true);
@@ -226,11 +226,11 @@ export default function ContactSettings() {
         [activeLang]: { ...(prev[activeLang] ?? {}), ...results },
       }));
       toast({
-        title: 'Auto-translation complete',
-        description: `${Object.keys(results).length} fields translated to ${LANGUAGES.find(l => l.code === activeLang)?.label}`,
+        title: t('admin.contact.toastAutoTranslated'),
+        description: `${Object.keys(results).length} ${t('admin.contact.toastAutoTranslDesc', { lang: LANGUAGES.find(l => l.code === activeLang)?.label ?? activeLang })}`,
       });
     } catch {
-      toast({ title: 'Translation failed', description: 'Could not reach the translation service.', variant: 'destructive' });
+      toast({ title: t('admin.contact.toastTranslFailed'), description: t('admin.contact.toastTranslFailedDesc'), variant: 'destructive' });
     } finally {
       setTranslating(false);
     }
@@ -265,8 +265,8 @@ export default function ContactSettings() {
             <AdminFormSkeleton rows={3} className="max-w-lg" />
           ) : infoError ? (
             <AdminPageError
-              title="Couldn't load contact info"
-              message="The contact settings failed to load. The server may be unavailable."
+              title={t('admin.contact.cantLoad')}
+              message={t('admin.contact.cantLoadDesc')}
               onRetry={() => refetchInfo()}
               className="max-w-lg"
             />
@@ -331,8 +331,8 @@ export default function ContactSettings() {
             <AdminFormSkeleton rows={4} className="max-w-lg" />
           ) : footerError ? (
             <AdminPageError
-              title="Couldn't load social links"
-              message="The footer settings failed to load. The server may be unavailable."
+              title={t('admin.contact.cantLoadSocial')}
+              message={t('admin.contact.cantLoadSocialDesc')}
               onRetry={() => refetchFooter()}
               className="max-w-lg"
             />

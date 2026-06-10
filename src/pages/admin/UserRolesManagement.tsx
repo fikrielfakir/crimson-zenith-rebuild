@@ -285,13 +285,13 @@ function UserAssignment({ roles }: { roles: RoleDef[] }) {
       return res.json();
     },
     onSuccess: (_, { userId }) => {
-      toast({ title: 'Role updated successfully' });
+      toast({ title: t('admin.roles.toastRoleUpdated') });
       setPendingRoles(p => { const n = { ...p }; delete n[userId]; return n; });
       queryClient.invalidateQueries({ queryKey: ['roles-users'] });
       queryClient.invalidateQueries({ queryKey: ['roles'] });
     },
     onError: (err: any) => {
-      toast({ title: 'Failed to update role', description: err.message, variant: 'destructive' });
+      toast({ title: t('admin.roles.toastRoleFailed'), description: err.message, variant: 'destructive' });
     },
   });
 

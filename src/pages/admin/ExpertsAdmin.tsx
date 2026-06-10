@@ -62,14 +62,15 @@ function ImageUploader({ value, onChange }: { value: string; onChange: (url: str
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   async function handleFile(file: File) {
     if (!file.type.startsWith('image/')) {
-      toast({ title: 'Invalid file', description: 'Please select an image.', variant: 'destructive' });
+      toast({ title: t('admin.clubs.toastInvalidFile'), description: t('admin.clubs.toastInvalidFileDesc'), variant: 'destructive' });
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      toast({ title: 'File too large', description: 'Image must be under 5 MB.', variant: 'destructive' });
+      toast({ title: t('admin.clubs.toastFileTooLarge'), description: 'Image must be under 5 MB.', variant: 'destructive' });
       return;
     }
     setUploading(true);
@@ -80,9 +81,9 @@ function ImageUploader({ value, onChange }: { value: string; onChange: (url: str
       if (!res.ok) throw new Error('Upload failed');
       const data = await res.json();
       onChange(data.fileUrl ?? data.url ?? '');
-      toast({ title: 'Image uploaded' });
+      toast({ title: t('admin.experts.toastImageUploaded') });
     } catch (err: any) {
-      toast({ title: 'Upload failed', description: err.message, variant: 'destructive' });
+      toast({ title: t('admin.clubs.toastUploadFailed'), description: err.message, variant: 'destructive' });
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -153,10 +154,10 @@ export default function ExpertsAdmin() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-experts'] });
-      toast({ title: editing ? 'Expert updated' : 'Expert created' });
+      toast({ title: editing ? t('admin.experts.toastUpdated') : t('admin.experts.toastCreated') });
       setDialogOpen(false);
     },
-    onError: (e: Error) => toast({ title: 'Error', description: e.message, variant: 'destructive' }),
+    onError: (e: Error) => toast({ title: t('admin.common.errorTitle'), description: e.message, variant: 'destructive' }),
   });
 
   const deleteMutation = useMutation({
@@ -166,10 +167,10 @@ export default function ExpertsAdmin() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-experts'] });
-      toast({ title: 'Deleted' });
+      toast({ title: t('admin.experts.toastDeleted') });
       setDeletingId(null);
     },
-    onError: (e: Error) => toast({ title: 'Error', description: e.message, variant: 'destructive' }),
+    onError: (e: Error) => toast({ title: t('admin.common.errorTitle'), description: e.message, variant: 'destructive' }),
   });
 
   function openCreate() { setEditing(null); setForm(emptyForm); setDialogOpen(true); }
@@ -211,7 +212,7 @@ export default function ExpertsAdmin() {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input placeholder="Search…" className="pl-9" value={searchInput} onChange={e => setSearchInput(e.target.value)} />
               </div>
-              <Button type="submit" variant="secondary">Search</Button>
+              <Button type="submit" variant="secondary">{t('admin.common.searchBtn')}</Button>
             </form>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
@@ -234,8 +235,8 @@ export default function ExpertsAdmin() {
             <AdminTableSkeleton cols={6} />
           ) : data.length === 0 ? (
             <AdminEmptyState
-              title="No experts yet"
-              message="Add your first expert profile to get started."
+              title={t('admin.experts.noExperts')}
+              message={t('admin.experts.noExpertsDesc')}
               action={<Button size="sm" onClick={openCreate}><Plus className="mr-2 h-4 w-4" />New Expert</Button>}
             />
           ) : (
@@ -245,8 +246,8 @@ export default function ExpertsAdmin() {
                   <TableHead className="pl-6">{t('admin.experts.colName')}</TableHead>
                   <TableHead>{t('admin.experts.colLocation')}</TableHead>
                   <TableHead>{t('admin.experts.colRating')}</TableHead>
-                  <TableHead>Experience</TableHead>
-                  <TableHead>Available</TableHead>
+                  <TableHead>{t('admin.common.experience')}</TableHead>
+                  <TableHead>{t('admin.common.available')}</TableHead>
                   <TableHead>{t('admin.common.status')}</TableHead>
                   <TableHead className="text-right pr-6">{t('admin.common.actions')}</TableHead>
                 </TableRow>

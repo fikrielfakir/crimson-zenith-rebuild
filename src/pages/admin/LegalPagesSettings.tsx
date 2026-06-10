@@ -89,10 +89,10 @@ function LegalPageEditor({ pageKey, label, defaultTitle, defaultContent }: { pag
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/cms/legal', pageKey] });
-      toast({ title: 'Saved', description: `${label} has been updated.` });
+      toast({ title: t('admin.legal.toastSaved') });
     },
     onError: (e: any) => {
-      toast({ title: 'Save failed', description: e.message, variant: 'destructive' });
+      toast({ title: t('admin.legal.toastSaveFailed'), description: e.message, variant: 'destructive' });
     },
   });
 
@@ -133,7 +133,7 @@ function LegalPageEditor({ pageKey, label, defaultTitle, defaultContent }: { pag
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor={`title-${pageKey}`}>Page Title</Label>
+        <Label htmlFor={`title-${pageKey}`}>{t('admin.legal.pageTitleLabel')}</Label>
         <Input
           id={`title-${pageKey}`}
           value={title}

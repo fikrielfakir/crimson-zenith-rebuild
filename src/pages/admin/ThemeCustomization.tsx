@@ -8,7 +8,7 @@ export default function ThemeCustomization() {
       <h1 className="text-3xl font-bold">{t('admin.theme.title')}</h1>
       <Card>
         <CardHeader>
-          <CardTitle>Theme Settings</CardTitle>
+          <CardTitle>{t('admin.common.themeSettings')}</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground">Theme customization options will be here</p>

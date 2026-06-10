@@ -170,10 +170,10 @@ export default function UserManagement() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
-      toast({ title: 'User deleted successfully' });
+      toast({ title: t('admin.users.toastDeleted') });
       setDeletingUserId(null);
     },
-    onError: (e: Error) => toast({ title: 'Failed to delete user', description: e.message, variant: 'destructive' }),
+    onError: (e: Error) => toast({ title: t('admin.users.toastDeleteFailed'), description: e.message, variant: 'destructive' }),
   });
 
   const saveUserMutation = useMutation({
@@ -202,11 +202,11 @@ export default function UserManagement() {
     },
     onSuccess: (_data, _vars, _ctx) => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
-      toast({ title: editingUser?.id ? 'User updated successfully' : 'User created successfully' });
+      toast({ title: editingUser?.id ? t('admin.users.toastUpdated') : t('admin.users.toastCreated') });
       setEditingUser(null);
       form.reset();
     },
-    onError: (e: Error) => toast({ title: 'Failed to save user', description: e.message, variant: 'destructive' }),
+    onError: (e: Error) => toast({ title: t('admin.users.toastSaveFailed'), description: e.message, variant: 'destructive' }),
   });
 
   const toggleAdminMutation = useMutation({
@@ -221,7 +221,7 @@ export default function UserManagement() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
-      toast({ title: 'Admin status updated' });
+      toast({ title: t('admin.users.toastAdminUpdated') });
     },
   });
 
@@ -233,9 +233,9 @@ export default function UserManagement() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
-      toast({ title: 'User status updated' });
+      toast({ title: t('admin.users.toastStatusUpdated') });
     },
-    onError: (e: Error) => toast({ title: 'Failed to update status', description: e.message, variant: 'destructive' }),
+    onError: (e: Error) => toast({ title: t('admin.common.errorSave'), description: e.message, variant: 'destructive' }),
   });
 
   const resetPasswordMutation = useMutation({
@@ -253,11 +253,11 @@ export default function UserManagement() {
       return res.json();
     },
     onSuccess: () => {
-      toast({ title: 'Password reset successfully' });
+      toast({ title: t('admin.users.toastPasswordReset') });
       setResettingPasswordUser(null);
       setNewPassword('');
     },
-    onError: (e: Error) => toast({ title: 'Failed to reset password', description: e.message, variant: 'destructive' }),
+    onError: (e: Error) => toast({ title: t('admin.common.errorTitle'), description: e.message, variant: 'destructive' }),
   });
 
   const handleSelectAll = (checked: boolean) =>
@@ -268,7 +268,7 @@ export default function UserManagement() {
 
   const onSubmit = (formData: UserFormData) => {
     if (!editingUser?.id && !formData.password) {
-      toast({ title: 'Password required', description: 'Please enter a password for the new user', variant: 'destructive' });
+      toast({ title: t('admin.users.toastPasswordRequired'), description: t('admin.users.toastPasswordRequiredDesc'), variant: 'destructive' });
       return;
     }
     saveUserMutation.mutate(formData);

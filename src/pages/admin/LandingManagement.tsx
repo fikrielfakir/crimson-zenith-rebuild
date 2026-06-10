@@ -126,9 +126,9 @@ export default function LandingManagement() {
       queryClient.invalidateQueries({ queryKey: ['admin-landing-sections'] });
       queryClient.invalidateQueries({ queryKey: ['landing-sections'] });
       setPendingChanges({});
-      toast({ title: 'Saved', description: 'Landing page sections updated.' });
+      toast({ title: t('admin.landing.toastSaved') });
     } catch {
-      toast({ title: 'Error', description: 'Could not save changes.', variant: 'destructive' });
+      toast({ title: t('admin.common.errorTitle'), description: t('admin.landing.toastError'), variant: 'destructive' });
     } finally {
       setSaving(false);
     }
@@ -153,7 +153,7 @@ export default function LandingManagement() {
 
       {hasPending && (
         <div className="rounded-md border border-amber-200 bg-amber-50 px-4 py-2 text-sm text-amber-800">
-          You have unsaved changes — click <strong>Save Changes</strong> to apply them to the live site.
+          {t('admin.common.unsavedChanges')}
         </div>
       )}
 

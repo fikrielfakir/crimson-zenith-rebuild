@@ -137,7 +137,7 @@ function SortableNavLink({
               <Input
                 value={link.label}
                 onChange={(e) => onUpdate(index, 'label', e.target.value)}
-                placeholder="Link Label"
+                placeholder={t('admin.navbar.label')}
                 className="flex-1"
               />
               <TranslateDialog
@@ -178,19 +178,19 @@ function SortableNavLink({
           <div className="mt-4 p-4 bg-muted/30 rounded-lg border border-dashed space-y-3">
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <Label className="text-sm font-semibold">Dropdown Display Type</Label>
+                <Label className="text-sm font-semibold">{t('admin.navbar.dropdownDisplayType')}</Label>
               </div>
               <Select
                 value={link.dropdownType || 'simple-list'}
                 onValueChange={(value: DropdownDisplayType) => onUpdate(index, 'dropdownType', value)}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select dropdown display type" />
+                  <SelectValue placeholder={t('admin.navbar.dropdownDisplayType')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="simple-list">Simple List</SelectItem>
-                  <SelectItem value="list-with-images">List with Images</SelectItem>
-                  <SelectItem value="carousel">Carousel / Slide</SelectItem>
+                  <SelectItem value="simple-list">{t('admin.navbar.simpleList')}</SelectItem>
+                  <SelectItem value="list-with-images">{t('admin.navbar.listWithImages')}</SelectItem>
+                  <SelectItem value="carousel">{t('admin.navbar.carousel')}</SelectItem>
                 </SelectContent>
               </Select>
               <p className="text-xs text-muted-foreground">
@@ -227,7 +227,7 @@ function SortableNavLink({
                             <Input
                               value={item.label}
                               onChange={(e) => updateDropdownItem(dropdownIndex, 'label', e.target.value)}
-                              placeholder="Item Label"
+                              placeholder={t('admin.navbar.itemLabel')}
                               className="h-8 text-sm"
                             />
                           </div>
@@ -273,7 +273,7 @@ function SortableNavLink({
                             <Input
                               value={item.description || ''}
                               onChange={(e) => updateDropdownItem(dropdownIndex, 'description', e.target.value)}
-                              placeholder="Brief description"
+                              placeholder={t('admin.navbar.itemDescPlaceholder')}
                               className="h-8 text-sm"
                             />
                           </div>
@@ -550,10 +550,10 @@ export default function NavbarSettings() {
         scrolledBg,
         height,
       });
-      toast({ title: 'Success', description: 'Navbar settings saved successfully' });
+      toast({ title: t('admin.common.success'), description: t('admin.navbar.saveSuccess') });
     } catch (error) {
       console.error('Error saving navbar settings:', error);
-      toast({ title: 'Error', description: 'Failed to save navbar settings', variant: 'destructive' });
+      toast({ title: t('admin.common.errorTitle'), description: t('admin.navbar.saveError'), variant: 'destructive' });
     }
   };
 
@@ -690,7 +690,7 @@ export default function NavbarSettings() {
                       id="logo-text"
                       value={logoText}
                       onChange={(e) => setLogoText(e.target.value)}
-                      placeholder="Your Brand Name"
+                      placeholder={t('admin.navbar.logoTextPlaceholder')}
                     />
                   </div>
                 )}
@@ -860,7 +860,7 @@ export default function NavbarSettings() {
                       <Input
                         value={availableLanguages.join(', ')}
                         onChange={(e) => setAvailableLanguages(e.target.value.split(',').map(l => l.trim()))}
-                        placeholder="EN, FR, AR"
+                        placeholder={t('admin.navbar.availableLanguages')}
                       />
                     </div>
                   )}
@@ -886,7 +886,7 @@ export default function NavbarSettings() {
                   <h3 className="font-semibold">Colors</h3>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="bg-color">Background Color</Label>
+                      <Label htmlFor="bg-color">{t('admin.navbar.backgroundColor')}</Label>
                       <div className="flex gap-2">
                         <Input
                           id="bg-color"
@@ -903,7 +903,7 @@ export default function NavbarSettings() {
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="text-color">Text Color</Label>
+                      <Label htmlFor="text-color">{t('admin.navbar.textColor')}</Label>
                       <div className="flex gap-2">
                         <Input
                           id="text-color"
@@ -920,7 +920,7 @@ export default function NavbarSettings() {
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="hover-color">Hover Color</Label>
+                      <Label htmlFor="hover-color">{t('admin.navbar.hoverColor')}</Label>
                       <div className="flex gap-2">
                         <Input
                           id="hover-color"

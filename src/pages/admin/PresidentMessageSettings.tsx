@@ -111,7 +111,7 @@ export default function PresidentMessageSettings() {
     onSuccess: (id: number, url: string) => void,
   ) {
     if (!file.type.startsWith('image/')) {
-      toast({ title: 'Invalid file', description: 'Please select an image file.', variant: 'destructive' });
+      toast({ title: t('admin.clubs.toastInvalidFile'), description: t('admin.clubs.toastInvalidFileDesc'), variant: 'destructive' });
       return;
     }
     setUploading(true);
@@ -132,12 +132,12 @@ export default function PresidentMessageSettings() {
       const id: number = typeof data.id === 'number' ? data.id : parseInt(data.id ?? '0', 10);
       if (url) {
         onSuccess(id, url);
-        toast({ title: 'Uploaded', description: 'Image uploaded successfully.' });
+        toast({ title: t('admin.presidentMsg.toastUploaded'), description: t('admin.presidentMsg.toastUploadedDesc') });
       } else {
         throw new Error('No URL returned from server');
       }
     } catch (err: any) {
-      toast({ title: 'Upload failed', description: err?.message ?? 'Unknown error', variant: 'destructive' });
+      toast({ title: t('admin.presidentMsg.toastUploadFailed'), description: err?.message ?? 'Unknown error', variant: 'destructive' });
     } finally {
       setUploading(false);
     }
