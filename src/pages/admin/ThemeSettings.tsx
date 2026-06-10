@@ -127,7 +127,7 @@ export default function ThemeSettings() {
       });
 
       if (response.ok) {
-        toast({ title: 'Success', description: 'Theme settings saved successfully' });
+        toast({ title: t('admin.common.save'), description: t('admin.theme.saveSuccess') });
         // Reload the page to apply new theme
         setTimeout(() => window.location.reload(), 1000);
       } else {
@@ -135,7 +135,7 @@ export default function ThemeSettings() {
       }
     } catch (error) {
       console.error('Error saving theme settings:', error);
-      toast({ title: 'Error', description: 'Failed to save theme settings', variant: 'destructive' });
+      toast({ title: t('admin.common.error'), description: t('admin.theme.saveError'), variant: 'destructive' });
     } finally {
       setIsSaving(false);
     }
@@ -158,7 +158,7 @@ export default function ThemeSettings() {
     setCardBorderRadius('12');
     setButtonBorderRadius('8');
     setCustomCss('');
-    toast({ title: 'Reset', description: 'Theme settings reset to defaults' });
+    toast({ title: t('admin.theme.resetToDefaults') });
   };
 
   if (isLoading) {
@@ -170,7 +170,7 @@ export default function ThemeSettings() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">{t('admin.theme.title')}</h1>
-          <p className="text-muted-foreground mt-1">Customize global colors, fonts, and styling</p>
+          <p className="text-muted-foreground mt-1">{t('admin.theme.subtitle')}</p>
         </div>
         <div className="flex space-x-2">
           <Button variant="outline" onClick={resetToDefaults}>
@@ -206,7 +206,7 @@ export default function ThemeSettings() {
             <CardContent>
               <div className="grid grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <Label htmlFor="primary-color">Primary Color</Label>
+                  <Label htmlFor="primary-color">{t('admin.theme.primaryColor')}</Label>
                   <div className="flex gap-2">
                     <Input
                       id="primary-color"
@@ -221,11 +221,11 @@ export default function ThemeSettings() {
                       placeholder="#112250"
                     />
                   </div>
-                  <p className="text-sm text-muted-foreground">Main brand color for buttons, links, etc.</p>
+                  <p className="text-sm text-muted-foreground">{t('admin.theme.primaryColorDesc')}</p>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="secondary-color">Secondary Color</Label>
+                  <Label htmlFor="secondary-color">{t('admin.theme.secondaryColor')}</Label>
                   <div className="flex gap-2">
                     <Input
                       id="secondary-color"
@@ -240,11 +240,11 @@ export default function ThemeSettings() {
                       placeholder="#D8C18D"
                     />
                   </div>
-                  <p className="text-sm text-muted-foreground">Accent color for highlights, icons</p>
+                  <p className="text-sm text-muted-foreground">{t('admin.theme.secondaryColorDesc')}</p>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="accent-color">Accent Color</Label>
+                  <Label htmlFor="accent-color">{t('admin.theme.accentColor')}</Label>
                   <div className="flex gap-2">
                     <Input
                       id="accent-color"
@@ -259,11 +259,11 @@ export default function ThemeSettings() {
                       placeholder="#E63946"
                     />
                   </div>
-                  <p className="text-sm text-muted-foreground">For CTAs, notifications, alerts</p>
+                  <p className="text-sm text-muted-foreground">{t('admin.theme.accentColorDesc')}</p>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="background-color">Background Color</Label>
+                  <Label htmlFor="background-color">{t('admin.theme.backgroundColor')}</Label>
                   <div className="flex gap-2">
                     <Input
                       id="background-color"
@@ -278,11 +278,11 @@ export default function ThemeSettings() {
                       placeholder="#FFFFFF"
                     />
                   </div>
-                  <p className="text-sm text-muted-foreground">Main page background</p>
+                  <p className="text-sm text-muted-foreground">{t('admin.theme.backgroundColorDesc')}</p>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="text-color">Text Color</Label>
+                  <Label htmlFor="text-color">{t('admin.theme.textColor')}</Label>
                   <div className="flex gap-2">
                     <Input
                       id="text-color"
@@ -297,7 +297,7 @@ export default function ThemeSettings() {
                       placeholder="#1A202C"
                     />
                   </div>
-                  <p className="text-sm text-muted-foreground">Primary text color</p>
+                  <p className="text-sm text-muted-foreground">{t('admin.theme.textColorDesc')}</p>
                 </div>
               </div>
             </CardContent>
@@ -308,14 +308,14 @@ export default function ThemeSettings() {
         <TabsContent value="typography" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Typography</CardTitle>
-              <CardDescription>Configure fonts and text sizes</CardDescription>
+              <CardTitle>{t('admin.theme.tabTypography')}</CardTitle>
+              <CardDescription>{t('admin.theme.typographyDesc')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               {/* Font Families */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Heading Font</Label>
+                  <Label>{t('admin.theme.headingFont')}</Label>
                   <Select value={headingFont} onValueChange={setHeadingFont}>
                     <SelectTrigger>
                       <SelectValue />
@@ -328,7 +328,7 @@ export default function ThemeSettings() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Body Font</Label>
+                  <Label>{t('admin.theme.bodyFont')}</Label>
                   <Select value={bodyFont} onValueChange={setBodyFont}>
                     <SelectTrigger>
                       <SelectValue />
@@ -347,7 +347,7 @@ export default function ThemeSettings() {
                 <h4 className="font-semibold">{t('admin.theme.fontSizes')}</h4>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label>H1 Size</Label>
+                    <Label>{t('admin.theme.h1Size')}</Label>
                     <Select value={h1Size} onValueChange={setH1Size}>
                       <SelectTrigger>
                         <SelectValue />
@@ -360,7 +360,7 @@ export default function ThemeSettings() {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label>H2 Size</Label>
+                    <Label>{t('admin.theme.h2Size')}</Label>
                     <Select value={h2Size} onValueChange={setH2Size}>
                       <SelectTrigger>
                         <SelectValue />
@@ -373,7 +373,7 @@ export default function ThemeSettings() {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label>H3 Size</Label>
+                    <Label>{t('admin.theme.h3Size')}</Label>
                     <Select value={h3Size} onValueChange={setH3Size}>
                       <SelectTrigger>
                         <SelectValue />
@@ -386,7 +386,7 @@ export default function ThemeSettings() {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label>Body Text Size</Label>
+                    <Label>{t('admin.theme.bodySize')}</Label>
                     <Select value={bodySize} onValueChange={setBodySize}>
                       <SelectTrigger>
                         <SelectValue />
@@ -399,7 +399,7 @@ export default function ThemeSettings() {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label>Small Text Size</Label>
+                    <Label>{t('admin.theme.smallSize')}</Label>
                     <Select value={smallSize} onValueChange={setSmallSize}>
                       <SelectTrigger>
                         <SelectValue />
@@ -421,13 +421,13 @@ export default function ThemeSettings() {
         <TabsContent value="spacing" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Spacing & Borders</CardTitle>
-              <CardDescription>Control layout spacing and border radius</CardDescription>
+              <CardTitle>{t('admin.theme.spacingTitle')}</CardTitle>
+              <CardDescription>{t('admin.theme.spacingDesc')}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="section-padding">Section Padding (px)</Label>
+                  <Label htmlFor="section-padding">{t('admin.theme.sectionPadding')}</Label>
                   <Input
                     id="section-padding"
                     type="number"
@@ -438,7 +438,7 @@ export default function ThemeSettings() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="card-radius">Card Border Radius (px)</Label>
+                  <Label htmlFor="card-radius">{t('admin.theme.cardBorderRadius')}</Label>
                   <Input
                     id="card-radius"
                     type="number"
@@ -449,7 +449,7 @@ export default function ThemeSettings() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="button-radius">Button Border Radius (px)</Label>
+                  <Label htmlFor="button-radius">{t('admin.theme.buttonBorderRadius')}</Label>
                   <Input
                     id="button-radius"
                     type="number"
@@ -468,12 +468,12 @@ export default function ThemeSettings() {
         <TabsContent value="custom" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Custom CSS</CardTitle>
-              <CardDescription>Add custom CSS for advanced styling</CardDescription>
+              <CardTitle>{t('admin.theme.customCSSTitle')}</CardTitle>
+              <CardDescription>{t('admin.theme.customCSSDesc')}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                <Label htmlFor="custom-css">Custom CSS Code</Label>
+                <Label htmlFor="custom-css">{t('admin.theme.customCSSCode')}</Label>
                 <Textarea
                   id="custom-css"
                   value={customCss}
@@ -483,7 +483,7 @@ export default function ThemeSettings() {
                   className="font-mono text-sm"
                 />
                 <p className="text-sm text-muted-foreground">
-                  Advanced users only. Invalid CSS may break your site styling.
+                  {t('admin.theme.customCSSWarning')}
                 </p>
               </div>
             </CardContent>

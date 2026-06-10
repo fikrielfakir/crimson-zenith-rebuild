@@ -153,6 +153,7 @@ async function toggleFeatured(id: number): Promise<GalleryItem> {
 
 /* ─── panorama uploader ──────────────────────────────────────────────── */
 function PanoramaUploader({ value, onChange }: { value: string; onChange: (url: string) => void }) {
+  const { t } = useTranslation();
   const [dragging, setDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -160,7 +161,7 @@ function PanoramaUploader({ value, onChange }: { value: string; onChange: (url: 
 
   const handleFile = useCallback(async (file: File) => {
     if (!file.type.startsWith('image/')) {
-      toast({ title: 'Only image files are supported', variant: 'destructive' });
+      toast({ title: t('admin.gallery.toastSaveFailed'), variant: 'destructive' });
       return;
     }
     setUploading(true);
@@ -172,9 +173,9 @@ function PanoramaUploader({ value, onChange }: { value: string; onChange: (url: 
       if (!res.ok) throw new Error('Upload failed');
       const data = await res.json();
       onChange(data.fileUrl || data.url || '');
-      toast({ title: '360° panorama uploaded' });
+      toast({ title: t('admin.gallery.toastCreated') });
     } catch {
-      toast({ title: 'Upload failed', variant: 'destructive' });
+      toast({ title: t('admin.gallery.toastSaveFailed'), variant: 'destructive' });
     } finally {
       setUploading(false);
     }
@@ -190,14 +191,14 @@ function PanoramaUploader({ value, onChange }: { value: string; onChange: (url: 
       <div className="flex items-center gap-2 p-2.5 rounded-lg border bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800">
         <Globe className="h-4 w-4 text-blue-500 shrink-0" />
         <p className="text-xs text-blue-700 dark:text-blue-300">
-          Use an equirectangular (2:1 ratio) image — max 4096×2048px for best performance.
+          {t('admin.gallery.panoramaTip')}
         </p>
       </div>
       {value ? (
         <div className="relative rounded-lg overflow-hidden border bg-muted" style={{ height: 120 }}>
           <img src={value} alt="panorama preview" className="w-full h-full object-cover" style={{ filter: 'brightness(0.75)' }} />
           <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-white font-bold text-sm bg-black/50 px-3 py-1 rounded-full">360° Preview</span>
+            <span className="text-white font-bold text-sm bg-black/50 px-3 py-1 rounded-full">{t('admin.gallery.panoramaPreview')}</span>
           </div>
           <button type="button" onClick={() => onChange('')}
             className="absolute top-2 right-2 bg-destructive text-white rounded-full p-1 hover:opacity-90">
@@ -221,7 +222,7 @@ function PanoramaUploader({ value, onChange }: { value: string; onChange: (url: 
           ) : (
             <>
               <Globe className="h-7 w-7 text-blue-400" />
-              <p className="text-sm text-muted-foreground">Drop 360° equirectangular image here</p>
+              <p className="text-sm text-muted-foreground">{t('admin.gallery.drop360Image')}</p>
             </>
           )}
         </div>
@@ -229,7 +230,7 @@ function PanoramaUploader({ value, onChange }: { value: string; onChange: (url: 
       <input ref={inputRef} type="file" accept="image/*" className="hidden"
         onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f); }} />
       <div className="flex gap-2 items-center">
-        <span className="text-xs text-muted-foreground">Or paste URL:</span>
+        <span className="text-xs text-muted-foreground">{t('admin.gallery.orPasteUrl')}</span>
         <Input placeholder="https://…" value={value} onChange={e => onChange(e.target.value)} className="flex-1 h-8 text-sm" />
       </div>
     </div>
@@ -238,6 +239,7 @@ function PanoramaUploader({ value, onChange }: { value: string; onChange: (url: 
 
 /* ─── image uploader ─────────────────────────────────────────────────── */
 function ImageUploader({ value, onChange }: { value: string; onChange: (url: string) => void }) {
+  const { t } = useTranslation();
   const [dragging, setDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -245,7 +247,7 @@ function ImageUploader({ value, onChange }: { value: string; onChange: (url: str
 
   const handleFile = useCallback(async (file: File) => {
     if (!file.type.startsWith('image/')) {
-      toast({ title: 'Only image files are supported', variant: 'destructive' });
+      toast({ title: t('admin.gallery.toastSaveFailed'), variant: 'destructive' });
       return;
     }
     setUploading(true);
@@ -261,9 +263,9 @@ function ImageUploader({ value, onChange }: { value: string; onChange: (url: str
       if (!res.ok) throw new Error('Upload failed');
       const data = await res.json();
       onChange(data.fileUrl || data.url || '');
-      toast({ title: 'Image uploaded successfully' });
+      toast({ title: t('admin.gallery.toastUpdated') });
     } catch {
-      toast({ title: 'Upload failed', variant: 'destructive' });
+      toast({ title: t('admin.gallery.toastSaveFailed'), variant: 'destructive' });
     } finally {
       setUploading(false);
     }
@@ -306,7 +308,7 @@ function ImageUploader({ value, onChange }: { value: string; onChange: (url: str
           ) : (
             <>
               <CloudUpload className="h-8 w-8 text-muted-foreground" />
-              <p className="text-sm text-muted-foreground">Drop image here or click to browse</p>
+              <p className="text-sm text-muted-foreground">{t('admin.gallery.dropImageHint')}</p>
             </>
           )}
         </div>
@@ -314,7 +316,7 @@ function ImageUploader({ value, onChange }: { value: string; onChange: (url: str
       <input ref={inputRef} type="file" accept="image/*" className="hidden"
         onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f); }} />
       <div className="flex gap-2 items-center">
-        <span className="text-xs text-muted-foreground">Or paste URL:</span>
+        <span className="text-xs text-muted-foreground">{t('admin.gallery.orPasteUrl')}</span>
         <Input
           placeholder="https://..."
           value={value}
@@ -435,7 +437,7 @@ function ItemFormDialog({
               <Input
                 value={form.title}
                 onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
-                placeholder="High Atlas Mountains"
+                placeholder={t('admin.gallery.titlePlaceholder')}
               />
             </div>
 
@@ -444,7 +446,7 @@ function ItemFormDialog({
               <Input
                 value={form.location}
                 onChange={e => setForm(f => ({ ...f, location: e.target.value }))}
-                placeholder="Imlil, Morocco"
+                placeholder={t('admin.gallery.locationPlaceholder')}
               />
             </div>
 
@@ -465,7 +467,7 @@ function ItemFormDialog({
               <Input
                 value={form.photographer}
                 onChange={e => setForm(f => ({ ...f, photographer: e.target.value }))}
-                placeholder="Ahmed K."
+                placeholder={t('admin.gallery.photographerPlaceholder')}
               />
             </div>
 
@@ -486,7 +488,7 @@ function ItemFormDialog({
             <Textarea
               value={form.description}
               onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
-              placeholder="A brief description of this photo..."
+              placeholder={t('admin.gallery.descriptionPlaceholder')}
               rows={3}
             />
           </div>
@@ -513,7 +515,7 @@ function ItemFormDialog({
               <div className="space-y-1.5 pt-1">
                 <Label className="flex items-center gap-1.5">
                   <Globe className="h-3.5 w-3.5 text-blue-500" />
-                  360° Equirectangular Image
+                  {t('admin.gallery.equirectangularLabel')}
                 </Label>
                 <PanoramaUploader
                   value={form.panorama_url}
@@ -579,7 +581,7 @@ function PreviewDialog({ item, onClose }: { item: GalleryItem | null; onClose: (
               )}
               {item.is_featured && !show360 && (
                 <Badge className="absolute top-3 left-3 bg-yellow-500 text-black">
-                  <Star className="h-3 w-3 mr-1" /> Featured
+                  <Star className="h-3 w-3 mr-1" /> {t('admin.gallery.featured')}
                 </Badge>
               )}
               {item.has_360 && item.panorama_url && (
@@ -593,7 +595,7 @@ function PreviewDialog({ item, onClose }: { item: GalleryItem | null; onClose: (
                   )}
                 >
                   <Globe className="h-3.5 w-3.5" />
-                  {show360 ? 'View Photo' : 'View 360°'}
+                  {show360 ? t('admin.gallery.viewPhoto') : t('admin.gallery.view360')}
                 </button>
               )}
             </div>
@@ -649,16 +651,16 @@ export default function GalleryManagement() {
     mutationFn: deleteItem,
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['admin-gallery'] });
-      toast({ title: 'Item deleted' });
+      toast({ title: t('admin.gallery.toastDeleted') });
       setDeleteId(null);
     },
-    onError: () => toast({ title: 'Failed to delete', variant: 'destructive' }),
+    onError: () => toast({ title: t('admin.gallery.toastDeleteFailed'), variant: 'destructive' }),
   });
 
   const featuredMut = useMutation({
     mutationFn: toggleFeatured,
     onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-gallery'] }),
-    onError: () => toast({ title: 'Failed to toggle featured', variant: 'destructive' }),
+    onError: () => toast({ title: t('admin.gallery.toastSaveFailed'), variant: 'destructive' }),
   });
 
   const items         = data?.items ?? [];
@@ -676,24 +678,24 @@ export default function GalleryManagement() {
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
             <Images className="h-6 w-6 text-primary" />
-            Gallery Management
+            {t('admin.gallery.title')}
           </h1>
           <p className="text-muted-foreground text-sm mt-0.5">
-            Manage images that appear in the public gallery
+            {t('admin.gallery.subtitle')}
           </p>
         </div>
         <Button onClick={openAdd} className="gap-2">
-          <Plus className="h-4 w-4" /> Add Image
+          <Plus className="h-4 w-4" /> {t('admin.gallery.addImage')}
         </Button>
       </div>
 
       {/* ── stats row ── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
         {[
-          { label: 'Total Images', value: total,              icon: ImageIcon, color: 'text-blue-500' },
-          { label: 'Featured',     value: featuredCount,      icon: Star,      color: 'text-yellow-500' },
-          { label: '360° Views',   value: count360,           icon: Globe,     color: 'text-cyan-500' },
-          { label: 'Categories',   value: CATEGORIES.length - 1, icon: Tag,   color: 'text-purple-500' },
+          { label: t('admin.gallery.statTotal'),      value: total,              icon: ImageIcon, color: 'text-blue-500' },
+          { label: t('admin.gallery.statFeatured'),   value: featuredCount,      icon: Star,      color: 'text-yellow-500' },
+          { label: t('admin.gallery.stat360'),        value: count360,           icon: Globe,     color: 'text-cyan-500' },
+          { label: t('admin.gallery.statCategories'), value: CATEGORIES.length - 1, icon: Tag,   color: 'text-purple-500' },
         ].map(s => (
           <Card key={s.label}>
             <CardContent className="pt-5 pb-4 flex items-center gap-3">
@@ -806,7 +808,7 @@ export default function GalleryManagement() {
 
                 {item.is_featured && (
                   <Badge className="absolute top-2 left-2 bg-yellow-500 text-black text-xs px-1.5 py-0.5">
-                    <Star className="h-3 w-3 mr-0.5" /> Featured
+                    <Star className="h-3 w-3 mr-0.5" /> {t('admin.gallery.featured')}
                   </Badge>
                 )}
 
@@ -819,7 +821,7 @@ export default function GalleryManagement() {
                 <button
                   onClick={() => featuredMut.mutate(item.id)}
                   className="absolute top-2 right-2 p-1 rounded-full bg-black/40 text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/60"
-                  title={item.is_featured ? 'Remove featured' : 'Mark as featured'}
+                  title={item.is_featured ? t('admin.gallery.removeFeatured') : t('admin.gallery.markFeatured')}
                 >
                   {item.is_featured
                     ? <StarOff className="h-3.5 w-3.5" />
@@ -874,7 +876,7 @@ export default function GalleryManagement() {
                   <div className="flex items-center gap-2">
                     <p className="font-medium text-sm truncate">{item.title}</p>
                     {item.is_featured && (
-                      <Badge className="bg-yellow-500 text-black text-xs shrink-0">Featured</Badge>
+                      <Badge className="bg-yellow-500 text-black text-xs shrink-0">{t('admin.gallery.featured')}</Badge>
                     )}
                     {item.has_360 && (
                       <Badge className="bg-gradient-to-r from-blue-600 to-cyan-500 text-white text-xs shrink-0 gap-1">
@@ -904,7 +906,7 @@ export default function GalleryManagement() {
                     variant="ghost"
                     className="h-8 w-8"
                     onClick={() => featuredMut.mutate(item.id)}
-                    title={item.is_featured ? 'Remove featured' : 'Mark as featured'}
+                    title={item.is_featured ? t('admin.gallery.removeFeatured') : t('admin.gallery.markFeatured')}
                   >
                     {item.is_featured
                       ? <StarOff className="h-4 w-4 text-yellow-500" />
