@@ -512,7 +512,7 @@ export default function UserManagement() {
                   )} />
                 </div>
                 <FormField control={form.control} name="username" render={({ field }) => (
-                  <FormItem><FormLabel>{t('admin.users.form.username')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>{t('admin.users.form.username')}</FormLabel><FormControl><Input {...field} autoComplete="off" /></FormControl><FormMessage /></FormItem>
                 )} />
                 <FormField control={form.control} name="email" render={({ field }) => (
                   <FormItem><FormLabel>{t('admin.users.form.email')}</FormLabel><FormControl><Input type="email" {...field} /></FormControl><FormMessage /></FormItem>
