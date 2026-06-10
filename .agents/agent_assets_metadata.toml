@@ -11,9 +11,3 @@ id = "rpnyx2PPe9IF2jNQ7V-oa"
 uri = "file://untranslated-strings-report.md"
 type = "text"
 title = "Untranslated Strings Report — src/pages/admin"
-
-[[outputs]]
-id = "Y_tEJ9oiyx7AT6yxJ6IVX"
-uri = "file://thejourney-hostinger.zip"
-type = "unspecified"
-title = "thejourney-hostinger.zip — Production build for Hostinger"
