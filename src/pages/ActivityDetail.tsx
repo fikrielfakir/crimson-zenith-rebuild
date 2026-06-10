@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from "react-i18next";
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -149,6 +150,7 @@ function mapApiToActivity(e: any): ActivityData {
 
 /* ── Component ───────────────────────────────────────────────────── */
 const ActivityDetail = () => {
+  const { t } = useTranslation();
   const { activityName } = useParams();
   const navigate = useNavigate();
   const [isBookmarked, setIsBookmarked] = useState(false);
@@ -259,9 +261,9 @@ const ActivityDetail = () => {
       <div className="min-h-screen bg-background">
         <Header />
         <div className="container mx-auto px-4 py-20 text-center">
-          <h1 className="text-3xl font-bold mb-4">Activity Not Found</h1>
-          <p className="text-muted-foreground mb-8">The activity you're looking for doesn't exist.</p>
-          <Button onClick={() => navigate('/discover')}>Browse All Activities</Button>
+          <h1 className="text-3xl font-bold mb-4">{t('common.activityNotFound', 'Activity Not Found')}</h1>
+          <p className="text-muted-foreground mb-8">{t('common.activityNotFoundDesc', "The activity you're looking for doesn't exist.")}</p>
+          <Button onClick={() => navigate('/discover')}>{t('common.browseAllActivities')}</Button>
         </div>
         <Footer />
       </div>
@@ -512,10 +514,10 @@ const ActivityDetail = () => {
                       </Button>
                     </Link>
                     <Button variant="outline" className="w-full" size="lg">
-                      <Camera className="w-4 h-4 mr-2" />View Photos
+                      <Camera className="w-4 h-4 mr-2" />{t('common.viewPhotos', 'View Photos')}
                     </Button>
                     <Link to="/contact">
-                      <Button variant="outline" className="w-full" size="lg">Ask Questions</Button>
+                      <Button variant="outline" className="w-full" size="lg">{t('common.askQuestions')}</Button>
                     </Link>
                   </div>
                 </CardContent>

@@ -132,7 +132,7 @@ function SortableNavLink({
       <div className="flex-1 space-y-3">
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-2">
-            <Label>Label</Label>
+            <Label>{t('admin.navbar.fieldLabel', 'Label')}</Label>
             <div className="flex gap-2 items-start">
               <Input
                 value={link.label}
@@ -150,7 +150,7 @@ function SortableNavLink({
             </div>
           </div>
           <div className="space-y-2">
-            <Label>URL</Label>
+            <Label>{t('admin.navbar.fieldUrl', 'URL')}</Label>
             <Input
               value={link.url}
               onChange={(e) => onUpdate(index, 'url', e.target.value)}
@@ -162,14 +162,14 @@ function SortableNavLink({
               checked={link.isExternal || false}
               onCheckedChange={(checked) => onUpdate(index, 'isExternal', checked)}
             />
-            <Label>External Link</Label>
+            <Label>{t('admin.navbar.fieldExternal', 'External Link')}</Label>
           </div>
           <div className="flex items-center space-x-2">
             <Switch
               checked={link.hasDropdown || false}
               onCheckedChange={(checked) => onUpdate(index, 'hasDropdown', checked)}
             />
-            <Label>Has Dropdown</Label>
+            <Label>{t('admin.navbar.fieldDropdown', 'Has Dropdown')}</Label>
           </div>
         </div>
 
@@ -352,7 +352,7 @@ function MediaLibraryDialog({ onSelectMedia }: { onSelectMedia: (mediaId: number
   return (
     <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
       <DialogHeader>
-        <DialogTitle>Select Logo from Media Library</DialogTitle>
+        <DialogTitle>{t('admin.navbar.selectLogoTitle', 'Select Logo from Media Library')}</DialogTitle>
         <DialogDescription>Choose an image from your media library to use as the logo</DialogDescription>
       </DialogHeader>
       {isLoading ? (
@@ -650,21 +650,21 @@ export default function NavbarSettings() {
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-2">
-                  <Label>Logo Type</Label>
+                  <Label>{t('admin.navbar.logoType', 'Logo Type')}</Label>
                   <Select value={logoType} onValueChange={(value: 'image' | 'text') => setLogoType(value)}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="image">Image Logo</SelectItem>
-                      <SelectItem value="text">Text Logo</SelectItem>
+                      <SelectItem value="image">{t('admin.navbar.logoImage', 'Image Logo')}</SelectItem>
+                      <SelectItem value="text">{t('admin.navbar.logoText', 'Text Logo')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 {logoType === 'image' ? (
                   <div className="space-y-4">
-                    <Label>Logo Image</Label>
+                    <Label>{t('admin.navbar.logoImageLabel', 'Logo Image')}</Label>
                     {logoImageUrl && (
                       <div className="border rounded-lg p-4 bg-muted/30 flex items-center justify-center">
                         <img src={logoImageUrl} alt="Logo preview" className="h-20 object-contain" />
@@ -685,7 +685,7 @@ export default function NavbarSettings() {
                   </div>
                 ) : (
                   <div className="space-y-2">
-                    <Label htmlFor="logo-text">Logo Text</Label>
+                    <Label htmlFor="logo-text">{t('admin.navbar.logoTextLabel', 'Logo Text')}</Label>
                     <Input
                       id="logo-text"
                       value={logoText}
@@ -697,7 +697,7 @@ export default function NavbarSettings() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="logo-size">Logo Size (px)</Label>
+                    <Label htmlFor="logo-size">{t('admin.navbar.logoSize', 'Logo Size (px)')}</Label>
                     <Input
                       id="logo-size"
                       type="number"
@@ -708,7 +708,7 @@ export default function NavbarSettings() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="logo-link">Logo Link</Label>
+                    <Label htmlFor="logo-link">{t('admin.navbar.logoLink', 'Logo Link')}</Label>
                     <div className="flex gap-2">
                       <LinkIcon className="w-4 h-4 mt-2.5 text-muted-foreground" />
                       <Input
@@ -771,12 +771,12 @@ export default function NavbarSettings() {
                 <div className="space-y-4 border-b pb-6">
                   <div className="flex items-center space-x-2">
                     <Switch checked={showLoginButton} onCheckedChange={setShowLoginButton} />
-                    <Label>Show Login Button</Label>
+                    <Label>{t('admin.navbar.showLoginBtn', 'Show Login Button')}</Label>
                   </div>
                   {showLoginButton && (
                     <div className="grid grid-cols-2 gap-4 pl-6">
                       <div className="space-y-2">
-                        <Label>Button Text</Label>
+                        <Label>{t('admin.cities.buttonText', 'Button Text')}</Label>
                         <div className="flex gap-2 items-start">
                           <Input value={loginButtonText} onChange={(e) => setLoginButtonText(e.target.value)} className="flex-1" />
                           <TranslateDialog
@@ -789,7 +789,7 @@ export default function NavbarSettings() {
                         </div>
                       </div>
                       <div className="space-y-2">
-                        <Label>Button Link</Label>
+                        <Label>{t('admin.cities.buttonLink', 'Button Link')}</Label>
                         <Input value={loginButtonLink} onChange={(e) => setLoginButtonLink(e.target.value)} />
                       </div>
                     </div>
@@ -799,12 +799,12 @@ export default function NavbarSettings() {
                 <div className="space-y-4">
                   <div className="flex items-center space-x-2">
                     <Switch checked={showJoinButton} onCheckedChange={setShowJoinButton} />
-                    <Label>Show Join/Donate Button</Label>
+                    <Label>{t('admin.navbar.showJoinBtn', 'Show Join/Donate Button')}</Label>
                   </div>
                   {showJoinButton && (
                     <div className="grid grid-cols-2 gap-4 pl-6">
                       <div className="space-y-2">
-                        <Label>Button Text</Label>
+                        <Label>{t('admin.cities.buttonText', 'Button Text')}</Label>
                         <div className="flex gap-2 items-start">
                           <Input value={joinButtonText} onChange={(e) => setJoinButtonText(e.target.value)} className="flex-1" />
                           <TranslateDialog
@@ -817,20 +817,20 @@ export default function NavbarSettings() {
                         </div>
                       </div>
                       <div className="space-y-2">
-                        <Label>Button Link</Label>
+                        <Label>{t('admin.cities.buttonLink', 'Button Link')}</Label>
                         <Input value={joinButtonLink} onChange={(e) => setJoinButtonLink(e.target.value)} />
                       </div>
                       <div className="space-y-2">
-                        <Label>Button Style</Label>
+                        <Label>{t('admin.navbar.buttonStyle', 'Button Style')}</Label>
                         <Select value={joinButtonStyle} onValueChange={setJoinButtonStyle}>
                           <SelectTrigger>
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="primary">Primary</SelectItem>
-                            <SelectItem value="secondary">Secondary</SelectItem>
-                            <SelectItem value="outline">Outline</SelectItem>
-                            <SelectItem value="destructive">Destructive</SelectItem>
+                            <SelectItem value="primary">{t('admin.navbar.stylePrimary', 'Primary')}</SelectItem>
+                            <SelectItem value="secondary">{t('admin.navbar.styleSecondary', 'Secondary')}</SelectItem>
+                            <SelectItem value="outline">{t('admin.navbar.styleOutline', 'Outline')}</SelectItem>
+                            <SelectItem value="destructive">{t('admin.navbar.styleDestructive', 'Destructive')}</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -852,11 +852,11 @@ export default function NavbarSettings() {
                 <div className="space-y-4">
                   <div className="flex items-center space-x-2">
                     <Switch checked={showLanguageSwitcher} onCheckedChange={setShowLanguageSwitcher} />
-                    <Label>Show Language Switcher</Label>
+                    <Label>{t('admin.navbar.showLangSwitcher', 'Show Language Switcher')}</Label>
                   </div>
                   {showLanguageSwitcher && (
                     <div className="space-y-2 pl-6">
-                      <Label>Available Languages (comma-separated)</Label>
+                      <Label>{t('admin.navbar.availableLanguages', 'Available Languages (comma-separated)')}</Label>
                       <Input
                         value={availableLanguages.join(', ')}
                         onChange={(e) => setAvailableLanguages(e.target.value.split(',').map(l => l.trim()))}
@@ -868,7 +868,7 @@ export default function NavbarSettings() {
 
                 <div className="flex items-center space-x-2">
                   <Switch checked={showDarkModeToggle} onCheckedChange={setShowDarkModeToggle} />
-                  <Label>Show Dark Mode Toggle</Label>
+                  <Label>{t('admin.navbar.showDarkMode', 'Show Dark Mode Toggle')}</Label>
                 </div>
               </CardContent>
             </Card>
@@ -943,7 +943,7 @@ export default function NavbarSettings() {
                   <h3 className="font-semibold">Typography</h3>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label>Font Family</Label>
+                      <Label>{t('admin.navbar.fontFamily', 'Font Family')}</Label>
                       <Select value={fontFamily} onValueChange={setFontFamily}>
                         <SelectTrigger>
                           <SelectValue />
@@ -956,7 +956,7 @@ export default function NavbarSettings() {
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label>Font Size</Label>
+                      <Label>{t('admin.navbar.fontSize', 'Font Size')}</Label>
                       <Select value={fontSize} onValueChange={setFontSize}>
                         <SelectTrigger>
                           <SelectValue />
@@ -988,16 +988,16 @@ export default function NavbarSettings() {
                     </div>
                     <div className="flex items-center space-x-2">
                       <Switch checked={isSticky} onCheckedChange={setIsSticky} />
-                      <Label>Sticky Navbar (stays at top when scrolling)</Label>
+                      <Label>{t('admin.navbar.stickyNavbar', 'Sticky Navbar (stays at top when scrolling)')}</Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <Switch checked={isTransparent} onCheckedChange={setIsTransparent} />
-                      <Label>Transparent Background (before scroll)</Label>
+                      <Label>{t('admin.navbar.transparentBg', 'Transparent Background (before scroll)')}</Label>
                     </div>
                     {isTransparent && (
                       <div className="grid grid-cols-2 gap-4 pl-6">
                         <div className="space-y-2">
-                          <Label>Transparent Background</Label>
+                          <Label>{t('admin.navbar.transparentBgLabel', 'Transparent Background')}</Label>
                           <Input
                             value={transparentBg}
                             onChange={(e) => setTransparentBg(e.target.value)}
@@ -1005,7 +1005,7 @@ export default function NavbarSettings() {
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label>Scrolled Background</Label>
+                          <Label>{t('admin.navbar.scrolledBg', 'Scrolled Background')}</Label>
                           <Input
                             value={scrolledBg}
                             onChange={(e) => setScrolledBg(e.target.value)}

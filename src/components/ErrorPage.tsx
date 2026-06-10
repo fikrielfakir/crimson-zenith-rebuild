@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 
 interface ErrorPageProps {
   code: string;
@@ -11,6 +12,7 @@ interface ErrorPageProps {
 
 const ErrorPage = ({ code, title, description, example }: ErrorPageProps) => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   useEffect(() => {
     console.error(`${code} Error: ${title} - ${description}`);
@@ -21,7 +23,7 @@ const ErrorPage = ({ code, title, description, example }: ErrorPageProps) => {
       <div className="max-w-2xl text-center space-y-6">
         <div className="space-y-2">
           <h1 className="text-8xl font-bold text-gray-900 animate-pulse">{code}</h1>
-          <h2 className="text-3xl font-semibold text-gray-800">{title}</h2>
+          <h2 className="text-3xl font-semibold text-gray-800">{t(`errors.${code}`, { defaultValue: title })}</h2>
         </div>
         
         <div className="space-y-3">
@@ -41,13 +43,13 @@ const ErrorPage = ({ code, title, description, example }: ErrorPageProps) => {
             variant="outline"
             className="px-6"
           >
-            Go Back
+            {t('errors.goBack', 'Go Back')}
           </Button>
           <Button 
             onClick={() => navigate('/')}
             className="px-6"
           >
-            Return to Home
+            {t('errors.returnHome', 'Return to Home')}
           </Button>
         </div>
       </div>

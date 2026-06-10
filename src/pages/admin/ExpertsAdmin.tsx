@@ -216,9 +216,9 @@ export default function ExpertsAdmin() {
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All statuses</SelectItem>
-                <SelectItem value="published">Published</SelectItem>
-                <SelectItem value="draft">Draft</SelectItem>
+                <SelectItem value="all">{t('admin.common.allStatuses', 'All statuses')}</SelectItem>
+                <SelectItem value="published">{t('admin.common.published')}</SelectItem>
+                <SelectItem value="draft">{t('admin.common.draft')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -299,41 +299,41 @@ export default function ExpertsAdmin() {
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>{editing ? 'Edit Expert' : 'New Expert'}</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{editing ? t('admin.experts.dialogEdit') : t('admin.experts.dialogNew')}</DialogTitle></DialogHeader>
           <div className="space-y-4 mt-2">
             <div className="flex items-start gap-6">
               <div className="space-y-1.5">
-                <Label>Profile Photo</Label>
+                <Label>{t('admin.experts.fieldProfilePhoto')}</Label>
                 <ImageUploader value={form.image} onChange={url => setForm(f => ({ ...f, image: url }))} />
               </div>
               <div className="flex-1 space-y-4 mt-0.5">
-                <div className="space-y-1.5"><Label>Name *</Label><Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Amina Benali" /></div>
+                <div className="space-y-1.5"><Label>{t('admin.experts.fieldName')} *</Label><Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Amina Benali" /></div>
                 <div className="space-y-1.5"><Label>{t('admin.experts.colTitle')}</Label><Input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="Mountain Guide & Ecologist" /></div>
                 <div className="space-y-1.5"><Label>{t('admin.experts.colLocation')}</Label><Input value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} placeholder="Agadir" /></div>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1.5"><Label>Contact Email</Label><Input type="email" value={form.contact_email} onChange={e => setForm(f => ({ ...f, contact_email: e.target.value }))} placeholder="expert@example.com" /></div>
-              <div className="space-y-1.5"><Label>LinkedIn URL</Label><Input value={form.linkedin_url} onChange={e => setForm(f => ({ ...f, linkedin_url: e.target.value }))} placeholder="https://linkedin.com/in/username" /></div>
-              <div className="space-y-1.5"><Label>Rating (0–5)</Label><Input type="number" min={0} max={5} step={0.1} value={form.rating} onChange={e => setForm(f => ({ ...f, rating: +e.target.value }))} /></div>
+              <div className="space-y-1.5"><Label>{t('admin.experts.fieldContactEmail')}</Label><Input type="email" value={form.contact_email} onChange={e => setForm(f => ({ ...f, contact_email: e.target.value }))} placeholder="expert@example.com" /></div>
+              <div className="space-y-1.5"><Label>{t('admin.experts.fieldLinkedIn')}</Label><Input value={form.linkedin_url} onChange={e => setForm(f => ({ ...f, linkedin_url: e.target.value }))} placeholder="https://linkedin.com/in/username" /></div>
+              <div className="space-y-1.5"><Label>{t('admin.experts.fieldRating')}</Label><Input type="number" min={0} max={5} step={0.1} value={form.rating} onChange={e => setForm(f => ({ ...f, rating: +e.target.value }))} /></div>
               <div className="space-y-1.5"><Label>{t('admin.experts.colProjects')}</Label><Input type="number" min={0} value={form.projects_count} onChange={e => setForm(f => ({ ...f, projects_count: +e.target.value }))} /></div>
-              <div className="space-y-1.5"><Label>Years Experience</Label><Input type="number" min={0} value={form.years_experience} onChange={e => setForm(f => ({ ...f, years_experience: +e.target.value }))} /></div>
+              <div className="space-y-1.5"><Label>{t('admin.experts.fieldYearsExp')}</Label><Input type="number" min={0} value={form.years_experience} onChange={e => setForm(f => ({ ...f, years_experience: +e.target.value }))} /></div>
               <div className="space-y-1.5">
                 <Label>{t('admin.common.status')}</Label>
                 <Select value={form.status} onValueChange={v => setForm(f => ({ ...f, status: v as any }))}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent><SelectItem value="draft">Draft</SelectItem><SelectItem value="published">Published</SelectItem></SelectContent>
+                  <SelectContent><SelectItem value="draft">{t('admin.common.draft')}</SelectItem><SelectItem value="published">{t('admin.common.published')}</SelectItem></SelectContent>
                 </Select>
               </div>
-              <div className="space-y-1.5"><Label>Expertise (comma-separated)</Label><Input value={form.expertise} onChange={e => setForm(f => ({ ...f, expertise: e.target.value }))} placeholder="Ecology, Trekking, Photography" /></div>
-              <div className="space-y-1.5"><Label>Languages (comma-separated)</Label><Input value={form.languages} onChange={e => setForm(f => ({ ...f, languages: e.target.value }))} placeholder="Arabic, French, English" /></div>
+              <div className="space-y-1.5"><Label>{t('admin.experts.fieldExpertise')}</Label><Input value={form.expertise} onChange={e => setForm(f => ({ ...f, expertise: e.target.value }))} placeholder="Ecology, Trekking, Photography" /></div>
+              <div className="space-y-1.5"><Label>{t('admin.experts.fieldLanguages')}</Label><Input value={form.languages} onChange={e => setForm(f => ({ ...f, languages: e.target.value }))} placeholder="Arabic, French, English" /></div>
               <div className="col-span-2 flex items-center gap-3">
                 <Switch checked={form.is_available} onCheckedChange={v => setForm(f => ({ ...f, is_available: v }))} />
-                <Label>Available for projects</Label>
+                <Label>{t('admin.experts.fieldAvailable')}</Label>
               </div>
-              <div className="col-span-2 space-y-1.5"><Label>Bio</Label><Textarea rows={3} value={form.bio} onChange={e => setForm(f => ({ ...f, bio: e.target.value }))} placeholder="Short biography…" /></div>
-              <div className="col-span-2 space-y-1.5"><Label>Achievements (one per line)</Label><Textarea rows={3} value={form.achievements} onChange={e => setForm(f => ({ ...f, achievements: e.target.value }))} /></div>
-              <div className="col-span-2 space-y-1.5"><Label>Certifications (one per line)</Label><Textarea rows={3} value={form.certifications} onChange={e => setForm(f => ({ ...f, certifications: e.target.value }))} /></div>
+              <div className="col-span-2 space-y-1.5"><Label>{t('admin.experts.fieldBio')}</Label><Textarea rows={3} value={form.bio} onChange={e => setForm(f => ({ ...f, bio: e.target.value }))} placeholder="Short biography…" /></div>
+              <div className="col-span-2 space-y-1.5"><Label>{t('admin.experts.fieldAchievements')}</Label><Textarea rows={3} value={form.achievements} onChange={e => setForm(f => ({ ...f, achievements: e.target.value }))} /></div>
+              <div className="col-span-2 space-y-1.5"><Label>{t('admin.experts.fieldCertifications')}</Label><Textarea rows={3} value={form.certifications} onChange={e => setForm(f => ({ ...f, certifications: e.target.value }))} /></div>
             </div>
             <div className="flex justify-end gap-2 pt-2">
               <Button variant="outline" onClick={() => setDialogOpen(false)}>{t('admin.common.cancel')}</Button>

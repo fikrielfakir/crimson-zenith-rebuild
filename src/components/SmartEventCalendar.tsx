@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,6 +46,7 @@ interface SmartFilters {
 }
 
 const SmartEventCalendar = () => {
+  const { t } = useTranslation();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [events, setEvents] = useState<SmartEvent[]>([]);
   const [clubs, setClubs] = useState<any[]>([]);
@@ -397,7 +399,7 @@ const SmartEventCalendar = () => {
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
             <div className="space-y-2">
-              <Label>Search Events</Label>
+              <Label>{t('events.searchEvents', 'Search Events')}</Label>
               <div className="relative">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input 
@@ -410,13 +412,13 @@ const SmartEventCalendar = () => {
             </div>
             
             <div className="space-y-2">
-              <Label>Category</Label>
+              <Label>{t('events.category', 'Category')}</Label>
               <Select value={filters.category} onValueChange={(value) => updateFilter('category', value)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Categories</SelectItem>
+                  <SelectItem value="all">{t('events.allCategories', 'All Categories')}</SelectItem>
                   <SelectItem value="Trekking">Trekking</SelectItem>
                   <SelectItem value="Photography">Photography</SelectItem>
                   <SelectItem value="Water Sports">Water Sports</SelectItem>
@@ -428,38 +430,38 @@ const SmartEventCalendar = () => {
             </div>
             
             <div className="space-y-2">
-              <Label>Time Range</Label>
+              <Label>{t('events.timeRange', 'Time Range')}</Label>
               <Select value={filters.dateRange} onValueChange={(value) => updateFilter('dateRange', value)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Events</SelectItem>
-                  <SelectItem value="upcoming">Upcoming Only</SelectItem>
-                  <SelectItem value="today">Today</SelectItem>
-                  <SelectItem value="week">This Week</SelectItem>
-                  <SelectItem value="month">This Month</SelectItem>
+                  <SelectItem value="all">{t('events.allEvents', 'All Events')}</SelectItem>
+                  <SelectItem value="upcoming">{t('events.upcomingOnly', 'Upcoming Only')}</SelectItem>
+                  <SelectItem value="today">{t('events.today', 'Today')}</SelectItem>
+                  <SelectItem value="week">{t('events.thisWeek', 'This Week')}</SelectItem>
+                  <SelectItem value="month">{t('events.thisMonth', 'This Month')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             
             <div className="space-y-2">
-              <Label>Availability</Label>
+              <Label>{t('events.availability', 'Availability')}</Label>
               <Select value={filters.capacity} onValueChange={(value) => updateFilter('capacity', value)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Events</SelectItem>
-                  <SelectItem value="available">Available Spots</SelectItem>
-                  <SelectItem value="filling">Filling Fast</SelectItem>
-                  <SelectItem value="full">Full Events</SelectItem>
+                  <SelectItem value="all">{t('events.allEvents', 'All Events')}</SelectItem>
+                  <SelectItem value="available">{t('events.availableSpots', 'Available Spots')}</SelectItem>
+                  <SelectItem value="filling">{t('events.fillingFast', 'Filling Fast')}</SelectItem>
+                  <SelectItem value="full">{t('events.fullEvents', 'Full Events')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             
             <div className="space-y-2">
-              <Label>Smart Options</Label>
+              <Label>{t('events.smartOptions', 'Smart Options')}</Label>
               <div className="flex flex-col gap-2">
                 <Button
                   variant={filters.smartSort ? "default" : "outline"}

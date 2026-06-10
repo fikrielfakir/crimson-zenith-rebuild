@@ -554,7 +554,7 @@ export default function PresidentMessageSettings() {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label>Font Family</Label>
+                  <Label>{t('admin.presidentMsg.fontFamily', 'Font Family')}</Label>
                   <Select value={titleFontFamily} onValueChange={setTitleFontFamily}>
                     <SelectTrigger>
                       <SelectValue />
@@ -567,7 +567,7 @@ export default function PresidentMessageSettings() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Font Size</Label>
+                  <Label>{t('admin.presidentMsg.fontSize', 'Font Size')}</Label>
                   <Select value={titleFontSize} onValueChange={setTitleFontSize}>
                     <SelectTrigger>
                       <SelectValue />
@@ -580,7 +580,7 @@ export default function PresidentMessageSettings() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Text Color</Label>
+                  <Label>{t('admin.presidentMsg.textColor', 'Text Color')}</Label>
                   <div className="flex gap-2">
                     <Input
                       type="color"
@@ -622,7 +622,7 @@ export default function PresidentMessageSettings() {
                 <h4 className="font-medium">President Name</h4>
                 <div className="grid grid-cols-3 gap-4">
                   <div className="space-y-2">
-                    <Label>Font Family</Label>
+                    <Label>{t('admin.presidentMsg.fontFamily', 'Font Family')}</Label>
                     <Select value={nameFontFamily} onValueChange={setNameFontFamily}>
                       <SelectTrigger>
                         <SelectValue />
@@ -635,7 +635,7 @@ export default function PresidentMessageSettings() {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label>Font Size</Label>
+                    <Label>{t('admin.presidentMsg.fontSize', 'Font Size')}</Label>
                     <Select value={nameFontSize} onValueChange={setNameFontSize}>
                       <SelectTrigger>
                         <SelectValue />
@@ -648,7 +648,7 @@ export default function PresidentMessageSettings() {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label>Text Color</Label>
+                    <Label>{t('admin.presidentMsg.textColor', 'Text Color')}</Label>
                     <div className="flex gap-2">
                       <Input
                         type="color"
@@ -670,7 +670,7 @@ export default function PresidentMessageSettings() {
                 <h4 className="font-medium">President Role</h4>
                 <div className="grid grid-cols-3 gap-4">
                   <div className="space-y-2">
-                    <Label>Font Family</Label>
+                    <Label>{t('admin.presidentMsg.fontFamily', 'Font Family')}</Label>
                     <Select value={roleFontFamily} onValueChange={setRoleFontFamily}>
                       <SelectTrigger>
                         <SelectValue />
@@ -683,7 +683,7 @@ export default function PresidentMessageSettings() {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label>Font Size</Label>
+                    <Label>{t('admin.presidentMsg.fontSize', 'Font Size')}</Label>
                     <Select value={roleFontSize} onValueChange={setRoleFontSize}>
                       <SelectTrigger>
                         <SelectValue />
@@ -696,7 +696,7 @@ export default function PresidentMessageSettings() {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label>Text Color</Label>
+                    <Label>{t('admin.presidentMsg.textColor', 'Text Color')}</Label>
                     <div className="flex gap-2">
                       <Input
                         type="color"
@@ -726,7 +726,7 @@ export default function PresidentMessageSettings() {
                 <h4 className="font-medium">Message Text</h4>
                 <div className="grid grid-cols-3 gap-4">
                   <div className="space-y-2">
-                    <Label>Font Family</Label>
+                    <Label>{t('admin.presidentMsg.fontFamily', 'Font Family')}</Label>
                     <Select value={messageFontFamily} onValueChange={setMessageFontFamily}>
                       <SelectTrigger>
                         <SelectValue />
@@ -739,7 +739,7 @@ export default function PresidentMessageSettings() {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label>Font Size</Label>
+                    <Label>{t('admin.presidentMsg.fontSize', 'Font Size')}</Label>
                     <Select value={messageFontSize} onValueChange={setMessageFontSize}>
                       <SelectTrigger>
                         <SelectValue />
@@ -752,7 +752,7 @@ export default function PresidentMessageSettings() {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label>Text Color</Label>
+                    <Label>{t('admin.presidentMsg.textColor', 'Text Color')}</Label>
                     <div className="flex gap-2">
                       <Input
                         type="color"
@@ -774,7 +774,7 @@ export default function PresidentMessageSettings() {
                 <h4 className="font-medium">Quote Text</h4>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label>Font Size</Label>
+                    <Label>{t('admin.presidentMsg.fontSize', 'Font Size')}</Label>
                     <Select value={quoteFontSize} onValueChange={setQuoteFontSize}>
                       <SelectTrigger>
                         <SelectValue />
@@ -787,7 +787,7 @@ export default function PresidentMessageSettings() {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label>Text Color</Label>
+                    <Label>{t('admin.presidentMsg.textColor', 'Text Color')}</Label>
                     <div className="flex gap-2">
                       <Input
                         type="color"
@@ -857,7 +857,7 @@ export default function PresidentMessageSettings() {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label>Image Position</Label>
+                  <Label>{t('admin.presidentMsg.imagePosition', 'Image Position')}</Label>
                   <Select value={imagePosition} onValueChange={setImagePosition}>
                     <SelectTrigger>
                       <SelectValue />
@@ -873,7 +873,7 @@ export default function PresidentMessageSettings() {
                   </p>
                 </div>
                 <div className="space-y-2">
-                  <Label>Image Alignment</Label>
+                  <Label>{t('admin.presidentMsg.imageAlignment', 'Image Alignment')}</Label>
                   <Select value={imageAlignment} onValueChange={setImageAlignment}>
                     <SelectTrigger>
                       <SelectValue />

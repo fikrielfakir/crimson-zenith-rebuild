@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import SEOHead from "@/components/SEOHead";
 import { routeSEO } from "@/lib/seo.config";
 import { Button } from "@/components/ui/button";
@@ -34,6 +35,7 @@ interface Project {
 }
 
 const Projects = () => {
+  const { t } = useTranslation();
   const [isVisible, setIsVisible] = useState(false);
   const [scrollY, setScrollY] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -195,7 +197,7 @@ const Projects = () => {
                     
                     <div className="space-y-2">
                       <div className="flex justify-between text-xs font-medium">
-                        <span>Progress</span>
+                        <span>{t('common.progressLabel')}</span>
                         <span className="text-primary">{project.progress ?? 0}%</span>
                       </div>
                       <Progress value={project.progress ?? 0} className="h-2" />
@@ -233,9 +235,9 @@ const Projects = () => {
               <div className="flex items-center gap-2">
                 <Filter className="w-4 h-4 text-muted-foreground" />
                 <select className="text-sm border border-border rounded-full px-4 py-2 bg-background">
-                  <option>Sort by Date</option>
-                  <option>Sort by Impact</option>
-                  <option>Sort by Location</option>
+                  <option>{t('common.sortByDate')}</option>
+                  <option>{t('common.sortByImpact')}</option>
+                  <option>{t('common.sortByLocation')}</option>
                 </select>
               </div>
             </div>
@@ -303,7 +305,7 @@ const Projects = () => {
                       <div className="text-center">
                         <Target className="w-5 h-5 text-amber-600 mx-auto mb-1" />
                         <p className="text-xs font-semibold">{project.progress ?? 0}%</p>
-                        <p className="text-xs text-muted-foreground">Progress</p>
+                        <p className="text-xs text-muted-foreground">{t('common.progressLabel')}</p>
                       </div>
                     </div>
 

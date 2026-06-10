@@ -158,9 +158,9 @@ export default function VolunteerPostsAdmin() {
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All statuses</SelectItem>
-                <SelectItem value="published">Published</SelectItem>
-                <SelectItem value="draft">Draft</SelectItem>
+                <SelectItem value="all">{t('admin.common.allStatuses', 'All statuses')}</SelectItem>
+                <SelectItem value="published">{t('admin.common.published')}</SelectItem>
+                <SelectItem value="draft">{t('admin.common.draft')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -247,28 +247,28 @@ export default function VolunteerPostsAdmin() {
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>{editing ? 'Edit Post' : 'New Volunteer Post'}</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{editing ? t('admin.volunteerPosts.dialogEdit', 'Edit Post') : t('admin.volunteerPosts.dialogNew', 'New Volunteer Post')}</DialogTitle></DialogHeader>
           <div className="space-y-4 mt-2">
             <div className="grid grid-cols-2 gap-4">
-              <div className="col-span-2 space-y-1.5"><Label>Title *</Label><Input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="Community Garden Coordinator" /></div>
+              <div className="col-span-2 space-y-1.5"><Label>{t('admin.volunteerPosts.fieldTitle', 'Title')} *</Label><Input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="Community Garden Coordinator" /></div>
               <div className="space-y-1.5"><Label>{t('admin.volunteerPosts.colLocation')}</Label><Input value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} placeholder="Fez" /></div>
-              <div className="space-y-1.5"><Label>Category</Label><Input value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))} placeholder="Environment" /></div>
+              <div className="space-y-1.5"><Label>{t('admin.volunteerPosts.fieldCategory', 'Category')}</Label><Input value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))} placeholder="Environment" /></div>
               <div className="space-y-1.5"><Label>{t('admin.volunteerPosts.colType')}</Label><Input value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value }))} placeholder="Long-term" /></div>
-              <div className="space-y-1.5"><Label>Duration</Label><Input value={form.duration} onChange={e => setForm(f => ({ ...f, duration: e.target.value }))} placeholder="6 months" /></div>
-              <div className="space-y-1.5"><Label>Commitment</Label><Input value={form.commitment} onChange={e => setForm(f => ({ ...f, commitment: e.target.value }))} placeholder="20h/week" /></div>
+              <div className="space-y-1.5"><Label>{t('admin.volunteerPosts.fieldDuration', 'Duration')}</Label><Input value={form.duration} onChange={e => setForm(f => ({ ...f, duration: e.target.value }))} placeholder="6 months" /></div>
+              <div className="space-y-1.5"><Label>{t('admin.volunteerPosts.fieldCommitment', 'Commitment')}</Label><Input value={form.commitment} onChange={e => setForm(f => ({ ...f, commitment: e.target.value }))} placeholder="20h/week" /></div>
               <div className="space-y-1.5">
                 <Label>{t('admin.common.status')}</Label>
                 <Select value={form.status} onValueChange={v => setForm(f => ({ ...f, status: v as any }))}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent><SelectItem value="draft">Draft</SelectItem><SelectItem value="published">Published</SelectItem></SelectContent>
+                  <SelectContent><SelectItem value="draft">{t('admin.common.draft')}</SelectItem><SelectItem value="published">{t('admin.common.published')}</SelectItem></SelectContent>
                 </Select>
               </div>
-              <div className="space-y-1.5"><Label>Start Date</Label><Input type="date" value={form.start_date} onChange={e => setForm(f => ({ ...f, start_date: e.target.value }))} /></div>
-              <div className="space-y-1.5"><Label>Deadline</Label><Input type="date" value={form.deadline} onChange={e => setForm(f => ({ ...f, deadline: e.target.value }))} /></div>
-              <div className="col-span-2 space-y-1.5"><Label>Description</Label><Textarea rows={3} value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="Describe the role…" /></div>
-              <div className="col-span-2 space-y-1.5"><Label>Responsibilities (one per line)</Label><Textarea rows={3} value={form.responsibilities} onChange={e => setForm(f => ({ ...f, responsibilities: e.target.value }))} /></div>
-              <div className="col-span-2 space-y-1.5"><Label>Requirements (one per line)</Label><Textarea rows={3} value={form.requirements} onChange={e => setForm(f => ({ ...f, requirements: e.target.value }))} /></div>
-              <div className="col-span-2 space-y-1.5"><Label>Benefits (one per line)</Label><Textarea rows={3} value={form.benefits} onChange={e => setForm(f => ({ ...f, benefits: e.target.value }))} /></div>
+              <div className="space-y-1.5"><Label>{t('admin.volunteerPosts.fieldStartDate', 'Start Date')}</Label><Input type="date" value={form.start_date} onChange={e => setForm(f => ({ ...f, start_date: e.target.value }))} /></div>
+              <div className="space-y-1.5"><Label>{t('admin.volunteerPosts.fieldDeadline', 'Deadline')}</Label><Input type="date" value={form.deadline} onChange={e => setForm(f => ({ ...f, deadline: e.target.value }))} /></div>
+              <div className="col-span-2 space-y-1.5"><Label>{t('admin.volunteerPosts.fieldDescription', 'Description')}</Label><Textarea rows={3} value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="Describe the role…" /></div>
+              <div className="col-span-2 space-y-1.5"><Label>{t('admin.volunteerPosts.fieldResponsibilities', 'Responsibilities (one per line)')}</Label><Textarea rows={3} value={form.responsibilities} onChange={e => setForm(f => ({ ...f, responsibilities: e.target.value }))} /></div>
+              <div className="col-span-2 space-y-1.5"><Label>{t('admin.volunteerPosts.fieldRequirements', 'Requirements (one per line)')}</Label><Textarea rows={3} value={form.requirements} onChange={e => setForm(f => ({ ...f, requirements: e.target.value }))} /></div>
+              <div className="col-span-2 space-y-1.5"><Label>{t('admin.volunteerPosts.fieldBenefits', 'Benefits (one per line)')}</Label><Textarea rows={3} value={form.benefits} onChange={e => setForm(f => ({ ...f, benefits: e.target.value }))} /></div>
             </div>
             <div className="flex justify-end gap-2 pt-2">
               <Button variant="outline" onClick={() => setDialogOpen(false)}>{t('admin.common.cancel')}</Button>

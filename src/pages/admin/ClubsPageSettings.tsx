@@ -147,7 +147,7 @@ export default function ClubsPageSettings() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-1.5">
-              <Label>Heading</Label>
+              <Label>{t('admin.cities.heading', 'Heading')}</Label>
               <Input
                 value={current.intro_heading ?? ''}
                 onChange={e => set('intro_heading', e.target.value)}
@@ -155,7 +155,7 @@ export default function ClubsPageSettings() {
               />
             </div>
             <div className="space-y-1.5">
-              <Label>Description</Label>
+              <Label>{t('admin.cities.descriptionLabel', 'Description')}</Label>
               <Textarea
                 value={current.intro_description ?? ''}
                 onChange={e => set('intro_description', e.target.value)}
@@ -196,7 +196,7 @@ export default function ClubsPageSettings() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-1.5">
-              <Label>Heading</Label>
+              <Label>{t('admin.cities.heading', 'Heading')}</Label>
               <Input
                 value={current.cta_heading ?? ''}
                 onChange={e => set('cta_heading', e.target.value)}
@@ -204,7 +204,7 @@ export default function ClubsPageSettings() {
               />
             </div>
             <div className="space-y-1.5">
-              <Label>Description</Label>
+              <Label>{t('admin.cities.descriptionLabel', 'Description')}</Label>
               <Textarea
                 value={current.cta_description ?? ''}
                 onChange={e => set('cta_description', e.target.value)}
@@ -214,7 +214,7 @@ export default function ClubsPageSettings() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <Label>Button Text</Label>
+                <Label>{t('admin.cities.buttonText', 'Button Text')}</Label>
                 <Input
                   value={current.cta_button_text ?? ''}
                   onChange={e => set('cta_button_text', e.target.value)}
@@ -222,7 +222,7 @@ export default function ClubsPageSettings() {
                 />
               </div>
               <div className="space-y-1.5">
-                <Label>Button Link</Label>
+                <Label>{t('admin.cities.buttonLink', 'Button Link')}</Label>
                 <Input
                   value={current.cta_button_link ?? ''}
                   onChange={e => set('cta_button_link', e.target.value)}

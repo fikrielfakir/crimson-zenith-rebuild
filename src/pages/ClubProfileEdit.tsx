@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useParams, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -28,6 +29,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
 const ClubProfileEdit = () => {
+  const { t } = useTranslation();
   const { clubId } = useParams();
   const navigate = useNavigate();
   const { user, isAuthenticated, isLoading } = useAuth();
@@ -168,9 +170,9 @@ const ClubProfileEdit = () => {
       <div className="min-h-screen bg-background">
         <Header />
         <div className="container mx-auto px-4 py-20 text-center">
-          <h1 className="text-2xl font-bold mb-4">Access Denied</h1>
-          <p className="text-muted-foreground mb-6">You don't have permission to edit this club.</p>
-          <Button onClick={() => navigate('/clubs')}>Back to Clubs</Button>
+          <h1 className="text-2xl font-bold mb-4">{t('common.accessDenied', 'Access Denied')}</h1>
+          <p className="text-muted-foreground mb-6">{t('clubProfileEdit.noPermission', "You don't have permission to edit this club.")}</p>
+          <Button onClick={() => navigate('/clubs')}>{t('common.backToClubs')}</Button>
         </div>
         <Footer />
       </div>
@@ -211,7 +213,7 @@ const ClubProfileEdit = () => {
           <TabsContent value="basic" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Basic Information</CardTitle>
+                <CardTitle>{t('clubProfileEdit.basicInfo')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -220,7 +222,7 @@ const ClubProfileEdit = () => {
                     id="name"
                     value={formData.name}
                     onChange={(e) => setFormData(prev => ({...prev, name: e.target.value}))}
-                    placeholder="Enter club name"
+                    placeholder={t('clubProfileEdit.placeholders.clubName')}
                   />
                 </div>
 
@@ -232,7 +234,7 @@ const ClubProfileEdit = () => {
                       id="location"
                       value={formData.location}
                       onChange={(e) => setFormData(prev => ({...prev, location: e.target.value}))}
-                      placeholder="City, Morocco"
+                      placeholder={t('clubProfileEdit.placeholders.cityMorocco')}
                       className="pl-10"
                     />
                   </div>
@@ -244,7 +246,7 @@ const ClubProfileEdit = () => {
                     id="description"
                     value={formData.description}
                     onChange={(e) => setFormData(prev => ({...prev, description: e.target.value}))}
-                    placeholder="Brief description of your club"
+                    placeholder={t('clubProfileEdit.placeholders.briefDesc')}
                     rows={3}
                   />
                 </div>
@@ -255,13 +257,13 @@ const ClubProfileEdit = () => {
                     id="longDescription"
                     value={formData.longDescription}
                     onChange={(e) => setFormData(prev => ({...prev, longDescription: e.target.value}))}
-                    placeholder="Detailed description of your club, activities, and mission"
+                    placeholder={t('clubProfileEdit.placeholders.detailedDesc')}
                     rows={5}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Features & Activities</Label>
+                  <Label>{t('clubProfileEdit.featuresActivities', 'Features & Activities')}</Label>
                   <div className="flex flex-wrap gap-2 mb-2">
                     {formData.features.map((feature, index) => (
                       <Badge key={index} variant="secondary" className="cursor-pointer">
@@ -292,7 +294,7 @@ const ClubProfileEdit = () => {
           <TabsContent value="contact" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Contact Information</CardTitle>
+                <CardTitle>{t('clubProfileEdit.contactInfo')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -344,7 +346,7 @@ const ClubProfileEdit = () => {
           <TabsContent value="social" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Social Media Links</CardTitle>
+                <CardTitle>{t('clubProfileEdit.socialMedia')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">

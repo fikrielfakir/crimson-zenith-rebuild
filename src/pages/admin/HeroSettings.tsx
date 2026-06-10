@@ -378,7 +378,7 @@ export default function HeroSettings() {
                 {showPrimaryButton && (
                   <div className="grid grid-cols-2 gap-4 pl-6">
                     <div className="space-y-2">
-                      <Label>Button Text</Label>
+                      <Label>{t('admin.cities.buttonText', 'Button Text')}</Label>
                       <div className="flex gap-2 items-start">
                         <Input value={primaryButtonText} onChange={(e) => setPrimaryButtonText(e.target.value)} className="flex-1" />
                         <TranslateDialog
@@ -391,7 +391,7 @@ export default function HeroSettings() {
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label>Button Link</Label>
+                      <Label>{t('admin.cities.buttonLink', 'Button Link')}</Label>
                       <Input value={primaryButtonLink} onChange={(e) => setPrimaryButtonLink(e.target.value)} />
                     </div>
                   </div>
@@ -405,7 +405,7 @@ export default function HeroSettings() {
                 {showSecondaryButton && (
                   <div className="grid grid-cols-2 gap-4 pl-6">
                     <div className="space-y-2">
-                      <Label>Button Text</Label>
+                      <Label>{t('admin.cities.buttonText', 'Button Text')}</Label>
                       <div className="flex gap-2 items-start">
                         <Input value={secondaryButtonText} onChange={(e) => setSecondaryButtonText(e.target.value)} className="flex-1" />
                         <TranslateDialog
@@ -418,7 +418,7 @@ export default function HeroSettings() {
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label>Button Link</Label>
+                      <Label>{t('admin.cities.buttonLink', 'Button Link')}</Label>
                       <Input value={secondaryButtonLink} onChange={(e) => setSecondaryButtonLink(e.target.value)} />
                     </div>
                   </div>

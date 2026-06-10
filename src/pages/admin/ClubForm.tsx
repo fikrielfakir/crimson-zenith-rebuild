@@ -582,7 +582,7 @@ export default function ClubForm() {
 
           {/* Featured image */}
           <div className="space-y-2 md:col-span-2">
-            <Label>Featured Image</Label>
+            <Label>{t('admin.clubs.fieldFeaturedImage', 'Featured Image')}</Label>
             <p className="text-xs text-muted-foreground">Used in club listings and cards.</p>
             <ImageUpload
               value={imageValue}
@@ -594,7 +594,7 @@ export default function ClubForm() {
 
           {/* Hero image */}
           <div className="space-y-2 md:col-span-2">
-            <Label>Hero Banner Image</Label>
+            <Label>{t('admin.clubs.fieldHeroBanner', 'Hero Banner Image')}</Label>
             <p className="text-xs text-muted-foreground">Full-width background shown at the top of the club's public page. If left empty, the Featured Image is used instead.</p>
             <ImageUpload
               value={heroImageValue}
@@ -619,18 +619,18 @@ export default function ClubForm() {
 
           {/* Contact */}
           <div className="space-y-2">
-            <Label htmlFor="contactPhone">Contact Phone</Label>
+            <Label htmlFor="contactPhone">{t('admin.clubs.fieldContactPhone', 'Contact Phone')}</Label>
             <Input id="contactPhone" {...register('contactPhone')} placeholder="+212 600 000000" />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="contactEmail">Contact Email</Label>
+            <Label htmlFor="contactEmail">{t('admin.clubs.fieldContactEmail', 'Contact Email')}</Label>
             <Input id="contactEmail" type="email" {...register('contactEmail')} placeholder="contact@club.com" />
             {errors.contactEmail && <p className="text-sm text-destructive">{errors.contactEmail.message}</p>}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="website">Website</Label>
+            <Label htmlFor="website">{t('admin.clubs.fieldWebsite', 'Website')}</Label>
             <Input id="website" {...register('website')} placeholder="https://www.club.com" />
             {errors.website && <p className="text-sm text-destructive">{errors.website.message}</p>}
           </div>
@@ -640,11 +640,11 @@ export default function ClubForm() {
             <Label className="text-base font-semibold">{t('admin.clubs.fieldSocialMedia')}</Label>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="facebook">Facebook</Label>
+            <Label htmlFor="facebook">{t('admin.clubs.fieldFacebook', 'Facebook')}</Label>
             <Input id="facebook" {...register('facebook')} placeholder="https://facebook.com/club" />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="instagram">Instagram</Label>
+            <Label htmlFor="instagram">{t('admin.clubs.fieldInstagram', 'Instagram')}</Label>
             <Input id="instagram" {...register('instagram')} placeholder="https://instagram.com/club" />
           </div>
           <div className="space-y-2">

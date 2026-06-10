@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -49,6 +50,7 @@ interface BlogArticle {
 }
 
 const BlogPost = () => {
+  const { t } = useTranslation();
   const { slug } = useParams<{ slug: string }>();
   const [article, setArticle] = useState<BlogArticle | null>(null);
   const [loading, setLoading] = useState(true);
@@ -144,7 +146,7 @@ const BlogPost = () => {
           <div className="text-center">
             <p className="text-destructive font-body mb-4">{error ?? 'Article not found'}</p>
             <Link to="/news">
-              <Button variant="outline">Back to Blog</Button>
+              <Button variant="outline">{t('common.backToBlog', 'Back to Blog')}</Button>
             </Link>
           </div>
         </div>
