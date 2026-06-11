@@ -1,0 +1,66 @@
+site.webmanifest:1 Manifest: Line: 1, column: 1, Syntax error.
+TranslationsManagement.tsx:183 Uncaught TypeError: currentList.filter is not a function
+    at TranslationsManagement (TranslationsManagement.tsx:183:36)
+    at renderWithHooks (chunk-GG6IGNHI.js?v=e199c81c:11596:26)
+    at updateFunctionComponent (chunk-GG6IGNHI.js?v=e199c81c:14630:28)
+    at beginWork (chunk-GG6IGNHI.js?v=e199c81c:15972:22)
+    at HTMLUnknownElement.callCallback2 (chunk-GG6IGNHI.js?v=e199c81c:3680:22)
+    at Object.invokeGuardedCallbackDev (chunk-GG6IGNHI.js?v=e199c81c:3705:24)
+    at invokeGuardedCallback (chunk-GG6IGNHI.js?v=e199c81c:3739:39)
+    at beginWork$1 (chunk-GG6IGNHI.js?v=e199c81c:19818:15)
+    at performUnitOfWork (chunk-GG6IGNHI.js?v=e199c81c:19251:20)
+    at workLoopSync (chunk-GG6IGNHI.js?v=e199c81c:19190:13)
+TranslationsManagement.tsx:183 Uncaught TypeError: currentList.filter is not a function
+    at TranslationsManagement (TranslationsManagement.tsx:183:36)
+    at renderWithHooks (chunk-GG6IGNHI.js?v=e199c81c:11596:26)
+    at updateFunctionComponent (chunk-GG6IGNHI.js?v=e199c81c:14630:28)
+    at beginWork (chunk-GG6IGNHI.js?v=e199c81c:15972:22)
+    at HTMLUnknownElement.callCallback2 (chunk-GG6IGNHI.js?v=e199c81c:3680:22)
+    at Object.invokeGuardedCallbackDev (chunk-GG6IGNHI.js?v=e199c81c:3705:24)
+    at invokeGuardedCallback (chunk-GG6IGNHI.js?v=e199c81c:3739:39)
+    at beginWork$1 (chunk-GG6IGNHI.js?v=e199c81c:19818:15)
+    at performUnitOfWork (chunk-GG6IGNHI.js?v=e199c81c:19251:20)
+    at workLoopSync (chunk-GG6IGNHI.js?v=e199c81c:19190:13)
+chunk-GG6IGNHI.js?v=e199c81c:14080 The above error occurred in the <TranslationsManagement> component:
+
+    at TranslationsManagement (http://192.168.56.1:5000/src/pages/admin/TranslationsManagement.tsx:196:23)
+    at div
+    at div
+    at div
+    at http://192.168.56.1:5000/node_modules/.vite/deps/chunk-QMVHE5RC.js?v=e199c81c:227:13
+    at http://192.168.56.1:5000/node_modules/.vite/deps/@radix-ui_react-scroll-area.js?v=1ecea9fa:114:13
+    at div
+    at http://192.168.56.1:5000/node_modules/.vite/deps/chunk-QMVHE5RC.js?v=e199c81c:227:13
+    at Provider (http://192.168.56.1:5000/node_modules/.vite/deps/chunk-QMVHE5RC.js?v=e199c81c:43:15)
+    at http://192.168.56.1:5000/node_modules/.vite/deps/@radix-ui_react-scroll-area.js?v=1ecea9fa:52:7
+    at _c (http://192.168.56.1:5000/src/components/ui/scroll-area.tsx:24:59)
+    at main
+    at div
+    at div
+    at AdminLayout (http://192.168.56.1:5000/src/components/admin/AdminLayout.tsx:517:31)
+    at TokenValidatedRoute (http://192.168.56.1:5000/src/components/admin/ProtectedRoute.tsx:58:32)
+    at ProtectedRoute (http://192.168.56.1:5000/src/components/admin/ProtectedRoute.tsx:37:34)
+    at RenderedRoute (http://192.168.56.1:5000/node_modules/.vite/deps/react-router-dom.js?v=47e46d2f:4130:5)
+    at Routes (http://192.168.56.1:5000/node_modules/.vite/deps/react-router-dom.js?v=47e46d2f:4600:5)
+    at Router (http://192.168.56.1:5000/node_modules/.vite/deps/react-router-dom.js?v=47e46d2f:4543:15)
+    at BrowserRouter (http://192.168.56.1:5000/node_modules/.vite/deps/react-router-dom.js?v=47e46d2f:5289:5)
+    at Provider (http://192.168.56.1:5000/node_modules/.vite/deps/chunk-QMVHE5RC.js?v=e199c81c:43:15)
+    at TooltipProvider (http://192.168.56.1:5000/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=017d9e42:157:5)
+    at QueryClientProvider (http://192.168.56.1:5000/node_modules/.vite/deps/@tanstack_react-query.js?v=2bd4bc82:3170:3)
+    at App
+    at _HelmetProvider (http://192.168.56.1:5000/node_modules/.vite/deps/react-helmet-async.js?v=d479290a:627:5)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+logCapturedError @ chunk-GG6IGNHI.js?v=e199c81c:14080
+chunk-GG6IGNHI.js?v=e199c81c:9176 Uncaught TypeError: currentList.filter is not a function
+    at TranslationsManagement (TranslationsManagement.tsx:183:36)
+    at renderWithHooks (chunk-GG6IGNHI.js?v=e199c81c:11596:26)
+    at updateFunctionComponent (chunk-GG6IGNHI.js?v=e199c81c:14630:28)
+    at beginWork (chunk-GG6IGNHI.js?v=e199c81c:15972:22)
+    at beginWork$1 (chunk-GG6IGNHI.js?v=e199c81c:19806:22)
+    at performUnitOfWork (chunk-GG6IGNHI.js?v=e199c81c:19251:20)
+    at workLoopSync (chunk-GG6IGNHI.js?v=e199c81c:19190:13)
+    at renderRootSync (chunk-GG6IGNHI.js?v=e199c81c:19169:15)
+    at recoverFromConcurrentError (chunk-GG6IGNHI.js?v=e199c81c:18786:28)
+    at performSyncWorkOnRoot (chunk-GG6IGNHI.js?v=e199c81c:18932:28)

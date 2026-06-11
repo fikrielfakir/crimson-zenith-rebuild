@@ -1,0 +1,12 @@
+What stays completely untouched: the entire React frontend, Vite config, all src/ code, the MySQL database on Hostinger, and your env vars (SMTP, Stripe, PayPal credentials all carry over as-is).
+The big win of this migration: your server.ts is 3,842 lines doing too many things at once. Laravel forces proper separation — routes in routes/api.php, logic in Controllers, DB in Eloquent models, business logic in Services. The monolith gets split naturally.
+
+Phase-by-phase detail:
+Phase 1 (2 days) — Install Laravel 11 via Composer, point it at your existing Hostinger MySQL (same credentials), install Laravel Sanctum for session auth, and update the Vite proxy from localhost:3001 to localhost:8000.
+Phase 2 (3 days) — Convert all 26+ Drizzle schema tables into Laravel migration files. Write one Eloquent model per table with the same relations (hasMany, belongsTo, etc.). The sessions table gets replaced by Laravel's built-in DB session driver.
+Phase 3 (2 days) — Rebuild the 7 auth endpoints (/api/register, /api/login, /api/logout, etc.) 1:1 with Sanctum. Create AdminMiddleware to replace your isAdmin Express middleware. The role model (user / member / admin) stays identical.
+Phase 4 (6–8 days) — The heaviest phase. Port all ~80 endpoints, grouped into resource controllers: ClubController, EventController, BookingController, CmsController, AdminUserController, etc. Validation rules migrate from Zod to Laravel Form Request classes.
+Phase 5 (3 days) — Swap Nodemailer for Laravel's Mail facade (same Hostinger SMTP config, same HTML templates, now as Mailable classes). Wire Stripe and PayPal with their PHP SDKs. Replace Socket.io with Laravel Echo + Reverb (Laravel's first-party WebSocket server).
+Phase 6 (3 days) — Run Express and Laravel in parallel (Vite proxy switchable between :3001 and :8000), run Pest feature tests per endpoint group, then cut over by updating .replit deploy config to point to php artisan serve or Nginx + PHP-FPM.
+
+Want me to start generating actual code for any specific phase? I can produce the Laravel project structure, migration files for the 26 tables, auth controllers, or the full routes/api.php file.

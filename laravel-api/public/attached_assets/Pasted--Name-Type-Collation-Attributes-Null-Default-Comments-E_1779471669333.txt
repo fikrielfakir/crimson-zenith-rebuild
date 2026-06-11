@@ -1,0 +1,28 @@
+
+#	Name	Type	Collation	Attributes	Null	Default	Comments	Extra	Action
+	1	id Primary	varchar(255)	utf8mb4_unicode_ci		No	default			Change Change	Drop Drop	
+	2	title	text	utf8mb4_unicode_ci		No	'Where Adventure Meets\nTransformation'			Change Change	Drop Drop	
+	3	subtitle	text	utf8mb4_unicode_ci		No	'Experience Morocco\'s soul through sustainable journeys.'			Change Change	Drop Drop	
+	4	primary_button_text	varchar(100)	utf8mb4_unicode_ci		No	Start Your Journey			Change Change	Drop Drop	
+	5	primary_button_link	varchar(500)	utf8mb4_unicode_ci		No	/discover			Change Change	Drop Drop	
+	6	secondary_button_text	varchar(100)	utf8mb4_unicode_ci		No	Explore Clubs			Change Change	Drop Drop	
+	7	secondary_button_link	varchar(500)	utf8mb4_unicode_ci		No	/clubs			Change Change	Drop Drop	
+	8	background_type	varchar(20)	utf8mb4_unicode_ci		No	image			Change Change	Drop Drop	
+	9	background_media_id	bigint(20)		UNSIGNED	Yes	NULL			Change Change	Drop Drop	
+	10	background_overlay_color	varchar(50)	utf8mb4_unicode_ci		No	rgba(26, 54, 93, 0.7)			Change Change	Drop Drop	
+	11	background_overlay_opacity	int(11)			No	70			Change Change	Drop Drop	
+	12	title_font_size	varchar(50)	utf8mb4_unicode_ci		No	65px			Change Change	Drop Drop	
+	13	title_color	varchar(50)	utf8mb4_unicode_ci		No	#ffffff			Change Change	Drop Drop	
+	14	subtitle_font_size	varchar(50)	utf8mb4_unicode_ci		No	20px			Change Change	Drop Drop	
+	15	subtitle_color	varchar(50)	utf8mb4_unicode_ci		No	#ffffff			Change Change	Drop Drop	
+	16	enable_typewriter	tinyint(1)			No	1			Change Change	Drop Drop	
+	17	typewriter_texts	longtext	utf8mb4_bin		No	'[]'			Change Change	Drop Drop	
+	18	updated_by	varchar(255)	utf8mb4_unicode_ci		Yes	NULL			Change Change	Drop Drop	
+	19	updated_at	timestamp			No	current_timestamp()		ON UPDATE CURRENT_TIMESTAMP()	Change Change	Drop Drop	
+With selected:  Check all With selected:        
+ Propose table structure Propose table structure Documentation Move columns Move columns Normalize Normalize
+Add column  Add 
+1
+ column(s)   
+after updated_at
+ 

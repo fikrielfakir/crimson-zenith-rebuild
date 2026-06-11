@@ -7,7 +7,7 @@ import { useTranslatedList } from "@/hooks/useContentTranslation";
 import { Plus, Minus, Locate, ChevronUp, ChevronDown, Search, Home, MapPin, Building2, Info } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Club } from "../../shared/schema";
-import birdLogo from "@/assets/attached_assets/Group 288941_1762708813825.png";
+const birdLogo = "https://api.thejourney-ma.org/attached_assets/generated_images/Group%20288941_1762708813825.png";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 

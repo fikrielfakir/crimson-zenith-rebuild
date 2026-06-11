@@ -1,0 +1,133 @@
+client:733 [vite] connecting...
+client:827 [vite] connected.
+chunk-K23GC2QC.js?v=19a35808:21609 Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+react-router-dom.js?v=19a35808:4393 ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+warnOnce @ react-router-dom.js?v=19a35808:4393
+react-router-dom.js?v=19a35808:4393 ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+warnOnce @ react-router-dom.js?v=19a35808:4393
+api/admin/charts:1  Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+api/admin/activity:1  Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+api/admin/upcoming-events:1  Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+api/admin/stats:1  Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+api/admin/charts:1  Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+api/admin/activity:1  Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+api/admin/upcoming-events:1  Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+api/admin/stats:1  Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+api/admin/charts:1  Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+api/admin/activity:1  Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+api/admin/upcoming-events:1  Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+api/admin/stats:1  Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+apiFetch.ts:63  GET http://localhost:5000/api/admin/charts 500 (Internal Server Error)
+(anonymous) @ apiFetch.ts:63
+fetchChartsData @ AdminDashboard.tsx:70
+fetchFn @ @tanstack_react-query.js?v=19a35808:1063
+run @ @tanstack_react-query.js?v=19a35808:773
+(anonymous) @ @tanstack_react-query.js?v=19a35808:797
+apiFetch.ts:63  GET http://localhost:5000/api/admin/activity 500 (Internal Server Error)
+(anonymous) @ apiFetch.ts:63
+fetchRecentActivity @ AdminDashboard.tsx:58
+fetchFn @ @tanstack_react-query.js?v=19a35808:1063
+run @ @tanstack_react-query.js?v=19a35808:773
+(anonymous) @ @tanstack_react-query.js?v=19a35808:797
+apiFetch.ts:63  GET http://localhost:5000/api/admin/upcoming-events 500 (Internal Server Error)
+(anonymous) @ apiFetch.ts:63
+fetchUpcomingEvents @ AdminDashboard.tsx:64
+fetchFn @ @tanstack_react-query.js?v=19a35808:1063
+run @ @tanstack_react-query.js?v=19a35808:773
+(anonymous) @ @tanstack_react-query.js?v=19a35808:797
+apiFetch.ts:63  GET http://localhost:5000/api/admin/stats 500 (Internal Server Error)
+(anonymous) @ apiFetch.ts:63
+fetchDashboardStats @ AdminDashboard.tsx:52
+fetchFn @ @tanstack_react-query.js?v=19a35808:1063
+run @ @tanstack_react-query.js?v=19a35808:773
+(anonymous) @ @tanstack_react-query.js?v=19a35808:797
+apiFetch.ts:63  GET http://localhost:5000/api/admin/clubs?page=1&perPage=25 500 (Internal Server Error)
+(anonymous) @ apiFetch.ts:63
+fetchClubs @ ClubsManagement.tsx:61
+(anonymous) @ ClubsManagement.tsx:79
+fetchFn @ @tanstack_react-query.js?v=19a35808:1063
+run @ @tanstack_react-query.js?v=19a35808:773
+start @ @tanstack_react-query.js?v=19a35808:815
+fetch @ @tanstack_react-query.js?v=19a35808:1110
+#executeFetch @ @tanstack_react-query.js?v=19a35808:1429
+onSubscribe @ @tanstack_react-query.js?v=19a35808:1302
+subscribe @ @tanstack_react-query.js?v=19a35808:19
+(anonymous) @ @tanstack_react-query.js?v=19a35808:3240
+subscribeToStore @ chunk-K23GC2QC.js?v=19a35808:12032
+commitHookEffectListMount @ chunk-K23GC2QC.js?v=19a35808:16963
+commitPassiveMountOnFiber @ chunk-K23GC2QC.js?v=19a35808:18206
+commitPassiveMountEffects_complete @ chunk-K23GC2QC.js?v=19a35808:18179
+commitPassiveMountEffects_begin @ chunk-K23GC2QC.js?v=19a35808:18169
+commitPassiveMountEffects @ chunk-K23GC2QC.js?v=19a35808:18159
+flushPassiveEffectsImpl @ chunk-K23GC2QC.js?v=19a35808:19543
+flushPassiveEffects @ chunk-K23GC2QC.js?v=19a35808:19500
+commitRootImpl @ chunk-K23GC2QC.js?v=19a35808:19469
+commitRoot @ chunk-K23GC2QC.js?v=19a35808:19330
+performSyncWorkOnRoot @ chunk-K23GC2QC.js?v=19a35808:18948
+flushSyncCallbacks @ chunk-K23GC2QC.js?v=19a35808:9166
+(anonymous) @ chunk-K23GC2QC.js?v=19a35808:18677
+apiFetch.ts:63  GET http://localhost:5000/api/admin/clubs?page=1&perPage=25 500 (Internal Server Error)
+(anonymous) @ apiFetch.ts:63
+fetchClubs @ ClubsManagement.tsx:61
+(anonymous) @ ClubsManagement.tsx:79
+fetchFn @ @tanstack_react-query.js?v=19a35808:1063
+run @ @tanstack_react-query.js?v=19a35808:773
+(anonymous) @ @tanstack_react-query.js?v=19a35808:797
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=19a35808:793
+Promise.catch
+run @ @tanstack_react-query.js?v=19a35808:777
+start @ @tanstack_react-query.js?v=19a35808:815
+fetch @ @tanstack_react-query.js?v=19a35808:1110
+#executeFetch @ @tanstack_react-query.js?v=19a35808:1429
+onSubscribe @ @tanstack_react-query.js?v=19a35808:1302
+subscribe @ @tanstack_react-query.js?v=19a35808:19
+(anonymous) @ @tanstack_react-query.js?v=19a35808:3240
+subscribeToStore @ chunk-K23GC2QC.js?v=19a35808:12032
+commitHookEffectListMount @ chunk-K23GC2QC.js?v=19a35808:16963
+commitPassiveMountOnFiber @ chunk-K23GC2QC.js?v=19a35808:18206
+commitPassiveMountEffects_complete @ chunk-K23GC2QC.js?v=19a35808:18179
+commitPassiveMountEffects_begin @ chunk-K23GC2QC.js?v=19a35808:18169
+commitPassiveMountEffects @ chunk-K23GC2QC.js?v=19a35808:18159
+flushPassiveEffectsImpl @ chunk-K23GC2QC.js?v=19a35808:19543
+flushPassiveEffects @ chunk-K23GC2QC.js?v=19a35808:19500
+commitRootImpl @ chunk-K23GC2QC.js?v=19a35808:19469
+commitRoot @ chunk-K23GC2QC.js?v=19a35808:19330
+performSyncWorkOnRoot @ chunk-K23GC2QC.js?v=19a35808:18948
+flushSyncCallbacks @ chunk-K23GC2QC.js?v=19a35808:9166
+(anonymous) @ chunk-K23GC2QC.js?v=19a35808:18677
+apiFetch.ts:63  GET http://localhost:5000/api/admin/clubs?page=1&perPage=25 500 (Internal Server Error)
+(anonymous) @ apiFetch.ts:63
+fetchClubs @ ClubsManagement.tsx:61
+(anonymous) @ ClubsManagement.tsx:79
+fetchFn @ @tanstack_react-query.js?v=19a35808:1063
+run @ @tanstack_react-query.js?v=19a35808:773
+(anonymous) @ @tanstack_react-query.js?v=19a35808:797
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=19a35808:793
+Promise.catch
+run @ @tanstack_react-query.js?v=19a35808:777
+(anonymous) @ @tanstack_react-query.js?v=19a35808:797
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=19a35808:793
+Promise.catch
+run @ @tanstack_react-query.js?v=19a35808:777
+start @ @tanstack_react-query.js?v=19a35808:815
+fetch @ @tanstack_react-query.js?v=19a35808:1110
+#executeFetch @ @tanstack_react-query.js?v=19a35808:1429
+onSubscribe @ @tanstack_react-query.js?v=19a35808:1302
+subscribe @ @tanstack_react-query.js?v=19a35808:19
+(anonymous) @ @tanstack_react-query.js?v=19a35808:3240
+subscribeToStore @ chunk-K23GC2QC.js?v=19a35808:12032
+commitHookEffectListMount @ chunk-K23GC2QC.js?v=19a35808:16963
+commitPassiveMountOnFiber @ chunk-K23GC2QC.js?v=19a35808:18206
+commitPassiveMountEffects_complete @ chunk-K23GC2QC.js?v=19a35808:18179
+commitPassiveMountEffects_begin @ chunk-K23GC2QC.js?v=19a35808:18169
+commitPassiveMountEffects @ chunk-K23GC2QC.js?v=19a35808:18159
+flushPassiveEffectsImpl @ chunk-K23GC2QC.js?v=19a35808:19543
+flushPassiveEffects @ chunk-K23GC2QC.js?v=19a35808:19500
+commitRootImpl @ chunk-K23GC2QC.js?v=19a35808:19469
+commitRoot @ chunk-K23GC2QC.js?v=19a35808:19330
+performSyncWorkOnRoot @ chunk-K23GC2QC.js?v=19a35808:18948
+flushSyncCallbacks @ chunk-K23GC2QC.js?v=19a35808:9166
+(anonymous) @ chunk-K23GC2QC.js?v=19a35808:18677

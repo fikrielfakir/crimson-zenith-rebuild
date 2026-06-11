@@ -1,0 +1,95 @@
+
+2@radix-ui_react-select.js?v=8e1fcad9:964 Uncaught Error: A <Select.Item /> must have a value prop that is not an empty string. This is because the Select value can be set to an empty string to clear the selection and show the placeholder.
+    at @radix-ui_react-select.js?v=8e1fcad9:964:13
+    at renderWithHooks (chunk-O3VNRDW5.js?v=8e1fcad9:11596:26)
+    at updateForwardRef (chunk-O3VNRDW5.js?v=8e1fcad9:14373:28)
+    at beginWork (chunk-O3VNRDW5.js?v=8e1fcad9:15994:22)
+    at HTMLUnknownElement.callCallback2 (chunk-O3VNRDW5.js?v=8e1fcad9:3680:22)
+    at Object.invokeGuardedCallbackDev (chunk-O3VNRDW5.js?v=8e1fcad9:3705:24)
+    at invokeGuardedCallback (chunk-O3VNRDW5.js?v=8e1fcad9:3739:39)
+    at beginWork$1 (chunk-O3VNRDW5.js?v=8e1fcad9:19818:15)
+    at performUnitOfWork (chunk-O3VNRDW5.js?v=8e1fcad9:19251:20)
+    at workLoopSync (chunk-O3VNRDW5.js?v=8e1fcad9:19190:13)Understand this error
+chunk-O3VNRDW5.js?v=8e1fcad9:14080 The above error occurred in the <SelectItem> component:
+
+    at http://192.168.56.1:5000/node_modules/.vite/deps/@radix-ui_react-select.js?v=8e1fcad9:940:7
+    at _c8 (http://192.168.56.1:5000/src/components/ui/select.tsx:141:60)
+    at div
+    at http://192.168.56.1:5000/node_modules/.vite/deps/chunk-CUQRY4JX.js?v=8e1fcad9:227:13
+    at http://192.168.56.1:5000/node_modules/.vite/deps/chunk-Y23GGJXI.js?v=8e1fcad9:50:13
+    at http://192.168.56.1:5000/node_modules/.vite/deps/chunk-Y23GGJXI.js?v=8e1fcad9:27:13
+    at http://192.168.56.1:5000/node_modules/.vite/deps/chunk-Y23GGJXI.js?v=8e1fcad9:137:15
+    at http://192.168.56.1:5000/node_modules/.vite/deps/@radix-ui_react-select.js?v=8e1fcad9:851:13
+    at div
+    at http://192.168.56.1:5000/node_modules/.vite/deps/chunk-Y23GGJXI.js?v=8e1fcad9:50:13
+    at http://192.168.56.1:5000/node_modules/.vite/deps/chunk-Y23GGJXI.js?v=8e1fcad9:27:13
+    at http://192.168.56.1:5000/node_modules/.vite/deps/chunk-Y23GGJXI.js?v=8e1fcad9:137:15
+    at Provider (http://192.168.56.1:5000/node_modules/.vite/deps/chunk-CUQRY4JX.js?v=8e1fcad9:43:15)
+    at http://192.168.56.1:5000/node_modules/.vite/deps/@radix-ui_react-select.js?v=8e1fcad9:396:58
+    at http://192.168.56.1:5000/node_modules/.vite/deps/chunk-CUQRY4JX.js?v=8e1fcad9:138:13
+    at http://192.168.56.1:5000/node_modules/.vite/deps/chunk-CUQRY4JX.js?v=8e1fcad9:115:13
+    at http://192.168.56.1:5000/node_modules/.vite/deps/chunk-CUQRY4JX.js?v=8e1fcad9:227:13
+    at http://192.168.56.1:5000/node_modules/.vite/deps/chunk-QFM4BDSM.js?v=8e1fcad9:259:22
+    at SelectPortal
+    at _c4 (http://192.168.56.1:5000/src/components/ui/select.tsx:92:63)
+    at Provider (http://192.168.56.1:5000/node_modules/.vite/deps/chunk-CUQRY4JX.js?v=8e1fcad9:43:15)
+    at Provider (http://192.168.56.1:5000/node_modules/.vite/deps/chunk-CUQRY4JX.js?v=8e1fcad9:43:15)
+    at CollectionProvider (http://192.168.56.1:5000/node_modules/.vite/deps/chunk-Y23GGJXI.js?v=8e1fcad9:127:13)
+    at Provider (http://192.168.56.1:5000/node_modules/.vite/deps/chunk-CUQRY4JX.js?v=8e1fcad9:43:15)
+    at Provider (http://192.168.56.1:5000/node_modules/.vite/deps/chunk-CUQRY4JX.js?v=8e1fcad9:43:15)
+    at Popper (http://192.168.56.1:5000/node_modules/.vite/deps/chunk-OM75QLWJ.js?v=8e1fcad9:1991:11)
+    at Select (http://192.168.56.1:5000/node_modules/.vite/deps/@radix-ui_react-select.js?v=8e1fcad9:182:5)
+    at div
+    at div
+    at UserAssignment (http://192.168.56.1:5000/src/pages/admin/UserRolesManagement.tsx:479:27)
+    at div
+    at http://192.168.56.1:5000/node_modules/.vite/deps/chunk-CUQRY4JX.js?v=8e1fcad9:227:13
+    at Presence (http://192.168.56.1:5000/node_modules/.vite/deps/chunk-GOGDZURF.js?v=8e1fcad9:24:11)
+    at http://192.168.56.1:5000/node_modules/.vite/deps/@radix-ui_react-tabs.js?v=8e1fcad9:174:13
+    at _c4 (http://192.168.56.1:5000/src/components/ui/tabs.tsx:47:61)
+    at div
+    at http://192.168.56.1:5000/node_modules/.vite/deps/chunk-CUQRY4JX.js?v=8e1fcad9:227:13
+    at Provider (http://192.168.56.1:5000/node_modules/.vite/deps/chunk-CUQRY4JX.js?v=8e1fcad9:43:15)
+    at http://192.168.56.1:5000/node_modules/.vite/deps/@radix-ui_react-tabs.js?v=8e1fcad9:51:7
+    at div
+    at UserRolesManagement (http://192.168.56.1:5000/src/pages/admin/UserRolesManagement.tsx:922:47)
+    at div
+    at div
+    at div
+    at http://192.168.56.1:5000/node_modules/.vite/deps/chunk-CUQRY4JX.js?v=8e1fcad9:227:13
+    at http://192.168.56.1:5000/node_modules/.vite/deps/@radix-ui_react-scroll-area.js?v=8e1fcad9:114:13
+    at div
+    at http://192.168.56.1:5000/node_modules/.vite/deps/chunk-CUQRY4JX.js?v=8e1fcad9:227:13
+    at Provider (http://192.168.56.1:5000/node_modules/.vite/deps/chunk-CUQRY4JX.js?v=8e1fcad9:43:15)
+    at http://192.168.56.1:5000/node_modules/.vite/deps/@radix-ui_react-scroll-area.js?v=8e1fcad9:52:7
+    at _c (http://192.168.56.1:5000/src/components/ui/scroll-area.tsx:24:59)
+    at main
+    at div
+    at div
+    at AdminLayout (http://192.168.56.1:5000/src/components/admin/AdminLayout.tsx?t=1781085635797:598:31)
+    at TokenValidatedRoute (http://192.168.56.1:5000/src/components/admin/ProtectedRoute.tsx?t=1781085635803:70:32)
+    at ProtectedRoute (http://192.168.56.1:5000/src/components/admin/ProtectedRoute.tsx?t=1781085635803:49:34)
+    at RenderedRoute (http://192.168.56.1:5000/node_modules/.vite/deps/react-router-dom.js?v=8e1fcad9:4130:5)
+    at Routes (http://192.168.56.1:5000/node_modules/.vite/deps/react-router-dom.js?v=8e1fcad9:4600:5)
+    at Router (http://192.168.56.1:5000/node_modules/.vite/deps/react-router-dom.js?v=8e1fcad9:4543:15)
+    at BrowserRouter (http://192.168.56.1:5000/node_modules/.vite/deps/react-router-dom.js?v=8e1fcad9:5289:5)
+    at Provider (http://192.168.56.1:5000/node_modules/.vite/deps/chunk-CUQRY4JX.js?v=8e1fcad9:43:15)
+    at TooltipProvider (http://192.168.56.1:5000/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=8e1fcad9:157:5)
+    at QueryClientProvider (http://192.168.56.1:5000/node_modules/.vite/deps/@tanstack_react-query.js?v=8e1fcad9:3170:3)
+    at App
+    at _HelmetProvider (http://192.168.56.1:5000/node_modules/.vite/deps/react-helmet-async.js?v=8e1fcad9:627:5)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+logCapturedError @ chunk-O3VNRDW5.js?v=8e1fcad9:14080Understand this error
+chunk-O3VNRDW5.js?v=8e1fcad9:9176 Uncaught Error: A <Select.Item /> must have a value prop that is not an empty string. This is because the Select value can be set to an empty string to clear the selection and show the placeholder.
+    at @radix-ui_react-select.js?v=8e1fcad9:964:13
+    at renderWithHooks (chunk-O3VNRDW5.js?v=8e1fcad9:11596:26)
+    at updateForwardRef (chunk-O3VNRDW5.js?v=8e1fcad9:14373:28)
+    at beginWork (chunk-O3VNRDW5.js?v=8e1fcad9:15994:22)
+    at beginWork$1 (chunk-O3VNRDW5.js?v=8e1fcad9:19806:22)
+    at performUnitOfWork (chunk-O3VNRDW5.js?v=8e1fcad9:19251:20)
+    at workLoopSync (chunk-O3VNRDW5.js?v=8e1fcad9:19190:13)
+    at renderRootSync (chunk-O3VNRDW5.js?v=8e1fcad9:19169:15)
+    at recoverFromConcurrentError (chunk-O3VNRDW5.js?v=8e1fcad9:18786:28)
+    at performSyncWorkOnRoot (chunk-O3VNRDW5.js?v=8e1fcad9:18932:28)Understand this error

@@ -1,0 +1,78 @@
+hin Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+warnOnce @ react-router-dom.js?v=76658606:4435Understand this warning
+:5000/api/admin/me:1  Failed to load resource: the server responded with a status of 401 (Unauthorized)Understand this error
+:5000/api/admin/me:1  Failed to load resource: the server responded with a status of 403 (Forbidden)Understand this error
+:5000/sanctum/csrf-cookie:1  Failed to load resource: the server responded with a status of 403 (Forbidden)Understand this error
+:5000/api/admin/login:1  Failed to load resource: the server responded with a status of 403 (Forbidden)Understand this error
+2NavbarSettings.tsx:355 Uncaught ReferenceError: t is not defined
+    at MediaLibraryDialog (NavbarSettings.tsx:355:23)
+    at renderWithHooks (chunk-O3VNRDW5.js?v=a27a3f5d:11596:26)
+    at mountIndeterminateComponent (chunk-O3VNRDW5.js?v=a27a3f5d:14974:21)
+    at beginWork (chunk-O3VNRDW5.js?v=a27a3f5d:15962:22)
+    at HTMLUnknownElement.callCallback2 (chunk-O3VNRDW5.js?v=a27a3f5d:3680:22)
+    at Object.invokeGuardedCallbackDev (chunk-O3VNRDW5.js?v=a27a3f5d:3705:24)
+    at invokeGuardedCallback (chunk-O3VNRDW5.js?v=a27a3f5d:3739:39)
+    at beginWork$1 (chunk-O3VNRDW5.js?v=a27a3f5d:19818:15)
+    at performUnitOfWork (chunk-O3VNRDW5.js?v=a27a3f5d:19251:20)
+    at workLoopSync (chunk-O3VNRDW5.js?v=a27a3f5d:19190:13)Understand this error
+chunk-O3VNRDW5.js?v=a27a3f5d:14080 The above error occurred in the <MediaLibraryDialog> component:
+
+    at MediaLibraryDialog (http://192.168.56.1:5000/src/pages/admin/NavbarSettings.tsx?t=1781110582395:680:31)
+    at Provider (http://192.168.56.1:5000/node_modules/.vite/deps/chunk-CUQRY4JX.js?v=a27a3f5d:43:15)
+    at Dialog (http://192.168.56.1:5000/node_modules/.vite/deps/chunk-QQYKH3RT.js?v=a27a3f5d:144:5)
+    at div
+    at div
+    at _c8 (http://192.168.56.1:5000/src/components/ui/card.tsx:67:61)
+    at div
+    at _c (http://192.168.56.1:5000/src/components/ui/card.tsx:23:53)
+    at div
+    at http://192.168.56.1:5000/node_modules/.vite/deps/chunk-CUQRY4JX.js?v=a27a3f5d:227:13
+    at Presence (http://192.168.56.1:5000/node_modules/.vite/deps/chunk-GOGDZURF.js?v=a27a3f5d:24:11)
+    at http://192.168.56.1:5000/node_modules/.vite/deps/@radix-ui_react-tabs.js?v=9ca506c4:174:13
+    at _c4 (http://192.168.56.1:5000/src/components/ui/tabs.tsx:47:61)
+    at div
+    at http://192.168.56.1:5000/node_modules/.vite/deps/chunk-CUQRY4JX.js?v=a27a3f5d:227:13
+    at Provider (http://192.168.56.1:5000/node_modules/.vite/deps/chunk-CUQRY4JX.js?v=a27a3f5d:43:15)
+    at http://192.168.56.1:5000/node_modules/.vite/deps/@radix-ui_react-tabs.js?v=9ca506c4:51:7
+    at div
+    at NavbarSettings (http://192.168.56.1:5000/src/pages/admin/NavbarSettings.tsx?t=1781110582395:792:23)
+    at div
+    at div
+    at div
+    at http://192.168.56.1:5000/node_modules/.vite/deps/chunk-CUQRY4JX.js?v=a27a3f5d:227:13
+    at http://192.168.56.1:5000/node_modules/.vite/deps/@radix-ui_react-scroll-area.js?v=d7045bda:114:13
+    at div
+    at http://192.168.56.1:5000/node_modules/.vite/deps/chunk-CUQRY4JX.js?v=a27a3f5d:227:13
+    at Provider (http://192.168.56.1:5000/node_modules/.vite/deps/chunk-CUQRY4JX.js?v=a27a3f5d:43:15)
+    at http://192.168.56.1:5000/node_modules/.vite/deps/@radix-ui_react-scroll-area.js?v=d7045bda:52:7
+    at _c (http://192.168.56.1:5000/src/components/ui/scroll-area.tsx:24:59)
+    at main
+    at div
+    at div
+    at AdminLayout (http://192.168.56.1:5000/src/components/admin/AdminLayout.tsx:598:31)
+    at TokenValidatedRoute (http://192.168.56.1:5000/src/components/admin/ProtectedRoute.tsx:70:32)
+    at ProtectedRoute (http://192.168.56.1:5000/src/components/admin/ProtectedRoute.tsx:49:34)
+    at RenderedRoute (http://192.168.56.1:5000/node_modules/.vite/deps/react-router-dom.js?v=76658606:4130:5)
+    at Routes (http://192.168.56.1:5000/node_modules/.vite/deps/react-router-dom.js?v=76658606:4600:5)
+    at Router (http://192.168.56.1:5000/node_modules/.vite/deps/react-router-dom.js?v=76658606:4543:15)
+    at BrowserRouter (http://192.168.56.1:5000/node_modules/.vite/deps/react-router-dom.js?v=76658606:5289:5)
+    at Provider (http://192.168.56.1:5000/node_modules/.vite/deps/chunk-CUQRY4JX.js?v=a27a3f5d:43:15)
+    at TooltipProvider (http://192.168.56.1:5000/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=fc6255f9:157:5)
+    at QueryClientProvider (http://192.168.56.1:5000/node_modules/.vite/deps/@tanstack_react-query.js?v=7aa093a2:3170:3)
+    at App
+    at _HelmetProvider (http://192.168.56.1:5000/node_modules/.vite/deps/react-helmet-async.js?v=3cc0a78d:627:5)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+logCapturedError @ chunk-O3VNRDW5.js?v=a27a3f5d:14080Understand this error
+chunk-O3VNRDW5.js?v=a27a3f5d:9176 Uncaught ReferenceError: t is not defined
+    at MediaLibraryDialog (NavbarSettings.tsx:355:23)
+    at renderWithHooks (chunk-O3VNRDW5.js?v=a27a3f5d:11596:26)
+    at mountIndeterminateComponent (chunk-O3VNRDW5.js?v=a27a3f5d:14974:21)
+    at beginWork (chunk-O3VNRDW5.js?v=a27a3f5d:15962:22)
+    at beginWork$1 (chunk-O3VNRDW5.js?v=a27a3f5d:19806:22)
+    at performUnitOfWork (chunk-O3VNRDW5.js?v=a27a3f5d:19251:20)
+    at workLoopSync (chunk-O3VNRDW5.js?v=a27a3f5d:19190:13)
+    at renderRootSync (chunk-O3VNRDW5.js?v=a27a3f5d:19169:15)
+    at recoverFromConcurrentError (chunk-O3VNRDW5.js?v=a27a3f5d:18786:28)
+    at performSyncWorkOnRoot (chunk-O3VNRDW5.js?v=a27a3f5d:18932:28)Understand this error

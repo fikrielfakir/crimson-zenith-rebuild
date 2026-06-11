@@ -1,0 +1,41 @@
+MediaUpload.tsx:83  POST https://84e4566f-11b6-47d5-845c-cc5931dda20a-00-2tyycyho96wts.janeway.replit.dev/api/admin/cms/media 404 (Not Found)
+handleFileSelect @ MediaUpload.tsx:83
+await in handleFileSelect
+callCallback2 @ chunk-W6L2VRDA.js?v=f8919eda:3674
+invokeGuardedCallbackDev @ chunk-W6L2VRDA.js?v=f8919eda:3699
+invokeGuardedCallback @ chunk-W6L2VRDA.js?v=f8919eda:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-W6L2VRDA.js?v=f8919eda:3736
+executeDispatch @ chunk-W6L2VRDA.js?v=f8919eda:7014
+processDispatchQueueItemsInOrder @ chunk-W6L2VRDA.js?v=f8919eda:7034
+processDispatchQueue @ chunk-W6L2VRDA.js?v=f8919eda:7043
+dispatchEventsForPlugins @ chunk-W6L2VRDA.js?v=f8919eda:7051
+(anonymous) @ chunk-W6L2VRDA.js?v=f8919eda:7174
+batchedUpdates$1 @ chunk-W6L2VRDA.js?v=f8919eda:18913
+batchedUpdates @ chunk-W6L2VRDA.js?v=f8919eda:3579
+dispatchEventForPluginEventSystem @ chunk-W6L2VRDA.js?v=f8919eda:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-W6L2VRDA.js?v=f8919eda:5478
+dispatchEvent @ chunk-W6L2VRDA.js?v=f8919eda:5472
+dispatchDiscreteEvent @ chunk-W6L2VRDA.js?v=f8919eda:5449
+MediaUpload.tsx:108 Upload error: Error: Upload failed
+    at handleFileSelect (MediaUpload.tsx:96:15)
+handleFileSelect @ MediaUpload.tsx:108
+await in handleFileSelect
+callCallback2 @ chunk-W6L2VRDA.js?v=f8919eda:3674
+invokeGuardedCallbackDev @ chunk-W6L2VRDA.js?v=f8919eda:3699
+invokeGuardedCallback @ chunk-W6L2VRDA.js?v=f8919eda:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-W6L2VRDA.js?v=f8919eda:3736
+executeDispatch @ chunk-W6L2VRDA.js?v=f8919eda:7014
+processDispatchQueueItemsInOrder @ chunk-W6L2VRDA.js?v=f8919eda:7034
+processDispatchQueue @ chunk-W6L2VRDA.js?v=f8919eda:7043
+dispatchEventsForPlugins @ chunk-W6L2VRDA.js?v=f8919eda:7051
+(anonymous) @ chunk-W6L2VRDA.js?v=f8919eda:7174
+batchedUpdates$1 @ chunk-W6L2VRDA.js?v=f8919eda:18913
+batchedUpdates @ chunk-W6L2VRDA.js?v=f8919eda:3579
+dispatchEventForPluginEventSystem @ chunk-W6L2VRDA.js?v=f8919eda:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-W6L2VRDA.js?v=f8919eda:5478
+dispatchEvent @ chunk-W6L2VRDA.js?v=f8919eda:5472
+dispatchDiscreteEvent @ chunk-W6L2VRDA.js?v=f8919eda:5449
+landing:1 Uncaught (in promise) Error: A listener indicated an asynchronous response by returning true, but the message channel closed before a response was received
+landing:1 Uncaught (in promise) Error: A listener indicated an asynchronous response by returning true, but the message channel closed before a response was received
+landing:1 Uncaught (in promise) Error: A listener indicated an asynchronous response by returning true, but the message channel closed before a response was received
+landing:1 Uncaught (in promise) Error: A listener indicated an asynchronous response by returning true, but the message channel closed before a response was received

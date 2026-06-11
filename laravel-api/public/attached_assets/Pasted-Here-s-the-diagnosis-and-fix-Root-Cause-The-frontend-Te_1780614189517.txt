@@ -1,0 +1,82 @@
+Here's the diagnosis and fix:
+
+Root Cause
+The frontend TestimonialsManagement.tsx calls four REST endpoints:
+MethodURLGET/api/admin/cms/testimonialsPOST/api/admin/cms/testimonialsPUT/api/admin/cms/testimonials/{id}DELETE/api/admin/cms/testimonials/{id}
+None of these routes exist in routes/api.php. The admin block has stats/partners/focus-items CRUD but testimonials were never wired up. The LandingTestimonial model and CmsAdminController already have partial support — you just need to add the routes and a few dedicated controller methods.
+
+Fix 1 — Add routes to routes/api.php
+Add this block right after the existing // CMS bulk-update collections section (around line 339):
+php// Testimonials CRUD
+Route::get('/cms/testimonials',       [\App\Http\Controllers\Admin\CmsAdminController::class, 'listTestimonials']);
+Route::post('/cms/testimonials',      [\App\Http\Controllers\Admin\CmsAdminController::class, 'storeTestimonial']);
+Route::put('/cms/testimonials/{id}',  [\App\Http\Controllers\Admin\CmsAdminController::class, 'updateTestimonial']);
+Route::delete('/cms/testimonials/{id}', [\App\Http\Controllers\Admin\CmsAdminController::class, 'destroyTestimonial']);
+
+Fix 2 — Add methods to CmsAdminController.php
+Add these four methods to the class:
+phppublic function listTestimonials()
+{
+    return response()->json(LandingTestimonial::orderBy('ordering')->get());
+}
+
+public function storeTestimonial(Request $request)
+{
+    $data = $request->validate([
+        'name'        => 'required|string|max:255',
+        'role'        => 'nullable|string|max:255',
+        'feedback'    => 'required|string',
+        'rating'      => 'nullable|integer|min:1|max:5',
+        'isApproved'  => 'nullable|boolean',
+        'isActive'    => 'nullable|boolean',
+    ]);
+
+    $testimonial = LandingTestimonial::create([
+        'name'        => $data['name'],
+        'role'        => $data['role'] ?? null,
+        'feedback'    => $data['feedback'],
+        'rating'      => $data['rating'] ?? 5,
+        'is_approved' => $data['isApproved'] ?? true,
+        'is_active'   => $data['isActive'] ?? true,
+        'ordering'    => LandingTestimonial::max('ordering') + 1,
+    ]);
+
+    return response()->json($testimonial, 201);
+}
+
+public function updateTestimonial(Request $request, $id)
+{
+    $testimonial = LandingTestimonial::findOrFail($id);
+
+    $data = $request->validate([
+        'name'        => 'sometimes|string|max:255',
+        'role'        => 'nullable|string|max:255',
+        'feedback'    => 'sometimes|string',
+        'rating'      => 'nullable|integer|min:1|max:5',
+        'isApproved'  => 'nullable|boolean',
+        'isActive'    => 'nullable|boolean',
+        'ordering'    => 'nullable|integer',
+    ]);
+
+    $testimonial->update([
+        'name'        => $data['name']       ?? $testimonial->name,
+        'role'        => $data['role']       ?? $testimonial->role,
+        'feedback'    => $data['feedback']   ?? $testimonial->feedback,
+        'rating'      => $data['rating']     ?? $testimonial->rating,
+        'is_approved' => $data['isApproved'] ?? $testimonial->is_approved,
+        'is_active'   => $data['isActive']   ?? $testimonial->is_active,
+        'ordering'    => $data['ordering']   ?? $testimonial->ordering,
+    ]);
+
+    return response()->json($testimonial->fresh());
+}
+
+public function destroyTestimonial($id)
+{
+    LandingTestimonial::findOrFail($id)->delete();
+    return response()->json(['message' => 'Deleted']);
+}
+
+A note on camelCase ↔ snake_case
+The frontend sends isApproved / isActive (camelCase) while the DB column is is_approved / is_active. The controller methods above handle the mapping manually. If you want Laravel to handle this automatically, you can add a $casts or use snake_case keys on the frontend instead — but the explicit mapping is the safest approach here.
+Once these changes are deployed and php artisan route:clear is run, the 404 will be gone.

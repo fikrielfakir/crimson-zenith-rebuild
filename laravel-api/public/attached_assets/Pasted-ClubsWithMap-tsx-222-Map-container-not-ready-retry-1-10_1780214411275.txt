@@ -1,0 +1,50 @@
+ClubsWithMap.tsx:222 Map container not ready, retry 1/10
+api/auth/user:1  Failed to load resource: the server responded with a status of 401 (Unauthorized)Understand this error
+ClubsWithMap.tsx:234 Initializing map with container: <div class=​"absolute inset-0 z-0" id=​"clubs-map" style=​"height:​ 100vh;​ width:​ 100%;​ position:​ absolute;​">​</div>​
+ClubsWithMap.tsx:253 ✅ Map loaded successfully with satellite tiles!
+2chunk-O3VNRDW5.js?v=47435847:9981 Uncaught Error: Objects are not valid as a React child (found: object with keys {text, image}). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (chunk-O3VNRDW5.js?v=47435847:9981:17)
+    at reconcileChildFibers2 (chunk-O3VNRDW5.js?v=47435847:10611:15)
+    at reconcileChildren (chunk-O3VNRDW5.js?v=47435847:14340:37)
+    at updateHostComponent (chunk-O3VNRDW5.js?v=47435847:14855:11)
+    at beginWork (chunk-O3VNRDW5.js?v=47435847:15983:22)
+    at HTMLUnknownElement.callCallback2 (chunk-O3VNRDW5.js?v=47435847:3680:22)
+    at Object.invokeGuardedCallbackDev (chunk-O3VNRDW5.js?v=47435847:3705:24)
+    at invokeGuardedCallback (chunk-O3VNRDW5.js?v=47435847:3739:39)
+    at beginWork$1 (chunk-O3VNRDW5.js?v=47435847:19818:15)
+    at performUnitOfWork (chunk-O3VNRDW5.js?v=47435847:19251:20)Understand this error
+chunk-O3VNRDW5.js?v=47435847:14080 The above error occurred in the <span> component:
+
+    at span
+    at div
+    at div
+    at div
+    at div
+    at section
+    at main
+    at div
+    at Discover (http://192.168.56.1:5000/src/pages/Discover.tsx:46:39)
+    at RenderedRoute (http://192.168.56.1:5000/node_modules/.vite/deps/react-router-dom.js?v=47435847:4130:5)
+    at Routes (http://192.168.56.1:5000/node_modules/.vite/deps/react-router-dom.js?v=47435847:4600:5)
+    at Router (http://192.168.56.1:5000/node_modules/.vite/deps/react-router-dom.js?v=47435847:4543:15)
+    at BrowserRouter (http://192.168.56.1:5000/node_modules/.vite/deps/react-router-dom.js?v=47435847:5289:5)
+    at Provider (http://192.168.56.1:5000/node_modules/.vite/deps/chunk-CUQRY4JX.js?v=47435847:43:15)
+    at TooltipProvider (http://192.168.56.1:5000/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=47435847:157:5)
+    at QueryClientProvider (http://192.168.56.1:5000/node_modules/.vite/deps/@tanstack_react-query.js?v=47435847:3170:3)
+    at App
+    at _HelmetProvider (http://192.168.56.1:5000/node_modules/.vite/deps/react-helmet-async.js?v=47435847:627:5)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+logCapturedError @ chunk-O3VNRDW5.js?v=47435847:14080Understand this error
+chunk-O3VNRDW5.js?v=47435847:9176 Uncaught Error: Objects are not valid as a React child (found: object with keys {text, image}). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (chunk-O3VNRDW5.js?v=47435847:9981:17)
+    at reconcileChildFibers2 (chunk-O3VNRDW5.js?v=47435847:10611:15)
+    at reconcileChildren (chunk-O3VNRDW5.js?v=47435847:14340:37)
+    at updateHostComponent (chunk-O3VNRDW5.js?v=47435847:14855:11)
+    at beginWork (chunk-O3VNRDW5.js?v=47435847:15983:22)
+    at beginWork$1 (chunk-O3VNRDW5.js?v=47435847:19806:22)
+    at performUnitOfWork (chunk-O3VNRDW5.js?v=47435847:19251:20)
+    at workLoopSync (chunk-O3VNRDW5.js?v=47435847:19190:13)
+    at renderRootSync (chunk-O3VNRDW5.js?v=47435847:19169:15)
+    at recoverFromConcurrentError (chunk-O3VNRDW5.js?v=47435847:18786:28)

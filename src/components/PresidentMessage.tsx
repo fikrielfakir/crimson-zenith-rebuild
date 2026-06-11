@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { apiFetch } from '@/lib/apiFetch';
 import { useCmsTranslations } from '@/hooks/useCmsTranslations';
 
-const FALLBACK_PHOTO = '/attached_assets/527458761_17954306891994519_4667490874676487214_n_1762796640998.jpg';
+const FALLBACK_PHOTO = 'https://api.thejourney-ma.org/attached_assets/527458761_17954306891994519_4667490874676487214_n_1762796640998.jpg';
 
 const DEFAULTS = {
   is_active: true,

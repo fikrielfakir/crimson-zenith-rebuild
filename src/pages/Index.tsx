@@ -16,7 +16,7 @@ import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
 import BottomNavbar from "@/components/BottomNavbar";
 import LandingApiError from "@/components/LandingApiError";
-import heroBackground from "@/assets/hero-bg.jpg";
+const heroBackground = "https://api.thejourney-ma.org/attached_assets/hero-bg.jpg";
 
 interface LandingSection {
   sectionKey: string;
@@ -100,7 +100,7 @@ const LandingPageSkeleton = () => (
 
     {/* Decorative bottom pattern — identical to real hero */}
     <div className="absolute bottom-0 left-0 right-0 w-full h-auto z-10 pointer-events-none opacity-70">
-      <img src="/attached_assets/pattern 002_1762097803637.png" alt="" className="w-full h-auto object-cover" />
+      <img src="https://api.thejourney-ma.org/attached_assets/pattern%20002_1762097803637.png" alt="" className="w-full h-auto object-cover" />
     </div>
   </section>
 );

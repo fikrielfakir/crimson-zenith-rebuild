@@ -91,7 +91,7 @@ const VolunteersPosts = () => {
           <div 
             className="absolute inset-0 bg-cover bg-center bg-no-repeat"
             style={{
-              backgroundImage: `url('/attached_assets/generated_images/Tetouan_medina_panorama_b1f6dcbc.png')`,
+              backgroundImage: `url('https://api.thejourney-ma.org/attached_assets/generated_images/Tetouan_medina_panorama_b1f6dcbc.png')`,
               transform: `translateY(${scrollY * 0.3}px)`,
               filter: 'brightness(0.6) contrast(1.1) saturate(1.2)',
             }}

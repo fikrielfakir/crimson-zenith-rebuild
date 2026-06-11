@@ -1,0 +1,51 @@
+
+warnOnce @ react-router-dom.js?v=8e1fcad9:4435
+logDeprecation @ react-router-dom.js?v=8e1fcad9:4438
+logV6DeprecationWarnings @ react-router-dom.js?v=8e1fcad9:4444
+(anonymous) @ react-router-dom.js?v=8e1fcad9:5313
+commitHookEffectListMount @ chunk-O3VNRDW5.js?v=8e1fcad9:16963
+commitPassiveMountOnFiber @ chunk-O3VNRDW5.js?v=8e1fcad9:18206
+commitPassiveMountEffects_complete @ chunk-O3VNRDW5.js?v=8e1fcad9:18179
+commitPassiveMountEffects_begin @ chunk-O3VNRDW5.js?v=8e1fcad9:18169
+commitPassiveMountEffects @ chunk-O3VNRDW5.js?v=8e1fcad9:18159
+flushPassiveEffectsImpl @ chunk-O3VNRDW5.js?v=8e1fcad9:19543
+flushPassiveEffects @ chunk-O3VNRDW5.js?v=8e1fcad9:19500
+performSyncWorkOnRoot @ chunk-O3VNRDW5.js?v=8e1fcad9:18921
+flushSyncCallbacks @ chunk-O3VNRDW5.js?v=8e1fcad9:9166
+commitRootImpl @ chunk-O3VNRDW5.js?v=8e1fcad9:19485
+commitRoot @ chunk-O3VNRDW5.js?v=8e1fcad9:19330
+finishConcurrentRender @ chunk-O3VNRDW5.js?v=8e1fcad9:18858
+performConcurrentWorkOnRoot @ chunk-O3VNRDW5.js?v=8e1fcad9:18768
+workLoop @ chunk-O3VNRDW5.js?v=8e1fcad9:197
+flushWork @ chunk-O3VNRDW5.js?v=8e1fcad9:176
+performWorkUntilDeadline @ chunk-O3VNRDW5.js?v=8e1fcad9:384
+postMessage
+schedulePerformWorkUntilDeadline @ chunk-O3VNRDW5.js?v=8e1fcad9:407
+requestHostCallback @ chunk-O3VNRDW5.js?v=8e1fcad9:418
+unstable_scheduleCallback @ chunk-O3VNRDW5.js?v=8e1fcad9:330
+scheduleCallback$1 @ chunk-O3VNRDW5.js?v=8e1fcad9:19879
+ensureRootIsScheduled @ chunk-O3VNRDW5.js?v=8e1fcad9:18702
+scheduleUpdateOnFiber @ chunk-O3VNRDW5.js?v=8e1fcad9:18612
+updateContainer @ chunk-O3VNRDW5.js?v=8e1fcad9:20834
+ReactDOMHydrationRoot.render.ReactDOMRoot.render @ chunk-O3VNRDW5.js?v=8e1fcad9:21174
+(anonymous) @ main.tsx:9Understand this warning
+apiFetch.ts:63  POST http://192.168.56.1:5000/api/admin/clubs/upload-image 500 (Internal Server Error)
+(anonymous) @ apiFetch.ts:63
+(anonymous) @ ClubForm.tsx:71
+await in (anonymous)
+(anonymous) @ ClubForm.tsx:95
+callCallback2 @ chunk-O3VNRDW5.js?v=8e1fcad9:3680
+invokeGuardedCallbackDev @ chunk-O3VNRDW5.js?v=8e1fcad9:3705
+invokeGuardedCallback @ chunk-O3VNRDW5.js?v=8e1fcad9:3739
+invokeGuardedCallbackAndCatchFirstError @ chunk-O3VNRDW5.js?v=8e1fcad9:3742
+executeDispatch @ chunk-O3VNRDW5.js?v=8e1fcad9:7046
+processDispatchQueueItemsInOrder @ chunk-O3VNRDW5.js?v=8e1fcad9:7066
+processDispatchQueue @ chunk-O3VNRDW5.js?v=8e1fcad9:7075
+dispatchEventsForPlugins @ chunk-O3VNRDW5.js?v=8e1fcad9:7083
+(anonymous) @ chunk-O3VNRDW5.js?v=8e1fcad9:7206
+batchedUpdates$1 @ chunk-O3VNRDW5.js?v=8e1fcad9:18966
+batchedUpdates @ chunk-O3VNRDW5.js?v=8e1fcad9:3585
+dispatchEventForPluginEventSystem @ chunk-O3VNRDW5.js?v=8e1fcad9:7205
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-O3VNRDW5.js?v=8e1fcad9:5484
+dispatchEvent @ chunk-O3VNRDW5.js?v=8e1fcad9:5478
+dispatchDiscreteEvent @ chunk-O3VNRDW5.js?v=8e1fcad9:5455Understand this error

@@ -1,0 +1,68 @@
+chunk-K23GC2QC.js?v=584642dc:9981 Uncaught Error: Objects are not valid as a React child (found: object with keys {text, image}). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (chunk-K23GC2QC.js?v=584642dc:9981:17)
+    at reconcileChildFibers2 (chunk-K23GC2QC.js?v=584642dc:10611:15)
+    at reconcileChildren (chunk-K23GC2QC.js?v=584642dc:14338:37)
+    at updateHostComponent (chunk-K23GC2QC.js?v=584642dc:14855:11)
+    at beginWork (chunk-K23GC2QC.js?v=584642dc:15983:22)
+    at HTMLUnknownElement.callCallback2 (chunk-K23GC2QC.js?v=584642dc:3680:22)
+    at Object.invokeGuardedCallbackDev (chunk-K23GC2QC.js?v=584642dc:3705:24)
+    at invokeGuardedCallback (chunk-K23GC2QC.js?v=584642dc:3739:39)
+    at beginWork$1 (chunk-K23GC2QC.js?v=584642dc:19818:15)
+    at performUnitOfWork (chunk-K23GC2QC.js?v=584642dc:19251:20)Understand this error
+chunk-K23GC2QC.js?v=584642dc:14080 The above error occurred in the <span> component:
+
+    at span
+    at div
+    at div
+    at div
+    at div
+    at div
+    at div
+    at http://192.168.56.2:5000/node_modules/.vite/deps/chunk-KP5E6AO6.js?v=584642dc:43:13
+    at Presence (http://192.168.56.2:5000/node_modules/.vite/deps/chunk-2OYONVJB.js?v=584642dc:24:11)
+    at http://192.168.56.2:5000/node_modules/.vite/deps/@radix-ui_react-tabs.js?v=584642dc:178:13
+    at _c4 (http://192.168.56.2:5000/src/components/ui/tabs.tsx:47:61)
+    at div
+    at http://192.168.56.2:5000/node_modules/.vite/deps/chunk-KP5E6AO6.js?v=584642dc:43:13
+    at Provider (http://192.168.56.2:5000/node_modules/.vite/deps/chunk-U4NED7UW.js?v=584642dc:37:15)
+    at http://192.168.56.2:5000/node_modules/.vite/deps/@radix-ui_react-tabs.js?v=584642dc:55:7
+    at CitiesManagement (http://192.168.56.2:5000/src/pages/admin/CitiesManagement.tsx:1158:37)
+    at div
+    at div
+    at div
+    at http://192.168.56.2:5000/node_modules/.vite/deps/chunk-KP5E6AO6.js?v=584642dc:43:13
+    at http://192.168.56.2:5000/node_modules/.vite/deps/@radix-ui_react-scroll-area.js?v=584642dc:118:13
+    at div
+    at http://192.168.56.2:5000/node_modules/.vite/deps/chunk-KP5E6AO6.js?v=584642dc:43:13
+    at Provider (http://192.168.56.2:5000/node_modules/.vite/deps/chunk-U4NED7UW.js?v=584642dc:37:15)
+    at http://192.168.56.2:5000/node_modules/.vite/deps/@radix-ui_react-scroll-area.js?v=584642dc:56:7
+    at _c (http://192.168.56.2:5000/src/components/ui/scroll-area.tsx:24:59)
+    at main
+    at div
+    at div
+    at AdminLayout (http://192.168.56.2:5000/src/components/admin/AdminLayout.tsx:189:31)
+    at TokenValidatedRoute (http://192.168.56.2:5000/src/components/admin/ProtectedRoute.tsx:58:32)
+    at ProtectedRoute (http://192.168.56.2:5000/src/components/admin/ProtectedRoute.tsx:37:34)
+    at RenderedRoute (http://192.168.56.2:5000/node_modules/.vite/deps/react-router-dom.js?v=584642dc:4088:5)
+    at Routes (http://192.168.56.2:5000/node_modules/.vite/deps/react-router-dom.js?v=584642dc:4558:5)
+    at Router (http://192.168.56.2:5000/node_modules/.vite/deps/react-router-dom.js?v=584642dc:4501:15)
+    at BrowserRouter (http://192.168.56.2:5000/node_modules/.vite/deps/react-router-dom.js?v=584642dc:5247:5)
+    at Provider (http://192.168.56.2:5000/node_modules/.vite/deps/chunk-U4NED7UW.js?v=584642dc:37:15)
+    at TooltipProvider (http://192.168.56.2:5000/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=584642dc:65:5)
+    at QueryClientProvider (http://192.168.56.2:5000/node_modules/.vite/deps/@tanstack_react-query.js?v=584642dc:3025:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+logCapturedError @ chunk-K23GC2QC.js?v=584642dc:14080Understand this error
+chunk-K23GC2QC.js?v=584642dc:9176 Uncaught Error: Objects are not valid as a React child (found: object with keys {text, image}). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (chunk-K23GC2QC.js?v=584642dc:9981:17)
+    at reconcileChildFibers2 (chunk-K23GC2QC.js?v=584642dc:10611:15)
+    at reconcileChildren (chunk-K23GC2QC.js?v=584642dc:14338:37)
+    at updateHostComponent (chunk-K23GC2QC.js?v=584642dc:14855:11)
+    at beginWork (chunk-K23GC2QC.js?v=584642dc:15983:22)
+    at beginWork$1 (chunk-K23GC2QC.js?v=584642dc:19806:22)
+    at performUnitOfWork (chunk-K23GC2QC.js?v=584642dc:19251:20)
+    at workLoopSync (chunk-K23GC2QC.js?v=584642dc:19190:13)
+    at renderRootSync (chunk-K23GC2QC.js?v=584642dc:19169:15)
+    at recoverFromConcurrentError (chunk-K23GC2QC.js?v=584642dc:18786:28)Understand this error

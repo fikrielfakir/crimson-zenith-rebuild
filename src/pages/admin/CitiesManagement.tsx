@@ -75,14 +75,14 @@ interface DiscoverSettings {
 
 /* ─────────────────── built-in city images ─────────────────── */
 const BUILTIN_IMAGES = [
-  { url: '/attached_assets/generated_images/Tangier_city_aerial_view_03330006.png',           label: 'Tangier — Aerial View' },
-  { url: '/attached_assets/generated_images/Tetouan_medina_panorama_b1f6dcbc.png',            label: 'Tetouan — Medina Panorama' },
-  { url: '/attached_assets/generated_images/Al_Hoceima_coastal_view_9e4e9e0c.png',            label: 'Al Hoceima — Coastal View' },
-  { url: '/attached_assets/generated_images/Chefchaouen_blue_streets_272376ab.png',           label: 'Chefchaouen — Blue Streets' },
-  { url: '/attached_assets/generated_images/Fes_medina_and_tanneries_3e9a2ff0.png',           label: 'Fes — Medina & Tanneries' },
-  { url: '/attached_assets/generated_images/Essaouira_coastal_fortifications_07abbfb6.png',   label: 'Essaouira — Coastal Fortifications' },
-  { url: '/attached_assets/generated_images/Moroccan_cultural_heritage_architecture_19572d75.png', label: 'Moroccan Heritage Architecture' },
-  { url: '/attached_assets/generated_images/Moroccan_entertainment_festival_performance_51d1857c.png', label: 'Moroccan Festival' },
+  { url: 'https://api.thejourney-ma.org/attached_assets/generated_images/Tangier_city_aerial_view_03330006.png',           label: 'Tangier — Aerial View' },
+  { url: 'https://api.thejourney-ma.org/attached_assets/generated_images/Tetouan_medina_panorama_b1f6dcbc.png',            label: 'Tetouan — Medina Panorama' },
+  { url: 'https://api.thejourney-ma.org/attached_assets/generated_images/Al_Hoceima_coastal_view_9e4e9e0c.png',            label: 'Al Hoceima — Coastal View' },
+  { url: 'https://api.thejourney-ma.org/attached_assets/generated_images/Chefchaouen_blue_streets_272376ab.png',           label: 'Chefchaouen — Blue Streets' },
+  { url: 'https://api.thejourney-ma.org/attached_assets/generated_images/Fes_medina_and_tanneries_3e9a2ff0.png',           label: 'Fes — Medina & Tanneries' },
+  { url: 'https://api.thejourney-ma.org/attached_assets/generated_images/Essaouira_coastal_fortifications_07abbfb6.png',   label: 'Essaouira — Coastal Fortifications' },
+  { url: 'https://api.thejourney-ma.org/attached_assets/generated_images/Moroccan_cultural_heritage_architecture_19572d75.png', label: 'Moroccan Heritage Architecture' },
+  { url: 'https://api.thejourney-ma.org/attached_assets/generated_images/Moroccan_entertainment_festival_performance_51d1857c.png', label: 'Moroccan Festival' },
 ];
 
 /* ─────────────────── MediaPickerDialog ─────────────────── */
@@ -476,7 +476,7 @@ function ImageField({
         <Input
           value={value}
           onChange={e => onChange(e.target.value)}
-          placeholder="/attached_assets/..."
+          placeholder="https://api.thejourney-ma.org/..."
           className="flex-1"
         />
         <Button

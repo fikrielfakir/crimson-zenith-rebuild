@@ -1,0 +1,59 @@
+Fix the responsive layout issues on this website. Based on a mobile screenshot review, 
+the following problems need to be addressed:
+
+1. **Hero Section**
+   - The hero text ("JOUR") appears cut off or clipped — ensure the full heading is 
+     visible and text doesn't overflow its container.
+   - Hero buttons ("Start Your Journey", "Explore Clubs") should be centered and 
+     have consistent width/padding on small screens.
+
+2. **Navigation Bar**
+   - Icons and logo appear cramped. Ensure the navbar has proper padding and items 
+     don't overlap on screens < 480px.
+
+3. **"A Word from the President" Section**
+   - The president's image appears left-aligned and oversized. It should be centered 
+     with a max-width (e.g., max-width: 120px) and the text block should stack 
+     below it with center alignment on mobile.
+
+4. **Our Clubs Section**
+   - Club cards appear to be cut off on the right side. Use a horizontal scroll 
+     (overflow-x: auto) or switch to a single-column stacked layout on mobile 
+     (flex-direction: column or grid with 1 column).
+
+5. **Events & Activities Calendar**
+   - The calendar table overflows the screen horizontally. Apply overflow-x: auto 
+     to the calendar wrapper, or rebuild it to use a mobile-friendly layout 
+     (e.g., list view instead of a grid table on screens < 600px).
+
+6. **Our Impact Stats Section**
+   - The 4-column stats grid (1,200+, 500+, 85+, 10+) is too cramped on mobile. 
+     Change to a 2x2 grid (grid-template-columns: repeat(2, 1fr)) for screens 
+     under 600px.
+
+7. **Member Stories**
+   - Story cards appear as empty boxes — check that images and text are loading, 
+     and ensure cards stack vertically (1 column) on mobile with full width.
+
+8. **Partners & Supporters Logos**
+   - Logos appear clipped or misaligned. Use flexbox with flex-wrap: wrap and 
+     justify-content: center so logos reflow naturally on small screens.
+
+9. **Contact Section**
+   - Contact info items (email, phone, address) are left-aligned with icons but 
+     appear to have overflow. Ensure text wraps properly and rows don't exceed 
+     viewport width. Use word-break: break-word on email addresses.
+
+10. **Footer**
+    - Footer columns should stack vertically on mobile (flex-direction: column). 
+      Social icons should be centered. Ensure all links are tappable with at least 
+      44px touch target height.
+
+**General Fixes to Apply Across All Sections:**
+- Add `box-sizing: border-box` globally if not already set.
+- Ensure `max-width: 100%` and `overflow-x: hidden` on the `body` and main wrapper 
+  to prevent horizontal scroll.
+- All section padding should use responsive units: 
+  `padding: 40px 16px` on mobile (≤ 768px).
+- All images should have `max-width: 100%; height: auto;` to prevent overflow.
+- Use this base media query breakpoint for mobile fixes: `@media (max-width: 768px)`.
