@@ -26,6 +26,12 @@ const LARAVEL_API = "https://api.thejourney-ma.org";
 const LOCAL_API = "http://localhost:3001";
 const LOCAL_LARAVEL = "http://localhost:8000";
 
+// On Replit (REPL_ID is set) route /api to the local Express server.
+// Locally (no REPL_ID) fall back to the external Laravel API so the
+// frontend works without needing a local backend process.
+const IS_REPLIT = !!process.env.REPL_ID;
+const API_PROXY_TARGET = IS_REPLIT ? LOCAL_API : LARAVEL_API;
+
 const proxyOptions = {
   target: LARAVEL_API,
   changeOrigin: true,
@@ -139,46 +145,40 @@ export default defineConfig(({ mode }: { mode: string }) => ({
     },
     proxy: {
       "/api": {
-        target: LARAVEL_API,
+        target: API_PROXY_TARGET,
         changeOrigin: true,
-        secure: true,
-        headers: {
-          Origin: "https://thejourney-ma.org",
-          Referer: "https://thejourney-ma.org/",
-        },
+        secure: !IS_REPLIT,
         configure: (proxy: any) => {
           proxy.on("proxyReq", (proxyReq: any, req: any) => {
             const auth = req.headers["authorization"];
             if (auth) proxyReq.setHeader("Authorization", auth);
             const cookie = req.headers["cookie"];
             if (cookie) proxyReq.setHeader("Cookie", cookie);
+            // Spoof origin so the external Laravel API accepts requests when running locally
+            if (!IS_REPLIT) {
+              proxyReq.setHeader("Origin", "https://thejourney-ma.org");
+              proxyReq.setHeader("Referer", "https://thejourney-ma.org/");
+            }
           });
           proxy.on("error", (err: any, _req: any, res: any) => {
-            console.error("[proxy] Laravel API unavailable:", err.message);
+            const target = IS_REPLIT ? "local API (3001)" : "external API (api.thejourney-ma.org)";
+            console.error(`[proxy] ${target} unavailable:`, err.message);
             if (res && !res.headersSent) {
               res.writeHead(503, { "Content-Type": "application/json" });
-              res.end(JSON.stringify({ message: "API unavailable — please try again later." }));
+              res.end(JSON.stringify({ message: "API unavailable — please try again in a moment." }));
             }
           });
         },
       },
       "/uploads": {
-        target: LARAVEL_API,
+        target: API_PROXY_TARGET,
         changeOrigin: true,
-        secure: true,
-        headers: {
-          Origin: "https://thejourney-ma.org",
-          Referer: "https://thejourney-ma.org/",
-        },
+        secure: !IS_REPLIT,
       },
       "/storage": {
-        target: LARAVEL_API,
+        target: API_PROXY_TARGET,
         changeOrigin: true,
-        secure: true,
-        headers: {
-          Origin: "https://thejourney-ma.org",
-          Referer: "https://thejourney-ma.org/",
-        },
+        secure: !IS_REPLIT,
       },
     },
   },
