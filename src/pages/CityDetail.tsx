@@ -600,7 +600,7 @@ const CityDetail = () => {
                   >
                     <div className="aspect-video relative">
                       <img
-                        src={otherCity.image}
+                        src={resolveStorageUrl(otherCity.image) ?? '/placeholder.svg'}
                         alt={otherCity.name}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                       />

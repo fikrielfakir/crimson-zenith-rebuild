@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { resolveStorageUrl } from "@/lib/apiFetch";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -270,7 +271,7 @@ const LearnMore = () => {
                     <Card key={index} className="text-center hover:shadow-elegant transition-all duration-300">
                       <CardContent className="p-6">
                         <img 
-                          src={member.image} 
+                          src={resolveStorageUrl(member.image) ?? '/placeholder.svg'} 
                           alt={member.name}
                           className="w-24 h-24 rounded-full mx-auto mb-4 object-cover"
                         />

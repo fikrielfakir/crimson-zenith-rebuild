@@ -5,7 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useHeroSettings } from "@/hooks/useCMS";
 import { useAuth } from "@/hooks/useAuth";
-import { apiFetch } from "@/lib/apiFetch";
+import { apiFetch, resolveStorageUrl } from "@/lib/apiFetch";
 const heroBackground = "https://api.thejourney-ma.org/attached_assets/hero-bg.jpg";
 import { useTranslation } from "react-i18next";
 import { useCmsTranslations } from "@/hooks/useCmsTranslations";
@@ -160,7 +160,7 @@ const Hero = () => {
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-primary">
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: `url(${heroBackground})` }}
+          style={{ backgroundImage: `url(${resolveStorageUrl(heroBackground) ?? heroBackground})` }}
         />
         <div className="absolute inset-0 bg-primary/70" />
         <div className="relative z-10 text-center px-6">
@@ -190,7 +190,7 @@ const Hero = () => {
       ) : (
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: `url(${effectiveImageUrl || backgroundUrl})` }}
+          style={{ backgroundImage: `url(${resolveStorageUrl(effectiveImageUrl || backgroundUrl) ?? (effectiveImageUrl || backgroundUrl)})` }}
         />
       )}
 
