@@ -130,7 +130,7 @@ const BlogPost = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-white">
-        <Header />
+        <Header forceOpaque={true} />
         <div className="flex items-center justify-center py-40">
           <div className="text-center space-y-4">
             <div className="relative w-12 h-12 mx-auto">
@@ -148,7 +148,7 @@ const BlogPost = () => {
   if (error || !article) {
     return (
       <div className="min-h-screen bg-white">
-        <Header />
+        <Header forceOpaque={true} />
         <div className="flex items-center justify-center py-40">
           <div className="text-center space-y-6">
             <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center mx-auto">
