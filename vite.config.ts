@@ -139,9 +139,13 @@ export default defineConfig(({ mode }: { mode: string }) => ({
     },
     proxy: {
       "/api": {
-        target: LOCAL_API,
+        target: LARAVEL_API,
         changeOrigin: true,
-        secure: false,
+        secure: true,
+        headers: {
+          Origin: "https://thejourney-ma.org",
+          Referer: "https://thejourney-ma.org/",
+        },
         configure: (proxy: any) => {
           proxy.on("proxyReq", (proxyReq: any, req: any) => {
             const auth = req.headers["authorization"];
@@ -150,23 +154,31 @@ export default defineConfig(({ mode }: { mode: string }) => ({
             if (cookie) proxyReq.setHeader("Cookie", cookie);
           });
           proxy.on("error", (err: any, _req: any, res: any) => {
-            console.error("[proxy] Local API (3001) unavailable:", err.message);
+            console.error("[proxy] Laravel API unavailable:", err.message);
             if (res && !res.headersSent) {
               res.writeHead(503, { "Content-Type": "application/json" });
-              res.end(JSON.stringify({ message: "API unavailable — make sure the server is running." }));
+              res.end(JSON.stringify({ message: "API unavailable — please try again later." }));
             }
           });
         },
       },
       "/uploads": {
-        target: LOCAL_API,
+        target: LARAVEL_API,
         changeOrigin: true,
-        secure: false,
+        secure: true,
+        headers: {
+          Origin: "https://thejourney-ma.org",
+          Referer: "https://thejourney-ma.org/",
+        },
       },
       "/storage": {
-        target: LOCAL_API,
+        target: LARAVEL_API,
         changeOrigin: true,
-        secure: false,
+        secure: true,
+        headers: {
+          Origin: "https://thejourney-ma.org",
+          Referer: "https://thejourney-ma.org/",
+        },
       },
     },
   },

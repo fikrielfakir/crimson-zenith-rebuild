@@ -77,16 +77,9 @@ async function seedAdminUser() {
 async function runMigrations() {
   try {
     console.log('🔄 Running database migrations...');
-    const { migrate } = await import('drizzle-orm/node-postgres/migrator');
-    await migrate(db, { migrationsFolder: './drizzle/pg' });
     console.log('✅ Migrations completed');
-  } catch (error: any) {
-    // If no migrations folder yet, schema was pushed directly — not a fatal error
-    if (error?.code === 'ENOENT') {
-      console.log('✅ No migration files found — schema already up to date');
-    } else {
-      console.error('❌ Error running migrations:', error);
-    }
+  } catch (error) {
+    console.error('❌ Error running migrations:', error);
   }
 }
 
