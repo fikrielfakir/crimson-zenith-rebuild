@@ -2383,6 +2383,54 @@ app.patch('/api/admin/bookings/:id/status', isAdmin, async (req, res) => {
 });
 
 // Blog Posts / News Management - Get all posts
+// Public news/blog route — returns only published posts
+app.get('/api/news', async (req, res) => {
+  try {
+    const { search, category } = req.query;
+
+    let query = db.select({
+      id: blogPosts.id,
+      title: blogPosts.title,
+      slug: blogPosts.slug,
+      excerpt: blogPosts.excerpt,
+      category: blogPosts.category,
+      status: blogPosts.status,
+      views: blogPosts.views,
+      image_url: blogPosts.featuredImage,
+      authorId: blogPosts.authorId,
+      published_at: blogPosts.publishedAt,
+      created_at: blogPosts.createdAt,
+      author_name: sql<string>`CONCAT(${users.firstName}, ' ', ${users.lastName})`,
+      author: users.profileImageUrl,
+    }).from(blogPosts)
+      .leftJoin(users, eq(blogPosts.authorId, users.id))
+      .$dynamic();
+
+    const conditions: any[] = [eq(blogPosts.status, 'published')];
+
+    if (search) {
+      conditions.push(
+        or(
+          like(blogPosts.title, `%${search}%`),
+          like(blogPosts.content, `%${search}%`)
+        )
+      );
+    }
+
+    if (category && category !== 'all') {
+      conditions.push(eq(blogPosts.category, category as string));
+    }
+
+    query = query.where(and(...conditions));
+
+    const posts = await query.orderBy(desc(blogPosts.publishedAt)).limit(50);
+    res.json(posts);
+  } catch (error) {
+    console.error('❌ Error fetching public news:', error);
+    res.status(500).json({ message: 'Failed to fetch articles' });
+  }
+});
+
 app.get('/api/admin/news', isAdmin, async (req, res) => {
   try {
     console.log('🔗 Fetching blog posts for admin...');

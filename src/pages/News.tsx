@@ -156,9 +156,9 @@ const News = () => {
         <PageHero
           pageKey="blog"
           scrollY={scrollY}
-          breadcrumbs={[{ label: "Blog" }]}
-          defaultTitle="Blog"
-          defaultSubtitle="Stay updated with the latest adventure tips, safety guidelines, member spotlights, and gear reviews."
+          breadcrumbs={[{ label: t('nav.blog') }]}
+          defaultTitle={t('nav.blog')}
+          defaultSubtitle={t('news.subtitle')}
           defaultImage="https://api.thejourney-ma.org/attached_assets/generated_images/Essaouira_coastal_fortifications_07abbfb6.png"
         />
 
