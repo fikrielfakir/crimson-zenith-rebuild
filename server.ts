@@ -1912,31 +1912,46 @@ app.post('/api/admin/clubs/upload-image', isAdmin, async (req: any, res) => {
 
 // Generic image upload — accepts { imageData: "data:image/...;base64,..." }
 // Used by logo, favicon, and any other single-image upload fields.
-app.post('/api/admin/upload-image', isAdmin, async (req: any, res) => {
-  try {
-    const { imageData, folder = 'misc' } = req.body;
-    if (!imageData) return res.status(400).json({ message: 'No imageData provided' });
-    const match = imageData.match(/^data:([^;]+);base64,(.+)$/s);
-    if (!match) return res.status(400).json({ message: 'Invalid imageData format' });
-    const { promises: fsPromise } = await import('fs');
-    const pathMod = await import('path');
-    const crypto = await import('crypto');
-    const mime = match[1];
-    const ext = mime.split('/')[1]?.replace('jpeg', 'jpg').replace('svg+xml', 'svg') ?? 'png';
-    const binary = Buffer.from(match[2], 'base64');
-    const id = crypto.randomUUID();
-    const filename = `${id}.${ext}`;
-    const uploadsDir = pathMod.resolve(__dirname, `public/uploads/${folder}`);
-    await fsPromise.mkdir(uploadsDir, { recursive: true });
-    await fsPromise.writeFile(pathMod.join(uploadsDir, filename), binary);
-    const url = `/uploads/${folder}/${filename}`;
-    console.log(`✅ Uploaded image → ${url}`);
-    res.status(201).json({ url });
-  } catch (error) {
-    console.error('❌ Error uploading image:', error);
-    res.status(500).json({ error: 'Upload failed' });
-  }
-});
+{
+  const multer = (await import('multer')).default;
+  const pathMod = await import('path');
+  const { promises: fsPromise } = await import('fs');
+  const crypto = await import('crypto');
+  const imgUpload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
+
+  app.post('/api/admin/upload-image', isAdmin, imgUpload.single('image'), async (req: any, res) => {
+    try {
+      const folder = (req.body?.folder as string) || 'general';
+      const uploadsDir = pathMod.resolve(__dirname, `public/uploads/${folder}`);
+      await fsPromise.mkdir(uploadsDir, { recursive: true });
+
+      let filename: string;
+      let fileBuffer: Buffer;
+
+      if (req.file) {
+        const ext = (req.file.originalname.split('.').pop() ?? 'png').toLowerCase();
+        filename = `${crypto.randomUUID()}.${ext}`;
+        fileBuffer = req.file.buffer;
+      } else if (req.body?.imageData) {
+        const match = (req.body.imageData as string).match(/^data:([^;]+);base64,(.+)$/s);
+        if (!match) return res.status(400).json({ message: 'Invalid imageData format' });
+        const ext = match[1].split('/')[1]?.replace('jpeg', 'jpg').replace('svg+xml', 'svg') ?? 'png';
+        filename = `${crypto.randomUUID()}.${ext}`;
+        fileBuffer = Buffer.from(match[2], 'base64');
+      } else {
+        return res.status(400).json({ message: 'No image provided' });
+      }
+
+      await fsPromise.writeFile(pathMod.join(uploadsDir, filename), fileBuffer);
+      const url = `/uploads/${folder}/${filename}`;
+      console.log(`✅ Uploaded image → ${url}`);
+      res.status(201).json({ url });
+    } catch (error) {
+      console.error('❌ Error uploading image:', error);
+      res.status(500).json({ error: 'Upload failed' });
+    }
+  });
+}
 
 // Clubs Management - Update club
 app.put('/api/admin/clubs/:id', isAdmin, async (req, res) => {
