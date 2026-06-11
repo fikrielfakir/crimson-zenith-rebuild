@@ -994,10 +994,18 @@
       "errorPasswordRequired": "كلمة المرور مطلوبة",
       "errorAccessDenied": "ليس لديك صلاحية الوصول.",
       "accessDeniedTitle": "تم رفض الوصول",
+      "accessDeniedDesc": "ليس لديك صلاحية الوصول إلى لوحة التحكم.",
       "successTitle": "تم تسجيل الدخول",
       "successDesc": "مرحباً بعودتك!",
       "failedTitle": "فشل تسجيل الدخول",
-      "failedDesc": "اسم مستخدم أو كلمة مرور غير صحيحة"
+      "failedDesc": "اسم مستخدم أو كلمة مرور غير صحيحة",
+      "portalBadge": "بوابة الإدارة",
+      "brandHeadingPre": "أدِر منصة",
+      "brandHeadingAccent": "Journey",
+      "brandHeadingPost": "الخاصة بك",
+      "brandSubtitle": "الوصول إلى الأندية والفعاليات والحجوزات وإعدادات المحتوى من لوحة تحكم آمنة.",
+      "protectedNote": "منطقة محمية · يُحظر الوصول غير المصرح به",
+      "secureFooter": "وصول آمن للمسؤول"
     },
     "analytics": {
       "title": "التحليلات",

@@ -1175,10 +1175,18 @@
       "errorPasswordRequired": "Contraseña requerida",
       "errorAccessDenied": "No tienes acceso al panel.",
       "accessDeniedTitle": "Acceso denegado",
+      "accessDeniedDesc": "No tienes acceso al panel de administración.",
       "successTitle": "Sesión iniciada",
       "successDesc": "¡Bienvenido de vuelta!",
       "failedTitle": "Error de inicio de sesión",
-      "failedDesc": "Usuario o contraseña inválidos"
+      "failedDesc": "Usuario o contraseña inválidos",
+      "portalBadge": "Portal de administración",
+      "brandHeadingPre": "Gestiona tu",
+      "brandHeadingAccent": "Journey",
+      "brandHeadingPost": "plataforma",
+      "brandSubtitle": "Accede a clubes, eventos, reservas y configuración de contenido desde un panel seguro.",
+      "protectedNote": "Área protegida · Acceso no autorizado prohibido",
+      "secureFooter": "Acceso seguro de administrador"
     },
     "analytics": {
       "title": "Analíticas",
