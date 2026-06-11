@@ -130,8 +130,36 @@ export default defineConfig(({ mode }: { mode: string }) => ({
       : true,
     proxy: {
       // ── Media upload/management → local Express (handles disk storage) ────
-      "/api/admin/media":     { target: LOCAL_API, changeOrigin: true },
-      "/api/admin/cms/media": { target: LOCAL_API, changeOrigin: true },
+      "/api/admin/media": {
+        target: LOCAL_API,
+        changeOrigin: true,
+        proxyTimeout: 300000,
+        timeout: 300000,
+        configure: (proxy: any) => {
+          proxy.on("error", (err: any, _req: any, res: any) => {
+            console.error("[proxy /api/admin/media]", err.message);
+            if (res && !res.headersSent) {
+              res.writeHead(502, { "Content-Type": "application/json" });
+              res.end(JSON.stringify({ error: "Upload proxy error", details: err.message }));
+            }
+          });
+        },
+      },
+      "/api/admin/cms/media": {
+        target: LOCAL_API,
+        changeOrigin: true,
+        proxyTimeout: 300000,
+        timeout: 300000,
+        configure: (proxy: any) => {
+          proxy.on("error", (err: any, _req: any, res: any) => {
+            console.error("[proxy /api/admin/cms/media]", err.message);
+            if (res && !res.headersSent) {
+              res.writeHead(502, { "Content-Type": "application/json" });
+              res.end(JSON.stringify({ error: "Upload proxy error", details: err.message }));
+            }
+          });
+        },
+      },
       // ── Everything else → external Laravel API ────────────────────────────
       "/api":         proxyOptions,
       "/sanctum":     proxyOptions,

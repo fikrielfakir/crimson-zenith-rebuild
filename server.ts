@@ -2640,7 +2640,7 @@ app.get('/api/admin/media', isAdmin, async (req, res) => {
   const crypto = await import('crypto');
 
   const mediaStorage = multer.memoryStorage();
-  const mediaUpload = multer({ storage: mediaStorage, limits: { fileSize: 50 * 1024 * 1024 } });
+  const mediaUpload = multer({ storage: mediaStorage, limits: { fileSize: 200 * 1024 * 1024 } });
 
   app.post('/api/admin/media', isAdmin, mediaUpload.single('file'), async (req: any, res) => {
     try {
