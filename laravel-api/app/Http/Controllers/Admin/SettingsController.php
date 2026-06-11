@@ -33,12 +33,21 @@ class SettingsController extends Controller
 
     public function uploadImage(Request $request)
     {
-        $request->validate([
-            'image' => 'required|image|mimes:jpeg,png,jpg,svg,webp|max:5120',
-        ]);
+        $file = $request->file('image');
 
-        $file     = $request->file('image');
-        $folder   = $request->input('folder', 'general');
+        $isSvg = $file && $file->getMimeType() === 'image/svg+xml';
+
+        if ($isSvg) {
+            $request->validate([
+                'image' => 'required|file|mimes:svg+xml,svg|max:5120',
+            ]);
+        } else {
+            $request->validate([
+                'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:5120',
+            ]);
+        }
+
+        $folder   = preg_replace('/[^a-z0-9_-]/i', '', $request->input('folder', 'general')) ?: 'general';
         $filename = uniqid($folder . '_', true) . '.' . $file->getClientOriginalExtension();
         $dir      = public_path('uploads/' . $folder);
 
