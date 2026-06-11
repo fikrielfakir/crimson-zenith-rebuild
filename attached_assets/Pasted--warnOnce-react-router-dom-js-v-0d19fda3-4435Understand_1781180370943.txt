@@ -1,0 +1,53 @@
+
+warnOnce @ react-router-dom.js?v=0d19fda3:4435Understand this warning
+:5000/api/admin/smtp-settings:1  Failed to load resource: the server responded with a status of 404 (Not Found)Understand this error
+settings:1 [DOM] Password field is not contained in a form: (More info: https://goo.gl/9p2vKq) null
+chunk-O3VNRDW5.js?v=0d19fda3:521 Warning: `value` prop on `input` should not be null. Consider using an empty string to clear the component or `undefined` for uncontrolled components.
+    at input
+    at _c (http://192.168.56.1:5000/src/components/ui/input.tsx:23:54)
+    at div
+    at div
+    at div
+    at div
+    at _c8 (http://192.168.56.1:5000/src/components/ui/card.tsx:67:61)
+    at div
+    at _c (http://192.168.56.1:5000/src/components/ui/card.tsx:23:53)
+    at div
+    at PaymentSettings (http://192.168.56.1:5000/src/pages/admin/PaymentSettings.tsx:130:19)
+    at div
+    at div
+    at div
+    at http://192.168.56.1:5000/node_modules/.vite/deps/chunk-I5SAQD2M.js?v=0d19fda3:227:13
+    at http://192.168.56.1:5000/node_modules/.vite/deps/@radix-ui_react-scroll-area.js?v=0d19fda3:114:13
+    at div
+    at http://192.168.56.1:5000/node_modules/.vite/deps/chunk-I5SAQD2M.js?v=0d19fda3:227:13
+    at Provider (http://192.168.56.1:5000/node_modules/.vite/deps/chunk-I5SAQD2M.js?v=0d19fda3:54:15)
+    at http://192.168.56.1:5000/node_modules/.vite/deps/@radix-ui_react-scroll-area.js?v=0d19fda3:52:7
+    at _c (http://192.168.56.1:5000/src/components/ui/scroll-area.tsx:24:59)
+    at main
+    at div
+    at div
+    at AdminLayout (http://192.168.56.1:5000/src/components/admin/AdminLayout.tsx:589:31)
+    at TokenValidatedRoute (http://192.168.56.1:5000/src/components/admin/ProtectedRoute.tsx:70:32)
+    at ProtectedRoute (http://192.168.56.1:5000/src/components/admin/ProtectedRoute.tsx:49:34)
+    at RenderedRoute (http://192.168.56.1:5000/node_modules/.vite/deps/react-router-dom.js?v=0d19fda3:4130:5)
+    at Routes (http://192.168.56.1:5000/node_modules/.vite/deps/react-router-dom.js?v=0d19fda3:4600:5)
+    at Router (http://192.168.56.1:5000/node_modules/.vite/deps/react-router-dom.js?v=0d19fda3:4543:15)
+    at BrowserRouter (http://192.168.56.1:5000/node_modules/.vite/deps/react-router-dom.js?v=0d19fda3:5289:5)
+    at Provider (http://192.168.56.1:5000/node_modules/.vite/deps/chunk-I5SAQD2M.js?v=0d19fda3:54:15)
+    at TooltipProvider (http://192.168.56.1:5000/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=0d19fda3:157:5)
+    at QueryClientProvider (http://192.168.56.1:5000/node_modules/.vite/deps/@tanstack_react-query.js?v=0d19fda3:3170:3)
+    at App
+    at _HelmetProvider (http://192.168.56.1:5000/node_modules/.vite/deps/react-helmet-async.js?v=0d19fda3:627:5)
+printWarning @ chunk-O3VNRDW5.js?v=0d19fda3:521Understand this error
+payments:1 [DOM] Password field is not contained in a form: (More info: https://goo.gl/9p2vKq) null
+:5000/api/admin/smtp-settings:1  Failed to load resource: the server responded with a status of 404 (Not Found)Understand this error
+:5000/api/admin/smtp-settings:1  Failed to load resource: the server responded with a status of 404 (Not Found)Understand this error
+:5000/api/admin/smtp-settings:1  Failed to load resource: the server responded with a status of 404 (Not Found)Understand this error
+:5000/api/admin/smtp-settings:1  Failed to load resource: the server responded with a status of 404 (Not Found)Understand this error
+:5000/api/admin/smtp-settings:1  Failed to load resource: the server responded with a status of 404 (Not Found)Understand this error
+:5000/api/admin/smtp-settings:1  Failed to load resource: the server responded with a status of 404 (Not Found)Understand this error
+:5000/api/admin/smtp-settings:1  Failed to load resource: the server responded with a status of 404 (Not Found)Understand this error
+email:1 [DOM] Password field is not contained in a form: (More info: https://goo.gl/9p2vKq) null
+:5000/api/admin/smtp-settings:1  Failed to load resource: the server responded with a status of 404 (Not Found)Understand this error
+:5000/api/admin/news:1  Failed to load resource: the server responded with a status of 401 (Unauthorized)Understand this error
