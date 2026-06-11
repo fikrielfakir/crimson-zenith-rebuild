@@ -9,6 +9,18 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Link } from "react-router-dom";
+import { 
+  Home, 
+  ChevronRight, 
+  Award, 
+  Star,
+  MapPin,
+  Globe,
+  Linkedin,
+  CheckCircle2,
+  Mail,
+  Send
+} from "lucide-react";
 import { apiFetch, resolveStorageUrl } from "@/lib/apiFetch";
 import SEOHead from "@/components/SEOHead";
 import { routeSEO } from "@/lib/seo.config";

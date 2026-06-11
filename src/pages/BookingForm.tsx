@@ -32,6 +32,7 @@ import { generateTicketPDF } from "@/lib/generateTicketPDF";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { format } from "date-fns";
+import { resolveStorageUrl } from "@/lib/apiFetch";
 
 interface PaymentMethods {
   cmi_enabled: boolean;
@@ -959,7 +960,7 @@ const BookingForm = () => {
                 {selectedEvent.image && !selectedEvent.image.startsWith('blob:') && (
                   <div className="rounded-xl overflow-hidden">
                     <img 
-                      src={selectedEvent.image} 
+                      src={resolveStorageUrl(selectedEvent.image) ?? '/placeholder.svg'} 
                       alt={selectedEvent.title}
                       className="w-full h-32 object-cover"
                       onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80'; }}
