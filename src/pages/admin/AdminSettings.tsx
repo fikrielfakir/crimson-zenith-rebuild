@@ -8,29 +8,22 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Save, Loader2, Globe, Search, ShieldCheck } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Separator } from '@/components/ui/separator';
+import {
+  Save, Loader2, Globe, Search, ShieldCheck, Image as ImageIcon,
+  Mail, BarChart2, Link as LinkIcon, Code, CheckCircle2, XCircle,
+} from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { apiFetch } from '@/lib/apiFetch';
 
-interface SeoSettings {
-  siteTitle?: string;
-  siteDescription?: string;
-  keywords?: string;
-  twitterHandle?: string;
-  ogImage?: string;
-}
+// ── Shared helpers ─────────────────────────────────────────────────────────────
 
-interface ContactSettings {
-  email?: string;
-  phone?: string;
-  officeAddress?: string;
-}
-
-function useSettings<T>(readUrl: string, queryKey: string[]) {
+function useSettingsQuery<T>(url: string, key: string[]) {
   return useQuery<T>({
-    queryKey,
+    queryKey: key,
     queryFn: async () => {
-      const res = await apiFetch(readUrl);
+      const res = await apiFetch(url);
       if (!res.ok) return {} as T;
       return res.json();
     },
@@ -38,8 +31,7 @@ function useSettings<T>(readUrl: string, queryKey: string[]) {
   });
 }
 
-function useSaveMutation(writeUrl: string, queryKeys: string[][], label: string) {
-  const { toast } = useToast();
+function useSave(writeUrl: string, invalidateKeys: string[][], label: string, toast: ReturnType<typeof useToast>['toast'], t: (k: string, fb?: string) => string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (data: Record<string, unknown>) => {
@@ -52,10 +44,10 @@ function useSaveMutation(writeUrl: string, queryKeys: string[][], label: string)
       return res.json();
     },
     onSuccess: () => {
-      queryKeys.forEach((k) => queryClient.invalidateQueries({ queryKey: k }));
-      toast({ title: t('admin.common.labelSaved', { label }) });
+      invalidateKeys.forEach((k) => queryClient.invalidateQueries({ queryKey: k }));
+      toast({ title: `${label} saved` });
     },
-    onError: () => toast({ title: t('admin.common.errorSave'), variant: 'destructive' }),
+    onError: () => toast({ title: t('admin.common.errorSave', 'Save failed'), variant: 'destructive' }),
   });
 }
 
@@ -63,19 +55,34 @@ function useSaveMutation(writeUrl: string, queryKeys: string[][], label: string)
 
 function GeneralTab() {
   const { t } = useTranslation();
-  const { data: seo, isLoading: seoLoading } = useSettings<SeoSettings>('/api/cms/seo', ['settings-seo']);
-  const { data: contact, isLoading: contactLoading } = useSettings<ContactSettings>('/api/cms/contact', ['settings-contact']);
+  const { toast } = useToast();
+
+  const { data: seo, isLoading: seoLoading } = useSettingsQuery<any>('/api/cms/seo', ['settings-seo']);
+  const { data: contact, isLoading: contactLoading } = useSettingsQuery<any>('/api/cms/contact', ['settings-contact']);
 
   const [siteTitle, setSiteTitle] = useState('');
   const [siteDescription, setSiteDescription] = useState('');
   const [contactEmail, setContactEmail] = useState('');
+  const [contactPhone, setContactPhone] = useState('');
+  const [officeAddress, setOfficeAddress] = useState('');
 
-  useEffect(() => { if (seo?.siteTitle) setSiteTitle(seo.siteTitle); }, [seo]);
-  useEffect(() => { if (seo?.siteDescription) setSiteDescription(seo.siteDescription); }, [seo]);
-  useEffect(() => { if (contact?.email) setContactEmail(contact.email); }, [contact]);
+  useEffect(() => {
+    if (seo) {
+      setSiteTitle(seo.siteTitle ?? '');
+      setSiteDescription(seo.siteDescription ?? '');
+    }
+  }, [seo]);
 
-  const seoMutation = useSaveMutation('/api/admin/settings/seo', [['settings-seo'], ['cms-seo']], 'General settings');
-  const contactMutation = useSaveMutation('/api/admin/settings/contact', [['settings-contact']], 'Contact settings');
+  useEffect(() => {
+    if (contact) {
+      setContactEmail(contact.email ?? '');
+      setContactPhone(contact.phone ?? '');
+      setOfficeAddress(contact.officeAddress ?? '');
+    }
+  }, [contact]);
+
+  const seoMutation = useSave('/api/admin/settings/seo', [['settings-seo'], ['cms-seo']], 'General settings', toast, t);
+  const contactMutation = useSave('/api/admin/settings/contact', [['settings-contact']], 'Contact settings', toast, t);
 
   const saving = seoMutation.isPending || contactMutation.isPending;
   const isLoading = seoLoading || contactLoading;
@@ -83,7 +90,7 @@ function GeneralTab() {
   const handleSave = async () => {
     await Promise.all([
       seoMutation.mutateAsync({ siteTitle, siteDescription }),
-      contactMutation.mutateAsync({ email: contactEmail }),
+      contactMutation.mutateAsync({ email: contactEmail, phone: contactPhone, officeAddress }),
     ]);
   };
 
@@ -91,53 +98,45 @@ function GeneralTab() {
     <div className="space-y-4">
       <Card>
         <CardHeader>
-          <CardTitle>{t('admin.settings.generalTitle')}</CardTitle>
-          <CardDescription>{t('admin.settings.generalDesc')}</CardDescription>
+          <CardTitle>{t('admin.settings.generalTitle', 'Site Identity')}</CardTitle>
+          <CardDescription>{t('admin.settings.generalDesc', 'Basic information about your website')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {isLoading ? (
             <div className="flex items-center gap-2 text-muted-foreground text-sm">
-              <Loader2 className="h-4 w-4 animate-spin" /> {t('admin.common.loading')}
+              <Loader2 className="h-4 w-4 animate-spin" /> Loading…
             </div>
           ) : (
             <>
               <div className="space-y-2">
-                <Label htmlFor="site-title">{t('admin.common.siteNameLabel')}</Label>
-                <Input
-                  id="site-title"
-                  value={siteTitle}
-                  onChange={(e) => setSiteTitle(e.target.value)}
-                  placeholder={t('admin.settings.siteNamePlaceholder')}
-                />
+                <Label htmlFor="site-title">{t('admin.common.siteNameLabel', 'Site Name')}</Label>
+                <Input id="site-title" value={siteTitle} onChange={(e) => setSiteTitle(e.target.value)} placeholder="The Journey Association" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="site-description">{t('admin.common.siteDescLabel')}</Label>
-                <Textarea
-                  id="site-description"
-                  rows={3}
-                  value={siteDescription}
-                  onChange={(e) => setSiteDescription(e.target.value)}
-                  placeholder={t('admin.settings.siteDescPlaceholder')}
-                />
+                <Label htmlFor="site-description">{t('admin.common.siteDescLabel', 'Site Description')}</Label>
+                <Textarea id="site-description" rows={3} value={siteDescription} onChange={(e) => setSiteDescription(e.target.value)} placeholder="Morocco's network of adventure and cultural clubs" />
+              </div>
+              <Separator />
+              <h4 className="text-sm font-semibold">Contact Information</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="contact-email">{t('admin.common.contactEmailLabel', 'Contact Email')}</Label>
+                  <Input id="contact-email" type="email" value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} placeholder="info@thejourney-ma.org" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="contact-phone">Phone Number</Label>
+                  <Input id="contact-phone" type="tel" value={contactPhone} onChange={(e) => setContactPhone(e.target.value)} placeholder="+212 600 000 000" />
+                </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="contact-email">{t('admin.common.contactEmailLabel')}</Label>
-                <Input
-                  id="contact-email"
-                  type="email"
-                  value={contactEmail}
-                  onChange={(e) => setContactEmail(e.target.value)}
-                  placeholder={t('admin.settings.contactEmailPlaceholder')}
-                />
-                <p className="text-xs text-muted-foreground">
-                  {t('admin.common.contactFullDetails')}
-                </p>
+                <Label htmlFor="office-address">Office Address</Label>
+                <Textarea id="office-address" rows={2} value={officeAddress} onChange={(e) => setOfficeAddress(e.target.value)} placeholder="123 Avenue Mohammed V, Casablanca, Morocco" />
               </div>
             </>
           )}
           <Button onClick={handleSave} disabled={saving || isLoading}>
             {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-            {saving ? t('admin.events.saving') : t('admin.settings.saveChanges')}
+            {saving ? 'Saving…' : t('admin.settings.saveChanges', 'Save Changes')}
           </Button>
         </CardContent>
       </Card>
@@ -149,74 +148,77 @@ function GeneralTab() {
 
 function SeoTab() {
   const { t } = useTranslation();
-  const { data, isLoading } = useSettings<SeoSettings>('/api/cms/seo', ['settings-seo']);
-  const [form, setForm] = useState<SeoSettings>({});
+  const { toast } = useToast();
+  const { data, isLoading } = useSettingsQuery<any>('/api/cms/seo', ['settings-seo']);
+  const [form, setForm] = useState<Record<string, string>>({});
 
   useEffect(() => { if (data) setForm(data); }, [data]);
 
-  const mutation = useSaveMutation('/api/admin/settings/seo', [['settings-seo'], ['cms-seo']], 'SEO settings');
+  const mutation = useSave('/api/admin/cms/seo', [['settings-seo'], ['cms-seo']], 'SEO settings', toast, t);
+  const set = (k: string, v: string) => setForm((f) => ({ ...f, [k]: v }));
 
-  const set = (k: keyof SeoSettings, v: string) => setForm((f) => ({ ...f, [k]: v }));
+  const descLen = (form.siteDescription ?? '').length;
 
   return (
     <div className="space-y-4">
       <Card>
         <CardHeader>
-          <CardTitle>{t('admin.settings.seoTitle')}</CardTitle>
-          <CardDescription>{t('admin.settings.seoDesc')}</CardDescription>
+          <CardTitle>{t('admin.settings.seoTitle', 'Search Engine Optimization')}</CardTitle>
+          <CardDescription>{t('admin.settings.seoDesc', 'Control how your site appears in search results')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {isLoading ? (
             <div className="flex items-center gap-2 text-muted-foreground text-sm">
-              <Loader2 className="h-4 w-4 animate-spin" /> {t('admin.common.loading')}
+              <Loader2 className="h-4 w-4 animate-spin" /> Loading…
             </div>
           ) : (
             <>
               <div className="space-y-2">
-                <Label htmlFor="meta-title">{t('admin.common.metaTitle')}</Label>
-                <Input
-                  id="meta-title"
-                  value={form.siteTitle ?? ''}
-                  onChange={(e) => set('siteTitle', e.target.value)}
-                  placeholder={t('admin.settings.metaTitlePlaceholder')}
-                />
+                <Label htmlFor="meta-title">{t('admin.common.metaTitle', 'Meta Title')}</Label>
+                <Input id="meta-title" value={form.siteTitle ?? ''} onChange={(e) => set('siteTitle', e.target.value)} placeholder="The Journey Association — Morocco Adventure Clubs" />
+                <p className="text-xs text-muted-foreground">{(form.siteTitle ?? '').length} / 60 characters recommended</p>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="meta-description">{t('admin.common.metaDescription')}</Label>
-                <Textarea
-                  id="meta-description"
-                  rows={3}
-                  value={form.siteDescription ?? ''}
-                  onChange={(e) => set('siteDescription', e.target.value)}
-                  placeholder={t('admin.settings.metaDescPlaceholder')}
-                />
-                <p className="text-xs text-muted-foreground">
-                  {(form.siteDescription ?? '').length} / 160
-                </p>
+                <Label htmlFor="meta-description">{t('admin.common.metaDescription', 'Meta Description')}</Label>
+                <Textarea id="meta-description" rows={3} value={form.siteDescription ?? ''} onChange={(e) => set('siteDescription', e.target.value)} placeholder="Discover Morocco's adventure and cultural clubs…" />
+                <p className={`text-xs ${descLen > 160 ? 'text-destructive' : 'text-muted-foreground'}`}>{descLen} / 160 characters recommended</p>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="meta-keywords">{t('admin.common.keywords')}</Label>
-                <Input
-                  id="meta-keywords"
-                  value={form.keywords ?? ''}
-                  onChange={(e) => set('keywords', e.target.value)}
-                  placeholder={t('admin.settings.keywordsPlaceholder')}
-                />
+                <Label htmlFor="meta-keywords">{t('admin.common.keywords', 'Keywords')}</Label>
+                <Input id="meta-keywords" value={form.keywords ?? ''} onChange={(e) => set('keywords', e.target.value)} placeholder="morocco, adventure, clubs, hiking, travel" />
+                <p className="text-xs text-muted-foreground">Comma-separated keywords</p>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="twitter-handle">{t('admin.common.twitterHandle')}</Label>
-                <Input
-                  id="twitter-handle"
-                  value={form.twitterHandle ?? ''}
-                  onChange={(e) => set('twitterHandle', e.target.value)}
-                  placeholder={t('admin.settings.twitterHandlePlaceholder')}
-                />
+                <Label htmlFor="twitter-handle">{t('admin.common.twitterHandle', 'Twitter / X Handle')}</Label>
+                <Input id="twitter-handle" value={form.twitterHandle ?? ''} onChange={(e) => set('twitterHandle', e.target.value)} placeholder="@thejourneymorroco" />
+              </div>
+              <Separator />
+              <h4 className="text-sm font-semibold flex items-center gap-2"><BarChart2 className="h-4 w-4" /> Analytics & Tracking</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="ga-id">Google Analytics ID</Label>
+                  <Input id="ga-id" value={form.googleAnalyticsId ?? ''} onChange={(e) => set('googleAnalyticsId', e.target.value)} placeholder="G-XXXXXXXXXX or UA-XXXXXXXX" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="fb-pixel">Facebook Pixel ID</Label>
+                  <Input id="fb-pixel" value={form.facebookPixelId ?? ''} onChange={(e) => set('facebookPixelId', e.target.value)} placeholder="123456789012345" />
+                </div>
+              </div>
+              <Separator />
+              <h4 className="text-sm font-semibold flex items-center gap-2"><Code className="h-4 w-4" /> Custom Code Injection</h4>
+              <div className="space-y-2">
+                <Label htmlFor="head-code">Custom &lt;head&gt; Code</Label>
+                <Textarea id="head-code" rows={4} value={form.customHeadCode ?? ''} onChange={(e) => set('customHeadCode', e.target.value)} placeholder="<!-- Custom scripts, meta tags, etc. -->" className="font-mono text-xs" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="body-code">Custom &lt;body&gt; End Code</Label>
+                <Textarea id="body-code" rows={4} value={form.customBodyCode ?? ''} onChange={(e) => set('customBodyCode', e.target.value)} placeholder="<!-- Chat widgets, analytics, etc. -->" className="font-mono text-xs" />
               </div>
             </>
           )}
           <Button onClick={() => mutation.mutate(form)} disabled={mutation.isPending || isLoading}>
             {mutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-            {mutation.isPending ? t('admin.events.saving') : t('admin.settings.saveSEO')}
+            {mutation.isPending ? 'Saving…' : t('admin.settings.saveSEO', 'Save SEO Settings')}
           </Button>
         </CardContent>
       </Card>
@@ -224,64 +226,295 @@ function SeoTab() {
   );
 }
 
-// ── Integrations Tab ─────────────────────────────────────────────────────────
+// ── Logo & Favicon Tab ────────────────────────────────────────────────────────
 
-function IntegrationsTab() {
-  const { t } = useTranslation();
+function LogoFaviconTab() {
+  const { toast } = useToast();
+
+  const { data: navbar, isLoading: navbarLoading } = useSettingsQuery<any>('/api/cms/navbar', ['settings-navbar']);
+  const { data: seo, isLoading: seoLoading } = useSettingsQuery<any>('/api/cms/seo', ['settings-seo']);
+
+  const [logoType, setLogoType] = useState<'image' | 'text'>('image');
+  const [logoUrl, setLogoUrl] = useState('');
+  const [logoText, setLogoText] = useState('');
+  const [logoSize, setLogoSize] = useState('135');
+  const [logoLink, setLogoLink] = useState('/');
+  const [faviconUrl, setFaviconUrl] = useState('');
+
+  useEffect(() => {
+    if (navbar) {
+      setLogoType(navbar.logoType ?? 'image');
+      setLogoUrl(navbar.logoImageUrl ?? navbar.logoUrl ?? '');
+      setLogoText(navbar.logoText ?? '');
+      setLogoSize(String(navbar.logoSize ?? 135));
+      setLogoLink(navbar.logoLink ?? '/');
+    }
+  }, [navbar]);
+
+  useEffect(() => {
+    if (seo) {
+      setFaviconUrl(seo.faviconUrl ?? '');
+    }
+  }, [seo]);
+
+  const navbarMutation = useSave('/api/admin/cms/navbar', [['settings-navbar'], ['cms-navbar']], 'Logo settings', toast, (k, fb) => fb ?? k);
+  const seoMutation = useSave('/api/admin/cms/seo', [['settings-seo'], ['cms-seo']], 'Favicon settings', toast, (k, fb) => fb ?? k);
+
+  const isLoading = navbarLoading || seoLoading;
+  const saving = navbarMutation.isPending || seoMutation.isPending;
+
+  const handleSave = async () => {
+    await Promise.all([
+      navbarMutation.mutateAsync({ logoType, logoUrl, logoText, logoSize: Number(logoSize), logoLink }),
+      seoMutation.mutateAsync({ faviconUrl }),
+    ]);
+  };
+
   return (
     <div className="space-y-4">
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <ShieldCheck className="h-5 w-5" />
-            {t('admin.settings.integrationsTitle')}
-          </CardTitle>
-          <CardDescription>
-            {t('admin.settings.integrationsDesc')}
-          </CardDescription>
+          <CardTitle className="flex items-center gap-2"><ImageIcon className="h-5 w-5" /> Logo</CardTitle>
+          <CardDescription>The logo displayed in the navigation bar across all pages</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-5">
+          {isLoading ? (
+            <div className="flex items-center gap-2 text-muted-foreground text-sm"><Loader2 className="h-4 w-4 animate-spin" /> Loading…</div>
+          ) : (
+            <>
+              <div className="space-y-2">
+                <Label>Logo Type</Label>
+                <div className="flex gap-3">
+                  {(['image', 'text'] as const).map((type) => (
+                    <button
+                      key={type}
+                      type="button"
+                      onClick={() => setLogoType(type)}
+                      className={`flex-1 py-2.5 px-4 rounded-lg border text-sm font-medium transition-colors capitalize
+                        ${logoType === type ? 'bg-primary text-primary-foreground border-primary' : 'bg-background hover:bg-muted border-border'}`}
+                    >
+                      {type === 'image' ? 'Image / SVG' : 'Text Logo'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {logoType === 'image' ? (
+                <div className="space-y-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="logo-url">Logo Image URL</Label>
+                    <Input id="logo-url" value={logoUrl} onChange={(e) => setLogoUrl(e.target.value)} placeholder="https://… or /path/to/logo.png" />
+                    <p className="text-xs text-muted-foreground">Upload via Media Library then paste the URL here. Recommended: PNG/SVG, transparent background, ~400×160px.</p>
+                  </div>
+                  {logoUrl && (
+                    <div className="border rounded-lg p-4 bg-muted/30 flex items-center justify-center min-h-[80px]">
+                      <img src={logoUrl} alt="Logo preview" className="max-h-16 max-w-[200px] object-contain" onError={(e) => { (e.target as HTMLImageElement).style.opacity = '0.3'; }} />
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <Label htmlFor="logo-text">Logo Text</Label>
+                  <Input id="logo-text" value={logoText} onChange={(e) => setLogoText(e.target.value)} placeholder="The Journey Association" />
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="logo-size">Logo Size (px)</Label>
+                  <Input id="logo-size" type="number" value={logoSize} onChange={(e) => setLogoSize(e.target.value)} min="50" max="300" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="logo-link" className="flex items-center gap-1"><LinkIcon className="h-3 w-3" /> Logo Link</Label>
+                  <Input id="logo-link" value={logoLink} onChange={(e) => setLogoLink(e.target.value)} placeholder="/" />
+                </div>
+              </div>
+            </>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2"><ImageIcon className="h-5 w-5" /> Favicon</CardTitle>
+          <CardDescription>Small icon shown in browser tabs and bookmarks (32×32px .ico, .png, or .svg)</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {[
-            {
-              name: 'Stripe',
-              desc: 'Payment processing — configured via STRIPE_SECRET_KEY env var.',
-              envVar: 'STRIPE_SECRET_KEY',
-              badge: 'Payments',
-            },
-            {
-              name: 'PayPal',
-              desc: 'PayPal payments — configured via PAYPAL_CLIENT_ID / PAYPAL_CLIENT_SECRET env vars.',
-              envVar: 'PAYPAL_CLIENT_ID',
-              badge: 'Payments',
-            },
-            {
-              name: 'SMTP Email',
-              desc: 'Email delivery — configured via SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS env vars.',
-              envVar: 'SMTP_HOST',
-              badge: 'Email',
-            },
-            {
-              name: 'CMI Payment Gateway',
-              desc: 'Moroccan CMI gateway — configure via the Payments admin page.',
-              envVar: '',
-              badge: 'Payments',
-              link: '/admin/payments',
-            },
-          ].map((item) => (
+          {isLoading ? (
+            <div className="flex items-center gap-2 text-muted-foreground text-sm"><Loader2 className="h-4 w-4 animate-spin" /> Loading…</div>
+          ) : (
+            <>
+              <div className="space-y-2">
+                <Label htmlFor="favicon-url">Favicon URL</Label>
+                <Input id="favicon-url" value={faviconUrl} onChange={(e) => setFaviconUrl(e.target.value)} placeholder="/favicon.ico or https://…/favicon.png" />
+                <p className="text-xs text-muted-foreground">Upload via Media Library and paste the URL here. The file at <code className="bg-muted px-1 py-0.5 rounded text-xs">/favicon.ico</code> in the public folder is used as fallback.</p>
+              </div>
+              {faviconUrl && (
+                <div className="flex items-center gap-3 border rounded-lg p-3 bg-muted/30">
+                  <img src={faviconUrl} alt="Favicon preview" className="h-8 w-8 object-contain" onError={(e) => { (e.target as HTMLImageElement).style.opacity = '0.3'; }} />
+                  <span className="text-sm text-muted-foreground">Preview</span>
+                </div>
+              )}
+            </>
+          )}
+        </CardContent>
+      </Card>
+
+      <Button onClick={handleSave} disabled={saving || isLoading}>
+        {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+        {saving ? 'Saving…' : 'Save Logo & Favicon'}
+      </Button>
+    </div>
+  );
+}
+
+// ── Integrations Tab ─────────────────────────────────────────────────────────
+
+function IntegrationsTab() {
+  const { toast } = useToast();
+  const { data: smtp, isLoading: smtpLoading, refetch } = useSettingsQuery<any>('/api/admin/smtp-settings', ['settings-smtp']);
+
+  const [smtpForm, setSmtpForm] = useState<Record<string, any>>({});
+  const [testing, setTesting] = useState(false);
+  const [testEmail, setTestEmail] = useState('');
+
+  useEffect(() => {
+    if (smtp) setSmtpForm(smtp);
+  }, [smtp]);
+
+  const smtpMutation = useSave('/api/admin/smtp-settings', [['settings-smtp']], 'SMTP settings', toast, (k, fb) => fb ?? k);
+
+  const setS = (k: string, v: any) => setSmtpForm((f) => ({ ...f, [k]: v }));
+
+  const handleTestEmail = async () => {
+    if (!testEmail) { toast({ title: 'Enter a test email address', variant: 'destructive' }); return; }
+    setTesting(true);
+    try {
+      const res = await apiFetch('/api/admin/smtp/test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ to: testEmail }),
+      });
+      if (res.ok) {
+        toast({ title: 'Test email sent successfully!' });
+      } else {
+        const err = await res.json().catch(() => ({}));
+        toast({ title: 'Test failed', description: err.message ?? err.error ?? 'Unknown error', variant: 'destructive' });
+      }
+    } catch (e: any) {
+      toast({ title: 'Test failed', description: e.message, variant: 'destructive' });
+    } finally {
+      setTesting(false);
+    }
+  };
+
+  const staticIntegrations = [
+    { name: 'Stripe', desc: 'Payment processing via Replit Stripe integration.', badge: 'Payments', status: true },
+    { name: 'PayPal', desc: 'PayPal payments via Replit PayPal integration.', badge: 'Payments', status: true },
+    { name: 'CMI Payment Gateway', desc: 'Moroccan CMI gateway — configure via the Payments admin page.', badge: 'Payments', link: '/admin/payments', status: null },
+  ];
+
+  return (
+    <div className="space-y-4">
+      {/* Payment Integrations */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2"><ShieldCheck className="h-5 w-5" /> Payment Integrations</CardTitle>
+          <CardDescription>Manage payment provider connections</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {staticIntegrations.map((item) => (
             <div key={item.name} className="flex items-start justify-between gap-4 border rounded-lg p-4">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
                   <p className="font-medium">{item.name}</p>
                   <Badge variant="outline" className="text-xs">{item.badge}</Badge>
+                  {item.status === true && <CheckCircle2 className="h-4 w-4 text-green-500" />}
                 </div>
                 <p className="text-sm text-muted-foreground">{item.desc}</p>
-                {item.envVar && (
-                  <code className="text-xs bg-muted px-1.5 py-0.5 rounded">{item.envVar}</code>
+                {item.link && (
+                  <a href={item.link} className="text-xs text-primary underline">Configure →</a>
                 )}
               </div>
               <Globe className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
             </div>
           ))}
+        </CardContent>
+      </Card>
+
+      {/* SMTP Email */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2"><Mail className="h-5 w-5" /> SMTP Email</CardTitle>
+          <CardDescription>Configure email delivery for notifications, booking confirmations, and contact forms</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {smtpLoading ? (
+            <div className="flex items-center gap-2 text-muted-foreground text-sm"><Loader2 className="h-4 w-4 animate-spin" /> Loading…</div>
+          ) : (
+            <>
+              <div className="flex items-center gap-3">
+                <Switch
+                  checked={smtpForm.enabled ?? false}
+                  onCheckedChange={(v) => setS('enabled', v)}
+                />
+                <Label>Enable SMTP email delivery</Label>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="smtp-host">SMTP Host</Label>
+                  <Input id="smtp-host" value={smtpForm.host ?? ''} onChange={(e) => setS('host', e.target.value)} placeholder="smtp.gmail.com" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="smtp-port">SMTP Port</Label>
+                  <Input id="smtp-port" type="number" value={smtpForm.port ?? 587} onChange={(e) => setS('port', Number(e.target.value))} placeholder="587" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="smtp-user">Username</Label>
+                  <Input id="smtp-user" value={smtpForm.username ?? ''} onChange={(e) => setS('username', e.target.value)} placeholder="you@gmail.com" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="smtp-pass">Password / App Password</Label>
+                  <Input id="smtp-pass" type="password" value={smtpForm.password ?? ''} onChange={(e) => setS('password', e.target.value)} placeholder="••••••••" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="smtp-from-name">From Name</Label>
+                  <Input id="smtp-from-name" value={smtpForm.fromName ?? ''} onChange={(e) => setS('fromName', e.target.value)} placeholder="The Journey Association" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="smtp-from-email">From Email</Label>
+                  <Input id="smtp-from-email" type="email" value={smtpForm.fromEmail ?? ''} onChange={(e) => setS('fromEmail', e.target.value)} placeholder="noreply@thejourney-ma.org" />
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <Switch
+                  checked={smtpForm.secure ?? false}
+                  onCheckedChange={(v) => setS('secure', v)}
+                />
+                <Label>Use SSL/TLS (port 465)</Label>
+              </div>
+              <Separator />
+              <div className="space-y-2">
+                <Label>Send Test Email</Label>
+                <div className="flex gap-2">
+                  <Input
+                    type="email"
+                    placeholder="test@example.com"
+                    value={testEmail}
+                    onChange={(e) => setTestEmail(e.target.value)}
+                    className="flex-1"
+                  />
+                  <Button variant="outline" onClick={handleTestEmail} disabled={testing}>
+                    {testing ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Send Test'}
+                  </Button>
+                </div>
+              </div>
+            </>
+          )}
+          <Button onClick={() => smtpMutation.mutate(smtpForm)} disabled={smtpMutation.isPending || smtpLoading}>
+            {smtpMutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+            {smtpMutation.isPending ? 'Saving…' : 'Save SMTP Settings'}
+          </Button>
         </CardContent>
       </Card>
     </div>
@@ -295,28 +528,33 @@ export default function AdminSettings() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">{t('admin.settings.title')}</h1>
-        <p className="text-muted-foreground mt-1">{t('admin.settings.subtitle')}</p>
+        <h1 className="text-3xl font-bold">{t('admin.settings.title', 'Settings')}</h1>
+        <p className="text-muted-foreground mt-1">{t('admin.settings.subtitle', 'Manage your website configuration')}</p>
       </div>
 
       <Tabs defaultValue="general">
-        <TabsList>
+        <TabsList className="flex flex-wrap h-auto gap-1">
           <TabsTrigger value="general">
             <Globe className="mr-2 h-4 w-4" />
-            {t('admin.settings.tabGeneral')}
+            {t('admin.settings.tabGeneral', 'General')}
           </TabsTrigger>
           <TabsTrigger value="seo">
             <Search className="mr-2 h-4 w-4" />
-            {t('admin.settings.tabSEO')}
+            {t('admin.settings.tabSEO', 'SEO')}
+          </TabsTrigger>
+          <TabsTrigger value="logo">
+            <ImageIcon className="mr-2 h-4 w-4" />
+            Logo & Favicon
           </TabsTrigger>
           <TabsTrigger value="integrations">
             <ShieldCheck className="mr-2 h-4 w-4" />
-            {t('admin.settings.tabIntegrations')}
+            {t('admin.settings.tabIntegrations', 'Integrations')}
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="general"><GeneralTab /></TabsContent>
         <TabsContent value="seo"><SeoTab /></TabsContent>
+        <TabsContent value="logo"><LogoFaviconTab /></TabsContent>
         <TabsContent value="integrations"><IntegrationsTab /></TabsContent>
       </Tabs>
     </div>
