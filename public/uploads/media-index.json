@@ -278,5 +278,105 @@
     "thumbnailUrl": "/uploads/1958c4e5-29d4-462a-964e-5a8014199a5c.png",
     "altText": null,
     "createdAt": "2026-05-23T17:43:34.688Z"
+  },
+  {
+    "id": 30,
+    "fileName": "a6691c4f-5af8-4fee-819e-7b705b47d3a6.jpg",
+    "fileType": "image/jpeg",
+    "fileSize": 98950,
+    "fileUrl": "/uploads/a6691c4f-5af8-4fee-819e-7b705b47d3a6.jpg",
+    "thumbnailUrl": "/uploads/a6691c4f-5af8-4fee-819e-7b705b47d3a6.jpg",
+    "altText": "WhatsApp Image 2026-06-05 at 22.23.46.jpeg",
+    "createdAt": "2026-06-10T17:15:22.814Z"
+  },
+  {
+    "id": 31,
+    "fileName": "345347ef-ed25-4243-88fe-b5dddbe3f41e.png",
+    "fileType": "image/png",
+    "fileSize": 2114796,
+    "fileUrl": "/uploads/345347ef-ed25-4243-88fe-b5dddbe3f41e.png",
+    "thumbnailUrl": "/uploads/345347ef-ed25-4243-88fe-b5dddbe3f41e.png",
+    "altText": "ChatGPT Image Jun 10, 2026, 06_17_11 PM.png",
+    "createdAt": "2026-06-10T17:17:20.371Z"
+  },
+  {
+    "id": 32,
+    "fileName": "c33624cb-306a-4f7f-a98e-2bd588d22545.jpg",
+    "fileType": "image/jpeg",
+    "fileSize": 98950,
+    "fileUrl": "/uploads/c33624cb-306a-4f7f-a98e-2bd588d22545.jpg",
+    "thumbnailUrl": "/uploads/c33624cb-306a-4f7f-a98e-2bd588d22545.jpg",
+    "altText": "WhatsApp Image 2026-06-05 at 22.23.46.jpeg",
+    "createdAt": "2026-06-10T17:18:22.475Z"
+  },
+  {
+    "id": 33,
+    "fileName": "317a94d6-766c-46c9-8c49-9e231728d3f5.png",
+    "fileType": "image/png",
+    "fileSize": 2114796,
+    "fileUrl": "/uploads/317a94d6-766c-46c9-8c49-9e231728d3f5.png",
+    "thumbnailUrl": "/uploads/317a94d6-766c-46c9-8c49-9e231728d3f5.png",
+    "altText": "ChatGPT Image Jun 10, 2026, 06_17_11 PM.png",
+    "createdAt": "2026-06-10T17:18:30.214Z"
+  },
+  {
+    "id": 34,
+    "fileName": "9bc7ad76-80d4-4130-95b0-4d17dab7b9f7.jpg",
+    "fileType": "image/jpeg",
+    "fileSize": 98950,
+    "fileUrl": "/uploads/9bc7ad76-80d4-4130-95b0-4d17dab7b9f7.jpg",
+    "thumbnailUrl": "/uploads/9bc7ad76-80d4-4130-95b0-4d17dab7b9f7.jpg",
+    "altText": "WhatsApp Image 2026-06-05 at 22.23.46.jpeg",
+    "createdAt": "2026-06-10T17:46:25.071Z"
+  },
+  {
+    "id": 35,
+    "fileName": "afa83bb7-e62f-44d6-b326-80cfd33f7512.png",
+    "fileType": "image/png",
+    "fileSize": 2114796,
+    "fileUrl": "/uploads/afa83bb7-e62f-44d6-b326-80cfd33f7512.png",
+    "thumbnailUrl": "/uploads/afa83bb7-e62f-44d6-b326-80cfd33f7512.png",
+    "altText": "ChatGPT Image Jun 10, 2026, 06_17_11 PM.png",
+    "createdAt": "2026-06-10T17:52:43.504Z"
+  },
+  {
+    "id": 36,
+    "fileName": "de0d1211-e3e2-49eb-9e39-27480ced32f4.jpg",
+    "fileType": "image/jpeg",
+    "fileSize": 98950,
+    "fileUrl": "/uploads/de0d1211-e3e2-49eb-9e39-27480ced32f4.jpg",
+    "thumbnailUrl": "/uploads/de0d1211-e3e2-49eb-9e39-27480ced32f4.jpg",
+    "altText": "WhatsApp Image 2026-06-05 at 22.23.46.jpeg",
+    "createdAt": "2026-06-10T17:58:47.858Z"
+  },
+  {
+    "id": 37,
+    "fileName": "a4c8f953-51da-42df-9b0f-c832bcacf72a.png",
+    "fileType": "image/png",
+    "fileSize": 2114796,
+    "fileUrl": "/uploads/a4c8f953-51da-42df-9b0f-c832bcacf72a.png",
+    "thumbnailUrl": "/uploads/a4c8f953-51da-42df-9b0f-c832bcacf72a.png",
+    "altText": "ChatGPT Image Jun 10, 2026, 06_17_11 PM.png",
+    "createdAt": "2026-06-10T17:58:53.474Z"
+  },
+  {
+    "id": 38,
+    "fileName": "077fe758-8924-45a7-8171-5b1adc75fb4b.png",
+    "fileType": "image/png",
+    "fileSize": 2133839,
+    "fileUrl": "/uploads/077fe758-8924-45a7-8171-5b1adc75fb4b.png",
+    "thumbnailUrl": "/uploads/077fe758-8924-45a7-8171-5b1adc75fb4b.png",
+    "altText": "ChatGPT Image Jun 10, 2026, 07_03_33 PM.png",
+    "createdAt": "2026-06-10T18:03:40.260Z"
+  },
+  {
+    "id": 39,
+    "fileName": "40268744-0c2c-41dc-bfe8-2a9b7ea9c1bd.png",
+    "fileType": "image/png",
+    "fileSize": 5394,
+    "fileUrl": "/uploads/40268744-0c2c-41dc-bfe8-2a9b7ea9c1bd.png",
+    "thumbnailUrl": "/uploads/40268744-0c2c-41dc-bfe8-2a9b7ea9c1bd.png",
+    "altText": null,
+    "createdAt": "2026-06-10T18:14:27.788Z"
   }
 ]
