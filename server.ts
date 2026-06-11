@@ -2561,7 +2561,7 @@ app.post('/api/admin/news', isAdmin, async (req: any, res) => {
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '');
     
-    const [newPost] = await db.insert(blogPosts).values({
+    const [post] = await db.insert(blogPosts).values({
       title: postData.title,
       slug: `${slug}-${Date.now()}`,
       content: postData.content,
@@ -2571,11 +2571,9 @@ app.post('/api/admin/news', isAdmin, async (req: any, res) => {
       status: postData.status || 'draft',
       authorId: req.user.id,
       publishedAt: postData.status === 'published' ? new Date() : null,
-    }).$returningId();
+    }).returning();
     
-    const [post] = await db.select().from(blogPosts).where(eq(blogPosts.id, newPost.id));
-    
-    console.log(`✅ Blog post created: ${newPost.id}`);
+    console.log(`✅ Blog post created: ${post?.id}`);
     res.json({ post });
   } catch (error) {
     console.error('❌ Error creating blog post:', error);
