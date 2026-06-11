@@ -81,9 +81,9 @@ async function runMigrations() {
     await migrate(db, { migrationsFolder: './drizzle/pg' });
     console.log('✅ Migrations completed');
   } catch (error: any) {
-    // If no migrations folder yet, schema was pushed directly — not a fatal error
-    if (error?.code === 'ENOENT') {
-      console.log('✅ No migration files found — schema already up to date');
+    // If no migrations folder / journal yet, schema was pushed directly — not a fatal error
+    if (error?.code === 'ENOENT' || error?.message?.includes('_journal.json')) {
+      console.log('✅ Schema up to date (no migration files — using drizzle-kit push)');
     } else {
       console.error('❌ Error running migrations:', error);
     }
