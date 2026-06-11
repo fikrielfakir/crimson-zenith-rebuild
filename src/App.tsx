@@ -111,15 +111,29 @@ function FaviconUpdater() {
   useEffect(() => {
     const url = seoSettings?.faviconUrl || seoSettings?.favicon_url;
     if (!url) return;
-    const selectors = [
-      'link[rel="icon"]',
-      'link[rel="shortcut icon"]',
-      'link[rel="apple-touch-icon"]',
-    ];
-    selectors.forEach((sel) => {
-      const el = document.querySelector<HTMLLinkElement>(sel);
-      if (el) el.href = url;
-    });
+
+    // Remove all existing favicon-related link tags so the browser
+    // doesn't fall back to a tiny 16×16 or .ico variant.
+    document
+      .querySelectorAll<HTMLLinkElement>(
+        'link[rel="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"]'
+      )
+      .forEach((el) => el.remove());
+
+    // Insert a single high-quality favicon link
+    const link = document.createElement("link");
+    link.rel = "icon";
+    link.type = url.endsWith(".ico") ? "image/x-icon" : "image/png";
+    link.sizes = "any";
+    link.href = url;
+    document.head.appendChild(link);
+
+    // Also add a larger apple-touch-icon so it looks sharp on iOS
+    const apple = document.createElement("link");
+    apple.rel = "apple-touch-icon";
+    apple.sizes = "180x180";
+    apple.href = url;
+    document.head.appendChild(apple);
   }, [seoSettings]);
   return null;
 }
