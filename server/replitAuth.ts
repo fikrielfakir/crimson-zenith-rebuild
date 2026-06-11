@@ -17,7 +17,7 @@ export function getSession() {
   const sessionStore = new PgSession({
     pool: pool as any,
     tableName: "sessions",
-    createTableIfMissing: false,
+    createTableIfMissing: true,
   });
 
   return session({
