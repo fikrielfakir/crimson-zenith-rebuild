@@ -1,0 +1,44 @@
+You are a senior UI/UX designer. Redesign the blog detail page for "The Journey Association" 
+— a Moroccan cultural travel organization. The page must feel editorial, immersive, and 
+trustworthy. Apply these improvements:
+
+HERO SECTION:
+- Replace the flat purple gradient with a full-bleed parallax hero image (the Moroccan 
+  architecture photo) with a dark overlay gradient (bottom-heavy, 60% opacity)
+- Display the article category tag ("NEWS") as a pill badge in terracotta/amber color
+- Increase the title font size to 56–64px with a serif typeface for editorial weight
+- Add a subtle animated scroll indicator arrow
+
+AUTHOR & META BAR:
+- Move the author strip into a sticky top bar that appears on scroll (not in the hero)
+- Include: avatar, name, date, read time, views, and a "Follow" CTA button inline
+- Add a reading progress bar pinned to the very top of the viewport (3px, accent color)
+
+CONTENT BODY:
+- Set max-width to 680px centered, line-height 1.8, font-size 18px for readability
+- Add a large decorative drop cap on the first paragraph
+- Support pull-quotes with a left border accent in amber/terracotta
+- Add estimated section anchors if article is long
+
+RIGHT SIDEBAR (desktop):
+- Make the "Share Article" panel sticky with smooth scroll behavior
+- Replace text share buttons with icon-only social buttons (Facebook, Twitter, WhatsApp, Link)
+- Show a "Table of Contents" widget if article has headings
+- Display "Related Articles" (2–3 cards with thumbnail, title, read time)
+
+ENGAGEMENT STRIP (below content):
+- Upgrade the like button to an animated heart with count
+- Add a comment count badge next to "Save"
+- Add reaction options (emoji quick reactions)
+
+AUTHOR BIO CARD:
+- Expand with avatar, bio text (2–3 sentences), article count, and follower count
+- Add a "More articles by this author" horizontal scroll row
+
+FOOTER / NAVIGATION:
+- Replace "Back to all articles" link with a two-column "Previous / Next Article" nav card
+- Include thumbnail, category, and title for each
+
+RESPONSIVE:
+- On mobile: collapse sidebar below article, make share bar a fixed bottom drawer
+- Reading progress bar persists on mobile
