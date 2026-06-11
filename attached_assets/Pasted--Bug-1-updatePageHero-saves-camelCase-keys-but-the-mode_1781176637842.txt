@@ -1,0 +1,61 @@
+🔴 Bug 1 — updatePageHero saves camelCase keys, but the model only knows snake_case
+The frontend sends this payload to PUT /api/admin/cms/page-hero/landing:
+json{
+  "backgroundType": "video",
+  "backgroundVideoUrl": "https://api.thejourney-ma.org/storage/media/abc.mp4",
+  "overlayOpacity": 50
+}
+The controller does $request->only(['background_type', 'backgroundType', 'background_video_url', 'backgroundVideoUrl', ...]) and passes that directly to $setting->update(...).
+But the model's $fillable only contains snake_case keys (background_video_url, background_type). So backgroundVideoUrl and backgroundType are silently ignored by Eloquent — nothing gets saved.
+🔴 Bug 2 — MediaController::store returns fileUrl, but PageHeroSettings.tsx reads data.fileUrl ?? data.url
+The upload does work (file gets stored to /storage/media/). The URL comes back correctly. But then the form URL is built as:
+tsconst url = rawUrl.startsWith('/storage/') && import.meta.env.VITE_API_BASE_URL
+  ? `${import.meta.env.VITE_API_BASE_URL}${rawUrl}`
+  : rawUrl;
+So in production it becomes https://api.thejourney-ma.org/storage/media/abc.mp4 — an absolute URL. When this absolute URL gets saved via the broken updatePageHero, Eloquent ignores the camelCase key and saves nothing. On refresh, the DB returns the old empty value.
+
+Fix — Backend only (CmsAdminController.php)
+In updatePageHero, manually map camelCase → snake_case before saving:
+phppublic function updatePageHero(Request $request, string $page)
+{
+    $allowed = ['landing', 'contact', 'volunteers', 'blog', 'projects', 'discover', 'city-detail'];
+    if (!in_array($page, $allowed)) {
+        return response()->json(['message' => 'Invalid page key'], 422);
+    }
+
+    $setting = PageHeroSetting::firstOrCreate(['page_key' => $page]);
+
+    // Map camelCase keys from frontend → snake_case for Eloquent
+    $data = [];
+
+    if ($request->has('backgroundType'))     $data['background_type']      = $request->input('backgroundType');
+    if ($request->has('background_type'))    $data['background_type']      = $request->input('background_type');
+
+    if ($request->has('backgroundImageUrl')) $data['background_image_url'] = $request->input('backgroundImageUrl');
+    if ($request->has('background_image_url')) $data['background_image_url'] = $request->input('background_image_url');
+
+    if ($request->has('backgroundVideoUrl')) $data['background_video_url'] = $request->input('backgroundVideoUrl');
+    if ($request->has('background_video_url')) $data['background_video_url'] = $request->input('background_video_url');
+
+    if ($request->has('overlayOpacity'))     $data['overlay_opacity']      = $request->input('overlayOpacity');
+    if ($request->has('overlay_opacity'))    $data['overlay_opacity']      = $request->input('overlay_opacity');
+
+    if ($request->has('title'))    $data['title']    = $request->input('title');
+    if ($request->has('subtitle')) $data['subtitle'] = $request->input('subtitle');
+
+    $data['updated_by'] = $request->user()?->id;
+
+    $setting->update($data);
+
+    $fresh = $setting->fresh();
+    return response()->json([
+        'page_key'           => $fresh->page_key,
+        'backgroundType'     => $fresh->background_type,
+        'backgroundImageUrl' => $fresh->background_image_url,
+        'backgroundVideoUrl' => $fresh->background_video_url,
+        'overlayOpacity'     => $fresh->overlay_opacity,
+        'title'              => $fresh->title,
+        'subtitle'           => $fresh->subtitle,
+    ]);
+}
+That's the only change needed on the backend. The frontend upload and read logic are fine — the data was just being silently discarded by Eloquent because the key names didn't match the $fillable columns.
