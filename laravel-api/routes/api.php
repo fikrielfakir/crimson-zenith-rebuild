@@ -317,6 +317,7 @@ Route::prefix('admin')->middleware(['admin'])->group(function () {
     Route::put('/cms/president-message',       [\App\Http\Controllers\Admin\CmsAdminController::class, 'updatePresidentMessage']);
     Route::put('/cms/about',                   [\App\Http\Controllers\Admin\CmsAdminController::class, 'updateAbout']);
     Route::put('/cms/discover',                [\App\Http\Controllers\Admin\CmsAdminController::class, 'updateDiscover']);
+    Route::get('/cms/media',                   [\App\Http\Controllers\Admin\MediaController::class, 'index']);
     Route::post('/cms/media',                  [\App\Http\Controllers\Admin\CmsAdminController::class, 'uploadMedia']);
 
     // Page Hero Settings (per-page background image/video)

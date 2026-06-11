@@ -23,6 +23,7 @@ use App\Models\LegalPage;
 use App\Models\LandingPageSection;
 use App\Models\CookieSetting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class CmsAdminController extends Controller
@@ -248,47 +249,88 @@ class CmsAdminController extends Controller
 
         // Accept multipart file upload
         if ($request->hasFile('file')) {
-            $file    = $request->file('file');
-            $mime    = $file->getMimeType() ?? 'image/jpeg';
-            $b64     = base64_encode(file_get_contents($file->getRealPath()));
-            $dataUrl = 'data:' . $mime . ';base64,' . $b64;
+            $file     = $request->file('file');
+            $mime     = $file->getMimeType() ?? 'image/jpeg';
+            $origName = $file->getClientOriginalName();
+            $ext      = $file->getClientOriginalExtension() ?: 'bin';
+            $uuid     = (string) Str::uuid();
+            $filename = $uuid . '.' . $ext;
+
+            Storage::disk('public')->put('media/' . $filename, file_get_contents($file->getRealPath()));
+            $fileUrl = '/storage/media/' . $filename;
+            $appUrl  = rtrim(config('app.url', ''), '/');
 
             $asset = MediaAsset::create([
-                'id'          => Str::uuid(),
-                'url'         => $dataUrl,
-                'alt'         => $request->input('alt', $file->getClientOriginalName()),
+                'file_name'   => $origName,
                 'file_type'   => $mime,
-                'file_name'   => $file->getClientOriginalName(),
+                'file_size'   => $file->getSize(),
+                'file_url'    => $fileUrl,
+                'thumbnail_url' => $fileUrl,
+                'alt_text'    => $request->input('alt', pathinfo($origName, PATHINFO_FILENAME)),
                 'uploaded_by' => $userId,
             ]);
 
+            $fullUrl = $appUrl . $fileUrl;
             return response()->json([
-                'url'      => $dataUrl,
-                'imageUrl' => $dataUrl,
+                'url'      => $fullUrl,
+                'imageUrl' => $fullUrl,
+                'fileUrl'  => $fullUrl,
                 'id'       => $asset->id,
             ], 201);
         }
 
         // Accept JSON base64 imageData
-        $request->validate(['imageData' => 'required|string', 'alt' => 'nullable|string']);
-        $imageData = $request->imageData;
-        if (!preg_match('/^data:image\/(png|jpeg|jpg|gif|webp);base64,.+$/', $imageData, $m)) {
-            return response()->json(['message' => 'Invalid image format'], 400);
+        if ($request->filled('imageData')) {
+            $imageData = $request->imageData;
+            if (!preg_match('/^data:([^;]+);base64,(.+)$/s', $imageData, $m)) {
+                return response()->json(['message' => 'Invalid image format'], 400);
+            }
+
+            $mime   = $m[1];
+            $binary = base64_decode($m[2]);
+            $ext    = $this->mimeToExt($mime);
+            $uuid   = (string) Str::uuid();
+            $filename = $uuid . '.' . $ext;
+
+            Storage::disk('public')->put('media/' . $filename, $binary);
+            $fileUrl = '/storage/media/' . $filename;
+            $appUrl  = rtrim(config('app.url', ''), '/');
+            $altText = $request->input('alt', '');
+
+            $asset = MediaAsset::create([
+                'file_name'   => ($altText ?: $uuid) . '.' . $ext,
+                'file_type'   => $mime,
+                'file_size'   => strlen($binary),
+                'file_url'    => $fileUrl,
+                'thumbnail_url' => $fileUrl,
+                'alt_text'    => $altText,
+                'uploaded_by' => $userId,
+            ]);
+
+            $fullUrl = $appUrl . $fileUrl;
+            return response()->json([
+                'url'      => $fullUrl,
+                'imageUrl' => $fullUrl,
+                'fileUrl'  => $fullUrl,
+                'id'       => $asset->id,
+            ], 201);
         }
 
-        $asset = MediaAsset::create([
-            'id'          => Str::uuid(),
-            'url'         => $imageData,
-            'alt'         => $request->input('alt', ''),
-            'file_type'   => 'image/' . $m[1],
-            'uploaded_by' => $userId,
-        ]);
+        return response()->json(['message' => 'No file or imageData provided'], 422);
+    }
 
-        return response()->json([
-            'url'      => $imageData,
-            'imageUrl' => $imageData,
-            'id'       => $asset->id,
-        ], 201);
+    private function mimeToExt(string $mime): string
+    {
+        return match ($mime) {
+            'image/jpeg'    => 'jpg',
+            'image/png'     => 'png',
+            'image/gif'     => 'gif',
+            'image/webp'    => 'webp',
+            'image/svg+xml' => 'svg',
+            'video/mp4'     => 'mp4',
+            'video/webm'    => 'webm',
+            default         => explode('/', $mime)[1] ?? 'bin',
+        };
     }
 
     public function getPartnerSettings()

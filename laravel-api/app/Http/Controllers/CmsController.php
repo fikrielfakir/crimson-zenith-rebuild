@@ -18,6 +18,7 @@ use App\Models\LandingTestimonial;
 use App\Models\SiteStat;
 use App\Models\MediaAsset;
 use App\Models\Partner;
+use Illuminate\Support\Facades\Storage;
 use App\Models\PartnerSettings;
 use App\Models\FocusSectionSettings;
 use App\Models\ClubsPageSettings;
@@ -271,25 +272,50 @@ class CmsController extends Controller
 
     public function media($id)
     {
-        $asset = MediaAsset::findOrFail($id);
+        $asset = MediaAsset::find($id);
 
-        $dataUrl = $asset->url ?? ($asset->file_url ?? null);
+        if (!$asset) {
+            // Return a branded placeholder SVG rather than a 404
+            $svg = '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">'
+                 . '<rect width="400" height="300" fill="#1a2a5e"/>'
+                 . '<text x="200" y="155" font-family="sans-serif" font-size="14" fill="#D8C18D" text-anchor="middle">Image unavailable</text>'
+                 . '</svg>';
+            return response($svg, 200)
+                ->header('Content-Type', 'image/svg+xml')
+                ->header('Cache-Control', 'no-cache');
+        }
 
-        // If it's a base64 data URL, decode and serve as binary image
-        if ($dataUrl && preg_match('/^data:([^;]+);base64,(.+)$/s', $dataUrl, $m)) {
-            $mime    = $m[1];
-            $binary  = base64_decode($m[2]);
+        $fileUrl = $asset->file_url ?? null;
+        $dataUrl = $asset->url ?? null;
+
+        // Serve from disk if it's a /storage/ path
+        if ($fileUrl && str_starts_with($fileUrl, '/storage/media/')) {
+            $storagePath = 'media/' . basename($fileUrl);
+            if (Storage::disk('public')->exists($storagePath)) {
+                $binary = Storage::disk('public')->get($storagePath);
+                $mime   = $asset->file_type ?? 'application/octet-stream';
+                return response($binary, 200)
+                    ->header('Content-Type', $mime)
+                    ->header('Cache-Control', 'public, max-age=31536000, immutable');
+            }
+        }
+
+        // Legacy: decode base64 data URL stored in DB
+        $src = $dataUrl ?? $fileUrl;
+        if ($src && preg_match('/^data:([^;]+);base64,(.+)$/s', $src, $m)) {
+            $mime   = $m[1];
+            $binary = base64_decode($m[2]);
             return response($binary, 200)
                 ->header('Content-Type', $mime)
                 ->header('Cache-Control', 'public, max-age=31536000, immutable');
         }
 
-        // If it's an external URL, redirect to it
-        if ($dataUrl && filter_var($dataUrl, FILTER_VALIDATE_URL)) {
-            return redirect($dataUrl);
+        // External URL — redirect
+        if ($src && filter_var($src, FILTER_VALIDATE_URL)) {
+            return redirect($src);
         }
 
-        // Fallback: return JSON representation
+        // JSON fallback
         return response()->json($asset);
     }
 }
