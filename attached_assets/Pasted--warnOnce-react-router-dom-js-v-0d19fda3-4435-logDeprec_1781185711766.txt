@@ -1,0 +1,82 @@
+
+warnOnce @ react-router-dom.js?v=0d19fda3:4435
+logDeprecation @ react-router-dom.js?v=0d19fda3:4438
+logV6DeprecationWarnings @ react-router-dom.js?v=0d19fda3:4444
+(anonymous) @ react-router-dom.js?v=0d19fda3:5313
+commitHookEffectListMount @ chunk-O3VNRDW5.js?v=0d19fda3:16963
+commitPassiveMountOnFiber @ chunk-O3VNRDW5.js?v=0d19fda3:18206
+commitPassiveMountEffects_complete @ chunk-O3VNRDW5.js?v=0d19fda3:18179
+commitPassiveMountEffects_begin @ chunk-O3VNRDW5.js?v=0d19fda3:18169
+commitPassiveMountEffects @ chunk-O3VNRDW5.js?v=0d19fda3:18159
+flushPassiveEffectsImpl @ chunk-O3VNRDW5.js?v=0d19fda3:19543
+flushPassiveEffects @ chunk-O3VNRDW5.js?v=0d19fda3:19500
+performSyncWorkOnRoot @ chunk-O3VNRDW5.js?v=0d19fda3:18921
+flushSyncCallbacks @ chunk-O3VNRDW5.js?v=0d19fda3:9166
+commitRootImpl @ chunk-O3VNRDW5.js?v=0d19fda3:19485
+commitRoot @ chunk-O3VNRDW5.js?v=0d19fda3:19330
+finishConcurrentRender @ chunk-O3VNRDW5.js?v=0d19fda3:18858
+performConcurrentWorkOnRoot @ chunk-O3VNRDW5.js?v=0d19fda3:18768
+workLoop @ chunk-O3VNRDW5.js?v=0d19fda3:197
+flushWork @ chunk-O3VNRDW5.js?v=0d19fda3:176
+performWorkUntilDeadline @ chunk-O3VNRDW5.js?v=0d19fda3:384
+postMessage
+schedulePerformWorkUntilDeadline @ chunk-O3VNRDW5.js?v=0d19fda3:407
+requestHostCallback @ chunk-O3VNRDW5.js?v=0d19fda3:418
+unstable_scheduleCallback @ chunk-O3VNRDW5.js?v=0d19fda3:330
+scheduleCallback$1 @ chunk-O3VNRDW5.js?v=0d19fda3:19879
+ensureRootIsScheduled @ chunk-O3VNRDW5.js?v=0d19fda3:18702
+scheduleUpdateOnFiber @ chunk-O3VNRDW5.js?v=0d19fda3:18612
+updateContainer @ chunk-O3VNRDW5.js?v=0d19fda3:20834
+ReactDOMHydrationRoot.render.ReactDOMRoot.render @ chunk-O3VNRDW5.js?v=0d19fda3:21174
+(anonymous) @ main.tsx:20Understand this warning
+apiFetch.ts:80  PUT http://192.168.56.1:5000/api/admin/cms/seo 404 (Not Found)
+(anonymous) @ apiFetch.ts:80
+(anonymous) @ AdminSettings.tsx:38
+fn @ @tanstack_react-query.js?v=0d19fda3:2052
+run @ @tanstack_react-query.js?v=0d19fda3:844
+start @ @tanstack_react-query.js?v=0d19fda3:886
+execute @ @tanstack_react-query.js?v=0d19fda3:2093
+await in execute
+mutate @ @tanstack_react-query.js?v=0d19fda3:2429
+(anonymous) @ AdminSettings.tsx:342
+callCallback2 @ chunk-O3VNRDW5.js?v=0d19fda3:3680
+invokeGuardedCallbackDev @ chunk-O3VNRDW5.js?v=0d19fda3:3705
+invokeGuardedCallback @ chunk-O3VNRDW5.js?v=0d19fda3:3739
+invokeGuardedCallbackAndCatchFirstError @ chunk-O3VNRDW5.js?v=0d19fda3:3742
+executeDispatch @ chunk-O3VNRDW5.js?v=0d19fda3:7046
+processDispatchQueueItemsInOrder @ chunk-O3VNRDW5.js?v=0d19fda3:7066
+processDispatchQueue @ chunk-O3VNRDW5.js?v=0d19fda3:7075
+dispatchEventsForPlugins @ chunk-O3VNRDW5.js?v=0d19fda3:7083
+(anonymous) @ chunk-O3VNRDW5.js?v=0d19fda3:7206
+batchedUpdates$1 @ chunk-O3VNRDW5.js?v=0d19fda3:18966
+batchedUpdates @ chunk-O3VNRDW5.js?v=0d19fda3:3585
+dispatchEventForPluginEventSystem @ chunk-O3VNRDW5.js?v=0d19fda3:7205
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-O3VNRDW5.js?v=0d19fda3:5484
+dispatchEvent @ chunk-O3VNRDW5.js?v=0d19fda3:5478
+dispatchDiscreteEvent @ chunk-O3VNRDW5.js?v=0d19fda3:5455Understand this error
+AdminSettings.tsx:43 Uncaught (in promise) Error: Failed to save
+    at Object.mutationFn (AdminSettings.tsx:43:26)
+(anonymous) @ AdminSettings.tsx:43
+await in (anonymous)
+fn @ @tanstack_react-query.js?v=0d19fda3:2052
+run @ @tanstack_react-query.js?v=0d19fda3:844
+start @ @tanstack_react-query.js?v=0d19fda3:886
+execute @ @tanstack_react-query.js?v=0d19fda3:2093
+await in execute
+mutate @ @tanstack_react-query.js?v=0d19fda3:2429
+(anonymous) @ AdminSettings.tsx:342
+callCallback2 @ chunk-O3VNRDW5.js?v=0d19fda3:3680
+invokeGuardedCallbackDev @ chunk-O3VNRDW5.js?v=0d19fda3:3705
+invokeGuardedCallback @ chunk-O3VNRDW5.js?v=0d19fda3:3739
+invokeGuardedCallbackAndCatchFirstError @ chunk-O3VNRDW5.js?v=0d19fda3:3742
+executeDispatch @ chunk-O3VNRDW5.js?v=0d19fda3:7046
+processDispatchQueueItemsInOrder @ chunk-O3VNRDW5.js?v=0d19fda3:7066
+processDispatchQueue @ chunk-O3VNRDW5.js?v=0d19fda3:7075
+dispatchEventsForPlugins @ chunk-O3VNRDW5.js?v=0d19fda3:7083
+(anonymous) @ chunk-O3VNRDW5.js?v=0d19fda3:7206
+batchedUpdates$1 @ chunk-O3VNRDW5.js?v=0d19fda3:18966
+batchedUpdates @ chunk-O3VNRDW5.js?v=0d19fda3:3585
+dispatchEventForPluginEventSystem @ chunk-O3VNRDW5.js?v=0d19fda3:7205
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-O3VNRDW5.js?v=0d19fda3:5484
+dispatchEvent @ chunk-O3VNRDW5.js?v=0d19fda3:5478
+dispatchDiscreteEvent @ chunk-O3VNRDW5.js?v=0d19fda3:5455Understand this error

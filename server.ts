@@ -78,8 +78,18 @@ async function runMigrations() {
   try {
     console.log('🔄 Running database migrations...');
     console.log('✅ Migrations completed');
+<<<<<<< HEAD
   } catch (error) {
     console.error('❌ Error running migrations:', error);
+=======
+  } catch (error: any) {
+    // If no migrations folder / journal yet, schema was pushed directly — not a fatal error
+    if (error?.code === 'ENOENT' || error?.message?.includes('_journal.json')) {
+      console.log('✅ Schema up to date (no migration files — using drizzle-kit push)');
+    } else {
+      console.error('❌ Error running migrations:', error);
+    }
+>>>>>>> f5f3ecb8bbce2594df6aa9789ea7938dbce73d86
   }
 }
 
@@ -1901,6 +1911,34 @@ app.post('/api/admin/clubs/upload-image', isAdmin, async (req: any, res) => {
     res.status(201).json({ url });
   } catch (error) {
     console.error('❌ Error uploading club image:', error);
+    res.status(500).json({ error: 'Upload failed' });
+  }
+});
+
+// Generic image upload — accepts { imageData: "data:image/...;base64,..." }
+// Used by logo, favicon, and any other single-image upload fields.
+app.post('/api/admin/upload-image', isAdmin, async (req: any, res) => {
+  try {
+    const { imageData, folder = 'misc' } = req.body;
+    if (!imageData) return res.status(400).json({ message: 'No imageData provided' });
+    const match = imageData.match(/^data:([^;]+);base64,(.+)$/s);
+    if (!match) return res.status(400).json({ message: 'Invalid imageData format' });
+    const { promises: fsPromise } = await import('fs');
+    const pathMod = await import('path');
+    const crypto = await import('crypto');
+    const mime = match[1];
+    const ext = mime.split('/')[1]?.replace('jpeg', 'jpg').replace('svg+xml', 'svg') ?? 'png';
+    const binary = Buffer.from(match[2], 'base64');
+    const id = crypto.randomUUID();
+    const filename = `${id}.${ext}`;
+    const uploadsDir = pathMod.resolve(__dirname, `public/uploads/${folder}`);
+    await fsPromise.mkdir(uploadsDir, { recursive: true });
+    await fsPromise.writeFile(pathMod.join(uploadsDir, filename), binary);
+    const url = `/uploads/${folder}/${filename}`;
+    console.log(`✅ Uploaded image → ${url}`);
+    res.status(201).json({ url });
+  } catch (error) {
+    console.error('❌ Error uploading image:', error);
     res.status(500).json({ error: 'Upload failed' });
   }
 });
