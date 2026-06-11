@@ -144,7 +144,7 @@ const VolunteersSpontaneous = () => {
           ]}
           defaultTitle={t("volunteerSpontaneousPage.heroTitle")}
           defaultSubtitle={t("volunteerSpontaneousPage.heroSubtitle")}
-          defaultImage="/attached_assets/generated_images/Al_Hoceima_coastal_view_9e4e9e0c.png"
+          defaultImage="https://api.thejourney-ma.org/attached_assets/generated_images/Al_Hoceima_coastal_view_9e4e9e0c.png"
         />
 
         {/* Introduction Section */}

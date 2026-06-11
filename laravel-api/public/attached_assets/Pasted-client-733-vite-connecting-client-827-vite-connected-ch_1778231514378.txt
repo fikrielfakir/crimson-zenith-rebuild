@@ -1,0 +1,79 @@
+client:733 [vite] connecting...
+client:827 [vite] connected.
+chunk-K23GC2QC.js?v=68be8c24:21609 Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+react-router-dom.js?v=68be8c24:4393 ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+warnOnce @ react-router-dom.js?v=68be8c24:4393
+react-router-dom.js?v=68be8c24:4393 ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+warnOnce @ react-router-dom.js?v=68be8c24:4393
+chunk-K23GC2QC.js?v=68be8c24:521 Warning: validateDOMNesting(...): <form> cannot appear as a descendant of <form>.
+    at form
+    at div
+    at MapLocationPicker (http://192.168.56.1:5000/src/pages/admin/ClubForm.tsx:314:30)
+    at div
+    at div
+    at form
+    at div
+    at ClubForm (http://192.168.56.1:5000/src/pages/admin/ClubForm.tsx:641:20)
+    at div
+    at div
+    at div
+    at http://192.168.56.1:5000/node_modules/.vite/deps/chunk-KP5E6AO6.js?v=68be8c24:43:13
+    at http://192.168.56.1:5000/node_modules/.vite/deps/@radix-ui_react-scroll-area.js?v=68be8c24:118:13
+    at div
+    at http://192.168.56.1:5000/node_modules/.vite/deps/chunk-KP5E6AO6.js?v=68be8c24:43:13
+    at Provider (http://192.168.56.1:5000/node_modules/.vite/deps/chunk-U4NED7UW.js?v=68be8c24:37:15)
+    at http://192.168.56.1:5000/node_modules/.vite/deps/@radix-ui_react-scroll-area.js?v=68be8c24:56:7
+    at _c (http://192.168.56.1:5000/src/components/ui/scroll-area.tsx:24:59)
+    at main
+    at div
+    at div
+    at AdminLayout (http://192.168.56.1:5000/src/components/admin/AdminLayout.tsx:184:31)
+    at ProtectedRoute (http://192.168.56.1:5000/src/components/admin/ProtectedRoute.tsx:38:34)
+    at RenderedRoute (http://192.168.56.1:5000/node_modules/.vite/deps/react-router-dom.js?v=68be8c24:4088:5)
+    at Routes (http://192.168.56.1:5000/node_modules/.vite/deps/react-router-dom.js?v=68be8c24:4558:5)
+    at Router (http://192.168.56.1:5000/node_modules/.vite/deps/react-router-dom.js?v=68be8c24:4501:15)
+    at BrowserRouter (http://192.168.56.1:5000/node_modules/.vite/deps/react-router-dom.js?v=68be8c24:5247:5)
+    at Provider (http://192.168.56.1:5000/node_modules/.vite/deps/chunk-U4NED7UW.js?v=68be8c24:37:15)
+    at TooltipProvider (http://192.168.56.1:5000/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=68be8c24:65:5)
+    at QueryClientProvider (http://192.168.56.1:5000/node_modules/.vite/deps/@tanstack_react-query.js?v=68be8c24:3025:3)
+    at App
+printWarning @ chunk-K23GC2QC.js?v=68be8c24:521
+error @ chunk-K23GC2QC.js?v=68be8c24:505
+validateDOMNesting @ chunk-K23GC2QC.js?v=68be8c24:8303
+createInstance @ chunk-K23GC2QC.js?v=68be8c24:8375
+completeWork @ chunk-K23GC2QC.js?v=68be8c24:16338
+completeUnitOfWork @ chunk-K23GC2QC.js?v=68be8c24:19277
+performUnitOfWork @ chunk-K23GC2QC.js?v=68be8c24:19259
+workLoopSync @ chunk-K23GC2QC.js?v=68be8c24:19190
+renderRootSync @ chunk-K23GC2QC.js?v=68be8c24:19169
+performConcurrentWorkOnRoot @ chunk-K23GC2QC.js?v=68be8c24:18728
+workLoop @ chunk-K23GC2QC.js?v=68be8c24:197
+flushWork @ chunk-K23GC2QC.js?v=68be8c24:176
+performWorkUntilDeadline @ chunk-K23GC2QC.js?v=68be8c24:384
+postMessage
+schedulePerformWorkUntilDeadline @ chunk-K23GC2QC.js?v=68be8c24:407
+requestHostCallback @ chunk-K23GC2QC.js?v=68be8c24:418
+unstable_scheduleCallback @ chunk-K23GC2QC.js?v=68be8c24:330
+scheduleCallback$1 @ chunk-K23GC2QC.js?v=68be8c24:19879
+ensureRootIsScheduled @ chunk-K23GC2QC.js?v=68be8c24:18702
+scheduleUpdateOnFiber @ chunk-K23GC2QC.js?v=68be8c24:18612
+dispatchSetState @ chunk-K23GC2QC.js?v=68be8c24:12451
+callback @ chunk-2JEWVNTX.js?v=68be8c24:2047
+next @ chunk-2JEWVNTX.js?v=68be8c24:1398
+next @ chunk-2JEWVNTX.js?v=68be8c24:477
+setValue @ chunk-2JEWVNTX.js?v=68be8c24:1240
+(anonymous) @ ClubForm.tsx:373
+Promise.then
+(anonymous) @ ClubForm.tsx:372
+commitHookEffectListMount @ chunk-K23GC2QC.js?v=68be8c24:16963
+commitPassiveMountOnFiber @ chunk-K23GC2QC.js?v=68be8c24:18206
+commitPassiveMountEffects_complete @ chunk-K23GC2QC.js?v=68be8c24:18179
+commitPassiveMountEffects_begin @ chunk-K23GC2QC.js?v=68be8c24:18169
+commitPassiveMountEffects @ chunk-K23GC2QC.js?v=68be8c24:18159
+flushPassiveEffectsImpl @ chunk-K23GC2QC.js?v=68be8c24:19543
+flushPassiveEffects @ chunk-K23GC2QC.js?v=68be8c24:19500
+commitRootImpl @ chunk-K23GC2QC.js?v=68be8c24:19469
+commitRoot @ chunk-K23GC2QC.js?v=68be8c24:19330
+performSyncWorkOnRoot @ chunk-K23GC2QC.js?v=68be8c24:18948
+flushSyncCallbacks @ chunk-K23GC2QC.js?v=68be8c24:9166
+(anonymous) @ chunk-K23GC2QC.js?v=68be8c24:18677

@@ -78,7 +78,7 @@ const Projects = () => {
       author: "Ahmed, Local Guide",
       region: "Imlil, Atlas Mountains",
       impact: "50 families empowered",
-      image: "/attached_assets/generated_images/Fes_medina_and_tanneries_3e9a2ff0.png"
+      image: "https://api.thejourney-ma.org/attached_assets/generated_images/Fes_medina_and_tanneries_3e9a2ff0.png"
     },
     {
       id: 2,
@@ -87,7 +87,7 @@ const Projects = () => {
       author: "Fatima, Entrepreneur",
       region: "Tangier",
       impact: "120 students graduated",
-      image: "/attached_assets/generated_images/Tangier_city_aerial_view_03330006.png"
+      image: "https://api.thejourney-ma.org/attached_assets/generated_images/Tangier_city_aerial_view_03330006.png"
     },
     {
       id: 3,
@@ -96,7 +96,7 @@ const Projects = () => {
       author: "Hassan, Fisherman",
       region: "Al Hoceima",
       impact: "8 beaches restored",
-      image: "/attached_assets/generated_images/Al_Hoceima_coastal_view_9e4e9e0c.png"
+      image: "https://api.thejourney-ma.org/attached_assets/generated_images/Al_Hoceima_coastal_view_9e4e9e0c.png"
     }
   ];
 
@@ -139,7 +139,7 @@ const Projects = () => {
           breadcrumbs={[{ label: "Projects" }]}
           defaultTitle="Our Projects"
           defaultSubtitle="Making a difference through meaningful initiatives that empower communities and preserve Morocco's rich heritage."
-          defaultImage="/attached_assets/generated_images/Fes_medina_and_tanneries_3e9a2ff0.png"
+          defaultImage="https://api.thejourney-ma.org/attached_assets/generated_images/Fes_medina_and_tanneries_3e9a2ff0.png"
         />
 
         {/* Highlighted Projects Overview */}

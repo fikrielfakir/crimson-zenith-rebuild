@@ -1,0 +1,22 @@
+samme Feautures not functioned 
+
+client:733 [vite] connecting...
+client:827 [vite] connected.
+chunk-AP6GYKF3.js?v=dc4f9f6f:21609 Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+react-router-dom.js?v=dc4f9f6f:4393 ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+warnOnce @ react-router-dom.js?v=dc4f9f6f:4393Understand this warning
+react-router-dom.js?v=dc4f9f6f:4393 ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+warnOnce @ react-router-dom.js?v=dc4f9f6f:4393Understand this warning
+6[DOM] Password field is not contained in a form: (More info: <URL>) 
+@radix-ui_react-dialog.js?v=dc4f9f6f:339 Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+(anonymous) @ @radix-ui_react-dialog.js?v=dc4f9f6f:339Understand this warning
+/api/cms/focus-items:1  Failed to load resource: the server responded with a status of 404 (Not Found)Understand this error
+/api/cms/focus-items:1  Failed to load resource: the server responded with a status of 404 (Not Found)Understand this error
+navbar:1  Failed to load resource: the server responded with a status of 404 (Not Found)Understand this error
+navbar:1  Failed to load resource: the server responded with a status of 404 (Not Found)Understand this error
+useCMS.ts:68  GET https://fe08753c-3507-4612-a8fb-669f602d0316-00-3dtfmwi4y1d1l.picard.replit.dev/api/cms/navbar 404 (Not Found)
+queryFn @ useCMS.ts:68
+fetchFn @ @tanstack_react-query.js?v=dc4f9f6f:1063
+run @ @tanstack_react-query.js?v=dc4f9f6f:773
+(anonymous) @ @tanstack_react-query.js?v=dc4f9f6f:797Understand this error
+useCMS.ts:68  GET https://fe08753c-3507-4612-a8fb-669f602d0316-00-3dtfmwi4y1d1l.picard.replit.dev/api/cms/navbar 404 (Not Found)

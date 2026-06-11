@@ -1,0 +1,67 @@
+I have planned a multi-phase project for building a customizable landing page admin panel. I want you to review it and give me feedback, improvements, and potential issues. Here are the phases and tasks:
+
+Phase 1: Database Schema & Backend Setup
+Task 1.1: Create Database Tables for Customization Settings
+
+navbar_settings: logo_type (text/image), logo_text, logo_image_url, navigation_links (JSON), button_styles (JSON), colors (JSON)
+
+hero_settings: title, subtitle, background_image, button_text, button_links, colors, fonts
+
+section_settings (generic for all sections): section_name, is_active, content (JSON), styles (JSON)
+
+theme_settings (global): primary_color, secondary_color, font_family, custom_css
+
+Task 1.2: Create API Endpoints
+Backend routes needed:
+
+Navbar: GET /api/admin/navbar, PUT /api/admin/navbar, POST /api/admin/navbar/logo
+
+Hero Section: GET /api/admin/hero, PUT /api/admin/hero
+
+Generic Sections: GET /api/admin/sections, GET /api/admin/sections/:sectionId, PUT /api/admin/sections/:sectionId
+
+Theme: GET /api/admin/theme, PUT /api/admin/theme
+
+Media Upload: POST /api/admin/upload
+
+Phase 2: Admin Panel UI Structure
+Task 2.1: Create Admin Layout & Navigation
+
+/admin
+  /dashboard
+  /customization
+    /navbar
+    /hero
+    /about-president
+    /focus-areas
+    /clubs
+    /events
+    /impact
+    /testimonials
+    /partners
+    /theme-settings
+
+
+Task 2.2: Build Reusable Components
+Components: ColorPicker.jsx, FontSelector.jsx, IconPicker.jsx, ImageUploader.jsx, RichTextEditor.jsx, SectionToggle.jsx, PreviewPane.jsx, SaveButton.jsx
+
+Phase 3: Navbar Customization
+Task 3.1: Logo Editor
+
+Switch between text/image logo, upload logo image, edit logo text, adjust logo size, set logo link
+Task 3.2: Navigation Links Editor
+
+Add/remove navigation items, reorder items (drag & drop), edit link text & URL, set active states, configure dropdown menus
+Task 3.3: Navbar Styling
+
+Background color, text color, hover effects, font family & size, sticky/transparent options
+
+Request: Please review this plan and provide:
+
+Suggestions for improvements or missing features
+
+Potential database, backend, or frontend issues
+
+Advice on reusable components or structure for scalability
+
+Anything else that can make this admin panel more robust and maintainable

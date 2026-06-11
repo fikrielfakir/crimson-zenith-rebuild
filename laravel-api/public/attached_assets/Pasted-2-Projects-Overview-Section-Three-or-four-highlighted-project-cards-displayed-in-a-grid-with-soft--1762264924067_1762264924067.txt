@@ -1,0 +1,93 @@
+2. Projects Overview Section
+
+Three or four highlighted project cards displayed in a grid with soft shadows and rounded corners.
+
+Each card includes:
+
+Project image thumbnail
+
+Title (e.g., Atlas Mountain Clean-Up Drive)
+
+Short description
+
+Tag badges: “Ongoing”, “Completed”, or “Upcoming”
+
+Progress bar or funding percentage
+
+“Learn More” button
+
+Use smooth hover animations to reveal more details or change background tone.
+
+3. Filter and Category Bar
+
+Sticky horizontal filter bar above the projects list.
+
+Filters: All | Environment | Education | Culture | Community | Tourism
+
+Optional dropdown for sorting by Date, Impact, or Location.
+
+4. Detailed Project Cards Grid
+
+Dynamic grid layout (3 or 4 columns, fully responsive).
+
+Each project card includes:
+
+Project image (landscape format)
+
+Title and location
+
+Short summary of goals and outcomes
+
+Icons for key impact metrics (e.g., people helped, CO₂ saved, cultural sites restored)
+
+A “View Details” link opening a modal or dedicated subpage.
+
+5. Impact Statistics Section
+
+Dark background (matching footer theme) with animated counters:
+
+200+ Projects Completed
+
+80+ Communities Empowered
+
+1M+ Visitors Impacted
+
+Add minimalist icons with soft animations for visual emphasis.
+
+6. Featured Success Stories
+
+Carousel slider featuring success stories with images, quotes, and links to full articles.
+
+Layout similar to “Member Testimonials,” but with richer storytelling (title, region, and impact summary).
+
+7. Get Involved Section
+
+CTA block with a background gradient and semi-transparent overlay.
+
+Text: “Join us in shaping Morocco’s sustainable future.”
+
+Buttons: Volunteer, Donate, Partner With Us.
+
+8. Newsletter / Contact Footer
+
+Integrated contact form or newsletter signup.
+
+Consistent with “Contact Information” style from homepage.
+
+🎨 Visual Style & UI Details
+
+Keep the same color palette (midnight blue, white, soft gold, and beige tones).
+
+Maintain typography consistency (modern sans-serif for body, elegant serif for headings).
+
+Use subtle shadows, rounded corners (2xl), and card hover transitions.
+
+Responsive layout for mobile and tablet, ensuring readability and touch-friendly buttons.
+
+🧭 Bonus Interactivity
+
+Animated map of Morocco highlighting project locations (pins that expand on hover).
+
+Smooth scroll animations revealing content sections.
+
+“Back to Top” floating button matching site theme.

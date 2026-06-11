@@ -1,0 +1,37 @@
+react-dom.development.js:29895 Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+deprecations.ts:9 ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+warnOnce @ deprecations.ts:9
+deprecations.ts:9 ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+warnOnce @ deprecations.ts:9
+activity:1  Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+api/admin/upcoming-events:1  Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+api/admin/charts:1  Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+api/admin/stats:1  Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+activity:1  Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+api/admin/upcoming-events:1  Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+api/admin/charts:1  Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+api/admin/stats:1  Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+apiFetch.ts:63  GET http://localhost:5000/api/admin/activity 500 (Internal Server Error)
+(anonymous) @ apiFetch.ts:63
+fetchRecentActivity @ AdminDashboard.tsx:58
+(anonymous) @ query.ts:474
+(anonymous) @ retryer.ts:155
+(anonymous) @ retryer.ts:201
+apiFetch.ts:63  GET http://localhost:5000/api/admin/charts 500 (Internal Server Error)
+(anonymous) @ apiFetch.ts:63
+fetchChartsData @ AdminDashboard.tsx:70
+(anonymous) @ query.ts:474
+(anonymous) @ retryer.ts:155
+(anonymous) @ retryer.ts:201
+apiFetch.ts:63  GET http://localhost:5000/api/admin/upcoming-events 500 (Internal Server Error)
+(anonymous) @ apiFetch.ts:63
+fetchUpcomingEvents @ AdminDashboard.tsx:64
+(anonymous) @ query.ts:474
+(anonymous) @ retryer.ts:155
+(anonymous) @ retryer.ts:201
+apiFetch.ts:63  GET http://localhost:5000/api/admin/stats 500 (Internal Server Error)
+(anonymous) @ apiFetch.ts:63
+fetchDashboardStats @ AdminDashboard.tsx:52
+(anonymous) @ query.ts:474
+(anonymous) @ retryer.ts:155
+(anonymous) @ retryer.ts:201

@@ -1,0 +1,199 @@
+Phase 1 — Environment & project setup ~2 days
+Setup
+
+ Install PHP 8.2 on server / Hostinger VPS
+ Install Composer globally
+ Create new Laravel 11 project: composer create-project laravel/laravel laravel-api
+
+Config
+
+ Configure .env: DB_HOST, DB_DATABASE, DB_USERNAME, DB_PASSWORD (same Hostinger MySQL)
+ Test DB connection: php artisan migrate:status
+ Configure CORS in config/cors.php — allow Vite origin (localhost:5000) and production domain
+ Update Vite proxy in vite.config.ts: /api → http://localhost:8000
+ Set SESSION_DRIVER=database in .env
+
+Auth
+
+ Install Laravel Sanctum: composer require laravel/sanctum
+ Publish Sanctum config: php artisan vendor:publish --provider=Sanctum
+
+Test
+
+ Verify Laravel health check route GET /health returns 200
+ Run php artisan session:table && php artisan migrate
+
+
+Phase 2 — Database migrations & models ~3 days
+Migrations
+
+ Generate migration for users table (id varchar, role, isAdmin, profileImageUrl, bio, phone, location, interests JSON)
+ Generate migration for sessions table (Laravel session driver)
+ Generate migration for clubs (slug unique, lat/lng, features JSON, ownerId FK)
+ Generate migration for club_memberships (userId, clubId, role, isActive)
+ Generate migration for club_gallery, club_reviews
+ Generate migration for booking_events (all 30+ columns incl. images/highlights JSON)
+ Generate migration for booking_tickets (bookingReference unique, paymentStatus, status)
+ Generate migrations for event_participants, events_clubs, event_gallery, event_schedule, event_reviews, event_prices
+ Generate migration for blog_posts (slug unique, tags JSON, status enum)
+ Generate migration for media_assets (focalPoint JSON, metadata JSON)
+ Generate migration for membership_applications
+ Generate migrations for all 12 CMS tables:
+
+navbar_settings
+hero_settings
+theme_settings
+president_message_settings
+contact_settings
+footer_settings
+seo_settings
+about_settings
+focus_items
+team_members
+landing_testimonials
+site_stats
+partners
+
+
+ Generate migration for booking_page_settings
+
+Models
+
+ Create Eloquent model User with fillable, casts (interests → array, isAdmin → boolean)
+ Create Eloquent model Club with hasMany(ClubMembership), hasMany(BookingEvent)
+ Create Eloquent model BookingEvent with hasMany(BookingTicket), belongsTo(Club)
+ Create remaining models: BookingTicket, BlogPost, MediaAsset, MembershipApplication
+ Create CMS models: NavbarSettings, HeroSettings, ThemeSettings, PresidentMessageSettings, etc.
+
+Seeds
+
+ Write database seeders: AdminUserSeeder, ClubsSeeder, EventsSeeder, CmsSeeder
+ Run php artisan migrate --seed and verify all 26+ tables
+
+
+Phase 3 — Authentication & middleware ~2 days
+Auth
+
+ Create AuthController::register() — hash password with bcrypt(10), create user, return session
+ Create AuthController::login() — validate credentials, Auth::attempt(), return user JSON
+ Create AuthController::logout() — Auth::logout(), invalidate session
+ Create AuthController::user() — return authenticated user (GET /api/auth/user)
+ Create AuthController::updateProfile() — PUT /api/auth/user
+ Create AuthController::uploadProfileImage() — base64 decode + Storage::put
+ Create AdminAuthController::adminLogin() — POST /api/admin/login
+
+Middleware
+
+ Create AdminMiddleware: check auth + user->isAdmin, return 403 JSON on fail
+ Register AdminMiddleware in bootstrap/app.php as 'admin'
+
+Routes
+
+ Define auth routes in routes/api.php (no middleware group)
+
+Test
+
+ Test all auth endpoints match Express response shape exactly
+
+
+Phase 4 — API routes (~80 endpoints) ~6–8 days
+Controllers — Public
+
+ Create ClubController: index, show (by slug), events, join, leave
+ Create EventController: index, show, store
+ Create BookingEventController: index, show, store, update, destroy
+ Create BookingTicketController: store (create ticket + send email), show (by reference), myTickets, checkEvent, updateStatus, cancel, update
+ Create BookingPageSettingsController: show, update
+ Create ApplicationController: store (submit), index, update
+ Create ContactController: store — send contact form email
+ Create PaymentController: createPaymentIntent (Stripe), createPaypalOrder
+ Create CmsController: hero, theme, navbar, presidentMessage (GET each)
+ Create LandingController: index (GET all landing content), update
+ Create UserClubController: myClubs (GET /api/user/clubs)
+
+Controllers — Admin
+
+ Create Admin\StatsController: stats, activity, upcomingEvents, charts, dashboardStats
+ Create Admin\UserController: index, store, update, toggleAdmin, toggleActive, resetPassword, destroy
+ Create Admin\ClubController: index, show, store, update, destroy, approve
+ Create Admin\EventController: index, store, update, destroy
+ Create Admin\BookingController: index, updateStatus
+ Create Admin\NewsController: index, store, update, destroy
+ Create Admin\BookingEventController: index, store, update, destroy
+ Create Admin\AnalyticsController: index
+ Create Admin\MediaController: index, store, destroy
+ Create Admin\SettingsController: show, updateSeo, updateContact
+ Create Admin\CmsController: updateHero, uploadMedia, getCmsStat, updateCmsStat, deleteCmsStat
+
+Validation
+
+ Write Form Request classes for all store/update routes (replace Zod schemas)
+ Ensure all JSON error responses match Express shape: {message: string, errors?: object}
+
+Routes
+
+ Define all public routes in routes/api.php
+ Define all admin routes under Route::prefix('admin')->middleware('admin')
+
+Misc
+
+ Verify GET /api/placeholder/{width}/{height} returns SVG response
+
+
+Phase 5 — Services & integrations ~3 days
+Payments
+
+ Install Stripe: composer require stripe/stripe-php
+ Create StripeService::createPaymentIntent(amount, currency='mad')
+ Install PayPal SDK: composer require paypalintegrations/paypal-server-sdk
+ Create PayPalService::createOrder()
+ Add STRIPE_SECRET_KEY, PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET to .env
+
+Email
+
+ Configure Mail in .env: MAIL_MAILER=smtp, MAIL_HOST=smtp.hostinger.com, MAIL_PORT=465, MAIL_ENCRYPTION=ssl
+ Create BookingConfirmationMail Mailable class (pending/confirmed HTML template)
+ Create BookingApprovedMail Mailable class (confirmed green template)
+ Port HTML email templates from emailService.ts → Blade view files (resources/views/emails/)
+
+Services
+
+ Create BookingService: createTicket(), generateReference(), dispatchEmails()
+
+Real-time
+
+ Install Laravel Reverb (WebSockets): php artisan install:broadcasting
+ Update frontend socket.io-client to use Laravel Echo + Reverb or Pusher adapter
+
+Misc
+
+ Create PHP helper for event ID generation (port server/utils/id-generator.ts)
+ Configure Storage facade for media uploads (local disk or S3-ready)
+ Add php artisan storage:link to deployment steps
+
+
+Phase 6 — Testing & production cutover ~3 days
+Tests
+
+ Install Pest: composer require pestphp/pest --dev
+ Write auth feature tests: register, login, logout, /api/auth/user
+ Write public API feature tests: clubs, events, booking flow end-to-end
+ Write admin feature tests: CRUD for users, clubs, events with AdminMiddleware check
+
+Cutover
+
+ Run both servers in parallel: Express on :3001, Laravel on :8000
+ Switch Vite proxy to :8000 and smoke-test full frontend against Laravel
+ Verify all 22 public routes and 22 admin panel routes work with new backend
+ Confirm session cookies, CSRF tokens, and Sanctum work correctly in production HTTPS
+
+Deploy
+
+ Update .replit deploy: replace tsx server.ts with php artisan serve or configure Nginx + PHP-FPM
+ Remove server.ts, server/ directory, and Node.js backend dependencies from package.json
+ Update package.json scripts: remove start and dev backend references
+ Final check: APP_KEY set, all env secrets migrated (SMTP, Stripe, PayPal, session secret)
+
+
+Key replacements reference
+Express / Node.jsLaravel / PHP 8.2Passport.js local strategyLaravel Sanctumexpress-mysql-sessionLaravel DB session driverDrizzle ORMEloquent ORMserver/storage.ts (1286 lines)Repository + Eloquent modelsNodemailerLaravel Mail facadeZod validationForm Request classestsx / concurrentlyphp artisan serve / SupervisorSocket.ioLaravel Echo + Reverbserver.ts (3842 lines)Routes + Controllers + Servicesbcryptjs 10 roundsbcrypt() helper (same cost)isAdmin Express middlewareAdminMiddlewareProtectedRoute (frontend, unchanged)ProtectedRoute (frontend, unchanged)

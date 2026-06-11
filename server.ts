@@ -3632,12 +3632,12 @@ app.post('/api/admin/cities/seed', isAdmin, async (req, res) => {
     const existing = await db.select({ slug: cities.slug }).from(cities);
     const existingSlugs = new Set(existing.map(r => r.slug));
     const defaults = [
-      { id: 1, name: 'Tangier', slug: 'tangier', title: 'Gateway Between Continents', image: '/attached_assets/generated_images/Tangier_city_aerial_view_03330006.png', ordering: 1 },
-      { id: 2, name: 'Tetouan', slug: 'tetouan', title: 'The White Dove', image: '/attached_assets/generated_images/Tetouan_medina_panorama_b1f6dcbc.png', ordering: 2 },
-      { id: 3, name: 'Al Hoceima', slug: 'al-hoceima', title: 'Mediterranean Paradise', image: '/attached_assets/generated_images/Al_Hoceima_coastal_view_9e4e9e0c.png', ordering: 3 },
-      { id: 4, name: 'Chefchaouen', slug: 'chefchaouen', title: 'The Blue Pearl', image: '/attached_assets/generated_images/Chefchaouen_blue_streets_272376ab.png', ordering: 4 },
-      { id: 5, name: 'Fes', slug: 'fes', title: 'Spiritual & Cultural Heart', image: '/attached_assets/generated_images/Fes_medina_and_tanneries_3e9a2ff0.png', ordering: 5 },
-      { id: 6, name: 'Essaouira', slug: 'essaouira', title: 'Wind City of Africa', image: '/attached_assets/generated_images/Essaouira_coastal_fortifications_07abbfb6.png', ordering: 6 },
+      { id: 1, name: 'Tangier', slug: 'tangier', title: 'Gateway Between Continents', image: 'https://api.thejourney-ma.org/attached_assets/generated_images/Tangier_city_aerial_view_03330006.png', ordering: 1 },
+      { id: 2, name: 'Tetouan', slug: 'tetouan', title: 'The White Dove', image: 'https://api.thejourney-ma.org/attached_assets/generated_images/Tetouan_medina_panorama_b1f6dcbc.png', ordering: 2 },
+      { id: 3, name: 'Al Hoceima', slug: 'al-hoceima', title: 'Mediterranean Paradise', image: 'https://api.thejourney-ma.org/attached_assets/generated_images/Al_Hoceima_coastal_view_9e4e9e0c.png', ordering: 3 },
+      { id: 4, name: 'Chefchaouen', slug: 'chefchaouen', title: 'The Blue Pearl', image: 'https://api.thejourney-ma.org/attached_assets/generated_images/Chefchaouen_blue_streets_272376ab.png', ordering: 4 },
+      { id: 5, name: 'Fes', slug: 'fes', title: 'Spiritual & Cultural Heart', image: 'https://api.thejourney-ma.org/attached_assets/generated_images/Fes_medina_and_tanneries_3e9a2ff0.png', ordering: 5 },
+      { id: 6, name: 'Essaouira', slug: 'essaouira', title: 'Wind City of Africa', image: 'https://api.thejourney-ma.org/attached_assets/generated_images/Essaouira_coastal_fortifications_07abbfb6.png', ordering: 6 },
     ];
     let seeded = 0;
     for (const c of defaults) {

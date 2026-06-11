@@ -1,0 +1,194 @@
+Overall Layout
+
+Full-width section using a Google Maps satellite background (blurred or darkened slightly).
+
+Apply a dark blue gradient overlay from left to right:
+
+Gradient direction: 90deg (left → right)
+
+Colors: #0A1A3D at 0%, fading to rgba(10,26,61,0.4) at 60%, then transparent at 100%.
+
+The left 35% of the screen is darker (solid navy overlay) for text visibility.
+
+The remaining right area (with the map visible) hosts interactive cards and control buttons.
+
+Top Title Area
+
+Positioned top-center of the section (aligned above the map area).
+
+Title:
+
+Text: “Our Clubs”
+
+Font size: 48px
+
+Font weight: 700 (bold)
+
+Color: #FFFFFF
+
+Alignment: center
+
+Margin-bottom: 10px
+
+Subtitle:
+
+Text: “Join local communities across Morocco’s most fascinating cities”
+
+Font size: 20–22px
+
+Font weight: 400
+
+Color: #FFFFFF
+
+Alignment: center
+
+Max width: 70% of the screen
+
+Slight drop shadow for readability: 0 2px 6px rgba(0, 0, 0, 0.4)
+
+Left City List (Sidebar Navigation)
+
+A vertical list on the left side of the screen over the dark blue background.
+
+Position: fixed vertically, left: 80px from the edge, top: 50% (centered vertically)
+
+Cities (example):
+
+Fes
+
+Tetouan
+
+Al Hoceima (highlighted)
+
+Tanger
+
+Casablanca
+
+Rabat
+
+Marrakesh
+
+Text Style:
+
+Font: Poppins or Inter
+
+Font size: 18–20px
+
+Line height: 40px
+
+Color (default): rgba(255, 255, 255, 0.7)
+
+Active city (selected): white #FFFFFF, bold weight 600, slightly larger size (22px).
+
+Club Cards (Bottom Overlay)
+
+Located at the bottom center of the map area.
+
+Cards are horizontally aligned (carousel-like layout).
+
+Each card displays info for a local club.
+
+Slight elevation and shadow effect to stand out against the map.
+
+Card Style:
+
+Shape: Rounded rectangle with border-radius: 16px
+
+Background: rgba(10, 26, 61, 0.8) gradient overlay
+
+Padding: 20px 24px
+
+Margin between cards: 24px
+
+Box-shadow: 0px 4px 12px rgba(0,0,0,0.3)
+
+Card Content:
+
+Each card includes:
+
+Club icon (left side):
+
+Circle with white border and inner yellow logo (like a flying bird).
+
+Icon size: 60px × 60px
+
+Border: 2px solid white
+
+Club title:
+
+Example: Clubs 01 FSTH
+
+Font size: 20–22px, weight: 700, color: #FFFFFF
+
+Address:
+
+Example: 62 Via A, Bokidadan AL Hoceima
+
+Font size: 14–16px, color: rgba(255, 255, 255, 0.8)
+
+Optional badge: a small yellow circle in the corner with a number (23).
+
+Expanded Club Card (on selection)
+
+When a card is clicked or active:
+
+It expands slightly (scale 1.05).
+
+Background changes to lighter gradient:
+linear-gradient(180deg, rgba(10,26,61,0.9) 0%, rgba(255,255,255,0.1) 100%)
+
+Displays an image thumbnail of the location at the bottom-left corner.
+
+Includes a “Get More” button:
+
+Style: Rounded (border-radius: 8px)
+
+Background: linear-gradient(90deg, #F8B500 0%, #FFDA7A 100%)
+
+Text: “Get More”
+
+Font: 16px, bold, white
+
+Padding: 10px 20px
+
+Map Controls (Right Side)
+
+Floating control buttons on the right-center side of the screen.
+
+Buttons:
+
+Settings icon (gear)
+
+Zoom in (+)
+
+Zoom out (–)
+
+Style:
+
+Circular buttons, 45×45px
+
+Background: rgba(255, 255, 255, 0.2)
+
+Border: 1px solid rgba(255,255,255,0.3)
+
+Icon color: white
+
+Hover effect: increase brightness or scale (1.1)
+
+Color & Typography
+
+Primary color: #0A1A3D (navy)
+
+Accent color: #F8B500 (gold)
+
+Text color: white (#FFFFFF)
+
+Font family: Poppins or Inter
+
+Summary
+
+A full-width interactive section with a map background and dark blue gradient overlay.
+On the left, a vertical list of Moroccan cities with the current city highlighted.
+Centered title and subtitle at the top.
+Club cards appear over the map at the bottom with hover/active animation and a “Get More” button.
+Map control buttons are floating on the right side.

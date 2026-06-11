@@ -1,0 +1,123 @@
+Contact Section Design
+
+Design a modern “Contact Us” section like in the provided image, with a clean, minimal aesthetic and balanced layout. Use a two-column grid layout.
+
+🧭 Layout Structure
+
+Left Column: Contact Options
+
+Four small contact cards stacked vertically inside a rounded rectangle box with a subtle shadow.
+
+Each card includes an icon, a title (bold), a short description (regular), and contact info in smaller font.
+
+Spacing between each card: 20px.
+
+Padding inside the box: 24px.
+
+Border: 1px solid #E4E4E4
+
+Border radius: 12px.
+
+Cards:
+
+Chat to support
+
+Subtitle: “Speak to our friendly team.”
+
+Email: unicornik@gmail.com
+
+Icon: message bubble icon.
+
+Chat to Select
+
+Subtitle: “Talk to get advice.”
+
+Text: “Contact with chatbot.”
+
+Icon: headset icon.
+
+Visit us
+
+Subtitle: “Visit our office.”
+
+Address: “No.21, Danesh st, ValiAsr st, Tehran.”
+
+Icon: map pin.
+
+Call us
+
+Subtitle: “Mon–Fri from 8am to 5pm.”
+
+Number: “+1 (855) 000–0000”
+
+Icon: phone.
+
+Right Column: Contact Form
+
+Box background: white
+
+Padding: 32px
+
+Border: 1px solid #E4E4E4
+
+Border radius: 12px
+
+Shadow: 0px 4px 10px rgba(0, 0, 0, 0.05)
+
+Heading: “Contact us” in Serif or elegant font, font-size: 24px, color #222.
+
+Subtitle: “Our friendly team would love to hear from you.” in gray #666, font-size: 14px, margin-bottom: 20px.
+
+🖋️ Form Fields
+
+Input fields: “First name”, “Last name”, “Email”, “Phone number”, “Message”
+
+Each input height: 48px, border radius 8px, border 1px solid #E4E4E4, padding 12px.
+
+Label font size: 13px, weight 500, color #333.
+
+Input font size: 14px.
+
+Message textarea height: 120px.
+
+Include checkbox for “Agree to privacy policy” below message box.
+
+Checkbox label font size: 13px, color #555.
+
+🟣 Send Button
+
+Text: “Send message”
+
+Width: full (100%)
+
+Height: 50px
+
+Background: #1B1B1B
+
+Font size: 15px
+
+Text color: white
+
+Font weight: 600
+
+Border radius: 8px
+
+Hover effect: background changes to #333333, smooth transition 0.3s.
+
+🧩 Typography
+
+Global font: Inter or Poppins
+
+Headings: font-weight: 600, tracking 0.5px
+
+Paragraphs: font-weight: 400, line-height: 1.6, color #444.
+
+⚙️ Alignment
+
+Left and right columns aligned vertically centered within same height container.
+
+Margin between columns: 40px.
+
+Container max width: 1100px, centered horizontally.
+
+Top/bottom padding of section: 80px.

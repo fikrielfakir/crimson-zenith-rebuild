@@ -159,7 +159,7 @@ const News = () => {
           breadcrumbs={[{ label: "Blog" }]}
           defaultTitle="Blog"
           defaultSubtitle="Stay updated with the latest adventure tips, safety guidelines, member spotlights, and gear reviews."
-          defaultImage="/attached_assets/generated_images/Atlas_Mountain_Sunrise_9a8b7c6d.png"
+          defaultImage="https://api.thejourney-ma.org/attached_assets/generated_images/Essaouira_coastal_fortifications_07abbfb6.png"
         />
 
         <section className="py-8 bg-muted/50">

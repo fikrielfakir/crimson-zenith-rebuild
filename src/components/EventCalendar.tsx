@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Calendar as CalendarIcon, MapPin, Clock, ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import CalendarComponent from "react-calendar";
-import gnaoua from "@/assets/gnaoua-festival.jpg";
-import timitar from "@/assets/timitar-festival.jpg";
+const gnaoua = "https://api.thejourney-ma.org/attached_assets/gnaoua-festival.jpg";
+const timitar = "https://api.thejourney-ma.org/attached_assets/timitar-festival.jpg";
 import "react-calendar/dist/Calendar.css";
 
 interface CalEvent {

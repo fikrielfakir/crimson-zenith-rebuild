@@ -151,7 +151,7 @@ const PresidentMessageDynamic = () => {
 
   const photoUrl = s.photoId
     ? `/api/cms/media/${s.photoId}`
-    : '/attached_assets/527458761_17954306891994519_4667490874676487214_n_1762796640998.jpg';
+    : 'https://api.thejourney-ma.org/attached_assets/527458761_17954306891994519_4667490874676487214_n_1762796640998.jpg';
 
   const signatureUrl = s.signatureId ? `/api/cms/media/${s.signatureId}` : null;
 

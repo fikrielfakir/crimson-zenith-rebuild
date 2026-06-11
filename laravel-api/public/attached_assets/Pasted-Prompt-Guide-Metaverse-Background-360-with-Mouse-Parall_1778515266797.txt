@@ -1,0 +1,129 @@
+Prompt Guide — Metaverse Background 360° with Mouse Parallax
+
+🎯 Goal
+
+Transform the static dark navy background of the Gallery page into a live immersive 360° panoramic environment that reacts to mouse movement in real-time — like standing inside a metaverse space. The background sphere rotates subtly as the user moves their mouse, creating a deep parallax feel without any UI chrome from the panorama viewer.
+
+
+📦 Dependencies to Add
+Tell the agent:
+
+Install only what is needed:
+npm install @photo-sphere-viewer/core
+No extra plugins needed for background-only usage. Import the CSS in main.tsx as before. The viewer will be configured in silent/headless mode — no navbar, no loading text, no interaction hints.
+
+
+🧩 New Component: MetaverseBackground
+Tell the agent to create this component:
+
+Build a MetaverseBackground.tsx component that:
+
+Renders a div that is position: fixed, inset: 0, z-index: 0, pointer-events: none
+Holds a ref container where PhotoSphereViewer mounts
+Initializes the viewer with these exact options:
+ts{
+  container: containerRef.current,
+  panorama: '/panoramas/background.jpg', // equirectangular 2:1 JPG
+  defaultYaw: 0,
+  defaultPitch: 0,
+  defaultZoomLvl: 0,        // fully zoomed out = widest FOV
+  minFov: 75,
+  maxFov: 75,               // lock FOV — disable zoom entirely
+  fisheye: false,
+  navbar: false,            // no UI chrome at all
+  loadingTxt: '',           // no loading text
+  touchmoveTwoFingers: false,
+  mousemove: false,         // DISABLE default PSV mouse control
+  mousewheel: false,        // DISABLE scroll zoom
+  keyboard: false,
+  moveSpeed: 0,
+}
+
+After init, hide all internal PSV UI via CSS: target .psv-container, .psv-loader, .psv-navbar with display: none !important except the canvas itself
+
+
+
+🖱️ Mouse-Driven Rotation System
+This is the core feature. Tell the agent:
+
+Create a useMetaverseParallax custom hook that:
+1. Track normalized mouse position:
+tsconst x = (e.clientX / window.innerWidth  - 0.5)  // -0.5 to +0.5
+const y = (e.clientY / window.innerHeight - 0.5)   // -0.5 to +0.5
+2. Apply eased interpolation — never jump directly to mouse position, ease toward it each frame:
+ts// In a requestAnimationFrame loop:
+currentYaw  += (targetYaw  - currentYaw)  * 0.04  // ease factor
+currentPitch += (targetPitch - currentPitch) * 0.04
+viewer.rotate({ yaw: currentYaw, pitch: currentPitch })
+3. Map mouse to rotation range:
+
+Horizontal (yaw): mouse X × 0.8 radians max → about ±45° sweep
+Vertical (pitch): mouse Y × 0.3 radians max → about ±17° sweep (limited to feel grounded)
+
+4. Idle drift — when mouse hasn't moved for 4 seconds, slowly auto-rotate:
+ts// After idle timeout, increment yaw by 0.0003 per frame
+// Resume mouse control instantly on next mousemove
+5. Cancel rAF loop on component unmount to prevent memory leaks
+
+
+🎨 Layering Architecture
+Tell the agent the full z-index stack:
+
+z-index: 0  → MetaverseBackground (fixed, fills viewport, pointer-events: none)
+z-index: 1  → Dark overlay gradient (fixed, pointer-events: none)
+z-index: 2  → Particle field (fixed, pointer-events: none)
+z-index: 10 → All page content (navbar, gallery scene, footer, etc.)
+The dark overlay gradient between background and content is critical:
+cssbackground: radial-gradient(
+  ellipse at center,
+  rgba(2, 11, 30, 0.45) 0%,
+  rgba(2, 11, 30, 0.72) 60%,
+  rgba(2, 11, 30, 0.88) 100%
+);
+This keeps text and cards readable while still showing the live 360° world behind them.
+
+
+🌐 Panorama Asset Strategy
+Tell the agent what kind of image to use:
+
+The background panorama must be an equirectangular projection image with a 2:1 aspect ratio (e.g. 4096×2048px). It should feel like a deep space / nebula / abstract dark blue cosmic environment — NOT a real-world photo, to avoid competing visually with the gallery cards.
+Recommended free sources:
+
+Polyhaven (polyhaven.com/hdris) — download any dark night sky or studio HDRI, export as equirectangular JPG
+Humus (www.humus.name/index.php?page=Textures) — free panorama textures
+For demo: use PSV's own https://photo-sphere-viewer-data.netlify.app/assets/sphere.jpg as a placeholder
+
+Save the final asset to public/panoramas/background.jpg so Vite serves it as a static file.
+
+
+🎭 Page-Specific Behavior Rules
+Tell the agent these conditional behaviors:
+
+
+On scroll down: gradually increase the overlay opacity from 0.72 → 0.92 as user scrolls past the gallery section — keeps footer area clean and readable. Use a scroll listener with lerp.
+On mobile (viewport < 768px): disable mouse parallax entirely, enable PSV's built-in gyroscope mode instead via DeviceOrientationEvent — the phone tilt becomes the parallax controller.
+Reduced motion (prefers-reduced-motion: reduce): disable all rotation and drift entirely, show background as a static blurred frame of the panorama.
+When PanoramaOverlay is open (a card's 360° view is active): pause the background viewer's rAF loop and set overlay opacity to 1.0 so only the foreground panorama is visible.
+
+
+
+⚙️ Performance Constraints
+
+
+The background viewer's canvas should render at devicePixelRatio capped at 1.5 — full 2× retina is wasted on a background blur. Force this with: renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5))
+Use panorama image at max 4096×2048 — larger textures won't improve background quality
+The mousemove listener must be on window, throttled with requestAnimationFrame flag (set a boolean ticking, only process if !ticking, reset after rAF)
+Lazy-initialize the viewer — only mount MetaverseBackground after the page's above-the-fold content has painted (use useEffect with a 200ms setTimeout delay after mount)
+
+
+
+🔧 Cleanup Checklist for Agent
+
+Before finishing, the agent must verify:
+
+ viewer.destroy() is called in useEffect cleanup
+ cancelAnimationFrame is called on unmount
+ window.removeEventListener('mousemove', ...) is called on unmount
+ No PSV navbar, loader, or tooltip elements are visible anywhere on screen
+ Background does not intercept any click or scroll events (pointer-events: none on all background layers)
+ Page content (cards, navbar, search bar) remains fully interactive above the background

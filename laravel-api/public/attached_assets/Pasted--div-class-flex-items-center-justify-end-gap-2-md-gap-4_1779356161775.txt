@@ -1,0 +1,37 @@
+<div class="flex items-center justify-end gap-2 md:gap-4"><button class="justify-center whitespace-nowrap rounded-button font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground h-9 rounded-button hidden sm:flex px-3 py-2 text-xs items-center gap-1 rounded-button font-body" style="color: rgb(255, 255, 255);"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-globe h-4 w-4"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path><path d="M2 12h20"></path></svg>EN</button><button class="items-center justify-center gap-2 whitespace-nowrap rounded-button text-sm font-medium font-body ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground h-9 rounded-button hidden sm:flex px-2 py-2 rounded-button" style="color: rgb(255, 255, 255);"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-moon h-4 w-4"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg></button><a class="justify-center whitespace-nowrap rounded-button font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground h-9 rounded-button px-2 sm:px-3 py-2 text-xs flex items-center gap-1 rounded-button font-body" href="/login" style="color: rgb(255, 255, 255);"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user h-4 w-4"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg><span class="hidden sm:inline">Login</span></a><button class="justify-center whitespace-nowrap rounded-button text-sm font-body ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 bg-primary hover:bg-primary/90 h-10 px-4 py-2 text-white font-medium flex items-center gap-2 border-0 cursor-pointer transition-all duration-300 ease-in-out hover:scale-[1.03]" style="background: linear-gradient(90deg, rgb(212, 81, 81) 0%, rgb(192, 64, 64) 100%); font-size: 16px; font-weight: 500; border-radius: 30px; padding: 12px 28px; height: 44px; box-shadow: rgba(0, 0, 0, 0.15) 0px 2px 6px;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-heart h-[18px] w-[18px] transition-transform origin-center" style="animation: auto ease 0s 1 normal none running none; transform-origin: center center;"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg><style>
+                  @keyframes heartBeatWarp {
+                    0% {
+                      transform: scale(1) skew(0deg, 0deg);
+                    }
+                    10% {
+                      transform: scale(1.15) skew(-2deg, 1deg);
+                    }
+                    20% {
+                      transform: scale(1.4) skew(3deg, -2deg) rotate(-8deg);
+                    }
+                    30% {
+                      transform: scale(1.6) skew(-4deg, 3deg) rotate(5deg);
+                    }
+                    40% {
+                      transform: scale(1.8) skew(5deg, -4deg) rotate(-10deg);
+                    }
+                    50% {
+                      transform: scale(1.5) skew(-3deg, 2deg) rotate(7deg);
+                    }
+                    60% {
+                      transform: scale(1.7) skew(4deg, -3deg) rotate(-5deg);
+                    }
+                    70% {
+                      transform: scale(1.4) skew(-2deg, 2deg) rotate(3deg);
+                    }
+                    80% {
+                      transform: scale(1.2) skew(1deg, -1deg) rotate(-2deg);
+                    }
+                    90% {
+                      transform: scale(1.05) skew(-0.5deg, 0.5deg) rotate(1deg);
+                    }
+                    100% {
+                      transform: scale(1) skew(0deg, 0deg) rotate(0deg);
+                    }
+                  }
+                </style>Donate</button></div>

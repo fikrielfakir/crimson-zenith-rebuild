@@ -1,0 +1,98 @@
+Use Vite + React + TypeScript + Tailwind CSS + shadcn/ui. No additional 3D libraries needed — achieve the 3D effect purely with CSS 3D transforms, perspective, and glassmorphism.
+
+🖼️ Visual Description to Give the Agent
+
+Build a fullscreen interactive 3D floating card gallery with a deep dark navy/space blue background (#020B18 to #0A1628). The scene contains multiple glassmorphism cards floating at different depths, scales, and rotations in 3D space. Cards appear to orbit around a central focal point. Ambient glowing particles and soft light rings emit from the ground plane. The entire scene responds to mouse drag (rotate) and scroll (dolly). Clicking a card expands it.
+
+
+🧩 Component Architecture
+Instruct the agent to create these components:
+
+GalleryScene — root container with perspective: 1200px and transform-style: preserve-3d. Holds all cards and the ground ring.
+FloatingCard — individual card with backdrop-filter: blur, border glow, image, title, and location pin icon. Accepts props: image, title, location, transform (CSS 3D string), scale, zIndex.
+GroundRing — SVG or div-based concentric glowing circles at the base, using rotateX(75deg) to appear as floor rings.
+ParticleField — absolute-positioned tiny dots with randomized animation-delay and float keyframes.
+ControlsHint — bottom-center bar showing drag/scroll/click icons with labels.
+
+
+🃏 Card Positioning Logic
+Tell the agent:
+
+Position cards using hardcoded or computed CSS 3D transforms. Each card should have a unique translateX, translateY, translateZ, rotateY, and rotateX. Example layout:
+
+Center card: translateZ(80px) — largest, most prominent
+Top-left card: translate3d(-420px, -160px, -120px) rotateY(18deg)
+Bottom-left card: translate3d(-480px, 80px, -200px) rotateY(22deg)
+Top-right card: translate3d(380px, -180px, -150px) rotateY(-20deg)
+Bottom-right card: translate3d(420px, 100px, -100px) rotateY(-15deg)
+Background cards (blurred, faded): translateZ(-300px) with opacity: 0.4
+
+
+
+🖱️ Interaction Behavior
+
+Implement a useSceneRotation custom hook:
+
+Mouse drag: track mousedown + mousemove delta → update rotateY and rotateX of the entire scene container. Clamp vertical rotation to ±25deg.
+Scroll wheel: translate the scene on the Z-axis (zoom feel). Clamp between -200px and 200px.
+Click on card: set that card as activeCard in state → animate it to translateZ(300px) scale(1.15) with a smooth CSS transition, dim all other cards to opacity: 0.3.
+Click outside / Escape: reset active card.
+All transitions use transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1).
+
+
+
+💎 Card Visual Styling
+Tell the agent exactly:
+
+Each card should be styled with:
+
+background: rgba(255,255,255,0.06)
+backdrop-filter: blur(12px) saturate(180%)
+border: 1px solid rgba(100, 180, 255, 0.25)
+border-radius: 20px
+box-shadow: 0 0 30px rgba(50,130,255,0.15), inset 0 1px 0 rgba(255,255,255,0.1)
+On hover: increase border glow to rgba(100,180,255,0.6) and add 0 0 60px rgba(50,130,255,0.3) outer glow.
+Image fills top 75% with object-fit: cover and border-radius: 14px 14px 0 0.
+Bottom strip: dark gradient overlay with white title (font-weight: 600) and a location row using a MapPin icon from lucide-react in blue.
+
+
+
+✨ Background & Atmosphere
+
+
+Full viewport background: radial gradient from #0D1B35 at center to #010810 at edges.
+Scatter 40–60 particle dots: white circles 1–3px, absolute positioned, animating upward slowly with opacity fade using @keyframes float.
+Ground rings: 3 concentric ellipses centered at bottom-center, using border: 1px solid rgba(50,150,255,0.2), border-radius: 50%, transform: rotateX(75deg), pulsing opacity with @keyframes pulse-ring.
+Add a very subtle blue radial glow at the center of the scene: radial-gradient(circle at 50% 60%, rgba(30,100,255,0.08) 0%, transparent 70%).
+
+
+
+🗂️ Data Structure
+Tell the agent to define a typed array:
+tstype GalleryItem = {
+  id: string;
+  title: string;
+  location: string;
+  image: string; // use high-quality Unsplash URLs for Morocco
+  transform: string; // CSS transform string
+};
+Populate with 5 visible cards (Sahara Desert, Blue Streets Chefchaouen, High Atlas Mountains, Ait Ben Haddou, Local Culture Marrakech) and 2–3 blurred background cards.
+
+🎬 Controls Hint Bar
+
+Render a fixed bottom-center bar with glassmorphism styling containing three hints using lucide icons:
+
+Move icon → "Drag to rotate"
+MousePointer icon → "Scroll to move"
+MousePointer2 icon → "Click to open"
+Text in text-white/50, small font, spaced with dividers.
+
+
+
+⚙️ Performance Notes to Include
+
+
+Use will-change: transform on the scene container and each card.
+Avoid re-rendering particles on every mouse move — keep particle positions in a useRef array initialized once.
+Use useCallback for drag handlers.
+Prefer CSS transitions over JS animation loops for card state changes.

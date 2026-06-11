@@ -1,0 +1,240 @@
+🎨 Refined Design Prompt – “Our Clubs” Interactive Map Section
+Overall Layout
+
+Maintain a full-screen width section with a Google Maps background showing Morocco.
+
+Apply a deep navy-blue gradient overlay to improve text and UI contrast:
+
+Direction: to right (90°)
+
+Colors:
+rgba(10, 26, 61, 0.95) on the left (city list area)
+→ rgba(10, 26, 61, 0.6) at 50%
+→ rgba(10, 26, 61, 0.2) at right edge.
+
+Add a slight blur or dark tint behind map overlays for better legibility.
+
+Header Section
+
+Positioned top-center (same as now).
+
+Title
+
+Text: Our Clubs
+
+Font: Poppins, bold, 48px, color #FFFFFF
+
+Letter spacing: 0.5px
+
+Center alignment
+
+Subtitle
+
+Text: Join local communities across Morocco’s most fascinating cities
+
+Font: Poppins, medium, 20px
+
+Color: rgba(255, 255, 255, 0.85)
+
+Max width: 700px
+
+Margin-top: 12px
+
+Center-aligned under the title
+
+✅ Improvement: Increase vertical spacing (Title → Subtitle → Content) for breathing room — around 40px.
+
+Left Sidebar (City List)
+
+Keep the left column but refine layout for clarity and visual rhythm.
+
+Layout:
+
+Background overlay: rgba(10, 26, 61, 0.95)
+
+Width: 220px
+
+Vertical alignment: centered
+
+Padding-left: 60px
+
+City Items:
+
+Font: Poppins, 18px
+
+Color: rgba(255,255,255,0.7)
+
+Line height: 2.6em
+
+Hover: change to white
+
+Active City:
+
+Color: #FFFFFF
+
+Weight: 600
+
+Font size: 20px
+
+Add small accent bar (2px) on the left: gradient #FFD54F → #F8B500
+
+Subtle fade-in animation when switching
+
+✅ Improvement: Add hover feedback and a left accent bar to clearly mark the active city.
+
+Club Cards Row (Bottom Center)
+
+Position the club cards slightly higher (around 25–30% above the bottom edge) to avoid map controls overlap.
+
+Layout:
+
+Use a horizontal scrollable carousel or auto-fit grid (3–4 cards visible)
+
+Card spacing: 32px
+
+Center horizontally in the section
+
+Club Card Design
+
+Each card represents one club.
+Enhance readability and visual balance.
+
+Base Card:
+
+Size: 360px × 220px
+
+Background: linear-gradient(180deg, rgba(10,26,61,0.9) 0%, rgba(10,26,61,0.75) 100%)
+
+Border-radius: 20px
+
+Border: 1px solid rgba(255,255,255,0.1)
+
+Padding: 24px
+
+Box-shadow: 0 8px 16px rgba(0,0,0,0.25)
+
+Transition: all 0.3s ease
+
+Card Content:
+
+Icon Circle:
+
+60×60px
+
+Background: radial gradient #F8B500 → #FFD54F
+
+Center an icon (e.g., mountain, wave, camel, etc.) in white
+
+Positioned top-left
+
+Club Title:
+
+Font: Poppins Bold, 20px, color #FFFFFF
+
+Margin-top: 10px
+
+Club Subtitle:
+
+Smaller text (16px), color rgba(255,255,255,0.8)
+
+Members Badge:
+
+Positioned top-right of card
+
+Circular badge: background #F8B500, text white 12px, bold
+
+Subtle drop shadow
+
+Description (only visible when selected):
+
+Font: 14–15px, color rgba(255,255,255,0.8)
+
+Margin-top: 12px
+
+Max 2–3 lines of text
+
+Get More Button (only on active card):
+
+Width: 120px
+
+Background: linear-gradient(90deg, #F8B500 0%, #FFDD6E 100%)
+
+Color: navy #0A1A3D
+
+Font weight: 600
+
+Border-radius: 8px
+
+Margin-top: 16px
+
+Selected (Active) Card State
+
+Scale up slightly: transform: scale(1.05)
+
+Apply glowing border: 0 0 12px rgba(248,181,0,0.4)
+
+Increase brightness of gradient
+
+Expand card height to show description + button
+
+Corresponding map pin glows and bounces once
+
+✅ Improvement: The active card should visually connect to the map pin — consider drawing a thin translucent line from the card bottom to the pin location.
+
+Map Interaction Logic
+
+When user clicks a club card:
+
+Set activeClub = selected card
+
+Center map to club coordinates smoothly
+
+Show animated pin marker:
+
+Yellow (#F8B500)
+
+Pulse effect (scale(1.1) → scale(1.0) repeat)
+
+Hide or fade other pins
+
+Update card visuals (highlight + expanded details)
+
+Map Controls (Right Side)
+
+Keep zoom + settings buttons but visually align and separate clearly:
+
+Vertical stack with spacing 16px
+
+Buttons: 44×44px, background rgba(255,255,255,0.15)
+
+Border: 1px solid rgba(255,255,255,0.3)
+
+Hover: background lightens (rgba(255,255,255,0.25))
+
+✅ Improvement: Add tooltip hover labels: Settings, Zoom In, Zoom Out.
+
+Color Palette
+Element	Color
+Background Gradient	#0A1A3D → rgba(10,26,61,0.2)
+Accent Gold	#F8B500
+Soft Yellow	#FFDD6E
+Text Primary	#FFFFFF
+Text Secondary	rgba(255,255,255,0.8)
+Shadow	rgba(0,0,0,0.25)
+UX Enhancements
+
+✅ Animate transitions for better flow:
+
+Fade + scale when switching cards
+
+Smooth pan when changing city
+
+Highlight transitions with subtle light motion (0.4s ease-out)
+
+✅ Ensure mobile usability:
+
+Collapse city list into a dropdown
+
+Make club cards scroll horizontally
+
+Keep map controls large enough for touch

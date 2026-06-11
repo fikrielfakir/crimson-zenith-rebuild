@@ -1,0 +1,946 @@
+AdminDashboard.tsx:69  GET https://2a8186c1-8819-4592-8ba3-07172d8d7a36-00-3sm98kwx9dpt8.spock.replit.dev/api/admin/charts 404 (Not Found)
+fetchChartsData @ AdminDashboard.tsx:69
+fetchFn @ @tanstack_react-query.js?v=40ed49e9:852
+run @ @tanstack_react-query.js?v=40ed49e9:495
+start @ @tanstack_react-query.js?v=40ed49e9:536
+fetch @ @tanstack_react-query.js?v=40ed49e9:935
+#executeFetch @ @tanstack_react-query.js?v=40ed49e9:2043
+onSubscribe @ @tanstack_react-query.js?v=40ed49e9:1926
+subscribe @ @tanstack_react-query.js?v=40ed49e9:19
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:3085
+subscribeToStore @ chunk-7CVORMRW.js?v=40ed49e9:12032
+commitHookEffectListMount @ chunk-7CVORMRW.js?v=40ed49e9:16963
+commitPassiveMountOnFiber @ chunk-7CVORMRW.js?v=40ed49e9:18206
+commitPassiveMountEffects_complete @ chunk-7CVORMRW.js?v=40ed49e9:18179
+commitPassiveMountEffects_begin @ chunk-7CVORMRW.js?v=40ed49e9:18169
+commitPassiveMountEffects @ chunk-7CVORMRW.js?v=40ed49e9:18159
+flushPassiveEffectsImpl @ chunk-7CVORMRW.js?v=40ed49e9:19543
+flushPassiveEffects @ chunk-7CVORMRW.js?v=40ed49e9:19500
+commitRootImpl @ chunk-7CVORMRW.js?v=40ed49e9:19469
+commitRoot @ chunk-7CVORMRW.js?v=40ed49e9:19330
+performSyncWorkOnRoot @ chunk-7CVORMRW.js?v=40ed49e9:18948
+flushSyncCallbacks @ chunk-7CVORMRW.js?v=40ed49e9:9166
+(anonymous) @ chunk-7CVORMRW.js?v=40ed49e9:18677
+setTimeout
+defaultScheduler @ @tanstack_react-query.js?v=40ed49e9:546
+flush @ @tanstack_react-query.js?v=40ed49e9:570
+batch @ @tanstack_react-query.js?v=40ed49e9:588
+#dispatch @ @tanstack_react-query.js?v=40ed49e9:1006
+setData @ @tanstack_react-query.js?v=40ed49e9:693
+onSuccess @ @tanstack_react-query.js?v=40ed49e9:907
+resolve @ @tanstack_react-query.js?v=40ed49e9:460
+Promise.then
+run @ @tanstack_react-query.js?v=40ed49e9:499
+start @ @tanstack_react-query.js?v=40ed49e9:536
+fetch @ @tanstack_react-query.js?v=40ed49e9:935
+#executeFetch @ @tanstack_react-query.js?v=40ed49e9:2043
+onSubscribe @ @tanstack_react-query.js?v=40ed49e9:1926
+subscribe @ @tanstack_react-query.js?v=40ed49e9:19
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:3085
+subscribeToStore @ chunk-7CVORMRW.js?v=40ed49e9:12032
+commitHookEffectListMount @ chunk-7CVORMRW.js?v=40ed49e9:16963
+commitPassiveMountOnFiber @ chunk-7CVORMRW.js?v=40ed49e9:18206
+commitPassiveMountEffects_complete @ chunk-7CVORMRW.js?v=40ed49e9:18179
+commitPassiveMountEffects_begin @ chunk-7CVORMRW.js?v=40ed49e9:18169
+commitPassiveMountEffects @ chunk-7CVORMRW.js?v=40ed49e9:18159
+flushPassiveEffectsImpl @ chunk-7CVORMRW.js?v=40ed49e9:19543
+flushPassiveEffects @ chunk-7CVORMRW.js?v=40ed49e9:19500
+performSyncWorkOnRoot @ chunk-7CVORMRW.js?v=40ed49e9:18921
+flushSyncCallbacks @ chunk-7CVORMRW.js?v=40ed49e9:9166
+commitRootImpl @ chunk-7CVORMRW.js?v=40ed49e9:19485
+commitRoot @ chunk-7CVORMRW.js?v=40ed49e9:19330
+finishConcurrentRender @ chunk-7CVORMRW.js?v=40ed49e9:18858
+performConcurrentWorkOnRoot @ chunk-7CVORMRW.js?v=40ed49e9:18768
+workLoop @ chunk-7CVORMRW.js?v=40ed49e9:197
+flushWork @ chunk-7CVORMRW.js?v=40ed49e9:176
+performWorkUntilDeadline @ chunk-7CVORMRW.js?v=40ed49e9:384Understand this error
+AdminDashboard.tsx:51  GET https://2a8186c1-8819-4592-8ba3-07172d8d7a36-00-3sm98kwx9dpt8.spock.replit.dev/api/admin/stats 404 (Not Found)
+fetchDashboardStats @ AdminDashboard.tsx:51
+fetchFn @ @tanstack_react-query.js?v=40ed49e9:852
+run @ @tanstack_react-query.js?v=40ed49e9:495
+start @ @tanstack_react-query.js?v=40ed49e9:536
+fetch @ @tanstack_react-query.js?v=40ed49e9:935
+#executeFetch @ @tanstack_react-query.js?v=40ed49e9:2043
+onSubscribe @ @tanstack_react-query.js?v=40ed49e9:1926
+subscribe @ @tanstack_react-query.js?v=40ed49e9:19
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:3085
+subscribeToStore @ chunk-7CVORMRW.js?v=40ed49e9:12032
+commitHookEffectListMount @ chunk-7CVORMRW.js?v=40ed49e9:16963
+commitPassiveMountOnFiber @ chunk-7CVORMRW.js?v=40ed49e9:18206
+commitPassiveMountEffects_complete @ chunk-7CVORMRW.js?v=40ed49e9:18179
+commitPassiveMountEffects_begin @ chunk-7CVORMRW.js?v=40ed49e9:18169
+commitPassiveMountEffects @ chunk-7CVORMRW.js?v=40ed49e9:18159
+flushPassiveEffectsImpl @ chunk-7CVORMRW.js?v=40ed49e9:19543
+flushPassiveEffects @ chunk-7CVORMRW.js?v=40ed49e9:19500
+commitRootImpl @ chunk-7CVORMRW.js?v=40ed49e9:19469
+commitRoot @ chunk-7CVORMRW.js?v=40ed49e9:19330
+performSyncWorkOnRoot @ chunk-7CVORMRW.js?v=40ed49e9:18948
+flushSyncCallbacks @ chunk-7CVORMRW.js?v=40ed49e9:9166
+(anonymous) @ chunk-7CVORMRW.js?v=40ed49e9:18677
+setTimeout
+defaultScheduler @ @tanstack_react-query.js?v=40ed49e9:546
+flush @ @tanstack_react-query.js?v=40ed49e9:570
+batch @ @tanstack_react-query.js?v=40ed49e9:588
+#dispatch @ @tanstack_react-query.js?v=40ed49e9:1006
+setData @ @tanstack_react-query.js?v=40ed49e9:693
+onSuccess @ @tanstack_react-query.js?v=40ed49e9:907
+resolve @ @tanstack_react-query.js?v=40ed49e9:460
+Promise.then
+run @ @tanstack_react-query.js?v=40ed49e9:499
+start @ @tanstack_react-query.js?v=40ed49e9:536
+fetch @ @tanstack_react-query.js?v=40ed49e9:935
+#executeFetch @ @tanstack_react-query.js?v=40ed49e9:2043
+onSubscribe @ @tanstack_react-query.js?v=40ed49e9:1926
+subscribe @ @tanstack_react-query.js?v=40ed49e9:19
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:3085
+subscribeToStore @ chunk-7CVORMRW.js?v=40ed49e9:12032
+commitHookEffectListMount @ chunk-7CVORMRW.js?v=40ed49e9:16963
+commitPassiveMountOnFiber @ chunk-7CVORMRW.js?v=40ed49e9:18206
+commitPassiveMountEffects_complete @ chunk-7CVORMRW.js?v=40ed49e9:18179
+commitPassiveMountEffects_begin @ chunk-7CVORMRW.js?v=40ed49e9:18169
+commitPassiveMountEffects @ chunk-7CVORMRW.js?v=40ed49e9:18159
+flushPassiveEffectsImpl @ chunk-7CVORMRW.js?v=40ed49e9:19543
+flushPassiveEffects @ chunk-7CVORMRW.js?v=40ed49e9:19500
+performSyncWorkOnRoot @ chunk-7CVORMRW.js?v=40ed49e9:18921
+flushSyncCallbacks @ chunk-7CVORMRW.js?v=40ed49e9:9166
+commitRootImpl @ chunk-7CVORMRW.js?v=40ed49e9:19485
+commitRoot @ chunk-7CVORMRW.js?v=40ed49e9:19330
+finishConcurrentRender @ chunk-7CVORMRW.js?v=40ed49e9:18858
+performConcurrentWorkOnRoot @ chunk-7CVORMRW.js?v=40ed49e9:18768
+workLoop @ chunk-7CVORMRW.js?v=40ed49e9:197
+flushWork @ chunk-7CVORMRW.js?v=40ed49e9:176
+performWorkUntilDeadline @ chunk-7CVORMRW.js?v=40ed49e9:384Understand this error
+AdminDashboard.tsx:57  GET https://2a8186c1-8819-4592-8ba3-07172d8d7a36-00-3sm98kwx9dpt8.spock.replit.dev/api/admin/activity 404 (Not Found)
+fetchRecentActivity @ AdminDashboard.tsx:57
+fetchFn @ @tanstack_react-query.js?v=40ed49e9:852
+run @ @tanstack_react-query.js?v=40ed49e9:495
+start @ @tanstack_react-query.js?v=40ed49e9:536
+fetch @ @tanstack_react-query.js?v=40ed49e9:935
+#executeFetch @ @tanstack_react-query.js?v=40ed49e9:2043
+onSubscribe @ @tanstack_react-query.js?v=40ed49e9:1926
+subscribe @ @tanstack_react-query.js?v=40ed49e9:19
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:3085
+subscribeToStore @ chunk-7CVORMRW.js?v=40ed49e9:12032
+commitHookEffectListMount @ chunk-7CVORMRW.js?v=40ed49e9:16963
+commitPassiveMountOnFiber @ chunk-7CVORMRW.js?v=40ed49e9:18206
+commitPassiveMountEffects_complete @ chunk-7CVORMRW.js?v=40ed49e9:18179
+commitPassiveMountEffects_begin @ chunk-7CVORMRW.js?v=40ed49e9:18169
+commitPassiveMountEffects @ chunk-7CVORMRW.js?v=40ed49e9:18159
+flushPassiveEffectsImpl @ chunk-7CVORMRW.js?v=40ed49e9:19543
+flushPassiveEffects @ chunk-7CVORMRW.js?v=40ed49e9:19500
+commitRootImpl @ chunk-7CVORMRW.js?v=40ed49e9:19469
+commitRoot @ chunk-7CVORMRW.js?v=40ed49e9:19330
+performSyncWorkOnRoot @ chunk-7CVORMRW.js?v=40ed49e9:18948
+flushSyncCallbacks @ chunk-7CVORMRW.js?v=40ed49e9:9166
+(anonymous) @ chunk-7CVORMRW.js?v=40ed49e9:18677
+setTimeout
+defaultScheduler @ @tanstack_react-query.js?v=40ed49e9:546
+flush @ @tanstack_react-query.js?v=40ed49e9:570
+batch @ @tanstack_react-query.js?v=40ed49e9:588
+#dispatch @ @tanstack_react-query.js?v=40ed49e9:1006
+setData @ @tanstack_react-query.js?v=40ed49e9:693
+onSuccess @ @tanstack_react-query.js?v=40ed49e9:907
+resolve @ @tanstack_react-query.js?v=40ed49e9:460
+Promise.then
+run @ @tanstack_react-query.js?v=40ed49e9:499
+start @ @tanstack_react-query.js?v=40ed49e9:536
+fetch @ @tanstack_react-query.js?v=40ed49e9:935
+#executeFetch @ @tanstack_react-query.js?v=40ed49e9:2043
+onSubscribe @ @tanstack_react-query.js?v=40ed49e9:1926
+subscribe @ @tanstack_react-query.js?v=40ed49e9:19
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:3085
+subscribeToStore @ chunk-7CVORMRW.js?v=40ed49e9:12032
+commitHookEffectListMount @ chunk-7CVORMRW.js?v=40ed49e9:16963
+commitPassiveMountOnFiber @ chunk-7CVORMRW.js?v=40ed49e9:18206
+commitPassiveMountEffects_complete @ chunk-7CVORMRW.js?v=40ed49e9:18179
+commitPassiveMountEffects_begin @ chunk-7CVORMRW.js?v=40ed49e9:18169
+commitPassiveMountEffects @ chunk-7CVORMRW.js?v=40ed49e9:18159
+flushPassiveEffectsImpl @ chunk-7CVORMRW.js?v=40ed49e9:19543
+flushPassiveEffects @ chunk-7CVORMRW.js?v=40ed49e9:19500
+performSyncWorkOnRoot @ chunk-7CVORMRW.js?v=40ed49e9:18921
+flushSyncCallbacks @ chunk-7CVORMRW.js?v=40ed49e9:9166
+commitRootImpl @ chunk-7CVORMRW.js?v=40ed49e9:19485
+commitRoot @ chunk-7CVORMRW.js?v=40ed49e9:19330
+finishConcurrentRender @ chunk-7CVORMRW.js?v=40ed49e9:18858
+performConcurrentWorkOnRoot @ chunk-7CVORMRW.js?v=40ed49e9:18768
+workLoop @ chunk-7CVORMRW.js?v=40ed49e9:197
+flushWork @ chunk-7CVORMRW.js?v=40ed49e9:176
+performWorkUntilDeadline @ chunk-7CVORMRW.js?v=40ed49e9:384Understand this error
+AdminDashboard.tsx:63  GET https://2a8186c1-8819-4592-8ba3-07172d8d7a36-00-3sm98kwx9dpt8.spock.replit.dev/api/admin/upcoming-events 404 (Not Found)
+fetchUpcomingEvents @ AdminDashboard.tsx:63
+fetchFn @ @tanstack_react-query.js?v=40ed49e9:852
+run @ @tanstack_react-query.js?v=40ed49e9:495
+start @ @tanstack_react-query.js?v=40ed49e9:536
+fetch @ @tanstack_react-query.js?v=40ed49e9:935
+#executeFetch @ @tanstack_react-query.js?v=40ed49e9:2043
+onSubscribe @ @tanstack_react-query.js?v=40ed49e9:1926
+subscribe @ @tanstack_react-query.js?v=40ed49e9:19
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:3085
+subscribeToStore @ chunk-7CVORMRW.js?v=40ed49e9:12032
+commitHookEffectListMount @ chunk-7CVORMRW.js?v=40ed49e9:16963
+commitPassiveMountOnFiber @ chunk-7CVORMRW.js?v=40ed49e9:18206
+commitPassiveMountEffects_complete @ chunk-7CVORMRW.js?v=40ed49e9:18179
+commitPassiveMountEffects_begin @ chunk-7CVORMRW.js?v=40ed49e9:18169
+commitPassiveMountEffects @ chunk-7CVORMRW.js?v=40ed49e9:18159
+flushPassiveEffectsImpl @ chunk-7CVORMRW.js?v=40ed49e9:19543
+flushPassiveEffects @ chunk-7CVORMRW.js?v=40ed49e9:19500
+commitRootImpl @ chunk-7CVORMRW.js?v=40ed49e9:19469
+commitRoot @ chunk-7CVORMRW.js?v=40ed49e9:19330
+performSyncWorkOnRoot @ chunk-7CVORMRW.js?v=40ed49e9:18948
+flushSyncCallbacks @ chunk-7CVORMRW.js?v=40ed49e9:9166
+(anonymous) @ chunk-7CVORMRW.js?v=40ed49e9:18677
+setTimeout
+defaultScheduler @ @tanstack_react-query.js?v=40ed49e9:546
+flush @ @tanstack_react-query.js?v=40ed49e9:570
+batch @ @tanstack_react-query.js?v=40ed49e9:588
+#dispatch @ @tanstack_react-query.js?v=40ed49e9:1006
+setData @ @tanstack_react-query.js?v=40ed49e9:693
+onSuccess @ @tanstack_react-query.js?v=40ed49e9:907
+resolve @ @tanstack_react-query.js?v=40ed49e9:460
+Promise.then
+run @ @tanstack_react-query.js?v=40ed49e9:499
+start @ @tanstack_react-query.js?v=40ed49e9:536
+fetch @ @tanstack_react-query.js?v=40ed49e9:935
+#executeFetch @ @tanstack_react-query.js?v=40ed49e9:2043
+onSubscribe @ @tanstack_react-query.js?v=40ed49e9:1926
+subscribe @ @tanstack_react-query.js?v=40ed49e9:19
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:3085
+subscribeToStore @ chunk-7CVORMRW.js?v=40ed49e9:12032
+commitHookEffectListMount @ chunk-7CVORMRW.js?v=40ed49e9:16963
+commitPassiveMountOnFiber @ chunk-7CVORMRW.js?v=40ed49e9:18206
+commitPassiveMountEffects_complete @ chunk-7CVORMRW.js?v=40ed49e9:18179
+commitPassiveMountEffects_begin @ chunk-7CVORMRW.js?v=40ed49e9:18169
+commitPassiveMountEffects @ chunk-7CVORMRW.js?v=40ed49e9:18159
+flushPassiveEffectsImpl @ chunk-7CVORMRW.js?v=40ed49e9:19543
+flushPassiveEffects @ chunk-7CVORMRW.js?v=40ed49e9:19500
+performSyncWorkOnRoot @ chunk-7CVORMRW.js?v=40ed49e9:18921
+flushSyncCallbacks @ chunk-7CVORMRW.js?v=40ed49e9:9166
+commitRootImpl @ chunk-7CVORMRW.js?v=40ed49e9:19485
+commitRoot @ chunk-7CVORMRW.js?v=40ed49e9:19330
+finishConcurrentRender @ chunk-7CVORMRW.js?v=40ed49e9:18858
+performConcurrentWorkOnRoot @ chunk-7CVORMRW.js?v=40ed49e9:18768
+workLoop @ chunk-7CVORMRW.js?v=40ed49e9:197
+flushWork @ chunk-7CVORMRW.js?v=40ed49e9:176
+performWorkUntilDeadline @ chunk-7CVORMRW.js?v=40ed49e9:384Understand this error
+AdminDashboard.tsx:69  GET https://2a8186c1-8819-4592-8ba3-07172d8d7a36-00-3sm98kwx9dpt8.spock.replit.dev/api/admin/charts 404 (Not Found)
+fetchChartsData @ AdminDashboard.tsx:69
+fetchFn @ @tanstack_react-query.js?v=40ed49e9:852
+run @ @tanstack_react-query.js?v=40ed49e9:495
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:519
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:515
+Promise.catch
+run @ @tanstack_react-query.js?v=40ed49e9:499
+start @ @tanstack_react-query.js?v=40ed49e9:536
+fetch @ @tanstack_react-query.js?v=40ed49e9:935
+#executeFetch @ @tanstack_react-query.js?v=40ed49e9:2043
+onSubscribe @ @tanstack_react-query.js?v=40ed49e9:1926
+subscribe @ @tanstack_react-query.js?v=40ed49e9:19
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:3085
+subscribeToStore @ chunk-7CVORMRW.js?v=40ed49e9:12032
+commitHookEffectListMount @ chunk-7CVORMRW.js?v=40ed49e9:16963
+commitPassiveMountOnFiber @ chunk-7CVORMRW.js?v=40ed49e9:18206
+commitPassiveMountEffects_complete @ chunk-7CVORMRW.js?v=40ed49e9:18179
+commitPassiveMountEffects_begin @ chunk-7CVORMRW.js?v=40ed49e9:18169
+commitPassiveMountEffects @ chunk-7CVORMRW.js?v=40ed49e9:18159
+flushPassiveEffectsImpl @ chunk-7CVORMRW.js?v=40ed49e9:19543
+flushPassiveEffects @ chunk-7CVORMRW.js?v=40ed49e9:19500
+commitRootImpl @ chunk-7CVORMRW.js?v=40ed49e9:19469
+commitRoot @ chunk-7CVORMRW.js?v=40ed49e9:19330
+performSyncWorkOnRoot @ chunk-7CVORMRW.js?v=40ed49e9:18948
+flushSyncCallbacks @ chunk-7CVORMRW.js?v=40ed49e9:9166
+(anonymous) @ chunk-7CVORMRW.js?v=40ed49e9:18677
+setTimeout
+defaultScheduler @ @tanstack_react-query.js?v=40ed49e9:546
+flush @ @tanstack_react-query.js?v=40ed49e9:570
+batch @ @tanstack_react-query.js?v=40ed49e9:588
+#dispatch @ @tanstack_react-query.js?v=40ed49e9:1006
+setData @ @tanstack_react-query.js?v=40ed49e9:693
+onSuccess @ @tanstack_react-query.js?v=40ed49e9:907
+resolve @ @tanstack_react-query.js?v=40ed49e9:460
+Promise.then
+run @ @tanstack_react-query.js?v=40ed49e9:499
+start @ @tanstack_react-query.js?v=40ed49e9:536
+fetch @ @tanstack_react-query.js?v=40ed49e9:935
+#executeFetch @ @tanstack_react-query.js?v=40ed49e9:2043
+onSubscribe @ @tanstack_react-query.js?v=40ed49e9:1926
+subscribe @ @tanstack_react-query.js?v=40ed49e9:19
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:3085
+subscribeToStore @ chunk-7CVORMRW.js?v=40ed49e9:12032
+commitHookEffectListMount @ chunk-7CVORMRW.js?v=40ed49e9:16963
+commitPassiveMountOnFiber @ chunk-7CVORMRW.js?v=40ed49e9:18206
+commitPassiveMountEffects_complete @ chunk-7CVORMRW.js?v=40ed49e9:18179
+commitPassiveMountEffects_begin @ chunk-7CVORMRW.js?v=40ed49e9:18169
+commitPassiveMountEffects @ chunk-7CVORMRW.js?v=40ed49e9:18159
+flushPassiveEffectsImpl @ chunk-7CVORMRW.js?v=40ed49e9:19543
+flushPassiveEffects @ chunk-7CVORMRW.js?v=40ed49e9:19500
+performSyncWorkOnRoot @ chunk-7CVORMRW.js?v=40ed49e9:18921
+flushSyncCallbacks @ chunk-7CVORMRW.js?v=40ed49e9:9166
+commitRootImpl @ chunk-7CVORMRW.js?v=40ed49e9:19485
+commitRoot @ chunk-7CVORMRW.js?v=40ed49e9:19330
+finishConcurrentRender @ chunk-7CVORMRW.js?v=40ed49e9:18858
+performConcurrentWorkOnRoot @ chunk-7CVORMRW.js?v=40ed49e9:18768
+workLoop @ chunk-7CVORMRW.js?v=40ed49e9:197
+flushWork @ chunk-7CVORMRW.js?v=40ed49e9:176
+performWorkUntilDeadline @ chunk-7CVORMRW.js?v=40ed49e9:384Understand this error
+AdminDashboard.tsx:51  GET https://2a8186c1-8819-4592-8ba3-07172d8d7a36-00-3sm98kwx9dpt8.spock.replit.dev/api/admin/stats 404 (Not Found)
+fetchDashboardStats @ AdminDashboard.tsx:51
+fetchFn @ @tanstack_react-query.js?v=40ed49e9:852
+run @ @tanstack_react-query.js?v=40ed49e9:495
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:519
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:515
+Promise.catch
+run @ @tanstack_react-query.js?v=40ed49e9:499
+start @ @tanstack_react-query.js?v=40ed49e9:536
+fetch @ @tanstack_react-query.js?v=40ed49e9:935
+#executeFetch @ @tanstack_react-query.js?v=40ed49e9:2043
+onSubscribe @ @tanstack_react-query.js?v=40ed49e9:1926
+subscribe @ @tanstack_react-query.js?v=40ed49e9:19
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:3085
+subscribeToStore @ chunk-7CVORMRW.js?v=40ed49e9:12032
+commitHookEffectListMount @ chunk-7CVORMRW.js?v=40ed49e9:16963
+commitPassiveMountOnFiber @ chunk-7CVORMRW.js?v=40ed49e9:18206
+commitPassiveMountEffects_complete @ chunk-7CVORMRW.js?v=40ed49e9:18179
+commitPassiveMountEffects_begin @ chunk-7CVORMRW.js?v=40ed49e9:18169
+commitPassiveMountEffects @ chunk-7CVORMRW.js?v=40ed49e9:18159
+flushPassiveEffectsImpl @ chunk-7CVORMRW.js?v=40ed49e9:19543
+flushPassiveEffects @ chunk-7CVORMRW.js?v=40ed49e9:19500
+commitRootImpl @ chunk-7CVORMRW.js?v=40ed49e9:19469
+commitRoot @ chunk-7CVORMRW.js?v=40ed49e9:19330
+performSyncWorkOnRoot @ chunk-7CVORMRW.js?v=40ed49e9:18948
+flushSyncCallbacks @ chunk-7CVORMRW.js?v=40ed49e9:9166
+(anonymous) @ chunk-7CVORMRW.js?v=40ed49e9:18677
+setTimeout
+defaultScheduler @ @tanstack_react-query.js?v=40ed49e9:546
+flush @ @tanstack_react-query.js?v=40ed49e9:570
+batch @ @tanstack_react-query.js?v=40ed49e9:588
+#dispatch @ @tanstack_react-query.js?v=40ed49e9:1006
+setData @ @tanstack_react-query.js?v=40ed49e9:693
+onSuccess @ @tanstack_react-query.js?v=40ed49e9:907
+resolve @ @tanstack_react-query.js?v=40ed49e9:460
+Promise.then
+run @ @tanstack_react-query.js?v=40ed49e9:499
+start @ @tanstack_react-query.js?v=40ed49e9:536
+fetch @ @tanstack_react-query.js?v=40ed49e9:935
+#executeFetch @ @tanstack_react-query.js?v=40ed49e9:2043
+onSubscribe @ @tanstack_react-query.js?v=40ed49e9:1926
+subscribe @ @tanstack_react-query.js?v=40ed49e9:19
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:3085
+subscribeToStore @ chunk-7CVORMRW.js?v=40ed49e9:12032
+commitHookEffectListMount @ chunk-7CVORMRW.js?v=40ed49e9:16963
+commitPassiveMountOnFiber @ chunk-7CVORMRW.js?v=40ed49e9:18206
+commitPassiveMountEffects_complete @ chunk-7CVORMRW.js?v=40ed49e9:18179
+commitPassiveMountEffects_begin @ chunk-7CVORMRW.js?v=40ed49e9:18169
+commitPassiveMountEffects @ chunk-7CVORMRW.js?v=40ed49e9:18159
+flushPassiveEffectsImpl @ chunk-7CVORMRW.js?v=40ed49e9:19543
+flushPassiveEffects @ chunk-7CVORMRW.js?v=40ed49e9:19500
+performSyncWorkOnRoot @ chunk-7CVORMRW.js?v=40ed49e9:18921
+flushSyncCallbacks @ chunk-7CVORMRW.js?v=40ed49e9:9166
+commitRootImpl @ chunk-7CVORMRW.js?v=40ed49e9:19485
+commitRoot @ chunk-7CVORMRW.js?v=40ed49e9:19330
+finishConcurrentRender @ chunk-7CVORMRW.js?v=40ed49e9:18858
+performConcurrentWorkOnRoot @ chunk-7CVORMRW.js?v=40ed49e9:18768
+workLoop @ chunk-7CVORMRW.js?v=40ed49e9:197
+flushWork @ chunk-7CVORMRW.js?v=40ed49e9:176
+performWorkUntilDeadline @ chunk-7CVORMRW.js?v=40ed49e9:384Understand this error
+AdminDashboard.tsx:57  GET https://2a8186c1-8819-4592-8ba3-07172d8d7a36-00-3sm98kwx9dpt8.spock.replit.dev/api/admin/activity 404 (Not Found)
+fetchRecentActivity @ AdminDashboard.tsx:57
+fetchFn @ @tanstack_react-query.js?v=40ed49e9:852
+run @ @tanstack_react-query.js?v=40ed49e9:495
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:519
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:515
+Promise.catch
+run @ @tanstack_react-query.js?v=40ed49e9:499
+start @ @tanstack_react-query.js?v=40ed49e9:536
+fetch @ @tanstack_react-query.js?v=40ed49e9:935
+#executeFetch @ @tanstack_react-query.js?v=40ed49e9:2043
+onSubscribe @ @tanstack_react-query.js?v=40ed49e9:1926
+subscribe @ @tanstack_react-query.js?v=40ed49e9:19
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:3085
+subscribeToStore @ chunk-7CVORMRW.js?v=40ed49e9:12032
+commitHookEffectListMount @ chunk-7CVORMRW.js?v=40ed49e9:16963
+commitPassiveMountOnFiber @ chunk-7CVORMRW.js?v=40ed49e9:18206
+commitPassiveMountEffects_complete @ chunk-7CVORMRW.js?v=40ed49e9:18179
+commitPassiveMountEffects_begin @ chunk-7CVORMRW.js?v=40ed49e9:18169
+commitPassiveMountEffects @ chunk-7CVORMRW.js?v=40ed49e9:18159
+flushPassiveEffectsImpl @ chunk-7CVORMRW.js?v=40ed49e9:19543
+flushPassiveEffects @ chunk-7CVORMRW.js?v=40ed49e9:19500
+commitRootImpl @ chunk-7CVORMRW.js?v=40ed49e9:19469
+commitRoot @ chunk-7CVORMRW.js?v=40ed49e9:19330
+performSyncWorkOnRoot @ chunk-7CVORMRW.js?v=40ed49e9:18948
+flushSyncCallbacks @ chunk-7CVORMRW.js?v=40ed49e9:9166
+(anonymous) @ chunk-7CVORMRW.js?v=40ed49e9:18677
+setTimeout
+defaultScheduler @ @tanstack_react-query.js?v=40ed49e9:546
+flush @ @tanstack_react-query.js?v=40ed49e9:570
+batch @ @tanstack_react-query.js?v=40ed49e9:588
+#dispatch @ @tanstack_react-query.js?v=40ed49e9:1006
+setData @ @tanstack_react-query.js?v=40ed49e9:693
+onSuccess @ @tanstack_react-query.js?v=40ed49e9:907
+resolve @ @tanstack_react-query.js?v=40ed49e9:460
+Promise.then
+run @ @tanstack_react-query.js?v=40ed49e9:499
+start @ @tanstack_react-query.js?v=40ed49e9:536
+fetch @ @tanstack_react-query.js?v=40ed49e9:935
+#executeFetch @ @tanstack_react-query.js?v=40ed49e9:2043
+onSubscribe @ @tanstack_react-query.js?v=40ed49e9:1926
+subscribe @ @tanstack_react-query.js?v=40ed49e9:19
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:3085
+subscribeToStore @ chunk-7CVORMRW.js?v=40ed49e9:12032
+commitHookEffectListMount @ chunk-7CVORMRW.js?v=40ed49e9:16963
+commitPassiveMountOnFiber @ chunk-7CVORMRW.js?v=40ed49e9:18206
+commitPassiveMountEffects_complete @ chunk-7CVORMRW.js?v=40ed49e9:18179
+commitPassiveMountEffects_begin @ chunk-7CVORMRW.js?v=40ed49e9:18169
+commitPassiveMountEffects @ chunk-7CVORMRW.js?v=40ed49e9:18159
+flushPassiveEffectsImpl @ chunk-7CVORMRW.js?v=40ed49e9:19543
+flushPassiveEffects @ chunk-7CVORMRW.js?v=40ed49e9:19500
+performSyncWorkOnRoot @ chunk-7CVORMRW.js?v=40ed49e9:18921
+flushSyncCallbacks @ chunk-7CVORMRW.js?v=40ed49e9:9166
+commitRootImpl @ chunk-7CVORMRW.js?v=40ed49e9:19485
+commitRoot @ chunk-7CVORMRW.js?v=40ed49e9:19330
+finishConcurrentRender @ chunk-7CVORMRW.js?v=40ed49e9:18858
+performConcurrentWorkOnRoot @ chunk-7CVORMRW.js?v=40ed49e9:18768
+workLoop @ chunk-7CVORMRW.js?v=40ed49e9:197
+flushWork @ chunk-7CVORMRW.js?v=40ed49e9:176
+performWorkUntilDeadline @ chunk-7CVORMRW.js?v=40ed49e9:384Understand this error
+AdminDashboard.tsx:63  GET https://2a8186c1-8819-4592-8ba3-07172d8d7a36-00-3sm98kwx9dpt8.spock.replit.dev/api/admin/upcoming-events 404 (Not Found)
+fetchUpcomingEvents @ AdminDashboard.tsx:63
+fetchFn @ @tanstack_react-query.js?v=40ed49e9:852
+run @ @tanstack_react-query.js?v=40ed49e9:495
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:519
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:515
+Promise.catch
+run @ @tanstack_react-query.js?v=40ed49e9:499
+start @ @tanstack_react-query.js?v=40ed49e9:536
+fetch @ @tanstack_react-query.js?v=40ed49e9:935
+#executeFetch @ @tanstack_react-query.js?v=40ed49e9:2043
+onSubscribe @ @tanstack_react-query.js?v=40ed49e9:1926
+subscribe @ @tanstack_react-query.js?v=40ed49e9:19
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:3085
+subscribeToStore @ chunk-7CVORMRW.js?v=40ed49e9:12032
+commitHookEffectListMount @ chunk-7CVORMRW.js?v=40ed49e9:16963
+commitPassiveMountOnFiber @ chunk-7CVORMRW.js?v=40ed49e9:18206
+commitPassiveMountEffects_complete @ chunk-7CVORMRW.js?v=40ed49e9:18179
+commitPassiveMountEffects_begin @ chunk-7CVORMRW.js?v=40ed49e9:18169
+commitPassiveMountEffects @ chunk-7CVORMRW.js?v=40ed49e9:18159
+flushPassiveEffectsImpl @ chunk-7CVORMRW.js?v=40ed49e9:19543
+flushPassiveEffects @ chunk-7CVORMRW.js?v=40ed49e9:19500
+commitRootImpl @ chunk-7CVORMRW.js?v=40ed49e9:19469
+commitRoot @ chunk-7CVORMRW.js?v=40ed49e9:19330
+performSyncWorkOnRoot @ chunk-7CVORMRW.js?v=40ed49e9:18948
+flushSyncCallbacks @ chunk-7CVORMRW.js?v=40ed49e9:9166
+(anonymous) @ chunk-7CVORMRW.js?v=40ed49e9:18677
+setTimeout
+defaultScheduler @ @tanstack_react-query.js?v=40ed49e9:546
+flush @ @tanstack_react-query.js?v=40ed49e9:570
+batch @ @tanstack_react-query.js?v=40ed49e9:588
+#dispatch @ @tanstack_react-query.js?v=40ed49e9:1006
+setData @ @tanstack_react-query.js?v=40ed49e9:693
+onSuccess @ @tanstack_react-query.js?v=40ed49e9:907
+resolve @ @tanstack_react-query.js?v=40ed49e9:460
+Promise.then
+run @ @tanstack_react-query.js?v=40ed49e9:499
+start @ @tanstack_react-query.js?v=40ed49e9:536
+fetch @ @tanstack_react-query.js?v=40ed49e9:935
+#executeFetch @ @tanstack_react-query.js?v=40ed49e9:2043
+onSubscribe @ @tanstack_react-query.js?v=40ed49e9:1926
+subscribe @ @tanstack_react-query.js?v=40ed49e9:19
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:3085
+subscribeToStore @ chunk-7CVORMRW.js?v=40ed49e9:12032
+commitHookEffectListMount @ chunk-7CVORMRW.js?v=40ed49e9:16963
+commitPassiveMountOnFiber @ chunk-7CVORMRW.js?v=40ed49e9:18206
+commitPassiveMountEffects_complete @ chunk-7CVORMRW.js?v=40ed49e9:18179
+commitPassiveMountEffects_begin @ chunk-7CVORMRW.js?v=40ed49e9:18169
+commitPassiveMountEffects @ chunk-7CVORMRW.js?v=40ed49e9:18159
+flushPassiveEffectsImpl @ chunk-7CVORMRW.js?v=40ed49e9:19543
+flushPassiveEffects @ chunk-7CVORMRW.js?v=40ed49e9:19500
+performSyncWorkOnRoot @ chunk-7CVORMRW.js?v=40ed49e9:18921
+flushSyncCallbacks @ chunk-7CVORMRW.js?v=40ed49e9:9166
+commitRootImpl @ chunk-7CVORMRW.js?v=40ed49e9:19485
+commitRoot @ chunk-7CVORMRW.js?v=40ed49e9:19330
+finishConcurrentRender @ chunk-7CVORMRW.js?v=40ed49e9:18858
+performConcurrentWorkOnRoot @ chunk-7CVORMRW.js?v=40ed49e9:18768
+workLoop @ chunk-7CVORMRW.js?v=40ed49e9:197
+flushWork @ chunk-7CVORMRW.js?v=40ed49e9:176
+performWorkUntilDeadline @ chunk-7CVORMRW.js?v=40ed49e9:384Understand this error
+AdminDashboard.tsx:69  GET https://2a8186c1-8819-4592-8ba3-07172d8d7a36-00-3sm98kwx9dpt8.spock.replit.dev/api/admin/charts 404 (Not Found)
+fetchChartsData @ AdminDashboard.tsx:69
+fetchFn @ @tanstack_react-query.js?v=40ed49e9:852
+run @ @tanstack_react-query.js?v=40ed49e9:495
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:519
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:515
+Promise.catch
+run @ @tanstack_react-query.js?v=40ed49e9:499
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:519
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:515
+Promise.catch
+run @ @tanstack_react-query.js?v=40ed49e9:499
+start @ @tanstack_react-query.js?v=40ed49e9:536
+fetch @ @tanstack_react-query.js?v=40ed49e9:935
+#executeFetch @ @tanstack_react-query.js?v=40ed49e9:2043
+onSubscribe @ @tanstack_react-query.js?v=40ed49e9:1926
+subscribe @ @tanstack_react-query.js?v=40ed49e9:19
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:3085
+subscribeToStore @ chunk-7CVORMRW.js?v=40ed49e9:12032
+commitHookEffectListMount @ chunk-7CVORMRW.js?v=40ed49e9:16963
+commitPassiveMountOnFiber @ chunk-7CVORMRW.js?v=40ed49e9:18206
+commitPassiveMountEffects_complete @ chunk-7CVORMRW.js?v=40ed49e9:18179
+commitPassiveMountEffects_begin @ chunk-7CVORMRW.js?v=40ed49e9:18169
+commitPassiveMountEffects @ chunk-7CVORMRW.js?v=40ed49e9:18159
+flushPassiveEffectsImpl @ chunk-7CVORMRW.js?v=40ed49e9:19543
+flushPassiveEffects @ chunk-7CVORMRW.js?v=40ed49e9:19500
+commitRootImpl @ chunk-7CVORMRW.js?v=40ed49e9:19469
+commitRoot @ chunk-7CVORMRW.js?v=40ed49e9:19330
+performSyncWorkOnRoot @ chunk-7CVORMRW.js?v=40ed49e9:18948
+flushSyncCallbacks @ chunk-7CVORMRW.js?v=40ed49e9:9166
+(anonymous) @ chunk-7CVORMRW.js?v=40ed49e9:18677
+setTimeout
+defaultScheduler @ @tanstack_react-query.js?v=40ed49e9:546
+flush @ @tanstack_react-query.js?v=40ed49e9:570
+batch @ @tanstack_react-query.js?v=40ed49e9:588
+#dispatch @ @tanstack_react-query.js?v=40ed49e9:1006
+setData @ @tanstack_react-query.js?v=40ed49e9:693
+onSuccess @ @tanstack_react-query.js?v=40ed49e9:907
+resolve @ @tanstack_react-query.js?v=40ed49e9:460
+Promise.then
+run @ @tanstack_react-query.js?v=40ed49e9:499
+start @ @tanstack_react-query.js?v=40ed49e9:536
+fetch @ @tanstack_react-query.js?v=40ed49e9:935
+#executeFetch @ @tanstack_react-query.js?v=40ed49e9:2043
+onSubscribe @ @tanstack_react-query.js?v=40ed49e9:1926
+subscribe @ @tanstack_react-query.js?v=40ed49e9:19
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:3085
+subscribeToStore @ chunk-7CVORMRW.js?v=40ed49e9:12032
+commitHookEffectListMount @ chunk-7CVORMRW.js?v=40ed49e9:16963
+commitPassiveMountOnFiber @ chunk-7CVORMRW.js?v=40ed49e9:18206
+commitPassiveMountEffects_complete @ chunk-7CVORMRW.js?v=40ed49e9:18179
+commitPassiveMountEffects_begin @ chunk-7CVORMRW.js?v=40ed49e9:18169
+commitPassiveMountEffects @ chunk-7CVORMRW.js?v=40ed49e9:18159
+flushPassiveEffectsImpl @ chunk-7CVORMRW.js?v=40ed49e9:19543
+flushPassiveEffects @ chunk-7CVORMRW.js?v=40ed49e9:19500
+performSyncWorkOnRoot @ chunk-7CVORMRW.js?v=40ed49e9:18921
+flushSyncCallbacks @ chunk-7CVORMRW.js?v=40ed49e9:9166
+commitRootImpl @ chunk-7CVORMRW.js?v=40ed49e9:19485
+commitRoot @ chunk-7CVORMRW.js?v=40ed49e9:19330
+finishConcurrentRender @ chunk-7CVORMRW.js?v=40ed49e9:18858
+performConcurrentWorkOnRoot @ chunk-7CVORMRW.js?v=40ed49e9:18768
+workLoop @ chunk-7CVORMRW.js?v=40ed49e9:197
+flushWork @ chunk-7CVORMRW.js?v=40ed49e9:176
+performWorkUntilDeadline @ chunk-7CVORMRW.js?v=40ed49e9:384Understand this error
+AdminDashboard.tsx:51  GET https://2a8186c1-8819-4592-8ba3-07172d8d7a36-00-3sm98kwx9dpt8.spock.replit.dev/api/admin/stats 404 (Not Found)
+fetchDashboardStats @ AdminDashboard.tsx:51
+fetchFn @ @tanstack_react-query.js?v=40ed49e9:852
+run @ @tanstack_react-query.js?v=40ed49e9:495
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:519
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:515
+Promise.catch
+run @ @tanstack_react-query.js?v=40ed49e9:499
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:519
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:515
+Promise.catch
+run @ @tanstack_react-query.js?v=40ed49e9:499
+start @ @tanstack_react-query.js?v=40ed49e9:536
+fetch @ @tanstack_react-query.js?v=40ed49e9:935
+#executeFetch @ @tanstack_react-query.js?v=40ed49e9:2043
+onSubscribe @ @tanstack_react-query.js?v=40ed49e9:1926
+subscribe @ @tanstack_react-query.js?v=40ed49e9:19
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:3085
+subscribeToStore @ chunk-7CVORMRW.js?v=40ed49e9:12032
+commitHookEffectListMount @ chunk-7CVORMRW.js?v=40ed49e9:16963
+commitPassiveMountOnFiber @ chunk-7CVORMRW.js?v=40ed49e9:18206
+commitPassiveMountEffects_complete @ chunk-7CVORMRW.js?v=40ed49e9:18179
+commitPassiveMountEffects_begin @ chunk-7CVORMRW.js?v=40ed49e9:18169
+commitPassiveMountEffects @ chunk-7CVORMRW.js?v=40ed49e9:18159
+flushPassiveEffectsImpl @ chunk-7CVORMRW.js?v=40ed49e9:19543
+flushPassiveEffects @ chunk-7CVORMRW.js?v=40ed49e9:19500
+commitRootImpl @ chunk-7CVORMRW.js?v=40ed49e9:19469
+commitRoot @ chunk-7CVORMRW.js?v=40ed49e9:19330
+performSyncWorkOnRoot @ chunk-7CVORMRW.js?v=40ed49e9:18948
+flushSyncCallbacks @ chunk-7CVORMRW.js?v=40ed49e9:9166
+(anonymous) @ chunk-7CVORMRW.js?v=40ed49e9:18677
+setTimeout
+defaultScheduler @ @tanstack_react-query.js?v=40ed49e9:546
+flush @ @tanstack_react-query.js?v=40ed49e9:570
+batch @ @tanstack_react-query.js?v=40ed49e9:588
+#dispatch @ @tanstack_react-query.js?v=40ed49e9:1006
+setData @ @tanstack_react-query.js?v=40ed49e9:693
+onSuccess @ @tanstack_react-query.js?v=40ed49e9:907
+resolve @ @tanstack_react-query.js?v=40ed49e9:460
+Promise.then
+run @ @tanstack_react-query.js?v=40ed49e9:499
+start @ @tanstack_react-query.js?v=40ed49e9:536
+fetch @ @tanstack_react-query.js?v=40ed49e9:935
+#executeFetch @ @tanstack_react-query.js?v=40ed49e9:2043
+onSubscribe @ @tanstack_react-query.js?v=40ed49e9:1926
+subscribe @ @tanstack_react-query.js?v=40ed49e9:19
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:3085
+subscribeToStore @ chunk-7CVORMRW.js?v=40ed49e9:12032
+commitHookEffectListMount @ chunk-7CVORMRW.js?v=40ed49e9:16963
+commitPassiveMountOnFiber @ chunk-7CVORMRW.js?v=40ed49e9:18206
+commitPassiveMountEffects_complete @ chunk-7CVORMRW.js?v=40ed49e9:18179
+commitPassiveMountEffects_begin @ chunk-7CVORMRW.js?v=40ed49e9:18169
+commitPassiveMountEffects @ chunk-7CVORMRW.js?v=40ed49e9:18159
+flushPassiveEffectsImpl @ chunk-7CVORMRW.js?v=40ed49e9:19543
+flushPassiveEffects @ chunk-7CVORMRW.js?v=40ed49e9:19500
+performSyncWorkOnRoot @ chunk-7CVORMRW.js?v=40ed49e9:18921
+flushSyncCallbacks @ chunk-7CVORMRW.js?v=40ed49e9:9166
+commitRootImpl @ chunk-7CVORMRW.js?v=40ed49e9:19485
+commitRoot @ chunk-7CVORMRW.js?v=40ed49e9:19330
+finishConcurrentRender @ chunk-7CVORMRW.js?v=40ed49e9:18858
+performConcurrentWorkOnRoot @ chunk-7CVORMRW.js?v=40ed49e9:18768
+workLoop @ chunk-7CVORMRW.js?v=40ed49e9:197
+flushWork @ chunk-7CVORMRW.js?v=40ed49e9:176
+performWorkUntilDeadline @ chunk-7CVORMRW.js?v=40ed49e9:384Understand this error
+AdminDashboard.tsx:57  GET https://2a8186c1-8819-4592-8ba3-07172d8d7a36-00-3sm98kwx9dpt8.spock.replit.dev/api/admin/activity 404 (Not Found)
+fetchRecentActivity @ AdminDashboard.tsx:57
+fetchFn @ @tanstack_react-query.js?v=40ed49e9:852
+run @ @tanstack_react-query.js?v=40ed49e9:495
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:519
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:515
+Promise.catch
+run @ @tanstack_react-query.js?v=40ed49e9:499
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:519
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:515
+Promise.catch
+run @ @tanstack_react-query.js?v=40ed49e9:499
+start @ @tanstack_react-query.js?v=40ed49e9:536
+fetch @ @tanstack_react-query.js?v=40ed49e9:935
+#executeFetch @ @tanstack_react-query.js?v=40ed49e9:2043
+onSubscribe @ @tanstack_react-query.js?v=40ed49e9:1926
+subscribe @ @tanstack_react-query.js?v=40ed49e9:19
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:3085
+subscribeToStore @ chunk-7CVORMRW.js?v=40ed49e9:12032
+commitHookEffectListMount @ chunk-7CVORMRW.js?v=40ed49e9:16963
+commitPassiveMountOnFiber @ chunk-7CVORMRW.js?v=40ed49e9:18206
+commitPassiveMountEffects_complete @ chunk-7CVORMRW.js?v=40ed49e9:18179
+commitPassiveMountEffects_begin @ chunk-7CVORMRW.js?v=40ed49e9:18169
+commitPassiveMountEffects @ chunk-7CVORMRW.js?v=40ed49e9:18159
+flushPassiveEffectsImpl @ chunk-7CVORMRW.js?v=40ed49e9:19543
+flushPassiveEffects @ chunk-7CVORMRW.js?v=40ed49e9:19500
+commitRootImpl @ chunk-7CVORMRW.js?v=40ed49e9:19469
+commitRoot @ chunk-7CVORMRW.js?v=40ed49e9:19330
+performSyncWorkOnRoot @ chunk-7CVORMRW.js?v=40ed49e9:18948
+flushSyncCallbacks @ chunk-7CVORMRW.js?v=40ed49e9:9166
+(anonymous) @ chunk-7CVORMRW.js?v=40ed49e9:18677
+setTimeout
+defaultScheduler @ @tanstack_react-query.js?v=40ed49e9:546
+flush @ @tanstack_react-query.js?v=40ed49e9:570
+batch @ @tanstack_react-query.js?v=40ed49e9:588
+#dispatch @ @tanstack_react-query.js?v=40ed49e9:1006
+setData @ @tanstack_react-query.js?v=40ed49e9:693
+onSuccess @ @tanstack_react-query.js?v=40ed49e9:907
+resolve @ @tanstack_react-query.js?v=40ed49e9:460
+Promise.then
+run @ @tanstack_react-query.js?v=40ed49e9:499
+start @ @tanstack_react-query.js?v=40ed49e9:536
+fetch @ @tanstack_react-query.js?v=40ed49e9:935
+#executeFetch @ @tanstack_react-query.js?v=40ed49e9:2043
+onSubscribe @ @tanstack_react-query.js?v=40ed49e9:1926
+subscribe @ @tanstack_react-query.js?v=40ed49e9:19
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:3085
+subscribeToStore @ chunk-7CVORMRW.js?v=40ed49e9:12032
+commitHookEffectListMount @ chunk-7CVORMRW.js?v=40ed49e9:16963
+commitPassiveMountOnFiber @ chunk-7CVORMRW.js?v=40ed49e9:18206
+commitPassiveMountEffects_complete @ chunk-7CVORMRW.js?v=40ed49e9:18179
+commitPassiveMountEffects_begin @ chunk-7CVORMRW.js?v=40ed49e9:18169
+commitPassiveMountEffects @ chunk-7CVORMRW.js?v=40ed49e9:18159
+flushPassiveEffectsImpl @ chunk-7CVORMRW.js?v=40ed49e9:19543
+flushPassiveEffects @ chunk-7CVORMRW.js?v=40ed49e9:19500
+performSyncWorkOnRoot @ chunk-7CVORMRW.js?v=40ed49e9:18921
+flushSyncCallbacks @ chunk-7CVORMRW.js?v=40ed49e9:9166
+commitRootImpl @ chunk-7CVORMRW.js?v=40ed49e9:19485
+commitRoot @ chunk-7CVORMRW.js?v=40ed49e9:19330
+finishConcurrentRender @ chunk-7CVORMRW.js?v=40ed49e9:18858
+performConcurrentWorkOnRoot @ chunk-7CVORMRW.js?v=40ed49e9:18768
+workLoop @ chunk-7CVORMRW.js?v=40ed49e9:197
+flushWork @ chunk-7CVORMRW.js?v=40ed49e9:176
+performWorkUntilDeadline @ chunk-7CVORMRW.js?v=40ed49e9:384Understand this error
+AdminDashboard.tsx:63  GET https://2a8186c1-8819-4592-8ba3-07172d8d7a36-00-3sm98kwx9dpt8.spock.replit.dev/api/admin/upcoming-events 404 (Not Found)
+fetchUpcomingEvents @ AdminDashboard.tsx:63
+fetchFn @ @tanstack_react-query.js?v=40ed49e9:852
+run @ @tanstack_react-query.js?v=40ed49e9:495
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:519
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:515
+Promise.catch
+run @ @tanstack_react-query.js?v=40ed49e9:499
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:519
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:515
+Promise.catch
+run @ @tanstack_react-query.js?v=40ed49e9:499
+start @ @tanstack_react-query.js?v=40ed49e9:536
+fetch @ @tanstack_react-query.js?v=40ed49e9:935
+#executeFetch @ @tanstack_react-query.js?v=40ed49e9:2043
+onSubscribe @ @tanstack_react-query.js?v=40ed49e9:1926
+subscribe @ @tanstack_react-query.js?v=40ed49e9:19
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:3085
+subscribeToStore @ chunk-7CVORMRW.js?v=40ed49e9:12032
+commitHookEffectListMount @ chunk-7CVORMRW.js?v=40ed49e9:16963
+commitPassiveMountOnFiber @ chunk-7CVORMRW.js?v=40ed49e9:18206
+commitPassiveMountEffects_complete @ chunk-7CVORMRW.js?v=40ed49e9:18179
+commitPassiveMountEffects_begin @ chunk-7CVORMRW.js?v=40ed49e9:18169
+commitPassiveMountEffects @ chunk-7CVORMRW.js?v=40ed49e9:18159
+flushPassiveEffectsImpl @ chunk-7CVORMRW.js?v=40ed49e9:19543
+flushPassiveEffects @ chunk-7CVORMRW.js?v=40ed49e9:19500
+commitRootImpl @ chunk-7CVORMRW.js?v=40ed49e9:19469
+commitRoot @ chunk-7CVORMRW.js?v=40ed49e9:19330
+performSyncWorkOnRoot @ chunk-7CVORMRW.js?v=40ed49e9:18948
+flushSyncCallbacks @ chunk-7CVORMRW.js?v=40ed49e9:9166
+(anonymous) @ chunk-7CVORMRW.js?v=40ed49e9:18677
+setTimeout
+defaultScheduler @ @tanstack_react-query.js?v=40ed49e9:546
+flush @ @tanstack_react-query.js?v=40ed49e9:570
+batch @ @tanstack_react-query.js?v=40ed49e9:588
+#dispatch @ @tanstack_react-query.js?v=40ed49e9:1006
+setData @ @tanstack_react-query.js?v=40ed49e9:693
+onSuccess @ @tanstack_react-query.js?v=40ed49e9:907
+resolve @ @tanstack_react-query.js?v=40ed49e9:460
+Promise.then
+run @ @tanstack_react-query.js?v=40ed49e9:499
+start @ @tanstack_react-query.js?v=40ed49e9:536
+fetch @ @tanstack_react-query.js?v=40ed49e9:935
+#executeFetch @ @tanstack_react-query.js?v=40ed49e9:2043
+onSubscribe @ @tanstack_react-query.js?v=40ed49e9:1926
+subscribe @ @tanstack_react-query.js?v=40ed49e9:19
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:3085
+subscribeToStore @ chunk-7CVORMRW.js?v=40ed49e9:12032
+commitHookEffectListMount @ chunk-7CVORMRW.js?v=40ed49e9:16963
+commitPassiveMountOnFiber @ chunk-7CVORMRW.js?v=40ed49e9:18206
+commitPassiveMountEffects_complete @ chunk-7CVORMRW.js?v=40ed49e9:18179
+commitPassiveMountEffects_begin @ chunk-7CVORMRW.js?v=40ed49e9:18169
+commitPassiveMountEffects @ chunk-7CVORMRW.js?v=40ed49e9:18159
+flushPassiveEffectsImpl @ chunk-7CVORMRW.js?v=40ed49e9:19543
+flushPassiveEffects @ chunk-7CVORMRW.js?v=40ed49e9:19500
+performSyncWorkOnRoot @ chunk-7CVORMRW.js?v=40ed49e9:18921
+flushSyncCallbacks @ chunk-7CVORMRW.js?v=40ed49e9:9166
+commitRootImpl @ chunk-7CVORMRW.js?v=40ed49e9:19485
+commitRoot @ chunk-7CVORMRW.js?v=40ed49e9:19330
+finishConcurrentRender @ chunk-7CVORMRW.js?v=40ed49e9:18858
+performConcurrentWorkOnRoot @ chunk-7CVORMRW.js?v=40ed49e9:18768
+workLoop @ chunk-7CVORMRW.js?v=40ed49e9:197
+flushWork @ chunk-7CVORMRW.js?v=40ed49e9:176
+performWorkUntilDeadline @ chunk-7CVORMRW.js?v=40ed49e9:384Understand this error
+AdminDashboard.tsx:69  GET https://2a8186c1-8819-4592-8ba3-07172d8d7a36-00-3sm98kwx9dpt8.spock.replit.dev/api/admin/charts 404 (Not Found)
+fetchChartsData @ AdminDashboard.tsx:69
+fetchFn @ @tanstack_react-query.js?v=40ed49e9:852
+run @ @tanstack_react-query.js?v=40ed49e9:495
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:519
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:515
+Promise.catch
+run @ @tanstack_react-query.js?v=40ed49e9:499
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:519
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:515
+Promise.catch
+run @ @tanstack_react-query.js?v=40ed49e9:499
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:519
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:515
+Promise.catch
+run @ @tanstack_react-query.js?v=40ed49e9:499
+start @ @tanstack_react-query.js?v=40ed49e9:536
+fetch @ @tanstack_react-query.js?v=40ed49e9:935
+#executeFetch @ @tanstack_react-query.js?v=40ed49e9:2043
+onSubscribe @ @tanstack_react-query.js?v=40ed49e9:1926
+subscribe @ @tanstack_react-query.js?v=40ed49e9:19
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:3085
+subscribeToStore @ chunk-7CVORMRW.js?v=40ed49e9:12032
+commitHookEffectListMount @ chunk-7CVORMRW.js?v=40ed49e9:16963
+commitPassiveMountOnFiber @ chunk-7CVORMRW.js?v=40ed49e9:18206
+commitPassiveMountEffects_complete @ chunk-7CVORMRW.js?v=40ed49e9:18179
+commitPassiveMountEffects_begin @ chunk-7CVORMRW.js?v=40ed49e9:18169
+commitPassiveMountEffects @ chunk-7CVORMRW.js?v=40ed49e9:18159
+flushPassiveEffectsImpl @ chunk-7CVORMRW.js?v=40ed49e9:19543
+flushPassiveEffects @ chunk-7CVORMRW.js?v=40ed49e9:19500
+commitRootImpl @ chunk-7CVORMRW.js?v=40ed49e9:19469
+commitRoot @ chunk-7CVORMRW.js?v=40ed49e9:19330
+performSyncWorkOnRoot @ chunk-7CVORMRW.js?v=40ed49e9:18948
+flushSyncCallbacks @ chunk-7CVORMRW.js?v=40ed49e9:9166
+(anonymous) @ chunk-7CVORMRW.js?v=40ed49e9:18677
+setTimeout
+defaultScheduler @ @tanstack_react-query.js?v=40ed49e9:546
+flush @ @tanstack_react-query.js?v=40ed49e9:570
+batch @ @tanstack_react-query.js?v=40ed49e9:588
+#dispatch @ @tanstack_react-query.js?v=40ed49e9:1006
+setData @ @tanstack_react-query.js?v=40ed49e9:693
+onSuccess @ @tanstack_react-query.js?v=40ed49e9:907
+resolve @ @tanstack_react-query.js?v=40ed49e9:460
+Promise.then
+run @ @tanstack_react-query.js?v=40ed49e9:499
+start @ @tanstack_react-query.js?v=40ed49e9:536
+fetch @ @tanstack_react-query.js?v=40ed49e9:935
+#executeFetch @ @tanstack_react-query.js?v=40ed49e9:2043
+onSubscribe @ @tanstack_react-query.js?v=40ed49e9:1926
+subscribe @ @tanstack_react-query.js?v=40ed49e9:19
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:3085
+subscribeToStore @ chunk-7CVORMRW.js?v=40ed49e9:12032
+commitHookEffectListMount @ chunk-7CVORMRW.js?v=40ed49e9:16963
+commitPassiveMountOnFiber @ chunk-7CVORMRW.js?v=40ed49e9:18206
+commitPassiveMountEffects_complete @ chunk-7CVORMRW.js?v=40ed49e9:18179
+commitPassiveMountEffects_begin @ chunk-7CVORMRW.js?v=40ed49e9:18169
+commitPassiveMountEffects @ chunk-7CVORMRW.js?v=40ed49e9:18159
+flushPassiveEffectsImpl @ chunk-7CVORMRW.js?v=40ed49e9:19543
+flushPassiveEffects @ chunk-7CVORMRW.js?v=40ed49e9:19500
+performSyncWorkOnRoot @ chunk-7CVORMRW.js?v=40ed49e9:18921
+flushSyncCallbacks @ chunk-7CVORMRW.js?v=40ed49e9:9166
+commitRootImpl @ chunk-7CVORMRW.js?v=40ed49e9:19485
+commitRoot @ chunk-7CVORMRW.js?v=40ed49e9:19330
+finishConcurrentRender @ chunk-7CVORMRW.js?v=40ed49e9:18858
+performConcurrentWorkOnRoot @ chunk-7CVORMRW.js?v=40ed49e9:18768
+workLoop @ chunk-7CVORMRW.js?v=40ed49e9:197
+flushWork @ chunk-7CVORMRW.js?v=40ed49e9:176
+performWorkUntilDeadline @ chunk-7CVORMRW.js?v=40ed49e9:384Understand this error
+AdminDashboard.tsx:51  GET https://2a8186c1-8819-4592-8ba3-07172d8d7a36-00-3sm98kwx9dpt8.spock.replit.dev/api/admin/stats 404 (Not Found)
+fetchDashboardStats @ AdminDashboard.tsx:51
+fetchFn @ @tanstack_react-query.js?v=40ed49e9:852
+run @ @tanstack_react-query.js?v=40ed49e9:495
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:519
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:515
+Promise.catch
+run @ @tanstack_react-query.js?v=40ed49e9:499
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:519
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:515
+Promise.catch
+run @ @tanstack_react-query.js?v=40ed49e9:499
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:519
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:515
+Promise.catch
+run @ @tanstack_react-query.js?v=40ed49e9:499
+start @ @tanstack_react-query.js?v=40ed49e9:536
+fetch @ @tanstack_react-query.js?v=40ed49e9:935
+#executeFetch @ @tanstack_react-query.js?v=40ed49e9:2043
+onSubscribe @ @tanstack_react-query.js?v=40ed49e9:1926
+subscribe @ @tanstack_react-query.js?v=40ed49e9:19
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:3085
+subscribeToStore @ chunk-7CVORMRW.js?v=40ed49e9:12032
+commitHookEffectListMount @ chunk-7CVORMRW.js?v=40ed49e9:16963
+commitPassiveMountOnFiber @ chunk-7CVORMRW.js?v=40ed49e9:18206
+commitPassiveMountEffects_complete @ chunk-7CVORMRW.js?v=40ed49e9:18179
+commitPassiveMountEffects_begin @ chunk-7CVORMRW.js?v=40ed49e9:18169
+commitPassiveMountEffects @ chunk-7CVORMRW.js?v=40ed49e9:18159
+flushPassiveEffectsImpl @ chunk-7CVORMRW.js?v=40ed49e9:19543
+flushPassiveEffects @ chunk-7CVORMRW.js?v=40ed49e9:19500
+commitRootImpl @ chunk-7CVORMRW.js?v=40ed49e9:19469
+commitRoot @ chunk-7CVORMRW.js?v=40ed49e9:19330
+performSyncWorkOnRoot @ chunk-7CVORMRW.js?v=40ed49e9:18948
+flushSyncCallbacks @ chunk-7CVORMRW.js?v=40ed49e9:9166
+(anonymous) @ chunk-7CVORMRW.js?v=40ed49e9:18677
+setTimeout
+defaultScheduler @ @tanstack_react-query.js?v=40ed49e9:546
+flush @ @tanstack_react-query.js?v=40ed49e9:570
+batch @ @tanstack_react-query.js?v=40ed49e9:588
+#dispatch @ @tanstack_react-query.js?v=40ed49e9:1006
+setData @ @tanstack_react-query.js?v=40ed49e9:693
+onSuccess @ @tanstack_react-query.js?v=40ed49e9:907
+resolve @ @tanstack_react-query.js?v=40ed49e9:460
+Promise.then
+run @ @tanstack_react-query.js?v=40ed49e9:499
+start @ @tanstack_react-query.js?v=40ed49e9:536
+fetch @ @tanstack_react-query.js?v=40ed49e9:935
+#executeFetch @ @tanstack_react-query.js?v=40ed49e9:2043
+onSubscribe @ @tanstack_react-query.js?v=40ed49e9:1926
+subscribe @ @tanstack_react-query.js?v=40ed49e9:19
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:3085
+subscribeToStore @ chunk-7CVORMRW.js?v=40ed49e9:12032
+commitHookEffectListMount @ chunk-7CVORMRW.js?v=40ed49e9:16963
+commitPassiveMountOnFiber @ chunk-7CVORMRW.js?v=40ed49e9:18206
+commitPassiveMountEffects_complete @ chunk-7CVORMRW.js?v=40ed49e9:18179
+commitPassiveMountEffects_begin @ chunk-7CVORMRW.js?v=40ed49e9:18169
+commitPassiveMountEffects @ chunk-7CVORMRW.js?v=40ed49e9:18159
+flushPassiveEffectsImpl @ chunk-7CVORMRW.js?v=40ed49e9:19543
+flushPassiveEffects @ chunk-7CVORMRW.js?v=40ed49e9:19500
+performSyncWorkOnRoot @ chunk-7CVORMRW.js?v=40ed49e9:18921
+flushSyncCallbacks @ chunk-7CVORMRW.js?v=40ed49e9:9166
+commitRootImpl @ chunk-7CVORMRW.js?v=40ed49e9:19485
+commitRoot @ chunk-7CVORMRW.js?v=40ed49e9:19330
+finishConcurrentRender @ chunk-7CVORMRW.js?v=40ed49e9:18858
+performConcurrentWorkOnRoot @ chunk-7CVORMRW.js?v=40ed49e9:18768
+workLoop @ chunk-7CVORMRW.js?v=40ed49e9:197
+flushWork @ chunk-7CVORMRW.js?v=40ed49e9:176
+performWorkUntilDeadline @ chunk-7CVORMRW.js?v=40ed49e9:384Understand this error
+AdminDashboard.tsx:57  GET https://2a8186c1-8819-4592-8ba3-07172d8d7a36-00-3sm98kwx9dpt8.spock.replit.dev/api/admin/activity 404 (Not Found)
+fetchRecentActivity @ AdminDashboard.tsx:57
+fetchFn @ @tanstack_react-query.js?v=40ed49e9:852
+run @ @tanstack_react-query.js?v=40ed49e9:495
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:519
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:515
+Promise.catch
+run @ @tanstack_react-query.js?v=40ed49e9:499
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:519
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:515
+Promise.catch
+run @ @tanstack_react-query.js?v=40ed49e9:499
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:519
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:515
+Promise.catch
+run @ @tanstack_react-query.js?v=40ed49e9:499
+start @ @tanstack_react-query.js?v=40ed49e9:536
+fetch @ @tanstack_react-query.js?v=40ed49e9:935
+#executeFetch @ @tanstack_react-query.js?v=40ed49e9:2043
+onSubscribe @ @tanstack_react-query.js?v=40ed49e9:1926
+subscribe @ @tanstack_react-query.js?v=40ed49e9:19
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:3085
+subscribeToStore @ chunk-7CVORMRW.js?v=40ed49e9:12032
+commitHookEffectListMount @ chunk-7CVORMRW.js?v=40ed49e9:16963
+commitPassiveMountOnFiber @ chunk-7CVORMRW.js?v=40ed49e9:18206
+commitPassiveMountEffects_complete @ chunk-7CVORMRW.js?v=40ed49e9:18179
+commitPassiveMountEffects_begin @ chunk-7CVORMRW.js?v=40ed49e9:18169
+commitPassiveMountEffects @ chunk-7CVORMRW.js?v=40ed49e9:18159
+flushPassiveEffectsImpl @ chunk-7CVORMRW.js?v=40ed49e9:19543
+flushPassiveEffects @ chunk-7CVORMRW.js?v=40ed49e9:19500
+commitRootImpl @ chunk-7CVORMRW.js?v=40ed49e9:19469
+commitRoot @ chunk-7CVORMRW.js?v=40ed49e9:19330
+performSyncWorkOnRoot @ chunk-7CVORMRW.js?v=40ed49e9:18948
+flushSyncCallbacks @ chunk-7CVORMRW.js?v=40ed49e9:9166
+(anonymous) @ chunk-7CVORMRW.js?v=40ed49e9:18677
+setTimeout
+defaultScheduler @ @tanstack_react-query.js?v=40ed49e9:546
+flush @ @tanstack_react-query.js?v=40ed49e9:570
+batch @ @tanstack_react-query.js?v=40ed49e9:588
+#dispatch @ @tanstack_react-query.js?v=40ed49e9:1006
+setData @ @tanstack_react-query.js?v=40ed49e9:693
+onSuccess @ @tanstack_react-query.js?v=40ed49e9:907
+resolve @ @tanstack_react-query.js?v=40ed49e9:460
+Promise.then
+run @ @tanstack_react-query.js?v=40ed49e9:499
+start @ @tanstack_react-query.js?v=40ed49e9:536
+fetch @ @tanstack_react-query.js?v=40ed49e9:935
+#executeFetch @ @tanstack_react-query.js?v=40ed49e9:2043
+onSubscribe @ @tanstack_react-query.js?v=40ed49e9:1926
+subscribe @ @tanstack_react-query.js?v=40ed49e9:19
+(anonymous) @ @tanstack_react-query.js?v=40ed49e9:3085
+subscribeToStore @ chunk-7CVORMRW.js?v=40ed49e9:12032
+commitHookEffectListMount @ chunk-7CVORMRW.js?v=40ed49e9:16963
+commitPassiveMountOnFiber @ chunk-7CVORMRW.js?v=40ed49e9:18206
+commitPassiveMountEffects_complete @ chunk-7CVORMRW.js?v=40ed49e9:18179
+commitPassiveMountEffects_begin @ chunk-7CVORMRW.js?v=40ed49e9:18169
+commitPassiveMountEffects @ chunk-7CVORMRW.js?v=40ed49e9:18159
+flushPassiveEffectsImpl @ chunk-7CVORMRW.js?v=40ed49e9:19543
+flushPassiveEffects @ chunk-7CVORMRW.js?v=40ed49e9:19500
+performSyncWorkOnRoot @ chunk-7CVORMRW.js?v=40ed49e9:18921
+flushSyncCallbacks @ chunk-7CVORMRW.js?v=40ed49e9:9166
+commitRootImpl @ chunk-7CVORMRW.js?v=40ed49e9:19485
+commitRoot @ chunk-7CVORMRW.js?v=40ed49e9:19330
+finishConcurrentRender @ chunk-7CVORMRW.js?v=40ed49e9:18858
+performConcurrentWorkOnRoot @ chunk-7CVORMRW.js?v=40ed49e9:18768
+workLoop @ chunk-7CVORMRW.js?v=40ed49e9:197
+flushWork @ chunk-7CVORMRW.js?v=40ed49e9:176
+performWorkUntilDeadline @ chunk-7CVORMRW.js?v=40ed49e9:384Understand this error
+AdminDashboard.tsx:63  GET https://2a8186c1-8819-4592-8ba3-07172d8d7a36-00-3sm98kwx9dpt8.spock.replit.dev/api/admin/upcoming-events 404 (Not Found

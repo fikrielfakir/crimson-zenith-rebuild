@@ -1,0 +1,148 @@
+Recreate a modern, clean and elegant “Our Clubs” section that displays a satellite map background with a left sidebar of cities and a bottom carousel of club cards — exactly like in Screen Figma.png.
+
+🧭 Layout Structure
+
+Full-width section, 100vh height, positioned directly below the site navbar.
+
+Background: Fullscreen satellite map (Google Maps or static image) with a semi-transparent navy overlay gradient (#0b1a52, 85%) from left to right.
+
+Main container:
+
+Left side → vertical sidebar for cities
+
+Center → map
+
+Bottom → club cards horizontally aligned
+
+🧱 Sidebar (Cities List)
+
+Width: 260px
+
+Position: Fixed to the left, vertically centered
+
+Background: Transparent navy overlay (rgba(11, 26, 82, 0.9))
+
+Padding: 60px 40px
+
+Font:
+
+Family: Poppins, sans-serif
+
+City names: 18px, weight 400, color #d6d6d6
+
+Active city: #ffffff, weight 700, and add a 2px yellow left border (#ffd54a)
+
+Spacing: 20px between city names
+
+Hover effect: on hover, text changes to white (#fff) and slight scale-up transform: scale(1.05) with transition: 0.2s ease-in-out.
+
+🗺️ Map Section
+
+Map height: 100vh
+
+Map width: full width minus sidebar
+
+Z-index: background layer
+
+Overlay gradient: top-to-bottom linear gradient (rgba(11, 26, 82, 0.3) → transparent).
+
+Controls (Zoom / Locate):
+
+Positioned right center vertically.
+
+Buttons: circular, 45x45px, white background, shadow 0 0 10px rgba(0,0,0,0.25), icon color navy #0b1a52.
+
+Hover: change background to #ffd54a, icon to navy.
+
+🧭 Title and Subtitle (Top-Center)
+
+Position: absolute, centered horizontally, 120px from top.
+
+Title (“Our Clubs”)
+
+Font: Poppins, bold 50px, color: #ffffff, letter spacing: 0.5px.
+
+Text shadow: subtle 0 2px 6px rgba(0,0,0,0.3).
+
+Subtitle:
+
+Text: “Join local communities across Morocco’s most fascinating cities”
+
+Font: Poppins, 18px, color: #d6d6d6, margin-top: 8px, letter-spacing: 0.3px.
+
+🧭 Bottom Club Cards
+
+Container:
+
+Positioned absolute, bottom: 50px, centered horizontally.
+
+Display: flex; gap: 40px;
+
+Max width: 80%; justify-content: center.
+
+Club Card Style:
+
+Width: 240px; height: 100px;
+
+Background: rgba(255,255,255,0.08);
+
+Border-radius: 16px;
+
+Backdrop-filter: blur(12px);
+
+Display: flex; align-items: center; gap: 12px; padding: 16px 22px;
+
+Hover: background changes to rgba(255,255,255,0.15), smooth transition 0.3s.
+
+Club Icon:
+
+Circle 56x56px, white background, center the yellow logo inside (#ffd54a).
+
+Shadow: subtle 0 2px 5px rgba(0,0,0,0.25)
+
+Club Info Text:
+
+Club Name: 18px, bold, color #ffffff
+
+Address: 14px, medium, color #d6d6d6
+
+City: 14px, regular, color #bfbfbf
+
+Active club hover: slight scale 1.05, border glow 0 0 10px rgba(255, 213, 74, 0.6).
+
+🖋️ Responsive Adjustments
+
+Tablet (max-width 1024px):
+
+Sidebar width: 200px
+
+Title font-size: 40px
+
+Club cards stack 2 per row
+
+Mobile (max-width 768px):
+
+Sidebar collapses into dropdown
+
+Title font-size: 32px
+
+Cards scroll horizontally (carousel style)
+
+Buttons shrink to 36x36px
+
+🌈 Colors & Theme
+Element	Color
+Primary Navy	#0b1a52
+Accent Yellow	#ffd54a
+White	#ffffff
+Gray Text	#d6d6d6
+Background Overlay	rgba(11, 26, 82, 0.9)
+✨ Interaction UX Notes
+
+Smooth zoom and pan transitions for map.
+
+Hover feedback for interactive elements (cities, club cards, buttons).
+
+Active city should animate to highlight selected location with fade-in map marker.
+
+Use motion fade-in for section load (framer-motion recommended if React

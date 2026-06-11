@@ -6,7 +6,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Calendar as CalendarIcon, MapPin, Clock, Heart, Share2, Building2, CheckCircle2, Radio, Timer, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import CalendarComponent from "react-calendar";
-import noEventsImage from "@/assets/no-events.png";
+const noEventsImage = "https://api.thejourney-ma.org/attached_assets/no-events.png";
 import "react-calendar/dist/Calendar.css";
 import "./EventsActivitiesCalendar.css";
 import { useToast } from "@/hooks/use-toast";

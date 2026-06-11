@@ -1,0 +1,188 @@
+Fix the section’s gradient overlay so that both left and right edges have symmetrical soft gradients that fade smoothly into the center map. Keep a refined, premium UI aesthetic matching The Journey Association brand.
+
+🧭 Layout Overview
+
+Full-screen height (100vh)
+
+Background: satellite map or dynamic Google Map
+
+Two symmetrical gradient overlays (left and right) to create focus on the center of the map.
+
+Layer structure (Z-index order):
+
+Map background
+
+Left + right gradient overlays
+
+Title + subtitle (center top)
+
+Sidebar (left)
+
+Map controls (right)
+
+Bottom club cards
+
+🌈 Gradient Overlay Details
+🔹 Left Gradient
+
+Type: Linear gradient (horizontal)
+
+Direction: 90deg (left → right)
+
+Colors:
+
+Start: #0b1a52 at 80% opacity
+
+End: transparent
+
+Width: ~30% of screen width
+
+Position: absolute, top: 0, left: 0, height: 100%
+
+Purpose: Fade the sidebar smoothly into the map.
+
+🔹 Right Gradient
+
+Type: Linear gradient (horizontal, reversed)
+
+Direction: 270deg (right → left)
+
+Colors:
+
+Start: #0b1a52 at 75% opacity
+
+End: transparent
+
+Width: ~30% of screen width
+
+Position: absolute, top: 0, right: 0, height: 100%
+
+Purpose: Balance lighting and create symmetrical framing for the central map.
+
+🧱 Sidebar (Cities List)
+
+Background: transparent (no solid color)
+
+The left gradient will provide its background darkness.
+
+Padding: 60px 40px
+
+Typography:
+
+Font: Poppins, sans-serif
+
+Text size: 18px
+
+Color inactive: #c8c8c8
+
+Color active: #ffffff with 3px yellow left border (#ffd54a)
+
+Hover effect: lighten text color to white with subtle scale (1.05).
+
+Spacing: 18–22px between city names.
+
+🗺️ Map & Overlay
+
+Map base: Fullscreen satellite map (Google Maps or Mapbox)
+
+Map filters: apply brightness(85%) and contrast(110%) to make overlay gradients visible but not too dark.
+
+Map controls (zoom + locate):
+
+Positioned vertically center-right.
+
+Circular buttons (45x45px), white background, navy icons.
+
+Hover → background #ffd54a, icon navy.
+
+🧭 Title and Subtitle
+
+Position: absolute, top: 120px, centered horizontally.
+
+Title:
+
+Text: “Our Clubs”
+
+Font: Poppins Bold, 50px
+
+Color: white (#ffffff)
+
+Letter spacing: 0.5px
+
+Text shadow: 0 2px 6px rgba(0,0,0,0.25)
+
+Subtitle:
+
+Font: Poppins Regular, 18px
+
+Color: #d6d6d6
+
+Margin-top: 10px
+
+Text-align: center
+
+🧭 Bottom Club Cards
+
+Container: absolute, bottom: 60px, centered horizontally
+
+Layout: flex, gap: 40px, justify-content: center
+
+Card Style:
+
+Width: 250px; height: 110px
+
+Background: rgba(255,255,255,0.08)
+
+Border-radius: 18px
+
+Backdrop-filter: blur(12px)
+
+Display: flex; align-items: center; gap: 12px; padding: 18px 22px
+
+Hover: background changes to rgba(255,255,255,0.15); scale 1.03; smooth transition 0.3s
+
+Icon Container:
+
+Circle 56x56px, white background
+
+Center yellow logo (#ffd54a)
+
+Drop shadow: 0 2px 6px rgba(0,0,0,0.3)
+
+Text:
+
+Club Name: 18px bold white
+
+Address: 14px light gray #d6d6d6
+
+City: 13px #bfbfbf
+
+📱 Responsive Behavior
+
+Tablet (≤1024px): reduce gradient width to 25%, title 40px, 2 cards per row.
+
+Mobile (≤768px):
+
+Sidebar collapses into dropdown
+
+Gradient overlays remain but narrower (20%)
+
+Title 32px, center-aligned
+
+Cards scroll horizontally
+
+🎨 Color Palette
+Element	Hex
+Navy	#0b1a52
+Accent Yellow	#ffd54a
+Light Gray	#d6d6d6
+Transparent White	rgba(255,255,255,0.08)
+⚡ UX Animations
+
+Fade-in for title and subtitle on scroll.
+
+Smooth zoom transitions on map interaction.
+
+Club cards animate upward (y: 20px → 0px) on load (framer-motion recommended).
+
+Hover glow on active city and club card border.
