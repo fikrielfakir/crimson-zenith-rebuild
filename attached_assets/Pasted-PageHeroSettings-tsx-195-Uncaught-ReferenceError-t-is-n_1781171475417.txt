@@ -1,0 +1,198 @@
+PageHeroSettings.tsx:195 Uncaught ReferenceError: t is not defined
+    at MediaUploadField (PageHeroSettings.tsx:195:11)
+    at renderWithHooks (chunk-O3VNRDW5.js?v=1ac7e383:11596:26)
+    at updateFunctionComponent (chunk-O3VNRDW5.js?v=1ac7e383:14630:28)
+    at beginWork (chunk-O3VNRDW5.js?v=1ac7e383:15972:22)
+    at HTMLUnknownElement.callCallback2 (chunk-O3VNRDW5.js?v=1ac7e383:3680:22)
+    at Object.invokeGuardedCallbackDev (chunk-O3VNRDW5.js?v=1ac7e383:3705:24)
+    at invokeGuardedCallback (chunk-O3VNRDW5.js?v=1ac7e383:3739:39)
+    at beginWork$1 (chunk-O3VNRDW5.js?v=1ac7e383:19818:15)
+    at performUnitOfWork (chunk-O3VNRDW5.js?v=1ac7e383:19251:20)
+    at workLoopSync (chunk-O3VNRDW5.js?v=1ac7e383:19190:13)
+MediaUploadField @ PageHeroSettings.tsx:195
+renderWithHooks @ chunk-O3VNRDW5.js?v=1ac7e383:11596
+updateFunctionComponent @ chunk-O3VNRDW5.js?v=1ac7e383:14630
+beginWork @ chunk-O3VNRDW5.js?v=1ac7e383:15972
+callCallback2 @ chunk-O3VNRDW5.js?v=1ac7e383:3680
+invokeGuardedCallbackDev @ chunk-O3VNRDW5.js?v=1ac7e383:3705
+invokeGuardedCallback @ chunk-O3VNRDW5.js?v=1ac7e383:3739
+beginWork$1 @ chunk-O3VNRDW5.js?v=1ac7e383:19818
+performUnitOfWork @ chunk-O3VNRDW5.js?v=1ac7e383:19251
+workLoopSync @ chunk-O3VNRDW5.js?v=1ac7e383:19190
+renderRootSync @ chunk-O3VNRDW5.js?v=1ac7e383:19169
+performSyncWorkOnRoot @ chunk-O3VNRDW5.js?v=1ac7e383:18927
+flushSyncCallbacks @ chunk-O3VNRDW5.js?v=1ac7e383:9166
+flushSync @ chunk-O3VNRDW5.js?v=1ac7e383:19012
+finishEventHandler @ chunk-O3VNRDW5.js?v=1ac7e383:3575
+batchedUpdates @ chunk-O3VNRDW5.js?v=1ac7e383:3588
+dispatchEventForPluginEventSystem @ chunk-O3VNRDW5.js?v=1ac7e383:7205
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-O3VNRDW5.js?v=1ac7e383:5484
+dispatchEvent @ chunk-O3VNRDW5.js?v=1ac7e383:5478
+dispatchDiscreteEvent @ chunk-O3VNRDW5.js?v=1ac7e383:5455
+PageHeroSettings.tsx:195 Uncaught ReferenceError: t is not defined
+    at MediaUploadField (PageHeroSettings.tsx:195:11)
+    at renderWithHooks (chunk-O3VNRDW5.js?v=1ac7e383:11596:26)
+    at updateFunctionComponent (chunk-O3VNRDW5.js?v=1ac7e383:14630:28)
+    at beginWork (chunk-O3VNRDW5.js?v=1ac7e383:15972:22)
+    at HTMLUnknownElement.callCallback2 (chunk-O3VNRDW5.js?v=1ac7e383:3680:22)
+    at Object.invokeGuardedCallbackDev (chunk-O3VNRDW5.js?v=1ac7e383:3705:24)
+    at invokeGuardedCallback (chunk-O3VNRDW5.js?v=1ac7e383:3739:39)
+    at beginWork$1 (chunk-O3VNRDW5.js?v=1ac7e383:19818:15)
+    at performUnitOfWork (chunk-O3VNRDW5.js?v=1ac7e383:19251:20)
+    at workLoopSync (chunk-O3VNRDW5.js?v=1ac7e383:19190:13)
+MediaUploadField @ PageHeroSettings.tsx:195
+renderWithHooks @ chunk-O3VNRDW5.js?v=1ac7e383:11596
+updateFunctionComponent @ chunk-O3VNRDW5.js?v=1ac7e383:14630
+beginWork @ chunk-O3VNRDW5.js?v=1ac7e383:15972
+callCallback2 @ chunk-O3VNRDW5.js?v=1ac7e383:3680
+invokeGuardedCallbackDev @ chunk-O3VNRDW5.js?v=1ac7e383:3705
+invokeGuardedCallback @ chunk-O3VNRDW5.js?v=1ac7e383:3739
+beginWork$1 @ chunk-O3VNRDW5.js?v=1ac7e383:19818
+performUnitOfWork @ chunk-O3VNRDW5.js?v=1ac7e383:19251
+workLoopSync @ chunk-O3VNRDW5.js?v=1ac7e383:19190
+renderRootSync @ chunk-O3VNRDW5.js?v=1ac7e383:19169
+recoverFromConcurrentError @ chunk-O3VNRDW5.js?v=1ac7e383:18786
+performSyncWorkOnRoot @ chunk-O3VNRDW5.js?v=1ac7e383:18932
+flushSyncCallbacks @ chunk-O3VNRDW5.js?v=1ac7e383:9166
+flushSync @ chunk-O3VNRDW5.js?v=1ac7e383:19012
+finishEventHandler @ chunk-O3VNRDW5.js?v=1ac7e383:3575
+batchedUpdates @ chunk-O3VNRDW5.js?v=1ac7e383:3588
+dispatchEventForPluginEventSystem @ chunk-O3VNRDW5.js?v=1ac7e383:7205
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-O3VNRDW5.js?v=1ac7e383:5484
+dispatchEvent @ chunk-O3VNRDW5.js?v=1ac7e383:5478
+dispatchDiscreteEvent @ chunk-O3VNRDW5.js?v=1ac7e383:5455
+chunk-O3VNRDW5.js?v=1ac7e383:14080 The above error occurred in the <MediaUploadField> component:
+
+    at MediaUploadField (http://192.168.56.1:5000/src/pages/admin/PageHeroSettings.tsx:96:29)
+    at div
+    at div
+    at _c8 (http://192.168.56.1:5000/src/components/ui/card.tsx:67:61)
+    at div
+    at _c (http://192.168.56.1:5000/src/components/ui/card.tsx:23:53)
+    at div
+    at div
+    at PageHeroForm (http://192.168.56.1:5000/src/pages/admin/PageHeroSettings.tsx:252:25)
+    at div
+    at http://192.168.56.1:5000/node_modules/.vite/deps/chunk-CUQRY4JX.js?v=1ac7e383:227:13
+    at Presence (http://192.168.56.1:5000/node_modules/.vite/deps/chunk-GOGDZURF.js?v=1ac7e383:24:11)
+    at http://192.168.56.1:5000/node_modules/.vite/deps/@radix-ui_react-tabs.js?v=1ac7e383:174:13
+    at _c4 (http://192.168.56.1:5000/src/components/ui/tabs.tsx:47:61)
+    at div
+    at http://192.168.56.1:5000/node_modules/.vite/deps/chunk-CUQRY4JX.js?v=1ac7e383:227:13
+    at Provider (http://192.168.56.1:5000/node_modules/.vite/deps/chunk-CUQRY4JX.js?v=1ac7e383:43:15)
+    at http://192.168.56.1:5000/node_modules/.vite/deps/@radix-ui_react-tabs.js?v=1ac7e383:51:7
+    at div
+    at PageHeroSettings (http://192.168.56.1:5000/src/pages/admin/PageHeroSettings.tsx:1046:23)
+    at div
+    at div
+    at div
+    at http://192.168.56.1:5000/node_modules/.vite/deps/chunk-CUQRY4JX.js?v=1ac7e383:227:13
+    at http://192.168.56.1:5000/node_modules/.vite/deps/@radix-ui_react-scroll-area.js?v=1ac7e383:114:13
+    at div
+    at http://192.168.56.1:5000/node_modules/.vite/deps/chunk-CUQRY4JX.js?v=1ac7e383:227:13
+    at Provider (http://192.168.56.1:5000/node_modules/.vite/deps/chunk-CUQRY4JX.js?v=1ac7e383:43:15)
+    at http://192.168.56.1:5000/node_modules/.vite/deps/@radix-ui_react-scroll-area.js?v=1ac7e383:52:7
+    at _c (http://192.168.56.1:5000/src/components/ui/scroll-area.tsx:24:59)
+    at main
+    at div
+    at div
+    at AdminLayout (http://192.168.56.1:5000/src/components/admin/AdminLayout.tsx:589:31)
+    at TokenValidatedRoute (http://192.168.56.1:5000/src/components/admin/ProtectedRoute.tsx:70:32)
+    at ProtectedRoute (http://192.168.56.1:5000/src/components/admin/ProtectedRoute.tsx:49:34)
+    at RenderedRoute (http://192.168.56.1:5000/node_modules/.vite/deps/react-router-dom.js?v=1ac7e383:4130:5)
+    at Routes (http://192.168.56.1:5000/node_modules/.vite/deps/react-router-dom.js?v=1ac7e383:4600:5)
+    at Router (http://192.168.56.1:5000/node_modules/.vite/deps/react-router-dom.js?v=1ac7e383:4543:15)
+    at BrowserRouter (http://192.168.56.1:5000/node_modules/.vite/deps/react-router-dom.js?v=1ac7e383:5289:5)
+    at Provider (http://192.168.56.1:5000/node_modules/.vite/deps/chunk-CUQRY4JX.js?v=1ac7e383:43:15)
+    at TooltipProvider (http://192.168.56.1:5000/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=1ac7e383:157:5)
+    at QueryClientProvider (http://192.168.56.1:5000/node_modules/.vite/deps/@tanstack_react-query.js?v=1ac7e383:3170:3)
+    at App
+    at _HelmetProvider (http://192.168.56.1:5000/node_modules/.vite/deps/react-helmet-async.js?v=1ac7e383:627:5)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+logCapturedError @ chunk-O3VNRDW5.js?v=1ac7e383:14080
+update.callback @ chunk-O3VNRDW5.js?v=1ac7e383:14100
+callCallback @ chunk-O3VNRDW5.js?v=1ac7e383:11296
+commitUpdateQueue @ chunk-O3VNRDW5.js?v=1ac7e383:11313
+commitLayoutEffectOnFiber @ chunk-O3VNRDW5.js?v=1ac7e383:17141
+commitLayoutMountEffects_complete @ chunk-O3VNRDW5.js?v=1ac7e383:18030
+commitLayoutEffects_begin @ chunk-O3VNRDW5.js?v=1ac7e383:18019
+commitLayoutEffects @ chunk-O3VNRDW5.js?v=1ac7e383:17970
+commitRootImpl @ chunk-O3VNRDW5.js?v=1ac7e383:19406
+commitRoot @ chunk-O3VNRDW5.js?v=1ac7e383:19330
+performSyncWorkOnRoot @ chunk-O3VNRDW5.js?v=1ac7e383:18948
+flushSyncCallbacks @ chunk-O3VNRDW5.js?v=1ac7e383:9166
+flushSync @ chunk-O3VNRDW5.js?v=1ac7e383:19012
+finishEventHandler @ chunk-O3VNRDW5.js?v=1ac7e383:3575
+batchedUpdates @ chunk-O3VNRDW5.js?v=1ac7e383:3588
+dispatchEventForPluginEventSystem @ chunk-O3VNRDW5.js?v=1ac7e383:7205
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-O3VNRDW5.js?v=1ac7e383:5484
+dispatchEvent @ chunk-O3VNRDW5.js?v=1ac7e383:5478
+dispatchDiscreteEvent @ chunk-O3VNRDW5.js?v=1ac7e383:5455
+chunk-O3VNRDW5.js?v=1ac7e383:9176 Uncaught ReferenceError: t is not defined
+    at MediaUploadField (PageHeroSettings.tsx:195:11)
+    at renderWithHooks (chunk-O3VNRDW5.js?v=1ac7e383:11596:26)
+    at updateFunctionComponent (chunk-O3VNRDW5.js?v=1ac7e383:14630:28)
+    at beginWork (chunk-O3VNRDW5.js?v=1ac7e383:15972:22)
+    at beginWork$1 (chunk-O3VNRDW5.js?v=1ac7e383:19806:22)
+    at performUnitOfWork (chunk-O3VNRDW5.js?v=1ac7e383:19251:20)
+    at workLoopSync (chunk-O3VNRDW5.js?v=1ac7e383:19190:13)
+    at renderRootSync (chunk-O3VNRDW5.js?v=1ac7e383:19169:15)
+    at recoverFromConcurrentError (chunk-O3VNRDW5.js?v=1ac7e383:18786:28)
+    at performSyncWorkOnRoot (chunk-O3VNRDW5.js?v=1ac7e383:18932:28)
+MediaUploadField @ PageHeroSettings.tsx:195
+renderWithHooks @ chunk-O3VNRDW5.js?v=1ac7e383:11596
+updateFunctionComponent @ chunk-O3VNRDW5.js?v=1ac7e383:14630
+beginWork @ chunk-O3VNRDW5.js?v=1ac7e383:15972
+beginWork$1 @ chunk-O3VNRDW5.js?v=1ac7e383:19806
+performUnitOfWork @ chunk-O3VNRDW5.js?v=1ac7e383:19251
+workLoopSync @ chunk-O3VNRDW5.js?v=1ac7e383:19190
+renderRootSync @ chunk-O3VNRDW5.js?v=1ac7e383:19169
+recoverFromConcurrentError @ chunk-O3VNRDW5.js?v=1ac7e383:18786
+performSyncWorkOnRoot @ chunk-O3VNRDW5.js?v=1ac7e383:18932
+flushSyncCallbacks @ chunk-O3VNRDW5.js?v=1ac7e383:9166
+flushSync @ chunk-O3VNRDW5.js?v=1ac7e383:19012
+finishEventHandler @ chunk-O3VNRDW5.js?v=1ac7e383:3575
+batchedUpdates @ chunk-O3VNRDW5.js?v=1ac7e383:3588
+dispatchEventForPluginEventSystem @ chunk-O3VNRDW5.js?v=1ac7e383:7205
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-O3VNRDW5.js?v=1ac7e383:5484
+dispatchEvent @ chunk-O3VNRDW5.js?v=1ac7e383:5478
+dispatchDiscreteEvent @ chunk-O3VNRDW5.js?v=1ac7e383:5455
+apiFetch.ts:80  POST http://192.168.56.1:5000/api/admin/media net::ERR_CONNECTION_RESET
+(anonymous) @ apiFetch.ts:80
+(anonymous) @ PageHeroSettings.tsx:123
+callCallback2 @ chunk-O3VNRDW5.js?v=1ac7e383:3680
+invokeGuardedCallbackDev @ chunk-O3VNRDW5.js?v=1ac7e383:3705
+invokeGuardedCallback @ chunk-O3VNRDW5.js?v=1ac7e383:3739
+invokeGuardedCallbackAndCatchFirstError @ chunk-O3VNRDW5.js?v=1ac7e383:3742
+executeDispatch @ chunk-O3VNRDW5.js?v=1ac7e383:7046
+processDispatchQueueItemsInOrder @ chunk-O3VNRDW5.js?v=1ac7e383:7066
+processDispatchQueue @ chunk-O3VNRDW5.js?v=1ac7e383:7075
+dispatchEventsForPlugins @ chunk-O3VNRDW5.js?v=1ac7e383:7083
+(anonymous) @ chunk-O3VNRDW5.js?v=1ac7e383:7206
+batchedUpdates$1 @ chunk-O3VNRDW5.js?v=1ac7e383:18966
+batchedUpdates @ chunk-O3VNRDW5.js?v=1ac7e383:3585
+dispatchEventForPluginEventSystem @ chunk-O3VNRDW5.js?v=1ac7e383:7205
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-O3VNRDW5.js?v=1ac7e383:5484
+dispatchEvent @ chunk-O3VNRDW5.js?v=1ac7e383:5478
+dispatchDiscreteEvent @ chunk-O3VNRDW5.js?v=1ac7e383:5455
+PageHeroSettings.tsx:145 Uncaught (in promise) ReferenceError: t is not defined
+    at handleFileChange (PageHeroSettings.tsx:145:16)
+(anonymous) @ PageHeroSettings.tsx:145
+await in (anonymous)
+callCallback2 @ chunk-O3VNRDW5.js?v=1ac7e383:3680
+invokeGuardedCallbackDev @ chunk-O3VNRDW5.js?v=1ac7e383:3705
+invokeGuardedCallback @ chunk-O3VNRDW5.js?v=1ac7e383:3739
+invokeGuardedCallbackAndCatchFirstError @ chunk-O3VNRDW5.js?v=1ac7e383:3742
+executeDispatch @ chunk-O3VNRDW5.js?v=1ac7e383:7046
+processDispatchQueueItemsInOrder @ chunk-O3VNRDW5.js?v=1ac7e383:7066
+processDispatchQueue @ chunk-O3VNRDW5.js?v=1ac7e383:7075
+dispatchEventsForPlugins @ chunk-O3VNRDW5.js?v=1ac7e383:7083
+(anonymous) @ chunk-O3VNRDW5.js?v=1ac7e383:7206
+batchedUpdates$1 @ chunk-O3VNRDW5.js?v=1ac7e383:18966
+batchedUpdates @ chunk-O3VNRDW5.js?v=1ac7e383:3585
+dispatchEventForPluginEventSystem @ chunk-O3VNRDW5.js?v=1ac7e383:7205
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-O3VNRDW5.js?v=1ac7e383:5484
+dispatchEvent @ chunk-O3VNRDW5.js?v=1ac7e383:5478
+dispatchDiscreteEvent @ chunk-O3VNRDW5.js?v=1ac7e383:5455
