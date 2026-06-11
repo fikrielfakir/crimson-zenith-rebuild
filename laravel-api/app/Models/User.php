@@ -17,15 +17,17 @@ class User extends Authenticatable
         'id', 'username', 'password', 'email', 'name', 'first_name', 'last_name',
         'profile_image_url', 'bio', 'phone', 'location', 'interests',
         'role', 'is_admin', 'is_active', 'email_verified',
+        'verification_token', 'verification_token_expires_at',
     ];
 
-    protected $hidden = ['password', 'remember_token'];
+    protected $hidden = ['password', 'remember_token', 'verification_token'];
 
     protected $casts = [
-        'interests'      => 'array',
-        'is_admin'       => 'boolean',
-        'is_active'      => 'boolean',
-        'email_verified' => 'boolean',
+        'interests'                      => 'array',
+        'is_admin'                       => 'boolean',
+        'is_active'                      => 'boolean',
+        'email_verified'                 => 'boolean',
+        'verification_token_expires_at'  => 'datetime',
     ];
 
     public function clubs()

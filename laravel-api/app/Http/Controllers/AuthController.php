@@ -2,17 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use App\Mail\WelcomeEmail;
+use App\Mail\VerifyEmail;
+use App\Mail\ResetPasswordEmail;
 use App\Models\User;
+use App\Models\AuthSettings;
 use App\Services\AdminTokenService;
+use App\Services\SmtpMailService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
+    public function __construct(private SmtpMailService $mailer) {}
+
     public function register(Request $request)
     {
         $data = $request->validate([
@@ -31,32 +36,38 @@ class AuthController extends Controller
             return response()->json(['message' => 'An account with this email already exists'], 400);
         }
 
+        $verificationToken = Str::random(64);
         $id = 'user_' . time() . '_' . Str::random(9);
 
         User::create([
-            'id'         => $id,
-            'username'   => $data['email'],
-            'email'      => $data['email'],
-            'name'       => $data['firstName'] . ' ' . $data['lastName'],
-            'first_name' => $data['firstName'],
-            'last_name'  => $data['lastName'],
-            'password'   => Hash::make($data['password']),
-            'role'       => 'user',
-            'is_admin'   => false,
-            'is_active'  => true,
-            'interests'  => [],
+            'id'                            => $id,
+            'username'                      => $data['email'],
+            'email'                         => $data['email'],
+            'name'                          => $data['firstName'] . ' ' . $data['lastName'],
+            'first_name'                    => $data['firstName'],
+            'last_name'                     => $data['lastName'],
+            'password'                      => Hash::make($data['password']),
+            'role'                          => 'user',
+            'is_admin'                      => false,
+            'is_active'                     => true,
+            'email_verified'                => false,
+            'verification_token'            => $verificationToken,
+            'verification_token_expires_at' => now()->addHours(24),
+            'interests'                     => [],
         ]);
 
-        // Send welcome email (non-fatal)
         try {
-            Mail::to($data['email'])->send(new WelcomeEmail($data['firstName'], $data['email']));
+            $frontendUrl = config('app.frontend_url', config('app.url'));
+            $verifyUrl   = rtrim($frontendUrl, '/') . '/verify-email?token=' . $verificationToken;
+            $this->mailer->send($data['email'], new VerifyEmail($data['firstName'], $verifyUrl));
         } catch (\Throwable $e) {
-            \Log::warning('Welcome email failed: ' . $e->getMessage());
+            \Log::warning('Verification email failed: ' . $e->getMessage());
         }
 
         return response()->json([
-            'message' => 'Account created successfully',
-            'user'    => ['id' => $id, 'email' => $data['email'], 'firstName' => $data['firstName'], 'lastName' => $data['lastName'], 'role' => 'user'],
+            'message'              => 'Account created. Please check your email to verify your account.',
+            'requiresVerification' => true,
+            'user'                 => ['id' => $id, 'email' => $data['email'], 'firstName' => $data['firstName'], 'lastName' => $data['lastName'], 'role' => 'user'],
         ], 201);
     }
 
@@ -75,7 +86,15 @@ class AuthController extends Controller
             return response()->json(['message' => 'Invalid username or password'], 401);
         }
 
-        // HMAC-signed stateless token — no session DB write, no UUID truncation.
+        $authSettings = AuthSettings::find('default');
+        if ($authSettings?->require_email_verification && !$user->email_verified) {
+            return response()->json([
+                'message'              => 'Please verify your email address before logging in.',
+                'requiresVerification' => true,
+                'email'                => $user->email,
+            ], 403);
+        }
+
         $token = AdminTokenService::generate((string) $user->id);
 
         return response()->json([
@@ -86,13 +105,116 @@ class AuthController extends Controller
         ]);
     }
 
+    public function verifyEmail(Request $request, string $token)
+    {
+        $user = User::where('verification_token', $token)->first();
+
+        if (!$user) {
+            return response()->json(['message' => 'Invalid or expired verification link.'], 400);
+        }
+
+        if ($user->verification_token_expires_at && now()->isAfter($user->verification_token_expires_at)) {
+            return response()->json(['message' => 'This verification link has expired. Please request a new one.'], 400);
+        }
+
+        $user->update([
+            'email_verified'                => true,
+            'verification_token'            => null,
+            'verification_token_expires_at' => null,
+        ]);
+
+        return response()->json(['message' => 'Email verified successfully! You can now log in.']);
+    }
+
+    public function resendVerification(Request $request)
+    {
+        $request->validate(['email' => 'required|email']);
+
+        $user = User::where('email', $request->email)->first();
+
+        if ($user && !$user->email_verified) {
+            $token = Str::random(64);
+            $user->update([
+                'verification_token'            => $token,
+                'verification_token_expires_at' => now()->addHours(24),
+            ]);
+
+            try {
+                $frontendUrl = config('app.frontend_url', config('app.url'));
+                $verifyUrl   = rtrim($frontendUrl, '/') . '/verify-email?token=' . $token;
+                $this->mailer->send($user->email, new VerifyEmail($user->first_name ?? 'there', $verifyUrl));
+            } catch (\Throwable $e) {
+                \Log::warning('Resend verification email failed: ' . $e->getMessage());
+            }
+        }
+
+        return response()->json(['message' => 'If your email is registered and unverified, a new verification link has been sent.']);
+    }
+
     public function forgotPassword(Request $request)
     {
         $request->validate(['email' => 'required|email']);
-        // Always return the same response to avoid email enumeration
+
+        $user = User::where('email', $request->email)->first();
+
+        if ($user) {
+            $token = Str::random(64);
+
+            DB::table('password_reset_tokens')->upsert(
+                ['email' => $user->email, 'token' => Hash::make($token), 'created_at' => now()],
+                ['email'],
+                ['token', 'created_at']
+            );
+
+            try {
+                $frontendUrl = config('app.frontend_url', config('app.url'));
+                $resetUrl    = rtrim($frontendUrl, '/') . '/reset-password?token=' . $token . '&email=' . urlencode($user->email);
+                $this->mailer->send($user->email, new ResetPasswordEmail($user->first_name ?? 'there', $resetUrl));
+            } catch (\Throwable $e) {
+                \Log::warning('Reset password email failed: ' . $e->getMessage());
+            }
+        }
+
         return response()->json([
             'message' => 'If an account with that email exists, you will receive password reset instructions shortly.',
         ]);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'token'                 => 'required|string',
+            'email'                 => 'required|email',
+            'password'              => 'required|string|min:6',
+            'password_confirmation' => 'required|string|same:password',
+        ]);
+
+        $record = DB::table('password_reset_tokens')
+            ->where('email', $request->email)
+            ->first();
+
+        if (!$record) {
+            return response()->json(['message' => 'Invalid or expired reset link.'], 400);
+        }
+
+        if (now()->isAfter(\Carbon\Carbon::parse($record->created_at)->addHour())) {
+            DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+            return response()->json(['message' => 'This reset link has expired. Please request a new one.'], 400);
+        }
+
+        if (!Hash::check($request->token, $record->token)) {
+            return response()->json(['message' => 'Invalid or expired reset link.'], 400);
+        }
+
+        $user = User::where('email', $request->email)->first();
+        if (!$user) {
+            return response()->json(['message' => 'User not found.'], 404);
+        }
+
+        $user->update(['password' => Hash::make($request->password)]);
+        DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+
+        return response()->json(['message' => 'Password reset successfully. You can now log in.']);
     }
 
     public function logout(Request $request)
@@ -104,8 +226,6 @@ class AuthController extends Controller
                 $request->session()->regenerateToken();
             }
         } catch (\Throwable $e) {
-            // Session save may fail on production if session driver is database
-            // with an incompatible schema — log and continue gracefully.
             \Log::warning('Session logout error (non-fatal): ' . $e->getMessage());
         }
 
@@ -114,8 +234,6 @@ class AuthController extends Controller
 
     public function user(Request $request)
     {
-        // Middleware (Authenticate) already resolved the user via HMAC token
-        // or session guard and bound it via auth()->setUser().
         $user = $request->user();
         if (!$user) {
             return response()->json(['message' => 'Unauthorized'], 401);
@@ -141,13 +259,13 @@ class AuthController extends Controller
         ]);
 
         $update = [];
-        if (isset($data['firstName']))       $update['first_name']         = $data['firstName'];
-        if (isset($data['lastName']))        $update['last_name']          = $data['lastName'];
-        if (isset($data['phone']))           $update['phone']              = $data['phone'];
-        if (isset($data['location']))        $update['location']           = $data['location'];
-        if (isset($data['bio']))             $update['bio']                = $data['bio'];
-        if (isset($data['interests']))       $update['interests']          = $data['interests'];
-        if (isset($data['profileImageUrl'])) $update['profile_image_url']  = $data['profileImageUrl'];
+        if (isset($data['firstName']))       $update['first_name']        = $data['firstName'];
+        if (isset($data['lastName']))        $update['last_name']         = $data['lastName'];
+        if (isset($data['phone']))           $update['phone']             = $data['phone'];
+        if (isset($data['location']))        $update['location']          = $data['location'];
+        if (isset($data['bio']))             $update['bio']               = $data['bio'];
+        if (isset($data['interests']))       $update['interests']         = $data['interests'];
+        if (isset($data['profileImageUrl'])) $update['profile_image_url'] = $data['profileImageUrl'];
 
         $user->update($update);
 
@@ -195,6 +313,7 @@ class AuthController extends Controller
             'phone'           => $user->phone,
             'location'        => $user->location,
             'interests'       => $user->interests ?? [],
+            'emailVerified'   => (bool) $user->email_verified,
         ];
     }
 }

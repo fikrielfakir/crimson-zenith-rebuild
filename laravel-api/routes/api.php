@@ -21,10 +21,13 @@ Route::get('/health', fn () => response()->json([
 | Authentication routes (public)
 |--------------------------------------------------------------------------
 */
-Route::post('/register',         [AuthController::class, 'register']);
-Route::post('/login',            [AuthController::class, 'login']);
-Route::post('/logout',           [AuthController::class, 'logout']);
-Route::post('/forgot-password',  [AuthController::class, 'forgotPassword']);
+Route::post('/register',              [AuthController::class, 'register']);
+Route::post('/login',                 [AuthController::class, 'login']);
+Route::post('/logout',                [AuthController::class, 'logout']);
+Route::post('/forgot-password',       [AuthController::class, 'forgotPassword']);
+Route::post('/reset-password',        [AuthController::class, 'resetPassword']);
+Route::get('/verify-email/{token}',   [AuthController::class, 'verifyEmail']);
+Route::post('/resend-verification',   [AuthController::class, 'resendVerification']);
 
 Route::post('/admin/login',  [AdminAuthController::class, 'login']);
 Route::post('/admin/logout', [AdminAuthController::class, 'logout'])->middleware('auth');
