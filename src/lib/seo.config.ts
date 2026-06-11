@@ -8,6 +8,7 @@ export const SITE = {
   twitterHandle: "@TheJourneyMA",
   locale: "en_US",
   themeColor: "#1a4a3a",
+  languages: ["en", "fr", "ar"] as const,
 };
 
 export interface SEOConfig {
@@ -18,6 +19,7 @@ export interface SEOConfig {
   noIndex?: boolean;
   type?: "website" | "article" | "event";
   structuredData?: object;
+  keywords?: string;
 }
 
 export const routeSEO: Record<string, SEOConfig> = {
@@ -32,6 +34,12 @@ export const routeSEO: Record<string, SEOConfig> = {
     description:
       "Explore Morocco's cultural and adventure landscape. Find clubs by city, discover upcoming events, and book experiences across the country.",
     canonical: "/discover",
+  },
+  "/about": {
+    title: "About Us | The Journey Association Morocco",
+    description:
+      "Learn about The Journey Association — Morocco's network of adventure, cultural, and sustainability clubs connecting communities across the country.",
+    canonical: "/about",
   },
   "/clubs": {
     title: "Sports & Cultural Clubs in Morocco | The Journey Association",
@@ -50,6 +58,7 @@ export const routeSEO: Record<string, SEOConfig> = {
     description:
       "Browse stunning photos from Morocco's clubs, events, and adventures. Explore the beauty of Moroccan culture and landscapes.",
     canonical: "/gallery",
+    keywords: "Morocco photography, Moroccan culture photos, adventure gallery Morocco",
   },
   "/news": {
     title: "Latest News & Blog | Morocco Adventure & Culture – The Journey Association",
@@ -73,7 +82,7 @@ export const routeSEO: Record<string, SEOConfig> = {
     title: "Join The Journey Association | Become a Member",
     description:
       "Apply for membership to The Journey Association. Connect with Morocco's adventure and cultural community.",
-    canonical: "/join-us",
+    canonical: "/join",
   },
   "/projects": {
     title: "Projects | The Journey Association Morocco",
@@ -81,17 +90,36 @@ export const routeSEO: Record<string, SEOConfig> = {
       "Learn about The Journey Association's community projects, sustainable initiatives, and impact across Morocco.",
     canonical: "/projects",
   },
-  "/volunteers": {
+  "/discover/cities": {
+    title: "Explore Moroccan Cities | The Journey Association",
+    description:
+      "Discover the best of Morocco's cities — Fez, Marrakech, Casablanca, Tangier and more. Culture, activities, and clubs by city.",
+    canonical: "/discover/cities",
+    keywords: "Moroccan cities, explore Morocco, Fez, Marrakech, Casablanca, Tangier, Rabat",
+  },
+  "/talents/volunteers/spontaneous": {
+    title: "Spontaneous Volunteering | The Journey Association Morocco",
+    description:
+      "Submit a spontaneous volunteer application to The Journey Association. Join our mission for adventure and cultural promotion in Morocco.",
+    canonical: "/talents/volunteers/spontaneous",
+  },
+  "/talents/volunteers/posts": {
     title: "Volunteer Opportunities | The Journey Association Morocco",
     description:
-      "Discover volunteer opportunities and open posts with The Journey Association across Morocco.",
-    canonical: "/volunteers",
+      "Discover open volunteer positions across Morocco with The Journey Association's clubs and projects.",
+    canonical: "/talents/volunteers/posts",
   },
-  "/talents": {
+  "/talents/experts": {
     title: "Talents & Experts | The Journey Association Morocco",
     description:
       "Find talented experts and professionals connected with Morocco's adventure and cultural community.",
-    canonical: "/talents",
+    canonical: "/talents/experts",
+  },
+  "/talents/work-offers": {
+    title: "Job Offers | The Journey Association Morocco",
+    description:
+      "Browse job and work opportunities at The Journey Association and its partner clubs across Morocco.",
+    canonical: "/talents/work-offers",
   },
   "/privacy-policy": {
     title: "Privacy Policy | The Journey Association",
@@ -112,6 +140,88 @@ export const routeSEO: Record<string, SEOConfig> = {
     noIndex: true,
   },
 };
+
+// ─── JSON-LD Builders ────────────────────────────────────────────────────────
+
+export function buildOrganizationStructuredData() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: SITE.name,
+    url: SITE.url,
+    logo: {
+      "@type": "ImageObject",
+      url: `${SITE.url}/logo-atj.png`,
+      width: 200,
+      height: 200,
+    },
+    sameAs: [
+      "https://twitter.com/TheJourneyMA",
+      "https://www.facebook.com/TheJourneyAssociation",
+      "https://www.instagram.com/thejourney.ma",
+    ],
+    contactPoint: {
+      "@type": "ContactPoint",
+      contactType: "customer support",
+      availableLanguage: ["English", "French", "Arabic"],
+    },
+    areaServed: { "@type": "Country", name: "Morocco" },
+    description: SITE.defaultDescription,
+  };
+}
+
+export function buildBreadcrumbStructuredData(
+  items: Array<{ name: string; url: string }>
+) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: item.name,
+      item: item.url.startsWith("http") ? item.url : `${SITE.url}${item.url}`,
+    })),
+  };
+}
+
+export function buildLocalBusinessStructuredData(club: {
+  name: string;
+  description?: string;
+  image?: string;
+  url?: string;
+  latitude?: number | string;
+  longitude?: number | string;
+  location?: string;
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    name: club.name,
+    description: club.description ?? "",
+    image: club.image ?? SITE.defaultImage,
+    url: club.url ?? SITE.url,
+    ...(club.latitude && club.longitude
+      ? {
+          geo: {
+            "@type": "GeoCoordinates",
+            latitude: Number(club.latitude),
+            longitude: Number(club.longitude),
+          },
+        }
+      : {}),
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: club.location ?? "Morocco",
+      addressCountry: "MA",
+    },
+    parentOrganization: {
+      "@type": "Organization",
+      name: SITE.name,
+      url: SITE.url,
+    },
+  };
+}
 
 export function buildEventStructuredData(event: {
   name: string;
@@ -178,4 +288,16 @@ export function buildArticleStructuredData(article: {
       },
     },
   };
+}
+
+/** Returns hreflang alternate URLs for a given canonical path */
+export function buildHreflangLinks(canonicalPath: string) {
+  const base = SITE.url;
+  const path = canonicalPath.startsWith("/") ? canonicalPath : `/${canonicalPath}`;
+  return [
+    { lang: "en", url: `${base}${path}` },
+    { lang: "fr", url: `${base}${path}` },
+    { lang: "ar", url: `${base}${path}` },
+    { lang: "x-default", url: `${base}${path}` },
+  ];
 }

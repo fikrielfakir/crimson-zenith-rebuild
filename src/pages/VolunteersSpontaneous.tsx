@@ -25,6 +25,8 @@ import {
   CheckCircle,
   AlertCircle,
 } from "lucide-react";
+import SEOHead from "@/components/SEOHead";
+import { routeSEO } from "@/lib/seo.config";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PageHero from "@/components/PageHero";
@@ -131,6 +133,7 @@ const VolunteersSpontaneous = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead {...routeSEO["/talents/volunteers/spontaneous"]} />
       <Header />
       
       <main className="relative">

@@ -16,6 +16,8 @@ import {
   Building2,
   Heart
 } from "lucide-react";
+import SEOHead from "@/components/SEOHead";
+import { routeSEO } from "@/lib/seo.config";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
@@ -82,6 +84,7 @@ const WorkOffers = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead {...routeSEO["/talents/work-offers"]} />
       <Header />
       
       <main className="relative">

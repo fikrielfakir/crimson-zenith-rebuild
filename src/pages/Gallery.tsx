@@ -7,6 +7,8 @@ import {
   Move, MousePointer, MousePointer2, Maximize2, Minimize2,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import SEOHead from "@/components/SEOHead";
+import { routeSEO } from "@/lib/seo.config";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import MetaverseBackground from "@/components/MetaverseBackground";
@@ -867,6 +869,7 @@ function FullscreenModal({ item, onClose, onPrev, onNext }: {
 /* ─── main gallery page ──────────────────────────────────────────────── */
 export default function Gallery() {
   const { t, i18n } = useTranslation();
+  // SEOHead rendered early inside the return below
   const isRTL = i18n.language === 'ar';
   const CATEGORIES = CATEGORY_IDS.map(id => ({
     id,
@@ -1081,6 +1084,7 @@ export default function Gallery() {
 
   return (
     <div className="min-h-screen" style={{ background:"transparent", position:"relative" }}>
+      <SEOHead {...routeSEO["/gallery"]} />
       {/* inject CSS keyframes */}
       <style>{GLOBAL_CSS}</style>
 
