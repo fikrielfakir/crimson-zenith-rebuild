@@ -383,6 +383,13 @@ Route::prefix('admin')->middleware(['admin'])->group(function () {
     Route::put('/payment-settings',            [\App\Http\Controllers\Admin\PaymentSettingsController::class, 'update']);
     Route::post('/payment-settings/test',      [\App\Http\Controllers\Admin\PaymentSettingsController::class, 'testConnection']);
 
+    // SMTP / Email Settings
+    Route::get('/smtp-settings',               [\App\Http\Controllers\Admin\SmtpSettingsController::class, 'show']);
+    Route::put('/smtp-settings',               [\App\Http\Controllers\Admin\SmtpSettingsController::class, 'update']);
+    Route::post('/smtp/test',                  [\App\Http\Controllers\Admin\SmtpSettingsController::class, 'test']);
+    Route::post('/smtp/send',                  [\App\Http\Controllers\Admin\SmtpSettingsController::class, 'send']);
+    Route::get('/email-log',                   [\App\Http\Controllers\Admin\SmtpSettingsController::class, 'emailLog']);
+
     // Cities (admin CRUD)
     Route::get('/cities',                      [\App\Http\Controllers\Admin\CityAdminController::class, 'index']);
     Route::post('/cities/seed',                [\App\Http\Controllers\Admin\CityAdminController::class, 'seedDefaults']);
