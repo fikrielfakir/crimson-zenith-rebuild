@@ -81,8 +81,52 @@ class CmsAdminController extends Controller
     public function updateNavbar(Request $request)
     {
         $settings = NavbarSettings::firstOrCreate(['id' => 'default']);
-        $settings->update(array_merge($request->except(['id']), ['updated_by' => $request->user()->id]));
-        return response()->json($settings->fresh());
+
+        $data = $request->except(['id']);
+
+        // Map camelCase keys sent by the frontend to snake_case DB columns
+        $camelToSnake = [
+            'logoType'           => 'logo_type',
+            'logoImageId'        => 'logo_image_id',
+            'logoUrl'            => 'logo_url',
+            'logoSvg'            => 'logo_svg',
+            'logoText'           => 'logo_text',
+            'logoSize'           => 'logo_size',
+            'logoLink'           => 'logo_link',
+            'navigationLinks'    => 'navigation_links',
+            'showLanguageSwitcher' => 'show_language_switcher',
+            'availableLanguages' => 'available_languages',
+            'showDarkModeToggle' => 'show_dark_mode_toggle',
+            'showLoginButton'    => 'show_login_button',
+            'showJoinButton'     => 'show_join_button',
+            'loginButtonText'    => 'login_button_text',
+            'loginButtonLink'    => 'login_button_link',
+            'joinButtonText'     => 'join_button_text',
+            'joinButtonLink'     => 'join_button_link',
+            'joinButtonStyle'    => 'join_button_style',
+            'backgroundColor'    => 'background_color',
+            'textColor'          => 'text_color',
+            'hoverColor'         => 'hover_color',
+            'fontFamily'         => 'font_family',
+            'fontSize'           => 'font_size',
+            'isSticky'           => 'is_sticky',
+            'isTransparent'      => 'is_transparent',
+            'transparentBg'      => 'transparent_bg',
+            'scrolledBg'         => 'scrolled_bg',
+        ];
+
+        $mapped = [];
+        foreach ($data as $key => $value) {
+            $mapped[$camelToSnake[$key] ?? $key] = $value;
+        }
+
+        $settings->update(array_merge($mapped, ['updated_by' => $request->user()->id]));
+
+        $fresh = $settings->fresh();
+        return response()->json(array_merge($fresh->toArray(), [
+            'logoUrl'  => $fresh->logo_url,
+            'logoType' => $fresh->logo_type,
+        ]));
     }
 
     public function updateSeo(Request $request)

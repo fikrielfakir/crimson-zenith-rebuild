@@ -436,6 +436,14 @@ export function useTeamMembers() {
   });
 }
 
+export function useSeoSettings() {
+  return useQuery({
+    queryKey: ["cms", "seo"],
+    queryFn: () => cmsGet<{ favicon_url?: string; faviconUrl?: string; site_title?: string; siteTitle?: string }>("/api/cms/seo"),
+    ...CMS_QUERY_OPTIONS,
+  });
+}
+
 export function useTestimonials() {
   return useQuery({
     queryKey: ["cms", "testimonials"],

@@ -1447,8 +1447,14 @@ const Header = ({ forceOpaque = false }: { forceOpaque?: boolean }) => {
   };
 
   const logoUrl =
-    navbarSettings?.logoType === "image" && navbarSettings?.logoImageId
+    navbarSettings?.logoUrl
+      ? navbarSettings.logoUrl
+      : (navbarSettings as any)?.logo_url
+      ? (navbarSettings as any).logo_url
+      : navbarSettings?.logoImageId
       ? `/api/cms/media/${navbarSettings.logoImageId}`
+      : (navbarSettings as any)?.logo_image_id
+      ? `/api/cms/media/${(navbarSettings as any).logo_image_id}`
       : logoAtj;
 
   // Extract styling settings with defaults
