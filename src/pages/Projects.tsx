@@ -12,8 +12,7 @@ import DonateDrawer from "@/components/DonateDrawer";
 import { ArrowRight, MapPin, Users, Calendar, Target, Filter, ArrowUp, ChevronLeft, Mail, Leaf, GraduationCap, Palmtree, Heart, Building } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
-import PageHero from "@/components/PageHero";
+import { apiFetch, resolveStorageUrl } from "@/lib/apiFetch";
 
 interface Project {
   id: number;
@@ -170,7 +169,7 @@ const Projects = () => {
                 >
                   <div className="relative h-48 overflow-hidden">
                     {project.image ? (
-                      <img src={project.image} alt={project.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                      <img src={resolveStorageUrl(project.image) ?? '/placeholder.svg'} alt={project.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                     ) : (
                       <div className="w-full h-full bg-primary/10 flex items-center justify-center"><Building className="w-12 h-12 text-primary/40" /></div>
                     )}
@@ -264,7 +263,7 @@ const Projects = () => {
                 >
                   <div className="relative h-56 overflow-hidden">
                     {project.image ? (
-                      <img src={project.image} alt={project.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                      <img src={resolveStorageUrl(project.image) ?? '/placeholder.svg'} alt={project.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                     ) : (
                       <div className="w-full h-full bg-primary/10 flex items-center justify-center"><Building className="w-12 h-12 text-primary/40" /></div>
                     )}

@@ -8,7 +8,7 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import PageHero from "@/components/PageHero";
 import { useQuery } from "@tanstack/react-query";
-import { apiFetch } from "@/lib/apiFetch";
+import { apiFetch, resolveStorageUrl } from "@/lib/apiFetch";
 import { moroccoCities } from "@/lib/citiesData";
 import { useTranslation } from "react-i18next";
 import { useTranslatedList } from "@/hooks/useContentTranslation";
@@ -141,7 +141,7 @@ const Discover = () => {
                 <div className="w-full md:w-1/2">
                   <div className="relative overflow-hidden rounded-3xl shadow-2xl group">
                     <img
-                      src={city.image}
+                      src={resolveStorageUrl(city.image) ?? '/placeholder.svg'}
                       alt={city.name}
                       className="w-full h-[240px] sm:h-[340px] md:h-[500px] object-cover transition-all duration-700 group-hover:scale-110"
                     />

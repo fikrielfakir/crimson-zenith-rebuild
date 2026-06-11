@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Clock, Users, Star } from "lucide-react";
+import { resolveStorageUrl } from "@/lib/apiFetch";
 import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -222,7 +223,7 @@ const Activities = () => {
                       {activity.image.startsWith("http") || activity.image.startsWith("/")
                         ? (
                             <img
-                              src={activity.image}
+                              src={resolveStorageUrl(activity.image) ?? "/placeholder.svg"}
                               alt={activity.title}
                               className="w-16 h-16 object-cover rounded-full mx-auto"
                               onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}

@@ -552,7 +552,7 @@ const UserProfile = () => {
               {/* Avatar */}
               <div className="relative group">
                 <Avatar className="w-28 h-28 md:w-32 md:h-32 border-4 border-white shadow-lg">
-                  <AvatarImage src={profileData.profileImageUrl || user.profileImageUrl || ""} />
+                  <AvatarImage src={resolveStorageUrl(profileData.profileImageUrl || user.profileImageUrl) ?? "/placeholder.svg"} />
                   <AvatarFallback className="text-3xl bg-gradient-to-br from-[hsl(227,65%,19%)] to-[hsl(227,65%,30%)] text-white">
                     {profileData.firstName?.[0] || 'U'}{profileData.lastName?.[0] || ''}
                   </AvatarFallback>

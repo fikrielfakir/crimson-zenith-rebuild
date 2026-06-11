@@ -9,18 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Link } from "react-router-dom";
-import { 
-  Home, 
-  ChevronRight, 
-  Award, 
-  Star,
-  MapPin,
-  Globe,
-  Linkedin,
-  CheckCircle2,
-  Mail,
-  Send
-} from "lucide-react";
+import { apiFetch, resolveStorageUrl } from "@/lib/apiFetch";
 import SEOHead from "@/components/SEOHead";
 import { routeSEO } from "@/lib/seo.config";
 import Header from "@/components/Header";
@@ -183,7 +172,7 @@ const TalentsExperts = () => {
                       <div className="flex gap-3 md:gap-6 mb-4 md:mb-6">
                         <div className="relative flex-shrink-0">
                           {expert.image ? (
-                            <img src={expert.image} alt={expert.name} className="w-16 h-16 md:w-24 md:h-24 rounded-full object-cover" />
+                            <img src={resolveStorageUrl(expert.image) ?? '/placeholder.svg'} alt={expert.name} className="w-16 h-16 md:w-24 md:h-24 rounded-full object-cover" />
                           ) : (
                             <div className="w-16 h-16 md:w-24 md:h-24 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xl md:text-2xl font-bold">{expert.name.charAt(0)}</div>
                           )}
@@ -315,7 +304,7 @@ const TalentsExperts = () => {
               {contactExpert && (
                 <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
                   {contactExpert.image ? (
-                    <img src={contactExpert.image} alt={contactExpert.name} className="w-10 h-10 rounded-full object-cover" />
+                    <img src={resolveStorageUrl(contactExpert.image) ?? '/placeholder.svg'} alt={contactExpert.name} className="w-10 h-10 rounded-full object-cover" />
                   ) : (
                     <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">{contactExpert.name.charAt(0)}</div>
                   )}

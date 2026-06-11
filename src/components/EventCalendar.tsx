@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar as CalendarIcon, MapPin, Clock, ChevronLeft, ChevronRight } from "lucide-react";
+import { resolveStorageUrl } from "@/lib/apiFetch";
 import { useNavigate } from "react-router-dom";
 import CalendarComponent from "react-calendar";
 const gnaoua = "https://api.thejourney-ma.org/attached_assets/gnaoua-festival.jpg";
@@ -267,7 +268,7 @@ const EventCalendar = () => {
                     {/* Image */}
                     <div className="relative overflow-hidden" style={{ height: "280px" }}>
                       <img
-                        src={event.image && !event.image.startsWith("blob:") ? event.image : FALLBACK_IMG}
+                        src={resolveStorageUrl(event.image && !event.image.startsWith("blob:") ? event.image : null) ?? FALLBACK_IMG}
                         alt={event.title}
                         className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
                         onError={(e) => { (e.target as HTMLImageElement).src = FALLBACK_IMG; }}

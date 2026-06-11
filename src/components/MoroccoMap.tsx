@@ -1,4 +1,4 @@
-import React, { useLayoutEffect } from 'react';
+import { resolveStorageUrl } from '@/lib/apiFetch';
 import { Club } from '../../shared/schema';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MapPin, Users, Star } from 'lucide-react';
@@ -312,7 +312,7 @@ const MoroccoMap = ({ clubs, onClubSelect, selectedClub }: MoroccoMapProps) => {
           <CardHeader className="pb-4 bg-gradient-to-r from-orange-500 to-orange-600 text-white">
             {selectedClub.image && (
               <img 
-                src={selectedClub.image} 
+                src={resolveStorageUrl(selectedClub.image) ?? "/placeholder.svg"} 
                 alt={selectedClub.name} 
                 className="w-full h-56 object-cover rounded-md mb-4 shadow-lg"
               />
