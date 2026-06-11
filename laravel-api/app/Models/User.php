@@ -18,6 +18,7 @@ class User extends Authenticatable
         'profile_image_url', 'bio', 'phone', 'location', 'interests',
         'role', 'is_admin', 'is_active', 'email_verified',
         'verification_token', 'verification_token_expires_at',
+        'google_id',
     ];
 
     protected $hidden = ['password', 'remember_token', 'verification_token'];
