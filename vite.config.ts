@@ -171,6 +171,15 @@ export default defineConfig(({ mode }: { mode: string }) => ({
           Referer: "https://thejourney-ma.org/",
         },
       },
+      "/storage": {
+        target: LARAVEL_API,
+        changeOrigin: true,
+        secure: true,
+        headers: {
+          Origin: "https://thejourney-ma.org",
+          Referer: "https://thejourney-ma.org/",
+        },
+      },
     },
   },
   plugins: [
@@ -422,10 +431,6 @@ export default defineConfig(({ mode }: { mode: string }) => ({
     {
       // Handle Legal Pages locally — intercepts before the proxy so these never
       // hit the production Laravel server (which has no /api/cms/legal routes).
-      //   GET /api/cms/legal/:pageKey          → public read
-      //   GET /api/admin/cms/legal/:pageKey    → admin read
-      //   PUT /api/admin/cms/legal/:pageKey    → admin write
-      // Handle Legal Pages locally via a JSON file (no Express server needed).
       //   GET /api/cms/legal/:pageKey          → public read
       //   GET /api/admin/cms/legal/:pageKey    → admin read
       //   PUT /api/admin/cms/legal/:pageKey    → admin write

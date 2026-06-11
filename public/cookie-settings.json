@@ -1,0 +1,36 @@
+{
+  "enabled": true,
+  "delay": 1500,
+  "title": "🍪 We use cookies to enhance your experience",
+  "description": "Our cookies help us remember your preferences, analyze site traffic, and provide personalized content. Essential cookies are always active.",
+  "categories": [
+    {
+      "key": "necessary",
+      "label": "Necessary Cookies",
+      "description": "Required for basic site functionality",
+      "enabled": true,
+      "locked": true
+    },
+    {
+      "key": "functional",
+      "label": "Functional Cookies",
+      "description": "Remember your preferences and settings",
+      "enabled": true,
+      "locked": false
+    },
+    {
+      "key": "analytics",
+      "label": "Analytics Cookies",
+      "description": "Help us understand how our website is being used",
+      "enabled": true,
+      "locked": false
+    },
+    {
+      "key": "marketing",
+      "label": "Marketing Cookies",
+      "description": "Personalized content and ads",
+      "enabled": true,
+      "locked": false
+    }
+  ]
+}
