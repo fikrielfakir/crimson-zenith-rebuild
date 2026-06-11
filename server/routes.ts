@@ -1630,6 +1630,69 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ── News / Blog Public ──────────────────────────────────────────────────────
+
+  app.get('/api/news', async (req: any, res) => {
+    try {
+      const { search, category } = req.query;
+      let query = db.select({
+        id: blogPosts.id,
+        title: blogPosts.title,
+        slug: blogPosts.slug,
+        excerpt: blogPosts.excerpt,
+        category: blogPosts.category,
+        status: blogPosts.status,
+        views: blogPosts.views,
+        image_url: blogPosts.featuredImage,
+        featured_image: blogPosts.featuredImage,
+        publishedAt: blogPosts.publishedAt,
+        createdAt: blogPosts.createdAt,
+        author_name: users.username,
+      }).from(blogPosts)
+        .leftJoin(users, eq(blogPosts.authorId, users.id))
+        .$dynamic();
+
+      const conditions = [eq(blogPosts.status, 'published')];
+      if (search) conditions.push(or(like(blogPosts.title, `%${search}%`), like(blogPosts.excerpt, `%${search}%`)) as any);
+      if (category && category !== 'all') conditions.push(eq(blogPosts.category, category as string));
+      query = query.where(conditions.length === 1 ? conditions[0] : sql`${conditions.reduce((a, b) => sql`${a} AND ${b}`)}`);
+
+      const posts = await query.orderBy(desc(blogPosts.publishedAt)).limit(50);
+      res.json(posts);
+    } catch (error: any) {
+      console.error('Error fetching public news:', error);
+      res.status(500).json({ message: 'Failed to fetch news', details: error.message });
+    }
+  });
+
+  app.get('/api/news/:slug', async (req: any, res) => {
+    try {
+      const [post] = await db.select({
+        id: blogPosts.id,
+        title: blogPosts.title,
+        slug: blogPosts.slug,
+        excerpt: blogPosts.excerpt,
+        content: blogPosts.content,
+        category: blogPosts.category,
+        status: blogPosts.status,
+        views: blogPosts.views,
+        image_url: blogPosts.featuredImage,
+        featured_image: blogPosts.featuredImage,
+        publishedAt: blogPosts.publishedAt,
+        createdAt: blogPosts.createdAt,
+        author_name: users.username,
+      }).from(blogPosts)
+        .leftJoin(users, eq(blogPosts.authorId, users.id))
+        .where(eq(blogPosts.slug, req.params.slug));
+      if (!post) return res.status(404).json({ message: 'Article not found' });
+      await db.update(blogPosts).set({ views: sql`${blogPosts.views} + 1` }).where(eq(blogPosts.id, post.id));
+      res.json(post);
+    } catch (error: any) {
+      console.error('Error fetching news article:', error);
+      res.status(500).json({ message: 'Failed to fetch article', details: error.message });
+    }
+  });
+
   // ── News / Blog Admin CRUD ──────────────────────────────────────────────────
 
   app.get('/api/admin/news', isAdmin, async (req: any, res) => {
