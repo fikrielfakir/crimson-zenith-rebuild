@@ -119,9 +119,8 @@ function MediaUploadField({
     try {
       const formData = new FormData();
       formData.append("file", file);
-      formData.append("type", mediaType);
 
-      const res = await apiFetch("/api/admin/cms/page-hero-upload", {
+      const res = await apiFetch("/api/admin/media", {
         method: "POST",
         body: formData,
       });
@@ -132,7 +131,11 @@ function MediaUploadField({
       }
 
       const data = await res.json();
-      onChange(data.url);
+      const rawUrl: string = data.fileUrl ?? data.url ?? '';
+      const url = rawUrl.startsWith('/storage/') && import.meta.env.VITE_API_BASE_URL
+        ? `${import.meta.env.VITE_API_BASE_URL}${rawUrl}`
+        : rawUrl;
+      onChange(url);
       toast({
         title: t('admin.pageHero.uploadedTitle'),
         description: `${mediaType === "image" ? "Image" : "Video"} uploaded successfully.`,

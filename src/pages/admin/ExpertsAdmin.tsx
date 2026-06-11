@@ -80,7 +80,10 @@ function ImageUploader({ value, onChange }: { value: string; onChange: (url: str
       const res = await apiFetch('/api/admin/media', { method: 'POST', body: fd, credentials: 'include' });
       if (!res.ok) throw new Error('Upload failed');
       const data = await res.json();
-      onChange(data.fileUrl ?? data.url ?? '');
+      const rawUrl: string = data.fileUrl ?? data.url ?? '';
+      const resolvedUrl = rawUrl.startsWith('/storage/') && import.meta.env.VITE_API_BASE_URL
+        ? `${import.meta.env.VITE_API_BASE_URL}${rawUrl}` : rawUrl;
+      onChange(resolvedUrl);
       toast({ title: t('admin.experts.toastImageUploaded') });
     } catch (err: any) {
       toast({ title: t('admin.clubs.toastUploadFailed'), description: err.message, variant: 'destructive' });

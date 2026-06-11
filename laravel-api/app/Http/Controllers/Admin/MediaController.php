@@ -56,7 +56,6 @@ class MediaController extends Controller
             $filename = $uuid . '.' . $ext;
 
             Storage::disk('public')->put('media/' . $filename, file_get_contents($file->getRealPath()));
-
             $fileUrl = '/storage/media/' . $filename;
 
             $asset = MediaAsset::create([
@@ -72,6 +71,7 @@ class MediaController extends Controller
             return response()->json($this->formatAsset($asset), 201);
         }
 
+        // Legacy: Accept JSON base64 imageData
         if ($request->filled('imageData')) {
             $imageData = $request->imageData;
             if (!preg_match('/^data:([^;]+);base64,(.+)$/s', $imageData, $m)) {
@@ -81,11 +81,10 @@ class MediaController extends Controller
             $mime   = $m[1];
             $binary = base64_decode($m[2]);
             $ext    = $this->mimeToExt($mime);
-            $uuid   = Str::uuid();
+            $uuid   = (string) Str::uuid();
             $filename = $uuid . '.' . $ext;
 
             Storage::disk('public')->put('media/' . $filename, $binary);
-
             $fileUrl = '/storage/media/' . $filename;
             $altText = $request->input('alt', '');
 
@@ -125,23 +124,13 @@ class MediaController extends Controller
     {
         $fileUrl = $m->file_url ?? '';
 
-        $resolvedUrl = $fileUrl;
-        if ($fileUrl && str_starts_with($fileUrl, '/storage/')) {
-            $appUrl = rtrim(config('app.url', ''), '/');
-            $resolvedUrl = $appUrl . $fileUrl;
-        }
-
         return [
             'id'           => $m->id,
             'fileName'     => $m->file_name ?? 'media-' . $m->id,
             'fileType'     => $m->file_type ?? 'application/octet-stream',
             'fileSize'     => $m->file_size,
-            'fileUrl'      => $resolvedUrl,
-            'thumbnailUrl' => $m->thumbnail_url ? (
-                str_starts_with($m->thumbnail_url, '/storage/')
-                    ? rtrim(config('app.url', ''), '/') . $m->thumbnail_url
-                    : $m->thumbnail_url
-            ) : $resolvedUrl,
+            'fileUrl'      => $fileUrl,
+            'thumbnailUrl' => $m->thumbnail_url ?? $fileUrl,
             'altText'      => $m->alt_text ?? $m->alt ?? '',
             'createdAt'    => $m->created_at?->toISOString() ?? now()->toISOString(),
         ];

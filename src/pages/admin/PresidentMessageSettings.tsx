@@ -116,19 +116,19 @@ export default function PresidentMessageSettings() {
     }
     setUploading(true);
     try {
-      const reader = new FileReader();
-      const base64 = await new Promise<string>((res, rej) => {
-        reader.onload = () => res(reader.result as string);
-        reader.onerror = rej;
-        reader.readAsDataURL(file);
-      });
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('alt', file.name);
       const response = await apiFetch('/api/admin/cms/media', {
         method: 'POST',
-        body: JSON.stringify({ imageData: base64, alt: file.name }),
+        body: formData,
       });
       if (!response.ok) throw new Error(`Upload failed (${response.status})`);
       const data = await response.json();
-      const url: string = data.url || data.fileUrl || data.file_url || '';
+      const rawUrl: string = data.fileUrl ?? data.url ?? data.file_url ?? '';
+      const url = rawUrl.startsWith('/storage/') && import.meta.env.VITE_API_BASE_URL
+        ? `${import.meta.env.VITE_API_BASE_URL}${rawUrl}`
+        : rawUrl;
       const id: number = typeof data.id === 'number' ? data.id : parseInt(data.id ?? '0', 10);
       if (url) {
         onSuccess(id, url);

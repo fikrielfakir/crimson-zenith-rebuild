@@ -177,7 +177,9 @@ export default function PartnersManagement() {
       const res = await apiFetch('/api/admin/media', { method: 'POST', body: formData });
       if (!res.ok) throw new Error('Upload failed');
       const data = await res.json();
-      const fileUrl: string = data.fileUrl ?? data.url ?? data.thumbnailUrl ?? '';
+      const rawFileUrl: string = data.fileUrl ?? data.url ?? data.thumbnailUrl ?? '';
+      const fileUrl = rawFileUrl.startsWith('/storage/') && import.meta.env.VITE_API_BASE_URL
+        ? `${import.meta.env.VITE_API_BASE_URL}${rawFileUrl}` : rawFileUrl;
       if (fileUrl) {
         setForm(f => ({ ...f, logoUrl: fileUrl }));
         toast({ title: t('admin.partners.toastLogoUploaded') });

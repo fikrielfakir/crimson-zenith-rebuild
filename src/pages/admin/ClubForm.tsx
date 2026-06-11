@@ -71,14 +71,18 @@ function ImageUpload({ value, onChange, onUploadStart, onUploadEnd }: {
     onUploadStart?.();
     try {
       const formData = new FormData();
-      formData.append('image', file);
-      const res = await apiFetch('/api/admin/clubs/upload-image', {
+      formData.append('file', file);
+      const res = await apiFetch('/api/admin/media', {
         method: 'POST',
         body: formData,
       });
       if (!res.ok) throw new Error((await res.json().catch(() => ({}))).message || 'Upload failed');
-      const { url } = await res.json();
-      setPreview(url);
+      const data = await res.json();
+      const rawUrl: string = data.fileUrl ?? data.url ?? '';
+      const url = rawUrl.startsWith('/storage/') && import.meta.env.VITE_API_BASE_URL
+        ? `${import.meta.env.VITE_API_BASE_URL}${rawUrl}`
+        : rawUrl;
+      setPreview(url || URL.createObjectURL(file));
       onChange(url);
       toast({ title: t('admin.clubs.toastImageUploaded') });
     } catch (err: any) {
