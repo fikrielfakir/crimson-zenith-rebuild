@@ -255,18 +255,20 @@ function ImageUploadField({
     setUploading(true);
     try {
       const formData = new FormData();
-      formData.append('image', file);
-      formData.append('folder', folder ?? 'general');
-
-      const res = await apiFetch('/api/admin/upload-image', {
+      formData.append('file', file);
+      const res = await apiFetch('/api/admin/media', {
         method: 'POST',
         body: formData,
       });
-      if (!res.ok) throw new Error('Upload failed');
-      const { url } = await res.json();
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).message || 'Upload failed');
+      const data = await res.json();
+      const rawUrl: string = data.fileUrl ?? data.url ?? '';
+      const url = rawUrl.startsWith('/storage/') && import.meta.env.VITE_API_BASE_URL
+        ? `${import.meta.env.VITE_API_BASE_URL}${rawUrl}`
+        : rawUrl;
       onChange(url);
-    } catch {
-      toast({ title: 'Upload failed', description: 'Could not upload image. Please try again.', variant: 'destructive' });
+    } catch (err: any) {
+      toast({ title: 'Upload failed', description: err.message || 'Could not upload image. Please try again.', variant: 'destructive' });
     } finally {
       setUploading(false);
     }
