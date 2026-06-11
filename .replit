@@ -1,8 +1,8 @@
-modules = ["nodejs-20", "php-8.2", "python-3.12", "web", "postgresql-16"]
+modules = ["nodejs-20", "php-8.2", "python-3.12"]
 [agent]
 expertMode = true
 integrations = ["javascript_log_in_with_replit:1.0.0", "javascript_database:1.0.0", "javascript_stripe:1.0.0", "javascript_paypal:1.0.0"]
-stack = "BEST_EFFORT_FALLBACK"
+stack = "GAMESTACK_JS"
 
 [nix]
 channel = "stable-25_05"
@@ -10,7 +10,7 @@ channel = "stable-25_05"
 [deployment]
 deploymentTarget = "autoscale"
 build = ["npm", "run", "build"]
-run = ["npm", "run", "start"]
+run = ["node", "./dist/index.cjs"]
 
 [workflows]
 runButton = "Project"
