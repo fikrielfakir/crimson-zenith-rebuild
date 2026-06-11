@@ -93,16 +93,21 @@ export function getMediaUrl(id: number | null | undefined): string | null {
 }
 
 /**
- * Resolve a storage URL to its full form.
- * In dev (API_BASE = ''), relative /storage/... paths are proxied by Vite → Laravel.
- * In production, prepend API base URL so the browser fetches from the API server.
+ * Resolve a server-side asset URL to its full form.
+ *
+ * Handles two cases where the browser cannot load the file by itself in production:
+ *   /storage/…  — Laravel disk storage (new uploads)
+ *   /uploads/…  — Laravel public/uploads (legacy uploads stored on api.thejourney-ma.org)
+ *
+ * In dev (VITE_API_BASE_URL = ''), Vite proxies both paths to the right server so
+ * relative URLs work fine.  In production, prepend the API base URL.
  *
  * @example
- *   <img src={resolveStorageUrl(asset.fileUrl) ?? '/placeholder.jpg'} />
+ *   <img src={resolveStorageUrl(club.imageUrl) ?? '/placeholder.jpg'} />
  */
 export function resolveStorageUrl(url: string | null | undefined): string | null {
   if (!url) return null;
-  if (url.startsWith('/storage/') && API_BASE) {
+  if ((url.startsWith('/storage/') || url.startsWith('/uploads/')) && API_BASE) {
     return `${API_BASE}${url}`;
   }
   return url;
