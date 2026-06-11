@@ -236,6 +236,7 @@ function ImageUploadField({
   accept,
   previewClass,
   inputId,
+  folder = 'misc',
 }: {
   label: string;
   description: string;
@@ -244,25 +245,47 @@ function ImageUploadField({
   accept: string;
   previewClass?: string;
   inputId: string;
+  folder?: string;
 }) {
   const [dragging, setDragging] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const { toast } = useToast();
 
-  const readFile = (file: File) => {
-    const reader = new FileReader();
-    reader.onload = (e) => onChange(e.target?.result as string);
-    reader.readAsDataURL(file);
+  const uploadFile = async (file: File) => {
+    setUploading(true);
+    try {
+      const reader = new FileReader();
+      const base64 = await new Promise<string>((resolve, reject) => {
+        reader.onload = (e) => resolve(e.target?.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+      const res = await apiFetch('/api/admin/upload-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageData: base64, folder }),
+      });
+      if (!res.ok) throw new Error('Upload failed');
+      const { url } = await res.json();
+      onChange(url);
+    } catch {
+      toast({ title: 'Upload failed', description: 'Could not upload image. Please try again.', variant: 'destructive' });
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) readFile(file);
+    if (file) uploadFile(file);
+    e.target.value = '';
   };
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setDragging(false);
     const file = e.dataTransfer.files?.[0];
-    if (file) readFile(file);
+    if (file) uploadFile(file);
   };
 
   return (
@@ -273,18 +296,21 @@ function ImageUploadField({
         onDragLeave={() => setDragging(false)}
         onDrop={handleDrop}
         className={`border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center gap-3 transition-colors cursor-pointer
-          ${dragging ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50 hover:bg-muted/30'}`}
-        onClick={() => document.getElementById(inputId)?.click()}
+          ${dragging ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50 hover:bg-muted/30'}
+          ${uploading ? 'opacity-60 pointer-events-none' : ''}`}
+        onClick={() => !uploading && document.getElementById(inputId)?.click()}
       >
-        <Upload className="h-8 w-8 text-muted-foreground" />
+        {uploading
+          ? <Loader2 className="h-8 w-8 text-muted-foreground animate-spin" />
+          : <Upload className="h-8 w-8 text-muted-foreground" />}
         <div className="text-center">
-          <p className="text-sm font-medium">Click to upload or drag & drop</p>
+          <p className="text-sm font-medium">{uploading ? 'Uploading…' : 'Click to upload or drag & drop'}</p>
           <p className="text-xs text-muted-foreground mt-0.5">{description}</p>
         </div>
         <input id={inputId} type="file" accept={accept} className="hidden" onChange={handleFile} />
       </div>
 
-      {value && (
+      {value && !uploading && (
         <div className={`border rounded-lg p-4 bg-muted/30 flex items-center justify-center ${previewClass ?? 'min-h-[80px]'}`}>
           <img
             src={value}
@@ -318,7 +344,7 @@ function LogoFaviconTab() {
 
   useEffect(() => {
     if (navbar) {
-      setLogoUrl(navbar.logoImageUrl ?? navbar.logoUrl ?? '');
+      setLogoUrl(navbar.logoUrl ?? navbar.logoImageUrl ?? '');
       setLogoSize(String(navbar.logoSize ?? 135));
       setLogoLink(navbar.logoLink ?? '/');
     }
@@ -362,6 +388,7 @@ function LogoFaviconTab() {
                 accept="image/png,image/svg+xml,image/webp,image/jpeg"
                 value={logoUrl}
                 onChange={setLogoUrl}
+                folder="logos"
               />
 
               <div className="grid grid-cols-2 gap-4">
@@ -396,6 +423,7 @@ function LogoFaviconTab() {
               value={faviconUrl}
               onChange={setFaviconUrl}
               previewClass="min-h-[56px]"
+              folder="favicons"
             />
           )}
         </CardContent>
