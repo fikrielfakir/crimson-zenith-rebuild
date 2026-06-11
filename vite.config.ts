@@ -132,14 +132,11 @@ export default defineConfig(({ mode }: { mode: string }) => ({
       // ── Media upload/management → local Express (handles disk storage) ────
       "/api/admin/media":     { target: LOCAL_API, changeOrigin: true },
       "/api/admin/cms/media": { target: LOCAL_API, changeOrigin: true },
-      // ── All API & auth routes → local Express server ──────────────────────
-      "/api":     { target: LOCAL_API, changeOrigin: true },
-      "/sanctum": { target: LOCAL_API, changeOrigin: true },
-      // ── Static assets ─────────────────────────────────────────────────────
-      "/storage":         localLaravelOptions,
-      "/attached_assets": localLaravelOptions,
-      // /uploads served by Express static middleware
-      "/uploads": { target: LOCAL_API, changeOrigin: true },
+      // ── Everything else → external Laravel API ────────────────────────────
+      "/api":         proxyOptions,
+      "/sanctum":     proxyOptions,
+      "/storage":     proxyOptions,
+      "/uploads":     proxyOptions,
     },
     watch: {
       ignored: [
