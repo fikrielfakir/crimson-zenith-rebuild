@@ -98,9 +98,7 @@ const PROD_API_BASE = "https://api.thejourney-ma.org";
 
 export default defineConfig(({ mode }: { mode: string }) => ({
   define: {
-    "import.meta.env.VITE_API_BASE_URL": JSON.stringify(
-      mode === "production" ? PROD_API_BASE : ""
-    ),
+    "import.meta.env.VITE_API_BASE_URL": JSON.stringify(PROD_API_BASE),
   },
   build: {
     outDir: "dist",
@@ -128,48 +126,6 @@ export default defineConfig(({ mode }: { mode: string }) => ({
     hmr: (process.env.REPL_SLUG || process.env.REPL_ID)
       ? { clientPort: 443, protocol: "wss", host: process.env.REPLIT_DEV_DOMAIN }
       : true,
-    proxy: {
-      // ── Admin auth → local Express (login/me/logout use local JWT) ─────────
-      "/api/admin/login":  { target: LOCAL_API, changeOrigin: true },
-      "/api/admin/logout": { target: LOCAL_API, changeOrigin: true },
-      "/api/admin/me":     { target: LOCAL_API, changeOrigin: true },
-      // ── Media upload/management → local Express (handles disk storage) ────
-      "/api/admin/media": {
-        target: LOCAL_API,
-        changeOrigin: true,
-        proxyTimeout: 300000,
-        timeout: 300000,
-        configure: (proxy: any) => {
-          proxy.on("error", (err: any, _req: any, res: any) => {
-            console.error("[proxy /api/admin/media]", err.message);
-            if (res && !res.headersSent) {
-              res.writeHead(502, { "Content-Type": "application/json" });
-              res.end(JSON.stringify({ error: "Upload proxy error", details: err.message }));
-            }
-          });
-        },
-      },
-      "/api/admin/cms/media": {
-        target: LOCAL_API,
-        changeOrigin: true,
-        proxyTimeout: 300000,
-        timeout: 300000,
-        configure: (proxy: any) => {
-          proxy.on("error", (err: any, _req: any, res: any) => {
-            console.error("[proxy /api/admin/cms/media]", err.message);
-            if (res && !res.headersSent) {
-              res.writeHead(502, { "Content-Type": "application/json" });
-              res.end(JSON.stringify({ error: "Upload proxy error", details: err.message }));
-            }
-          });
-        },
-      },
-      // ── Everything else → external Laravel API ────────────────────────────
-      "/api":         proxyOptions,
-      "/sanctum":     proxyOptions,
-      "/storage":     proxyOptions,
-      "/uploads":     proxyOptions,
-    },
     watch: {
       ignored: [
         "**/.cache/**",
