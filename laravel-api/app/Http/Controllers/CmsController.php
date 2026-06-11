@@ -82,7 +82,11 @@ class CmsController extends Controller
 
     public function navbar()
     {
-        return response()->json(NavbarSettings::firstOrCreate(['id' => 'default']));
+        $s = NavbarSettings::firstOrCreate(['id' => 'default']);
+        return response()->json(array_merge($s->toArray(), [
+            'logoUrl'  => $s->logo_url,
+            'logoType' => $s->logo_type,
+        ]));
     }
 
     public function presidentMessage()

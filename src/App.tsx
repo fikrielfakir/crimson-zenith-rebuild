@@ -87,6 +87,8 @@ import UserLogin from "./pages/UserLogin";
 import UserSignup from "./pages/UserSignup";
 import { ProtectedRoute } from "./components/admin/ProtectedRoute";
 import CookieConsent from "./components/CookieConsent";
+import { useSeoSettings } from "./hooks/useCMS";
+import { useEffect } from "react";
 
 // Talents pages
 import VolunteersSpontaneous from "./pages/VolunteersSpontaneous";
@@ -104,11 +106,30 @@ import TranslationsManagement from "./pages/admin/TranslationsManagement";
 import ContactSettings from "./pages/admin/ContactSettings";
 import ClubsPageSettingsAdmin from "./pages/admin/ClubsPageSettings";
 
+function FaviconUpdater() {
+  const { data: seoSettings } = useSeoSettings();
+  useEffect(() => {
+    const url = seoSettings?.faviconUrl || seoSettings?.favicon_url;
+    if (!url) return;
+    const selectors = [
+      'link[rel="icon"]',
+      'link[rel="shortcut icon"]',
+      'link[rel="apple-touch-icon"]',
+    ];
+    selectors.forEach((sel) => {
+      const el = document.querySelector<HTMLLinkElement>(sel);
+      if (el) el.href = url;
+    });
+  }, [seoSettings]);
+  return null;
+}
+
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
+      <FaviconUpdater />
       <Toaster />
       <Sonner />
       <BrowserRouter>

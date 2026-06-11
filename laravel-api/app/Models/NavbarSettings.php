@@ -12,7 +12,7 @@ class NavbarSettings extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'id', 'logo_type', 'logo_image_id', 'logo_svg', 'logo_text', 'logo_size', 'logo_link',
+        'id', 'logo_type', 'logo_image_id', 'logo_url', 'logo_svg', 'logo_text', 'logo_size', 'logo_link',
         'navigation_links', 'show_language_switcher', 'available_languages',
         'show_dark_mode_toggle', 'login_button_text', 'login_button_link', 'show_login_button',
         'join_button_text', 'join_button_link', 'join_button_style', 'show_join_button',
