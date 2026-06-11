@@ -53,7 +53,7 @@ function getField<T>(obj: BlogArticle | null, ...keys: (keyof BlogArticle)[]): T
 
 /* ─── component ────────────────────────────────────────────── */
 const BlogPost = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
@@ -120,7 +120,7 @@ const BlogPost = () => {
     if (!article) return "";
     if (typeof article.author === "object" && article.author?.name) return article.author.name;
     if (typeof article.author === "string") return article.author;
-    return article.author_name ?? "The Journey Team";
+    return article.author_name ?? t("news.defaultAuthorName");
   };
   const authorImg   = (): string => {
     if (!article) return "";
@@ -131,7 +131,7 @@ const BlogPost = () => {
   const authorBio   = (): string => {
     if (!article) return "";
     if (typeof article.author === "object" && article.author?.bio) return article.author.bio;
-    return "Writer at The Journey Association";
+    return t("news.defaultAuthorBio");
   };
   const coverImg    = (): string =>
     getField<string>(article, "image_url", "cover_image", "image") ?? "";
@@ -187,7 +187,7 @@ const BlogPost = () => {
             <div className="absolute inset-0 rounded-full border-2 border-gray-100" />
             <div className="absolute inset-0 rounded-full border-2 border-t-[#D8C18D] animate-spin" />
           </div>
-          <p className="text-gray-400 text-sm tracking-wide">Loading article…</p>
+          <p className="text-gray-400 text-sm tracking-wide">{t("news.loadingArticle")}</p>
         </div>
       </div>
       <Footer />
@@ -202,11 +202,11 @@ const BlogPost = () => {
         <div className="text-center space-y-6">
           <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center mx-auto text-2xl">📄</div>
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Article not found</h2>
-            <p className="text-gray-500 text-sm">{error ?? "This article may have been moved or deleted."}</p>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">{t("news.articleNotFound")}</h2>
+            <p className="text-gray-500 text-sm">{error ?? t("news.articleNotFoundDesc")}</p>
           </div>
           <Link to="/news" className="inline-flex items-center gap-2 text-sm font-medium text-[#112250] hover:text-[#D8C18D] transition-colors">
-            <ArrowLeft className="w-4 h-4" /> Back to all articles
+            <ArrowLeft className="w-4 h-4" /> {t("news.backToAllArticles")}
           </Link>
         </div>
       </div>
@@ -260,9 +260,9 @@ const BlogPost = () => {
         <div className="relative container mx-auto max-w-5xl px-6 pt-48 pb-14">
           {/* breadcrumb */}
           <nav className="flex items-center gap-1.5 text-white/50 text-xs mb-8">
-            <Link to="/" className="hover:text-white/80 transition-colors">Home</Link>
+            <Link to="/" className="hover:text-white/80 transition-colors">{t("nav.home")}</Link>
             <ChevronRight className="w-3 h-3 shrink-0" />
-            <Link to="/news" className="hover:text-white/80 transition-colors">Blog</Link>
+            <Link to="/news" className="hover:text-white/80 transition-colors">{t("nav.blog")}</Link>
             <ChevronRight className="w-3 h-3 shrink-0" />
             <span className="text-white/70 truncate max-w-[200px]">{article.title}</span>
           </nav>
@@ -299,7 +299,10 @@ const BlogPost = () => {
                 <p className="text-white text-sm font-semibold leading-none">{authorName()}</p>
                 {pubDate() && (
                   <p className="text-white/50 text-xs mt-1">
-                    {new Date(pubDate()).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+                    {new Date(pubDate()).toLocaleDateString(
+                      i18n.language === "ar" ? "ar-MA" : i18n.language === "fr" ? "fr-MA" : i18n.language === "es" ? "es-ES" : "en-US",
+                      { year: "numeric", month: "long", day: "numeric" }
+                    )}
                   </p>
                 )}
               </div>
@@ -317,7 +320,7 @@ const BlogPost = () => {
                 <div className="w-px h-6 bg-white/15" />
                 <div className="flex items-center gap-1.5 text-white/50 text-sm">
                   <Eye className="w-3.5 h-3.5" />
-                  <span>{article.views.toLocaleString()} views</span>
+                  <span>{t("news.viewsCount", { count: article.views.toLocaleString() })}</span>
                 </div>
               </>
             )}
@@ -361,7 +364,7 @@ const BlogPost = () => {
                 {/* save */}
                 <button
                   onClick={handleSave}
-                  title={!isAuthenticated ? "Login to save this article" : undefined}
+                  title={!isAuthenticated ? t("news.loginToSave") : undefined}
                   className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border text-sm font-medium transition-all ${
                     isSaved
                       ? "border-[#112250]/20 bg-[#112250]/5 text-[#112250]"
@@ -369,7 +372,7 @@ const BlogPost = () => {
                   }`}
                 >
                   <Bookmark className={`w-4 h-4 ${isSaved ? "fill-[#112250]" : ""}`} />
-                  <span>{isSaved ? "Saved" : "Save"}</span>
+                  <span>{isSaved ? t("news.saved") : t("news.save")}</span>
                 </button>
 
                 {/* mobile share trigger */}
@@ -378,7 +381,7 @@ const BlogPost = () => {
                   className="lg:hidden inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-gray-200 text-gray-500 text-sm font-medium hover:border-[#D8C18D] hover:text-[#112250] transition-all ml-auto"
                 >
                   <Share2 className="w-4 h-4" />
-                  Share
+                  {t("news.share")}
                 </button>
               </div>
 
@@ -426,7 +429,7 @@ const BlogPost = () => {
 
               {/* author bio card */}
               <div className="mt-14 p-7 rounded-2xl bg-gradient-to-br from-[#112250]/5 to-[#D8C18D]/10 border border-[#D8C18D]/20">
-                <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#D8C18D] mb-5">About the Author</p>
+                <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#D8C18D] mb-5">{t("news.aboutAuthor")}</p>
                 <div className="flex items-start gap-5">
                   <Avatar className="w-16 h-16 ring-2 ring-[#D8C18D]/30 shrink-0">
                     <AvatarImage src={authorImg()} alt={authorName()} />
@@ -438,7 +441,7 @@ const BlogPost = () => {
                     <h3 className="text-[#112250] font-bold text-lg font-heading mb-1">{authorName()}</h3>
                     <p className="text-gray-500 text-sm leading-relaxed font-body">{authorBio()}</p>
                     <button className="mt-3 text-xs font-semibold text-[#112250] hover:text-[#D8C18D] transition-colors tracking-wide flex items-center gap-1">
-                      Follow <ChevronRight className="w-3.5 h-3.5" />
+                      {t("news.follow")} <ChevronRight className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 </div>
@@ -447,7 +450,7 @@ const BlogPost = () => {
               {/* related articles */}
               {related.length > 0 && (
                 <div className="mt-16 pt-10 border-t border-gray-100">
-                  <h2 className="text-xl font-bold text-[#112250] font-heading mb-7">Related Articles</h2>
+                  <h2 className="text-xl font-bold text-[#112250] font-heading mb-7">{t("news.relatedArticles")}</h2>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
                     {related.map(a => (
                       <Link
@@ -495,7 +498,7 @@ const BlogPost = () => {
               <div className="mt-12">
                 <Link to="/news" className="inline-flex items-center gap-2 text-sm font-medium text-gray-400 hover:text-[#112250] transition-colors group">
                   <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
-                  Back to all articles
+                  {t("news.backToAllArticles")}
                 </Link>
               </div>
             </div>
@@ -507,7 +510,7 @@ const BlogPost = () => {
                 {/* Share card */}
                 <div className="rounded-2xl border border-gray-100 bg-white shadow-sm overflow-hidden">
                   <div className="px-5 py-4 border-b border-gray-50">
-                    <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400">Share Article</p>
+                    <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400">{t("news.shareArticle")}</p>
                   </div>
                   <div className="p-4 space-y-1.5">
                     <SidebarShareBtn
@@ -553,7 +556,7 @@ const BlogPost = () => {
                       <div className="w-8 h-8 rounded-lg bg-gray-200 flex items-center justify-center shrink-0">
                         <Link2 className="w-4 h-4 text-gray-500" />
                       </div>
-                      {copied ? <span className="text-green-600 font-semibold">Copied!</span> : "Copy Link"}
+                      {copied ? <span className="text-green-600 font-semibold">{t("news.copied")}</span> : t("news.copyLink")}
                     </button>
                   </div>
                 </div>
@@ -561,7 +564,7 @@ const BlogPost = () => {
                 {/* Reading progress */}
                 <div className="rounded-2xl border border-gray-100 bg-white shadow-sm p-5 space-y-3">
                   <div className="flex items-center justify-between">
-                    <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400">Reading</p>
+                    <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400">{t("news.reading")}</p>
                     <span className="text-xs font-bold text-[#112250]">{Math.round(progress)}%</span>
                   </div>
                   <div className="h-1.5 rounded-full bg-gray-100 overflow-hidden">
@@ -570,7 +573,7 @@ const BlogPost = () => {
                       style={{ width: `${progress}%`, background: "linear-gradient(90deg,#112250,#D8C18D)" }}
                     />
                   </div>
-                  <p className="text-xs text-gray-400">{readTime()} total</p>
+                  <p className="text-xs text-gray-400">{readTime()} {t("news.total")}</p>
                 </div>
 
               </div>
@@ -605,7 +608,7 @@ const BlogPost = () => {
           </button>
           <img
             src={lightboxSrc}
-            alt="Full size"
+            alt={article?.title ?? ""}
             className="max-w-full max-h-[90vh] rounded-xl shadow-2xl object-contain"
             onClick={e => e.stopPropagation()}
           />
