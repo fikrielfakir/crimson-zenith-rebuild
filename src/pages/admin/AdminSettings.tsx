@@ -254,16 +254,13 @@ function ImageUploadField({
   const uploadFile = async (file: File) => {
     setUploading(true);
     try {
-      const reader = new FileReader();
-      const base64 = await new Promise<string>((resolve, reject) => {
-        reader.onload = (e) => resolve(e.target?.result as string);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
+      const formData = new FormData();
+      formData.append('image', file);
+      formData.append('folder', folder ?? 'general');
+
       const res = await apiFetch('/api/admin/upload-image', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ imageData: base64, folder }),
+        body: formData,
       });
       if (!res.ok) throw new Error('Upload failed');
       const { url } = await res.json();
