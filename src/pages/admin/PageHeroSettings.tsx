@@ -99,6 +99,7 @@ function MediaUploadField({
 }) {
   const fileRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [uploading, setUploading] = useState(false);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
