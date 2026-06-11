@@ -15,6 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from 'react-i18next';
 import { useNavbarSettings } from '@/hooks/useCMS';
 import logoAtj from '@/assets/logo-atj.png';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 const loginSchema = z.object({
   username: z.string().min(1, 'Username or email is required'),
@@ -84,7 +85,12 @@ export default function AdminLogin() {
   const onSubmit = (data: LoginFormData) => loginMutation.mutate(data);
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen relative">
+      {/* ── Language switcher – top-right corner ── */}
+      <div className="absolute top-4 right-4 z-50">
+        <LanguageSwitcher textColor="#6b7280" className="bg-white/80 backdrop-blur-sm border border-gray-200 shadow-sm hover:bg-white rounded-lg px-2.5 py-1.5" />
+      </div>
+
       {/* ── Left brand panel ── */}
       <div
         className="hidden lg:flex lg:w-[52%] flex-col justify-between p-12 relative overflow-hidden"
