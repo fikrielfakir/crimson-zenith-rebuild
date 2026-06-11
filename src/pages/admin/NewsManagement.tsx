@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { apiFetch } from '@/lib/apiFetch';
+import { apiFetch, resolveStorageUrl } from '@/lib/apiFetch';
 import { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -125,7 +125,7 @@ function PostEditor({
       content: post?.content ?? '',
       excerpt: post?.excerpt ?? '',
       category: post?.category ?? '',
-      featuredImage: post?.featuredImage ?? post?.featured_image ?? '',
+      featuredImage: resolveStorageUrl(post?.featuredImage ?? post?.featured_image ?? '') ?? '',
       status: post?.status ?? 'draft',
     },
   });
@@ -138,23 +138,21 @@ function PostEditor({
     if (!file) return;
     setUploading(true);
     try {
-      const imageData = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-      const res = await apiFetch('/api/admin/upload-image', {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('alt', file.name);
+      const res = await apiFetch('/api/admin/cms/media', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ imageData, folder: 'news' }),
+        body: formData,
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         throw new Error(err.message || `Upload failed (${res.status})`);
       }
       const data = await res.json();
-      setValue('featuredImage', data.url, { shouldDirty: true });
+      const rawUrl: string = data.url ?? data.fileUrl ?? data.imageUrl ?? '';
+      const resolvedUrl = resolveStorageUrl(rawUrl) ?? rawUrl;
+      setValue('featuredImage', resolvedUrl, { shouldDirty: true });
       toast({ title: 'Image uploaded successfully' });
     } catch (err: any) {
       toast({ title: 'Upload failed', description: err.message, variant: 'destructive' });
