@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { resolveStorageUrl } from '@/lib/apiFetch';
 import { useTranslation } from 'react-i18next';
 import { useCmsTranslations } from '@/hooks/useCmsTranslations';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -157,7 +158,7 @@ const PresidentMessageDynamic = () => {
 
   const backgroundStyle = s.backgroundImageId
     ? {
-        backgroundImage: `url(/api/cms/media/${s.backgroundImageId})`,
+        backgroundImage: `url(${resolveStorageUrl(`/api/cms/media/${s.backgroundImageId}`)})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }
@@ -218,7 +219,7 @@ const PresidentMessageDynamic = () => {
               />
               <div className="relative overflow-hidden rounded-lg shadow-2xl">
                 <img
-                  src={photoUrl}
+                  src={resolveStorageUrl(photoUrl) ?? 'https://api.thejourney-ma.org/attached_assets/527458761_17954306891994519_4667490874676487214_n_1762796640998.jpg'}
                   alt={displayPresidentName}
                   className="w-full h-[300px] sm:h-[400px] md:h-[500px] object-cover transition-transform duration-300 group-hover:scale-105"
                   style={{ filter: "brightness(1.05) contrast(1.1)" }}
@@ -315,7 +316,7 @@ const PresidentMessageDynamic = () => {
                 {signatureUrl && (
                   <div className="pt-4">
                     <img 
-                      src={signatureUrl} 
+                      src={resolveStorageUrl(signatureUrl) ?? "/placeholder.svg"} 
                       alt="Signature" 
                       className="h-32 object-contain"
                     />

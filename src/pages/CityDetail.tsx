@@ -8,7 +8,7 @@ import Footer from "@/components/Footer";
 import { moroccoCities } from "@/lib/citiesData";
 import { Button } from "@/components/ui/button";
 import { MapPin, ArrowLeft, Home, ChevronRight, Compass, UtensilsCrossed, Calendar, Plane, Lightbulb, CheckCircle2, Map, Mountain, Coffee, Waves, Sun } from "lucide-react";
-import { apiFetch } from "@/lib/apiFetch";
+import { apiFetch, resolveStorageUrl } from "@/lib/apiFetch";
 import { useEntityTranslations, useTranslatedList } from "@/hooks/useContentTranslation";
 import { useTranslation } from "react-i18next";
 
@@ -244,7 +244,7 @@ const CityDetail = () => {
           <div
             className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-105 transition-transform duration-700 ease-out"
             style={{
-              backgroundImage: `url(${city.image})`,
+              backgroundImage: `url(${resolveStorageUrl(city.image) ?? '/placeholder.svg'})`,
               backgroundAttachment: 'fixed'
             }}
           />
@@ -350,7 +350,7 @@ const CityDetail = () => {
                         <div key={index} className={`flex items-center gap-4 ${image ? 'rounded-xl overflow-hidden border border-border/50 bg-card shadow-sm' : ''}`}>
                           {image ? (
                             <>
-                              <img src={image} alt={text} className="w-24 h-20 object-cover flex-shrink-0" onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                              <img src={resolveStorageUrl(image) ?? '/placeholder.svg'} alt={text} className="w-24 h-20 object-cover flex-shrink-0" onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
                               <h4 className="text-lg font-semibold text-foreground pr-4">{text}</h4>
                             </>
                           ) : (
@@ -392,7 +392,7 @@ const CityDetail = () => {
                       const image = typeof item === 'object' ? item.image : undefined;
                       return (
                       <div key={index} className="flex items-start gap-3 p-6 bg-card rounded-lg border border-border/50 shadow-sm">
-                        {image && <img src={image} alt={text} className="w-16 h-12 object-cover rounded flex-shrink-0" onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />}
+                        {image && <img src={resolveStorageUrl(image) ?? '/placeholder.svg'} alt={text} className="w-16 h-12 object-cover rounded flex-shrink-0" onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />}
                         {!image && <CheckCircle2 className="w-5 h-5 text-secondary flex-shrink-0 mt-1" />}
                         <p className="text-foreground">{text}</p>
                       </div>

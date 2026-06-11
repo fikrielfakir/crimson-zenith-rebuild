@@ -14,6 +14,7 @@ import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "./LanguageSwitcher";
 import { Link } from "react-router-dom";
 import logoAtj from "@/assets/logo-atj.png";
+import { resolveStorageUrl } from "@/lib/apiFetch";
 import { useNavbarSettings } from "@/hooks/useCMS";
 import { useCmsTranslations } from "@/hooks/useCmsTranslations";
 import { moroccoCities } from "@/lib/citiesData";
@@ -154,7 +155,7 @@ const CitiesDropdown = () => {
                   >
                     <div className="relative h-32 rounded-lg overflow-hidden transition-all duration-300 ease-in-out group-hover/card:scale-105 group-hover/card:shadow-xl">
                       <img
-                        src={city.image}
+                        src={resolveStorageUrl(city.image) ?? "/placeholder.svg"}
                         alt={city.name}
                         className="w-full h-full object-cover transition-transform duration-500 ease-in-out"
                       />
@@ -407,7 +408,7 @@ const DropdownRenderer = ({
                           {item.imageUrl ? (
                             <>
                               <img
-                                src={item.imageUrl}
+                                src={resolveStorageUrl(item.imageUrl) ?? "/placeholder.svg"}
                                 alt={item.label}
                                 className="w-full h-full object-cover transition-transform duration-500 ease-in-out"
                                 loading="lazy"
@@ -515,7 +516,7 @@ const DropdownRenderer = ({
                   {item.imageUrl && (
                     <div className="w-12 h-12 rounded-md overflow-hidden flex-shrink-0">
                       <img
-                        src={item.imageUrl}
+                        src={resolveStorageUrl(item.imageUrl) ?? "/placeholder.svg"}
                         alt={item.label}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                         loading="lazy"

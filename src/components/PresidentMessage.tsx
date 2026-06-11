@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { apiFetch } from '@/lib/apiFetch';
+import { apiFetch, resolveStorageUrl } from '@/lib/apiFetch';
 import { useCmsTranslations } from '@/hooks/useCmsTranslations';
 
 const FALLBACK_PHOTO = 'https://api.thejourney-ma.org/attached_assets/527458761_17954306891994519_4667490874676487214_n_1762796640998.jpg';
@@ -98,7 +98,7 @@ const PresidentMessage = () => {
         <div className="absolute inset-0 bg-gradient-to-br from-secondary/30 to-secondary/10 rounded-lg transform rotate-3 group-hover:rotate-6 transition-transform duration-300" />
         <div className="relative overflow-hidden rounded-lg shadow-2xl">
           <img
-            src={photoSrc}
+            src={resolveStorageUrl(photoSrc) ?? FALLBACK_PHOTO}
             alt={name}
             className="w-full h-[500px] object-cover transition-transform duration-300 group-hover:scale-105"
             style={{ filter: 'brightness(1.05) contrast(1.1)' }}

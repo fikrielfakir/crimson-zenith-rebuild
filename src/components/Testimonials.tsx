@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Star, Quote } from "lucide-react";
+import { resolveStorageUrl } from "@/lib/apiFetch";
 import { useTranslation } from "react-i18next";
 import { useTestimonials } from "@/hooks/useCMS";
 import { useTranslatedList } from "@/hooks/useContentTranslation";
@@ -95,7 +96,7 @@ const Testimonials = () => {
                   <div className="w-12 h-12 bg-gradient-hero rounded-full flex items-center justify-center text-2xl overflow-hidden">
                     {testimonial.avatar ? (
                       <img
-                        src={testimonial.avatar}
+                        src={resolveStorageUrl(testimonial.avatar) ?? "/placeholder.svg"}
                         alt={testimonial.name}
                         className="w-full h-full object-cover"
                       />

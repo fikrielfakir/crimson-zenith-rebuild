@@ -4,6 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useTranslatedList } from "@/hooks/useContentTranslation";
+import { resolveStorageUrl } from "@/lib/apiFetch";
 import { Plus, Minus, Locate, ChevronUp, ChevronDown, Search, Home, MapPin, Building2, Info } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Club } from "../../shared/schema";
@@ -893,7 +894,7 @@ const ClubsWithMap = () => {
                             }}
                           >
                             <img
-                              src={club.image || birdLogo}
+                              src={resolveStorageUrl(club.image) ?? birdLogo}
                               alt={club.name}
                               style={{
                                 width: club.image ? "70px" : "40px",

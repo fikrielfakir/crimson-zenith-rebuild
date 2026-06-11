@@ -93,22 +93,35 @@ export function getMediaUrl(id: number | null | undefined): string | null {
 }
 
 /**
+ * UUID filename pattern — matches bare filenames like
+ * "bf407dc3-65e2-4550-870c-0d5c087a67e0.png" stored without a path prefix.
+ */
+const UUID_FILE_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.[a-z0-9]+$/i;
+
+/**
  * Resolve a server-side asset URL to its full form.
  *
- * Handles two cases where the browser cannot load the file by itself in production:
- *   /storage/…  — Laravel disk storage (new uploads)
- *   /uploads/…  — Laravel public/uploads (legacy uploads stored on api.thejourney-ma.org)
+ * Handles all cases where the browser cannot load the file by itself:
+ *   /storage/…     — Laravel disk storage (new uploads)
+ *   /uploads/…     — Laravel public/uploads (legacy uploads)
+ *   uuid.ext       — bare UUID filename → treated as /storage/media/uuid.ext
  *
- * In dev (VITE_API_BASE_URL = ''), Vite proxies both paths to the right server so
- * relative URLs work fine.  In production, prepend the API base URL.
+ * Already-absolute URLs (http/https) are returned unchanged.
+ * In dev (VITE_API_BASE_URL = ''), Vite proxies paths to the right server so
+ * relative URLs work fine without any prefix.
  *
  * @example
  *   <img src={resolveStorageUrl(club.imageUrl) ?? '/placeholder.jpg'} />
  */
 export function resolveStorageUrl(url: string | null | undefined): string | null {
   if (!url) return null;
-  if ((url.startsWith('/storage/') || url.startsWith('/uploads/')) && API_BASE) {
-    return `${API_BASE}${url}`;
+  if (url.startsWith('http://') || url.startsWith('https://')) return url;
+  if (url.startsWith('/storage/') || url.startsWith('/uploads/')) {
+    return API_BASE ? `${API_BASE}${url}` : url;
+  }
+  if (UUID_FILE_RE.test(url)) {
+    const path = `/storage/media/${url}`;
+    return API_BASE ? `${API_BASE}${path}` : path;
   }
   return url;
 }

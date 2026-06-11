@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { apiFetch, resolveStorageUrl } from "@/lib/apiFetch";
 import {
   Clock,
   Bookmark,
@@ -124,8 +125,8 @@ const BlogPost = () => {
   };
   const authorImg   = (): string => {
     if (!article) return "";
-    if ((article as any).author_avatar) return (article as any).author_avatar;
-    if (typeof article.author === "object") return article.author?.avatar ?? article.author?.image ?? "";
+    if ((article as any).author_avatar) return resolveStorageUrl((article as any).author_avatar) ?? "/placeholder.svg";
+    if (typeof article.author === "object") return resolveStorageUrl(article.author?.avatar ?? article.author?.image) ?? "/placeholder.svg";
     return "";
   };
   const authorBio   = (): string => {
@@ -134,7 +135,7 @@ const BlogPost = () => {
     return t("news.defaultAuthorBio");
   };
   const coverImg    = (): string =>
-    getField<string>(article, "image_url", "cover_image", "image") ?? "";
+    resolveStorageUrl(getField<string>(article, "image_url", "cover_image", "image")) ?? "/placeholder.svg";
   const pubDate     = (): string => article?.published_at ?? article?.created_at ?? "";
   const readTime    = (): string => article?.read_time ?? article?.reading_time ?? "5 min read";
   const tags        = (): string[] => {
@@ -175,7 +176,7 @@ const BlogPost = () => {
   };
 
   const relatedCover = (a: BlogArticle) =>
-    (a as any).image_url ?? (a as any).cover_image ?? (a as any).image ?? "";
+    resolveStorageUrl((a as any).image_url ?? (a as any).cover_image ?? (a as any).image) ?? "/placeholder.svg";
 
   /* ── loading ── */
   if (loading) return (
