@@ -98,7 +98,7 @@ const PROD_API_BASE = "https://api.thejourney-ma.org";
 
 export default defineConfig(({ mode }: { mode: string }) => ({
   define: {
-    "import.meta.env.VITE_API_BASE_URL": JSON.stringify(PROD_API_BASE),
+    "import.meta.env.VITE_API_BASE_URL": JSON.stringify(mode === "production" ? PROD_API_BASE : ""),
   },
   build: {
     outDir: "dist",
@@ -136,6 +136,27 @@ export default defineConfig(({ mode }: { mode: string }) => ({
     },
     fs: {
       allow: [__dirname],
+    },
+    proxy: {
+      "/api": {
+        target: LOCAL_API,
+        changeOrigin: true,
+        secure: false,
+        configure: (proxy: any) => {
+          proxy.on("error", (err: any, _req: any, res: any) => {
+            console.error("[proxy] Express API unavailable:", err.message);
+            if (res && !res.headersSent) {
+              res.writeHead(503, { "Content-Type": "application/json" });
+              res.end(JSON.stringify({ message: "Local API unavailable — make sure the server workflow is running." }));
+            }
+          });
+        },
+      },
+      "/uploads": {
+        target: LOCAL_API,
+        changeOrigin: true,
+        secure: false,
+      },
     },
   },
   plugins: [
@@ -244,146 +265,6 @@ export default defineConfig(({ mode }: { mode: string }) => ({
             console.error("[serve-media-binary] Error:", err);
             next();
           }
-        });
-      },
-    },
-    {
-      // Handle Page Hero Settings locally:
-      //   GET  /api/cms/page-hero/:page           → read from public/page-hero-settings.json
-      //   PUT  /api/admin/cms/page-hero/:page      → write to public/page-hero-settings.json
-      //   POST /api/admin/cms/page-hero-upload     → save image/video file to public/uploads/hero-media/
-      name: "handle-page-hero",
-      configureServer(server) {
-        server.middlewares.use(async (req: any, res: any, next: any) => {
-          const url: string = req.url ?? "";
-          const fs = await import("fs/promises");
-          const pathMod = await import("path");
-          const crypto = await import("crypto");
-
-          const settingsFile = pathMod.resolve(__dirname, "public/page-hero-settings.json");
-          const heroMediaDir = pathMod.resolve(__dirname, "public/uploads/hero-media");
-
-          async function readSettings(): Promise<Record<string, any>> {
-            try {
-              return JSON.parse(await fs.readFile(settingsFile, "utf-8"));
-            } catch { return {}; }
-          }
-          async function writeSettings(data: Record<string, any>) {
-            await fs.mkdir(pathMod.dirname(settingsFile), { recursive: true });
-            await fs.writeFile(settingsFile, JSON.stringify(data, null, 2));
-          }
-
-          // GET /api/cms/page-hero/:page
-          const getMatch = url.match(/^\/api\/cms\/page-hero\/([^?/]+)/);
-          if (req.method === "GET" && getMatch) {
-            const page = getMatch[1];
-            const settings = await readSettings();
-            const entry = settings[page] ?? {};
-            res.statusCode = 200;
-            res.setHeader("Content-Type", "application/json");
-            res.end(JSON.stringify(entry));
-            return;
-          }
-
-          // PUT /api/admin/cms/page-hero/:page
-          const putMatch = url.match(/^\/api\/admin\/cms\/page-hero\/([^?/]+)$/);
-          if (req.method === "PUT" && putMatch) {
-            const page = putMatch[1];
-            try {
-              const chunks: Buffer[] = [];
-              for await (const chunk of req) chunks.push(chunk);
-              const body = JSON.parse(Buffer.concat(chunks).toString());
-              const settings = await readSettings();
-              settings[page] = { ...(settings[page] ?? {}), ...body };
-              await writeSettings(settings);
-              res.statusCode = 200;
-              res.setHeader("Content-Type", "application/json");
-              res.end(JSON.stringify(settings[page]));
-            } catch (err) {
-              console.error("[page-hero] PUT error:", err);
-              res.statusCode = 500;
-              res.setHeader("Content-Type", "application/json");
-              res.end(JSON.stringify({ message: "Failed to save" }));
-            }
-            return;
-          }
-
-          // POST /api/admin/cms/page-hero-upload
-          if (req.method === "POST" && url.startsWith("/api/admin/cms/page-hero-upload")) {
-            const contentType: string = req.headers["content-type"] ?? "";
-            const boundaryPart = contentType.split("boundary=")[1];
-            if (!boundaryPart) {
-              res.statusCode = 400;
-              res.setHeader("Content-Type", "application/json");
-              res.end(JSON.stringify({ message: "Missing multipart boundary" }));
-              return;
-            }
-
-            try {
-              const chunks: Buffer[] = [];
-              for await (const chunk of req) chunks.push(chunk);
-              const body = Buffer.concat(chunks);
-              const boundaryBuf = Buffer.from("--" + boundaryPart);
-
-              // Parse multipart parts
-              const parts: Buffer[] = [];
-              let pos = 0;
-              while (pos < body.length) {
-                const idx = body.indexOf(boundaryBuf, pos);
-                if (idx === -1) break;
-                const start = idx + boundaryBuf.length;
-                if (body[start] === 0x2d && body[start + 1] === 0x2d) break;
-                const nextIdx = body.indexOf(boundaryBuf, start);
-                if (nextIdx === -1) break;
-                parts.push(body.slice(start, nextIdx));
-                pos = nextIdx;
-              }
-
-              let fileBuffer: Buffer | null = null;
-              let fileName = "upload";
-              let mimeType = "application/octet-stream";
-
-              for (const part of parts) {
-                const sep = part.indexOf("\r\n\r\n");
-                if (sep === -1) continue;
-                const headerStr = part.slice(0, sep).toString();
-                if (!headerStr.includes('name="file"')) continue;
-                const nameMatch = headerStr.match(/filename="([^"]+)"/);
-                if (nameMatch) fileName = nameMatch[1];
-                const ctMatch = headerStr.match(/Content-Type:\s*([^\r\n]+)/i);
-                if (ctMatch) mimeType = ctMatch[1].trim();
-                fileBuffer = part.slice(sep + 4, part.lastIndexOf("\r\n"));
-                break;
-              }
-
-              if (!fileBuffer) {
-                res.statusCode = 400;
-                res.setHeader("Content-Type", "application/json");
-                res.end(JSON.stringify({ message: "No file found in upload" }));
-                return;
-              }
-
-              const ext = fileName.split(".").pop()?.replace("jpeg", "jpg") ?? "bin";
-              const id = (crypto as any).randomUUID();
-              const savedName = `${id}.${ext}`;
-              await fs.mkdir(heroMediaDir, { recursive: true });
-              await fs.writeFile(pathMod.join(heroMediaDir, savedName), fileBuffer);
-
-              const fileUrl = `/uploads/hero-media/${savedName}`;
-              res.statusCode = 201;
-              res.setHeader("Content-Type", "application/json");
-              res.end(JSON.stringify({ url: fileUrl, id }));
-              console.log(`[page-hero-upload] Saved ${savedName} (${fileBuffer.length} bytes)`);
-            } catch (err) {
-              console.error("[page-hero-upload] Error:", err);
-              res.statusCode = 500;
-              res.setHeader("Content-Type", "application/json");
-              res.end(JSON.stringify({ message: "Upload failed" }));
-            }
-            return;
-          }
-
-          next();
         });
       },
     },
