@@ -7,6 +7,14 @@ import { X, Cookie, Shield, Settings } from "lucide-react";
 import { Link } from "react-router-dom";
 import { apiFetch } from '@/lib/apiFetch';
 
+interface ContentTranslation {
+  entityType: string;
+  entityId: string;
+  field: string;
+  language: string;
+  value: string;
+}
+
 interface CookieCategory {
   key: string;
   label: string;
@@ -24,7 +32,7 @@ interface CookieSettingsData {
 }
 
 const CookieConsent = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [isVisible, setIsVisible] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const [categoryPrefs, setCategoryPrefs] = useState<Record<string, boolean>>({});
@@ -56,7 +64,39 @@ const CookieConsent = () => {
     staleTime: 5 * 60 * 1000,
   });
 
+  const { data: bannerTranslations } = useQuery<ContentTranslation[]>({
+    queryKey: ['/api/translations/cookie_settings/banner'],
+    queryFn: async () => {
+      try {
+        const res = await apiFetch('/api/translations/cookie_settings/banner');
+        if (!res.ok) return [];
+        return res.json();
+      } catch {
+        return [];
+      }
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+
   const activeSettings = settings ?? defaultSettings;
+
+  const translatedTitle = useMemo(() => {
+    if (!bannerTranslations?.length) return activeSettings.title;
+    const lang = i18n.language?.split('-')[0] || 'en';
+    const match = bannerTranslations.find(
+      (tr) => tr.field === 'title' && tr.language === lang
+    );
+    return match?.value || activeSettings.title;
+  }, [bannerTranslations, activeSettings.title, i18n.language]);
+
+  const translatedDescription = useMemo(() => {
+    if (!bannerTranslations?.length) return activeSettings.description;
+    const lang = i18n.language?.split('-')[0] || 'en';
+    const match = bannerTranslations.find(
+      (tr) => tr.field === 'description' && tr.language === lang
+    );
+    return match?.value || activeSettings.description;
+  }, [bannerTranslations, activeSettings.description, i18n.language]);
 
   useEffect(() => {
     if (!activeSettings.enabled) return;
@@ -105,7 +145,7 @@ const CookieConsent = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <Cookie className="w-4 h-4" />
-                <h3 className="font-semibold text-base">{activeSettings.title || t('cookieConsent.title')}</h3>
+                <h3 className="font-semibold text-base">{translatedTitle || t('cookieConsent.title')}</h3>
               </div>
               <button onClick={() => setIsVisible(false)} className="text-white/80 hover:text-white transition-colors">
                 <X className="w-4 h-4" />
@@ -116,7 +156,7 @@ const CookieConsent = () => {
           <div className="p-4 space-y-3">
             <div className="flex items-start space-x-3">
               <Shield className="w-4 h-4 mt-1 flex-shrink-0" style={{ color: 'hsl(var(--primary))' }} />
-              <p className="text-sm text-gray-700 leading-relaxed">{activeSettings.description || t('cookieConsent.description')}</p>
+              <p className="text-sm text-gray-700 leading-relaxed">{translatedDescription || t('cookieConsent.description')}</p>
             </div>
 
             {showDetails && (

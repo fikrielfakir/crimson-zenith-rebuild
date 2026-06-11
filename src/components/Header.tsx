@@ -836,7 +836,7 @@ const BottomNavbar = ({
           paddingBottom: isScrolled ? "0.4rem" : "1.5rem",
         }}
       >
-        <div className="navbar-main-grid grid grid-cols-[1fr_auto_1fr] items-center gap-4 md:gap-12">
+        <div className="navbar-main-grid grid grid-cols-[1fr_auto_1fr] items-center gap-x-4 gap-y-0 md:gap-x-12">
           {/* Left Section - Navigation */}
           <div className="hidden md:flex items-center justify-end">
             <nav
