@@ -112,7 +112,7 @@ const News = () => {
 
   const uniqueCategories = Array.from(new Set(articles.map(a => a.category).filter(Boolean)));
   const categories = [
-    { id: "all", name: "All Articles", count: articles.length },
+    { id: "all", name: t('news.allArticles'), count: articles.length },
     ...uniqueCategories.map(cat => ({
       id: cat as string,
       name: cat as string,
@@ -191,7 +191,7 @@ const News = () => {
                 </div>
                 <Button variant="outline" size="sm" className="min-h-[44px]">
                   <Filter className="w-4 h-4 mr-2" />
-                  Filters
+                  {t('news.filters')}
                 </Button>
               </div>
             </div>
@@ -205,7 +205,7 @@ const News = () => {
                 {loading && (
                   <div className="text-center py-16">
                     <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mx-auto mb-4" />
-                    <p className="text-muted-foreground font-body">Loading articles…</p>
+                    <p className="text-muted-foreground font-body">{t('news.loading')}</p>
                   </div>
                 )}
                 {error && (
@@ -216,7 +216,7 @@ const News = () => {
                 )}
                 {!loading && !error && filteredArticles.length === 0 && (
                   <div className="text-center py-16">
-                    <p className="text-muted-foreground font-body">No articles found.</p>
+                    <p className="text-muted-foreground font-body">{t('news.noArticles')}</p>
                   </div>
                 )}
                 {!loading && !error && filteredArticles.length > 0 && (
@@ -267,7 +267,7 @@ const News = () => {
                                 className="text-primary hover:text-primary/80"
                                 onClick={() => handleReadMore(article)}
                               >
-                                Read More →
+                                {t('news.readMore')} →
                               </Button>
                             </div>
                           </CardContent>
@@ -277,7 +277,7 @@ const News = () => {
                     
                     <div className="text-center mt-12">
                       <Button variant="outline" className="font-body">
-                        Load More Articles
+                        {t('news.loadMore')}
                       </Button>
                     </div>
                   </>
@@ -289,7 +289,7 @@ const News = () => {
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2 font-heading">
                       <TrendingUp className="w-5 h-5 text-primary" />
-                      Trending
+                      {t('news.trending')}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
@@ -314,7 +314,7 @@ const News = () => {
                 {popularTags.length > 0 && (
                   <Card>
                     <CardHeader>
-                      <CardTitle className="font-heading">Popular Tags</CardTitle>
+                      <CardTitle className="font-heading">{t('news.popularTags')}</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="flex flex-wrap gap-2">
@@ -331,11 +331,11 @@ const News = () => {
 
                 <Card className="bg-primary text-primary-foreground">
                   <CardHeader>
-                    <CardTitle className="font-heading text-white">Stay Updated</CardTitle>
+                    <CardTitle className="font-heading text-white">{t('news.stayUpdated')}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <p className="text-primary-foreground/80 font-body text-sm mb-4">
-                      Get the latest adventure tips, safety updates, and member stories delivered to your inbox.
+                      {t('news.stayUpdatedDesc')}
                     </p>
                     <div className="space-y-3">
                       <Input 
@@ -344,18 +344,18 @@ const News = () => {
                       />
                       <Button className="w-full bg-secondary hover:bg-secondary/90 text-white">
                         <Mail className="w-4 h-4 mr-2" />
-                        Subscribe
+                        {t('news.subscribe')}
                       </Button>
                     </div>
                     <p className="text-xs text-primary-foreground/60 mt-3 font-body">
-                      Weekly digest • Unsubscribe anytime
+                      {t('news.weeklyDigest')}
                     </p>
                   </CardContent>
                 </Card>
 
                 <Card>
                   <CardHeader>
-                    <CardTitle className="font-heading">Newsletter Archive</CardTitle>
+                    <CardTitle className="font-heading">{t('news.newsletterArchive')}</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
                     {[
@@ -374,7 +374,7 @@ const News = () => {
                       </div>
                     ))}
                     <Button variant="outline" size="sm" className="w-full mt-4">
-                      View All Archives
+                      {t('news.viewAllArchives')}
                     </Button>
                   </CardContent>
                 </Card>
