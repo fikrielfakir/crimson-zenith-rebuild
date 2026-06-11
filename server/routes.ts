@@ -2,21 +2,31 @@ import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
+import { validateAdminToken } from "./adminTokens";
+import { db } from "./db";
+import { blogPosts, users } from "../shared/schema";
+import { eq, like, or, sql, count, desc } from "drizzle-orm";
 
-// Admin middleware
+// Admin middleware — accepts Passport session OR Bearer JWT token
 const isAdmin = async (req: any, res: Response, next: NextFunction) => {
   try {
-    if (!req.user || !req.user.id) {
-      return res.status(401).json({ message: "Unauthorized" });
+    // 1. Session-based auth
+    if (req.user?.isAdmin) return next();
+
+    // 2. Bearer token auth
+    const auth = (req.headers.authorization as string) || '';
+    if (auth.startsWith('Bearer ')) {
+      const entry = await validateAdminToken(auth.slice(7));
+      if (entry?.isAdmin && entry.userId) {
+        const user = await storage.getUser(entry.userId);
+        if (user?.isAdmin) {
+          req.user = user;
+          return next();
+        }
+      }
     }
-    
-    const user = req.user;
-    
-    if (!user.isAdmin) {
-      return res.status(403).json({ message: "Forbidden - Admin access required" });
-    }
-    
-    next();
+
+    return res.status(401).json({ message: "Unauthorized" });
   } catch (error) {
     console.error("Admin auth error:", error);
     res.status(500).json({ message: "Authentication error" });
@@ -1617,6 +1627,183 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error updating clubs page settings:", error);
       res.status(500).json({ message: "Failed to update clubs page settings" });
+    }
+  });
+
+  // ── News / Blog Admin CRUD ──────────────────────────────────────────────────
+
+  app.get('/api/admin/news', isAdmin, async (req: any, res) => {
+    try {
+      const { search, status, category, page = '1', perPage = '25' } = req.query;
+      const pageNum = parseInt(page as string);
+      const perPageNum = parseInt(perPage as string);
+      const offset = (pageNum - 1) * perPageNum;
+
+      let query = db.select({
+        id: blogPosts.id,
+        title: blogPosts.title,
+        slug: blogPosts.slug,
+        excerpt: blogPosts.excerpt,
+        category: blogPosts.category,
+        status: blogPosts.status,
+        views: blogPosts.views,
+        featuredImage: blogPosts.featuredImage,
+        authorId: blogPosts.authorId,
+        publishedAt: blogPosts.publishedAt,
+        createdAt: blogPosts.createdAt,
+        authorName: sql<string>`CONCAT(${users.firstName}, ' ', ${users.lastName})`,
+        authorAvatar: users.profileImageUrl,
+      }).from(blogPosts)
+        .leftJoin(users, eq(blogPosts.authorId, users.id))
+        .$dynamic();
+
+      const conditions: any[] = [];
+      if (search) conditions.push(or(like(blogPosts.title, `%${search}%`), like(blogPosts.content, `%${search}%`)));
+      if (status && status !== 'all') conditions.push(eq(blogPosts.status, status as string));
+      if (category && category !== 'all') conditions.push(eq(blogPosts.category, category as string));
+      if (conditions.length > 0) query = query.where(conditions.length === 1 ? conditions[0] : sql`${sql.join(conditions, sql` AND `)}`);
+
+      let countQuery = db.select({ count: count() }).from(blogPosts).$dynamic();
+      if (status && status !== 'all') countQuery = countQuery.where(eq(blogPosts.status, status as string));
+      if (category && category !== 'all') countQuery = countQuery.where(eq(blogPosts.category, category as string));
+      if (search) countQuery = countQuery.where(like(blogPosts.title, `%${search}%`));
+
+      const [countResult] = await countQuery;
+      const total = countResult.count;
+      const posts = await query.orderBy(desc(blogPosts.createdAt)).limit(perPageNum).offset(offset);
+
+      res.json({ posts, total, page: pageNum, perPage: perPageNum, totalPages: Math.ceil(total / perPageNum) });
+    } catch (error: any) {
+      console.error('Error fetching blog posts:', error);
+      res.status(500).json({ message: 'Failed to fetch blog posts', details: error.message });
+    }
+  });
+
+  app.post('/api/admin/news', isAdmin, async (req: any, res) => {
+    try {
+      const postData = req.body;
+      const slug = `${postData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')}-${Date.now()}`;
+      const [newPost] = await db.insert(blogPosts).values({
+        title: postData.title,
+        slug,
+        content: postData.content,
+        excerpt: postData.excerpt,
+        category: postData.category,
+        featuredImage: postData.featuredImage,
+        status: postData.status || 'draft',
+        authorId: req.user.id,
+        publishedAt: postData.status === 'published' ? new Date() : null,
+      }).returning();
+      res.json({ post: newPost });
+    } catch (error: any) {
+      console.error('Error creating blog post:', error);
+      res.status(500).json({ message: 'Failed to create blog post', details: error.message });
+    }
+  });
+
+  app.put('/api/admin/news/:id', isAdmin, async (req: any, res) => {
+    try {
+      const postId = parseInt(req.params.id);
+      const postData = req.body;
+      const updateData: any = {
+        title: postData.title,
+        content: postData.content,
+        excerpt: postData.excerpt,
+        category: postData.category,
+        featuredImage: postData.featuredImage,
+        status: postData.status,
+        updatedAt: new Date(),
+      };
+      if (postData.status === 'published' && !postData.publishedAt) updateData.publishedAt = new Date();
+      await db.update(blogPosts).set(updateData).where(eq(blogPosts.id, postId));
+      const [updatedPost] = await db.select().from(blogPosts).where(eq(blogPosts.id, postId));
+      res.json({ post: updatedPost });
+    } catch (error: any) {
+      console.error('Error updating blog post:', error);
+      res.status(500).json({ message: 'Failed to update blog post', details: error.message });
+    }
+  });
+
+  app.delete('/api/admin/news/:id', isAdmin, async (req: any, res) => {
+    try {
+      await db.delete(blogPosts).where(eq(blogPosts.id, parseInt(req.params.id)));
+      res.json({ message: 'Blog post deleted successfully' });
+    } catch (error: any) {
+      console.error('Error deleting blog post:', error);
+      res.status(500).json({ message: 'Failed to delete blog post', details: error.message });
+    }
+  });
+
+  // ── SMTP Settings ───────────────────────────────────────────────────────────
+
+  app.get('/api/admin/smtp-settings', isAdmin, async (req: any, res) => {
+    try {
+      const settings = await storage.getSmtpSettings();
+      const safe = settings ? { ...settings, password: settings.password ? '••••••••' : '' } : {};
+      res.json(safe);
+    } catch (error: any) {
+      console.error('Error fetching SMTP settings:', error);
+      res.status(500).json({ message: 'Failed to fetch SMTP settings' });
+    }
+  });
+
+  app.put('/api/admin/smtp-settings', isAdmin, async (req: any, res) => {
+    try {
+      const userId = req.user?.id;
+      const body = { ...req.body };
+      if (body.password === '••••••••') {
+        const existing = await storage.getSmtpSettings();
+        body.password = existing?.password ?? '';
+      }
+      const settings = await storage.updateSmtpSettings(body, userId);
+      res.json({ ...settings, password: settings.password ? '••••••••' : '' });
+    } catch (error: any) {
+      console.error('Error updating SMTP settings:', error);
+      res.status(500).json({ message: 'Failed to update SMTP settings' });
+    }
+  });
+
+  app.post('/api/admin/smtp/test', isAdmin, async (req: any, res) => {
+    const { to } = req.body;
+    if (!to) return res.status(400).json({ message: 'Missing recipient email' });
+    const cfg = await storage.getSmtpSettings();
+    if (!cfg?.enabled || !cfg.host) return res.status(400).json({ message: 'SMTP is not configured or not enabled' });
+    const subject = 'Test Email — The Journey Association';
+    const body = 'This is a test email to confirm your SMTP configuration is working correctly.';
+    try {
+      const nodemailer = await import('nodemailer');
+      const transporter = nodemailer.default.createTransport({
+        host: cfg.host, port: cfg.port ?? 587, secure: cfg.secure ?? false,
+        auth: { user: cfg.username ?? '', pass: cfg.password ?? '' },
+      });
+      await transporter.sendMail({ from: `"${cfg.fromName ?? 'Journey'}" <${cfg.fromEmail ?? cfg.username}>`, to, subject, text: body });
+      await storage.createEmailLog({ to, subject, body, status: 'sent', type: 'test', sentBy: req.user?.id });
+      res.json({ ok: true });
+    } catch (error: any) {
+      console.error('SMTP test error:', error);
+      await storage.createEmailLog({ to, subject, body, status: 'failed', errorMessage: error?.message, type: 'test', sentBy: req.user?.id }).catch(() => {});
+      res.status(500).json({ message: error?.message ?? 'SMTP test failed' });
+    }
+  });
+
+  app.post('/api/admin/smtp/send', isAdmin, async (req: any, res) => {
+    const { to, subject, body } = req.body;
+    if (!to || !subject || !body) return res.status(400).json({ message: 'Missing fields: to, subject, body' });
+    const cfg = await storage.getSmtpSettings();
+    if (!cfg?.enabled || !cfg.host) return res.status(400).json({ message: 'SMTP is not configured or not enabled' });
+    try {
+      const nodemailer = await import('nodemailer');
+      const transporter = nodemailer.default.createTransport({
+        host: cfg.host, port: cfg.port ?? 587, secure: cfg.secure ?? false,
+        auth: { user: cfg.username ?? '', pass: cfg.password ?? '' },
+      });
+      await transporter.sendMail({ from: `"${cfg.fromName ?? 'Journey'}" <${cfg.fromEmail ?? cfg.username}>`, to, subject, text: body });
+      await storage.createEmailLog({ to, subject, body, status: 'sent', type: 'manual', sentBy: req.user?.id });
+      res.json({ ok: true });
+    } catch (error: any) {
+      console.error('SMTP send error:', error);
+      await storage.createEmailLog({ to, subject, body, status: 'failed', errorMessage: error?.message, type: 'manual', sentBy: req.user?.id }).catch(() => {});
+      res.status(500).json({ message: error?.message ?? 'Send failed' });
     }
   });
 
