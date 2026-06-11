@@ -138,14 +138,21 @@ function PostEditor({
     if (!file) return;
     setUploading(true);
     try {
-      const formData = new FormData();
-      formData.append('image', file);
-      formData.append('folder', 'news');
+      const imageData = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
       const res = await apiFetch('/api/admin/upload-image', {
         method: 'POST',
-        body: formData,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageData, folder: 'news' }),
       });
-      if (!res.ok) throw new Error('Upload failed');
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || `Upload failed (${res.status})`);
+      }
       const data = await res.json();
       setValue('featuredImage', data.url, { shouldDirty: true });
       toast({ title: 'Image uploaded successfully' });
