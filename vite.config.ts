@@ -49,20 +49,22 @@ const proxyOptions = {
 const localProxyOptions = {
   target: LARAVEL_API,
   changeOrigin: true,
-  secure: false,
+  secure: true,
   configure: (proxy: any) => {
-    // Preserve Authorization + Cookie headers across the proxy hop
+    // Preserve Authorization + Cookie headers and spoof origin so the external API accepts requests
     proxy.on("proxyReq", (proxyReq: any, req: any) => {
+      proxyReq.setHeader("Origin", "https://thejourney-ma.org");
+      proxyReq.setHeader("Referer", "https://thejourney-ma.org/");
       const auth = req.headers["authorization"];
       if (auth) proxyReq.setHeader("Authorization", auth);
       const cookie = req.headers["cookie"];
       if (cookie) proxyReq.setHeader("Cookie", cookie);
     });
     proxy.on("error", (err: any, _req: any, res: any) => {
-      console.error("[proxy] Local API unavailable:", err.message);
+      console.error("[proxy] External API unavailable:", err.message);
       if (res && !res.headersSent) {
         res.writeHead(503, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ message: "Local API unavailable — please wait and try again." }));
+        res.end(JSON.stringify({ message: "API unavailable — please wait and try again." }));
       }
     });
   },
@@ -127,23 +129,17 @@ export default defineConfig(({ mode }: { mode: string }) => ({
       ? { clientPort: 443, protocol: "wss", host: process.env.REPLIT_DEV_DOMAIN }
       : true,
     proxy: {
-      // Media upload + storage endpoints → local Laravel (stores files to disk)
-      "/api/admin/media":     localLaravelOptions,
-      "/api/admin/cms/media": localLaravelOptions,
-      // Other admin/cms routes → external Laravel API
-      "/api/admin":       localProxyOptions,
-      "/api/payments":    localProxyOptions,
-      "/api/cities":      localProxyOptions,
-      "/api/cms":         localProxyOptions,
-      "/api/clubs":       localProxyOptions,
-      "/api/placeholder": { target: LARAVEL_API, changeOrigin: true },
-      "/api":             proxyOptions,
-      "/sanctum":         laravelProxyOptions,
-      // Serve stored media files from local Laravel public/storage symlink
+      // ── Media upload/management → local Express (handles disk storage) ────
+      "/api/admin/media":     { target: LOCAL_API, changeOrigin: true },
+      "/api/admin/cms/media": { target: LOCAL_API, changeOrigin: true },
+      // ── All API & auth routes → local Express server ──────────────────────
+      "/api":     { target: LOCAL_API, changeOrigin: true },
+      "/sanctum": { target: LOCAL_API, changeOrigin: true },
+      // ── Static assets ─────────────────────────────────────────────────────
       "/storage":         localLaravelOptions,
       "/attached_assets": localLaravelOptions,
-      // /uploads files live on the external Laravel API (api.thejourney-ma.org/public/uploads/)
-      "/uploads":         { target: LARAVEL_API, changeOrigin: true, secure: true },
+      // /uploads served by Express static middleware
+      "/uploads": { target: LOCAL_API, changeOrigin: true },
     },
     watch: {
       ignored: [
