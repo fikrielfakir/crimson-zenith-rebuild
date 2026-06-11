@@ -1,10 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Clock,
-  Heart,
   Bookmark,
   Eye,
   ArrowLeft,
@@ -13,10 +12,13 @@ import {
   ChevronRight,
   Link2,
   Share2,
+  X,
+  ZoomIn,
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
+import { useAuth } from "@/hooks/useAuth";
 
 /* ─── types ────────────────────────────────────────────────── */
 interface BlogArticle {
@@ -53,16 +55,18 @@ function getField<T>(obj: BlogArticle | null, ...keys: (keyof BlogArticle)[]): T
 const BlogPost = () => {
   const { t } = useTranslation();
   const { slug } = useParams<{ slug: string }>();
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
 
   const [article, setArticle]     = useState<BlogArticle | null>(null);
   const [related, setRelated]     = useState<BlogArticle[]>([]);
   const [loading, setLoading]     = useState(true);
   const [error, setError]         = useState<string | null>(null);
-  const [isLiked, setIsLiked]     = useState(false);
   const [isSaved, setIsSaved]     = useState(false);
   const [copied, setCopied]       = useState(false);
   const [progress, setProgress]   = useState(0);
   const [showTop, setShowTop]     = useState(false);
+  const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
 
   /* reading progress */
   useEffect(() => {
@@ -74,6 +78,14 @@ const BlogPost = () => {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  /* close lightbox on Escape */
+  useEffect(() => {
+    if (!lightboxSrc) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setLightboxSrc(null); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [lightboxSrc]);
 
   /* fetch article */
   useEffect(() => {
@@ -112,7 +124,6 @@ const BlogPost = () => {
   };
   const authorImg   = (): string => {
     if (!article) return "";
-    // API returns author_avatar at top level
     if ((article as any).author_avatar) return (article as any).author_avatar;
     if (typeof article.author === "object") return article.author?.avatar ?? article.author?.image ?? "";
     return "";
@@ -143,6 +154,24 @@ const BlogPost = () => {
     navigator.clipboard.writeText(pageUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2200);
+  };
+
+  /* save — requires login */
+  const handleSave = () => {
+    if (!isAuthenticated) {
+      navigate("/login");
+      return;
+    }
+    setIsSaved(v => !v);
+  };
+
+  /* click on images inside article body → lightbox */
+  const handleContentClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLElement;
+    if (target.tagName === "IMG") {
+      const src = (target as HTMLImageElement).src;
+      if (src) setLightboxSrc(src);
+    }
   };
 
   const relatedCover = (a: BlogArticle) =>
@@ -222,9 +251,8 @@ const BlogPost = () => {
 
       <Header />
 
-      {/* ── HERO — dark text section (NO bg image here) ─────── */}
+      {/* ── HERO — dark navy section ─────────────────────────── */}
       <section className="bg-[#112250] relative overflow-hidden">
-        {/* subtle pattern overlay */}
         <div className="absolute inset-0 opacity-[0.04]"
           style={{ backgroundImage: "radial-gradient(circle at 20% 80%, #D8C18D 0%, transparent 50%), radial-gradient(circle at 80% 20%, #D8C18D 0%, transparent 50%)" }}
         />
@@ -297,16 +325,26 @@ const BlogPost = () => {
         </div>
       </section>
 
-      {/* ── COVER IMAGE — full-bleed, separated from hero ───── */}
+      {/* ── COVER IMAGE — smaller, clickable ─────────────────── */}
       {coverImg() && (
-        <div className="w-full bg-gray-100 overflow-hidden" style={{ maxHeight: "560px" }}>
+        <div
+          className="w-full bg-gray-100 overflow-hidden cursor-zoom-in group relative"
+          style={{ maxHeight: "380px" }}
+          onClick={() => setLightboxSrc(coverImg())}
+        >
           <img
             src={coverImg()}
             alt={article.title}
-            className="w-full h-full object-cover"
-            style={{ maxHeight: "560px", display: "block" }}
-            onError={e => { (e.target as HTMLImageElement).style.display = "none"; }}
+            className="w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+            style={{ maxHeight: "380px", display: "block" }}
+            onError={e => { (e.target as HTMLImageElement).parentElement!.style.display = "none"; }}
           />
+          {/* zoom hint */}
+          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/10">
+            <div className="bg-white/90 rounded-full p-2 shadow-lg">
+              <ZoomIn className="w-5 h-5 text-[#112250]" />
+            </div>
+          </div>
         </div>
       )}
 
@@ -317,24 +355,13 @@ const BlogPost = () => {
 
             {/* ── Main column ── */}
             <div>
-              {/* action bar */}
+              {/* action bar — Save only */}
               <div className="flex items-center gap-3 mb-10 pb-6 border-b border-gray-100">
-                {/* like */}
-                <button
-                  onClick={() => setIsLiked(!isLiked)}
-                  className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border text-sm font-medium transition-all ${
-                    isLiked
-                      ? "border-red-200 bg-red-50 text-red-500"
-                      : "border-gray-200 text-gray-500 hover:border-red-200 hover:text-red-400"
-                  }`}
-                >
-                  <Heart className={`w-4 h-4 ${isLiked ? "fill-red-500" : ""}`} />
-                  <span>{(article.likes ?? 0) + (isLiked ? 1 : 0)}</span>
-                </button>
 
                 {/* save */}
                 <button
-                  onClick={() => setIsSaved(!isSaved)}
+                  onClick={handleSave}
+                  title={!isAuthenticated ? "Login to save this article" : undefined}
                   className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border text-sm font-medium transition-all ${
                     isSaved
                       ? "border-[#112250]/20 bg-[#112250]/5 text-[#112250]"
@@ -355,9 +382,10 @@ const BlogPost = () => {
                 </button>
               </div>
 
-              {/* article content */}
+              {/* article content — images inside are clickable */}
               {article.content ? (
                 <div
+                  onClick={handleContentClick}
                   className="
                     prose prose-lg max-w-none font-body
                     prose-headings:font-heading prose-headings:text-[#112250]
@@ -367,7 +395,8 @@ const BlogPost = () => {
                     prose-blockquote:border-l-[3px] prose-blockquote:border-[#D8C18D]
                     prose-blockquote:bg-amber-50/40 prose-blockquote:py-3 prose-blockquote:px-5
                     prose-blockquote:rounded-r-xl prose-blockquote:not-italic prose-blockquote:text-gray-600
-                    prose-img:rounded-2xl prose-img:shadow-md prose-img:max-w-full prose-img:mx-auto
+                    prose-img:rounded-2xl prose-img:shadow-md prose-img:max-w-[60%] prose-img:mx-auto
+                    prose-img:cursor-zoom-in
                     prose-code:bg-gray-100 prose-code:px-1.5 prose-code:rounded prose-code:text-sm
                     prose-hr:border-gray-100
                     [&_p:first-of-type::first-letter]:text-6xl [&_p:first-of-type::first-letter]:font-bold
@@ -529,23 +558,6 @@ const BlogPost = () => {
                   </div>
                 </div>
 
-                {/* Stats card */}
-                {(article.views !== undefined || article.likes !== undefined) && (
-                  <div className="rounded-2xl border border-gray-100 bg-white shadow-sm overflow-hidden">
-                    <div className="px-5 py-4 border-b border-gray-50">
-                      <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400">Article Stats</p>
-                    </div>
-                    <div className="p-4 divide-y divide-gray-50">
-                      {article.views !== undefined && (
-                        <StatRow icon={<Eye className="w-3.5 h-3.5" />} label="Views" value={article.views.toLocaleString()} />
-                      )}
-                      {article.likes !== undefined && (
-                        <StatRow icon={<Heart className="w-3.5 h-3.5" />} label="Likes" value={(article.likes + (isLiked ? 1 : 0)).toString()} />
-                      )}
-                    </div>
-                  </div>
-                )}
-
                 {/* Reading progress */}
                 <div className="rounded-2xl border border-gray-100 bg-white shadow-sm p-5 space-y-3">
                   <div className="flex items-center justify-between">
@@ -560,6 +572,7 @@ const BlogPost = () => {
                   </div>
                   <p className="text-xs text-gray-400">{readTime()} total</p>
                 </div>
+
               </div>
             </aside>
           </div>
@@ -576,6 +589,28 @@ const BlogPost = () => {
       >
         <ArrowUp className="w-4 h-4" />
       </button>
+
+      {/* ── Lightbox ─────────────────────────────────────────── */}
+      {lightboxSrc && (
+        <div
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4"
+          onClick={() => setLightboxSrc(null)}
+        >
+          <button
+            onClick={() => setLightboxSrc(null)}
+            className="absolute top-5 right-5 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+            aria-label="Close"
+          >
+            <X className="w-5 h-5 text-white" />
+          </button>
+          <img
+            src={lightboxSrc}
+            alt="Full size"
+            className="max-w-full max-h-[90vh] rounded-xl shadow-2xl object-contain"
+            onClick={e => e.stopPropagation()}
+          />
+        </div>
+      )}
 
       <Footer />
     </div>
@@ -604,15 +639,6 @@ function SidebarShareBtn({
       </div>
       {label}
     </button>
-  );
-}
-
-function StatRow({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
-  return (
-    <div className="flex items-center justify-between py-2.5 first:pt-0 last:pb-0">
-      <div className="flex items-center gap-2 text-gray-500 text-sm">{icon}<span>{label}</span></div>
-      <span className="text-sm font-bold text-gray-900">{value}</span>
-    </div>
   );
 }
 
