@@ -390,6 +390,10 @@ Route::prefix('admin')->middleware(['admin'])->group(function () {
     Route::post('/smtp/send',                  [\App\Http\Controllers\Admin\SmtpSettingsController::class, 'send']);
     Route::get('/email-log',                   [\App\Http\Controllers\Admin\SmtpSettingsController::class, 'emailLog']);
 
+    // Auth Settings
+    Route::get('/auth-settings',               [\App\Http\Controllers\Admin\AuthSettingsController::class, 'show']);
+    Route::put('/auth-settings',               [\App\Http\Controllers\Admin\AuthSettingsController::class, 'update']);
+
     // Cities (admin CRUD)
     Route::get('/cities',                      [\App\Http\Controllers\Admin\CityAdminController::class, 'index']);
     Route::post('/cities/seed',                [\App\Http\Controllers\Admin\CityAdminController::class, 'seedDefaults']);
