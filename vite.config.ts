@@ -1,441 +1,4 @@
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react-swc";
-import path from "path";
-import { fileURLToPath } from "url";
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
-/**
- * Rewrites Set-Cookie headers so they work in the Replit HTTPS dev environment:
- *   - Strips the `Domain` attribute so the browser uses the current host
- *   - Downgrades `SameSite=None` → `SameSite=Lax`
- *   - Keeps `Secure` since Replit serves over HTTPS
- */
-function patchCookies(proxyRes: any) {
-  const raw = proxyRes.headers["set-cookie"];
-  if (!raw) return;
-  proxyRes.headers["set-cookie"] = (Array.isArray(raw) ? raw : [raw]).map(
-    (cookie: string) =>
-      cookie
-        .replace(/;\s*Domain=[^;]*/gi, "")
-        .replace(/;\s*SameSite=None/gi, "; SameSite=Lax"),
-  );
-}
-
-const LARAVEL_API = "https://api.thejourney-ma.org";
-const LOCAL_API = "http://localhost:3001";
-const LOCAL_LARAVEL = "http://localhost:8000";
-
-// On Replit (REPL_ID is set) route /api to the local Express server.
-// Locally (no REPL_ID) fall back to the external Laravel API so the
-// frontend works without needing a local backend process.
-const IS_REPLIT = !!process.env.REPL_ID;
-const API_PROXY_TARGET = IS_REPLIT ? LOCAL_API : LARAVEL_API;
-
-const proxyOptions = {
-  target: LARAVEL_API,
-  changeOrigin: true,
-  secure: true,
-  headers: {
-    Origin: "https://thejourney-ma.org",
-    Referer: "https://thejourney-ma.org/",
-  },
-  // configure: (proxy: any) => {
-  //   proxy.on("proxyRes", patchCookies);
-  //   proxy.on("error", (err: any, _req: any, res: any) => {
-  //     console.error("[proxy] API unavailable:", err.message);
-  //     if (res && !res.headersSent) {
-  //       res.writeHead(503, { "Content-Type": "application/json" });
-  //       res.end(JSON.stringify({ message: "API unavailable — please wait and try again." }));
-  //     }
-  //   });
-  // },
-};
-
-const localProxyOptions = {
-  target: LARAVEL_API,
-  changeOrigin: true,
-  secure: true,
-  configure: (proxy: any) => {
-    // Preserve Authorization + Cookie headers and spoof origin so the external API accepts requests
-    proxy.on("proxyReq", (proxyReq: any, req: any) => {
-      proxyReq.setHeader("Origin", "https://thejourney-ma.org");
-      proxyReq.setHeader("Referer", "https://thejourney-ma.org/");
-      const auth = req.headers["authorization"];
-      if (auth) proxyReq.setHeader("Authorization", auth);
-      const cookie = req.headers["cookie"];
-      if (cookie) proxyReq.setHeader("Cookie", cookie);
-    });
-    proxy.on("error", (err: any, _req: any, res: any) => {
-      console.error("[proxy] External API unavailable:", err.message);
-      if (res && !res.headersSent) {
-        res.writeHead(503, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ message: "API unavailable — please wait and try again." }));
-      }
-    });
-  },
-};
-
-// Routes that must be handled by the local Laravel instance (disk storage for media).
-const localLaravelOptions = {
-  target: LOCAL_LARAVEL,
-  changeOrigin: true,
-  secure: false,
-  configure: (proxy: any) => {
-    proxy.on("proxyReq", (proxyReq: any, req: any) => {
-      const auth = req.headers["authorization"];
-      if (auth) proxyReq.setHeader("Authorization", auth);
-      const cookie = req.headers["cookie"];
-      if (cookie) proxyReq.setHeader("Cookie", cookie);
-    });
-    proxy.on("error", (err: any, _req: any, res: any) => {
-      console.error("[proxy] Laravel local (8000) unavailable:", err.message);
-      if (res && !res.headersSent) {
-        res.writeHead(503, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ message: "Laravel API unavailable — make sure the Laravel API workflow is running." }));
-      }
-    });
-  },
-};
-
-const laravelProxyOptions = proxyOptions;
-
-const PROD_API_BASE = "https://api.thejourney-ma.org";
-
-export default defineConfig(({ mode }: { mode: string }) => ({
-  define: {
-    "import.meta.env.VITE_API_BASE_URL": JSON.stringify(mode === "production" ? PROD_API_BASE : ""),
-  },
-  build: {
-    outDir: "dist",
-    sourcemap: false,
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          vendor: ["react", "react-dom", "react-router-dom"],
-          ui: ["@tanstack/react-query", "framer-motion"],
-        },
-      },
-    },
-  },
-  optimizeDeps: {
-    exclude: ["core-js"],
-    esbuildOptions: {
-      sourcemap: false,
-      logOverride: { "invalid-source-map": "silent" },
-    },
-  },
-  server: {
-    host: "0.0.0.0",
-    port: 5000,
-    allowedHosts: true as const,
-    hmr: (process.env.REPL_SLUG || process.env.REPL_ID)
-      ? { clientPort: 443, protocol: "wss", host: process.env.REPLIT_DEV_DOMAIN }
-      : true,
-    watch: {
-      ignored: [
-        "**/.cache/**",
-        "**/.bun/**",
-        "**/node_modules/**",
-        "**/laravel-api/**",
-      ],
-    },
-    fs: {
-      allow: [__dirname],
-    },
-    proxy: {
-      "/api": {
-        target: API_PROXY_TARGET,
-        changeOrigin: true,
-        secure: !IS_REPLIT,
-        configure: (proxy: any) => {
-          proxy.on("proxyReq", (proxyReq: any, req: any) => {
-            const auth = req.headers["authorization"];
-            if (auth) proxyReq.setHeader("Authorization", auth);
-            const cookie = req.headers["cookie"];
-            if (cookie) proxyReq.setHeader("Cookie", cookie);
-            // Spoof origin so the external Laravel API accepts requests when running locally
-            if (!IS_REPLIT) {
-              proxyReq.setHeader("Origin", "https://thejourney-ma.org");
-              proxyReq.setHeader("Referer", "https://thejourney-ma.org/");
-            }
-          });
-          proxy.on("error", (err: any, _req: any, res: any) => {
-            const target = IS_REPLIT ? "local API (3001)" : "external API (api.thejourney-ma.org)";
-            console.error(`[proxy] ${target} unavailable:`, err.message);
-            if (res && !res.headersSent) {
-              res.writeHead(503, { "Content-Type": "application/json" });
-              res.end(JSON.stringify({ message: "API unavailable — please try again in a moment." }));
-            }
-          });
-        },
-      },
-      "/uploads": {
-        target: API_PROXY_TARGET,
-        changeOrigin: true,
-        secure: !IS_REPLIT,
-      },
-      "/storage": {
-        target: API_PROXY_TARGET,
-        changeOrigin: true,
-        secure: !IS_REPLIT,
-      },
-    },
-  },
-  plugins: [
-    react(),
-    {
-      // Intercept GET /api/cms/media/:id — check local uploads first (backward compat),
-      // then fall through to the proxy so Laravel's CmsController::media handles it.
-      name: "serve-cms-media-by-id",
-      configureServer(server) {
-        server.middlewares.use(async (req: any, res: any, next: any) => {
-          if (req.method !== "GET") return next();
-          const url: string = req.url ?? "";
-          const match = url.match(/^\/api\/cms\/media\/(\d+)/);
-          if (!match) return next();
-
-          const id = parseInt(match[1], 10);
-
-          try {
-            const fs = await import("fs/promises");
-            const path = await import("path");
-            const uploadsDir = path.resolve(__dirname, "public/uploads");
-            const indexFile = path.join(uploadsDir, "media-index.json");
-
-            let items: any[] = [];
-            try { items = JSON.parse(await fs.readFile(indexFile, "utf-8")); } catch {}
-
-            const entry = items.find((x: any) => x.id === id);
-            if (!entry) {
-              // Not in local index — let the proxy forward to Laravel
-              return next();
-            }
-
-            const filePath = path.join(uploadsDir, entry.fileName);
-            let binary: Buffer;
-            try { binary = await fs.readFile(filePath); } catch {
-              // File missing locally — let the proxy forward to Laravel
-              return next();
-            }
-
-            const ext = entry.fileName.split(".").pop()?.toLowerCase() ?? "jpg";
-            const mimeMap: Record<string, string> = {
-              jpg: "image/jpeg", jpeg: "image/jpeg",
-              png: "image/png", gif: "image/gif", webp: "image/webp",
-              svg: "image/svg+xml",
-            };
-            const mime = mimeMap[ext] ?? "image/jpeg";
-
-            res.statusCode = 200;
-            res.setHeader("Content-Type", mime);
-            res.setHeader("Cache-Control", "public, max-age=3600");
-            res.end(binary);
-            console.log(`[cms-media] Served id=${id} → ${entry.fileName}`);
-          } catch (err) {
-            console.error("[cms-media] Error:", err);
-            next();
-          }
-        });
-      },
-    },
-    {
-      // Intercept GET /api/media/{id} — check local uploads first, then
-      // fetch the media asset JSON from production, decode the base64 data
-      // URL, and serve binary image data so <img src="/api/media/{id}"> works.
-      name: "serve-media-binary",
-      configureServer(server) {
-        server.middlewares.use(async (req: any, res: any, next: any) => {
-          if (req.method !== "GET" || !req.url?.startsWith("/api/media/")) {
-            return next();
-          }
-
-          const id = req.url.replace(/^\/api\/media\//, "").split("?")[0];
-          if (!id) return next();
-
-          try {
-            const fs = await import("fs/promises");
-            const path = await import("path");
-
-            // Check if a locally-uploaded file exists for this id
-            const uploadsDir = path.resolve(__dirname, "public/uploads");
-            let localFile: string | null = null;
-            try {
-              const files = await fs.readdir(uploadsDir);
-              const match = files.find((f) => f.startsWith(id + "."));
-              if (match) localFile = path.join(uploadsDir, match);
-            } catch { /* directory may not exist yet */ }
-
-            if (localFile) {
-              const ext = localFile.split(".").pop() ?? "jpg";
-              const mimeMap: Record<string, string> = {
-                jpg: "image/jpeg", jpeg: "image/jpeg",
-                png: "image/png", gif: "image/gif", webp: "image/webp",
-              };
-              const mime = mimeMap[ext] ?? "image/jpeg";
-              const binary = await fs.readFile(localFile);
-              res.statusCode = 200;
-              res.setHeader("Content-Type", mime);
-              res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
-              res.end(binary);
-              return;
-            }
-
-            // Not found locally — let the proxy forward to the local API
-            next();
-            return;
-          } catch (err) {
-            console.error("[serve-media-binary] Error:", err);
-            next();
-          }
-        });
-      },
-    },
-    {
-      // Handle Focus-Section settings locally — intercepts before the proxy so no DB
-      // migration is required for `focus_section_settings`:
-      //   GET /api/cms/focus-section           → public read
-      //   GET /api/admin/cms/focus-section     → admin read
-      //   PUT /api/admin/cms/focus-section     → admin write
-      name: "handle-focus-section",
-      configureServer(server) {
-        server.middlewares.use(async (req: any, res: any, next: any) => {
-          const url: string = req.url ?? "";
-          if (
-            !url.startsWith("/api/cms/focus-section") &&
-            !url.startsWith("/api/admin/cms/focus-section")
-          ) {
-            return next();
-          }
-
-          const fs = await import("fs/promises");
-          const pathMod = await import("path");
-          const settingsFile = pathMod.resolve(__dirname, "public/focus-section-settings.json");
-          const DEFAULT = {
-            id: "default",
-            title: "Our Focus",
-            subtitle: "Tourism, Culture, Entertainment",
-            is_active: true,
-          };
-
-          async function readSettings(): Promise<any> {
-            try {
-              return JSON.parse(await fs.readFile(settingsFile, "utf-8"));
-            } catch {
-              return DEFAULT;
-            }
-          }
-          async function writeSettings(data: any) {
-            await fs.mkdir(pathMod.dirname(settingsFile), { recursive: true });
-            await fs.writeFile(settingsFile, JSON.stringify(data, null, 2));
-          }
-
-          if (req.method === "GET") {
-            const settings = await readSettings();
-            res.statusCode = 200;
-            res.setHeader("Content-Type", "application/json");
-            res.end(JSON.stringify(settings));
-            return;
-          }
-
-          if (req.method === "PUT") {
-            try {
-              const chunks: Buffer[] = [];
-              for await (const chunk of req) chunks.push(chunk);
-              const body = JSON.parse(Buffer.concat(chunks).toString());
-              const existing = await readSettings();
-              const updated = { ...existing, ...body, id: "default" };
-              await writeSettings(updated);
-              res.statusCode = 200;
-              res.setHeader("Content-Type", "application/json");
-              res.end(JSON.stringify(updated));
-              console.log("[focus-section] Settings saved");
-            } catch (err) {
-              console.error("[focus-section] Save error:", err);
-              res.statusCode = 500;
-              res.setHeader("Content-Type", "application/json");
-              res.end(JSON.stringify({ message: "Save failed" }));
-            }
-            return;
-          }
-
-          next();
-        });
-      },
-    },
-    {
-      // Handle i18n locale file read/write locally — intercepts BEFORE the proxy
-      // so these never reach the production Laravel server.
-      //   GET /api/admin/i18n/:section → read keys from all 4 locale JSON files
-      //   PUT /api/admin/i18n/:section → write keys into all 4 locale JSON files
-      name: "handle-i18n-locale",
-      configureServer(server) {
-        server.middlewares.use(async (req: any, res: any, next: any) => {
-          const url: string = req.url ?? "";
-          const match = url.match(/^\/api\/admin\/i18n\/([^?/]+)/);
-          if (!match) return next();
-
-          const section = match[1];
-          const LANGS = ["en", "fr", "ar", "es"];
-          const pathMod = await import("path");
-          const fs = await import("fs/promises");
-
-          // GET — return all locale data for the section
-          if (req.method === "GET") {
-            const result: Record<string, any> = {};
-            for (const lang of LANGS) {
-              const file = pathMod.resolve(__dirname, `src/i18n/locales/${lang}.json`);
-              try {
-                const raw = JSON.parse(await fs.readFile(file, "utf-8"));
-                result[lang] = raw[section] ?? {};
-              } catch { result[lang] = {}; }
-            }
-            res.statusCode = 200;
-            res.setHeader("Content-Type", "application/json");
-            res.end(JSON.stringify(result));
-            return;
-          }
-
-          // PUT — merge incoming keys into each locale file
-          if (req.method === "PUT") {
-            try {
-              const chunks: Buffer[] = [];
-              for await (const chunk of req) chunks.push(chunk);
-              const updates: Record<string, Record<string, string>> = JSON.parse(Buffer.concat(chunks).toString());
-              for (const lang of LANGS) {
-                if (!updates[lang]) continue;
-                const file = pathMod.resolve(__dirname, `src/i18n/locales/${lang}.json`);
-                try {
-                  const raw = JSON.parse(await fs.readFile(file, "utf-8"));
-                  raw[section] = { ...(raw[section] ?? {}), ...updates[lang] };
-                  await fs.writeFile(file, JSON.stringify(raw, null, 2) + "\n", "utf-8");
-                } catch (e) { console.error(`[i18n] Error updating ${lang}.json:`, e); }
-              }
-              res.statusCode = 200;
-              res.setHeader("Content-Type", "application/json");
-              res.end(JSON.stringify({ message: "Saved" }));
-              console.log(`[i18n] Updated section "${section}" for ${Object.keys(updates).join(", ")}`);
-            } catch (err) {
-              console.error("[i18n] Save error:", err);
-              res.statusCode = 500;
-              res.setHeader("Content-Type", "application/json");
-              res.end(JSON.stringify({ message: "Save failed" }));
-            }
-            return;
-          }
-
-          next();
-        });
-      },
-    },
-    {
-      // Handle Legal Pages locally — intercepts before the proxy so these never
-      // hit the production Laravel server (which has no /api/cms/legal routes).
-      //   GET /api/cms/legal/:pageKey          → public read
-      //   GET /api/admin/cms/legal/:pageKey    → admin read
-      //   PUT /api/admin/cms/legal/:pageKey    → admin write
-      name: "handle-legal-pages",
-      configureServer(server) {
+Server(server) {
         server.middlewares.use(async (req: any, res: any, next: any) => {
           const url: string = req.url ?? "";
           const publicMatch = url.match(/^\/api\/cms\/legal\/([^?/]+)/);
@@ -644,9 +207,67 @@ export default defineConfig(({ mode }: { mode: string }) => ({
         });
       },
     },
-    // NOTE: The handle-local-api plugin has been removed.
-    // /api/cms/*, /api/admin/*, /api/payments/*, /api/cities/* are all
-    // proxied directly to the Laravel API via the Vite proxy config above.
+    {
+      // Handle image uploads locally — intercepts POST /api/admin/upload-image BEFORE
+      // the proxy so it works in both local dev (no Express) and on Replit.
+      // Writes the file to public/uploads/<folder>/ and returns a URL path.
+      name: "handle-upload-image",
+      configureServer(server) {
+        server.middlewares.use(async (req: any, res: any, next: any) => {
+          if (req.method !== "POST" || req.url !== "/api/admin/upload-image") {
+            return next();
+          }
+          try {
+            const chunks: Buffer[] = [];
+            for await (const chunk of req) chunks.push(chunk);
+            const body = JSON.parse(Buffer.concat(chunks).toString());
+            const { imageData, folder = "misc" } = body;
+
+            if (!imageData) {
+              res.statusCode = 400;
+              res.setHeader("Content-Type", "application/json");
+              res.end(JSON.stringify({ message: "No imageData provided" }));
+              return;
+            }
+
+            const commaIdx = imageData.indexOf(",");
+            if (!imageData.startsWith("data:") || commaIdx < 0) {
+              res.statusCode = 400;
+              res.setHeader("Content-Type", "application/json");
+              res.end(JSON.stringify({ message: "Invalid imageData format" }));
+              return;
+            }
+
+            const fs = await import("fs/promises");
+            const pathMod = await import("path");
+            const crypto = await import("crypto");
+
+            const header = imageData.substring(5, commaIdx);
+            const mime = header.split(";")[0];
+            const ext = mime.split("/")[1]?.replace("jpeg", "jpg").replace("svg+xml", "svg") ?? "png";
+            const base64Data = imageData.substring(commaIdx + 1);
+            const binary = Buffer.from(base64Data, "base64");
+            const id = (crypto as any).randomUUID();
+            const filename = `${id}.${ext}`;
+            const safeFolder = folder.replace(/[^a-z0-9_-]/gi, "_");
+            const uploadsDir = pathMod.resolve(__dirname, `public/uploads/${safeFolder}`);
+            await fs.mkdir(uploadsDir, { recursive: true });
+            await fs.writeFile(pathMod.join(uploadsDir, filename), binary);
+            const url = `/uploads/${safeFolder}/${filename}`;
+
+            res.statusCode = 201;
+            res.setHeader("Content-Type", "application/json");
+            res.end(JSON.stringify({ url }));
+            console.log(`[upload-image] Saved → ${url}`);
+          } catch (err) {
+            console.error("[upload-image] Error:", err);
+            res.statusCode = 500;
+            res.setHeader("Content-Type", "application/json");
+            res.end(JSON.stringify({ message: "Upload failed" }));
+          }
+        });
+      },
+    },
   ],
   resolve: {
     alias: {
