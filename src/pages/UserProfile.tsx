@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
-import { apiFetch } from "@/lib/apiFetch";
+import { apiFetch, resolveStorageUrl } from "@/lib/apiFetch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -1037,7 +1037,7 @@ const UserProfile = () => {
                         <div key={event.id} className="group relative border border-slate-100 rounded-2xl overflow-hidden hover:shadow-lg transition-all duration-200 cursor-pointer bg-white" onClick={() => navigate(`/book?event=${event.id}`)}>
                           <div className="relative h-44 bg-slate-100 overflow-hidden">
                             <img
-                              src={event.image && !event.image.startsWith('blob:') ? event.image : 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80'}
+                              src={resolveStorageUrl(event.image && !event.image.startsWith('blob:') ? event.image : null) ?? 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80'}
                               alt={event.title}
                               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                               onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80'; }}

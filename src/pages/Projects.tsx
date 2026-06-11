@@ -12,6 +12,8 @@ import DonateDrawer from "@/components/DonateDrawer";
 import { ArrowRight, MapPin, Users, Calendar, Target, Filter, ArrowUp, ChevronLeft, Mail, Leaf, GraduationCap, Palmtree, Heart, Building } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import PageHero from "@/components/PageHero";
 import { apiFetch, resolveStorageUrl } from "@/lib/apiFetch";
 
 interface Project {

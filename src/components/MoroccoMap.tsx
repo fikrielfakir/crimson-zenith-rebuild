@@ -1,3 +1,4 @@
+import React, { useLayoutEffect } from 'react';
 import { resolveStorageUrl } from '@/lib/apiFetch';
 import { Club } from '../../shared/schema';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
