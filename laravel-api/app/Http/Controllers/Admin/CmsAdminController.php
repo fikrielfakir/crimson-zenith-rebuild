@@ -195,16 +195,27 @@ class CmsAdminController extends Controller
         }
 
         $setting = PageHeroSetting::firstOrCreate(['page_key' => $page]);
-        $setting->update(array_merge(
-            $request->only([
-                'background_type', 'backgroundType',
-                'background_image_url', 'backgroundImageUrl',
-                'background_video_url', 'backgroundVideoUrl',
-                'overlay_opacity', 'overlayOpacity',
-                'title', 'subtitle',
-            ]),
-            ['updated_by' => $request->user()?->id]
-        ));
+
+        $data = [];
+
+        if ($request->has('backgroundType'))       $data['background_type']      = $request->input('backgroundType');
+        if ($request->has('background_type'))       $data['background_type']      = $request->input('background_type');
+
+        if ($request->has('backgroundImageUrl'))    $data['background_image_url'] = $request->input('backgroundImageUrl');
+        if ($request->has('background_image_url'))  $data['background_image_url'] = $request->input('background_image_url');
+
+        if ($request->has('backgroundVideoUrl'))    $data['background_video_url'] = $request->input('backgroundVideoUrl');
+        if ($request->has('background_video_url'))  $data['background_video_url'] = $request->input('background_video_url');
+
+        if ($request->has('overlayOpacity'))        $data['overlay_opacity']      = $request->input('overlayOpacity');
+        if ($request->has('overlay_opacity'))       $data['overlay_opacity']      = $request->input('overlay_opacity');
+
+        if ($request->has('title'))    $data['title']    = $request->input('title');
+        if ($request->has('subtitle')) $data['subtitle'] = $request->input('subtitle');
+
+        $data['updated_by'] = $request->user()?->id;
+
+        $setting->update($data);
 
         $fresh = $setting->fresh();
         return response()->json([
