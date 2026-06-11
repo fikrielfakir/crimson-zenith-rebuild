@@ -78,10 +78,6 @@ async function runMigrations() {
   try {
     console.log('🔄 Running database migrations...');
     console.log('✅ Migrations completed');
-<<<<<<< HEAD
-  } catch (error) {
-    console.error('❌ Error running migrations:', error);
-=======
   } catch (error: any) {
     // If no migrations folder / journal yet, schema was pushed directly — not a fatal error
     if (error?.code === 'ENOENT' || error?.message?.includes('_journal.json')) {
@@ -89,7 +85,6 @@ async function runMigrations() {
     } else {
       console.error('❌ Error running migrations:', error);
     }
->>>>>>> f5f3ecb8bbce2594df6aa9789ea7938dbce73d86
   }
 }
 
