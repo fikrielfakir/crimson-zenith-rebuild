@@ -85,6 +85,29 @@ class CmsAdminController extends Controller
         return response()->json($settings->fresh());
     }
 
+    public function updateSeo(Request $request)
+    {
+        $settings = \App\Models\SeoSettings::firstOrCreate(['id' => 'default']);
+        $settings->update(array_merge(
+            $request->only([
+                'site_title', 'site_description', 'keywords',
+                'og_image', 'favicon_url',
+                'twitter_handle', 'google_analytics_id', 'facebook_pixel_id',
+                'custom_head_code', 'custom_body_code',
+            ]),
+            ['updated_by' => $request->user()?->id]
+        ));
+
+        if ($request->has('faviconUrl'))      $settings->favicon_url      = $request->faviconUrl;
+        if ($request->has('siteTitle'))       $settings->site_title       = $request->siteTitle;
+        if ($request->has('siteDescription')) $settings->site_description = $request->siteDescription;
+        $settings->save();
+
+        return response()->json(array_merge($settings->fresh()->toArray(), [
+            'faviconUrl' => $settings->fresh()->favicon_url,
+        ]));
+    }
+
     public function updateFooter(Request $request)
     {
         $settings = FooterSettings::firstOrCreate(['id' => 'default']);

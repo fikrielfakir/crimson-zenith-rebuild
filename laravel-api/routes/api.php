@@ -314,6 +314,7 @@ Route::prefix('admin')->middleware(['admin'])->group(function () {
     Route::put('/cms/hero',                    [\App\Http\Controllers\Admin\CmsAdminController::class, 'updateHero']);
     Route::put('/cms/theme',                   [\App\Http\Controllers\Admin\CmsAdminController::class, 'updateTheme']);
     Route::put('/cms/navbar',                  [\App\Http\Controllers\Admin\CmsAdminController::class, 'updateNavbar']);
+    Route::put('/cms/seo',                     [\App\Http\Controllers\Admin\CmsAdminController::class, 'updateSeo']);
     Route::put('/cms/footer',                  [\App\Http\Controllers\Admin\CmsAdminController::class, 'updateFooter']);
     Route::put('/cms/president-message',       [\App\Http\Controllers\Admin\CmsAdminController::class, 'updatePresidentMessage']);
     Route::put('/cms/about',                   [\App\Http\Controllers\Admin\CmsAdminController::class, 'updateAbout']);
