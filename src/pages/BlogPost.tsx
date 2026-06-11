@@ -166,49 +166,46 @@ const BlogPost = () => {
         />
       </div>
 
-      <section className="relative h-[60vh] overflow-hidden">
-        <img 
-          src={getImage()} 
-          alt={article.title}
-          className="w-full h-full object-cover"
+      <section className="relative overflow-hidden">
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: `url('${getImage()}')` }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-        
-        <div className="absolute bottom-0 left-0 right-0 p-8">
-          <div className="container mx-auto max-w-4xl">
-            {article.category && (
-              <Badge className="bg-primary text-white mb-4">
-                {article.category}
-              </Badge>
-            )}
-            <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold text-white mb-4 font-heading leading-tight">
-              {article.title}
-            </h1>
-            <div className="flex flex-wrap items-center gap-6 text-white/80">
-              <div className="flex items-center gap-2">
-                <Avatar className="w-8 h-8">
-                  <AvatarImage src={getAuthorImage()} alt={authorName} />
-                  <AvatarFallback>{authorName.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <span className="font-body">{authorName}</span>
-              </div>
-              {getDate() && (
-                <div className="flex items-center gap-1">
-                  <Calendar className="w-4 h-4" />
-                  <span className="font-body">{new Date(getDate()).toLocaleDateString()}</span>
-                </div>
-              )}
-              <div className="flex items-center gap-1">
-                <Clock className="w-4 h-4" />
-                <span className="font-body">{getReadTime()}</span>
-              </div>
-              {article.views !== undefined && (
-                <div className="flex items-center gap-1">
-                  <Eye className="w-4 h-4" />
-                  <span className="font-body">{article.views} {t('news.views').toLowerCase()}</span>
-                </div>
-              )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-black/20" />
+
+        <div className="relative container mx-auto max-w-4xl px-6 md:px-8" style={{ paddingTop: '9rem', paddingBottom: '3rem' }}>
+          {article.category && (
+            <Badge className="bg-primary text-white mb-4">
+              {article.category}
+            </Badge>
+          )}
+          <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold text-white mb-4 font-heading leading-tight drop-shadow-lg">
+            {article.title}
+          </h1>
+          <div className="flex flex-wrap items-center gap-6 text-white/80">
+            <div className="flex items-center gap-2">
+              <Avatar className="w-8 h-8">
+                <AvatarImage src={getAuthorImage()} alt={authorName} />
+                <AvatarFallback>{authorName.charAt(0)}</AvatarFallback>
+              </Avatar>
+              <span className="font-body">{authorName}</span>
             </div>
+            {getDate() && (
+              <div className="flex items-center gap-1">
+                <Calendar className="w-4 h-4" />
+                <span className="font-body">{new Date(getDate()).toLocaleDateString()}</span>
+              </div>
+            )}
+            <div className="flex items-center gap-1">
+              <Clock className="w-4 h-4" />
+              <span className="font-body">{getReadTime()}</span>
+            </div>
+            {article.views !== undefined && (
+              <div className="flex items-center gap-1">
+                <Eye className="w-4 h-4" />
+                <span className="font-body">{article.views} {t('news.views').toLowerCase()}</span>
+              </div>
+            )}
           </div>
         </div>
       </section>

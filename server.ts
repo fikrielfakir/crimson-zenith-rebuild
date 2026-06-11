@@ -2431,6 +2431,42 @@ app.get('/api/news', async (req, res) => {
   }
 });
 
+// Public single article by slug
+app.get('/api/news/:slug', async (req, res) => {
+  try {
+    const { slug } = req.params;
+    const [post] = await db.select({
+      id: blogPosts.id,
+      title: blogPosts.title,
+      slug: blogPosts.slug,
+      content: blogPosts.content,
+      excerpt: blogPosts.excerpt,
+      category: blogPosts.category,
+      status: blogPosts.status,
+      views: blogPosts.views,
+      image_url: blogPosts.featuredImage,
+      published_at: blogPosts.publishedAt,
+      created_at: blogPosts.createdAt,
+      tags: blogPosts.tags,
+      author_name: sql<string>`CONCAT(${users.firstName}, ' ', ${users.lastName})`,
+      author_avatar: users.profileImageUrl,
+    }).from(blogPosts)
+      .leftJoin(users, eq(blogPosts.authorId, users.id))
+      .where(and(eq(blogPosts.slug, slug), eq(blogPosts.status, 'published')))
+      .limit(1);
+
+    if (!post) return res.status(404).json({ message: 'Article not found' });
+
+    // Increment view count
+    await db.update(blogPosts).set({ views: sql`${blogPosts.views} + 1` }).where(eq(blogPosts.id, post.id));
+
+    res.json({ ...post, views: (post.views ?? 0) + 1 });
+  } catch (error) {
+    console.error('❌ Error fetching article:', error);
+    res.status(500).json({ message: 'Failed to fetch article' });
+  }
+});
+
 app.get('/api/admin/news', isAdmin, async (req, res) => {
   try {
     console.log('🔗 Fetching blog posts for admin...');

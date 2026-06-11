@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { apiFetch } from '@/lib/apiFetch';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
@@ -18,6 +18,9 @@ import {
   Calendar,
   Hash,
   AlignLeft,
+  Upload,
+  X,
+  Wand2,
 } from 'lucide-react';
 import { TranslateDialog } from '@/components/admin/TranslateDialog';
 import { Button } from '@/components/ui/button';
@@ -111,6 +114,9 @@ function PostEditor({
   const { t } = useTranslation();
   const { toast } = useToast();
   const isNew = !post?.id;
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const [autoTranslatingAll, setAutoTranslatingAll] = useState(false);
 
   const { register, handleSubmit, control, watch, setValue, formState: { errors, isDirty } } = useForm<PostFormData>({
     resolver: zodResolver(postSchema),
@@ -126,6 +132,88 @@ function PostEditor({
 
   const status = watch('status');
   const featuredImage = watch('featuredImage');
+
+  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+      formData.append('folder', 'news');
+      const res = await apiFetch('/api/admin/upload-image', {
+        method: 'POST',
+        body: formData,
+      });
+      if (!res.ok) throw new Error('Upload failed');
+      const data = await res.json();
+      setValue('featuredImage', data.url, { shouldDirty: true });
+      toast({ title: 'Image uploaded successfully' });
+    } catch (err: any) {
+      toast({ title: 'Upload failed', description: err.message, variant: 'destructive' });
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  }
+
+  async function handleAutoTranslateAll() {
+    const currentTitle = watch('title');
+    const currentExcerpt = watch('excerpt');
+    const currentContent = watch('content');
+
+    const sourceValues = {
+      title: currentTitle ?? post?.title ?? '',
+      excerpt: currentExcerpt ?? post?.excerpt ?? '',
+      content: currentContent ?? post?.content ?? '',
+    };
+
+    const texts = [
+      { key: 'title', value: sourceValues.title },
+      { key: 'excerpt', value: sourceValues.excerpt },
+      { key: 'content', value: sourceValues.content },
+    ].filter(t => t.value.trim());
+
+    if (texts.length === 0) {
+      toast({ title: 'Nothing to translate', description: 'Add some content first.', variant: 'destructive' });
+      return;
+    }
+
+    const LANGUAGES = ['ar', 'fr', 'es'];
+    setAutoTranslatingAll(true);
+    let successCount = 0;
+    try {
+      for (const lang of LANGUAGES) {
+        const res = await apiFetch('/api/admin/translations/auto-translate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ texts, targetLanguage: lang }),
+          credentials: 'include',
+        });
+        if (!res.ok) continue;
+        const data = await res.json();
+        const fields = Object.entries(data.results as Record<string, string>);
+        await Promise.all(fields.map(([field, value]) =>
+          apiFetch('/api/admin/translations', {
+            method: 'POST',
+            body: JSON.stringify({
+              entityType: 'blog_post',
+              entityId: String(post.id),
+              field,
+              language: lang,
+              value,
+            }),
+          })
+        ));
+        successCount++;
+      }
+      toast({ title: `Auto-translated to ${successCount} language${successCount !== 1 ? 's' : ''}`, description: 'AR, FR, ES translations saved.' });
+    } catch (err: any) {
+      toast({ title: 'Translation error', description: err.message, variant: 'destructive' });
+    } finally {
+      setAutoTranslatingAll(false);
+    }
+  }
 
   const saveMutation = useMutation({
     mutationFn: async (data: PostFormData) => {
@@ -292,19 +380,43 @@ function PostEditor({
               <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-1">
                 <ImageIcon className="h-3 w-3" /> Featured Image
               </h3>
-              <Input
-                {...register('featuredImage')}
-                placeholder="https://…"
-                className="text-sm h-8"
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleImageUpload}
               />
+              <input type="hidden" {...register('featuredImage')} />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="w-full gap-2 h-9"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+              >
+                {uploading ? (
+                  <><Loader2 className="h-3.5 w-3.5 animate-spin" />Uploading…</>
+                ) : (
+                  <><Upload className="h-3.5 w-3.5" />Upload Media</>
+                )}
+              </Button>
               {featuredImage && (
-                <div className="mt-2 rounded-lg overflow-hidden border">
+                <div className="mt-2 rounded-lg overflow-hidden border relative group">
                   <img
                     src={featuredImage}
                     alt="Featured"
                     className="w-full h-32 object-cover"
                     onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                   />
+                  <button
+                    type="button"
+                    onClick={() => setValue('featuredImage', '', { shouldDirty: true })}
+                    className="absolute top-1 right-1 h-6 w-6 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition-colors opacity-0 group-hover:opacity-100"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
                 </div>
               )}
             </div>
@@ -313,22 +425,41 @@ function PostEditor({
               <>
                 <Separator />
                 <div>
-                  <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Translations</h3>
-                  <TranslateDialog
-                    entityType="blog_post"
-                    entityId={post.id}
-                    entityLabel={post.title}
-                    fields={[
-                      { key: 'title', label: 'Title' },
-                      { key: 'excerpt', label: 'Excerpt', multiline: true },
-                      { key: 'content', label: 'Content', multiline: true },
-                    ]}
-                    sourceValues={{
-                      title: post.title,
-                      excerpt: post.excerpt ?? '',
-                      content: post.content ?? '',
-                    }}
-                  />
+                  <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-1">
+                    <Globe className="h-3 w-3" /> Translations
+                  </h3>
+                  <div className="space-y-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="w-full gap-2 h-9"
+                      onClick={handleAutoTranslateAll}
+                      disabled={autoTranslatingAll}
+                    >
+                      {autoTranslatingAll ? (
+                        <><Loader2 className="h-3.5 w-3.5 animate-spin" />Translating All…</>
+                      ) : (
+                        <><Wand2 className="h-3.5 w-3.5" />Auto Translate All</>
+                      )}
+                    </Button>
+                    <p className="text-[10px] text-muted-foreground text-center">Auto-generates AR · FR · ES</p>
+                    <TranslateDialog
+                      entityType="blog_post"
+                      entityId={post.id}
+                      entityLabel={post.title}
+                      fields={[
+                        { key: 'title', label: 'Title' },
+                        { key: 'excerpt', label: 'Excerpt', multiline: true },
+                        { key: 'content', label: 'Content', multiline: true },
+                      ]}
+                      sourceValues={{
+                        title: watch('title') || post.title,
+                        excerpt: watch('excerpt') || post.excerpt || '',
+                        content: watch('content') || post.content || '',
+                      }}
+                    />
+                  </div>
                 </div>
               </>
             )}
