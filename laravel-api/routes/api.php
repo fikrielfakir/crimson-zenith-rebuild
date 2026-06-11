@@ -28,6 +28,8 @@ Route::post('/forgot-password',       [AuthController::class, 'forgotPassword'])
 Route::post('/reset-password',        [AuthController::class, 'resetPassword']);
 Route::get('/verify-email/{token}',   [AuthController::class, 'verifyEmail']);
 Route::post('/resend-verification',   [AuthController::class, 'resendVerification']);
+Route::get('/auth/google/redirect',   [\App\Http\Controllers\SocialAuthController::class, 'redirectToGoogle']);
+Route::get('/auth/google/callback',   [\App\Http\Controllers\SocialAuthController::class, 'handleGoogleCallback']);
 
 Route::post('/admin/login',  [AdminAuthController::class, 'login']);
 Route::post('/admin/logout', [AdminAuthController::class, 'logout'])->middleware('auth');

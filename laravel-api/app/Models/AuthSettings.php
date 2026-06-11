@@ -17,12 +17,16 @@ class AuthSettings extends Model
         'session_duration_hours',
         'require_email_verification',
         'max_login_attempts',
+        'google_oauth_enabled',
+        'google_client_id',
+        'google_client_secret',
         'updated_by',
     ];
 
     protected $casts = [
         'allow_registration'          => 'boolean',
         'require_email_verification'  => 'boolean',
+        'google_oauth_enabled'        => 'boolean',
         'password_min_length'         => 'integer',
         'session_duration_hours'      => 'integer',
         'max_login_attempts'          => 'integer',
