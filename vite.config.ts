@@ -5,7 +5,7 @@ import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const LARAVEL_API = "https://api.thejourney-ma.org";
+const LARAVEL_API = "http://api.thejourney-ma.org";
 const LOCAL_API = "http://localhost:3001";
 
 // On Replit (REPL_ID is set) route /api to the local Express server.
@@ -14,7 +14,7 @@ const LOCAL_API = "http://localhost:3001";
 const IS_REPLIT = !!process.env.REPL_ID;
 const API_PROXY_TARGET = IS_REPLIT ? LOCAL_API : LARAVEL_API;
 
-const PROD_API_BASE = "https://api.thejourney-ma.org";
+const PROD_API_BASE = "http://api.thejourney-ma.org";
 
 export default defineConfig(({ mode }: { mode: string }) => ({
   define: {
