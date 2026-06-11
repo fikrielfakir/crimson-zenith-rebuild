@@ -8,9 +8,28 @@ const vite = spawn('node', ['node_modules/vite/bin/vite.js'], {
   stdio: 'inherit',
 });
 
+const laravel = spawn('php', ['artisan', 'config:clear', '--quiet'], {
+  cwd: './laravel-api',
+  stdio: 'inherit',
+});
+
+laravel.on('exit', () => {
+  const laravelServe = spawn(
+    'php',
+    ['artisan', 'serve', '--host=0.0.0.0', '--port=8000'],
+    { cwd: './laravel-api', stdio: 'inherit' }
+  );
+  laravelServe.on('exit', (code) => {
+    if (code !== 0 && code !== null) {
+      console.error(`Laravel API exited with code ${code}`);
+    }
+  });
+});
+
 const cleanup = () => {
   server.kill();
   vite.kill();
+  laravel.kill();
   process.exit();
 };
 

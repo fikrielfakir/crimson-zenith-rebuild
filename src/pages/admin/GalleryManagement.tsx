@@ -172,7 +172,10 @@ function PanoramaUploader({ value, onChange }: { value: string; onChange: (url: 
       const res = await apiFetch('/api/admin/media', { method: 'POST', credentials: 'include', body: form });
       if (!res.ok) throw new Error('Upload failed');
       const data = await res.json();
-      onChange(data.fileUrl || data.url || '');
+      const rawUrl: string = data.fileUrl || data.url || '';
+      const resolvedUrl = rawUrl.startsWith('/storage/') && import.meta.env.VITE_API_BASE_URL
+        ? `${import.meta.env.VITE_API_BASE_URL}${rawUrl}` : rawUrl;
+      onChange(resolvedUrl);
       toast({ title: t('admin.gallery.toastCreated') });
     } catch {
       toast({ title: t('admin.gallery.toastSaveFailed'), variant: 'destructive' });
@@ -262,7 +265,10 @@ function ImageUploader({ value, onChange }: { value: string; onChange: (url: str
       });
       if (!res.ok) throw new Error('Upload failed');
       const data = await res.json();
-      onChange(data.fileUrl || data.url || '');
+      const rawUrlG: string = data.fileUrl || data.url || '';
+      const resolvedUrlG = rawUrlG.startsWith('/storage/') && import.meta.env.VITE_API_BASE_URL
+        ? `${import.meta.env.VITE_API_BASE_URL}${rawUrlG}` : rawUrlG;
+      onChange(resolvedUrlG);
       toast({ title: t('admin.gallery.toastUpdated') });
     } catch {
       toast({ title: t('admin.gallery.toastSaveFailed'), variant: 'destructive' });

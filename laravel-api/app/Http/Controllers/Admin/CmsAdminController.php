@@ -258,7 +258,6 @@ class CmsAdminController extends Controller
 
             Storage::disk('public')->put('media/' . $filename, file_get_contents($file->getRealPath()));
             $fileUrl = '/storage/media/' . $filename;
-            $appUrl  = rtrim(config('app.url', ''), '/');
 
             $asset = MediaAsset::create([
                 'file_name'   => $origName,
@@ -270,16 +269,15 @@ class CmsAdminController extends Controller
                 'uploaded_by' => $userId,
             ]);
 
-            $fullUrl = $appUrl . $fileUrl;
             return response()->json([
-                'url'      => $fullUrl,
-                'imageUrl' => $fullUrl,
-                'fileUrl'  => $fullUrl,
+                'url'      => $fileUrl,
+                'imageUrl' => $fileUrl,
+                'fileUrl'  => $fileUrl,
                 'id'       => $asset->id,
             ], 201);
         }
 
-        // Accept JSON base64 imageData
+        // Accept JSON base64 imageData (legacy fallback)
         if ($request->filled('imageData')) {
             $imageData = $request->imageData;
             if (!preg_match('/^data:([^;]+);base64,(.+)$/s', $imageData, $m)) {
@@ -294,7 +292,6 @@ class CmsAdminController extends Controller
 
             Storage::disk('public')->put('media/' . $filename, $binary);
             $fileUrl = '/storage/media/' . $filename;
-            $appUrl  = rtrim(config('app.url', ''), '/');
             $altText = $request->input('alt', '');
 
             $asset = MediaAsset::create([
@@ -307,11 +304,10 @@ class CmsAdminController extends Controller
                 'uploaded_by' => $userId,
             ]);
 
-            $fullUrl = $appUrl . $fileUrl;
             return response()->json([
-                'url'      => $fullUrl,
-                'imageUrl' => $fullUrl,
-                'fileUrl'  => $fullUrl,
+                'url'      => $fileUrl,
+                'imageUrl' => $fileUrl,
+                'fileUrl'  => $fileUrl,
                 'id'       => $asset->id,
             ], 201);
         }

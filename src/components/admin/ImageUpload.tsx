@@ -2,21 +2,12 @@ import { useState, useRef } from 'react';
 import { Upload, X, ImageIcon, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { apiFetch } from '@/lib/apiFetch';
+import { apiFetch, resolveStorageUrl } from '@/lib/apiFetch';
 
 interface ImageUploadProps {
   value?: string;
   onChange: (value: string) => void;
   className?: string;
-}
-
-function fileToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
 }
 
 export function ImageUpload({ value, onChange, className }: ImageUploadProps) {
@@ -43,25 +34,26 @@ export function ImageUpload({ value, onChange, className }: ImageUploadProps) {
     setUploadStatus('idle');
     setUploadError(null);
 
-    try {
-      // Convert to base64 for local preview (never stored in DB directly)
-      const base64 = await fileToBase64(file);
-      // Show preview immediately while uploading
-      setPreview(base64);
+    // Show a local blob preview immediately while uploading
+    const localPreview = URL.createObjectURL(file);
+    setPreview(localPreview);
 
-      // Upload to server using apiFetch so the Bearer token is included
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('alt', file.name);
+
       const res = await apiFetch('/api/admin/cms/media', {
         method: 'POST',
-        body: JSON.stringify({ imageData: base64, alt: file.name }),
+        body: formData,
       });
 
       if (res.ok) {
         const data = await res.json();
-        // Prefer a direct short URL (e.g. /uploads/uuid.jpg) returned by the
-        // Vite upload middleware — it's a static file, fits in VARCHAR(500),
-        // and works immediately as an <img src> without any extra proxying.
-        const serverUrl: string = data.url || data.imageUrl || data.file_url || '';
-        if (serverUrl && serverUrl.length <= 500 && !serverUrl.startsWith('data:')) {
+        const rawUrl: string = data.fileUrl ?? data.url ?? data.imageUrl ?? '';
+        const serverUrl = resolveStorageUrl(rawUrl) ?? rawUrl;
+
+        if (serverUrl && !serverUrl.startsWith('data:')) {
           setPreview(serverUrl);
           onChange(serverUrl);
           setUploadStatus('server');
@@ -69,16 +61,15 @@ export function ImageUpload({ value, onChange, className }: ImageUploadProps) {
         }
 
         // Fallback: build a media proxy URL from the asset id
-        const assetId: string = data.id ?? '';
+        const assetId: string = String(data.id ?? '');
         if (assetId) {
-          const mediaUrl = `/api/media/${assetId}`;
+          const mediaUrl = `/api/cms/media/${assetId}`;
           onChange(mediaUrl);
           setUploadStatus('server');
           return;
         }
       }
 
-      // Upload failed — do NOT store base64 (too long for VARCHAR 500)
       const status = res.status;
       const errText = status === 401
         ? 'Session expired — please log out and log in again to upload images.'
@@ -94,6 +85,7 @@ export function ImageUpload({ value, onChange, className }: ImageUploadProps) {
       onChange('');
     } finally {
       setIsUploading(false);
+      URL.revokeObjectURL(localPreview);
     }
   };
 

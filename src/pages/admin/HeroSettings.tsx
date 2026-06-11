@@ -173,7 +173,9 @@ export default function HeroSettings() {
       const res = await apiFetch('/api/admin/cms/media', { method: 'POST', body: formData });
       if (!res.ok) throw new Error('Upload failed');
       const data = await res.json();
-      const url: string = data.fileUrl ?? data.url ?? data.thumbnailUrl ?? '';
+      const rawUrl: string = data.fileUrl ?? data.url ?? data.thumbnailUrl ?? '';
+      const url = rawUrl.startsWith('/storage/') && import.meta.env.VITE_API_BASE_URL
+        ? `${import.meta.env.VITE_API_BASE_URL}${rawUrl}` : rawUrl;
       if (url) {
         setBackgroundImageUrl(url);
         toast({ title: t('admin.hero.bgUploaded') });
