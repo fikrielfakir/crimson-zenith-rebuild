@@ -84,100 +84,40 @@ export default defineConfig(({ mode }: { mode: string }) => ({
           });
         },
       },
-      "/uploads": {
-        target: API_PROXY_TARGET,
+      "/api/media": {
+        target: LARAVEL_API,
         changeOrigin: true,
-        secure: !IS_REPLIT,
+        secure: false,
+        configure: (proxy: any) => {
+          proxy.on("proxyReq", (proxyReq: any) => {
+            proxyReq.setHeader("Origin", "https://thejourney-ma.org");
+          });
+        },
+      },
+      "/api/admin/media": {
+        target: LARAVEL_API,
+        changeOrigin: true,
+        secure: false,
+        configure: (proxy: any) => {
+          proxy.on("proxyReq", (proxyReq: any) => {
+            proxyReq.setHeader("Origin", "https://thejourney-ma.org");
+          });
+        },
+      },
+      "/uploads": {
+        target: LARAVEL_API,
+        changeOrigin: true,
+        secure: false,
       },
       "/storage": {
-        target: API_PROXY_TARGET,
+        target: LARAVEL_API,
         changeOrigin: true,
-        secure: !IS_REPLIT,
+        secure: false,
       },
     },
   },
   plugins: [
     react(),
-    {
-      // Intercept GET /api/cms/media/:id - check local uploads first
-      name: "serve-cms-media-by-id",
-      configureServer(server) {
-        server.middlewares.use(async (req: any, res: any, next: any) => {
-          if (req.method !== "GET") return next();
-          const url: string = req.url ?? "";
-          const match = url.match(/^\/api\/cms\/media\/(\d+)/);
-          if (!match) return next();
-          const id = parseInt(match[1], 10);
-          try {
-            const fs = await import("fs/promises");
-            const pathMod = await import("path");
-            const uploadsDir = pathMod.resolve(__dirname, "public/uploads");
-            const indexFile = pathMod.join(uploadsDir, "media-index.json");
-            let items: any[] = [];
-            try { items = JSON.parse(await fs.readFile(indexFile, "utf-8")); } catch {}
-            const entry = items.find((x: any) => x.id === id);
-            if (!entry) return next();
-            const filePath = pathMod.join(uploadsDir, entry.fileName);
-            let binary: Buffer;
-            try { binary = await fs.readFile(filePath); } catch { return next(); }
-            const ext = entry.fileName.split(".").pop()?.toLowerCase() ?? "jpg";
-            const mimeMap: Record<string, string> = {
-              jpg: "image/jpeg", jpeg: "image/jpeg",
-              png: "image/png", gif: "image/gif", webp: "image/webp",
-              svg: "image/svg+xml",
-            };
-            const mime = mimeMap[ext] ?? "image/jpeg";
-            res.statusCode = 200;
-            res.setHeader("Content-Type", mime);
-            res.setHeader("Cache-Control", "public, max-age=3600");
-            res.end(binary);
-          } catch (err) {
-            console.error("[cms-media] Error:", err);
-            next();
-          }
-        });
-      },
-    },
-    {
-      // Intercept GET /api/media/{id} - check local uploads first
-      name: "serve-media-binary",
-      configureServer(server) {
-        server.middlewares.use(async (req: any, res: any, next: any) => {
-          if (req.method !== "GET" || !req.url?.startsWith("/api/media/")) return next();
-          const id = req.url.replace(/^\/api\/media\//, "").split("?")[0];
-          if (!id) return next();
-          try {
-            const fs = await import("fs/promises");
-            const pathMod = await import("path");
-            const uploadsDir = pathMod.resolve(__dirname, "public/uploads");
-            let localFile: string | null = null;
-            try {
-              const files = await fs.readdir(uploadsDir);
-              const found = files.find((f) => f.startsWith(id + "."));
-              if (found) localFile = pathMod.join(uploadsDir, found);
-            } catch {}
-            if (localFile) {
-              const ext = localFile.split(".").pop() ?? "jpg";
-              const mimeMap: Record<string, string> = {
-                jpg: "image/jpeg", jpeg: "image/jpeg",
-                png: "image/png", gif: "image/gif", webp: "image/webp",
-              };
-              const mime = mimeMap[ext] ?? "image/jpeg";
-              const binary = await fs.readFile(localFile);
-              res.statusCode = 200;
-              res.setHeader("Content-Type", mime);
-              res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
-              res.end(binary);
-              return;
-            }
-            next();
-          } catch (err) {
-            console.error("[serve-media-binary] Error:", err);
-            next();
-          }
-        });
-      },
-    },
     {
       // Handle Focus-Section settings locally
       name: "handle-focus-section",
@@ -486,68 +426,6 @@ export default defineConfig(({ mode }: { mode: string }) => ({
             res.statusCode = 500;
             res.setHeader("Content-Type", "application/json");
             res.end(JSON.stringify({ message: "Translation failed" }));
-          }
-        });
-      },
-    },
-    {
-      // Handle image uploads locally - intercepts POST /api/admin/upload-image
-      // before the proxy so it works in both local dev and on Replit.
-      name: "handle-upload-image",
-      configureServer(server) {
-        server.middlewares.use(async (req: any, res: any, next: any) => {
-          if (req.method !== "POST" || req.url !== "/api/admin/upload-image") {
-            return next();
-          }
-          try {
-            const chunks: Buffer[] = [];
-            for await (const chunk of req) chunks.push(chunk);
-            const body = JSON.parse(Buffer.concat(chunks).toString());
-            const imageData: string = body.imageData ?? "";
-            const folder: string = body.folder ?? "misc";
-
-            if (!imageData) {
-              res.statusCode = 400;
-              res.setHeader("Content-Type", "application/json");
-              res.end(JSON.stringify({ message: "No imageData provided" }));
-              return;
-            }
-
-            const commaIdx = imageData.indexOf(",");
-            if (!imageData.startsWith("data:") || commaIdx < 0) {
-              res.statusCode = 400;
-              res.setHeader("Content-Type", "application/json");
-              res.end(JSON.stringify({ message: "Invalid imageData format" }));
-              return;
-            }
-
-            const fs = await import("fs/promises");
-            const pathMod = await import("path");
-            const crypto = await import("crypto");
-
-            const header = imageData.substring(5, commaIdx);
-            const mime = header.split(";")[0];
-            const rawExt = mime.split("/")[1] ?? "png";
-            const ext = rawExt === "jpeg" ? "jpg" : rawExt === "svg+xml" ? "svg" : rawExt;
-            const base64Data = imageData.substring(commaIdx + 1);
-            const binary = Buffer.from(base64Data, "base64");
-            const id = (crypto as any).randomUUID();
-            const filename = id + "." + ext;
-            const safeFolder = folder.replace(/[^a-z0-9_-]/gi, "_");
-            const uploadsDir = pathMod.resolve(__dirname, "public/uploads/" + safeFolder);
-            await fs.mkdir(uploadsDir, { recursive: true });
-            await fs.writeFile(pathMod.join(uploadsDir, filename), binary);
-            const url = "/uploads/" + safeFolder + "/" + filename;
-
-            res.statusCode = 201;
-            res.setHeader("Content-Type", "application/json");
-            res.end(JSON.stringify({ url }));
-            console.log("[upload-image] Saved: " + url);
-          } catch (err) {
-            console.error("[upload-image] Error:", err);
-            res.statusCode = 500;
-            res.setHeader("Content-Type", "application/json");
-            res.end(JSON.stringify({ message: "Upload failed" }));
           }
         });
       },
