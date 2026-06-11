@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
+import SEOHead from "@/components/SEOHead";
+import { SITE, buildBreadcrumbStructuredData, buildLocalBusinessStructuredData } from "@/lib/seo.config";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -257,8 +259,39 @@ const ClubDetail = () => {
 
   const features = Array.isArray(club.features) ? club.features : [];
 
+  const clubImage = club.heroImage || club.hero_image || club.image;
+  const clubDescription = club.description
+    ? club.description.replace(/<[^>]+>/g, "").slice(0, 160)
+    : `Discover ${club.name} — a club in ${club.location || "Morocco"} with The Journey Association.`;
+
+  const clubStructuredData = [
+    buildLocalBusinessStructuredData({
+      name: club.name,
+      description: clubDescription,
+      image: clubImage ? `${SITE.url}${clubImage.startsWith("/") ? clubImage : `/${clubImage}`}` : undefined,
+      url: `${SITE.url}/club/${club.slug || slug}`,
+      latitude: club.latitude,
+      longitude: club.longitude,
+      location: club.location,
+    }),
+    buildBreadcrumbStructuredData([
+      { name: "Home", url: "/" },
+      { name: "Clubs", url: "/clubs" },
+      { name: club.name, url: `/club/${club.slug || slug}` },
+    ]),
+  ];
+
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title={`${club.name} | The Journey Association`}
+        description={clubDescription}
+        image={clubImage ? `${SITE.url}${clubImage.startsWith("/") ? clubImage : `/${clubImage}`}` : undefined}
+        canonical={`/club/${club.slug || slug}`}
+        type="website"
+        keywords={`${club.name}, ${club.location || "Morocco"} club, adventure Morocco`}
+        structuredData={clubStructuredData}
+      />
       <Header />
 
       {/* Hero Section with Background Image */}

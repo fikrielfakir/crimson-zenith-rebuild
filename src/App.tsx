@@ -92,6 +92,8 @@ import { ProtectedRoute } from "./components/admin/ProtectedRoute";
 import CookieConsent from "./components/CookieConsent";
 import { useSeoSettings } from "./hooks/useCMS";
 import { useEffect } from "react";
+import { Helmet } from "react-helmet-async";
+import { buildOrganizationStructuredData } from "@/lib/seo.config";
 
 // Talents pages
 import VolunteersSpontaneous from "./pages/VolunteersSpontaneous";
@@ -108,6 +110,43 @@ import ProjectsAdmin from "./pages/admin/ProjectsAdmin";
 import TranslationsManagement from "./pages/admin/TranslationsManagement";
 import ContactSettings from "./pages/admin/ContactSettings";
 import ClubsPageSettingsAdmin from "./pages/admin/ClubsPageSettings";
+
+function GlobalSEO() {
+  const { data: seo } = useSeoSettings();
+
+  useEffect(() => {
+    if (!seo?.customHeadCode) return;
+    const existing = document.getElementById("cms-custom-head");
+    if (existing) existing.remove();
+    const wrapper = document.createElement("div");
+    wrapper.id = "cms-custom-head";
+    wrapper.innerHTML = seo.customHeadCode;
+    Array.from(wrapper.children).forEach((el) => document.head.appendChild(el));
+  }, [seo?.customHeadCode]);
+
+  useEffect(() => {
+    if (!seo?.googleAnalyticsId) return;
+    const id = seo.googleAnalyticsId;
+    if (document.getElementById("gtag-script")) return;
+    const script1 = document.createElement("script");
+    script1.id = "gtag-script";
+    script1.async = true;
+    script1.src = `https://www.googletagmanager.com/gtag/js?id=${id}`;
+    document.head.appendChild(script1);
+    const script2 = document.createElement("script");
+    script2.id = "gtag-init";
+    script2.textContent = `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${id}');`;
+    document.head.appendChild(script2);
+  }, [seo?.googleAnalyticsId]);
+
+  const orgSchema = buildOrganizationStructuredData();
+
+  return (
+    <Helmet>
+      <script type="application/ld+json">{JSON.stringify(orgSchema)}</script>
+    </Helmet>
+  );
+}
 
 function FaviconUpdater() {
   const { data: seoSettings } = useSeoSettings();
@@ -146,6 +185,7 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
+      <GlobalSEO />
       <FaviconUpdater />
       <Toaster />
       <Sonner />

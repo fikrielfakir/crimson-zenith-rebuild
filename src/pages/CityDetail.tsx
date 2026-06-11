@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useLocation, Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import SEOHead from "@/components/SEOHead";
+import { SITE, buildBreadcrumbStructuredData } from "@/lib/seo.config";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { moroccoCities } from "@/lib/citiesData";
@@ -211,8 +213,24 @@ const CityDetail = () => {
 
   const otherCities = translatedAllCities.filter(c => c.slug !== translatedCity.slug).slice(0, 3);
 
+  const cityStructuredData = buildBreadcrumbStructuredData([
+    { name: "Home", url: "/" },
+    { name: "Discover", url: "/discover" },
+    { name: translatedCity.name, url: `/discover/cities?city=${translatedCity.slug}` },
+  ]);
+
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title={`${translatedCity.name} | Discover Morocco – The Journey Association`}
+        description={translatedCity.description
+          ? translatedCity.description.replace(/<[^>]+>/g, "").slice(0, 160)
+          : `Explore ${translatedCity.name}, Morocco — discover culture, activities, and clubs with The Journey Association.`}
+        image={translatedCity.heroImage || translatedCity.image || undefined}
+        canonical={`/discover/cities`}
+        keywords={`${translatedCity.name}, Morocco city, visit ${translatedCity.name}, Morocco travel`}
+        structuredData={cityStructuredData}
+      />
       <section className="relative w-full min-h-screen overflow-hidden" style={{ height: '100svh' }}>
         {isVideoHero ? (
           <video

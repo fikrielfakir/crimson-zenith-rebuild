@@ -436,10 +436,25 @@ export function useTeamMembers() {
   });
 }
 
+export interface SeoSettingsData {
+  id?: string;
+  faviconUrl?: string;
+  favicon_url?: string;
+  siteTitle?: string;
+  site_title?: string;
+  siteDescription?: string;
+  keywords?: string;
+  twitterHandle?: string;
+  googleAnalyticsId?: string;
+  facebookPixelId?: string;
+  customHeadCode?: string;
+  customBodyCode?: string;
+}
+
 export function useSeoSettings() {
   return useQuery({
     queryKey: ["cms", "seo"],
-    queryFn: () => cmsGet<{ favicon_url?: string; faviconUrl?: string; site_title?: string; siteTitle?: string }>("/api/cms/seo"),
+    queryFn: () => cmsGet<SeoSettingsData>("/api/cms/seo"),
     ...CMS_QUERY_OPTIONS,
   });
 }

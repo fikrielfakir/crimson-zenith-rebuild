@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from "react-i18next";
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import SEOHead from "@/components/SEOHead";
+import { SITE, buildBreadcrumbStructuredData } from "@/lib/seo.config";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -271,8 +273,26 @@ const ActivityDetail = () => {
   }
 
   /* ── Main render ── */
+  const activityTitle = activity?.title || String(activityName || "Activity").replace(/-/g, " ");
+  const activityDesc = activity?.description
+    ? activity.description.slice(0, 160)
+    : `Explore ${activityTitle} in Morocco with The Journey Association.`;
+  const activityBreadcrumb = buildBreadcrumbStructuredData([
+    { name: "Home", url: "/" },
+    { name: "Events", url: "/events" },
+    { name: activityTitle, url: `/activities/${activityName}` },
+  ]);
+
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title={`${activityTitle} | The Journey Association`}
+        description={activityDesc}
+        image={activity?.images?.[0] ? `${SITE.url}${activity.images[0].startsWith("/") ? activity.images[0] : `/${activity.images[0]}`}` : undefined}
+        canonical={`/activities/${activityName}`}
+        keywords={`${activityTitle}, Morocco activities, adventure Morocco`}
+        structuredData={activityBreadcrumb}
+      />
       <Header />
 
       <main className="relative">

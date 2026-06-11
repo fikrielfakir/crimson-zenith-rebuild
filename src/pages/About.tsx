@@ -1,4 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
+import SEOHead from "@/components/SEOHead";
+import { routeSEO } from "@/lib/seo.config";
 import Header from "@/components/Header";
 import HeaderSpacer from "@/components/HeaderSpacer";
 import Footer from "@/components/Footer";
@@ -79,6 +81,7 @@ const About = () => {
 
   return (
     <div className="min-h-screen bg-background" dir={isAr ? "rtl" : "ltr"}>
+      <SEOHead {...routeSEO["/about"]} />
       <Header forceOpaque />
       <HeaderSpacer />
 
