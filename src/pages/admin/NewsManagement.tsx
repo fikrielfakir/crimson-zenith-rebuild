@@ -130,13 +130,14 @@ function PostEditor({
   const saveMutation = useMutation({
     mutationFn: async (data: PostFormData) => {
       const url = isNew ? '/api/admin/news' : `/api/admin/news/${post.id}`;
-      const res = await fetch(url, {
+      const res = await apiFetch(url, {
         method: isNew ? 'POST' : 'PUT',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
-        credentials: 'include',
       });
-      if (!res.ok) throw new Error('Failed to save post');
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || 'Failed to save post');
+      }
       return res.json();
     },
     onSuccess: () => {

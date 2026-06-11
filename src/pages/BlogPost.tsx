@@ -130,7 +130,7 @@ const BlogPost = () => {
         <div className="flex items-center justify-center py-32">
           <div className="text-center">
             <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mx-auto mb-4" />
-            <p className="text-muted-foreground font-body">Loading article…</p>
+            <p className="text-muted-foreground font-body">{t('news.loadingArticle')}</p>
           </div>
         </div>
         <Footer />
@@ -205,7 +205,7 @@ const BlogPost = () => {
               {article.views !== undefined && (
                 <div className="flex items-center gap-1">
                   <Eye className="w-4 h-4" />
-                  <span className="font-body">{article.views} views</span>
+                  <span className="font-body">{article.views} {t('news.views').toLowerCase()}</span>
                 </div>
               )}
             </div>
@@ -236,11 +236,11 @@ const BlogPost = () => {
                       className={isBookmarked ? "text-primary border-primary" : ""}
                     >
                       <Bookmark className={`w-4 h-4 mr-2 ${isBookmarked ? "fill-current" : ""}`} />
-                      {isBookmarked ? "Saved" : "Save"}
+                      {isBookmarked ? t('news.saved') : t('news.save')}
                     </Button>
                     <Button variant="outline" size="sm">
                       <Share2 className="w-4 h-4 mr-2" />
-                      Share
+                      {t('news.share')}
                     </Button>
                   </div>
                   
@@ -290,7 +290,7 @@ const BlogPost = () => {
                           )}
                           <div className="flex gap-2">
                             <Button variant="outline" size="sm">
-                              Follow
+                              {t('common.follow')}
                             </Button>
                           </div>
                         </div>
@@ -305,7 +305,7 @@ const BlogPost = () => {
               <div className="sticky top-24 space-y-6">
                 <Card>
                   <CardHeader>
-                    <CardTitle className="font-heading text-sm">Share This Article</CardTitle>
+                    <CardTitle className="font-heading text-sm">{t('news.shareArticle')}</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-2">
                     <Button variant="outline" size="sm" className="w-full justify-start">
@@ -323,7 +323,7 @@ const BlogPost = () => {
                       onClick={() => navigator.clipboard.writeText(window.location.href)}
                     >
                       <Share2 className="w-4 h-4 mr-2" />
-                      Copy Link
+                      {t('news.copyLink')}
                     </Button>
                   </CardContent>
                 </Card>
@@ -331,30 +331,30 @@ const BlogPost = () => {
                 {(article.views !== undefined || article.likes !== undefined) && (
                   <Card>
                     <CardHeader>
-                      <CardTitle className="font-heading text-sm">Article Stats</CardTitle>
+                      <CardTitle className="font-heading text-sm">{t('news.articleStats')}</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3">
                       {article.views !== undefined && (
                         <div className="flex justify-between text-sm">
-                          <span className="font-body">Views</span>
+                          <span className="font-body">{t('news.views')}</span>
                           <span className="font-semibold">{article.views.toLocaleString()}</span>
                         </div>
                       )}
                       {article.likes !== undefined && (
                         <div className="flex justify-between text-sm">
-                          <span className="font-body">Likes</span>
+                          <span className="font-body">{t('news.likes')}</span>
                           <span className="font-semibold">{article.likes}</span>
                         </div>
                       )}
                       {article.shares !== undefined && (
                         <div className="flex justify-between text-sm">
-                          <span className="font-body">Shares</span>
+                          <span className="font-body">{t('news.share')}</span>
                           <span className="font-semibold">{article.shares}</span>
                         </div>
                       )}
                       {article.comments_count !== undefined && (
                         <div className="flex justify-between text-sm">
-                          <span className="font-body">Comments</span>
+                          <span className="font-body">{t('news.comments')}</span>
                           <span className="font-semibold">{article.comments_count}</span>
                         </div>
                       )}
@@ -369,7 +369,7 @@ const BlogPost = () => {
                   onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                 >
                   <ArrowUp className="w-4 h-4 mr-2" />
-                  Back to Top
+                  {t('news.backToTop')}
                 </Button>
               </div>
             </div>
