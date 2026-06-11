@@ -378,7 +378,7 @@ const Projects = () => {
                 <div className="grid md:grid-cols-2 gap-0">
                   <div className="relative h-64 md:h-auto">
                     <img
-                      src={successStories[currentStoryIndex].image}
+                      src={resolveStorageUrl(successStories[currentStoryIndex].image) ?? '/placeholder.svg'}
                       alt={successStories[currentStoryIndex].title}
                       className="w-full h-full object-cover"
                     />

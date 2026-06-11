@@ -23,7 +23,7 @@ import {
   LayoutGrid,
   Map,
 } from "lucide-react";
-import { apiFetch } from "@/lib/apiFetch";
+import { apiFetch, resolveStorageUrl } from "@/lib/apiFetch";
 import { useCmsTranslations } from "@/hooks/useCmsTranslations";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
@@ -125,7 +125,7 @@ function ClubCard({ club }: { club: Club }) {
     ? club.features.map((f: any) => (typeof f === "string" ? f : f?.text ?? "")).filter(Boolean)
     : [];
   const slug = club.slug || club.name.toLowerCase().replace(/\s+/g, "-");
-  const imgSrc = club.image && club.image.trim() ? club.image : PLACEHOLDER;
+  const imgSrc = resolveStorageUrl(club.image && club.image.trim() ? club.image : null) ?? PLACEHOLDER;
 
   return (
     <Link
