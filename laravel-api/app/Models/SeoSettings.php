@@ -12,6 +12,7 @@ class SeoSettings extends Model
     public $timestamps = false;
     protected $fillable = [
         'id', 'site_title', 'site_description', 'keywords', 'og_image',
+        'favicon_url',
         'twitter_handle', 'google_analytics_id', 'facebook_pixel_id',
         'custom_head_code', 'custom_body_code', 'updated_by',
     ];
