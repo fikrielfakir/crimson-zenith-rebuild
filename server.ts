@@ -25,7 +25,7 @@ import {
   cities
 } from './shared/schema.js';
 import { sendBookingConfirmationEmail, sendBookingApprovedEmail } from './server/emailService.js';
-import { generateAdminToken, revokeAdminToken } from './server/adminTokens.js';
+import { generateAdminToken, revokeAdminToken, validateAdminToken } from './server/adminTokens.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -1278,6 +1278,46 @@ app.post('/api/admin/logout', (req: any, res) => {
   }
   req.logout?.(() => {});
   res.json({ success: true, message: 'Logged out' });
+});
+
+app.get('/api/admin/me', async (req: any, res) => {
+  try {
+    if (req.isAuthenticated() && req.user?.isAdmin) {
+      return res.json({
+        id: req.user.id,
+        username: req.user.username,
+        email: req.user.email,
+        firstName: req.user.firstName,
+        lastName: req.user.lastName,
+        isAdmin: true,
+        role: req.user.role || 'admin',
+      });
+    }
+
+    const auth = (req.headers.authorization as string) || '';
+    if (auth.startsWith('Bearer ')) {
+      const token = auth.slice(7);
+      const entry = await validateAdminToken(token);
+      if (entry?.isAdmin && entry.userId) {
+        const user = await storage.getUser(entry.userId);
+        if (user?.isAdmin) {
+          return res.json({
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            isAdmin: true,
+            role: user.role || 'admin',
+          });
+        }
+      }
+    }
+
+    return res.status(401).json({ message: 'Unauthorized' });
+  } catch (error: any) {
+    return res.status(500).json({ message: 'Server error', details: error.message });
+  }
 });
 
 // =======================

@@ -129,6 +129,10 @@ export default defineConfig(({ mode }: { mode: string }) => ({
       ? { clientPort: 443, protocol: "wss", host: process.env.REPLIT_DEV_DOMAIN }
       : true,
     proxy: {
+      // ── Admin auth → local Express (login/me/logout use local JWT) ─────────
+      "/api/admin/login":  { target: LOCAL_API, changeOrigin: true },
+      "/api/admin/logout": { target: LOCAL_API, changeOrigin: true },
+      "/api/admin/me":     { target: LOCAL_API, changeOrigin: true },
       // ── Media upload/management → local Express (handles disk storage) ────
       "/api/admin/media": {
         target: LOCAL_API,
