@@ -75,9 +75,6 @@ const UserSignup = () => {
 
       if (response.ok) {
         setSuccess(true);
-        setTimeout(() => {
-          navigate('/login');
-        }, 2000);
       } else {
         setError(data.message || t('auth.errors.registrationFailed'));
       }
@@ -200,8 +197,18 @@ const UserSignup = () => {
           {success ? (
             <div className="text-center p-8 rounded-2xl bg-green-50 border border-green-200">
               <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-green-800 mb-2">{t('auth.signup.successTitle')}</h3>
-              <p className="text-green-700">{t('auth.signup.successMessage')}</p>
+              <h3 className="text-xl font-bold text-green-800 mb-2">Account Created!</h3>
+              <p className="text-green-700 mb-4">
+                We've sent a verification link to <strong>{formData.email}</strong>.
+                Please check your inbox and click the link to activate your account.
+              </p>
+              <p className="text-green-600 text-sm mb-6">Didn't receive it? Check your spam folder.</p>
+              <a
+                href="/login"
+                className="inline-block text-[hsl(227,65%,19%)] font-semibold text-sm hover:underline"
+              >
+                Go to Login →
+              </a>
             </div>
           ) : (
             <>
