@@ -4,13 +4,16 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-  "build": "vite build",
-  "dev:vite": "vite",
-  "lint": "eslint .",
-  "preview": "vite preview",
-  "db:push": "drizzle-kit push",
-  "db:studio": "drizzle-kit studio"
-},
+    "dev": "node node_modules/tsx/dist/cli.mjs server.ts & node node_modules/vite/bin/vite.js",
+    "dev:server": "node node_modules/tsx/dist/cli.mjs server.ts",
+    "dev:vite": "node node_modules/vite/bin/vite.js",
+    "build": "node node_modules/vite/bin/vite.js build",
+    "start": "NODE_ENV=production node node_modules/tsx/dist/cli.mjs server.ts",
+    "db:push": "node node_modules/drizzle-kit/bin.cjs push",
+    "db:studio": "node node_modules/drizzle-kit/bin.cjs studio",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
   "dependencies": {
     "@amcharts/amcharts5": "^5.14.2",
     "@amcharts/amcharts5-geodata": "^5.1.5",
