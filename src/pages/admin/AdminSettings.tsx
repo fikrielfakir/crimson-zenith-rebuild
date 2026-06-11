@@ -12,7 +12,7 @@ import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import {
   Save, Loader2, Globe, Search, ShieldCheck, Image as ImageIcon,
-  Mail, BarChart2, Link as LinkIcon, Code, CheckCircle2, XCircle,
+  Mail, BarChart2, Link as LinkIcon, Code, CheckCircle2, XCircle, Upload,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { apiFetch } from '@/lib/apiFetch';
@@ -228,24 +228,97 @@ function SeoTab() {
 
 // ── Logo & Favicon Tab ────────────────────────────────────────────────────────
 
+function ImageUploadField({
+  label,
+  description,
+  value,
+  onChange,
+  accept,
+  previewClass,
+  inputId,
+}: {
+  label: string;
+  description: string;
+  value: string;
+  onChange: (v: string) => void;
+  accept: string;
+  previewClass?: string;
+  inputId: string;
+}) {
+  const [dragging, setDragging] = useState(false);
+
+  const readFile = (file: File) => {
+    const reader = new FileReader();
+    reader.onload = (e) => onChange(e.target?.result as string);
+    reader.readAsDataURL(file);
+  };
+
+  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) readFile(file);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) readFile(file);
+  };
+
+  return (
+    <div className="space-y-3">
+      <Label>{label}</Label>
+      <div
+        onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+        onDragLeave={() => setDragging(false)}
+        onDrop={handleDrop}
+        className={`border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center gap-3 transition-colors cursor-pointer
+          ${dragging ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50 hover:bg-muted/30'}`}
+        onClick={() => document.getElementById(inputId)?.click()}
+      >
+        <Upload className="h-8 w-8 text-muted-foreground" />
+        <div className="text-center">
+          <p className="text-sm font-medium">Click to upload or drag & drop</p>
+          <p className="text-xs text-muted-foreground mt-0.5">{description}</p>
+        </div>
+        <input id={inputId} type="file" accept={accept} className="hidden" onChange={handleFile} />
+      </div>
+
+      {value && (
+        <div className={`border rounded-lg p-4 bg-muted/30 flex items-center justify-center ${previewClass ?? 'min-h-[80px]'}`}>
+          <img
+            src={value}
+            alt={`${label} preview`}
+            className="max-h-16 max-w-[200px] object-contain"
+            onError={(e) => { (e.target as HTMLImageElement).style.opacity = '0.3'; }}
+          />
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); onChange(''); }}
+            className="ml-3 text-xs text-destructive hover:underline self-start"
+          >
+            Remove
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function LogoFaviconTab() {
   const { toast } = useToast();
 
   const { data: navbar, isLoading: navbarLoading } = useSettingsQuery<any>('/api/cms/navbar', ['settings-navbar']);
   const { data: seo, isLoading: seoLoading } = useSettingsQuery<any>('/api/cms/seo', ['settings-seo']);
 
-  const [logoType, setLogoType] = useState<'image' | 'text'>('image');
   const [logoUrl, setLogoUrl] = useState('');
-  const [logoText, setLogoText] = useState('');
   const [logoSize, setLogoSize] = useState('135');
   const [logoLink, setLogoLink] = useState('/');
   const [faviconUrl, setFaviconUrl] = useState('');
 
   useEffect(() => {
     if (navbar) {
-      setLogoType(navbar.logoType ?? 'image');
       setLogoUrl(navbar.logoImageUrl ?? navbar.logoUrl ?? '');
-      setLogoText(navbar.logoText ?? '');
       setLogoSize(String(navbar.logoSize ?? 135));
       setLogoLink(navbar.logoLink ?? '/');
     }
@@ -265,7 +338,7 @@ function LogoFaviconTab() {
 
   const handleSave = async () => {
     await Promise.all([
-      navbarMutation.mutateAsync({ logoType, logoUrl, logoText, logoSize: Number(logoSize), logoLink }),
+      navbarMutation.mutateAsync({ logoType: 'image', logoUrl, logoSize: Number(logoSize), logoLink }),
       seoMutation.mutateAsync({ faviconUrl }),
     ]);
   };
@@ -282,42 +355,14 @@ function LogoFaviconTab() {
             <div className="flex items-center gap-2 text-muted-foreground text-sm"><Loader2 className="h-4 w-4 animate-spin" /> Loading…</div>
           ) : (
             <>
-              <div className="space-y-2">
-                <Label>Logo Type</Label>
-                <div className="flex gap-3">
-                  {(['image', 'text'] as const).map((type) => (
-                    <button
-                      key={type}
-                      type="button"
-                      onClick={() => setLogoType(type)}
-                      className={`flex-1 py-2.5 px-4 rounded-lg border text-sm font-medium transition-colors capitalize
-                        ${logoType === type ? 'bg-primary text-primary-foreground border-primary' : 'bg-background hover:bg-muted border-border'}`}
-                    >
-                      {type === 'image' ? 'Image / SVG' : 'Text Logo'}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {logoType === 'image' ? (
-                <div className="space-y-3">
-                  <div className="space-y-2">
-                    <Label htmlFor="logo-url">Logo Image URL</Label>
-                    <Input id="logo-url" value={logoUrl} onChange={(e) => setLogoUrl(e.target.value)} placeholder="https://… or /path/to/logo.png" />
-                    <p className="text-xs text-muted-foreground">Upload via Media Library then paste the URL here. Recommended: PNG/SVG, transparent background, ~400×160px.</p>
-                  </div>
-                  {logoUrl && (
-                    <div className="border rounded-lg p-4 bg-muted/30 flex items-center justify-center min-h-[80px]">
-                      <img src={logoUrl} alt="Logo preview" className="max-h-16 max-w-[200px] object-contain" onError={(e) => { (e.target as HTMLImageElement).style.opacity = '0.3'; }} />
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  <Label htmlFor="logo-text">Logo Text</Label>
-                  <Input id="logo-text" value={logoText} onChange={(e) => setLogoText(e.target.value)} placeholder="The Journey Association" />
-                </div>
-              )}
+              <ImageUploadField
+                inputId="logo-upload"
+                label="Logo Image"
+                description="PNG, SVG or WebP — transparent background recommended, ~400×160px"
+                accept="image/png,image/svg+xml,image/webp,image/jpeg"
+                value={logoUrl}
+                onChange={setLogoUrl}
+              />
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -343,19 +388,15 @@ function LogoFaviconTab() {
           {isLoading ? (
             <div className="flex items-center gap-2 text-muted-foreground text-sm"><Loader2 className="h-4 w-4 animate-spin" /> Loading…</div>
           ) : (
-            <>
-              <div className="space-y-2">
-                <Label htmlFor="favicon-url">Favicon URL</Label>
-                <Input id="favicon-url" value={faviconUrl} onChange={(e) => setFaviconUrl(e.target.value)} placeholder="/favicon.ico or https://…/favicon.png" />
-                <p className="text-xs text-muted-foreground">Upload via Media Library and paste the URL here. The file at <code className="bg-muted px-1 py-0.5 rounded text-xs">/favicon.ico</code> in the public folder is used as fallback.</p>
-              </div>
-              {faviconUrl && (
-                <div className="flex items-center gap-3 border rounded-lg p-3 bg-muted/30">
-                  <img src={faviconUrl} alt="Favicon preview" className="h-8 w-8 object-contain" onError={(e) => { (e.target as HTMLImageElement).style.opacity = '0.3'; }} />
-                  <span className="text-sm text-muted-foreground">Preview</span>
-                </div>
-              )}
-            </>
+            <ImageUploadField
+              inputId="favicon-upload"
+              label="Favicon Image"
+              description=".ico, PNG or SVG — 32×32px recommended"
+              accept="image/x-icon,image/png,image/svg+xml,image/vnd.microsoft.icon"
+              value={faviconUrl}
+              onChange={setFaviconUrl}
+              previewClass="min-h-[56px]"
+            />
           )}
         </CardContent>
       </Card>
