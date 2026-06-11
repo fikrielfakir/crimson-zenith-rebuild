@@ -142,7 +142,8 @@ export default defineConfig(({ mode }: { mode: string }) => ({
       // Serve stored media files from local Laravel public/storage symlink
       "/storage":         localLaravelOptions,
       "/attached_assets": { target: LOCAL_API, changeOrigin: false },
-      "/uploads":         { target: LOCAL_API, changeOrigin: false },
+      // /uploads files live on the external Laravel API (api.thejourney-ma.org/public/uploads/)
+      "/uploads":         { target: LARAVEL_API, changeOrigin: true, secure: true },
     },
     watch: {
       ignored: [
