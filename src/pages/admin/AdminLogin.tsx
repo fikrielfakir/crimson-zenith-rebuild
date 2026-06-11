@@ -104,16 +104,17 @@ export default function AdminLogin() {
         <div className="relative z-10 space-y-6">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-medium tracking-widest uppercase" style={{ borderColor: '#D8C18D40', color: '#D8C18D', background: '#D8C18D10' }}>
             <Shield className="w-3 h-3" />
-            Administration Portal
+            {t('admin.login.portalBadge')}
           </div>
 
           <h2 className="text-4xl font-bold leading-tight text-white">
-            Manage your<br />
-            <span style={{ color: '#D8C18D' }}>Journey</span> platform
+            {t('admin.login.brandHeadingPre')}<br />
+            <span style={{ color: '#D8C18D' }}>{t('admin.login.brandHeadingAccent')}</span>{' '}
+            {t('admin.login.brandHeadingPost')}
           </h2>
 
           <p className="text-base leading-relaxed max-w-sm" style={{ color: '#94a8c8' }}>
-            Access clubs, events, bookings, and content settings from a single secure dashboard.
+            {t('admin.login.brandSubtitle')}
           </p>
 
           {/* Feature pills */}
@@ -133,7 +134,7 @@ export default function AdminLogin() {
         {/* Bottom tagline */}
         <div className="relative z-10">
           <p className="text-sm" style={{ color: '#4a6080' }}>
-            © {new Date().getFullYear()} The Journey Association · Secure Admin Access
+            © {new Date().getFullYear()} The Journey Association · {t('admin.login.secureFooter')}
           </p>
         </div>
       </div>
@@ -266,7 +267,7 @@ export default function AdminLogin() {
           {/* Divider */}
           <div className="mt-8 pt-6 border-t border-gray-100 text-center">
             <p className="text-xs text-gray-400">
-              Protected area · Unauthorised access is prohibited
+              {t('admin.login.protectedNote')}
             </p>
           </div>
         </div>

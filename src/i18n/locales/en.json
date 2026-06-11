@@ -1258,7 +1258,14 @@
       "successDesc": "Welcome back to the admin dashboard!",
       "failedTitle": "Login failed",
       "failedDesc": "Invalid username or password",
-      "accessDeniedDesc": "You do not have admin panel access."
+      "accessDeniedDesc": "You do not have admin panel access.",
+      "portalBadge": "Administration Portal",
+      "brandHeadingPre": "Manage your",
+      "brandHeadingAccent": "Journey",
+      "brandHeadingPost": "platform",
+      "brandSubtitle": "Access clubs, events, bookings, and content settings from a single secure dashboard.",
+      "protectedNote": "Protected area · Unauthorised access is prohibited",
+      "secureFooter": "Secure Admin Access"
     },
     "analytics": {
       "title": "Analytics",

@@ -1175,10 +1175,18 @@
       "errorPasswordRequired": "Mot de passe requis",
       "errorAccessDenied": "Accès refusé.",
       "accessDeniedTitle": "Accès refusé",
+      "accessDeniedDesc": "Vous n'avez pas accès au panneau d'administration.",
       "successTitle": "Connexion réussie",
       "successDesc": "Bienvenue dans le tableau de bord !",
       "failedTitle": "Échec de connexion",
-      "failedDesc": "Identifiants invalides"
+      "failedDesc": "Identifiants invalides",
+      "portalBadge": "Portail d'administration",
+      "brandHeadingPre": "Gérez votre",
+      "brandHeadingAccent": "Journey",
+      "brandHeadingPost": "plateforme",
+      "brandSubtitle": "Accédez aux clubs, événements, réservations et paramètres depuis un tableau de bord sécurisé.",
+      "protectedNote": "Zone protégée · Accès non autorisé interdit",
+      "secureFooter": "Accès administrateur sécurisé"
     },
     "analytics": {
       "title": "Analytique",
