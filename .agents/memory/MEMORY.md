@@ -2,3 +2,5 @@
 - [Hero settings seed](hero-settings-seed.md) — hero_settings table needs a default row seeded via raw SQL on fresh DB; use INSERT ... ON CONFLICT DO NOTHING
 - [Missing routes pattern](missing-routes.md) — server/routes.ts has registerRoutes() but is NOT wired into server.ts; all routes must be added directly to server.ts
 - [Media upload architecture](media-upload-arch.md) — All uploads go to local Laravel (:8000) via Vite proxy; files stored in laravel-api/storage/app/public/media/; returned as relative /storage/media/… URLs; start-dev.mjs starts Laravel alongside Vite+Node
+- [Vite NixOS fix](vite-nixos-fix.md) — Rollup 4+ native binaries crash with Bus error on NixOS; fix is vite@4.5.5 + rollup@3.29.5 + @vitejs/plugin-react (not swc). framer-motion v12 breaks Vite 4 export resolution; downgrade to v11.
+- [News public route](news-routes.md) — Public /api/news was missing from Express; only /api/admin/news existed. Added GET /api/news and /api/news/:slug routes to server/routes.ts returning published blogPosts from local DB.

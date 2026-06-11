@@ -1,5 +1,5 @@
 import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react-swc";
+import react from "@vitejs/plugin-react";
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -33,10 +33,11 @@ export default defineConfig(({ mode }: { mode: string }) => ({
     },
   },
   optimizeDeps: {
-    exclude: ["core-js"],
+    exclude: ["core-js", "framer-motion"],
     esbuildOptions: {
       sourcemap: false,
       logOverride: { "invalid-source-map": "silent" },
+      target: "es2020",
     },
   },
   server: {
