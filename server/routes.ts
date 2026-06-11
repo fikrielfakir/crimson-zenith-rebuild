@@ -227,7 +227,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin gallery routes
-  app.get('/api/admin/gallery', isAuthenticated, isAdmin, async (req, res) => {
+  app.get('/api/admin/gallery', isAdmin, async (req, res) => {
     try {
       const limit = parseInt(req.query.limit as string) || 100;
       const offset = parseInt(req.query.offset as string) || 0;
@@ -242,7 +242,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/admin/gallery', isAuthenticated, isAdmin, async (req, res) => {
+  app.post('/api/admin/gallery', isAdmin, async (req, res) => {
     try {
       const item = await storage.createGalleryItem(req.body);
       res.status(201).json(item);
@@ -252,7 +252,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/admin/gallery/:id', isAuthenticated, isAdmin, async (req, res) => {
+  app.put('/api/admin/gallery/:id', isAdmin, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const item = await storage.updateGalleryItem(id, req.body);
@@ -263,7 +263,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/admin/gallery/:id', isAuthenticated, isAdmin, async (req, res) => {
+  app.delete('/api/admin/gallery/:id', isAdmin, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       await storage.deleteGalleryItem(id);
@@ -274,7 +274,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/admin/gallery/:id/toggle-featured', isAuthenticated, isAdmin, async (req, res) => {
+  app.post('/api/admin/gallery/:id/toggle-featured', isAdmin, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const item = await storage.toggleGalleryItemFeatured(id);
@@ -309,7 +309,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/admin/cms/hero', isAuthenticated, isAdmin, async (req: any, res) => {
+  app.put('/api/admin/cms/hero', isAdmin, async (req: any, res) => {
     try {
       const userId = req.user.id;
       const settings = await storage.updateHeroSettings(req.body, userId);
@@ -331,7 +331,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/admin/cms/navbar', isAuthenticated, isAdmin, async (req: any, res) => {
+  app.put('/api/admin/cms/navbar', isAdmin, async (req: any, res) => {
     try {
       const userId = req.user.id;
       const settings = await storage.updateNavbarSettings(req.body, userId);
@@ -353,7 +353,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/admin/cms/theme', isAuthenticated, isAdmin, async (req: any, res) => {
+  app.put('/api/admin/cms/theme', isAdmin, async (req: any, res) => {
     try {
       const userId = req.user.id;
       const settings = await storage.updateThemeSettings(req.body, userId);
@@ -365,7 +365,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Media Assets
-  app.get('/api/admin/cms/media', isAuthenticated, isAdmin, async (req, res) => {
+  app.get('/api/admin/cms/media', isAdmin, async (req, res) => {
     try {
       const assets = await storage.getMediaAssets();
       res.json(assets);
@@ -375,7 +375,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/admin/cms/media', isAuthenticated, isAdmin, async (req: any, res) => {
+  app.post('/api/admin/cms/media', isAdmin, async (req: any, res) => {
     try {
       const userId = req.user.id;
       const asset = await storage.createMediaAsset({ ...req.body, uploadedBy: userId });
@@ -386,7 +386,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/admin/cms/media/:id', isAuthenticated, isAdmin, async (req, res) => {
+  app.get('/api/admin/cms/media/:id', isAdmin, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const asset = await storage.getMediaAsset(id);
@@ -400,7 +400,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/admin/cms/media/:id', isAuthenticated, isAdmin, async (req, res) => {
+  app.delete('/api/admin/cms/media/:id', isAdmin, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       await storage.deleteMediaAsset(id);
@@ -422,7 +422,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/admin/cms/sections', isAuthenticated, isAdmin, async (req: any, res) => {
+  app.post('/api/admin/cms/sections', isAdmin, async (req: any, res) => {
     try {
       const userId = req.user.id;
       const section = await storage.createLandingSection({ ...req.body, updatedBy: userId });
@@ -433,7 +433,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/admin/cms/sections/:id', isAuthenticated, isAdmin, async (req: any, res) => {
+  app.put('/api/admin/cms/sections/:id', isAdmin, async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
       const userId = req.user.id;
@@ -445,7 +445,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/admin/cms/sections/:id', isAuthenticated, isAdmin, async (req, res) => {
+  app.delete('/api/admin/cms/sections/:id', isAdmin, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       await storage.deleteLandingSection(id);
@@ -468,7 +468,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/admin/cms/blocks', isAuthenticated, isAdmin, async (req, res) => {
+  app.post('/api/admin/cms/blocks', isAdmin, async (req, res) => {
     try {
       const block = await storage.createSectionBlock(req.body);
       res.json(block);
@@ -478,7 +478,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/admin/cms/blocks/:id', isAuthenticated, isAdmin, async (req, res) => {
+  app.put('/api/admin/cms/blocks/:id', isAdmin, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const block = await storage.updateSectionBlock(id, req.body);
@@ -489,7 +489,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/admin/cms/blocks/:id', isAuthenticated, isAdmin, async (req, res) => {
+  app.delete('/api/admin/cms/blocks/:id', isAdmin, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       await storage.deleteSectionBlock(id);
@@ -525,7 +525,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/admin/cms/focus-items', isAuthenticated, isAdmin, async (req, res) => {
+  app.post('/api/admin/cms/focus-items', isAdmin, async (req, res) => {
     try {
       const item = await storage.createFocusItem(req.body);
       res.json(item);
@@ -535,7 +535,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/admin/cms/focus-items/:id', isAuthenticated, isAdmin, async (req, res) => {
+  app.put('/api/admin/cms/focus-items/:id', isAdmin, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const item = await storage.updateFocusItem(id, req.body);
@@ -546,7 +546,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/admin/cms/focus-items/:id', isAuthenticated, isAdmin, async (req, res) => {
+  app.delete('/api/admin/cms/focus-items/:id', isAdmin, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       await storage.deleteFocusItem(id);
@@ -557,7 +557,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/admin/cms/focus-items/bulk-reorder', isAuthenticated, isAdmin, async (req, res) => {
+  app.post('/api/admin/cms/focus-items/bulk-reorder', isAdmin, async (req, res) => {
     try {
       const { items } = req.body;
       await storage.bulkReorderFocusItems(items);
@@ -594,7 +594,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/admin/cms/team-members', isAuthenticated, isAdmin, async (req, res) => {
+  app.post('/api/admin/cms/team-members', isAdmin, async (req, res) => {
     try {
       const member = await storage.createTeamMember(req.body);
       res.json(member);
@@ -604,7 +604,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/admin/cms/team-members/:id', isAuthenticated, isAdmin, async (req, res) => {
+  app.put('/api/admin/cms/team-members/:id', isAdmin, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const member = await storage.updateTeamMember(id, req.body);
@@ -615,7 +615,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/admin/cms/team-members/:id', isAuthenticated, isAdmin, async (req, res) => {
+  app.delete('/api/admin/cms/team-members/:id', isAdmin, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       await storage.deleteTeamMember(id);
@@ -651,7 +651,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/admin/cms/testimonials', isAuthenticated, isAdmin, async (req, res) => {
+  app.get('/api/admin/cms/testimonials', isAdmin, async (req, res) => {
     try {
       const testimonials = await storage.getLandingTestimonials();
       res.json(testimonials);
@@ -661,7 +661,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/admin/cms/testimonials', isAuthenticated, isAdmin, async (req, res) => {
+  app.post('/api/admin/cms/testimonials', isAdmin, async (req, res) => {
     try {
       const testimonial = await storage.createLandingTestimonial(req.body);
       res.json(testimonial);
@@ -671,7 +671,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/admin/cms/testimonials/:id', isAuthenticated, isAdmin, async (req, res) => {
+  app.put('/api/admin/cms/testimonials/:id', isAdmin, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const testimonial = await storage.updateLandingTestimonial(id, req.body);
@@ -682,7 +682,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/admin/cms/testimonials/:id', isAuthenticated, isAdmin, async (req, res) => {
+  app.delete('/api/admin/cms/testimonials/:id', isAdmin, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       await storage.deleteLandingTestimonial(id);
@@ -718,7 +718,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/admin/cms/stats', isAuthenticated, isAdmin, async (req, res) => {
+  app.post('/api/admin/cms/stats', isAdmin, async (req, res) => {
     try {
       const stat = await storage.createSiteStat(req.body);
       res.json(stat);
@@ -728,7 +728,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/admin/cms/stats/:id', isAuthenticated, isAdmin, async (req, res) => {
+  app.put('/api/admin/cms/stats/:id', isAdmin, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const stat = await storage.updateSiteStat(id, req.body);
@@ -739,7 +739,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/admin/cms/stats/:id', isAuthenticated, isAdmin, async (req, res) => {
+  app.delete('/api/admin/cms/stats/:id', isAdmin, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       await storage.deleteSiteStat(id);
@@ -761,7 +761,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/admin/cms/contact', isAuthenticated, isAdmin, async (req: any, res) => {
+  app.put('/api/admin/cms/contact', isAdmin, async (req: any, res) => {
     try {
       const userId = req.user.id;
       const settings = await storage.updateContactSettings(req.body, userId);
@@ -783,7 +783,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/admin/cms/footer', isAuthenticated, isAdmin, async (req: any, res) => {
+  app.put('/api/admin/cms/footer', isAdmin, async (req: any, res) => {
     try {
       const userId = req.user.id;
       const settings = await storage.updateFooterSettings(req.body, userId);
@@ -805,7 +805,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/admin/cms/seo', isAuthenticated, isAdmin, async (req: any, res) => {
+  app.put('/api/admin/cms/seo', isAdmin, async (req: any, res) => {
     try {
       const userId = req.user.id;
       const settings = await storage.updateSeoSettings(req.body, userId);
@@ -827,7 +827,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/admin/cms/about', isAuthenticated, isAdmin, async (req, res) => {
+  app.get('/api/admin/cms/about', isAdmin, async (req, res) => {
     try {
       const settings = await storage.getAboutSettings();
       res.json(settings || {});
@@ -837,7 +837,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/admin/cms/about', isAuthenticated, isAdmin, async (req: any, res) => {
+  app.put('/api/admin/cms/about', isAdmin, async (req: any, res) => {
     try {
       const userId = req.user.id;
       const settings = await storage.updateAboutSettings(req.body, userId);
@@ -859,7 +859,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/admin/cms/president-message', isAuthenticated, isAdmin, async (req: any, res) => {
+  app.put('/api/admin/cms/president-message', isAdmin, async (req: any, res) => {
     try {
       const userId = req.user.id;
       const settings = await storage.updatePresidentMessageSettings(req.body, userId);
@@ -881,7 +881,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/admin/cms/partner-settings', isAuthenticated, isAdmin, async (req: any, res) => {
+  app.put('/api/admin/cms/partner-settings', isAdmin, async (req: any, res) => {
     try {
       const userId = req.user.id;
       const settings = await storage.updatePartnerSettings(req.body, userId);
@@ -893,7 +893,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Partners CRUD
-  app.get('/api/admin/cms/partners', isAuthenticated, isAdmin, async (req, res) => {
+  app.get('/api/admin/cms/partners', isAdmin, async (req, res) => {
     try {
       const partners = await storage.getPartners();
       res.json(partners);
@@ -903,7 +903,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/admin/cms/partners', isAuthenticated, isAdmin, async (req: any, res) => {
+  app.post('/api/admin/cms/partners', isAdmin, async (req: any, res) => {
     try {
       const userId = req.user.id;
       const partner = await storage.createPartner({ ...req.body, createdBy: userId });
@@ -914,7 +914,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/admin/cms/partners/:id', isAuthenticated, isAdmin, async (req: any, res) => {
+  app.put('/api/admin/cms/partners/:id', isAdmin, async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
       const partner = await storage.updatePartner(id, req.body);
@@ -925,7 +925,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/admin/cms/partners/:id', isAuthenticated, isAdmin, async (req: any, res) => {
+  app.delete('/api/admin/cms/partners/:id', isAdmin, async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
       await storage.deletePartner(id);
@@ -937,7 +937,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Event Management Routes
-  app.get('/api/admin/events', isAuthenticated, isAdmin, async (req, res) => {
+  app.get('/api/admin/events', isAdmin, async (req, res) => {
     try {
       const page = parseInt(req.query.page as string) || 1;
       const perPage = parseInt(req.query.perPage as string) || 25;
@@ -1000,7 +1000,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/admin/events', isAuthenticated, isAdmin, async (req: any, res) => {
+  app.post('/api/admin/events', isAdmin, async (req: any, res) => {
     try {
       const {
         title,
@@ -1058,7 +1058,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/admin/events/:id', isAuthenticated, isAdmin, async (req: any, res) => {
+  app.put('/api/admin/events/:id', isAdmin, async (req: any, res) => {
     try {
       const id = req.params.id;
       const {
@@ -1110,7 +1110,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/admin/events/:id', isAuthenticated, isAdmin, async (req, res) => {
+  app.delete('/api/admin/events/:id', isAdmin, async (req, res) => {
     try {
       const id = req.params.id;
       await storage.deleteBookingEvent(id);
@@ -1133,7 +1133,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin: Get all events (both club and association)
-  app.get('/api/admin/club-events', isAuthenticated, isAdmin, async (req, res) => {
+  app.get('/api/admin/club-events', isAdmin, async (req, res) => {
     try {
       const events = await storage.getAllEvents();
       res.json({ events });
@@ -1144,7 +1144,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin: Create new event
-  app.post('/api/admin/club-events', isAuthenticated, isAdmin, async (req, res) => {
+  app.post('/api/admin/club-events', isAdmin, async (req, res) => {
     try {
       const eventData = req.body;
       const event = await storage.createClubEvent(eventData);
@@ -1156,7 +1156,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin: Update event
-  app.put('/api/admin/club-events/:id', isAuthenticated, isAdmin, async (req, res) => {
+  app.put('/api/admin/club-events/:id', isAdmin, async (req, res) => {
     try {
       const id = req.params.id;
       const eventData = req.body;
@@ -1169,7 +1169,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin: Delete event
-  app.delete('/api/admin/club-events/:id', isAuthenticated, isAdmin, async (req, res) => {
+  app.delete('/api/admin/club-events/:id', isAdmin, async (req, res) => {
     try {
       const id = req.params.id;
       await storage.deleteClubEvent(id);
@@ -1185,7 +1185,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ==========================================
   
   // GET /api/admin/clubs - List all clubs with pagination and filters
-  app.get('/api/admin/clubs', isAuthenticated, isAdmin, async (req, res) => {
+  app.get('/api/admin/clubs', isAdmin, async (req, res) => {
     try {
       const page = parseInt(req.query.page as string) || 1;
       const perPage = parseInt(req.query.perPage as string) || 25;
@@ -1231,7 +1231,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // GET /api/admin/clubs/pending - List pending (inactive) clubs
-  app.get('/api/admin/clubs/pending', isAuthenticated, isAdmin, async (req, res) => {
+  app.get('/api/admin/clubs/pending', isAdmin, async (req, res) => {
     try {
       const clubs = await storage.getClubs();
       const pendingClubs = clubs.filter((c: any) => c.isActive === false);
@@ -1243,7 +1243,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // GET /api/admin/clubs/:id - Get a single club
-  app.get('/api/admin/clubs/:id', isAuthenticated, isAdmin, async (req, res) => {
+  app.get('/api/admin/clubs/:id', isAdmin, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const club = await storage.getClub(id);
@@ -1258,7 +1258,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // POST /api/admin/clubs - Create a new club
-  app.post('/api/admin/clubs', isAuthenticated, isAdmin, async (req: any, res) => {
+  app.post('/api/admin/clubs', isAdmin, async (req: any, res) => {
     try {
       const clubData = { 
         ...req.body, 
@@ -1274,7 +1274,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // PUT /api/admin/clubs/:id - Update a club
-  app.put('/api/admin/clubs/:id', isAuthenticated, isAdmin, async (req, res) => {
+  app.put('/api/admin/clubs/:id', isAdmin, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const club = await storage.updateClub(id, req.body);
@@ -1286,7 +1286,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // DELETE /api/admin/clubs/:id - Delete a club
-  app.delete('/api/admin/clubs/:id', isAuthenticated, isAdmin, async (req, res) => {
+  app.delete('/api/admin/clubs/:id', isAdmin, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       await storage.deleteClub(id);
@@ -1298,7 +1298,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // POST /api/admin/clubs/:id/approve - Approve a club
-  app.post('/api/admin/clubs/:id/approve', isAuthenticated, isAdmin, async (req, res) => {
+  app.post('/api/admin/clubs/:id/approve', isAdmin, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const club = await storage.updateClub(id, { 
@@ -1312,7 +1312,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // POST /api/admin/clubs/:id/reject - Reject a club
-  app.post('/api/admin/clubs/:id/reject', isAuthenticated, isAdmin, async (req, res) => {
+  app.post('/api/admin/clubs/:id/reject', isAdmin, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const club = await storage.updateClub(id, { 
@@ -1326,7 +1326,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // PATCH /api/admin/clubs/:id/feature - Toggle featured status (uses rating as workaround)
-  app.patch('/api/admin/clubs/:id/feature', isAuthenticated, isAdmin, async (req, res) => {
+  app.patch('/api/admin/clubs/:id/feature', isAdmin, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const { featured } = req.body;
@@ -1344,7 +1344,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ==========================================
   
   // GET /api/admin/bookings - List all bookings
-  app.get('/api/admin/bookings', isAuthenticated, isAdmin, async (req, res) => {
+  app.get('/api/admin/bookings', isAdmin, async (req, res) => {
     try {
       const bookings = await storage.getBookingTickets();
       
@@ -1373,7 +1373,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // GET /api/admin/bookings/:id - Get a single booking
-  app.get('/api/admin/bookings/:id', isAuthenticated, isAdmin, async (req, res) => {
+  app.get('/api/admin/bookings/:id', isAdmin, async (req, res) => {
     try {
       const bookingReference = req.params.id;
       const booking = await storage.getBookingTicket(bookingReference);
@@ -1388,7 +1388,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // PATCH /api/admin/bookings/:id/status - Update booking status
-  app.patch('/api/admin/bookings/:id/status', isAuthenticated, isAdmin, async (req, res) => {
+  app.patch('/api/admin/bookings/:id/status', isAdmin, async (req, res) => {
     try {
       const bookingReference = req.params.id;
       const { status } = req.body;
@@ -1401,7 +1401,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // DELETE /api/admin/bookings/:id - Delete a booking
-  app.delete('/api/admin/bookings/:id', isAuthenticated, isAdmin, async (req, res) => {
+  app.delete('/api/admin/bookings/:id', isAdmin, async (req, res) => {
     try {
       const bookingReference = req.params.id;
       await storage.deleteBookingTicket(bookingReference);
@@ -1417,7 +1417,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ==========================================
   
   // GET /api/admin/stats - Dashboard statistics
-  app.get('/api/admin/stats', isAuthenticated, isAdmin, async (req, res) => {
+  app.get('/api/admin/stats', isAdmin, async (req, res) => {
     try {
       const clubs = await storage.getClubs();
       const events = await storage.getBookingEvents();
@@ -1473,7 +1473,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin: upsert legal page content
-  app.put('/api/admin/cms/legal/:pageKey', isAuthenticated, isAdmin, async (req: any, res) => {
+  app.put('/api/admin/cms/legal/:pageKey', isAdmin, async (req: any, res) => {
     try {
       const userId = req.user?.id;
       const page = await storage.upsertLegalPage(req.params.pageKey, req.body, userId);
@@ -1495,7 +1495,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/admin/cms/page-hero/:pageKey', isAuthenticated, isAdmin, async (req: any, res) => {
+  app.put('/api/admin/cms/page-hero/:pageKey', isAdmin, async (req: any, res) => {
     try {
       const userId = req.user?.id;
       const settings = await storage.upsertPageHeroSettings(req.params.pageKey, req.body, userId);
@@ -1534,7 +1534,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin: create or update a translation
-  app.post('/api/admin/translations', isAuthenticated, isAdmin, async (req: any, res) => {
+  app.post('/api/admin/translations', isAdmin, async (req: any, res) => {
     try {
       const { entityType, entityId, field, language, value } = req.body;
       if (!entityType || !entityId || !field || !language || !value) {
@@ -1549,7 +1549,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin: delete a translation
-  app.delete('/api/admin/translations/:id', isAuthenticated, isAdmin, async (req: any, res) => {
+  app.delete('/api/admin/translations/:id', isAdmin, async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
       await storage.deleteTranslation(id);
@@ -1561,7 +1561,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin: read i18n locale JSON keys for a given section
-  app.get('/api/admin/i18n/:section', isAuthenticated, isAdmin, async (req: any, res) => {
+  app.get('/api/admin/i18n/:section', isAdmin, async (req: any, res) => {
     try {
       const { section } = req.params;
       const fs = await import('fs/promises');
@@ -1583,7 +1583,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin: update i18n locale JSON keys for a given section
-  app.put('/api/admin/i18n/:section', isAuthenticated, isAdmin, async (req: any, res) => {
+  app.put('/api/admin/i18n/:section', isAdmin, async (req: any, res) => {
     try {
       const { section } = req.params;
       const updates: Record<string, Record<string, string>> = req.body; // { en: {key: val}, fr: {...}, ... }
@@ -1619,7 +1619,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/admin/cms/clubs-page', isAuthenticated, isAdmin, async (req: any, res) => {
+  app.put('/api/admin/cms/clubs-page', isAdmin, async (req: any, res) => {
     try {
       const userId = req.user.id;
       const settings = await storage.updateClubsPageSettings(req.body, userId);
