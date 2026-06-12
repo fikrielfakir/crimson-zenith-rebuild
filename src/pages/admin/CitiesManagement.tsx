@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { staticMediaUrl, MEDIA_KEYS } from '@/lib/staticMedia';
-import { apiFetch } from '@/lib/apiFetch';
+import { apiFetch, resolveStorageUrl } from '@/lib/apiFetch';
 import { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
@@ -161,8 +161,14 @@ function MediaPickerDialog({
   }
 
   function confirm() {
-    const url = tab === 'url' ? urlInput : selected;
-    if (url) { onSelect(url); onOpenChange(false); setSelected(''); setUrlInput(''); }
+    const raw = tab === 'url' ? urlInput : selected;
+    if (raw) {
+      const url = resolveStorageUrl(raw) ?? raw;
+      onSelect(url);
+      onOpenChange(false);
+      setSelected('');
+      setUrlInput('');
+    }
   }
 
   const filteredBuiltin = BUILTIN_IMAGES.filter(i =>
@@ -306,7 +312,7 @@ function MediaPickerDialog({
                     onClick={() => setSelected(item.fileUrl)}
                   >
                     <img
-                      src={item.fileUrl}
+                      src={resolveStorageUrl(item.fileUrl) ?? item.fileUrl}
                       alt={item.altText || item.fileName}
                       className="w-full h-36 object-cover bg-muted"
                       onError={e => { (e.target as HTMLImageElement).style.opacity = '0.3'; }}
