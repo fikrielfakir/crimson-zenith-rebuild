@@ -59,6 +59,38 @@ export default defineConfig(({ mode }: { mode: string }) => ({
       allow: [__dirname],
     },
     proxy: {
+      // ── More-specific Laravel routes MUST come before the generic "/api" ──
+      // Vite processes proxy entries in insertion order; the first match wins.
+      // If "/api" appeared first it would swallow every "/api/admin/media" and
+      // "/api/media" request before the specific Laravel rules could fire.
+      "/api/admin/media": {
+        target: LARAVEL_API,
+        changeOrigin: true,
+        secure: false,
+        configure: (proxy: any) => {
+          proxy.on("proxyReq", (proxyReq: any, req: any) => {
+            proxyReq.setHeader("Origin", "https://thejourney-ma.org");
+            proxyReq.setHeader("Referer", "https://thejourney-ma.org/");
+            const auth = req.headers["authorization"];
+            if (auth) proxyReq.setHeader("Authorization", auth);
+            const cookie = req.headers["cookie"];
+            if (cookie) proxyReq.setHeader("Cookie", cookie);
+          });
+        },
+      },
+      "/api/media": {
+        target: LARAVEL_API,
+        changeOrigin: true,
+        secure: false,
+        configure: (proxy: any) => {
+          proxy.on("proxyReq", (proxyReq: any, req: any) => {
+            proxyReq.setHeader("Origin", "https://thejourney-ma.org");
+            const auth = req.headers["authorization"];
+            if (auth) proxyReq.setHeader("Authorization", auth);
+          });
+        },
+      },
+      // ── Generic catch-all — goes to Express (3001) on Replit, external Laravel elsewhere ──
       "/api": {
         target: API_PROXY_TARGET,
         changeOrigin: true,
@@ -81,26 +113,6 @@ export default defineConfig(({ mode }: { mode: string }) => ({
               res.writeHead(503, { "Content-Type": "application/json" });
               res.end(JSON.stringify({ message: "API unavailable - please try again in a moment." }));
             }
-          });
-        },
-      },
-      "/api/media": {
-        target: LARAVEL_API,
-        changeOrigin: true,
-        secure: false,
-        configure: (proxy: any) => {
-          proxy.on("proxyReq", (proxyReq: any) => {
-            proxyReq.setHeader("Origin", "https://thejourney-ma.org");
-          });
-        },
-      },
-      "/api/admin/media": {
-        target: LARAVEL_API,
-        changeOrigin: true,
-        secure: false,
-        configure: (proxy: any) => {
-          proxy.on("proxyReq", (proxyReq: any) => {
-            proxyReq.setHeader("Origin", "https://thejourney-ma.org");
           });
         },
       },
