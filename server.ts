@@ -1,8 +1,9 @@
 import 'dotenv/config';
 import express from 'express';
 import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
+import { dirname, join, resolve as pathResolve } from 'path';
 import fs from 'fs';
+import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 import { storage } from './server/storage.js';
 import { setupAuth, isAuthenticated, isAdmin } from './server/replitAuth.js';
@@ -2794,14 +2795,14 @@ const ALLOWED_MEDIA_TYPES = new Set([
 function resolveUploadPath(fileUrl: string): string | null {
   if (!fileUrl) return null;
   const rel = fileUrl.replace(/^\/uploads\//, '');
-  return pathMod.resolve(__dirname, 'public/uploads', rel);
+  return pathResolve(__dirname, 'public/uploads', rel);
 }
 
 // One-time startup sync: migrate media-index.json → media_assets table
 async function syncMediaIndexToDB() {
   try {
-    const indexPath = pathMod.resolve(__dirname, 'public/uploads/media-index.json');
-    const raw = JSON.parse(await fsPromise.readFile(indexPath, 'utf-8'));
+    const indexPath = pathResolve(__dirname, 'public/uploads/media-index.json');
+    const raw = JSON.parse(await fs.promises.readFile(indexPath, 'utf-8'));
     const entries: any[] = Array.isArray(raw) ? raw : (raw.media ?? []);
     if (!entries.length) return;
 
@@ -2853,8 +2854,8 @@ app.get('/api/admin/media', isAdmin, async (req, res) => {
   app.post('/api/admin/media', isAdmin, mediaUploadMW.single('file'), async (req: any, res) => {
     try {
       // All uploads go to public/uploads/ root — consistent with legacy files
-      const uploadsDir = pathMod.resolve(__dirname, 'public/uploads');
-      await fsPromise.mkdir(uploadsDir, { recursive: true });
+      const uploadsDir = pathResolve(__dirname, 'public/uploads');
+      await fs.promises.mkdir(uploadsDir, { recursive: true });
 
       let fileName: string;
       let fileType: string;
@@ -2869,7 +2870,7 @@ app.get('/api/admin/media', isAdmin, async (req, res) => {
         fileSize = req.file.size;
         const ext = (req.file.originalname.split('.').pop() ?? 'bin').toLowerCase();
         fileName = `${crypto.randomUUID()}.${ext}`;
-        await fsPromise.writeFile(pathMod.join(uploadsDir, fileName), req.file.buffer);
+        await fs.promises.writeFile(join(uploadsDir, fileName), req.file.buffer);
         fileUrl = `/uploads/${fileName}`;
       } else if (req.body?.imageData) {
         const match = (req.body.imageData as string).match(/^data:([^;]+);base64,(.+)$/s);
@@ -2881,7 +2882,7 @@ app.get('/api/admin/media', isAdmin, async (req, res) => {
         fileSize = buf.length;
         const ext = fileType.split('/')[1]?.replace('jpeg', 'jpg') ?? 'bin';
         fileName = `${crypto.randomUUID()}.${ext}`;
-        await fsPromise.writeFile(pathMod.join(uploadsDir, fileName), buf);
+        await fs.promises.writeFile(join(uploadsDir, fileName), buf);
         fileUrl = `/uploads/${fileName}`;
       } else {
         return res.status(400).json({ error: 'No file provided' });
@@ -2919,7 +2920,7 @@ app.delete('/api/admin/media/:id', isAdmin, async (req, res) => {
     // Delete file from disk (best-effort — don't fail if already gone)
     const diskPath = resolveUploadPath(record.fileUrl);
     if (diskPath) {
-      fsPromise.unlink(diskPath).catch(() => {});
+      fs.promises.unlink(diskPath).catch(() => {});
     }
 
     console.log(`✅ Media deleted: id=${mediaId} file=${record.fileUrl}`);

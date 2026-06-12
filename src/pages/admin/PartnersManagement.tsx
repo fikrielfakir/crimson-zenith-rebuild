@@ -18,7 +18,8 @@ import {
 } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Pencil, Trash2, ExternalLink, Globe, Save, Eye, EyeOff, Upload, Loader2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, ExternalLink, Globe, Save, Eye, EyeOff } from 'lucide-react';
+import { ImageUpload } from '@/components/admin/ImageUpload';
 import { TranslateDialog } from '@/components/admin/TranslateDialog';
 import { ConfirmDeleteDialog } from '@/components/admin/ConfirmDeleteDialog';
 import {
@@ -98,8 +99,6 @@ export default function PartnersManagement() {
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [form, setForm] = useState<PartnerForm>(emptyForm);
   const [sectionDraft, setSectionDraft] = useState<{ title: string; subtitle: string; isActive: boolean } | null>(null);
-  const [uploadingLogo, setUploadingLogo] = useState(false);
-  const logoFileRef = useRef<HTMLInputElement>(null);
 
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -167,30 +166,6 @@ export default function PartnersManagement() {
     handleClose();
   };
 
-  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploadingLogo(true);
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      const res = await apiFetch('/api/admin/media', { method: 'POST', body: formData });
-      if (!res.ok) throw new Error('Upload failed');
-      const data = await res.json();
-      const rawFileUrl: string = data.fileUrl ?? data.url ?? data.thumbnailUrl ?? '';
-      const fileUrl = rawFileUrl.startsWith('/storage/') && import.meta.env.VITE_API_BASE_URL
-        ? `${import.meta.env.VITE_API_BASE_URL}${rawFileUrl}` : rawFileUrl;
-      if (fileUrl) {
-        setForm(f => ({ ...f, logoUrl: fileUrl }));
-        toast({ title: t('admin.partners.toastLogoUploaded') });
-      }
-    } catch (err) {
-      toast({ title: t('admin.partners.uploadFailed'), description: (err as Error).message, variant: 'destructive' });
-    } finally {
-      setUploadingLogo(false);
-      if (logoFileRef.current) logoFileRef.current.value = '';
-    }
-  };
 
   const activeCount = crud.data.filter((p) => p.isActive).length;
   const isPending = crud.isCreating || crud.isUpdating;
@@ -398,26 +373,18 @@ export default function PartnersManagement() {
 
             <div className="space-y-2">
               <Label>{t('admin.partners.logoLabel')}</Label>
-              <div className="flex items-center gap-2">
-                <input ref={logoFileRef} type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
-                <Button type="button" variant="outline" size="sm" disabled={uploadingLogo} onClick={() => logoFileRef.current?.click()} className="flex items-center gap-2">
-                  {uploadingLogo ? <><Loader2 className="h-4 w-4 animate-spin" /> {t('admin.partners.uploadingLogo')}</> : <><Upload className="h-4 w-4" /> {t('admin.partners.uploadImageBtn')}</>}
-                </Button>
-                <span className="text-xs text-muted-foreground">PNG, JPG, SVG, WebP</span>
-              </div>
+              <ImageUpload
+                value={form.logoUrl}
+                onChange={(url) => setForm(f => ({ ...f, logoUrl: url }))}
+                description="PNG, JPG, SVG, WebP — transparent background recommended"
+                accept="image/png,image/jpeg,image/svg+xml,image/webp"
+              />
               <div className="flex items-center gap-2">
                 <div className="h-px flex-1 bg-border" />
                 <span className="text-xs text-muted-foreground px-1">{t('admin.partners.orPasteUrl')}</span>
                 <div className="h-px flex-1 bg-border" />
               </div>
               <Input id="p-logo" value={form.logoUrl} onChange={(e) => setForm({ ...form, logoUrl: e.target.value })} placeholder="https://example.com/logo.png" />
-              {form.logoUrl && (
-                <div className="flex items-center gap-3 p-3 rounded-md border bg-gray-50">
-                  <span className="text-xs text-muted-foreground shrink-0">{t('admin.partners.previewLabel')}</span>
-                  <img src={form.logoUrl} alt="Logo preview" className="h-10 max-w-[160px] object-contain"
-                    onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
-                </div>
-              )}
             </div>
 
             <div className="space-y-2">

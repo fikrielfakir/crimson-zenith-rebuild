@@ -23,6 +23,7 @@ import {
   Wand2,
 } from 'lucide-react';
 import { TranslateDialog } from '@/components/admin/TranslateDialog';
+import { ImageUpload } from '@/components/admin/ImageUpload';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -114,8 +115,6 @@ function PostEditor({
   const { t } = useTranslation();
   const { toast } = useToast();
   const isNew = !post?.id;
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [uploading, setUploading] = useState(false);
   const [autoTranslatingAll, setAutoTranslatingAll] = useState(false);
 
   const { register, handleSubmit, control, watch, setValue, formState: { errors, isDirty } } = useForm<PostFormData>({
@@ -133,34 +132,6 @@ function PostEditor({
   const status = watch('status');
   const featuredImage = watch('featuredImage');
 
-  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploading(true);
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('alt', file.name);
-      const res = await apiFetch('/api/admin/cms/media', {
-        method: 'POST',
-        body: formData,
-      });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.message || `Upload failed (${res.status})`);
-      }
-      const data = await res.json();
-      const rawUrl: string = data.url ?? data.fileUrl ?? data.imageUrl ?? '';
-      const resolvedUrl = resolveStorageUrl(rawUrl) ?? rawUrl;
-      setValue('featuredImage', resolvedUrl, { shouldDirty: true });
-      toast({ title: 'Image uploaded successfully' });
-    } catch (err: any) {
-      toast({ title: 'Upload failed', description: err.message, variant: 'destructive' });
-    } finally {
-      setUploading(false);
-      if (fileInputRef.current) fileInputRef.current.value = '';
-    }
-  }
 
   async function handleAutoTranslateAll() {
     const currentTitle = watch('title');
@@ -385,45 +356,12 @@ function PostEditor({
               <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-1">
                 <ImageIcon className="h-3 w-3" /> Featured Image
               </h3>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleImageUpload}
-              />
               <input type="hidden" {...register('featuredImage')} />
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="w-full gap-2 h-9"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={uploading}
-              >
-                {uploading ? (
-                  <><Loader2 className="h-3.5 w-3.5 animate-spin" />Uploading…</>
-                ) : (
-                  <><Upload className="h-3.5 w-3.5" />Upload Media</>
-                )}
-              </Button>
-              {featuredImage && (
-                <div className="mt-2 rounded-lg overflow-hidden border relative group">
-                  <img
-                    src={featuredImage}
-                    alt="Featured"
-                    className="w-full h-32 object-cover"
-                    onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setValue('featuredImage', '', { shouldDirty: true })}
-                    className="absolute top-1 right-1 h-6 w-6 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition-colors opacity-0 group-hover:opacity-100"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </div>
-              )}
+              <ImageUpload
+                value={featuredImage}
+                onChange={(url) => setValue('featuredImage', url, { shouldDirty: true })}
+                description="JPG, PNG, WebP — max 50 MB"
+              />
             </div>
 
             {!isNew && post?.id && (

@@ -11,7 +11,8 @@ import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { TranslateDialog } from '@/components/admin/TranslateDialog';
-import { Save, Eye, Plus, Trash2, GripVertical, Upload, Loader2, Type } from 'lucide-react';
+import { Save, Eye, Plus, Trash2, GripVertical, Loader2, Type } from 'lucide-react';
+import { ImageUpload } from '@/components/admin/ImageUpload';
 
 const FONT_SIZES = ['24px', '32px', '40px', '48px', '56px', '64px', '72px', '80px'];
 const TEXT_ALIGNS = ['left', 'center', 'right'];
@@ -26,8 +27,6 @@ export default function HeroSettings() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const bgFileRef = useRef<HTMLInputElement>(null);
-  const [uploadingBg, setUploadingBg] = useState(false);
 
   // Content
   const [taglines, setTaglines] = useState<TaglineEntry[]>([
@@ -162,31 +161,6 @@ export default function HeroSettings() {
     }
   };
 
-  // ── Background image upload via media API ─────────────────────────────────
-  const handleBgUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploadingBg(true);
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      const res = await apiFetch('/api/admin/cms/media', { method: 'POST', body: formData });
-      if (!res.ok) throw new Error('Upload failed');
-      const data = await res.json();
-      const rawUrl: string = data.fileUrl ?? data.url ?? data.thumbnailUrl ?? '';
-      const url = rawUrl.startsWith('/storage/') && import.meta.env.VITE_API_BASE_URL
-        ? `${import.meta.env.VITE_API_BASE_URL}${rawUrl}` : rawUrl;
-      if (url) {
-        setBackgroundImageUrl(url);
-        toast({ title: t('admin.hero.bgUploaded') });
-      }
-    } catch (err: any) {
-      toast({ title: t('admin.hero.bgUploadFailed'), description: err.message, variant: 'destructive' });
-    } finally {
-      setUploadingBg(false);
-      if (bgFileRef.current) bgFileRef.current.value = '';
-    }
-  };
 
   // ── Tagline helpers ───────────────────────────────────────────────────────
   const addTagline = () => setTaglines(prev => [...prev, { text: '', twoLines: true }]);
@@ -454,18 +428,12 @@ export default function HeroSettings() {
 
               {backgroundType === 'image' && (
                 <div className="space-y-3">
-                  <Label>{t('admin.hero.backgroundImage')}</Label>
-                  {backgroundImageUrl && (
-                    <div className="border rounded-lg overflow-hidden bg-gray-50">
-                      <img src={backgroundImageUrl} alt="Background preview" className="w-full h-40 object-cover" />
-                    </div>
-                  )}
-                  <div className="flex items-center gap-2">
-                    <input ref={bgFileRef} type="file" accept="image/*" className="hidden" onChange={handleBgUpload} />
-                    <Button variant="outline" size="sm" disabled={uploadingBg} onClick={() => bgFileRef.current?.click()}>
-                      {uploadingBg ? <><Loader2 className="h-4 w-4 animate-spin mr-2" />{t('admin.hero.uploading')}</> : <><Upload className="h-4 w-4 mr-2" />{t('admin.hero.uploadImage')}</>}
-                    </Button>
-                  </div>
+                  <ImageUpload
+                    label={t('admin.hero.backgroundImage')}
+                    description="JPG, PNG, WebP — recommended 1920×1080px"
+                    value={backgroundImageUrl}
+                    onChange={setBackgroundImageUrl}
+                  />
                   <div className="flex items-center gap-2">
                     <div className="h-px flex-1 bg-border" />
                     <span className="text-xs text-muted-foreground">{t('admin.hero.orPasteUrl')}</span>

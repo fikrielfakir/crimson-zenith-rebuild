@@ -1,192 +1,132 @@
 import { useState, useRef } from 'react';
-import { Upload, X, ImageIcon, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Upload, Loader2, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { apiFetch, resolveStorageUrl } from '@/lib/apiFetch';
+import { apiFetch } from '@/lib/apiFetch';
+import { useToast } from '@/hooks/use-toast';
 
 interface ImageUploadProps {
   value?: string;
-  onChange: (value: string) => void;
+  onChange: (url: string) => void;
+  label?: string;
+  description?: string;
+  accept?: string;
+  previewClass?: string;
   className?: string;
+  endpoint?: string;
+  onUploadStart?: () => void;
+  onUploadEnd?: () => void;
 }
 
-export function ImageUpload({ value, onChange, className }: ImageUploadProps) {
-  const [preview, setPreview] = useState<string | null>(value || null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadStatus, setUploadStatus] = useState<'idle' | 'server' | 'error'>('idle');
-  const [uploadError, setUploadError] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+export function ImageUpload({
+  value = '',
+  onChange,
+  label,
+  description = 'PNG, JPG, WebP, SVG — max 50 MB',
+  accept = 'image/*',
+  previewClass,
+  className,
+  endpoint = '/api/admin/media',
+  onUploadStart,
+  onUploadEnd,
+}: ImageUploadProps) {
+  const { toast } = useToast();
+  const inputRef  = useRef<HTMLInputElement>(null);
+  const [dragging,  setDragging]  = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [error,     setError]     = useState<string | null>(null);
 
-  const handleFileChange = async (file: File | null) => {
-    if (!file) return;
-
-    if (!file.type.startsWith('image/')) {
-      setUploadError('Please select an image file (PNG, JPG, GIF, WebP).');
-      return;
-    }
-    if (file.size > 10 * 1024 * 1024) {
-      setUploadError('File size must be under 10 MB. Please choose a smaller image.');
-      return;
-    }
-
-    setIsUploading(true);
-    setUploadStatus('idle');
-    setUploadError(null);
-
-    // Show a local blob preview immediately while uploading
-    const localPreview = URL.createObjectURL(file);
-    setPreview(localPreview);
-
+  const uploadFile = async (file: File) => {
+    setError(null);
+    setUploading(true);
+    onUploadStart?.();
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('alt', file.name);
-
-      const res = await apiFetch('/api/admin/cms/media', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        const rawUrl: string = data.fileUrl ?? data.url ?? data.imageUrl ?? '';
-        const serverUrl = resolveStorageUrl(rawUrl) ?? rawUrl;
-
-        if (serverUrl && !serverUrl.startsWith('data:')) {
-          setPreview(serverUrl);
-          onChange(serverUrl);
-          setUploadStatus('server');
-          return;
-        }
-
-        // Fallback: build a media proxy URL from the asset id
-        const assetId: string = String(data.id ?? '');
-        if (assetId) {
-          const mediaUrl = `/api/cms/media/${assetId}`;
-          onChange(mediaUrl);
-          setUploadStatus('server');
-          return;
-        }
+      const form = new FormData();
+      form.append('file', file);
+      const res = await apiFetch(endpoint, { method: 'POST', body: form });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error ?? body.message ?? `Upload failed (${res.status})`);
       }
-
-      const status = res.status;
-      const errText = status === 401
-        ? 'Session expired — please log out and log in again to upload images.'
-        : `Upload failed (${status}). Please try again.`;
-      setUploadError(errText);
-      setUploadStatus('error');
-      setPreview(null);
-      onChange('');
-    } catch {
-      setUploadError('Network error while uploading. Please check your connection and try again.');
-      setUploadStatus('error');
-      setPreview(null);
-      onChange('');
+      const data = await res.json();
+      const url: string = data.fileUrl ?? data.url ?? '';
+      if (!url) throw new Error('No URL returned from server');
+      onChange(url);
+    } catch (err: any) {
+      const msg = err.message ?? 'Upload failed';
+      setError(msg);
+      toast({ title: 'Upload failed', description: msg, variant: 'destructive' });
     } finally {
-      setIsUploading(false);
-      URL.revokeObjectURL(localPreview);
+      setUploading(false);
+      onUploadEnd?.();
     }
   };
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(false);
-    handleFileChange(e.dataTransfer.files[0]);
+  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) uploadFile(file);
+    e.target.value = '';
   };
 
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const handleRemove = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setPreview(null);
-    setUploadStatus('idle');
-    setUploadError(null);
-    onChange('');
-    if (fileInputRef.current) fileInputRef.current.value = '';
+    setDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) uploadFile(file);
   };
 
   return (
-    <div className={cn('space-y-2', className)}>
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        className="hidden"
-        onChange={(e) => handleFileChange(e.target.files?.[0] || null)}
-      />
+    <div className={cn('space-y-3', className)}>
+      {label && <p className="text-sm font-medium leading-none">{label}</p>}
 
-      {uploadError && (
+      <div
+        onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+        onDragLeave={() => setDragging(false)}
+        onDrop={handleDrop}
+        onClick={() => !uploading && inputRef.current?.click()}
+        className={cn(
+          'border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center gap-3 transition-colors cursor-pointer select-none',
+          dragging   ? 'border-primary bg-primary/5'
+                     : 'border-border hover:border-primary/50 hover:bg-muted/30',
+          uploading && 'opacity-60 pointer-events-none'
+        )}
+      >
+        {uploading
+          ? <Loader2 className="h-8 w-8 text-muted-foreground animate-spin" />
+          : <Upload className="h-8 w-8 text-muted-foreground" />}
+        <div className="text-center">
+          <p className="text-sm font-medium">
+            {uploading ? 'Uploading…' : 'Click to upload or drag & drop'}
+          </p>
+          <p className="text-xs text-muted-foreground mt-0.5">{description}</p>
+        </div>
+        <input ref={inputRef} type="file" accept={accept} className="hidden" onChange={handleFile} />
+      </div>
+
+      {error && (
         <div className="flex items-start gap-2 rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
-          <span>{uploadError}</span>
+          <span>{error}</span>
         </div>
       )}
 
-      {preview ? (
-        <div className="relative group">
-          <div className="relative aspect-video w-full overflow-hidden rounded-lg border bg-muted">
-            <img
-              src={preview}
-              alt="Preview"
-              className="h-full w-full object-cover"
-              onError={(e) => {
-                (e.target as HTMLImageElement).style.display = 'none';
-              }}
-            />
-            {isUploading && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/40">
-                <Loader2 className="h-8 w-8 text-white animate-spin" />
-              </div>
-            )}
-          </div>
-
-          {!isUploading && uploadStatus === 'server' && (
-            <div className="absolute bottom-2 left-2 flex items-center gap-1 rounded bg-green-600/90 px-2 py-1 text-xs font-medium text-white">
-              <CheckCircle className="h-3 w-3" /> Saved to server
-            </div>
-          )}
-
-          <Button
+      {value && !uploading && (
+        <div className={cn(
+          'border rounded-lg p-4 bg-muted/30 flex items-center justify-center gap-3',
+          previewClass ?? 'min-h-[80px]'
+        )}>
+          <img
+            src={value}
+            alt="Preview"
+            className="max-h-20 max-w-[220px] object-contain rounded"
+            onError={(e) => { (e.target as HTMLImageElement).style.opacity = '0.3'; }}
+          />
+          <button
             type="button"
-            variant="destructive"
-            size="icon"
-            className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-            onClick={handleRemove}
+            onClick={(e) => { e.stopPropagation(); setError(null); onChange(''); }}
+            className="text-xs text-destructive hover:underline self-start shrink-0"
           >
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
-      ) : (
-        <div
-          onClick={() => { if (!isUploading) fileInputRef.current?.click(); }}
-          onDrop={handleDrop}
-          onDragOver={handleDragOver}
-          onDragLeave={() => setIsDragging(false)}
-          className={cn(
-            'relative aspect-video w-full cursor-pointer overflow-hidden rounded-lg border-2 border-dashed transition-colors',
-            isDragging
-              ? 'border-primary bg-primary/5'
-              : 'border-muted-foreground/25 hover:border-primary/50 hover:bg-muted/50',
-            isUploading && 'pointer-events-none opacity-70'
-          )}
-        >
-          <div className="flex h-full flex-col items-center justify-center gap-2 p-6 text-center">
-            <div className="rounded-full bg-muted p-4">
-              {isUploading
-                ? <Loader2 className="h-8 w-8 text-muted-foreground animate-spin" />
-                : <ImageIcon className="h-8 w-8 text-muted-foreground" />}
-            </div>
-            <div className="space-y-1">
-              <p className="text-sm font-medium">
-                {isUploading ? 'Uploading…' : 'Drop your image here, or click to browse'}
-              </p>
-              <p className="text-xs text-muted-foreground">PNG, JPG, GIF up to 10MB</p>
-            </div>
-          </div>
+            Remove
+          </button>
         </div>
       )}
     </div>

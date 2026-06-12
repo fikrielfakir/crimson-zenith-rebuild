@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { apiFetch, resolveStorageUrl } from "@/lib/apiFetch";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -10,7 +10,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { useToast } from "@/hooks/use-toast";
-import { Save, Eye, ExternalLink, Image, Video, Palette, AlertCircle, Upload, X, Loader2 } from "lucide-react";
+import { Save, Eye, ExternalLink, Image, Video, Palette, AlertCircle } from "lucide-react";
+import { ImageUpload } from "@/components/admin/ImageUpload";
 import { Link } from "react-router-dom";
 import { TranslateDialog } from "@/components/admin/TranslateDialog";
 
@@ -97,106 +98,38 @@ function MediaUploadField({
   accept: string;
   placeholder: string;
 }) {
-  const fileRef = useRef<HTMLInputElement>(null);
-  const { toast } = useToast();
-  const { t } = useTranslation();
-  const [uploading, setUploading] = useState(false);
-
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const maxSizeMB = mediaType === "video" ? 200 : 10;
-    if (file.size > maxSizeMB * 1024 * 1024) {
-      toast({
-        title: t('admin.pageHero.fileTooLarge'),
-        description: `Maximum file size is ${maxSizeMB}MB.`,
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setUploading(true);
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const res = await apiFetch("/api/admin/media", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.message || "Upload failed");
-      }
-
-      const data = await res.json();
-      const rawUrl: string = data.fileUrl ?? data.url ?? '';
-      const url = rawUrl.startsWith('/storage/') && import.meta.env.VITE_API_BASE_URL
-        ? `${import.meta.env.VITE_API_BASE_URL}${rawUrl}`
-        : rawUrl;
-      onChange(url);
-      toast({
-        title: t('admin.pageHero.uploadedTitle'),
-        description: `${mediaType === "image" ? "Image" : "Video"} uploaded successfully.`,
-      });
-    } catch (err: any) {
-      toast({
-        title: t('admin.pageHero.uploadFailed'),
-        description: err.message || "Could not upload file.",
-        variant: "destructive",
-      });
-    } finally {
-      setUploading(false);
-      if (fileRef.current) fileRef.current.value = "";
-    }
-  };
-
-  return (
-    <div className="space-y-2">
-      <div className="flex gap-2">
+  if (mediaType === "image") {
+    return (
+      <div className="space-y-3">
+        <ImageUpload
+          value={value}
+          onChange={onChange}
+          accept={accept}
+          description="JPG, PNG, WebP — wide landscape image recommended"
+        />
+        <div className="flex items-center gap-2">
+          <div className="h-px flex-1 bg-border" />
+          <span className="text-xs text-muted-foreground px-1">or paste URL</span>
+          <div className="h-px flex-1 bg-border" />
+        </div>
         <Input
           placeholder={placeholder}
           value={value}
           onChange={e => onChange(e.target.value)}
-          className="flex-1 font-mono text-xs"
+          className="font-mono text-xs"
         />
-        <Button
-          type="button"
-          variant="outline"
-          size="icon"
-          disabled={uploading}
-          onClick={() => fileRef.current?.click()}
-          title={`Upload ${mediaType}`}
-        >
-          {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
-        </Button>
-        {value && (
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            onClick={() => onChange("")}
-            title="Clear"
-          >
-            <X className="w-4 h-4" />
-          </Button>
-        )}
       </div>
-      <input
-        ref={fileRef}
-        type="file"
-        accept={accept}
-        className="hidden"
-        onChange={handleFileChange}
+    );
+  }
+
+  return (
+    <div className="space-y-2">
+      <Input
+        placeholder={placeholder}
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        className="font-mono text-xs"
       />
-      {uploading && (
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <Loader2 className="w-3 h-3 animate-spin" />
-          {t('admin.pageHero.uploadingMedia', { type: mediaType })}
-        </div>
-      )}
     </div>
   );
 }

@@ -12,10 +12,11 @@ import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import {
   Save, Loader2, Globe, Search, ShieldCheck, Image as ImageIcon,
-  Mail, BarChart2, Link as LinkIcon, Code, CheckCircle2, XCircle, Upload,
+  Mail, BarChart2, Link as LinkIcon, Code, CheckCircle2, XCircle,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { apiFetch } from '@/lib/apiFetch';
+import { ImageUpload } from '@/components/admin/ImageUpload';
 
 // ── Shared helpers ─────────────────────────────────────────────────────────────
 
@@ -228,108 +229,6 @@ function SeoTab() {
 
 // ── Logo & Favicon Tab ────────────────────────────────────────────────────────
 
-function ImageUploadField({
-  label,
-  description,
-  value,
-  onChange,
-  accept,
-  previewClass,
-  inputId,
-  folder = 'misc',
-}: {
-  label: string;
-  description: string;
-  value: string;
-  onChange: (v: string) => void;
-  accept: string;
-  previewClass?: string;
-  inputId: string;
-  folder?: string;
-}) {
-  const [dragging, setDragging] = useState(false);
-  const [uploading, setUploading] = useState(false);
-  const { toast } = useToast();
-
-  const uploadFile = async (file: File) => {
-    setUploading(true);
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      const res = await apiFetch('/api/admin/media', {
-        method: 'POST',
-        body: formData,
-      });
-      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).message || 'Upload failed');
-      const data = await res.json();
-      const rawUrl: string = data.fileUrl ?? data.url ?? '';
-      const url = rawUrl.startsWith('/storage/') && import.meta.env.VITE_API_BASE_URL
-        ? `${import.meta.env.VITE_API_BASE_URL}${rawUrl}`
-        : rawUrl;
-      onChange(url);
-    } catch (err: any) {
-      toast({ title: 'Upload failed', description: err.message || 'Could not upload image. Please try again.', variant: 'destructive' });
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) uploadFile(file);
-    e.target.value = '';
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setDragging(false);
-    const file = e.dataTransfer.files?.[0];
-    if (file) uploadFile(file);
-  };
-
-  return (
-    <div className="space-y-3">
-      <Label>{label}</Label>
-      <div
-        onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
-        onDragLeave={() => setDragging(false)}
-        onDrop={handleDrop}
-        className={`border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center gap-3 transition-colors cursor-pointer
-          ${dragging ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50 hover:bg-muted/30'}
-          ${uploading ? 'opacity-60 pointer-events-none' : ''}`}
-        onClick={() => !uploading && document.getElementById(inputId)?.click()}
-      >
-        {uploading
-          ? <Loader2 className="h-8 w-8 text-muted-foreground animate-spin" />
-          : <Upload className="h-8 w-8 text-muted-foreground" />}
-        <div className="text-center">
-          <p className="text-sm font-medium">{uploading ? 'Uploading…' : 'Click to upload or drag & drop'}</p>
-          <p className="text-xs text-muted-foreground mt-0.5">{description}</p>
-        </div>
-        <input id={inputId} type="file" accept={accept} className="hidden" onChange={handleFile} />
-      </div>
-
-      {value && !uploading && (
-        <div className={`border rounded-lg p-4 bg-muted/30 flex items-center justify-center ${previewClass ?? 'min-h-[80px]'}`}>
-          <img
-            src={value}
-            alt={`${label} preview`}
-            className="max-h-16 max-w-[200px] object-contain"
-            onError={(e) => { (e.target as HTMLImageElement).style.opacity = '0.3'; }}
-          />
-          <button
-            type="button"
-            onClick={(e) => { e.stopPropagation(); onChange(''); }}
-            className="ml-3 text-xs text-destructive hover:underline self-start"
-          >
-            Remove
-          </button>
-        </div>
-      )}
-    </div>
-  );
-}
-
 function LogoFaviconTab() {
   const { toast } = useToast();
 
@@ -380,14 +279,12 @@ function LogoFaviconTab() {
             <div className="flex items-center gap-2 text-muted-foreground text-sm"><Loader2 className="h-4 w-4 animate-spin" /> Loading…</div>
           ) : (
             <>
-              <ImageUploadField
-                inputId="logo-upload"
+              <ImageUpload
                 label="Logo Image"
                 description="PNG, SVG or WebP — transparent background recommended, ~400×160px"
                 accept="image/png,image/svg+xml,image/webp,image/jpeg"
                 value={logoUrl}
                 onChange={setLogoUrl}
-                folder="logos"
               />
 
               <div className="grid grid-cols-2 gap-4">
@@ -414,15 +311,13 @@ function LogoFaviconTab() {
           {isLoading ? (
             <div className="flex items-center gap-2 text-muted-foreground text-sm"><Loader2 className="h-4 w-4 animate-spin" /> Loading…</div>
           ) : (
-            <ImageUploadField
-              inputId="favicon-upload"
+            <ImageUpload
               label="Favicon Image"
               description=".ico, PNG or SVG — 32×32px recommended"
               accept="image/x-icon,image/png,image/svg+xml,image/vnd.microsoft.icon"
               value={faviconUrl}
               onChange={setFaviconUrl}
               previewClass="min-h-[56px]"
-              folder="favicons"
             />
           )}
         </CardContent>

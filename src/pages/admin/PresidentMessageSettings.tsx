@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { apiFetch } from '@/lib/apiFetch';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -10,7 +10,8 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Save, Upload, Eye, Image as ImageIcon } from 'lucide-react';
+import { Save, Eye, Image as ImageIcon } from 'lucide-react';
+import { ImageUpload } from '@/components/admin/ImageUpload';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { TranslateDialog } from '@/components/admin/TranslateDialog';
 
@@ -98,50 +99,6 @@ export default function PresidentMessageSettings() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
-  const photoInputRef = useRef<HTMLInputElement>(null);
-  const signatureInputRef = useRef<HTMLInputElement>(null);
-  const bgInputRef = useRef<HTMLInputElement>(null);
-  const [uploadingPhoto, setUploadingPhoto] = useState(false);
-  const [uploadingSignature, setUploadingSignature] = useState(false);
-  const [uploadingBg, setUploadingBg] = useState(false);
-
-  async function uploadImageFromDevice(
-    file: File,
-    setUploading: (v: boolean) => void,
-    onSuccess: (id: number, url: string) => void,
-  ) {
-    if (!file.type.startsWith('image/')) {
-      toast({ title: t('admin.clubs.toastInvalidFile'), description: t('admin.clubs.toastInvalidFileDesc'), variant: 'destructive' });
-      return;
-    }
-    setUploading(true);
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('alt', file.name);
-      const response = await apiFetch('/api/admin/cms/media', {
-        method: 'POST',
-        body: formData,
-      });
-      if (!response.ok) throw new Error(`Upload failed (${response.status})`);
-      const data = await response.json();
-      const rawUrl: string = data.fileUrl ?? data.url ?? data.file_url ?? '';
-      const url = rawUrl.startsWith('/storage/') && import.meta.env.VITE_API_BASE_URL
-        ? `${import.meta.env.VITE_API_BASE_URL}${rawUrl}`
-        : rawUrl;
-      const id: number = typeof data.id === 'number' ? data.id : parseInt(data.id ?? '0', 10);
-      if (url) {
-        onSuccess(id, url);
-        toast({ title: t('admin.presidentMsg.toastUploaded'), description: t('admin.presidentMsg.toastUploadedDesc') });
-      } else {
-        throw new Error('No URL returned from server');
-      }
-    } catch (err: any) {
-      toast({ title: t('admin.presidentMsg.toastUploadFailed'), description: err?.message ?? 'Unknown error', variant: 'destructive' });
-    } finally {
-      setUploading(false);
-    }
-  }
 
   // Content
   const [isActive, setIsActive] = useState(true);
@@ -483,32 +440,14 @@ export default function PresidentMessageSettings() {
               <CardDescription>{t('admin.presidentMsg.photoUploadDesc')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {photoUrl && (
-                <div className="border rounded-lg p-4 bg-muted/30 flex items-center justify-center">
-                  <img src={photoUrl} alt="President" className="h-48 object-contain rounded" />
-                </div>
-              )}
-              <input
-                ref={photoInputRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) uploadImageFromDevice(file, setUploadingPhoto, (id, url) => { setPhotoId(id); setPhotoUrl(url); });
-                  e.target.value = '';
-                }}
+              <ImageUpload
+                value={photoUrl}
+                onChange={(url) => { setPhotoUrl(url); if (!url) setPhotoId(null); }}
+                label={t('admin.presidentMsg.photoTitle')}
+                description="PNG, JPG, WebP — portrait photo recommended"
+                previewClass="min-h-[140px]"
               />
               <div className="flex gap-2">
-                <Button
-                  variant="default"
-                  className="flex-1"
-                  disabled={uploadingPhoto}
-                  onClick={() => photoInputRef.current?.click()}
-                >
-                  <Upload className="mr-2 h-4 w-4" />
-                  {uploadingPhoto ? 'Uploading…' : 'Upload from device'}
-                </Button>
                 <Dialog>
                   <DialogTrigger asChild>
                     <Button variant="outline" className="flex-1">
@@ -522,11 +461,6 @@ export default function PresidentMessageSettings() {
                   />
                 </Dialog>
               </div>
-              {photoId && (
-                <Button variant="ghost" className="w-full" onClick={() => { setPhotoId(null); setPhotoUrl(''); }}>
-                  Remove photo
-                </Button>
-              )}
             </CardContent>
           </Card>
 
@@ -536,32 +470,15 @@ export default function PresidentMessageSettings() {
               <CardDescription>{t('admin.presidentMsg.signatureDesc')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {signatureUrl && (
-                <div className="border rounded-lg p-4 bg-muted/30 flex items-center justify-center">
-                  <img src={signatureUrl} alt="Signature" className="h-40 object-contain rounded" />
-                </div>
-              )}
-              <input
-                ref={signatureInputRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) uploadImageFromDevice(file, setUploadingSignature, (id, url) => { setSignatureId(id); setSignatureUrl(url); });
-                  e.target.value = '';
-                }}
+              <ImageUpload
+                value={signatureUrl}
+                onChange={(url) => { setSignatureUrl(url); if (!url) setSignatureId(null); }}
+                label={t('admin.presidentMsg.signatureTitle')}
+                description="PNG, SVG — transparent background recommended"
+                accept="image/png,image/svg+xml,image/webp"
+                previewClass="min-h-[100px]"
               />
               <div className="flex gap-2">
-                <Button
-                  variant="default"
-                  className="flex-1"
-                  disabled={uploadingSignature}
-                  onClick={() => signatureInputRef.current?.click()}
-                >
-                  <Upload className="mr-2 h-4 w-4" />
-                  {uploadingSignature ? 'Uploading…' : 'Upload from device'}
-                </Button>
                 <Dialog>
                   <DialogTrigger asChild>
                     <Button variant="outline" className="flex-1">
@@ -575,11 +492,6 @@ export default function PresidentMessageSettings() {
                   />
                 </Dialog>
               </div>
-              {signatureId && (
-                <Button variant="ghost" className="w-full" onClick={() => { setSignatureId(null); setSignatureUrl(''); }}>
-                  Remove Signature
-                </Button>
-              )}
             </CardContent>
           </Card>
 
@@ -589,32 +501,14 @@ export default function PresidentMessageSettings() {
               <CardDescription>{t('admin.presidentMsg.bgDesc')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {backgroundImageUrl && (
-                <div className="border rounded-lg p-4 bg-muted/30 flex items-center justify-center">
-                  <img src={backgroundImageUrl} alt={t('admin.presidentMsg.tabBackground')} className="h-32 object-cover rounded w-full" />
-                </div>
-              )}
-              <input
-                ref={bgInputRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) uploadImageFromDevice(file, setUploadingBg, (id, url) => { setBackgroundImageId(id); setBackgroundImageUrl(url); });
-                  e.target.value = '';
-                }}
+              <ImageUpload
+                value={backgroundImageUrl}
+                onChange={(url) => { setBackgroundImageUrl(url); if (!url) setBackgroundImageId(null); }}
+                label={t('admin.presidentMsg.bgTitle')}
+                description="JPG, PNG, WebP — wide landscape image recommended"
+                previewClass="min-h-[100px]"
               />
               <div className="flex gap-2">
-                <Button
-                  variant="default"
-                  className="flex-1"
-                  disabled={uploadingBg}
-                  onClick={() => bgInputRef.current?.click()}
-                >
-                  <Upload className="mr-2 h-4 w-4" />
-                  {uploadingBg ? 'Uploading…' : 'Upload from device'}
-                </Button>
                 <Dialog>
                   <DialogTrigger asChild>
                     <Button variant="outline" className="flex-1">

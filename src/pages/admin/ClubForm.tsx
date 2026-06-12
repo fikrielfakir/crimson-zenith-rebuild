@@ -4,7 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { ArrowLeft, Loader2, Upload, X, ImageIcon, MapPin, Search } from 'lucide-react';
+import { ArrowLeft, Loader2, MapPin, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { apiFetch } from '@/lib/apiFetch';
+import { ImageUpload } from '@/components/admin/ImageUpload';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -42,106 +43,6 @@ const clubFormSchema = z.object({
 
 type ClubFormValues = z.infer<typeof clubFormSchema>;
 
-// ─── Image Upload ─────────────────────────────────────────────────────────────
-function ImageUpload({ value, onChange, onUploadStart, onUploadEnd }: {
-  value?: string;
-  onChange: (url: string) => void;
-  onUploadStart?: () => void;
-  onUploadEnd?: () => void;
-}) {
-  const [uploading, setUploading] = useState(false);
-  const [preview, setPreview] = useState<string>(value || '');
-  const inputRef = useRef<HTMLInputElement>(null);
-  const { toast } = useToast();
-  const { t } = useTranslation();
-
-  useEffect(() => { setPreview(value || ''); }, [value]);
-
-  const handleFile = async (file: File) => {
-    if (!file.type.startsWith('image/')) {
-      toast({ title: t('admin.clubs.toastInvalidFile'), description: t('admin.clubs.toastInvalidFileDesc'), variant: 'destructive' });
-      return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      toast({ title: t('admin.clubs.toastFileTooLarge'), description: t('admin.clubs.toastFileTooLargeDesc'), variant: 'destructive' });
-      return;
-    }
-    setPreview(URL.createObjectURL(file));
-    setUploading(true);
-    onUploadStart?.();
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      const res = await apiFetch('/api/admin/media', {
-        method: 'POST',
-        body: formData,
-      });
-      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).message || 'Upload failed');
-      const data = await res.json();
-      const rawUrl: string = data.fileUrl ?? data.url ?? '';
-      const url = rawUrl.startsWith('/storage/') && import.meta.env.VITE_API_BASE_URL
-        ? `${import.meta.env.VITE_API_BASE_URL}${rawUrl}`
-        : rawUrl;
-      setPreview(url || URL.createObjectURL(file));
-      onChange(url);
-      toast({ title: t('admin.clubs.toastImageUploaded') });
-    } catch (err: any) {
-      setPreview(value || '');
-      toast({ title: t('admin.clubs.toastUploadFailed'), description: err.message, variant: 'destructive' });
-    } finally {
-      setUploading(false);
-      onUploadEnd?.();
-    }
-  };
-
-  return (
-    <div className="space-y-2">
-      <input
-        ref={inputRef}
-        type="file"
-        accept="image/jpeg,image/png,image/jpg,image/webp"
-        className="hidden"
-        onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }}
-      />
-      {preview ? (
-        <div className="relative group w-full max-w-sm">
-          <img src={preview} alt="Club" className="w-full h-48 object-cover rounded-lg border" />
-          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
-            <Button type="button" size="sm" variant="secondary" onClick={() => inputRef.current?.click()} disabled={uploading}>
-              {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4 mr-1" />}
-              Replace
-            </Button>
-            <Button type="button" size="sm" variant="destructive" onClick={() => { setPreview(''); onChange(''); if (inputRef.current) inputRef.current.value = ''; }} disabled={uploading}>
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-          {uploading && (
-            <div className="absolute inset-0 bg-black/60 rounded-lg flex items-center justify-center">
-              <Loader2 className="h-8 w-8 animate-spin text-white" />
-            </div>
-          )}
-        </div>
-      ) : (
-        <div
-          className="w-full max-w-sm h-48 border-2 border-dashed border-muted-foreground/30 rounded-lg flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-primary/50 hover:bg-muted/30 transition-colors"
-          onClick={() => inputRef.current?.click()}
-          onDrop={(e) => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) handleFile(f); }}
-          onDragOver={(e) => e.preventDefault()}
-        >
-          {uploading ? (
-            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-          ) : (
-            <>
-              <ImageIcon className="h-10 w-10 text-muted-foreground/50" />
-              <p className="text-sm text-muted-foreground font-medium">Click to upload or drag & drop</p>
-              <p className="text-xs text-muted-foreground/70">JPEG, PNG, WebP — max 5 MB</p>
-            </>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
 
 // ─── Fix Leaflet's broken default icon paths in Vite builds ──────────────────
 delete (L.Icon.Default.prototype as any)._getIconUrl;
