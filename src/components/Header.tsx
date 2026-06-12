@@ -1447,16 +1447,13 @@ const Header = ({ forceOpaque = false }: { forceOpaque?: boolean }) => {
     document.documentElement.classList.toggle("dark");
   };
 
-  const logoUrl =
-    navbarSettings?.logoUrl
-      ? navbarSettings.logoUrl
-      : (navbarSettings as any)?.logo_url
-      ? (navbarSettings as any).logo_url
-      : navbarSettings?.logoImageId
-      ? `/api/cms/media/${navbarSettings.logoImageId}`
-      : (navbarSettings as any)?.logo_image_id
-      ? `/api/cms/media/${(navbarSettings as any).logo_image_id}`
-      : logoAtj;
+  const _rawLogoUrl =
+    navbarSettings?.logoUrl ||
+    (navbarSettings as any)?.logo_url ||
+    (navbarSettings?.logoImageId ? `/api/cms/media/${navbarSettings.logoImageId}` : null) ||
+    ((navbarSettings as any)?.logo_image_id ? `/api/cms/media/${(navbarSettings as any).logo_image_id}` : null) ||
+    null;
+  const logoUrl = _rawLogoUrl ? (resolveStorageUrl(_rawLogoUrl) ?? _rawLogoUrl) : logoAtj;
 
   // Extract styling settings with defaults
   const bgColor = navbarSettings?.backgroundColor || "#112250";

@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiFetch } from "@/lib/apiFetch";
+import { apiFetch, resolveStorageUrl } from "@/lib/apiFetch";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Shared helpers
@@ -395,8 +395,7 @@ export function useAppLogo(): string {
     (data as any)?.logo_url ||
     null;
   if (!dbUrl) return '/logo-atj.png';
-  if (dbUrl.startsWith('http') || dbUrl.startsWith('/')) return dbUrl;
-  return dbUrl;
+  return resolveStorageUrl(dbUrl) ?? dbUrl;
 }
 
 export function useHeroSettings() {
