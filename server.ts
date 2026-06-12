@@ -1314,24 +1314,32 @@ app.post('/api/forgot-password', async (req: any, res) => {
       : (req.headers.origin || `${req.protocol}://${req.get('host')}`);
     const resetUrl = `${host}/reset-password?token=${encodeURIComponent(token)}&email=${encodeURIComponent(user.email)}`;
 
-    // Send via SMTP settings stored in DB (same as Send Test Mail)
+    // Send via SMTP settings: prefer DB config, fall back to env vars (same as emailService.ts)
     const cfg = await storage.getSmtpSettings();
-    if (!cfg?.enabled || !cfg.host) {
+    const smtpHost     = (cfg?.enabled && cfg?.host) ? cfg.host : (process.env.SMTP_HOST || 'smtp.hostinger.com');
+    const smtpPort     = (cfg?.enabled && cfg?.host) ? (cfg.port ?? 465) : parseInt(process.env.SMTP_PORT || '465');
+    const smtpSecure   = (cfg?.enabled && cfg?.host) ? (cfg.secure ?? true) : (process.env.SMTP_SECURE !== 'false');
+    const smtpUser     = (cfg?.enabled && cfg?.host) ? (cfg.username ?? '') : (process.env.SMTP_USER || '');
+    const smtpPass     = (cfg?.enabled && cfg?.host) ? (cfg.password ?? '') : (process.env.SMTP_PASSWORD || '');
+    const smtpFromName = (cfg?.enabled && cfg?.host) ? (cfg.fromName ?? 'The Journey Association') : 'The Journey Association';
+    const smtpFromEmail = (cfg?.enabled && cfg?.host) ? (cfg.fromEmail ?? cfg.username ?? smtpUser) : (process.env.SMTP_FROM || smtpUser);
+
+    if (!smtpUser || !smtpPass || !smtpHost) {
       console.warn('⚠️  SMTP not configured — reset link:', resetUrl);
       return ok();
     }
 
     const nodemailer = await import('nodemailer');
     const transporter = nodemailer.default.createTransport({
-      host: cfg.host,
-      port: cfg.port ?? 465,
-      secure: cfg.secure ?? true,
-      auth: { user: cfg.username ?? '', pass: cfg.password ?? '' },
+      host: smtpHost,
+      port: smtpPort,
+      secure: smtpSecure,
+      auth: { user: smtpUser, pass: smtpPass },
     });
 
     const firstName = user.firstName || user.username || 'there';
     await transporter.sendMail({
-      from: `"${cfg.fromName ?? 'The Journey Association'}" <${cfg.fromEmail ?? cfg.username}>`,
+      from: `"${smtpFromName}" <${smtpFromEmail}>`,
       to: user.email,
       subject: 'Reset your password — The Journey Association',
       html: `
@@ -5069,21 +5077,29 @@ app.post('/api/admin/smtp/test', isAdmin, async (req, res) => {
   const { to } = req.body;
   if (!to) return res.status(400).json({ error: 'Missing recipient email' });
   const cfg = await storage.getSmtpSettings();
-  if (!cfg?.enabled || !cfg.host) {
-    return res.status(400).json({ error: 'SMTP is not configured or not enabled' });
+  // Prefer DB settings; fall back to env vars (same as emailService.ts)
+  const smtpHost2      = (cfg?.enabled && cfg?.host) ? cfg.host : (process.env.SMTP_HOST || 'smtp.hostinger.com');
+  const smtpPort2      = (cfg?.enabled && cfg?.host) ? (cfg.port ?? 465) : parseInt(process.env.SMTP_PORT || '465');
+  const smtpSecure2    = (cfg?.enabled && cfg?.host) ? (cfg.secure ?? true) : (process.env.SMTP_SECURE !== 'false');
+  const smtpUser2      = (cfg?.enabled && cfg?.host) ? (cfg.username ?? '') : (process.env.SMTP_USER || '');
+  const smtpPass2      = (cfg?.enabled && cfg?.host) ? (cfg.password ?? '') : (process.env.SMTP_PASSWORD || '');
+  const smtpFrom2      = (cfg?.enabled && cfg?.host) ? `"${cfg.fromName ?? 'Journey'}" <${cfg.fromEmail ?? cfg.username ?? smtpUser2}>` : (process.env.SMTP_FROM || smtpUser2);
+
+  if (!smtpUser2 || !smtpPass2) {
+    return res.status(400).json({ error: 'SMTP is not configured. Set SMTP_USER and SMTP_PASSWORD in secrets, or configure via Admin → Settings.' });
   }
   const subject = 'Test Email — The Journey Association';
   const body = 'This is a test email to confirm your SMTP configuration is working correctly.';
   try {
     const nodemailer = await import('nodemailer');
     const transporter = nodemailer.default.createTransport({
-      host: cfg.host,
-      port: cfg.port ?? 587,
-      secure: cfg.secure ?? false,
-      auth: { user: cfg.username ?? '', pass: cfg.password ?? '' },
+      host: smtpHost2,
+      port: smtpPort2,
+      secure: smtpSecure2,
+      auth: { user: smtpUser2, pass: smtpPass2 },
     });
     await transporter.sendMail({
-      from: `"${cfg.fromName ?? 'Journey'}" <${cfg.fromEmail ?? cfg.username}>`,
+      from: smtpFrom2,
       to, subject, text: body,
     });
     await storage.createEmailLog({ to, subject, body, status: 'sent', type: 'test', sentBy: userId });
@@ -5100,19 +5116,25 @@ app.post('/api/admin/smtp/send', isAdmin, async (req, res) => {
   const { to, subject, body } = req.body;
   if (!to || !subject || !body) return res.status(400).json({ error: 'Missing fields' });
   const cfg = await storage.getSmtpSettings();
-  if (!cfg?.enabled || !cfg.host) {
+  const smtpHost3      = (cfg?.enabled && cfg?.host) ? cfg.host : (process.env.SMTP_HOST || 'smtp.hostinger.com');
+  const smtpPort3      = (cfg?.enabled && cfg?.host) ? (cfg.port ?? 465) : parseInt(process.env.SMTP_PORT || '465');
+  const smtpSecure3    = (cfg?.enabled && cfg?.host) ? (cfg.secure ?? true) : (process.env.SMTP_SECURE !== 'false');
+  const smtpUser3      = (cfg?.enabled && cfg?.host) ? (cfg.username ?? '') : (process.env.SMTP_USER || '');
+  const smtpPass3      = (cfg?.enabled && cfg?.host) ? (cfg.password ?? '') : (process.env.SMTP_PASSWORD || '');
+  const smtpFrom3      = (cfg?.enabled && cfg?.host) ? `"${cfg.fromName ?? 'Journey'}" <${cfg.fromEmail ?? cfg.username ?? smtpUser3}>` : (process.env.SMTP_FROM || smtpUser3);
+  if (!smtpUser3 || !smtpPass3) {
     return res.status(400).json({ error: 'SMTP is not configured or not enabled' });
   }
   try {
     const nodemailer = await import('nodemailer');
     const transporter = nodemailer.default.createTransport({
-      host: cfg.host,
-      port: cfg.port ?? 587,
-      secure: cfg.secure ?? false,
-      auth: { user: cfg.username ?? '', pass: cfg.password ?? '' },
+      host: smtpHost3,
+      port: smtpPort3,
+      secure: smtpSecure3,
+      auth: { user: smtpUser3, pass: smtpPass3 },
     });
     await transporter.sendMail({
-      from: `"${cfg.fromName ?? 'Journey'}" <${cfg.fromEmail ?? cfg.username}>`,
+      from: smtpFrom3,
       to, subject, text: body,
     });
     await storage.createEmailLog({ to, subject, body, status: 'sent', type: 'manual', sentBy: userId });
