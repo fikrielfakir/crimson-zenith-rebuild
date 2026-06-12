@@ -1287,6 +1287,135 @@ app.post('/api/admin/logout', (req: any, res) => {
   res.json({ success: true, message: 'Logged out' });
 });
 
+// ── Forgot Password ───────────────────────────────────────────────────────────
+app.post('/api/forgot-password', async (req: any, res) => {
+  const { email } = req.body ?? {};
+  // Always return success to prevent email enumeration
+  const ok = () => res.json({ message: 'If that email exists you will receive a reset link shortly.' });
+
+  if (!email) return ok();
+  try {
+    const { eq } = await import('drizzle-orm');
+    const [user] = await db.select().from(users).where(eq(users.email, email)).limit(1);
+    if (!user) return ok();
+
+    // Build a signed JWT reset token (1-hour expiry)
+    const { SignJWT } = await import('jose');
+    const secret = new TextEncoder().encode(process.env.SESSION_SECRET || 'journey-association-admin-jwt-2024');
+    const token = await new SignJWT({ type: 'password-reset', userId: user.id, email: user.email })
+      .setProtectedHeader({ alg: 'HS256' })
+      .setIssuedAt()
+      .setExpirationTime('1h')
+      .sign(secret);
+
+    // Build reset URL
+    const host = process.env.REPLIT_DEV_DOMAIN
+      ? `https://${process.env.REPLIT_DEV_DOMAIN}`
+      : (req.headers.origin || `${req.protocol}://${req.get('host')}`);
+    const resetUrl = `${host}/reset-password?token=${encodeURIComponent(token)}&email=${encodeURIComponent(user.email)}`;
+
+    // Send via SMTP settings stored in DB (same as Send Test Mail)
+    const cfg = await storage.getSmtpSettings();
+    if (!cfg?.enabled || !cfg.host) {
+      console.warn('⚠️  SMTP not configured — reset link:', resetUrl);
+      return ok();
+    }
+
+    const nodemailer = await import('nodemailer');
+    const transporter = nodemailer.default.createTransport({
+      host: cfg.host,
+      port: cfg.port ?? 465,
+      secure: cfg.secure ?? true,
+      auth: { user: cfg.username ?? '', pass: cfg.password ?? '' },
+    });
+
+    const firstName = user.firstName || user.username || 'there';
+    await transporter.sendMail({
+      from: `"${cfg.fromName ?? 'The Journey Association'}" <${cfg.fromEmail ?? cfg.username}>`,
+      to: user.email,
+      subject: 'Reset your password — The Journey Association',
+      html: `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#f4f4f4;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f4;padding:20px;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 4px 6px rgba(0,0,0,.1);">
+        <tr><td style="background:linear-gradient(135deg,#112250 0%,#1a3366 100%);padding:40px;text-align:center;">
+          <h1 style="color:#fff;margin:0;font-size:26px;">Password Reset Request</h1>
+          <p style="color:#D8C18D;margin:10px 0 0;font-size:15px;">The Journey Association</p>
+        </td></tr>
+        <tr><td style="padding:40px;">
+          <p style="color:#333;font-size:16px;margin:0 0 16px;">Hi ${firstName},</p>
+          <p style="color:#333;font-size:15px;margin:0 0 24px;">We received a request to reset the password for your account. Click the button below to choose a new password. This link expires in <strong>1 hour</strong>.</p>
+          <div style="text-align:center;margin:32px 0;">
+            <a href="${resetUrl}" style="background:#112250;color:#fff;padding:14px 32px;border-radius:8px;text-decoration:none;font-size:15px;font-weight:600;display:inline-block;">Reset My Password</a>
+          </div>
+          <p style="color:#666;font-size:13px;margin:24px 0 0;">If the button doesn't work, copy and paste this link into your browser:<br>
+            <a href="${resetUrl}" style="color:#112250;word-break:break-all;">${resetUrl}</a>
+          </p>
+          <hr style="border:none;border-top:1px solid #eee;margin:32px 0;">
+          <p style="color:#999;font-size:12px;margin:0;">If you didn't request this, you can safely ignore this email. Your password won't change.</p>
+        </td></tr>
+        <tr><td style="background:#112250;padding:20px;text-align:center;">
+          <p style="color:#fff;margin:0;font-size:12px;">© ${new Date().getFullYear()} The Journey Association. All rights reserved.</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`,
+    });
+
+    await storage.createEmailLog({ to: user.email, subject: 'Reset your password — The Journey Association', body: resetUrl, status: 'sent', type: 'password-reset' }).catch(() => {});
+    console.log(`📧 Password reset email sent to ${user.email}`);
+  } catch (err: any) {
+    console.error('❌ Forgot-password error:', err?.message ?? err);
+  }
+  return ok();
+});
+
+// ── Reset Password ─────────────────────────────────────────────────────────────
+app.post('/api/reset-password', async (req: any, res) => {
+  const { token, email, password } = req.body ?? {};
+  if (!token || !email || !password) {
+    return res.status(400).json({ message: 'Missing required fields.' });
+  }
+  if (password.length < 6) {
+    return res.status(400).json({ message: 'Password must be at least 6 characters.' });
+  }
+  try {
+    const { jwtVerify } = await import('jose');
+    const secret = new TextEncoder().encode(process.env.SESSION_SECRET || 'journey-association-admin-jwt-2024');
+    const { payload } = await jwtVerify(token, secret);
+
+    if (payload.type !== 'password-reset') {
+      return res.status(400).json({ message: 'Invalid reset token.' });
+    }
+    if ((payload.email as string)?.toLowerCase() !== email.toLowerCase()) {
+      return res.status(400).json({ message: 'Token does not match this email address.' });
+    }
+
+    const bcrypt = await import('bcryptjs');
+    const hashed = await bcrypt.default.hash(password, 12);
+
+    const { eq } = await import('drizzle-orm');
+    await db.update(users)
+      .set({ password: hashed, updatedAt: new Date() })
+      .where(eq(users.id, payload.userId as string));
+
+    console.log(`✅ Password reset for user ${payload.userId}`);
+    res.json({ message: 'Password reset successfully. You can now log in.' });
+  } catch (err: any) {
+    console.error('❌ Reset-password error:', err?.message ?? err);
+    if (err?.code === 'ERR_JWT_EXPIRED') {
+      return res.status(400).json({ message: 'This reset link has expired. Please request a new one.' });
+    }
+    res.status(400).json({ message: 'Invalid or expired reset link. Please request a new one.' });
+  }
+});
+
 app.get('/api/admin/me', async (req: any, res) => {
   try {
     if (req.isAuthenticated() && req.user?.isAdmin) {
