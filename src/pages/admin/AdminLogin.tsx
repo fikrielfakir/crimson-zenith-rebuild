@@ -14,6 +14,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from 'react-i18next';
 import { useNavbarSettings } from '@/hooks/useCMS';
+import { resolveStorageUrl } from '@/lib/apiFetch';
 import logoAtj from '@/assets/logo-atj.png';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 
@@ -33,10 +34,11 @@ export default function AdminLogin() {
   const [showPassword, setShowPassword] = useState(false);
   const { data: navbarSettings } = useNavbarSettings();
 
-  const logoUrl =
+  const rawLogoUrl =
     navbarSettings?.logoUrl ||
     (navbarSettings as any)?.logo_url ||
     logoAtj;
+  const logoUrl = resolveStorageUrl(rawLogoUrl) ?? rawLogoUrl;
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),

@@ -111,6 +111,7 @@ import ProjectsAdmin from "./pages/admin/ProjectsAdmin";
 import TranslationsManagement from "./pages/admin/TranslationsManagement";
 import ContactSettings from "./pages/admin/ContactSettings";
 import ClubsPageSettingsAdmin from "./pages/admin/ClubsPageSettings";
+import { resolveStorageUrl } from "@/lib/apiFetch";
 
 function GlobalSEO() {
   const { data: seo } = useSeoSettings();
@@ -152,8 +153,9 @@ function GlobalSEO() {
 function FaviconUpdater() {
   const { data: seoSettings } = useSeoSettings();
   useEffect(() => {
-    const url = seoSettings?.faviconUrl || seoSettings?.favicon_url;
-    if (!url) return;
+    const rawUrl = seoSettings?.faviconUrl || seoSettings?.favicon_url;
+    if (!rawUrl) return;
+    const url = resolveStorageUrl(rawUrl) ?? rawUrl;
 
     // Remove all existing favicon-related link tags so the browser
     // doesn't fall back to a tiny 16×16 or .ico variant.

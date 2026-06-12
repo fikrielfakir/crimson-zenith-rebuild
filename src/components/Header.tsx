@@ -969,7 +969,7 @@ const BottomNavbar = ({
             >
               {logoType === "image" ? (
                 <img
-                  src={logoUrl}
+                  src={resolveStorageUrl(logoUrl) ?? logoUrl}
                   alt="Logo"
                   className="w-auto object-contain transition-all duration-300 cursor-pointer hover:opacity-90"
                   style={
@@ -1190,7 +1190,7 @@ const BottomNavbar = ({
           <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
             {logoType === "image" ? (
               <img
-                src={logoUrl}
+                src={resolveStorageUrl(logoUrl) ?? logoUrl}
                 alt="Logo"
                 className="h-10 w-auto object-contain"
               />
