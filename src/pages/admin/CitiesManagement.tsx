@@ -410,10 +410,11 @@ function VideoUploadField({
       const formData = new FormData();
       formData.append('file', file);
       formData.append('type', 'video');
-      const res = await apiFetch('/api/admin/cms/page-hero-upload', { method: 'POST', body: formData });
+      const res = await apiFetch('/api/admin/media', { method: 'POST', body: formData });
       if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error(err.message || 'Upload failed'); }
       const data = await res.json();
-      onChange(data.url);
+      const rawUrl: string = data.fileUrl ?? data.url ?? '';
+      onChange(resolveStorageUrl(rawUrl) ?? rawUrl);
       toast({ title: t('admin.cities.toastVideoUploaded') });
     } catch (err: any) {
       toast({ title: t('admin.clubs.toastUploadFailed'), description: err.message || 'Could not upload video.', variant: 'destructive' });
