@@ -22,8 +22,12 @@ class SmtpMailService
         $smtp = SmtpSettings::find('default');
 
         if ($smtp && $smtp->enabled && $smtp->host && $smtp->username) {
-            // Temporarily override the smtp mailer config with DB values
+            // Override the smtp mailer config with DB values AND switch the
+            // default driver to 'smtp' so Mail::to()->send() actually uses it
+            // (the .env MAIL_MAILER might be 'log' or something else entirely).
             config([
+                'mail.default'                 => 'smtp',
+                'mail.mailers.smtp.transport'  => 'smtp',
                 'mail.mailers.smtp.host'       => $smtp->host,
                 'mail.mailers.smtp.port'       => $smtp->port ?? 587,
                 'mail.mailers.smtp.encryption' => $smtp->secure ? 'ssl' : 'tls',
@@ -33,8 +37,12 @@ class SmtpMailService
                 'mail.from.name'               => $smtp->from_name ?: 'The Journey Association',
             ]);
 
-            // Purge the cached mailer so it picks up the new config
+            // Purge both the cached smtp mailer and the default mailer so
+            // they pick up the new config on the very next send() call.
             app('mail.manager')->purge('smtp');
+            app('mail.manager')->forgetMailers();
+        } else {
+            Log::warning('[SmtpMailService] DB SMTP not configured/enabled — falling back to .env mail config');
         }
 
         Mail::to($to)->send($mailable);

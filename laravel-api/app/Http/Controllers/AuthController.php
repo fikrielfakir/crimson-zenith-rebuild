@@ -172,8 +172,14 @@ class AuthController extends Controller
                 $frontendUrl = config('app.frontend_url', config('app.url'));
                 $resetUrl    = rtrim($frontendUrl, '/') . '/reset-password?token=' . $token . '&email=' . urlencode($user->email);
                 $this->mailer->send($user->email, new ResetPasswordEmail($user->first_name ?? 'there', $resetUrl));
+                \Log::info('Password reset email sent to ' . $user->email);
             } catch (\Throwable $e) {
-                \Log::warning('Reset password email failed: ' . $e->getMessage());
+                \Log::error('Password reset email FAILED for ' . $user->email . ': ' . $e->getMessage(), [
+                    'exception' => $e,
+                    'smtp_host' => config('mail.mailers.smtp.host'),
+                    'smtp_port' => config('mail.mailers.smtp.port'),
+                    'mail_default' => config('mail.default'),
+                ]);
             }
         }
 
