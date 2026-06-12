@@ -472,6 +472,8 @@ export default function NavbarSettings() {
       setLogoImageId(navbarData.logoImageId || null);
       if (navbarData.logoImageId) {
         setLogoImageUrl(`/api/cms/media/${navbarData.logoImageId}`);
+      } else if (navbarData.logoUrl) {
+        setLogoImageUrl(navbarData.logoUrl);
       }
       setLogoSize(navbarData.logoSize || 135);
       setLogoLink(navbarData.logoLink || '/');
@@ -529,6 +531,7 @@ export default function NavbarSettings() {
         logoType,
         logoText,
         logoImageId,
+        logoUrl: logoImageUrl || undefined,
         logoSize,
         logoLink,
         navigationLinks: sanitizedNavLinks,
@@ -598,6 +601,7 @@ export default function NavbarSettings() {
   const handleSelectMedia = (mediaId: number, url: string) => {
     setLogoImageId(mediaId);
     setLogoImageUrl(url);
+    setLogoLink(logoLink);
   };
 
   return (

@@ -1338,6 +1338,14 @@ app.post('/api/forgot-password', async (req: any, res) => {
     });
 
     const firstName = user.firstName || user.username || 'there';
+
+    // Resolve logo URL from DB, fallback to static file
+    const navbarCfg = await storage.getNavbarSettings().catch(() => null);
+    const dbLogoUrl: string | null = (navbarCfg as any)?.logoUrl || (navbarCfg as any)?.logo_url || null;
+    const emailLogoUrl = dbLogoUrl
+      ? (dbLogoUrl.startsWith('http') ? dbLogoUrl : `${host}${dbLogoUrl}`)
+      : `${host}/logo-atj.png`;
+
     await transporter.sendMail({
       from: `"${smtpFromName}" <${smtpFromEmail}>`,
       to: user.email,
@@ -1360,7 +1368,7 @@ app.post('/api/forgot-password', async (req: any, res) => {
 
         <!-- Logo bar above card -->
         <tr><td align="center" style="padding-bottom:24px;">
-          <img src="${host}/logo-atj.png" alt="The Journey Association" width="72" height="72"
+          <img src="${emailLogoUrl}" alt="The Journey Association" width="72" height="72"
                style="display:block;border-radius:16px;border:3px solid #ffffff;box-shadow:0 4px 16px rgba(17,34,80,0.18);">
         </td></tr>
 

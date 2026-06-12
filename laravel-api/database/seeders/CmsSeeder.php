@@ -7,6 +7,7 @@ use App\Models\TeamMember;
 use App\Models\LandingTestimonial;
 use App\Models\SiteStat;
 use App\Models\NavbarSettings;
+use App\Models\SeoSettings;
 use Illuminate\Database\Seeder;
 
 class CmsSeeder extends Seeder
@@ -16,7 +17,11 @@ class CmsSeeder extends Seeder
         // Navbar
         if (!NavbarSettings::find('default')) {
             NavbarSettings::create([
-                'id' => 'default',
+                'id'        => 'default',
+                'logo_type' => 'image',
+                'logo_url'  => 'https://thejourney-ma.org/logo-atj.png',
+                'logo_size' => 135,
+                'logo_link' => '/',
                 'navigation_links' => [
                     ['label' => 'Discover',    'url' => '/discover',    'isExternal' => false, 'hasDropdown' => true],
                     ['label' => 'Activities',  'url' => '/activities',  'isExternal' => false],
@@ -28,6 +33,22 @@ class CmsSeeder extends Seeder
                     ['label' => 'Contact',     'url' => '/contact',     'isExternal' => false],
                 ],
             ]);
+        }
+
+        // Patch logo_url on existing navbar row if empty
+        $navbar = NavbarSettings::find('default');
+        if ($navbar && empty($navbar->logo_url)) {
+            $navbar->update(['logo_url' => 'https://thejourney-ma.org/logo-atj.png', 'logo_type' => 'image']);
+        }
+
+        // SEO / Favicon
+        $seo = SeoSettings::firstOrCreate(['id' => 'default'], [
+            'site_title'       => 'The Journey Association',
+            'site_description' => 'Morocco\'s network of adventure and cultural clubs.',
+            'favicon_url'      => 'https://thejourney-ma.org/favicon.ico',
+        ]);
+        if (empty($seo->favicon_url)) {
+            $seo->update(['favicon_url' => 'https://thejourney-ma.org/favicon.ico']);
         }
 
         // Focus items
