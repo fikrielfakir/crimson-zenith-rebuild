@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { resolveStorageUrl } from "@/lib/apiFetch";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -59,7 +60,7 @@ const Events = () => {
   const getEventTime = (e: BookingEvent) => e.start_time ?? e.time ?? '';
   const getRsvpCount = (e: BookingEvent) => e.attending_count ?? e.rsvp_count ?? 0;
   const getMaxCapacity = (e: BookingEvent) => e.max_capacity ?? e.capacity ?? 0;
-  const getImage = (e: BookingEvent) => e.image_url ?? e.cover_image ?? e.image ?? '/api/placeholder/400/200?type=event';
+  const getImage = (e: BookingEvent) => resolveStorageUrl(e.image_url ?? e.cover_image ?? e.image) ?? '/api/placeholder/400/200?type=event';
 
   const getDifficultyColor = (difficulty?: string) => {
     switch (difficulty) {

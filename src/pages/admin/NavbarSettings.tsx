@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
+import { resolveStorageUrl } from '@/lib/apiFetch';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -247,7 +248,7 @@ function SortableNavLink({
                             <Label className="text-xs">Image {link.dropdownType === 'carousel' && <span className="text-red-500">*</span>}</Label>
                             {item.imageUrl && (
                               <div className="border rounded p-2 bg-muted/20">
-                                <img src={item.imageUrl} alt={item.label} className="h-16 w-full object-cover rounded" />
+                                <img src={resolveStorageUrl(item.imageUrl) ?? item.imageUrl} alt={item.label} className="h-16 w-full object-cover rounded" />
                               </div>
                             )}
                             <Dialog open={selectedDropdownIndex === dropdownIndex} onOpenChange={(open) => !open && setSelectedDropdownIndex(null)}>
@@ -369,7 +370,7 @@ function MediaLibraryDialog({ onSelectMedia }: { onSelectMedia: (mediaId: number
               onClick={() => onSelectMedia(item.id, item.fileUrl)}
             >
               <img 
-                src={item.fileUrl} 
+                src={resolveStorageUrl(item.fileUrl) ?? item.fileUrl} 
                 alt={item.altText || item.fileName}
                 className="w-full h-32 object-contain rounded"
               />

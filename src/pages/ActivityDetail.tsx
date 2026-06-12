@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { resolveStorageUrl } from "@/lib/apiFetch";
 import { useTranslation } from "react-i18next";
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import SEOHead from "@/components/SEOHead";
@@ -116,8 +117,8 @@ function detectDifficulty(category = '', title = ''): string {
 
 function mapApiToActivity(e: any): ActivityData {
   const imgs: string[] = [];
-  if (e.image) imgs.push(e.image);
-  if (Array.isArray(e.images)) imgs.push(...e.images.filter((i: any) => i && i !== e.image));
+  if (e.image) imgs.push(resolveStorageUrl(e.image) ?? e.image);
+  if (Array.isArray(e.images)) imgs.push(...e.images.filter((i: any) => i && i !== e.image).map((i: any) => resolveStorageUrl(i) ?? i));
   if (imgs.length === 0) imgs.push('/api/placeholder/800/400?type=event');
 
   const included = splitLines(e.included ?? e.highlights);
