@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { useToast } from "@/hooks/use-toast";
-import { Save, Eye, ExternalLink, Image, Video, Palette, AlertCircle } from "lucide-react";
+import { Save, Eye, ExternalLink, Image, Video, Palette, AlertCircle, Loader2 } from "lucide-react";
 import { ImageUpload } from "@/components/admin/ImageUpload";
 import { Link } from "react-router-dom";
 import { TranslateDialog } from "@/components/admin/TranslateDialog";
