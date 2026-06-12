@@ -98,7 +98,7 @@ function MediaPickerDialog({
 }) {
   const { t } = useTranslation();
   const { toast } = useToast();
-  const [tab, setTab]           = useState<'builtin' | 'library' | 'url'>('builtin');
+  const [tab, setTab]           = useState<'library' | 'url'>('library');
   const [search, setSearch]     = useState('');
   const [selected, setSelected] = useState('');
   const [urlInput, setUrlInput] = useState('');
@@ -171,9 +171,6 @@ function MediaPickerDialog({
     }
   }
 
-  const filteredBuiltin = BUILTIN_IMAGES.filter(i =>
-    i.label.toLowerCase().includes(search.toLowerCase())
-  );
   const filteredMedia = media
     .filter(m => m.fileType.startsWith('image/'))
     .filter(m => (m.fileName ?? '').toLowerCase().includes(search.toLowerCase()));
@@ -186,12 +183,12 @@ function MediaPickerDialog({
             <ImageIcon className="w-5 h-5 text-primary" />
             Choose Image
           </DialogTitle>
-          <DialogDescription>Select from built-in city images, your media library, or enter a custom URL.</DialogDescription>
+          <DialogDescription>Select from your media library or enter a custom URL.</DialogDescription>
         </DialogHeader>
 
         {/* Tabs */}
         <div className="flex gap-1 border-b pb-2 shrink-0">
-          {(['builtin', 'library', 'url'] as const).map(t => (
+          {(['library', 'url'] as const).map(t => (
             <button
               key={t}
               onClick={() => { setTab(t); setSearch(''); setSelected(''); }}
@@ -201,7 +198,7 @@ function MediaPickerDialog({
                   : 'text-muted-foreground hover:bg-muted'
               }`}
             >
-              {t === 'builtin' ? '📸 Built-in Images' : t === 'library' ? '🗂 Media Library' : '🔗 Custom URL'}
+              {t === 'library' ? '🗂 Media Library' : '🔗 Custom URL'}
             </button>
           ))}
         </div>
@@ -246,36 +243,6 @@ function MediaPickerDialog({
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto min-h-0">
-          {tab === 'builtin' && (
-            <div className="grid grid-cols-3 gap-3 p-1">
-              {filteredBuiltin.map(img => (
-                <button
-                  key={img.url}
-                  onClick={() => setSelected(img.url)}
-                  className={`relative group rounded-xl overflow-hidden border-2 transition-all ${
-                    selected === img.url
-                      ? 'border-primary ring-2 ring-primary/30'
-                      : 'border-transparent hover:border-primary/50'
-                  }`}
-                >
-                  <img src={img.url} alt={img.label} className="w-full h-36 object-cover" />
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-end">
-                    <p className="text-white text-xs p-2 font-medium">{img.label}</p>
-                  </div>
-                  {selected === img.url && (
-                    <div className="absolute top-2 right-2 w-6 h-6 bg-primary rounded-full flex items-center justify-center">
-                      <Check className="w-4 h-4 text-white" />
-                    </div>
-                  )}
-                  <p className="text-xs text-center py-1.5 text-muted-foreground truncate px-1">{img.label}</p>
-                </button>
-              ))}
-              {filteredBuiltin.length === 0 && (
-                <p className="col-span-3 text-center py-8 text-muted-foreground">No images match your search.</p>
-              )}
-            </div>
-          )}
-
           {tab === 'library' && (
             loadingMedia ? (
               <div className="flex items-center justify-center py-16 text-muted-foreground">
