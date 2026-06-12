@@ -158,6 +158,7 @@ function PostEditor({
     const LANGUAGES = ['ar', 'fr', 'es'];
     setAutoTranslatingAll(true);
     let successCount = 0;
+    let firstError: string | null = null;
     try {
       for (const lang of LANGUAGES) {
         const res = await apiFetch('/api/admin/translations/auto-translate', {
@@ -166,9 +167,15 @@ function PostEditor({
           body: JSON.stringify({ texts, targetLanguage: lang }),
           credentials: 'include',
         });
-        if (!res.ok) continue;
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({ message: `HTTP ${res.status}` }));
+          if (!firstError) firstError = errData.message || `HTTP ${res.status}`;
+          continue;
+        }
         const data = await res.json();
-        const fields = Object.entries(data.results as Record<string, string>);
+        const fields = Object.entries(data.results as Record<string, string>)
+          .filter(([, value]) => value && value.trim());
+        if (fields.length === 0) continue;
         await Promise.all(fields.map(([field, value]) =>
           apiFetch('/api/admin/translations', {
             method: 'POST',
@@ -183,7 +190,11 @@ function PostEditor({
         ));
         successCount++;
       }
-      toast({ title: `Auto-translated to ${successCount} language${successCount !== 1 ? 's' : ''}`, description: 'AR, FR, ES translations saved.' });
+      if (successCount > 0) {
+        toast({ title: `Auto-translated to ${successCount} language${successCount !== 1 ? 's' : ''}`, description: 'AR, FR, ES translations saved. Open the Translate dialog to review.' });
+      } else {
+        toast({ title: 'Translation failed', description: firstError || 'No translations were generated. Make sure you are logged in as admin.', variant: 'destructive' });
+      }
     } catch (err: any) {
       toast({ title: 'Translation error', description: err.message, variant: 'destructive' });
     } finally {
