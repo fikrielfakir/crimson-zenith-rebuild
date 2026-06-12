@@ -76,6 +76,7 @@ function SortableNavLink({
   onUpdate: (index: number, field: keyof NavigationLink, value: any) => void;
   onRemove: (index: number) => void;
 }) {
+  const { t } = useTranslation();
   const {
     attributes,
     listeners,
@@ -337,7 +338,7 @@ function MediaLibraryDialog({ onSelectMedia }: { onSelectMedia: (mediaId: number
         return res.json();
       })
       .then(data => {
-        setMedia(data);
+        setMedia(Array.isArray(data) ? data : (data.media ?? []));
         setIsLoading(false);
       })
       .catch(err => {
