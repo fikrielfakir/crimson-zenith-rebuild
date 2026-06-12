@@ -11,3 +11,9 @@ id = "rpnyx2PPe9IF2jNQ7V-oa"
 uri = "file://untranslated-strings-report.md"
 type = "text"
 title = "Untranslated Strings Report — src/pages/admin"
+
+[[outputs]]
+id = "fK0WTzHJi2ydYQk1lHcii"
+uri = "file://attached_assets/media-architecture.svg"
+type = "image"
+title = "Media Upload Architecture — The Journey Association"
