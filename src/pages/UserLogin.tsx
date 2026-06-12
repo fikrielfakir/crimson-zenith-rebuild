@@ -181,7 +181,7 @@ const UserLogin = () => {
           </div>
 
           <a
-            href="/api/auth/google/redirect"
+            href={`${(import.meta.env.VITE_API_BASE_URL as string) ?? ''}/api/auth/google/redirect`}
             className="flex items-center justify-center gap-3 w-full h-12 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 transition-all duration-200 shadow-sm hover:shadow mb-5"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
