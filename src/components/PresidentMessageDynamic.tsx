@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { resolveStorageUrl } from '@/lib/apiFetch';
+import { staticMediaUrl, MEDIA_KEYS } from '@/lib/staticMedia';
 import { useTranslation } from 'react-i18next';
 import { useCmsTranslations } from '@/hooks/useCmsTranslations';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -152,7 +153,7 @@ const PresidentMessageDynamic = () => {
 
   const photoUrl = s.photoId
     ? `/api/cms/media/${s.photoId}`
-    : 'https://api.thejourney-ma.org/attached_assets/527458761_17954306891994519_4667490874676487214_n_1762796640998.jpg';
+    : (staticMediaUrl(MEDIA_KEYS.PRESIDENT_PHOTO) ?? 'https://api.thejourney-ma.org/attached_assets/527458761_17954306891994519_4667490874676487214_n_1762796640998.jpg');
 
   const signatureUrl = s.signatureId ? `/api/cms/media/${s.signatureId}` : null;
 
@@ -219,7 +220,7 @@ const PresidentMessageDynamic = () => {
               />
               <div className="relative overflow-hidden rounded-lg shadow-2xl">
                 <img
-                  src={resolveStorageUrl(photoUrl) ?? 'https://api.thejourney-ma.org/attached_assets/527458761_17954306891994519_4667490874676487214_n_1762796640998.jpg'}
+                  src={resolveStorageUrl(photoUrl) ?? staticMediaUrl(MEDIA_KEYS.PRESIDENT_PHOTO) ?? 'https://api.thejourney-ma.org/attached_assets/527458761_17954306891994519_4667490874676487214_n_1762796640998.jpg'}
                   alt={displayPresidentName}
                   className="w-full h-[300px] sm:h-[400px] md:h-[500px] object-cover transition-transform duration-300 group-hover:scale-105"
                   style={{ filter: "brightness(1.05) contrast(1.1)" }}

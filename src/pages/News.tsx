@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { staticMediaUrl, MEDIA_KEYS } from "@/lib/staticMedia";
 import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -179,7 +180,7 @@ export default function News() {
         breadcrumbs={[{ label: t("nav.blog") }]}
         defaultTitle={t("nav.blog")}
         defaultSubtitle={t("news.subtitle")}
-        defaultImage="https://api.thejourney-ma.org/attached_assets/generated_images/Essaouira_coastal_fortifications_07abbfb6.png"
+        defaultImage={staticMediaUrl(MEDIA_KEYS.CITY_ESSAOUIRA) ?? "https://api.thejourney-ma.org/attached_assets/generated_images/Essaouira_coastal_fortifications_07abbfb6.png"}
       />
 
       {/* ── Filter bar ─────────────────────────────────── */}

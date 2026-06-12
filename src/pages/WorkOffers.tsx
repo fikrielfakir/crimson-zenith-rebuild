@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { staticMediaUrl, MEDIA_KEYS } from "@/lib/staticMedia";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
@@ -93,7 +94,7 @@ const WorkOffers = () => {
           <div 
             className="absolute inset-0 bg-cover bg-center bg-no-repeat"
             style={{
-              backgroundImage: `url('https://api.thejourney-ma.org/attached_assets/generated_images/Fes_medina_and_tanneries_3e9a2ff0.png')`,
+              backgroundImage: `url('${staticMediaUrl(MEDIA_KEYS.CITY_FES) ?? "https://api.thejourney-ma.org/attached_assets/generated_images/Fes_medina_and_tanneries_3e9a2ff0.png"}')`,
               transform: `translateY(${scrollY * 0.3}px)`,
               filter: 'brightness(0.6) contrast(1.1) saturate(1.2)',
             }}

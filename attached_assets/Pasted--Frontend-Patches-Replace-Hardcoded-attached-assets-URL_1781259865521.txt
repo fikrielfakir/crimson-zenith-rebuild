@@ -1,0 +1,173 @@
+# Frontend Patches — Replace Hardcoded attached_assets URLs
+# Apply each diff to the corresponding file
+
+# ─────────────────────────────────────────────────────────────────
+# 1. src/App.tsx  — add import + route
+# ─────────────────────────────────────────────────────────────────
+
+## Add import (after line 51, next to MediaLibrary import):
+import StaticMediaSettings from "./pages/admin/StaticMediaSettings";
+
+## Add route (after the /admin/media route, ~line 291):
+          <Route path="/admin/static-media" element={
+            <ProtectedRoute>
+              <StaticMediaSettings />
+            </ProtectedRoute>
+          } />
+
+
+# ─────────────────────────────────────────────────────────────────
+# 2. src/components/Hero.tsx
+# ─────────────────────────────────────────────────────────────────
+
+## REMOVE:
+const heroBackground = "https://api.thejourney-ma.org/attached_assets/hero-bg.jpg";
+
+## ADD (after the last import line):
+import { staticMediaUrl, MEDIA_KEYS } from "@/lib/staticMedia";
+const heroBackground = staticMediaUrl(MEDIA_KEYS.HERO_BG) ?? "https://api.thejourney-ma.org/attached_assets/hero-bg.jpg";
+
+## REPLACE the pattern <img> tag (~line 268):
+# BEFORE:
+          src="https://api.thejourney-ma.org/attached_assets/pattern%20002_1762097803637.png"
+# AFTER:
+          src={staticMediaUrl(MEDIA_KEYS.PATTERN_002) ?? "https://api.thejourney-ma.org/attached_assets/pattern%20002_1762097803637.png"}
+
+
+# ─────────────────────────────────────────────────────────────────
+# 3. src/pages/Index.tsx
+# ─────────────────────────────────────────────────────────────────
+
+## REMOVE:
+const heroBackground = "https://api.thejourney-ma.org/attached_assets/hero-bg.jpg";
+
+## ADD:
+import { staticMediaUrl, MEDIA_KEYS } from "@/lib/staticMedia";
+const heroBackground = staticMediaUrl(MEDIA_KEYS.HERO_BG) ?? "https://api.thejourney-ma.org/attached_assets/hero-bg.jpg";
+
+## REPLACE pattern img src:
+# BEFORE:
+      <img src="https://api.thejourney-ma.org/attached_assets/pattern%20002_1762097803637.png" alt="" className="w-full h-auto object-cover" />
+# AFTER:
+      <img src={staticMediaUrl(MEDIA_KEYS.PATTERN_002) ?? "https://api.thejourney-ma.org/attached_assets/pattern%20002_1762097803637.png"} alt="" className="w-full h-auto object-cover" />
+
+
+# ─────────────────────────────────────────────────────────────────
+# 4. src/components/EventCalendar.tsx
+# ─────────────────────────────────────────────────────────────────
+
+## REMOVE:
+const gnaoua = "https://api.thejourney-ma.org/attached_assets/gnaoua-festival.jpg";
+const timitar = "https://api.thejourney-ma.org/attached_assets/timitar-festival.jpg";
+
+## ADD:
+import { staticMediaUrl, MEDIA_KEYS } from "@/lib/staticMedia";
+const gnaoua  = staticMediaUrl(MEDIA_KEYS.GNAOUA)  ?? "https://api.thejourney-ma.org/attached_assets/gnaoua-festival.jpg";
+const timitar = staticMediaUrl(MEDIA_KEYS.TIMITAR) ?? "https://api.thejourney-ma.org/attached_assets/timitar-festival.jpg";
+
+
+# ─────────────────────────────────────────────────────────────────
+# 5. src/components/EventsActivitiesCalendar.tsx
+# ─────────────────────────────────────────────────────────────────
+
+## REMOVE:
+const noEventsImage = "https://api.thejourney-ma.org/attached_assets/no-events.png";
+
+## ADD:
+import { staticMediaUrl, MEDIA_KEYS } from "@/lib/staticMedia";
+const noEventsImage = staticMediaUrl(MEDIA_KEYS.NO_EVENTS) ?? "https://api.thejourney-ma.org/attached_assets/no-events.png";
+
+
+# ─────────────────────────────────────────────────────────────────
+# 6. src/components/PresidentMessageDynamic.tsx
+# ─────────────────────────────────────────────────────────────────
+
+## ADD import (top of file):
+import { staticMediaUrl, MEDIA_KEYS } from "@/lib/staticMedia";
+
+## REPLACE both occurrences of the president photo URL:
+# BEFORE (both lines ~155 and ~222):
+'https://api.thejourney-ma.org/attached_assets/527458761_17954306891994519_4667490874676487214_n_1762796640998.jpg'
+# AFTER:
+staticMediaUrl(MEDIA_KEYS.PRESIDENT_PHOTO) ?? 'https://api.thejourney-ma.org/attached_assets/527458761_17954306891994519_4667490874676487214_n_1762796640998.jpg'
+
+
+# ─────────────────────────────────────────────────────────────────
+# 7. src/components/ClubsWithMap.tsx
+# ─────────────────────────────────────────────────────────────────
+
+## REMOVE:
+const birdLogo = "https://api.thejourney-ma.org/attached_assets/generated_images/Group%20288941_1762708813825.png";
+
+## ADD:
+import { staticMediaUrl, MEDIA_KEYS } from "@/lib/staticMedia";
+const birdLogo = staticMediaUrl(MEDIA_KEYS.BIRD_LOGO) ?? "https://api.thejourney-ma.org/attached_assets/generated_images/Group%20288941_1762708813825.png";
+
+
+# ─────────────────────────────────────────────────────────────────
+# 8. src/lib/citiesData.ts — all 6 city image fields
+# ─────────────────────────────────────────────────────────────────
+
+## ADD at the very top of the file (before the export):
+import { staticMediaUrl, MEDIA_KEYS } from "./staticMedia";
+
+## REPLACE each image field:
+# Tangier:
+  image: staticMediaUrl(MEDIA_KEYS.CITY_TANGIER) ?? "https://api.thejourney-ma.org/attached_assets/generated_images/Tangier_city_aerial_view_03330006.png",
+
+# Tetouan:
+  image: staticMediaUrl(MEDIA_KEYS.CITY_TETOUAN) ?? "https://api.thejourney-ma.org/attached_assets/generated_images/Tetouan_medina_panorama_b1f6dcbc.png",
+
+# Al Hoceima:
+  image: staticMediaUrl(MEDIA_KEYS.CITY_ALHOCEIMA) ?? "https://api.thejourney-ma.org/attached_assets/generated_images/Al_Hoceima_coastal_view_9e4e9e0c.png",
+
+# Chefchaouen:
+  image: staticMediaUrl(MEDIA_KEYS.CITY_CHEFCHAOUEN) ?? "https://api.thejourney-ma.org/attached_assets/generated_images/Chefchaouen_blue_streets_272376ab.png",
+
+# Fes:
+  image: staticMediaUrl(MEDIA_KEYS.CITY_FES) ?? "https://api.thejourney-ma.org/attached_assets/generated_images/Fes_medina_and_tanneries_3e9a2ff0.png",
+
+# Essaouira:
+  image: staticMediaUrl(MEDIA_KEYS.CITY_ESSAOUIRA) ?? "https://api.thejourney-ma.org/attached_assets/generated_images/Essaouira_coastal_fortifications_07abbfb6.png",
+
+
+# ─────────────────────────────────────────────────────────────────
+# 9. src/pages/admin/CitiesManagement.tsx — preset picker
+# ─────────────────────────────────────────────────────────────────
+
+## ADD import:
+import { staticMediaUrl, MEDIA_KEYS } from "@/lib/staticMedia";
+
+## REPLACE the CITY_IMAGE_PRESETS array (lines 78-85):
+const CITY_IMAGE_PRESETS = [
+  { url: staticMediaUrl(MEDIA_KEYS.CITY_TANGIER)      ?? 'https://api.thejourney-ma.org/attached_assets/generated_images/Tangier_city_aerial_view_03330006.png',           label: 'Tangier — Aerial View' },
+  { url: staticMediaUrl(MEDIA_KEYS.CITY_TETOUAN)      ?? 'https://api.thejourney-ma.org/attached_assets/generated_images/Tetouan_medina_panorama_b1f6dcbc.png',            label: 'Tetouan — Medina Panorama' },
+  { url: staticMediaUrl(MEDIA_KEYS.CITY_ALHOCEIMA)    ?? 'https://api.thejourney-ma.org/attached_assets/generated_images/Al_Hoceima_coastal_view_9e4e9e0c.png',            label: 'Al Hoceima — Coastal View' },
+  { url: staticMediaUrl(MEDIA_KEYS.CITY_CHEFCHAOUEN)  ?? 'https://api.thejourney-ma.org/attached_assets/generated_images/Chefchaouen_blue_streets_272376ab.png',           label: 'Chefchaouen — Blue Streets' },
+  { url: staticMediaUrl(MEDIA_KEYS.CITY_FES)          ?? 'https://api.thejourney-ma.org/attached_assets/generated_images/Fes_medina_and_tanneries_3e9a2ff0.png',           label: 'Fes — Medina & Tanneries' },
+  { url: staticMediaUrl(MEDIA_KEYS.CITY_ESSAOUIRA)    ?? 'https://api.thejourney-ma.org/attached_assets/generated_images/Essaouira_coastal_fortifications_07abbfb6.png',   label: 'Essaouira — Coastal Fortifications' },
+  { url: staticMediaUrl(MEDIA_KEYS.CITY_HERITAGE)     ?? 'https://api.thejourney-ma.org/attached_assets/generated_images/Moroccan_cultural_heritage_architecture_19572d75.png', label: 'Moroccan Heritage Architecture' },
+  { url: staticMediaUrl(MEDIA_KEYS.CITY_FESTIVAL)     ?? 'https://api.thejourney-ma.org/attached_assets/generated_images/Moroccan_entertainment_festival_performance_51d1857c.png', label: 'Moroccan Festival' },
+];
+
+
+# ─────────────────────────────────────────────────────────────────
+# 10. Auth & content pages — all use CITY_ESSAOUIRA as background
+#     ForgotPassword, UserLogin, UserSignup, ResetPassword,
+#     Contact, News, Projects, TalentsExperts, WorkOffers,
+#     VolunteersPosts, VolunteersSpontaneous
+# ─────────────────────────────────────────────────────────────────
+
+## In EACH of those files, ADD import:
+import { staticMediaUrl, MEDIA_KEYS } from "@/lib/staticMedia";
+
+## REPLACE every occurrence of:
+'https://api.thejourney-ma.org/attached_assets/generated_images/Essaouira_coastal_fortifications_07abbfb6.png'
+## WITH:
+staticMediaUrl(MEDIA_KEYS.CITY_ESSAOUIRA) ?? 'https://api.thejourney-ma.org/attached_assets/generated_images/Essaouira_coastal_fortifications_07abbfb6.png'
+
+## For pages using other city images, use the matching key (Tangier, Fes, Tetouan):
+# TalentsExperts.tsx → CITY_TANGIER
+# WorkOffers.tsx → CITY_FES
+# VolunteersPosts.tsx → CITY_TETOUAN
+# Projects.tsx → CITY_FES (or CITY_TANGIER where used)

@@ -6,11 +6,12 @@ import { useQuery } from "@tanstack/react-query";
 import { useHeroSettings } from "@/hooks/useCMS";
 import { useAuth } from "@/hooks/useAuth";
 import { apiFetch, resolveStorageUrl } from "@/lib/apiFetch";
-const heroBackground = "https://api.thejourney-ma.org/attached_assets/hero-bg.jpg";
+import { staticMediaUrl, MEDIA_KEYS } from "@/lib/staticMedia";
 import { useTranslation } from "react-i18next";
 import { useCmsTranslations } from "@/hooks/useCmsTranslations";
 
 const Hero = () => {
+  const heroBackground = staticMediaUrl(MEDIA_KEYS.HERO_BG) ?? "https://api.thejourney-ma.org/attached_assets/hero-bg.jpg";
   const { data: heroSettings, isLoading, isError } = useHeroSettings();
   const { isAuthenticated } = useAuth();
   const { t } = useTranslation();
@@ -265,7 +266,7 @@ const Hero = () => {
       {/* Decorative Pattern at Bottom */}
       <div className="absolute bottom-0 left-0 right-0 w-full h-auto z-10 pointer-events-none">
         <img
-          src="https://api.thejourney-ma.org/attached_assets/pattern%20002_1762097803637.png"
+          src={staticMediaUrl(MEDIA_KEYS.PATTERN_002) ?? "https://api.thejourney-ma.org/attached_assets/pattern%20002_1762097803637.png"}
           alt=""
           className="w-full h-auto object-cover opacity-80"
         />

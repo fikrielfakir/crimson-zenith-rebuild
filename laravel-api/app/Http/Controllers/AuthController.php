@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class AuthController extends Controller
@@ -277,23 +278,54 @@ class AuthController extends Controller
 
     public function uploadProfileImage(Request $request)
     {
-        $request->validate(['imageData' => 'required|string']);
-
-        $imageData = $request->imageData;
-        if (!preg_match('/^data:image\/(png|jpeg|jpg|gif|webp);base64,.+$/', $imageData)) {
-            return response()->json(['message' => 'Invalid image format'], 400);
-        }
-
         $user = $request->user();
         if (!$user) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
-        $user->update(['profile_image_url' => $imageData]);
+        // ── Multipart file upload (preferred) ─────────────────────────────
+        if ($request->hasFile('image') || $request->hasFile('file')) {
+            $file     = $request->file('image') ?? $request->file('file');
+            $request->validate(['image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
+                                 'file'  => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120']);
+
+            $origName = $file->getClientOriginalName();
+            $ext      = $file->getClientOriginalExtension() ?: 'jpg';
+            $uuid     = (string) Str::uuid();
+            $filename = $uuid . '.' . $ext;
+
+            Storage::disk('public')->put('media/' . $filename, file_get_contents($file->getRealPath()));
+            $fileUrl = '/storage/media/' . $filename;
+
+            $user->update(['profile_image_url' => $fileUrl]);
+
+            return response()->json([
+                'message'         => 'Profile image updated successfully',
+                'profileImageUrl' => $fileUrl,
+                'user'            => $this->formatUser($user->fresh()),
+            ]);
+        }
+
+        // ── Base64 fallback ───────────────────────────────────────────────
+        $request->validate(['imageData' => 'required|string']);
+        $imageData = $request->imageData;
+
+        if (!preg_match('/^data:image\/(png|jpeg|jpg|gif|webp);base64,(.+)$/', $imageData, $m)) {
+            return response()->json(['message' => 'Invalid image format'], 400);
+        }
+
+        // Decode and store on disk instead of bloating the DB column
+        $ext      = $m[1] === 'jpeg' ? 'jpg' : $m[1];
+        $uuid     = (string) Str::uuid();
+        $filename = $uuid . '.' . $ext;
+        Storage::disk('public')->put('media/' . $filename, base64_decode($m[2]));
+        $fileUrl = '/storage/media/' . $filename;
+
+        $user->update(['profile_image_url' => $fileUrl]);
 
         return response()->json([
             'message'         => 'Profile image updated successfully',
-            'profileImageUrl' => $imageData,
+            'profileImageUrl' => $fileUrl,
             'user'            => $this->formatUser($user->fresh()),
         ]);
     }

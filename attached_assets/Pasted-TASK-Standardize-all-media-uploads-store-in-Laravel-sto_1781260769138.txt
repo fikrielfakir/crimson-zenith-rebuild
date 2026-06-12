@@ -1,0 +1,184 @@
+TASK: Standardize all media uploads — store in Laravel storage + media_assets DB row
+
+Context & architecture
+
+This is a Laravel 11 API backend + React/TypeScript (Vite) frontend.
+
+Storage target
+
+All uploaded files must land at:
+
+/public_html/api/storage/app/public/media/<uuid>.<ext>
+
+Served publicly at:
+
+https://api.thejourney-ma.org/storage/media/<uuid>.<ext>
+
+The symlink public/storage → storage/app/public is already in place via php artisan storage:link.
+
+Every upload MUST create a media_assets row
+
+sqlid, file_name, file_type, file_size, file_url, thumbnail_url, alt_text, uploaded_by, created_at
+
+file_url must be stored as the relative path: /storage/media/<uuid>.<ext>
+
+(never as an absolute URL — resolveStorageUrl() on the frontend adds the domain at render time)
+
+Frontend URL resolution (already implemented — do not change)
+
+ts// src/lib/apiFetch.ts
+const API_BASE = import.meta.env.VITE_API_BASE_URL ?? ''; // = "https://api.thejourney-ma.org" in prod
+
+export function resolveStorageUrl(url: string | null | undefined): string | null {
+  if (!url) return null;
+  if (url.startsWith('http://') || url.startsWith('https://')) return url;
+  if (url.startsWith('/storage/') || url.startsWith('/uploads/')) {
+    return API_BASE ? `${API_BASE}${url}` : url;
+  }
+  // bare UUID filename → treat as /storage/media/<uuid>.<ext>
+  if (/^[0-9a-f-]{36}\.[a-z0-9]+$/i.test(url)) {
+    const path = `/storage/media/${url}`;
+    return API_BASE ? `${API_BASE}${path}` : path;
+  }
+  return url;
+}
+
+
+The canonical upload helper (backend)
+
+Create or reuse this private method in any controller that needs it:
+
+phpuse App\Models\MediaAsset;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+
+private function storeMediaAsset(UploadedFile $file, $userId = 'system', string $alt = ''): MediaAsset
+{
+    $origName = $file->getClientOriginalName();
+    $mime     = $file->getMimeType() ?? 'application/octet-stream';
+    $ext      = $file->getClientOriginalExtension() ?: 'bin';
+    $filename = Str::uuid() . '.' . $ext;
+
+    Storage::disk('public')->put('media/' . $filename, file_get_contents($file->getRealPath()));
+
+    return MediaAsset::create([
+        'file_name'     => $origName,
+        'file_type'     => $mime,
+        'file_size'     => $file->getSize(),
+        'file_url'      => '/storage/media/' . $filename,
+        'thumbnail_url' => '/storage/media/' . $filename,
+        'alt_text'      => $alt ?: pathinfo($origName, PATHINFO_FILENAME),
+        'uploaded_by'   => $userId,
+    ]);
+}
+
+Every upload endpoint response MUST include:
+
+json{ "url": "/storage/media/<uuid>.<ext>", "fileUrl": "/storage/media/<uuid>.<ext>", "id": 42 }
+
+
+Files to fix — backend (Laravel)
+
+1. app/Http/Controllers/Admin/SettingsController.php — uploadImage()
+
+Current problem: saves to public/uploads/<folder>/ with $file->move(), no DB row, returns absolute URL.
+
+Fix: replace with storeMediaAsset(), return { url, fileUrl, id }.
+
+Note: this method accepts a folder param (used only for naming) and also handles SVG files — keep the SVG mime validation, just change the storage destination.
+
+2. app/Http/Controllers/Admin/ClubController.php — uploadImage()
+
+Current problem: saves to public/uploads/clubs/ with $file->move(), no DB row.
+
+Fix: replace with storeMediaAsset(), return { url, fileUrl, id }.
+
+3. app/Http/Controllers/Admin/CmsAdminController.php — uploadPageHeroMedia()
+
+Current problem: saves to public/uploads/hero-media/ with $file->move(), no DB row, returns { url, id } where id is a UUID string (not a DB id).
+
+Fix: replace with storeMediaAsset(), return { url, fileUrl, id } where id is the integer media_assets.id.
+
+4. app/Http/Controllers/AuthController.php — uploadProfileImage()
+
+Current problem: accepts only base64 imageData in JSON, decodes it and stores the raw base64 data URL string directly in users.profile_image_url column (bloats the DB with multi-KB strings).
+
+Fix:
+
+
+Accept multipart file or image field (preferred path): store via storeMediaAsset(), save /storage/media/<uuid>.<ext> to users.profile_image_url
+Keep base64 imageData as a fallback for existing clients: decode the base64, write binary to Storage::disk('public'), create a media_assets row (same as above), save the path (not the base64 blob) to users.profile_image_url
+Add use Illuminate\Support\Facades\Storage; to imports if missing
+Response shape stays the same: { message, profileImageUrl, user }
+
+but profileImageUrl must now be the relative path /storage/media/<uuid>.<ext>, not a base64 data URL
+
+
+
+Files to fix — frontend (React/TypeScript)
+
+5. src/pages/UserProfile.tsx — handleImageUpload()
+
+Current problem:
+
+tsconst reader = new FileReader();
+reader.onload = async (e) => {
+  const imageData = e.target?.result as string; // base64 data URL
+  const response = await apiFetch('/api/auth/upload-profile-image', {
+    method: 'POST',
+    body: JSON.stringify({ imageData }),  // ← sends multi-KB base64 JSON
+  });
+};
+reader.readAsDataURL(file);
+
+Fix: send as multipart/form-data instead:
+
+tsconst handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  setImageUploading(true);
+  try {
+    const formData = new FormData();
+    formData.append('image', file);
+    const response = await apiFetch('/api/auth/upload-profile-image', {
+      method: 'POST',
+      body: formData,
+      // do NOT set Content-Type — browser sets multipart boundary automatically
+    });
+    if (!response.ok) throw new Error('Upload failed');
+    const data = await response.json();
+    const newUrl = resolveStorageUrl(data.profileImageUrl) ?? data.profileImageUrl;
+    setProfileData(prev => ({ ...prev, profileImageUrl: newUrl }));
+    // update auth context if needed
+  } catch (err: any) {
+    toast({ title: 'Upload failed', description: err.message, variant: 'destructive' });
+  } finally {
+    setImageUploading(false);
+  }
+};
+
+Remove the FileReader — it is no longer needed.
+
+
+Do NOT change
+
+
+MediaController (POST /api/admin/media and POST /api/admin/cms/media) — already correct: uses Storage::disk('public') and creates media_assets rows
+src/lib/apiFetch.ts — resolveStorageUrl() and getMediaUrl() already handle /storage/ paths correctly
+Any frontend file that already calls POST /api/admin/media or POST /api/admin/cms/media with FormData — those are already correct
+Database migrations — the media_assets table already exists with all required columns
+config/filesystems.php — the public disk is already configured correctly
+The storage:link symlink setup — already done
+
+
+
+Acceptance criteria
+
+
+php artisan storage:link is the only infrastructure requirement (already done)
+Every upload endpoint returns { url: "/storage/media/...", fileUrl: "/storage/media/...", id: <integer> }
+Every uploaded file has a row in media_assets — visible in the admin MediaLibrary at /admin/media
+users.profile_image_url contains a /storage/media/... path, never a data:image/... base64 string
+resolveStorageUrl("/storage/media/abc.jpg") in the frontend produces "https://api.thejourney-ma.org/storage/media/abc.jpg" (when VITE_API_BASE_URL=https://api.thejourney-ma.org)
+No file is written to public/uploads/ anywhere in the codebase

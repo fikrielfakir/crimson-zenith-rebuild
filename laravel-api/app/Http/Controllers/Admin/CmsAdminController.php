@@ -302,22 +302,31 @@ class CmsAdminController extends Controller
             return response()->json(['message' => 'No file provided'], 422);
         }
 
+        $userId   = $request->user()?->id ?? 'system';
         $file     = $request->file('file');
         $mime     = $file->getMimeType() ?? 'application/octet-stream';
+        $origName = $file->getClientOriginalName();
         $ext      = $file->getClientOriginalExtension() ?: 'bin';
-        $id       = (string) Str::uuid();
-        $filename = $id . '.' . $ext;
+        $uuid     = (string) Str::uuid();
+        $filename = $uuid . '.' . $ext;
 
-        // Store in public/uploads/hero-media/ so Vite serves it statically
-        $targetDir = public_path('uploads/hero-media');
-        if (!is_dir($targetDir)) {
-            mkdir($targetDir, 0755, true);
-        }
-        $file->move($targetDir, $filename);
+        Storage::disk('public')->put('media/' . $filename, file_get_contents($file->getRealPath()));
+        $fileUrl = '/storage/media/' . $filename;
+
+        $asset = MediaAsset::create([
+            'file_name'     => $origName,
+            'file_type'     => $mime,
+            'file_size'     => $file->getSize(),
+            'file_url'      => $fileUrl,
+            'thumbnail_url' => $fileUrl,
+            'alt_text'      => $request->input('alt', pathinfo($origName, PATHINFO_FILENAME)),
+            'uploaded_by'   => $userId,
+        ]);
 
         return response()->json([
-            'url' => '/uploads/hero-media/' . $filename,
-            'id'  => $id,
+            'url'     => $fileUrl,
+            'fileUrl' => $fileUrl,
+            'id'      => $asset->id,
         ], 201);
     }
 
@@ -820,5 +829,22 @@ class CmsAdminController extends Controller
             'description' => $s->description,
             'categories'  => $s->categories ?? [],
         ]);
+    }
+
+    public function updateStaticMedia(Request $request)
+    {
+        $incoming = $request->validate([
+            '*' => 'nullable|string|max:2048',
+        ]);
+
+        $path = storage_path('app/static-media.json');
+        $existing = file_exists($path)
+            ? (json_decode(file_get_contents($path), true) ?? [])
+            : [];
+
+        $merged = array_merge($existing, $incoming);
+        file_put_contents($path, json_encode($merged, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+
+        return response()->json($merged);
     }
 }

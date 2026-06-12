@@ -49,6 +49,7 @@ import NewsManagement from "./pages/admin/NewsManagement";
 import UserManagement from "./pages/admin/UserManagement";
 import UserRolesManagement from "./pages/admin/UserRolesManagement";
 import MediaLibrary from "./pages/admin/MediaLibrary";
+import StaticMediaSettings from "./pages/admin/StaticMediaSettings";
 import EmailCampaigns from "./pages/admin/EmailCampaigns";
 import SystemMonitoring from "./pages/admin/SystemMonitoring";
 import AdminSettings from "./pages/admin/AdminSettings";
@@ -356,6 +357,11 @@ const App = () => (
           <Route path="/admin/payments" element={
             <ProtectedRoute>
               <PaymentSettings />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/static-media" element={
+            <ProtectedRoute>
+              <StaticMediaSettings />
             </ProtectedRoute>
           } />
           <Route path="/admin/booking" element={

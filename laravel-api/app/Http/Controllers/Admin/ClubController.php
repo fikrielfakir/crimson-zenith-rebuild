@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Club;
+use App\Models\MediaAsset;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class ClubController extends Controller
@@ -198,15 +200,29 @@ class ClubController extends Controller
         ]);
 
         $file     = $request->file('image');
-        $filename = uniqid('club_', true) . '.' . $file->getClientOriginalExtension();
-        $dir      = public_path('uploads/clubs');
+        $origName = $file->getClientOriginalName();
+        $ext      = $file->getClientOriginalExtension() ?: 'jpg';
+        $uuid     = (string) Str::uuid();
+        $filename = $uuid . '.' . $ext;
+        $mime     = $file->getMimeType() ?? 'image/jpeg';
 
-        if (!is_dir($dir)) {
-            mkdir($dir, 0755, true);
-        }
+        Storage::disk('public')->put('media/' . $filename, file_get_contents($file->getRealPath()));
+        $fileUrl = '/storage/media/' . $filename;
 
-        $file->move($dir, $filename);
+        $asset = MediaAsset::create([
+            'file_name'     => $origName,
+            'file_type'     => $mime,
+            'file_size'     => $file->getSize(),
+            'file_url'      => $fileUrl,
+            'thumbnail_url' => $fileUrl,
+            'alt_text'      => $request->input('alt', pathinfo($origName, PATHINFO_FILENAME)),
+            'uploaded_by'   => $request->user()?->id ?? 'system',
+        ]);
 
-        return response()->json(['url' => url('uploads/clubs/' . $filename)]);
+        return response()->json([
+            'url'     => $fileUrl,
+            'fileUrl' => $fileUrl,
+            'id'      => $asset->id,
+        ]);
     }
 }
