@@ -480,28 +480,22 @@ const UserProfile = () => {
     }
     setImageUploading(true);
     try {
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        const imageData = e.target?.result as string;
-        const response = await apiFetch('/api/auth/upload-profile-image', { method: 'POST', body: JSON.stringify({ imageData }) });
-        if (response.ok) {
-          const data = await response.json();
-          setProfileData(prev => ({ ...prev, profileImageUrl: data.profileImageUrl }));
-          if (refetch) refetch();
-          toast({ title: t('profilePage.toastSuccess'), description: t('profilePage.toastImageUpdatedDesc') });
-        } else {
-          throw new Error('Failed to upload image');
-        }
-        setImageUploading(false);
-      };
-      reader.onerror = () => {
-        setImageUploading(false);
-        toast({ title: t('profilePage.toastError'), description: t('profilePage.toastImageReadError'), variant: "destructive" });
-      };
-      reader.readAsDataURL(file);
+      const formData = new FormData();
+      formData.append('image', file);
+      const response = await apiFetch('/api/auth/upload-profile-image', {
+        method: 'POST',
+        body: formData,
+      });
+      if (!response.ok) throw new Error('Failed to upload image');
+      const data = await response.json();
+      const newUrl = resolveStorageUrl(data.profileImageUrl) ?? data.profileImageUrl;
+      setProfileData(prev => ({ ...prev, profileImageUrl: newUrl }));
+      if (refetch) refetch();
+      toast({ title: t('profilePage.toastSuccess'), description: t('profilePage.toastImageUpdatedDesc') });
     } catch {
-      setImageUploading(false);
       toast({ title: t('profilePage.toastError'), description: t('profilePage.toastImageUploadError'), variant: "destructive" });
+    } finally {
+      setImageUploading(false);
     }
   };
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Mail\VerifyEmail;
 use App\Mail\ResetPasswordEmail;
+use App\Models\MediaAsset;
 use App\Models\User;
 use App\Models\AuthSettings;
 use App\Services\AdminTokenService;
@@ -291,11 +292,21 @@ class AuthController extends Controller
 
             $origName = $file->getClientOriginalName();
             $ext      = $file->getClientOriginalExtension() ?: 'jpg';
-            $uuid     = (string) Str::uuid();
-            $filename = $uuid . '.' . $ext;
+            $mime     = $file->getMimeType() ?? 'image/jpeg';
+            $filename = Str::uuid() . '.' . $ext;
 
             Storage::disk('public')->put('media/' . $filename, file_get_contents($file->getRealPath()));
             $fileUrl = '/storage/media/' . $filename;
+
+            MediaAsset::create([
+                'file_name'     => $origName,
+                'file_type'     => $mime,
+                'file_size'     => $file->getSize(),
+                'file_url'      => $fileUrl,
+                'thumbnail_url' => $fileUrl,
+                'alt_text'      => pathinfo($origName, PATHINFO_FILENAME),
+                'uploaded_by'   => $user->id,
+            ]);
 
             $user->update(['profile_image_url' => $fileUrl]);
 
@@ -314,12 +325,21 @@ class AuthController extends Controller
             return response()->json(['message' => 'Invalid image format'], 400);
         }
 
-        // Decode and store on disk instead of bloating the DB column
         $ext      = $m[1] === 'jpeg' ? 'jpg' : $m[1];
-        $uuid     = (string) Str::uuid();
-        $filename = $uuid . '.' . $ext;
-        Storage::disk('public')->put('media/' . $filename, base64_decode($m[2]));
-        $fileUrl = '/storage/media/' . $filename;
+        $filename = Str::uuid() . '.' . $ext;
+        $binary   = base64_decode($m[2]);
+        Storage::disk('public')->put('media/' . $filename, $binary);
+        $fileUrl  = '/storage/media/' . $filename;
+
+        MediaAsset::create([
+            'file_name'     => 'profile.' . $ext,
+            'file_type'     => 'image/' . ($m[1] === 'jpg' ? 'jpeg' : $m[1]),
+            'file_size'     => strlen($binary),
+            'file_url'      => $fileUrl,
+            'thumbnail_url' => $fileUrl,
+            'alt_text'      => 'Profile image',
+            'uploaded_by'   => $user->id,
+        ]);
 
         $user->update(['profile_image_url' => $fileUrl]);
 
