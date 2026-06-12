@@ -92,8 +92,9 @@ class SocialAuthController extends Controller
 
     private function applyGoogleConfig(AuthSettings $settings): void
     {
-        // Routes in api.php are prefixed with /api — the callback URL must include it.
-        $redirectUri = rtrim(config('app.url'), '/') . '/api/auth/google/callback';
+        // Prefer GOOGLE_REDIRECT_URI env var; fall back to APP_URL-based construction.
+        $redirectUri = env('GOOGLE_REDIRECT_URI')
+            ?: rtrim(config('app.url'), '/') . '/api/auth/google/callback';
 
         config([
             'services.google.client_id'     => $settings->google_client_id,
