@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useRef } from "react";
-import { apiFetch } from "@/lib/apiFetch";
+import { apiFetch, resolveStorageUrl } from "@/lib/apiFetch";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -342,7 +342,7 @@ function PageHeroForm({ pageKey, config, isLanding }: {
                 {form.backgroundImageUrl && !form.backgroundImageUrl.startsWith("data:") && (
                   <div className="mt-2 rounded-lg overflow-hidden border aspect-video bg-black/5">
                     <img
-                      src={form.backgroundImageUrl}
+                      src={resolveStorageUrl(form.backgroundImageUrl) ?? form.backgroundImageUrl}
                       alt="Preview"
                       className="w-full h-full object-cover"
                       onError={e => { (e.target as HTMLImageElement).style.display = "none"; }}
@@ -352,7 +352,7 @@ function PageHeroForm({ pageKey, config, isLanding }: {
                 {form.backgroundImageUrl && form.backgroundImageUrl.startsWith("data:") && (
                   <div className="mt-2 rounded-lg overflow-hidden border aspect-video bg-black/5">
                     <img
-                      src={form.backgroundImageUrl}
+                      src={resolveStorageUrl(form.backgroundImageUrl) ?? form.backgroundImageUrl}
                       alt="Preview"
                       className="w-full h-full object-cover"
                     />
@@ -379,7 +379,7 @@ function PageHeroForm({ pageKey, config, isLanding }: {
                 {form.backgroundVideoUrl && (
                   <div className="mt-2 rounded-lg overflow-hidden border aspect-video bg-black/10">
                     <video
-                      src={form.backgroundVideoUrl}
+                      src={resolveStorageUrl(form.backgroundVideoUrl) ?? form.backgroundVideoUrl}
                       className="w-full h-full object-cover"
                       muted
                       playsInline

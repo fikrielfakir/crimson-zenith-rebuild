@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { useCmsTranslations } from "@/hooks/useCmsTranslations";
+import { resolveStorageUrl } from "@/lib/apiFetch";
 
 const FALLBACK_ITEMS = [
   {
@@ -139,7 +140,7 @@ const About = () => {
             <div className="absolute inset-0 transition-transform duration-300 ease-in-out group-hover:scale-105">
               <div
                 className="absolute inset-0 bg-cover bg-center"
-                style={{ backgroundImage: `url(${focus.imageUrl})` }}
+                style={{ backgroundImage: `url(${resolveStorageUrl(focus.imageUrl) ?? focus.imageUrl})` }}
               />
               <div
                 className="absolute inset-0 transition-opacity duration-500 opacity-0 group-hover:opacity-100"

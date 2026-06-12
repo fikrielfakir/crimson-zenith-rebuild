@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback, useMemo, lazy, Suspense } from "react";
 import { useTranslation } from "react-i18next";
+import { resolveStorageUrl } from "@/lib/apiFetch";
 import { motion, useMotionValue, useSpring, AnimatePresence } from "framer-motion";
 import {
   MapPin, X, ChevronLeft, ChevronRight, Upload, Search,
@@ -954,7 +955,7 @@ export default function Gallery() {
           setGalleryItems(items.map((it, i) => ({
             id:           Number(it["id"]) || i,
             type:         "photo",
-            url:          String(it["image_url"] ?? STATIC_GALLERY[i % STATIC_GALLERY.length].url),
+            url:          resolveStorageUrl(String(it["image_url"] ?? STATIC_GALLERY[i % STATIC_GALLERY.length].url)) ?? String(it["image_url"] ?? STATIC_GALLERY[i % STATIC_GALLERY.length].url),
             title:        String(it["title"]       || STATIC_GALLERY[i % STATIC_GALLERY.length].title),
             location:     it["location"]   ? String(it["location"])   : STATIC_GALLERY[i % STATIC_GALLERY.length].location,
             photographer: it["photographer"]? String(it["photographer"]): STATIC_GALLERY[i % STATIC_GALLERY.length].photographer,

@@ -1,233 +1,1038 @@
-import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { apiFetch, resolveStorageUrl } from '@/lib/apiFetch';
-import { useCmsTranslations } from '@/hooks/useCmsTranslations';
+import { useState, useEffect, useRef } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
+import { Save, Upload, Eye, Image as ImageIcon } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { TranslateDialog } from '@/components/admin/TranslateDialog';
 
-const FALLBACK_PHOTO = 'https://api.thejourney-ma.org/attached_assets/527458761_17954306891994519_4667490874676487214_n_1762796640998.jpg';
-
-const DEFAULTS = {
-  is_active: true,
-  title: 'A word from the president',
-  president_name: 'Dr. Aderahim Azrkan',
-  president_role: 'President, The Journey Association',
-  message:
-    'Dear Friends and Fellow Travelers,\n\nIt is with great pleasure and pride that I welcome you to The Journey Association. Our mission is to create sustainable pathways for tourism, culture, and community development across Morocco. We believe that tourism is not just about visiting beautiful places—it\'s about creating meaningful connections, preserving our heritage, and empowering local communities.\n\nTogether with our partners, clubs, and dedicated members, we are building bridges between cultures, protecting our natural and cultural treasures, and ensuring that the benefits of tourism reach every corner of our beloved Morocco. Your participation and support make all the difference in achieving our vision of a sustainable and prosperous future.',
-  quote: 'Together, we create lasting impact.',
-  photo_id: null as number | null,
-  background_gradient: 'linear-gradient(180deg, #112250 0%, #1a3366 100%)',
-  background_color: '#112250',
-  title_font_family: 'Poppins',
-  title_font_size: '48px',
-  title_color: '#ffffff',
-  title_alignment: 'left',
-  name_font_family: 'Poppins',
-  name_font_size: '28px',
-  name_color: '#ffffff',
-  role_font_family: 'Poppins',
-  role_font_size: '18px',
-  role_color: '#D8C18D',
-  message_font_family: 'Poppins',
-  message_font_size: '16px',
-  message_color: '#ffffff',
-  quote_font_size: '18px',
-  quote_color: '#D8C18D',
-  image_position: 'left',
-  image_width: '42%',
-  section_padding: '80px 0',
-  content_gap: '48px',
-};
-
-type Settings = typeof DEFAULTS;
-
-function merge(data: Record<string, any>): Settings {
-  const s = { ...DEFAULTS };
-  for (const key of Object.keys(DEFAULTS) as (keyof Settings)[]) {
-    const val = data[key as string];
-    if (val !== undefined && val !== null && val !== '') {
-      (s as any)[key] = val;
-    }
-  }
-  return s;
+function snakeToCamel(obj: Record<string, any>): Record<string, any> {
+  return Object.fromEntries(
+    Object.entries(obj).map(([k, v]) => [
+      k.replace(/_([a-z])/g, (_, c) => c.toUpperCase()),
+      v,
+    ])
+  );
 }
 
-const PresidentMessage = () => {
-  const { i18n } = useTranslation();
-  const lang = (i18n.language || 'en').split('-')[0];
-  const isAr = lang === 'ar';
-  const tr = useCmsTranslations('president_message');
+const FONT_FAMILIES = [
+  'Inter',
+  'Poppins',
+  'Roboto',
+  'Open Sans',
+  'Lato',
+  'Montserrat',
+  'Raleway',
+  'Playfair Display',
+  'Merriweather',
+];
 
-  const { data: raw } = useQuery({
-    queryKey: ['cms', 'president-message'],
-    queryFn: async () => {
-      const res = await apiFetch('/api/cms/president-message');
-      if (!res.ok) return null;
-      return res.json();
-    },
-    staleTime: 5 * 60 * 1000,
-  });
+const FONT_SIZES = ['12px', '14px', '16px', '18px', '20px', '24px', '28px', '32px', '36px', '40px', '48px', '56px', '64px'];
+const TEXT_ALIGNS = ['left', 'center', 'right'];
+const IMAGE_POSITIONS = ['left', 'right'];
 
-  const s: Settings = raw ? merge(raw) : DEFAULTS;
+function MediaLibraryDialog({ 
+  onSelectMedia, 
+  title = "Select Image from Media Library" 
+}: { 
+  onSelectMedia: (mediaId: number, url: string) => void;
+  title?: string;
+}) {
+  const [media, setMedia] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  if (!s.is_active) return null;
-
-  const photoSrc = s.photo_id
-    ? `/api/cms/media/${s.photo_id}`
-    : FALLBACK_PHOTO;
-
-  const title    = tr('default', 'title',           s.title);
-  const name     = tr('default', 'president_name',  s.president_name);
-  const role     = tr('default', 'president_role',  s.president_role);
-  const message  = tr('default', 'message',         s.message);
-  const quote    = tr('default', 'quote',            s.quote);
-
-  const paragraphs = message
-    .split(/\n\n+/)
-    .map((p) => p.trim())
-    .filter(Boolean);
-
-  const fontFamily = isAr ? 'Cairo, Tajawal, sans-serif' : `${s.title_font_family}, sans-serif`;
-
-  const isImageLeft = s.image_position !== 'right';
-
-  const imageBlock = (
-    <div
-      className="flex justify-center"
-      style={{ width: s.image_width, flexShrink: 0 }}
-    >
-      <div className="relative group w-full">
-        <div className="absolute inset-0 bg-gradient-to-br from-secondary/30 to-secondary/10 rounded-lg transform rotate-3 group-hover:rotate-6 transition-transform duration-300" />
-        <div className="relative overflow-hidden rounded-lg shadow-2xl">
-          <img
-            src={resolveStorageUrl(photoSrc) ?? FALLBACK_PHOTO}
-            alt={name}
-            className="w-full h-[500px] object-cover transition-transform duration-300 group-hover:scale-105"
-            style={{ filter: 'brightness(1.05) contrast(1.1)' }}
-            onError={(e) => {
-              (e.target as HTMLImageElement).src = FALLBACK_PHOTO;
-            }}
-          />
-          <div
-            className="absolute bottom-0 left-0 right-0 p-6"
-            style={{ background: 'linear-gradient(to top, rgba(17, 34, 80, 0.95), transparent)' }}
-          >
-            <h3
-              className="font-bold text-white"
-              style={{
-                fontFamily: `${s.name_font_family}, sans-serif`,
-                fontSize: s.name_font_size,
-                color: s.name_color,
-                textShadow: '0 2px 8px rgba(0,0,0,0.5)',
-              }}
-            >
-              {name}
-            </h3>
-            <p
-              style={{
-                fontFamily: `${s.role_font_family}, sans-serif`,
-                fontSize: s.role_font_size,
-                color: s.role_color,
-                fontWeight: 500,
-              }}
-            >
-              {role}
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  const textBlock = (
-    <div className="flex-1 min-w-0">
-      <div className="space-y-6">
-        <div>
-          <h2
-            className="font-bold mb-4"
-            style={{
-              fontFamily,
-              fontSize: s.title_font_size,
-              fontWeight: 700,
-              color: s.title_color,
-              textAlign: s.title_alignment as any,
-              textShadow: '0px 2px 8px rgba(0,0,0,0.3)',
-            }}
-          >
-            {title}
-          </h2>
-          <div
-            className="w-24 h-1 rounded-full mb-8"
-            style={{ background: s.quote_color }}
-          />
-        </div>
-
-        <div className="space-y-4">
-          {paragraphs.map((para, i) => (
-            <p
-              key={i}
-              className="leading-relaxed"
-              style={{
-                fontFamily: `${s.message_font_family}, sans-serif`,
-                fontSize: s.message_font_size,
-                color: i === 0 && paragraphs.length > 1
-                  ? `${s.message_color}f2`
-                  : `${s.message_color}e6`,
-                lineHeight: '28px',
-              }}
-            >
-              {para}
-            </p>
-          ))}
-        </div>
-
-        {quote && (
-          <div className="pt-4">
-            <p
-              className="italic"
-              style={{
-                fontFamily: `${s.message_font_family}, sans-serif`,
-                fontSize: s.quote_font_size,
-                color: s.quote_color,
-                fontWeight: 500,
-              }}
-            >
-              "{quote}"
-            </p>
-          </div>
-        )}
-      </div>
-    </div>
-  );
+  useEffect(() => {
+    fetch('/api/admin/media', { credentials: 'include' })
+      .then(res => res.json())
+      .then(data => {
+        setMedia(Array.isArray(data) ? data : (data.media ?? []));
+        setIsLoading(false);
+      })
+      .catch(err => {
+        console.error('Failed to load media:', err);
+        setIsLoading(false);
+      });
+  }, []);
 
   return (
-    <section
-      id="president-message"
-      className="relative w-full scroll-mt-32"
-      style={{
-        background: s.background_gradient || s.background_color,
-        padding: s.section_padding,
-      }}
-      dir={isAr ? 'rtl' : 'ltr'}
-    >
-      <div className="container mx-auto px-4">
-        <div
-          className="flex flex-col md:flex-row items-center"
-          style={{ gap: s.content_gap }}
-        >
-          {isImageLeft ? (
-            <>
-              {imageBlock}
-              {textBlock}
-            </>
-          ) : (
-            <>
-              {textBlock}
-              {imageBlock}
-            </>
-          )}
+    <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+      <DialogHeader>
+        <DialogTitle>{title}</DialogTitle>
+        <DialogDescription>Choose an image from your media library</DialogDescription>
+      </DialogHeader>
+      {isLoading ? (
+        <div className="flex items-center justify-center p-8">Loading...</div>
+      ) : (
+        <div className="grid grid-cols-4 gap-4">
+          {media.filter(m => m.fileType.startsWith('image/')).map((item) => (
+            <div
+              key={item.id}
+              className="cursor-pointer border rounded-lg p-2 hover:border-primary transition-colors"
+              onClick={() => onSelectMedia(item.id, item.fileUrl)}
+            >
+              <img 
+                src={resolveStorageUrl(item.fileUrl) ?? item.fileUrl} 
+                alt={item.altText || item.fileName}
+                className="w-full h-32 object-contain rounded"
+              />
+              <p className="text-xs mt-2 truncate text-center">{item.fileName}</p>
+            </div>
+          ))}
+        </div>
+      )}
+    </DialogContent>
+  );
+}
+
+export default function PresidentMessageSettings() {
+  const { t } = useTranslation();
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const photoInputRef = useRef<HTMLInputElement>(null);
+  const signatureInputRef = useRef<HTMLInputElement>(null);
+  const bgInputRef = useRef<HTMLInputElement>(null);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [uploadingSignature, setUploadingSignature] = useState(false);
+  const [uploadingBg, setUploadingBg] = useState(false);
+
+  async function uploadImageFromDevice(
+    file: File,
+    setUploading: (v: boolean) => void,
+    onSuccess: (id: number, url: string) => void,
+  ) {
+    if (!file.type.startsWith('image/')) {
+      toast({ title: t('admin.clubs.toastInvalidFile'), description: t('admin.clubs.toastInvalidFileDesc'), variant: 'destructive' });
+      return;
+    }
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('alt', file.name);
+      const response = await apiFetch('/api/admin/cms/media', {
+        method: 'POST',
+        body: formData,
+      });
+      if (!response.ok) throw new Error(`Upload failed (${response.status})`);
+      const data = await response.json();
+      const rawUrl: string = data.fileUrl ?? data.url ?? data.file_url ?? '';
+      const url = rawUrl.startsWith('/storage/') && import.meta.env.VITE_API_BASE_URL
+        ? `${import.meta.env.VITE_API_BASE_URL}${rawUrl}`
+        : rawUrl;
+      const id: number = typeof data.id === 'number' ? data.id : parseInt(data.id ?? '0', 10);
+      if (url) {
+        onSuccess(id, url);
+        toast({ title: t('admin.presidentMsg.toastUploaded'), description: t('admin.presidentMsg.toastUploadedDesc') });
+      } else {
+        throw new Error('No URL returned from server');
+      }
+    } catch (err: any) {
+      toast({ title: t('admin.presidentMsg.toastUploadFailed'), description: err?.message ?? 'Unknown error', variant: 'destructive' });
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  // Content
+  const [isActive, setIsActive] = useState(true);
+  const [title, setTitle] = useState('A word from the president');
+  const [presidentName, setPresidentName] = useState('Dr. Aderahim Azrkan');
+  const [presidentRole, setPresidentRole] = useState('President, The Journey Association');
+  const [message, setMessage] = useState('');
+  const [quote, setQuote] = useState('');
+
+  // Media
+  const [photoId, setPhotoId] = useState<number | null>(null);
+  const [photoUrl, setPhotoUrl] = useState<string>('');
+  const [signatureId, setSignatureId] = useState<number | null>(null);
+  const [signatureUrl, setSignatureUrl] = useState<string>('');
+  const [backgroundImageId, setBackgroundImageId] = useState<number | null>(null);
+  const [backgroundImageUrl, setBackgroundImageUrl] = useState<string>('');
+
+  // Background & Colors
+  const [backgroundColor, setBackgroundColor] = useState('#112250');
+  const [backgroundGradient, setBackgroundGradient] = useState('linear-gradient(180deg, #112250 0%, #1a3366 100%)');
+
+  // Typography - Title
+  const [titleFontFamily, setTitleFontFamily] = useState('Poppins');
+  const [titleFontSize, setTitleFontSize] = useState('48px');
+  const [titleColor, setTitleColor] = useState('#ffffff');
+  const [titleAlignment, setTitleAlignment] = useState('left');
+
+  // Typography - President Name
+  const [nameFontFamily, setNameFontFamily] = useState('Poppins');
+  const [nameFontSize, setNameFontSize] = useState('28px');
+  const [nameColor, setNameColor] = useState('#ffffff');
+
+  // Typography - President Role
+  const [roleFontFamily, setRoleFontFamily] = useState('Poppins');
+  const [roleFontSize, setRoleFontSize] = useState('18px');
+  const [roleColor, setRoleColor] = useState('#D8C18D');
+
+  // Typography - Message
+  const [messageFontFamily, setMessageFontFamily] = useState('Poppins');
+  const [messageFontSize, setMessageFontSize] = useState('16px');
+  const [messageColor, setMessageColor] = useState('#ffffff');
+
+  // Typography - Quote
+  const [quoteFontSize, setQuoteFontSize] = useState('18px');
+  const [quoteColor, setQuoteColor] = useState('#D8C18D');
+
+  // Layout & Positioning
+  const [imagePosition, setImagePosition] = useState('left');
+  const [imageAlignment, setImageAlignment] = useState('center');
+  const [imageWidth, setImageWidth] = useState('42%');
+  const [sectionPadding, setSectionPadding] = useState('80px 0');
+  const [contentGap, setContentGap] = useState('48px');
+
+  useEffect(() => {
+    loadSettings();
+  }, []);
+
+  const loadSettings = async () => {
+    try {
+      const response = await apiFetch('/api/cms/president-message');
+      if (response.ok) {
+        const raw = await response.json();
+        const data = raw && typeof raw === 'object' ? snakeToCamel(raw) : raw;
+        if (data) {
+          setIsActive(data.isActive ?? true);
+          setTitle(data.title || 'A word from the president');
+          setPresidentName(data.presidentName || '');
+          setPresidentRole(data.presidentRole || '');
+          setMessage(data.message || '');
+          setQuote(data.quote || '');
+          setPhotoId(data.photoId || null);
+          if (data.photoId) {
+            setPhotoUrl(`/api/cms/media/${data.photoId}`);
+          }
+          setSignatureId(data.signatureId || null);
+          if (data.signatureId) {
+            setSignatureUrl(`/api/cms/media/${data.signatureId}`);
+          }
+          setBackgroundImageId(data.backgroundImageId || null);
+          if (data.backgroundImageId) {
+            setBackgroundImageUrl(`/api/cms/media/${data.backgroundImageId}`);
+          }
+          setBackgroundColor(data.backgroundColor || '#112250');
+          setBackgroundGradient(data.backgroundGradient || 'linear-gradient(180deg, #112250 0%, #1a3366 100%)');
+          setTitleFontFamily(data.titleFontFamily || 'Poppins');
+          setTitleFontSize(data.titleFontSize || '48px');
+          setTitleColor(data.titleColor || '#ffffff');
+          setTitleAlignment(data.titleAlignment || 'left');
+          setNameFontFamily(data.nameFontFamily || 'Poppins');
+          setNameFontSize(data.nameFontSize || '28px');
+          setNameColor(data.nameColor || '#ffffff');
+          setRoleFontFamily(data.roleFontFamily || 'Poppins');
+          setRoleFontSize(data.roleFontSize || '18px');
+          setRoleColor(data.roleColor || '#D8C18D');
+          setMessageFontFamily(data.messageFontFamily || 'Poppins');
+          setMessageFontSize(data.messageFontSize || '16px');
+          setMessageColor(data.messageColor || '#ffffff');
+          setQuoteFontSize(data.quoteFontSize || '18px');
+          setQuoteColor(data.quoteColor || '#D8C18D');
+          setImagePosition(data.imagePosition || 'left');
+          setImageAlignment(data.imageAlignment || 'center');
+          setImageWidth(data.imageWidth || '42%');
+          setSectionPadding(data.sectionPadding || '80px 0');
+          setContentGap(data.contentGap || '48px');
+        }
+      }
+    } catch (error) {
+      console.error('Error loading president message settings:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      const response = await apiFetch('/api/admin/cms/president-message', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          isActive,
+          title,
+          presidentName,
+          presidentRole,
+          message,
+          quote,
+          photoId,
+          signatureId,
+          backgroundImageId,
+          backgroundColor,
+          backgroundGradient,
+          titleFontFamily,
+          titleFontSize,
+          titleColor,
+          titleAlignment,
+          nameFontFamily,
+          nameFontSize,
+          nameColor,
+          roleFontFamily,
+          roleFontSize,
+          roleColor,
+          messageFontFamily,
+          messageFontSize,
+          messageColor,
+          quoteFontSize,
+          quoteColor,
+          imagePosition,
+          imageAlignment,
+          imageWidth,
+          sectionPadding,
+          contentGap,
+        }),
+      });
+
+      if (response.ok) {
+        toast({ title: t('admin.common.success'), description: t('admin.presidentMsg.savedDesc') });
+      } else {
+        let detail = `HTTP ${response.status}`;
+        try {
+          const errBody = await response.json();
+          detail = errBody.message ?? errBody.error ?? JSON.stringify(errBody);
+        } catch {
+          try { detail = await response.text(); } catch {}
+        }
+        throw new Error(detail);
+      }
+    } catch (error: any) {
+      console.error('Error saving president message settings:', error);
+      toast({ 
+        title: t('admin.common.error'), 
+        description: error?.message ?? t('admin.presidentMsg.saveError'), 
+        variant: 'destructive' 
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  if (isLoading) {
+    return <div className="flex items-center justify-center h-64">Loading...</div>;
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">{t('admin.president.title')}</h1>
+          <p className="text-muted-foreground mt-1">{t('admin.president.subtitle')}</p>
+        </div>
+        <div className="flex space-x-2">
+          <div className="flex items-center space-x-2 mr-4">
+            <Switch checked={isActive} onCheckedChange={setIsActive} />
+            <Label>{t('admin.president.showSection')}</Label>
+          </div>
+          <Button variant="outline" onClick={() => window.open('/', '_blank')}>
+            <Eye className="mr-2 h-4 w-4" />
+            {t('admin.theme.preview')}
+          </Button>
+          <Button onClick={handleSave} disabled={isSaving}>
+            <Save className="mr-2 h-4 w-4" />
+            {isSaving ? t('admin.events.saving') : t('admin.settings.saveChanges')}
+          </Button>
         </div>
       </div>
-    </section>
-  );
-};
 
-export default PresidentMessage;
+      <Tabs defaultValue="content" className="w-full">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="content">{t('admin.president.tabContent')}</TabsTrigger>
+          <TabsTrigger value="media">{t('admin.president.tabMedia')}</TabsTrigger>
+          <TabsTrigger value="typography">{t('admin.president.tabTypography')}</TabsTrigger>
+          <TabsTrigger value="layout">{t('admin.president.tabLayout')}</TabsTrigger>
+        </TabsList>
+
+        {/* Content Tab */}
+        <TabsContent value="content" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('admin.president.sectionContent')}</CardTitle>
+              <CardDescription>{t('admin.president.sectionContentDesc')}</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-2">
+                <Label htmlFor="section-title">{t('admin.presidentMsg.sectionTitleLabel')}</Label>
+                <div className="flex gap-2 items-start">
+                  <Input
+                    id="section-title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder="A word from the president"
+                    className="flex-1"
+                  />
+                  <TranslateDialog
+                    entityType="president_message"
+                    entityId="title"
+                    entityLabel={t('admin.presidentMsg.sectionTitleLabel')}
+                    fields={[{ key: 'title', label: t('admin.presidentMsg.sectionTitleLabel') }]}
+                    sourceValues={{ title }}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="president-name">{t('admin.presidentMsg.presidentNameLabel')}</Label>
+                  <div className="flex gap-2 items-start">
+                    <Input
+                      id="president-name"
+                      value={presidentName}
+                      onChange={(e) => setPresidentName(e.target.value)}
+                      placeholder="Dr. Aderahim Azrkan"
+                      className="flex-1"
+                    />
+                    <TranslateDialog
+                      entityType="president_message"
+                      entityId="presidentName"
+                      entityLabel={t('admin.presidentMsg.presidentNameLabel')}
+                      fields={[{ key: 'presidentName', label: t('admin.presidentMsg.presidentNameLabel') }]}
+                      sourceValues={{ presidentName }}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="president-role">{t('admin.presidentMsg.presidentRoleLabel')}</Label>
+                  <div className="flex gap-2 items-start">
+                    <Input
+                      id="president-role"
+                      value={presidentRole}
+                      onChange={(e) => setPresidentRole(e.target.value)}
+                      placeholder="President, The Journey Association"
+                      className="flex-1"
+                    />
+                    <TranslateDialog
+                      entityType="president_message"
+                      entityId="presidentRole"
+                      entityLabel={t('admin.presidentMsg.presidentRoleLabel')}
+                      fields={[{ key: 'presidentRole', label: t('admin.presidentMsg.presidentRoleLabel') }]}
+                      sourceValues={{ presidentRole }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="message">{t('admin.presidentMsg.messageLabel')}</Label>
+                <div className="flex gap-2 items-start">
+                  <Textarea
+                    id="message"
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    placeholder="Enter the president's message here..."
+                    rows={10}
+                    className="font-mono flex-1"
+                  />
+                  <TranslateDialog
+                    entityType="president_message"
+                    entityId="message"
+                    entityLabel={t('admin.presidentMsg.messageLabel')}
+                    fields={[{ key: 'message', label: t('admin.presidentMsg.messageLabel'), multiline: true }]}
+                    sourceValues={{ message }}
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  You can use HTML formatting for rich text (e.g., &lt;strong&gt;, &lt;em&gt;, &lt;p&gt;)
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="quote">{t('admin.presidentMsg.quoteLabel')}</Label>
+                <div className="flex gap-2 items-start">
+                  <Input
+                    id="quote"
+                    value={quote}
+                    onChange={(e) => setQuote(e.target.value)}
+                    placeholder="Together, we create lasting impact."
+                    className="flex-1"
+                  />
+                  <TranslateDialog
+                    entityType="president_message"
+                    entityId="quote"
+                    entityLabel={t('admin.presidentMsg.quoteLabel')}
+                    fields={[{ key: 'quote', label: t('admin.presidentMsg.quoteLabel') }]}
+                    sourceValues={{ quote }}
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  An inspirational quote to display at the end of the message
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Media Tab */}
+        <TabsContent value="media" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('admin.presidentMsg.photoTitle')}</CardTitle>
+              <CardDescription>{t('admin.presidentMsg.photoUploadDesc')}</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {photoUrl && (
+                <div className="border rounded-lg p-4 bg-muted/30 flex items-center justify-center">
+                  <img src={photoUrl} alt="President" className="h-48 object-contain rounded" />
+                </div>
+              )}
+              <input
+                ref={photoInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) uploadImageFromDevice(file, setUploadingPhoto, (id, url) => { setPhotoId(id); setPhotoUrl(url); });
+                  e.target.value = '';
+                }}
+              />
+              <div className="flex gap-2">
+                <Button
+                  variant="default"
+                  className="flex-1"
+                  disabled={uploadingPhoto}
+                  onClick={() => photoInputRef.current?.click()}
+                >
+                  <Upload className="mr-2 h-4 w-4" />
+                  {uploadingPhoto ? 'Uploading…' : 'Upload from device'}
+                </Button>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" className="flex-1">
+                      <ImageIcon className="mr-2 h-4 w-4" />
+                      Media library
+                    </Button>
+                  </DialogTrigger>
+                  <MediaLibraryDialog
+                    onSelectMedia={(id, url) => { setPhotoId(id); setPhotoUrl(url); }}
+                    title="Select President Photo"
+                  />
+                </Dialog>
+              </div>
+              {photoId && (
+                <Button variant="ghost" className="w-full" onClick={() => { setPhotoId(null); setPhotoUrl(''); }}>
+                  Remove photo
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('admin.presidentMsg.signatureTitle')}</CardTitle>
+              <CardDescription>{t('admin.presidentMsg.signatureDesc')}</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {signatureUrl && (
+                <div className="border rounded-lg p-4 bg-muted/30 flex items-center justify-center">
+                  <img src={signatureUrl} alt="Signature" className="h-40 object-contain rounded" />
+                </div>
+              )}
+              <input
+                ref={signatureInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) uploadImageFromDevice(file, setUploadingSignature, (id, url) => { setSignatureId(id); setSignatureUrl(url); });
+                  e.target.value = '';
+                }}
+              />
+              <div className="flex gap-2">
+                <Button
+                  variant="default"
+                  className="flex-1"
+                  disabled={uploadingSignature}
+                  onClick={() => signatureInputRef.current?.click()}
+                >
+                  <Upload className="mr-2 h-4 w-4" />
+                  {uploadingSignature ? 'Uploading…' : 'Upload from device'}
+                </Button>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" className="flex-1">
+                      <ImageIcon className="mr-2 h-4 w-4" />
+                      Media library
+                    </Button>
+                  </DialogTrigger>
+                  <MediaLibraryDialog
+                    onSelectMedia={(id, url) => { setSignatureId(id); setSignatureUrl(url); }}
+                    title="Select Signature Image"
+                  />
+                </Dialog>
+              </div>
+              {signatureId && (
+                <Button variant="ghost" className="w-full" onClick={() => { setSignatureId(null); setSignatureUrl(''); }}>
+                  Remove Signature
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('admin.presidentMsg.bgTitle')}</CardTitle>
+              <CardDescription>{t('admin.presidentMsg.bgDesc')}</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {backgroundImageUrl && (
+                <div className="border rounded-lg p-4 bg-muted/30 flex items-center justify-center">
+                  <img src={backgroundImageUrl} alt={t('admin.presidentMsg.tabBackground')} className="h-32 object-cover rounded w-full" />
+                </div>
+              )}
+              <input
+                ref={bgInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) uploadImageFromDevice(file, setUploadingBg, (id, url) => { setBackgroundImageId(id); setBackgroundImageUrl(url); });
+                  e.target.value = '';
+                }}
+              />
+              <div className="flex gap-2">
+                <Button
+                  variant="default"
+                  className="flex-1"
+                  disabled={uploadingBg}
+                  onClick={() => bgInputRef.current?.click()}
+                >
+                  <Upload className="mr-2 h-4 w-4" />
+                  {uploadingBg ? 'Uploading…' : 'Upload from device'}
+                </Button>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" className="flex-1">
+                      <ImageIcon className="mr-2 h-4 w-4" />
+                      Media library
+                    </Button>
+                  </DialogTrigger>
+                  <MediaLibraryDialog
+                    onSelectMedia={(id, url) => { setBackgroundImageId(id); setBackgroundImageUrl(url); }}
+                    title="Select Background Image"
+                  />
+                </Dialog>
+              </div>
+              {backgroundImageId && (
+                <Button variant="ghost" className="w-full" onClick={() => { setBackgroundImageId(null); setBackgroundImageUrl(''); }}>
+                  Remove Background Image
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Typography Tab */}
+        <TabsContent value="typography" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('admin.presidentMsg.titleTypographyTitle')}</CardTitle>
+              <CardDescription>{t('admin.presidentMsg.titleTypographyDesc')}</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label>{t('admin.presidentMsg.fontFamily', 'Font Family')}</Label>
+                  <Select value={titleFontFamily} onValueChange={setTitleFontFamily}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {FONT_FAMILIES.map(font => (
+                        <SelectItem key={font} value={font}>{font}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>{t('admin.presidentMsg.fontSize', 'Font Size')}</Label>
+                  <Select value={titleFontSize} onValueChange={setTitleFontSize}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {FONT_SIZES.map(size => (
+                        <SelectItem key={size} value={size}>{size}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>{t('admin.presidentMsg.textColor', 'Text Color')}</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      type="color"
+                      value={titleColor}
+                      onChange={(e) => setTitleColor(e.target.value)}
+                      className="w-20 h-10"
+                    />
+                    <Input
+                      value={titleColor}
+                      onChange={(e) => setTitleColor(e.target.value)}
+                      className="flex-1"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>{t('admin.presidentMsg.textAlignment')}</Label>
+                <Select value={titleAlignment} onValueChange={setTitleAlignment}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {TEXT_ALIGNS.map(align => (
+                      <SelectItem key={align} value={align}>{align}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('admin.presidentMsg.nameRoleTypographyTitle')}</CardTitle>
+              <CardDescription>{t('admin.presidentMsg.nameRoleTypographyDesc')}</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-4">
+                <h4 className="font-medium">President Name</h4>
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label>{t('admin.presidentMsg.fontFamily', 'Font Family')}</Label>
+                    <Select value={nameFontFamily} onValueChange={setNameFontFamily}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {FONT_FAMILIES.map(font => (
+                          <SelectItem key={font} value={font}>{font}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>{t('admin.presidentMsg.fontSize', 'Font Size')}</Label>
+                    <Select value={nameFontSize} onValueChange={setNameFontSize}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {FONT_SIZES.map(size => (
+                          <SelectItem key={size} value={size}>{size}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>{t('admin.presidentMsg.textColor', 'Text Color')}</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        type="color"
+                        value={nameColor}
+                        onChange={(e) => setNameColor(e.target.value)}
+                        className="w-20 h-10"
+                      />
+                      <Input
+                        value={nameColor}
+                        onChange={(e) => setNameColor(e.target.value)}
+                        className="flex-1"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4 border-t pt-6">
+                <h4 className="font-medium">President Role</h4>
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label>{t('admin.presidentMsg.fontFamily', 'Font Family')}</Label>
+                    <Select value={roleFontFamily} onValueChange={setRoleFontFamily}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {FONT_FAMILIES.map(font => (
+                          <SelectItem key={font} value={font}>{font}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>{t('admin.presidentMsg.fontSize', 'Font Size')}</Label>
+                    <Select value={roleFontSize} onValueChange={setRoleFontSize}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {FONT_SIZES.map(size => (
+                          <SelectItem key={size} value={size}>{size}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>{t('admin.presidentMsg.textColor', 'Text Color')}</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        type="color"
+                        value={roleColor}
+                        onChange={(e) => setRoleColor(e.target.value)}
+                        className="w-20 h-10"
+                      />
+                      <Input
+                        value={roleColor}
+                        onChange={(e) => setRoleColor(e.target.value)}
+                        className="flex-1"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('admin.presidentMsg.msgQuoteTypographyTitle')}</CardTitle>
+              <CardDescription>{t('admin.presidentMsg.msgQuoteTypographyDesc')}</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-4">
+                <h4 className="font-medium">Message Text</h4>
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label>{t('admin.presidentMsg.fontFamily', 'Font Family')}</Label>
+                    <Select value={messageFontFamily} onValueChange={setMessageFontFamily}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {FONT_FAMILIES.map(font => (
+                          <SelectItem key={font} value={font}>{font}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>{t('admin.presidentMsg.fontSize', 'Font Size')}</Label>
+                    <Select value={messageFontSize} onValueChange={setMessageFontSize}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {FONT_SIZES.map(size => (
+                          <SelectItem key={size} value={size}>{size}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>{t('admin.presidentMsg.textColor', 'Text Color')}</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        type="color"
+                        value={messageColor}
+                        onChange={(e) => setMessageColor(e.target.value)}
+                        className="w-20 h-10"
+                      />
+                      <Input
+                        value={messageColor}
+                        onChange={(e) => setMessageColor(e.target.value)}
+                        className="flex-1"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4 border-t pt-6">
+                <h4 className="font-medium">Quote Text</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>{t('admin.presidentMsg.fontSize', 'Font Size')}</Label>
+                    <Select value={quoteFontSize} onValueChange={setQuoteFontSize}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {FONT_SIZES.map(size => (
+                          <SelectItem key={size} value={size}>{size}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>{t('admin.presidentMsg.textColor', 'Text Color')}</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        type="color"
+                        value={quoteColor}
+                        onChange={(e) => setQuoteColor(e.target.value)}
+                        className="w-20 h-10"
+                      />
+                      <Input
+                        value={quoteColor}
+                        onChange={(e) => setQuoteColor(e.target.value)}
+                        className="flex-1"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Layout & Styling Tab */}
+        <TabsContent value="layout" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('admin.presidentMsg.bgSettingsTitle')}</CardTitle>
+              <CardDescription>{t('admin.presidentMsg.bgSettingsDesc')}</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="bg-color">Background Color</Label>
+                <div className="flex gap-2">
+                  <Input
+                    type="color"
+                    id="bg-color"
+                    value={backgroundColor}
+                    onChange={(e) => setBackgroundColor(e.target.value)}
+                    className="w-20 h-10"
+                  />
+                  <Input
+                    value={backgroundColor}
+                    onChange={(e) => setBackgroundColor(e.target.value)}
+                    className="flex-1"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="bg-gradient">Background Gradient (CSS)</Label>
+                <Input
+                  id="bg-gradient"
+                  value={backgroundGradient}
+                  onChange={(e) => setBackgroundGradient(e.target.value)}
+                  placeholder="linear-gradient(180deg, #112250 0%, #1a3366 100%)"
+                />
+                <p className="text-xs text-muted-foreground">
+                  CSS gradient value. Leave as-is or customize with your preferred gradient.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('admin.presidentMsg.imgPositioningTitle')}</CardTitle>
+              <CardDescription>{t('admin.presidentMsg.imgPositioningDesc')}</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label>{t('admin.presidentMsg.imagePosition', 'Image Position')}</Label>
+                  <Select value={imagePosition} onValueChange={setImagePosition}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {IMAGE_POSITIONS.map(pos => (
+                        <SelectItem key={pos} value={pos}>{pos}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">
+                    Side where image appears
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <Label>{t('admin.presidentMsg.imageAlignment', 'Image Alignment')}</Label>
+                  <Select value={imageAlignment} onValueChange={setImageAlignment}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {TEXT_ALIGNS.map(align => (
+                        <SelectItem key={align} value={align}>{align}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">
+                    Vertical alignment
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="image-width">Image Width</Label>
+                  <Input
+                    id="image-width"
+                    value={imageWidth}
+                    onChange={(e) => setImageWidth(e.target.value)}
+                    placeholder="42%"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Width (%, px, rem)
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('admin.presidentMsg.spacingTitle')}</CardTitle>
+              <CardDescription>{t('admin.presidentMsg.spacingDesc')}</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="section-padding">Section Padding</Label>
+                  <Input
+                    id="section-padding"
+                    value={sectionPadding}
+                    onChange={(e) => setSectionPadding(e.target.value)}
+                    placeholder="80px 0"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Top/bottom padding (e.g., "80px 0", "5rem 0")
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="content-gap">Content Gap</Label>
+                  <Input
+                    id="content-gap"
+                    value={contentGap}
+                    onChange={(e) => setContentGap(e.target.value)}
+                    placeholder="48px"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Gap between image and text (e.g., "48px", "3rem")
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}
