@@ -8,10 +8,20 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (!Schema::hasTable('auth_settings')) {
+            return;
+        }
+
         Schema::table('auth_settings', function (Blueprint $table) {
-            $table->boolean('google_oauth_enabled')->default(false)->after('max_login_attempts');
-            $table->string('google_client_id')->nullable()->after('google_oauth_enabled');
-            $table->text('google_client_secret')->nullable()->after('google_client_id');
+            if (!Schema::hasColumn('auth_settings', 'google_oauth_enabled')) {
+                $table->boolean('google_oauth_enabled')->default(false)->after('max_login_attempts');
+            }
+            if (!Schema::hasColumn('auth_settings', 'google_client_id')) {
+                $table->string('google_client_id')->nullable()->after('google_oauth_enabled');
+            }
+            if (!Schema::hasColumn('auth_settings', 'google_client_secret')) {
+                $table->text('google_client_secret')->nullable()->after('google_client_id');
+            }
         });
     }
 
