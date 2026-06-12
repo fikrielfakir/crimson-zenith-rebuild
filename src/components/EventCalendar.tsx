@@ -2,9 +2,8 @@ import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar as CalendarIcon, MapPin, Clock, ChevronLeft, ChevronRight } from "lucide-react";
-import { resolveStorageUrl } from "@/lib/apiFetch";
-import { staticMediaUrl, MEDIA_KEYS } from "@/lib/staticMedia";
 import { useNavigate } from "react-router-dom";
+import { apiFetch } from "@/lib/apiFetch";
 import CalendarComponent from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 
@@ -143,7 +142,7 @@ const EventCalendar = () => {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const res = await fetch("/api/booking/events");
+        const res = await apiFetch("/api/booking/events");
         if (res.ok) {
           const data = await res.json();
           const raw: any[] = data.events ?? data.data ?? [];
