@@ -69,5 +69,7 @@ externalPort = 8000
 [userenv.shared]
 SMTP_HOST = "smtp.hostinger.com"
 SMTP_PORT = "465"
-SMTP_USER = "noreply@magneseo.com"
-SMTP_FROM = "The Journey Association <noreply@magneseo.com>"
+SMTP_USER = "noreply@mahalo.ma"
+SMTP_FROM = "noreply@mahalo.ma"
+SMTP_SECURE = "true"
+SMTP_FROM_NAME = "The Journey Association"
