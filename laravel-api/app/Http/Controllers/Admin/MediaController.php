@@ -55,6 +55,11 @@ class MediaController extends Controller
             $uuid     = Str::uuid();
             $filename = $uuid . '.' . $ext;
 
+            // Ensure media directory exists
+            if (!Storage::disk('public')->exists('media')) {
+                Storage::disk('public')->makeDirectory('media');
+            }
+
             Storage::disk('public')->put('media/' . $filename, file_get_contents($file->getRealPath()));
             $fileUrl = '/storage/media/' . $filename;
 
@@ -83,6 +88,11 @@ class MediaController extends Controller
             $ext    = $this->mimeToExt($mime);
             $uuid   = (string) Str::uuid();
             $filename = $uuid . '.' . $ext;
+
+            // Ensure media directory exists
+            if (!Storage::disk('public')->exists('media')) {
+                Storage::disk('public')->makeDirectory('media');
+            }
 
             Storage::disk('public')->put('media/' . $filename, $binary);
             $fileUrl = '/storage/media/' . $filename;

@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { Upload, Loader2, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { apiFetch } from '@/lib/apiFetch';
+import { apiFetch, resolveStorageUrl } from '@/lib/apiFetch';
 import { useToast } from '@/hooks/use-toast';
 
 interface ImageUploadProps {
@@ -115,7 +115,7 @@ export function ImageUpload({
           previewClass ?? 'min-h-[80px]'
         )}>
           <img
-            src={value}
+            src={resolveStorageUrl(value) ?? value}
             alt="Preview"
             className="max-h-20 max-w-[220px] object-contain rounded"
             onError={(e) => { (e.target as HTMLImageElement).style.opacity = '0.3'; }}
