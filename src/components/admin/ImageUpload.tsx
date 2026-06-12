@@ -7,10 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 interface ImageUploadProps {
   value?: string;
   onChange: (url: string) => void;
-<<<<<<< HEAD
-=======
   onMediaUploaded?: (id: number, url: string) => void;
->>>>>>> 2e157768b15e871cf8c0bb09cb8abfdb9a135b22
   label?: string;
   description?: string;
   accept?: string;
@@ -24,10 +21,7 @@ interface ImageUploadProps {
 export function ImageUpload({
   value = '',
   onChange,
-<<<<<<< HEAD
-=======
   onMediaUploaded,
->>>>>>> 2e157768b15e871cf8c0bb09cb8abfdb9a135b22
   label,
   description = 'PNG, JPG, WebP, SVG — max 50 MB',
   accept = 'image/*',
@@ -59,12 +53,9 @@ export function ImageUpload({
       const url: string = data.fileUrl ?? data.url ?? '';
       if (!url) throw new Error('No URL returned from server');
       onChange(url);
-<<<<<<< HEAD
-=======
       if (onMediaUploaded && data.id != null) {
         onMediaUploaded(Number(data.id), url);
       }
->>>>>>> 2e157768b15e871cf8c0bb09cb8abfdb9a135b22
     } catch (err: any) {
       const msg = err.message ?? 'Upload failed';
       setError(msg);

@@ -137,11 +137,7 @@ const PresidentMessageDynamic = () => {
 
   const activeSettings = settings ?? getDefaultSettings();
 
-<<<<<<< HEAD
-  if (isError || !activeSettings.isActive) {
-=======
   if (isError) {
->>>>>>> 2e157768b15e871cf8c0bb09cb8abfdb9a135b22
     return null;
   }
 

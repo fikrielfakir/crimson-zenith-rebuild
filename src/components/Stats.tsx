@@ -60,11 +60,7 @@ const Stats = () => {
   }
 
   const statistics = dbStats
-<<<<<<< HEAD
-    .filter((s: any) => s.isActive !== false)
-=======
     .filter((s: any) => s.is_active !== false)
->>>>>>> 2e157768b15e871cf8c0bb09cb8abfdb9a135b22
     .sort((a: any, b: any) => (a.ordering ?? 0) - (b.ordering ?? 0))
     .map((s: any) => ({
       icon: s.icon ?? "Star",
