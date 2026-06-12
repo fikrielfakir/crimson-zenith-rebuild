@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { apiFetch } from '@/lib/apiFetch';
+import { apiFetch, resolveStorageUrl } from '@/lib/apiFetch';
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -173,9 +173,7 @@ function PanoramaUploader({ value, onChange }: { value: string; onChange: (url: 
       if (!res.ok) throw new Error('Upload failed');
       const data = await res.json();
       const rawUrl: string = data.fileUrl || data.url || '';
-      const resolvedUrl = rawUrl.startsWith('/storage/') && import.meta.env.VITE_API_BASE_URL
-        ? `${import.meta.env.VITE_API_BASE_URL}${rawUrl}` : rawUrl;
-      onChange(resolvedUrl);
+      onChange(resolveStorageUrl(rawUrl) ?? rawUrl);
       toast({ title: t('admin.gallery.toastCreated') });
     } catch {
       toast({ title: t('admin.gallery.toastSaveFailed'), variant: 'destructive' });
@@ -266,9 +264,7 @@ function ImageUploader({ value, onChange }: { value: string; onChange: (url: str
       if (!res.ok) throw new Error('Upload failed');
       const data = await res.json();
       const rawUrlG: string = data.fileUrl || data.url || '';
-      const resolvedUrlG = rawUrlG.startsWith('/storage/') && import.meta.env.VITE_API_BASE_URL
-        ? `${import.meta.env.VITE_API_BASE_URL}${rawUrlG}` : rawUrlG;
-      onChange(resolvedUrlG);
+      onChange(resolveStorageUrl(rawUrlG) ?? rawUrlG);
       toast({ title: t('admin.gallery.toastUpdated') });
     } catch {
       toast({ title: t('admin.gallery.toastSaveFailed'), variant: 'destructive' });

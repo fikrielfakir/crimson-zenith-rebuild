@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiFetch } from '@/lib/apiFetch';
+import { apiFetch, resolveStorageUrl } from '@/lib/apiFetch';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -81,9 +81,7 @@ function ImageUploader({ value, onChange }: { value: string; onChange: (url: str
       if (!res.ok) throw new Error('Upload failed');
       const data = await res.json();
       const rawUrl: string = data.fileUrl ?? data.url ?? '';
-      const resolvedUrl = rawUrl.startsWith('/storage/') && import.meta.env.VITE_API_BASE_URL
-        ? `${import.meta.env.VITE_API_BASE_URL}${rawUrl}` : rawUrl;
-      onChange(resolvedUrl);
+      onChange(resolveStorageUrl(rawUrl) ?? rawUrl);
       toast({ title: t('admin.experts.toastImageUploaded') });
     } catch (err: any) {
       toast({ title: t('admin.clubs.toastUploadFailed'), description: err.message, variant: 'destructive' });
