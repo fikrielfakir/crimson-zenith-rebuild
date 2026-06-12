@@ -1344,31 +1344,108 @@ app.post('/api/forgot-password', async (req: any, res) => {
       subject: 'Reset your password — The Journey Association',
       html: `
 <!DOCTYPE html>
-<html>
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;padding:0;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#f4f4f4;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f4;padding:20px;">
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Reset your password</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f0f2f5;font-family:'Segoe UI',Helvetica,Arial,sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f0f2f5;padding:40px 16px;">
     <tr><td align="center">
-      <table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 4px 6px rgba(0,0,0,.1);">
-        <tr><td style="background:linear-gradient(135deg,#112250 0%,#1a3366 100%);padding:40px;text-align:center;">
-          <h1 style="color:#fff;margin:0;font-size:26px;">Password Reset Request</h1>
-          <p style="color:#D8C18D;margin:10px 0 0;font-size:15px;">The Journey Association</p>
+
+      <!-- Card -->
+      <table role="presentation" width="100%" style="max-width:560px;" cellpadding="0" cellspacing="0">
+
+        <!-- Logo bar above card -->
+        <tr><td align="center" style="padding-bottom:24px;">
+          <img src="${host}/logo-atj.png" alt="The Journey Association" width="72" height="72"
+               style="display:block;border-radius:16px;border:3px solid #ffffff;box-shadow:0 4px 16px rgba(17,34,80,0.18);">
         </td></tr>
-        <tr><td style="padding:40px;">
-          <p style="color:#333;font-size:16px;margin:0 0 16px;">Hi ${firstName},</p>
-          <p style="color:#333;font-size:15px;margin:0 0 24px;">We received a request to reset the password for your account. Click the button below to choose a new password. This link expires in <strong>1 hour</strong>.</p>
-          <div style="text-align:center;margin:32px 0;">
-            <a href="${resetUrl}" style="background:#112250;color:#fff;padding:14px 32px;border-radius:8px;text-decoration:none;font-size:15px;font-weight:600;display:inline-block;">Reset My Password</a>
-          </div>
-          <p style="color:#666;font-size:13px;margin:24px 0 0;">If the button doesn't work, copy and paste this link into your browser:<br>
-            <a href="${resetUrl}" style="color:#112250;word-break:break-all;">${resetUrl}</a>
+
+        <!-- Card body -->
+        <tr><td style="background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 8px 32px rgba(17,34,80,0.10);">
+
+          <!-- Header band -->
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+            <tr><td style="background:linear-gradient(135deg,#0d1d45 0%,#112250 60%,#1a3a6e 100%);padding:36px 40px 32px;text-align:center;">
+              <p style="margin:0 0 6px;color:#D8C18D;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;">The Journey Association</p>
+              <h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:700;letter-spacing:0.3px;">Password Reset Request</h1>
+              <!-- Decorative line -->
+              <div style="margin:18px auto 0;width:40px;height:2px;background:linear-gradient(90deg,transparent,#D8C18D,transparent);"></div>
+            </td></tr>
+          </table>
+
+          <!-- Body -->
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+            <tr><td style="padding:40px 40px 0;">
+              <p style="margin:0 0 8px;color:#1a1a2e;font-size:17px;font-weight:600;">Hello, ${firstName}!</p>
+              <p style="margin:0 0 28px;color:#4a5568;font-size:15px;line-height:1.7;">
+                We received a request to reset the password for your account.
+                Click the button below to choose a new password.
+              </p>
+
+              <!-- CTA Button -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                <tr><td align="center" style="padding-bottom:28px;">
+                  <a href="${resetUrl}"
+                     style="display:inline-block;background:linear-gradient(135deg,#0d1d45 0%,#112250 100%);color:#ffffff;text-decoration:none;font-size:15px;font-weight:700;letter-spacing:0.5px;padding:15px 40px;border-radius:10px;box-shadow:0 4px 14px rgba(17,34,80,0.30);">
+                    Reset Password &nbsp;→
+                  </a>
+                </td></tr>
+              </table>
+
+              <!-- Expiry notice -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                <tr><td align="center" style="padding-bottom:28px;">
+                  <span style="display:inline-block;background:#fef9ec;border:1px solid #f0d980;border-radius:8px;padding:8px 18px;color:#856404;font-size:12px;font-weight:600;">
+                    ⏱ This link expires in 1 hour
+                  </span>
+                </td></tr>
+              </table>
+
+              <!-- Divider -->
+              <hr style="border:none;border-top:1px solid #eef0f4;margin:0 0 24px;">
+
+              <!-- Fallback link -->
+              <p style="margin:0 0 8px;color:#718096;font-size:12px;line-height:1.6;">
+                If the button doesn't work, copy and paste this link into your browser:
+              </p>
+              <p style="margin:0 0 24px;">
+                <a href="${resetUrl}" style="color:#112250;font-size:12px;word-break:break-all;text-decoration:underline;">${resetUrl}</a>
+              </p>
+
+              <!-- Security notice -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td width="32" valign="top" style="padding-bottom:28px;">
+                    <div style="width:28px;height:28px;background:#f0f4ff;border-radius:8px;text-align:center;line-height:28px;font-size:14px;">🔒</div>
+                  </td>
+                  <td style="padding-left:10px;padding-bottom:28px;">
+                    <p style="margin:0;color:#9aa5b4;font-size:12px;line-height:1.6;">
+                      If you didn't request a password reset, you can safely ignore this email —
+                      your password will remain unchanged.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+
+            </td></tr>
+          </table>
+
+        </td></tr>
+
+        <!-- Footer -->
+        <tr><td style="padding:24px 0 8px;text-align:center;">
+          <p style="margin:0 0 4px;color:#9aa5b4;font-size:11px;">
+            © ${new Date().getFullYear()} The Journey Association &nbsp;·&nbsp; Morocco
           </p>
-          <hr style="border:none;border-top:1px solid #eee;margin:32px 0;">
-          <p style="color:#999;font-size:12px;margin:0;">If you didn't request this, you can safely ignore this email. Your password won't change.</p>
+          <p style="margin:0;color:#c4cdd8;font-size:11px;">
+            This is an automated message, please do not reply.
+          </p>
         </td></tr>
-        <tr><td style="background:#112250;padding:20px;text-align:center;">
-          <p style="color:#fff;margin:0;font-size:12px;">© ${new Date().getFullYear()} The Journey Association. All rights reserved.</p>
-        </td></tr>
+
       </table>
     </td></tr>
   </table>
