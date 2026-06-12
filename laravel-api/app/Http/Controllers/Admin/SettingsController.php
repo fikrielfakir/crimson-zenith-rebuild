@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\SeoSettings;
+use App\Models\NavbarSettings;
 use App\Models\ContactSettings;
 use App\Models\MediaAsset;
 use Illuminate\Http\Request;
@@ -69,6 +70,92 @@ class SettingsController extends Controller
             'url'     => $fileUrl,
             'fileUrl' => $fileUrl,
             'id'      => $asset->id,
+        ]);
+    }
+
+    /**
+     * Upload logo image, store file, and immediately save logo_url to navbar_settings.
+     * Accepts field name "file" (from ImageUpload component).
+     */
+    public function uploadLogo(Request $request)
+    {
+        $file = $request->file('file');
+
+        $isSvg = $file && $file->getMimeType() === 'image/svg+xml';
+        if ($isSvg) {
+            $request->validate(['file' => 'required|file|max:5120']);
+        } else {
+            $request->validate(['file' => 'required|image|mimes:jpeg,png,jpg,webp,svg|max:5120']);
+        }
+
+        $origName = $file->getClientOriginalName();
+        $ext      = $file->getClientOriginalExtension() ?: 'png';
+        $uuid     = (string) Str::uuid();
+        $filename = 'logo-' . $uuid . '.' . $ext;
+        $mime     = $file->getMimeType() ?? 'image/png';
+
+        Storage::disk('public')->put('media/' . $filename, file_get_contents($file->getRealPath()));
+        $fileUrl = '/storage/media/' . $filename;
+
+        MediaAsset::create([
+            'file_name'     => $origName,
+            'file_type'     => $mime,
+            'file_size'     => $file->getSize(),
+            'file_url'      => $fileUrl,
+            'thumbnail_url' => $fileUrl,
+            'alt_text'      => 'Site Logo',
+            'uploaded_by'   => $request->user()?->id ?? 'system',
+        ]);
+
+        $navbar = NavbarSettings::firstOrCreate(['id' => 'default']);
+        $navbar->update(['logo_url' => $fileUrl, 'logo_type' => 'image']);
+
+        return response()->json([
+            'url'     => $fileUrl,
+            'fileUrl' => $fileUrl,
+        ]);
+    }
+
+    /**
+     * Upload favicon image, store file, and immediately save favicon_url to seo_settings.
+     * Accepts field name "file" (from ImageUpload component).
+     */
+    public function uploadFavicon(Request $request)
+    {
+        $file = $request->file('file');
+
+        $isSvg = $file && $file->getMimeType() === 'image/svg+xml';
+        if ($isSvg) {
+            $request->validate(['file' => 'required|file|max:2048']);
+        } else {
+            $request->validate(['file' => 'required|file|mimes:ico,png,jpg,jpeg,svg,x-icon|max:2048']);
+        }
+
+        $origName = $file->getClientOriginalName();
+        $ext      = $file->getClientOriginalExtension() ?: 'ico';
+        $uuid     = (string) Str::uuid();
+        $filename = 'favicon-' . $uuid . '.' . $ext;
+        $mime     = $file->getMimeType() ?? 'image/x-icon';
+
+        Storage::disk('public')->put('media/' . $filename, file_get_contents($file->getRealPath()));
+        $fileUrl = '/storage/media/' . $filename;
+
+        MediaAsset::create([
+            'file_name'     => $origName,
+            'file_type'     => $mime,
+            'file_size'     => $file->getSize(),
+            'file_url'      => $fileUrl,
+            'thumbnail_url' => $fileUrl,
+            'alt_text'      => 'Site Favicon',
+            'uploaded_by'   => $request->user()?->id ?? 'system',
+        ]);
+
+        $seo = SeoSettings::firstOrCreate(['id' => 'default']);
+        $seo->update(['favicon_url' => $fileUrl]);
+
+        return response()->json([
+            'url'     => $fileUrl,
+            'fileUrl' => $fileUrl,
         ]);
     }
 }

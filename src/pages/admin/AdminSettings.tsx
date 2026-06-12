@@ -231,6 +231,7 @@ function SeoTab() {
 
 function LogoFaviconTab() {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const { data: navbar, isLoading: navbarLoading } = useSettingsQuery<any>('/api/cms/navbar', ['settings-navbar']);
   const { data: seo, isLoading: seoLoading } = useSettingsQuery<any>('/api/cms/seo', ['settings-seo']);
@@ -255,16 +256,26 @@ function LogoFaviconTab() {
   }, [seo]);
 
   const navbarMutation = useSave('/api/admin/cms/navbar', [['settings-navbar'], ['cms-navbar']], 'Logo settings', toast, (k, fb) => fb ?? k);
-  const seoMutation = useSave('/api/admin/cms/seo', [['settings-seo'], ['cms-seo']], 'Favicon settings', toast, (k, fb) => fb ?? k);
 
   const isLoading = navbarLoading || seoLoading;
-  const saving = navbarMutation.isPending || seoMutation.isPending;
+  const saving = navbarMutation.isPending;
 
-  const handleSave = async () => {
-    await Promise.all([
-      navbarMutation.mutateAsync({ logoType: 'image', logoUrl, logoSize: Number(logoSize), logoLink }),
-      seoMutation.mutateAsync({ faviconUrl }),
-    ]);
+  const handleSaveSettings = async () => {
+    await navbarMutation.mutateAsync({ logoType: 'image', logoUrl, logoSize: Number(logoSize), logoLink });
+  };
+
+  const handleLogoUploaded = (url: string) => {
+    setLogoUrl(url);
+    queryClient.invalidateQueries({ queryKey: ['settings-navbar'] });
+    queryClient.invalidateQueries({ queryKey: ['cms-navbar'] });
+    toast({ title: 'Logo uploaded and saved' });
+  };
+
+  const handleFaviconUploaded = (url: string) => {
+    setFaviconUrl(url);
+    queryClient.invalidateQueries({ queryKey: ['settings-seo'] });
+    queryClient.invalidateQueries({ queryKey: ['cms-seo'] });
+    toast({ title: 'Favicon uploaded and saved' });
   };
 
   return (
@@ -272,7 +283,7 @@ function LogoFaviconTab() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2"><ImageIcon className="h-5 w-5" /> Logo</CardTitle>
-          <CardDescription>The logo displayed in the navigation bar across all pages</CardDescription>
+          <CardDescription>The logo displayed in the navigation bar. Uploading a new file saves it instantly.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
           {isLoading ? (
@@ -283,8 +294,9 @@ function LogoFaviconTab() {
                 label="Logo Image"
                 description="PNG, SVG or WebP — transparent background recommended, ~400×160px"
                 accept="image/png,image/svg+xml,image/webp,image/jpeg"
+                endpoint="/api/admin/settings/upload-logo"
                 value={logoUrl}
-                onChange={setLogoUrl}
+                onChange={handleLogoUploaded}
               />
 
               <div className="grid grid-cols-2 gap-4">
@@ -297,6 +309,11 @@ function LogoFaviconTab() {
                   <Input id="logo-link" value={logoLink} onChange={(e) => setLogoLink(e.target.value)} placeholder="/" />
                 </div>
               </div>
+
+              <Button onClick={handleSaveSettings} disabled={saving}>
+                {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+                {saving ? 'Saving…' : 'Save Logo Settings'}
+              </Button>
             </>
           )}
         </CardContent>
@@ -305,7 +322,7 @@ function LogoFaviconTab() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2"><ImageIcon className="h-5 w-5" /> Favicon</CardTitle>
-          <CardDescription>Small icon shown in browser tabs and bookmarks (32×32px .ico, .png, or .svg)</CardDescription>
+          <CardDescription>Small icon shown in browser tabs and bookmarks (32×32px .ico, .png, or .svg). Uploading saves instantly.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {isLoading ? (
@@ -315,18 +332,14 @@ function LogoFaviconTab() {
               label="Favicon Image"
               description=".ico, PNG or SVG — 32×32px recommended"
               accept="image/x-icon,image/png,image/svg+xml,image/vnd.microsoft.icon"
+              endpoint="/api/admin/settings/upload-favicon"
               value={faviconUrl}
-              onChange={setFaviconUrl}
+              onChange={handleFaviconUploaded}
               previewClass="min-h-[56px]"
             />
           )}
         </CardContent>
       </Card>
-
-      <Button onClick={handleSave} disabled={saving || isLoading}>
-        {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-        {saving ? 'Saving…' : 'Save Logo & Favicon'}
-      </Button>
     </div>
   );
 }

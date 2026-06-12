@@ -260,6 +260,8 @@ Route::prefix('admin')->middleware(['admin'])->group(function () {
     Route::get('/clubs/simple',                [\App\Http\Controllers\Admin\ClubController::class, 'simpleList']);
     Route::get('/clubs',                       [\App\Http\Controllers\Admin\ClubController::class, 'index']);
     Route::post('/upload-image',               [\App\Http\Controllers\Admin\SettingsController::class, 'uploadImage']);
+    Route::post('/settings/upload-logo',       [\App\Http\Controllers\Admin\SettingsController::class, 'uploadLogo']);
+    Route::post('/settings/upload-favicon',    [\App\Http\Controllers\Admin\SettingsController::class, 'uploadFavicon']);
     Route::post('/clubs/upload-image',         [\App\Http\Controllers\Admin\ClubController::class, 'uploadImage']);
     Route::get('/clubs/{id}',                  [\App\Http\Controllers\Admin\ClubController::class, 'show']);
     Route::post('/clubs',                      [\App\Http\Controllers\Admin\ClubController::class, 'store']);

@@ -656,8 +656,32 @@ export default function NavbarSettings() {
                 <CardDescription>{t('admin.navbar.logoDesc')}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
+                {/* Logo image upload is managed in Settings > Logo & Favicon */}
+                <div className="rounded-lg border border-dashed border-muted-foreground/30 bg-muted/20 p-5 flex items-start gap-4">
+                  <div className="shrink-0 mt-0.5">
+                    {logoImageUrl ? (
+                      <img src={logoImageUrl} alt="Current logo" className="h-12 w-auto object-contain rounded" />
+                    ) : (
+                      <div className="h-12 w-20 rounded border flex items-center justify-center bg-muted text-xs text-muted-foreground">No logo</div>
+                    )}
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium">Logo image is managed in Settings</p>
+                    <p className="text-xs text-muted-foreground">
+                      Upload or change your logo from <strong>Settings → Logo &amp; Favicon</strong>. The image is saved directly to the database from there.
+                    </p>
+                    <a
+                      href="/admin/settings?tab=logo"
+                      className="inline-flex items-center gap-1 text-xs text-primary underline underline-offset-2 mt-1"
+                    >
+                      Go to Logo &amp; Favicon settings →
+                    </a>
+                  </div>
+                </div>
+
+                {/* Logo display type */}
                 <div className="space-y-2">
-                  <Label>{t('admin.navbar.logoType', 'Logo Type')}</Label>
+                  <Label>{t('admin.navbar.logoType', 'Logo Display Type')}</Label>
                   <Select value={logoType} onValueChange={(value: 'image' | 'text') => setLogoType(value)}>
                     <SelectTrigger>
                       <SelectValue />
@@ -669,28 +693,7 @@ export default function NavbarSettings() {
                   </Select>
                 </div>
 
-                {logoType === 'image' ? (
-                  <div className="space-y-4">
-                    <Label>{t('admin.navbar.logoImageLabel', 'Logo Image')}</Label>
-                    {logoImageUrl && (
-                      <div className="border rounded-lg p-4 bg-muted/30 flex items-center justify-center">
-                        <img src={logoImageUrl} alt="Logo preview" className="h-20 object-contain" />
-                      </div>
-                    )}
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button variant="outline" className="w-full">
-                          <Upload className="mr-2 h-4 w-4" />
-                          Select from Media Library
-                        </Button>
-                      </DialogTrigger>
-                      <MediaLibraryDialog onSelectMedia={handleSelectMedia} />
-                    </Dialog>
-                    <p className="text-sm text-muted-foreground">
-                      Recommended: PNG or SVG format, transparent background, 200x80px
-                    </p>
-                  </div>
-                ) : (
+                {logoType === 'text' && (
                   <div className="space-y-2">
                     <Label htmlFor="logo-text">{t('admin.navbar.logoTextLabel', 'Logo Text')}</Label>
                     <Input
