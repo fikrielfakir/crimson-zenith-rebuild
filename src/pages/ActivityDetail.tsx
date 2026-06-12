@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
+import { apiFetch } from "@/lib/apiFetch";
 import {
   ArrowLeft,
   Clock,
@@ -191,7 +192,7 @@ const ActivityDetail = () => {
       try {
         /* 1. If activityName looks like a numeric id, try fetching by id */
         if (/^\d+$/.test(activityName)) {
-          const res = await fetch(`/api/booking/events/${activityName}`);
+          const res = await apiFetch(`/api/booking/events/${activityName}`);
           if (res.ok) {
             const data = await res.json();
             const raw = data.event ?? data;
@@ -200,7 +201,7 @@ const ActivityDetail = () => {
         }
 
         /* 2. Fetch all events and find a title-slug match */
-        const res = await fetch('/api/booking/events');
+        const res = await apiFetch('/api/booking/events');
         if (res.ok) {
           const data = await res.json();
           const events: any[] = data.events ?? data.data ?? [];

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Clock, Users, Star } from "lucide-react";
-import { resolveStorageUrl } from "@/lib/apiFetch";
+import { apiFetch, resolveStorageUrl } from "@/lib/apiFetch";
 import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -164,7 +164,7 @@ const Activities = () => {
   useEffect(() => {
     const fetchActivities = async () => {
       try {
-        const res = await fetch("/api/booking/events");
+        const res = await apiFetch("/api/booking/events");
         if (res.ok) {
           const data = await res.json();
           const events: ApiEvent[] = data.events ?? data.data ?? [];
