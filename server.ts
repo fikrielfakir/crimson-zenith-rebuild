@@ -2782,13 +2782,55 @@ app.get('/api/admin/analytics', isAdmin, async (req, res) => {
   }
 });
 
-// Media Library - Get all media
+// ─── Media Library helpers ────────────────────────────────────────────────
+// Allowed MIME types for upload
+const ALLOWED_MEDIA_TYPES = new Set([
+  'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml',
+  'video/mp4', 'video/webm', 'video/ogg',
+  'application/pdf',
+]);
+
+// Resolve the on-disk path from a stored fileUrl (/uploads/xxx.jpg → absolute path)
+function resolveUploadPath(fileUrl: string): string | null {
+  if (!fileUrl) return null;
+  const rel = fileUrl.replace(/^\/uploads\//, '');
+  return pathMod.resolve(__dirname, 'public/uploads', rel);
+}
+
+// One-time startup sync: migrate media-index.json → media_assets table
+async function syncMediaIndexToDB() {
+  try {
+    const indexPath = pathMod.resolve(__dirname, 'public/uploads/media-index.json');
+    const raw = JSON.parse(await fsPromise.readFile(indexPath, 'utf-8'));
+    const entries: any[] = Array.isArray(raw) ? raw : (raw.media ?? []);
+    if (!entries.length) return;
+
+    const existing = await db.select({ fileUrl: mediaAssets.fileUrl }).from(mediaAssets);
+    const knownUrls = new Set(existing.map((r: any) => r.fileUrl));
+
+    const toInsert = entries.filter((e: any) => e.fileUrl && !knownUrls.has(e.fileUrl));
+    if (!toInsert.length) { console.log('✅ media-index.json already synced'); return; }
+
+    await db.insert(mediaAssets).values(
+      toInsert.map((e: any) => ({
+        fileName:  e.fileName  ?? e.fileUrl?.split('/').pop() ?? 'unknown',
+        fileType:  e.fileType  ?? 'image/jpeg',
+        fileUrl:   e.fileUrl,
+        altText:   e.altText   ?? null,
+        uploadedBy: null,
+      }))
+    );
+    console.log(`✅ Migrated ${toInsert.length} media entries from media-index.json → DB`);
+  } catch (err: any) {
+    if (err.code !== 'ENOENT') console.warn('⚠️  media-index sync skipped:', err.message);
+  }
+}
+await syncMediaIndexToDB();
+
+// ─── Media Library - GET all media ───────────────────────────────────────
 app.get('/api/admin/media', isAdmin, async (req, res) => {
   try {
-    console.log('🔗 Fetching media library...');
-    
-    const media = await db.select().from(mediaAssets);
-    
+    const media = await db.select().from(mediaAssets).orderBy(desc(mediaAssets.createdAt));
     console.log(`✅ Retrieved ${media.length} media files`);
     res.json({ media });
   } catch (error) {
@@ -2797,44 +2839,50 @@ app.get('/api/admin/media', isAdmin, async (req, res) => {
   }
 });
 
-// Media Library - Upload media (multipart/form-data via multer)
+// ─── Media Library - POST upload ─────────────────────────────────────────
 {
-  const multer = (await import('multer')).default;
-  const pathMod = await import('path');
-  const { promises: fsPromise } = await import('fs');
-  const crypto = await import('crypto');
+  const mediaUploadMW = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 50 * 1024 * 1024 }, // 50 MB cap (was 200 MB)
+    fileFilter: (_req: any, file: any, cb: any) => {
+      if (ALLOWED_MEDIA_TYPES.has(file.mimetype)) return cb(null, true);
+      cb(new Error(`File type not allowed: ${file.mimetype}`));
+    },
+  });
 
-  const mediaStorage = multer.memoryStorage();
-  const mediaUpload = multer({ storage: mediaStorage, limits: { fileSize: 200 * 1024 * 1024 } });
-
-  app.post('/api/admin/media', isAdmin, mediaUpload.single('file'), async (req: any, res) => {
+  app.post('/api/admin/media', isAdmin, mediaUploadMW.single('file'), async (req: any, res) => {
     try {
-      const uploadsDir = pathMod.resolve(__dirname, 'public/uploads/media');
+      // All uploads go to public/uploads/ root — consistent with legacy files
+      const uploadsDir = pathMod.resolve(__dirname, 'public/uploads');
       await fsPromise.mkdir(uploadsDir, { recursive: true });
 
       let fileName: string;
       let fileType: string;
       let fileUrl: string;
+      let fileSize: number | null = null;
       const userId = req.user?.id ?? null;
 
       if (req.file) {
-        // multipart file upload
+        if (!ALLOWED_MEDIA_TYPES.has(req.file.mimetype))
+          return res.status(400).json({ error: `File type not allowed: ${req.file.mimetype}` });
         fileType = req.file.mimetype;
+        fileSize = req.file.size;
         const ext = (req.file.originalname.split('.').pop() ?? 'bin').toLowerCase();
-        const id = crypto.randomUUID();
-        fileName = `${id}.${ext}`;
+        fileName = `${crypto.randomUUID()}.${ext}`;
         await fsPromise.writeFile(pathMod.join(uploadsDir, fileName), req.file.buffer);
-        fileUrl = `/uploads/media/${fileName}`;
+        fileUrl = `/uploads/${fileName}`;
       } else if (req.body?.imageData) {
-        // base64 fallback
         const match = (req.body.imageData as string).match(/^data:([^;]+);base64,(.+)$/s);
         if (!match) return res.status(400).json({ error: 'Invalid imageData format' });
         fileType = match[1];
+        if (!ALLOWED_MEDIA_TYPES.has(fileType))
+          return res.status(400).json({ error: `File type not allowed: ${fileType}` });
+        const buf = Buffer.from(match[2], 'base64');
+        fileSize = buf.length;
         const ext = fileType.split('/')[1]?.replace('jpeg', 'jpg') ?? 'bin';
-        const id = crypto.randomUUID();
-        fileName = `${id}.${ext}`;
-        await fsPromise.writeFile(pathMod.join(uploadsDir, fileName), Buffer.from(match[2], 'base64'));
-        fileUrl = `/uploads/media/${fileName}`;
+        fileName = `${crypto.randomUUID()}.${ext}`;
+        await fsPromise.writeFile(pathMod.join(uploadsDir, fileName), buf);
+        fileUrl = `/uploads/${fileName}`;
       } else {
         return res.status(400).json({ error: 'No file provided' });
       }
@@ -2847,23 +2895,34 @@ app.get('/api/admin/media', isAdmin, async (req, res) => {
         uploadedBy: userId,
       }).returning();
 
+      console.log(`✅ Media uploaded: ${fileName} (${fileType}, ${fileSize} bytes)`);
       res.json({ ...newMedia, url: newMedia.fileUrl });
     } catch (error: any) {
       console.error('❌ Error uploading media:', error);
-      res.status(500).json({ error: 'Failed to upload media', details: error.message });
+      res.status(500).json({ error: error.message ?? 'Failed to upload media' });
     }
   });
 }
 
-// Media Library - Delete media
+// ─── Media Library - DELETE (DB row + disk file) ──────────────────────────
 app.delete('/api/admin/media/:id', isAdmin, async (req, res) => {
   try {
     const mediaId = parseInt(req.params.id);
-    console.log(`🔗 Deleting media ${mediaId}...`);
-    
+
+    // Fetch record first so we know the disk path
+    const [record] = await db.select().from(mediaAssets).where(eq(mediaAssets.id, mediaId));
+    if (!record) return res.status(404).json({ error: 'Media not found' });
+
+    // Delete DB row
     await db.delete(mediaAssets).where(eq(mediaAssets.id, mediaId));
-    
-    console.log(`✅ Media deleted: ${mediaId}`);
+
+    // Delete file from disk (best-effort — don't fail if already gone)
+    const diskPath = resolveUploadPath(record.fileUrl);
+    if (diskPath) {
+      fsPromise.unlink(diskPath).catch(() => {});
+    }
+
+    console.log(`✅ Media deleted: id=${mediaId} file=${record.fileUrl}`);
     res.json({ message: 'Media deleted successfully' });
   } catch (error) {
     console.error('❌ Error deleting media:', error);
