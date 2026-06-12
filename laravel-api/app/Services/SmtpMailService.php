@@ -30,7 +30,7 @@ class SmtpMailService
                 'mail.mailers.smtp.transport'  => 'smtp',
                 'mail.mailers.smtp.host'       => $smtp->host,
                 'mail.mailers.smtp.port'       => $smtp->port ?? 587,
-                'mail.mailers.smtp.encryption' => $smtp->secure ? 'ssl' : 'tls',
+                'mail.mailers.smtp.encryption' => $smtp->secure ? 'tls' : null,
                 'mail.mailers.smtp.username'   => $smtp->username,
                 'mail.mailers.smtp.password'   => $smtp->getRawOriginal('password') ?? '',
                 'mail.from.address'            => $smtp->from_email ?: $smtp->username,
@@ -61,7 +61,7 @@ class SmtpMailService
             return;
         }
 
-        $encryption = $smtp->secure ? 'ssl' : 'tls';
+        $encryption = $smtp->secure ? 'tls' : '';
         $port       = $smtp->port ?? 587;
         $username   = $smtp->username ?? '';
         $password   = $smtp->getRawOriginal('password') ?? '';
