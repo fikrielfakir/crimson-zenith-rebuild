@@ -51,7 +51,7 @@ function MediaLibraryDialog({
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/admin/media', { credentials: 'include' })
+    apiFetch('/api/admin/media')
       .then(res => res.json())
       .then(data => {
         setMedia(Array.isArray(data) ? data : (data.media ?? []));

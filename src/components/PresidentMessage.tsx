@@ -50,7 +50,7 @@ function MediaLibraryDialog({
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/admin/media', { credentials: 'include' })
+    apiFetch('/api/admin/media')
       .then(res => res.json())
       .then(data => {
         setMedia(Array.isArray(data) ? data : (data.media ?? []));
@@ -119,16 +119,14 @@ export default function PresidentMessageSettings() {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('alt', file.name);
-      const response = await apiFetch('/api/admin/cms/media', {
+      const response = await apiFetch('/api/admin/media', {
         method: 'POST',
         body: formData,
       });
       if (!response.ok) throw new Error(`Upload failed (${response.status})`);
       const data = await response.json();
       const rawUrl: string = data.fileUrl ?? data.url ?? data.file_url ?? '';
-      const url = rawUrl.startsWith('/storage/') && import.meta.env.VITE_API_BASE_URL
-        ? `${import.meta.env.VITE_API_BASE_URL}${rawUrl}`
-        : rawUrl;
+      const url = resolveStorageUrl(rawUrl) ?? rawUrl;
       const id: number = typeof data.id === 'number' ? data.id : parseInt(data.id ?? '0', 10);
       if (url) {
         onSuccess(id, url);

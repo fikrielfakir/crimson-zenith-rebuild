@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
-import { resolveStorageUrl } from '@/lib/apiFetch';
+import { apiFetch, resolveStorageUrl } from '@/lib/apiFetch';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -329,7 +329,7 @@ function MediaLibraryDialog({ onSelectMedia }: { onSelectMedia: (mediaId: number
   const loadMedia = () => {
     setIsLoading(true);
     setError(null);
-    fetch('/api/admin/media', { credentials: 'include' })
+    apiFetch('/api/admin/media')
       .then(res => {
         if (!res.ok) {
           throw new Error(res.status >= 500 ? 'Server error. Please try again.' : 'Failed to load media');
