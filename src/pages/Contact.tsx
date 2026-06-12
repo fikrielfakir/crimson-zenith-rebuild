@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { staticMediaUrl, MEDIA_KEYS } from "@/lib/staticMedia";
 import SEOHead from "@/components/SEOHead";
 import { routeSEO } from "@/lib/seo.config";
 import Header from "@/components/Header";
@@ -26,7 +27,7 @@ const ContactPage = () => {
           breadcrumbs={[{ label: "Contact" }]}
           defaultTitle="Contact Us"
           defaultSubtitle="Have questions about your next adventure? Our friendly team is here to help you plan the perfect Moroccan experience. Get in touch with us today."
-          defaultImage="https://api.thejourney-ma.org/attached_assets/generated_images/Essaouira_coastal_fortifications_07abbfb6.png"
+          defaultImage={staticMediaUrl(MEDIA_KEYS.CITY_ESSAOUIRA) ?? "https://api.thejourney-ma.org/attached_assets/generated_images/Essaouira_coastal_fortifications_07abbfb6.png"}
         />
         <Contact />
       </main>

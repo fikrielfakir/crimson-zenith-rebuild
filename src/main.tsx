@@ -5,6 +5,7 @@ import "./index.css";
 import "./i18n/index.ts";
 import "@photo-sphere-viewer/core/index.css";
 import "@photo-sphere-viewer/markers-plugin/index.css";
+import { loadStaticMedia } from "./lib/staticMedia";
 
 const API_BASE = (import.meta.env.VITE_API_BASE_URL as string) ?? '';
 if (API_BASE) {
@@ -17,8 +18,10 @@ if (API_BASE) {
   };
 }
 
-createRoot(document.getElementById("root")!).render(
-  <HelmetProvider>
-    <App />
-  </HelmetProvider>
-);
+loadStaticMedia().finally(() => {
+  createRoot(document.getElementById("root")!).render(
+    <HelmetProvider>
+      <App />
+    </HelmetProvider>
+  );
+});

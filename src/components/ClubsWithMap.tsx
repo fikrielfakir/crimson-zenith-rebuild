@@ -5,10 +5,10 @@ import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useTranslatedList } from "@/hooks/useContentTranslation";
 import { resolveStorageUrl } from "@/lib/apiFetch";
+import { staticMediaUrl, MEDIA_KEYS } from "@/lib/staticMedia";
 import { Plus, Minus, Locate, ChevronUp, ChevronDown, Search, Home, MapPin, Building2, Info } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Club } from "../../shared/schema";
-const birdLogo = "https://api.thejourney-ma.org/attached_assets/generated_images/Group%20288941_1762708813825.png";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 
@@ -67,6 +67,7 @@ const generateSlug = (name: string): string => {
 };
 
 const ClubsWithMap = () => {
+  const birdLogo = staticMediaUrl(MEDIA_KEYS.BIRD_LOGO) ?? "https://api.thejourney-ma.org/attached_assets/generated_images/Group%20288941_1762708813825.png";
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
   const [selectedCity, setSelectedCity] = useState("All Cities");

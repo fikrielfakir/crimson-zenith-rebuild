@@ -138,6 +138,7 @@ Route::prefix('cms')->group(function () {
     Route::get('/partners',          [\App\Http\Controllers\CmsController::class, 'partners']);
     Route::get('/partner-settings',  [\App\Http\Controllers\CmsController::class, 'partnerSettings']);
     Route::get('/legal/{pageKey}',   [\App\Http\Controllers\CmsController::class, 'legalPage']);
+    Route::get('/static-media',      [\App\Http\Controllers\CmsController::class, 'staticMedia']);
     Route::get('/landing-sections',  [\App\Http\Controllers\CmsController::class, 'landingSections']);
     Route::get('/cookie-settings',   [\App\Http\Controllers\CmsController::class, 'cookieSettings']);
 });
@@ -336,6 +337,7 @@ Route::prefix('admin')->middleware(['admin'])->group(function () {
     Route::put('/cms/landing-sections',        [\App\Http\Controllers\Admin\CmsAdminController::class, 'updateLandingSections']);
     Route::get('/cms/cookie-settings',         [\App\Http\Controllers\Admin\CmsAdminController::class, 'getCookieSettings']);
     Route::put('/cms/cookie-settings',         [\App\Http\Controllers\Admin\CmsAdminController::class, 'updateCookieSettings']);
+    Route::put('/cms/static-media',            [\App\Http\Controllers\Admin\CmsAdminController::class, 'updateStaticMedia']);
 
     // Partners CRUD
     Route::get('/cms/partners',               [\App\Http\Controllers\Admin\CmsAdminController::class, 'listPartners']);
@@ -427,6 +429,9 @@ Route::prefix('admin')->middleware(['admin'])->group(function () {
     Route::get('/experts/{id}',    [\App\Http\Controllers\Admin\ExpertController::class, 'show']);
     Route::put('/experts/{id}',    [\App\Http\Controllers\Admin\ExpertController::class, 'update']);
     Route::delete('/experts/{id}', [\App\Http\Controllers\Admin\ExpertController::class, 'destroy']);
+
+    // Static Media settings
+    Route::put('/cms/static-media', [\App\Http\Controllers\Admin\CmsAdminController::class, 'updateStaticMedia']);
 
     // Work Offers
     Route::get('/work-offers',         [\App\Http\Controllers\Admin\WorkOfferController::class, 'index']);

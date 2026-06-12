@@ -370,6 +370,48 @@ export default defineConfig(({ mode }: { mode: string }) => ({
       },
     },
     {
+      name: "handle-static-media",
+      configureServer(server) {
+        server.middlewares.use(async (req: any, res: any, next: any) => {
+          const url: string = req.url ?? "";
+          const isGet = req.method === "GET" && url.startsWith("/api/cms/static-media");
+          const isPut = req.method === "PUT" && url.startsWith("/api/admin/cms/static-media");
+          if (!isGet && !isPut) return next();
+          const staticMediaFile = path.resolve(__dirname, "public/static-media.json");
+          const readData = async () => {
+            try { return JSON.parse(await fs.readFile(staticMediaFile, "utf-8")); }
+            catch { return {}; }
+          };
+          if (isGet) {
+            const data = await readData();
+            res.statusCode = 200;
+            res.setHeader("Content-Type", "application/json");
+            res.end(JSON.stringify(data));
+            return;
+          }
+          if (isPut) {
+            try {
+              const chunks: Buffer[] = [];
+              for await (const chunk of req) chunks.push(chunk);
+              const body = JSON.parse(Buffer.concat(chunks).toString());
+              const existing = await readData();
+              const merged = { ...existing, ...body };
+              await fs.writeFile(staticMediaFile, JSON.stringify(merged, null, 2));
+              res.statusCode = 200;
+              res.setHeader("Content-Type", "application/json");
+              res.end(JSON.stringify(merged));
+            } catch (err) {
+              console.error("[static-media] Error:", err);
+              res.statusCode = 500;
+              res.setHeader("Content-Type", "application/json");
+              res.end(JSON.stringify({ message: "Failed to save" }));
+            }
+            return;
+          }
+        });
+      },
+    },
+    {
       // Handle auto-translate only
       name: "handle-auto-translate",
       configureServer(server) {

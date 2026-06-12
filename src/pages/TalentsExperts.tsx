@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { staticMediaUrl, MEDIA_KEYS } from "@/lib/staticMedia";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
@@ -100,7 +101,7 @@ const TalentsExperts = () => {
           <div 
             className="absolute inset-0 bg-cover bg-center bg-no-repeat"
             style={{
-              backgroundImage: `url('https://api.thejourney-ma.org/attached_assets/generated_images/Tangier_city_aerial_view_03330006.png')`,
+              backgroundImage: `url('${staticMediaUrl(MEDIA_KEYS.CITY_TANGIER) ?? "https://api.thejourney-ma.org/attached_assets/generated_images/Tangier_city_aerial_view_03330006.png"}')`,
               transform: `translateY(${scrollY * 0.3}px)`,
               filter: 'brightness(0.6) contrast(1.1) saturate(1.2)',
             }}

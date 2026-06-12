@@ -5,8 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Calendar as CalendarIcon, MapPin, Clock, Heart, Share2, Building2, CheckCircle2, Radio, Timer, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { staticMediaUrl, MEDIA_KEYS } from "@/lib/staticMedia";
 import CalendarComponent from "react-calendar";
-const noEventsImage = "https://api.thejourney-ma.org/attached_assets/no-events.png";
 import "react-calendar/dist/Calendar.css";
 import "./EventsActivitiesCalendar.css";
 import { useToast } from "@/hooks/use-toast";
@@ -118,6 +118,7 @@ const STATUS_FILTERS = ['All', 'Upcoming', 'Ongoing', 'Completed'] as const;
 const FAVORITES_KEY = 'journey_favorite_events';
 
 const EventsActivitiesCalendar = () => {
+  const noEventsImage = staticMediaUrl(MEDIA_KEYS.NO_EVENTS) ?? "https://api.thejourney-ma.org/attached_assets/no-events.png";
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>('All');
   const [currentPage, setCurrentPage] = useState(0);

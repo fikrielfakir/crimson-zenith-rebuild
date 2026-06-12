@@ -322,4 +322,14 @@ class CmsController extends Controller
         // JSON fallback
         return response()->json($asset);
     }
+
+    public function staticMedia()
+    {
+        $path = storage_path('app/static-media.json');
+        if (!file_exists($path)) {
+            return response()->json((object)[]);
+        }
+        $data = json_decode(file_get_contents($path), true) ?? [];
+        return response()->json($data);
+    }
 }

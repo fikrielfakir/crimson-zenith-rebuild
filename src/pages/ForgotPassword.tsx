@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { staticMediaUrl, MEDIA_KEYS } from '@/lib/staticMedia';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -79,7 +80,7 @@ const ForgotPassword = () => {
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage: `url('https://api.thejourney-ma.org/attached_assets/generated_images/Essaouira_coastal_fortifications_07abbfb6.png')`,
+            backgroundImage: `url('${staticMediaUrl(MEDIA_KEYS.CITY_ESSAOUIRA) ?? "https://api.thejourney-ma.org/attached_assets/generated_images/Essaouira_coastal_fortifications_07abbfb6.png"}')`,
           }}
         />
         <div className="absolute inset-0 bg-gradient-to-br from-[hsl(227,65%,19%)] via-[hsl(227,65%,19%,0.85)] to-[hsl(42,49%,70%,0.4)]" />
