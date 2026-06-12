@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { apiFetch } from '@/lib/apiFetch';
+import { apiFetch, resolveStorageUrl } from '@/lib/apiFetch';
 import { useState, useRef, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
@@ -80,7 +80,7 @@ function MediaCard({ file, onDelete }: { file: MediaFile; onDelete: (id: number)
   const [copied, setCopied] = useState(false);
 
   const handleCopyUrl = () => {
-    navigator.clipboard.writeText(file.fileUrl);
+    navigator.clipboard.writeText(resolveStorageUrl(file.fileUrl) ?? file.fileUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -90,7 +90,7 @@ function MediaCard({ file, onDelete }: { file: MediaFile; onDelete: (id: number)
       <div className="relative aspect-square bg-muted flex items-center justify-center">
         {file.fileType.startsWith('image/') ? (
           <img
-            src={file.thumbnailUrl || file.fileUrl}
+            src={resolveStorageUrl(file.thumbnailUrl || file.fileUrl) ?? file.thumbnailUrl ?? file.fileUrl}
             alt={file.altText || file.fileName}
             className="w-full h-full object-cover"
             onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}

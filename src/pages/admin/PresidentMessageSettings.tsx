@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { apiFetch } from '@/lib/apiFetch';
+import { apiFetch, resolveStorageUrl } from '@/lib/apiFetch';
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -77,10 +77,10 @@ function MediaLibraryDialog({
             <div
               key={item.id}
               className="cursor-pointer border rounded-lg p-2 hover:border-primary transition-colors"
-              onClick={() => onSelectMedia(item.id, item.fileUrl)}
+              onClick={() => onSelectMedia(item.id, resolveStorageUrl(item.fileUrl) ?? item.fileUrl)}
             >
               <img 
-                src={item.fileUrl} 
+                src={resolveStorageUrl(item.fileUrl) ?? item.fileUrl} 
                 alt={item.altText || item.fileName}
                 className="w-full h-32 object-contain rounded"
               />
