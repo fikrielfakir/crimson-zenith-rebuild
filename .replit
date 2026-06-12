@@ -24,6 +24,10 @@ author = "agent"
 task = "workflow.run"
 args = "Start application"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Laravel API"
+
 [[workflows.workflow]]
 name = "Start application"
 author = "agent"
@@ -36,6 +40,18 @@ task = "shell.exec"
 args = "bash start-dev.sh"
 waitForPort = 5000
 
+[[workflows.workflow]]
+name = "Laravel API"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "bash start-laravel.sh"
+waitForPort = 8000
+
+[workflows.workflow.metadata]
+outputType = "console"
+
 [[ports]]
 localPort = 3001
 externalPort = 3001
@@ -43,6 +59,10 @@ externalPort = 3001
 [[ports]]
 localPort = 5000
 externalPort = 80
+
+[[ports]]
+localPort = 8000
+externalPort = 8000
 
 [userenv]
 

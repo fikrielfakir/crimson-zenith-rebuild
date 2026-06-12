@@ -19,7 +19,7 @@ class AuthSettingsController extends Controller
             'googleOauthEnabled'        => (bool) $settings->google_oauth_enabled,
             'googleClientId'            => $settings->google_client_id ?? '',
             'googleClientSecret'        => $settings->google_client_secret ? '••••••••' : '',
-            'googleCallbackUrl'         => rtrim(config('app.url'), '/') . '/auth/google/callback',
+            'googleCallbackUrl'         => rtrim(config('app.url'), '/') . '/api/auth/google/callback',
         ];
     }
 
