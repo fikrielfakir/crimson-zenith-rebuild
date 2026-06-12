@@ -10,7 +10,7 @@ import { AlertCircle, Mail, Lock, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useAuth } from "@/hooks/useAuth";
 import { useTranslation } from 'react-i18next';
-import logoAtj from "@/assets/logo-atj.png";
+import { useAppLogo } from '@/hooks/useCMS';
 
 const UserLogin = () => {
   const [credentials, setCredentials] = useState({ email: '', password: '' });
@@ -25,6 +25,7 @@ const UserLogin = () => {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language === 'ar';
+  const logoUrl = useAppLogo();
 
   useEffect(() => {
     if (!authLoading && isAuthenticated) {
@@ -102,7 +103,7 @@ const UserLogin = () => {
             <div className="flex-1 flex justify-center">
               <Link to="/" className="inline-block group">
                 <img
-                  src={logoAtj}
+                  src={logoUrl}
                   alt="Logo"
                   className="w-auto object-contain transition-all duration-300 cursor-pointer hover:opacity-90"
                   style={{ height: '90px' }}
@@ -167,7 +168,7 @@ const UserLogin = () => {
             <div className="text-center">
               <Link to="/" className="inline-block">
                 <img
-                  src={logoAtj}
+                  src={logoUrl}
                   alt="Logo"
                   className="w-auto object-contain transition-all duration-300 cursor-pointer hover:opacity-90 mx-auto"
                   style={{ height: '70px' }}

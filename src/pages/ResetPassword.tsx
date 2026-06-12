@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, Lock, Eye, EyeOff, CheckCircle, ArrowLeft } from 'lucide-react';
-import logoAtj from '@/assets/logo-atj.png';
+import { useAppLogo } from '@/hooks/useCMS';
 
 export default function ResetPassword() {
   const [searchParams] = useSearchParams();
@@ -14,6 +14,7 @@ export default function ResetPassword() {
   const token = searchParams.get('token') ?? '';
   const email = searchParams.get('email') ?? '';
 
+  const logoUrl = useAppLogo();
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [showPass, setShowPass] = useState(false);
@@ -78,7 +79,7 @@ export default function ResetPassword() {
             <span className="font-medium">Back to Login</span>
           </Link>
           <div className={`space-y-4 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-            <img src={logoAtj} alt="Logo" className="h-20 object-contain" />
+            <img src={logoUrl} alt="Logo" className="h-20 object-contain" />
             <h1 className="text-5xl font-bold leading-tight">
               Choose a new<br />
               <span className="text-[hsl(42,49%,70%)]">password</span>
@@ -98,7 +99,7 @@ export default function ResetPassword() {
           {/* Mobile header */}
           <div className="lg:hidden mb-8 text-center">
             <Link to="/">
-              <img src={logoAtj} alt="Logo" className="h-16 mx-auto object-contain hover:opacity-90 transition-opacity" />
+              <img src={logoUrl} alt="Logo" className="h-16 mx-auto object-contain hover:opacity-90 transition-opacity" />
             </Link>
           </div>
 

@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, Mail, ArrowLeft, CheckCircle, RefreshCw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import logoAtj from '@/assets/logo-atj.png';
+import { useAppLogo } from '@/hooks/useCMS';
 
 const RESEND_COOLDOWN = 60;
 
@@ -21,6 +21,7 @@ const ForgotPassword = () => {
   const [isVisible, setIsVisible] = useState(false);
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language === 'ar';
+  const logoUrl = useAppLogo();
 
   useEffect(() => {
     setIsVisible(true);
@@ -103,7 +104,7 @@ const ForgotPassword = () => {
             <div className="flex-1 flex justify-center">
               <Link to="/" className="inline-block">
                 <img
-                  src={logoAtj}
+                  src={logoUrl}
                   alt="Logo"
                   className="w-auto object-contain hover:opacity-90 transition-opacity cursor-pointer"
                   style={{ height: '90px' }}
@@ -146,7 +147,7 @@ const ForgotPassword = () => {
             <div className="text-center">
               <Link to="/">
                 <img
-                  src={logoAtj}
+                  src={logoUrl}
                   alt="Logo"
                   className="w-auto object-contain hover:opacity-90 transition-opacity cursor-pointer mx-auto"
                   style={{ height: '70px' }}

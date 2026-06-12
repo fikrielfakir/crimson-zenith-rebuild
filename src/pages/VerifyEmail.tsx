@@ -2,13 +2,14 @@ import { useEffect, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { CheckCircle, XCircle, Loader2, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import logoAtj from '@/assets/logo-atj.png';
+import { useAppLogo } from '@/hooks/useCMS';
 
 type Status = 'loading' | 'success' | 'error' | 'expired';
 
 export default function VerifyEmail() {
   const [searchParams] = useSearchParams();
   const [status, setStatus] = useState<Status>('loading');
+  const logoUrl = useAppLogo();
   const [message, setMessage] = useState('');
   const token = searchParams.get('token');
 
@@ -44,7 +45,7 @@ export default function VerifyEmail() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link to="/">
-            <img src={logoAtj} alt="Logo" className="h-16 mx-auto object-contain hover:opacity-90 transition-opacity" />
+            <img src={logoUrl} alt="Logo" className="h-16 mx-auto object-contain hover:opacity-90 transition-opacity" />
           </Link>
         </div>
 

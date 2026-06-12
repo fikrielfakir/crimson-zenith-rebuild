@@ -388,6 +388,17 @@ export function useNavbarSettings() {
   });
 }
 
+export function useAppLogo(): string {
+  const { data } = useNavbarSettings();
+  const dbUrl: string | null =
+    (data as any)?.logoUrl ||
+    (data as any)?.logo_url ||
+    null;
+  if (!dbUrl) return '/logo-atj.png';
+  if (dbUrl.startsWith('http') || dbUrl.startsWith('/')) return dbUrl;
+  return dbUrl;
+}
+
 export function useHeroSettings() {
   return useQuery({
     queryKey: ["cms", "hero"],
