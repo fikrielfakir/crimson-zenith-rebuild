@@ -219,6 +219,7 @@ const App = () => (
           <Route path="/terms-of-service" element={<TermsOfService />} />
           <Route path="/cookie-policy" element={<CookiePolicy />} />
           <Route path="/join" element={<JoinUs />} />
+          <Route path="/join-us" element={<JoinUs />} />
           <Route path="/login" element={<UserLogin />} />
           <Route path="/signup" element={<UserSignup />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
