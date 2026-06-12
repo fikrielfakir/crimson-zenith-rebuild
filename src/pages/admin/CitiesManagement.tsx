@@ -370,8 +370,8 @@ function MediaPickerDialog({
         {/* Preview + Actions */}
         {selected && tab !== 'url' && (
           <div className="shrink-0 flex items-center gap-3 p-3 bg-muted/50 rounded-lg border">
-            <img src={selected} alt="Selected" className="w-16 h-10 object-cover rounded" />
-            <p className="text-sm text-muted-foreground flex-1 truncate">{selected}</p>
+            <img src={resolveStorageUrl(selected) ?? selected} alt="Selected" className="w-16 h-10 object-cover rounded" />
+            <p className="text-sm text-muted-foreground flex-1 truncate">{resolveStorageUrl(selected) ?? selected}</p>
             <button onClick={() => setSelected('')} className="text-muted-foreground hover:text-foreground text-xs">Clear</button>
           </div>
         )}

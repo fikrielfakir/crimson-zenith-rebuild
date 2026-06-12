@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { apiFetch } from '@/lib/apiFetch';
+import { apiFetch, resolveStorageUrl } from '@/lib/apiFetch';
 import { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -121,7 +121,7 @@ function ClubsMap({ clubs }: { clubs: any[] }) {
 
       marker.bindPopup(`
         <div style="min-width:180px">
-          ${club.image ? `<img src="${club.image}" style="width:100%;height:80px;object-fit:cover;border-radius:4px;margin-bottom:6px" />` : ''}
+          ${club.image ? `<img src="${resolveStorageUrl(club.image) ?? club.image}" style="width:100%;height:80px;object-fit:cover;border-radius:4px;margin-bottom:6px" />` : ''}
           <strong style="font-size:14px">${club.name}</strong><br/>
           <span style="font-size:12px;color:#666">${club.location ?? ''}</span><br/>
           <a href="/admin/clubs/${club.id}/edit"
@@ -402,7 +402,7 @@ export default function ClubsManagement() {
                     <TableCell>
                       <div className="flex items-center space-x-3">
                         <img
-                          src={club.image || '/placeholder-club.jpg'}
+                          src={resolveStorageUrl(club.image) ?? club.image ?? '/placeholder-club.jpg'}
                           alt={club.name}
                           className="h-10 w-10 rounded object-cover"
                         />
