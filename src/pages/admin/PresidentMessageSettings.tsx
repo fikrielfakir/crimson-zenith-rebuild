@@ -443,6 +443,10 @@ export default function PresidentMessageSettings() {
               <ImageUpload
                 value={photoUrl}
                 onChange={(url) => { setPhotoUrl(url); if (!url) setPhotoId(null); }}
+<<<<<<< HEAD
+=======
+                onMediaUploaded={(id, url) => { setPhotoId(id); setPhotoUrl(url); }}
+>>>>>>> 2e157768b15e871cf8c0bb09cb8abfdb9a135b22
                 label={t('admin.presidentMsg.photoTitle')}
                 description="PNG, JPG, WebP — portrait photo recommended"
                 previewClass="min-h-[140px]"
@@ -473,6 +477,10 @@ export default function PresidentMessageSettings() {
               <ImageUpload
                 value={signatureUrl}
                 onChange={(url) => { setSignatureUrl(url); if (!url) setSignatureId(null); }}
+<<<<<<< HEAD
+=======
+                onMediaUploaded={(id, url) => { setSignatureId(id); setSignatureUrl(url); }}
+>>>>>>> 2e157768b15e871cf8c0bb09cb8abfdb9a135b22
                 label={t('admin.presidentMsg.signatureTitle')}
                 description="PNG, SVG — transparent background recommended"
                 accept="image/png,image/svg+xml,image/webp"
@@ -504,6 +512,10 @@ export default function PresidentMessageSettings() {
               <ImageUpload
                 value={backgroundImageUrl}
                 onChange={(url) => { setBackgroundImageUrl(url); if (!url) setBackgroundImageId(null); }}
+<<<<<<< HEAD
+=======
+                onMediaUploaded={(id, url) => { setBackgroundImageId(id); setBackgroundImageUrl(url); }}
+>>>>>>> 2e157768b15e871cf8c0bb09cb8abfdb9a135b22
                 label={t('admin.presidentMsg.bgTitle')}
                 description="JPG, PNG, WebP — wide landscape image recommended"
                 previewClass="min-h-[100px]"
