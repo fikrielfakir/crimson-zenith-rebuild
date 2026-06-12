@@ -95,7 +95,6 @@ const OurPartners = () => {
   }, []);
 
   if (loading) return null;
-  if (!settings.is_active) return null;
   if (partners.length === 0) return null;
 
   // Need enough items to fill the carousel without obvious duplicates.
